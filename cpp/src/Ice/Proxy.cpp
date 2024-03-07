@@ -22,38 +22,38 @@ using namespace IceInternal;
 namespace Ice
 {
 
-const Context noExplicitContext;
+    const Context noExplicitContext;
 
 }
 
 namespace
 {
 
-inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
-{
-    if (!communicator)
+    inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
     {
-        throw std::invalid_argument("communicator cannot be null");
+        if (!communicator)
+        {
+            throw std::invalid_argument("communicator cannot be null");
+        }
+
+        ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
+        if (!ref)
+        {
+            throw std::invalid_argument("invalid proxy string");
+        }
+        return ref;
     }
 
-    ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
-    if (!ref)
-    {
-        throw std::invalid_argument("invalid proxy string");
-    }
-    return ref;
 }
 
-}
-
-Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString) :
-    ObjectPrx(createReference(communicator, proxyString))
+Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString)
+    : ObjectPrx(createReference(communicator, proxyString))
 {
 }
 
-Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref) :
-    _reference(std::move(ref)),
-    _requestHandlerCache(make_shared<RequestHandlerCache>(_reference))
+Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref)
+    : _reference(std::move(ref)),
+      _requestHandlerCache(make_shared<RequestHandlerCache>(_reference))
 {
 }
 
@@ -107,7 +107,7 @@ Ice::ObjectPrx::ice_getFacet() const
 ObjectPrx
 Ice::ObjectPrx::ice_facet(const string& newFacet) const
 {
-    if(newFacet == _reference->getFacet())
+    if (newFacet == _reference->getFacet())
     {
         return *this;
     }
@@ -128,7 +128,7 @@ Ice::ObjectPrx::ice_getEndpoints() const
 {
     vector<EndpointIPtr> endpoints = _reference->getEndpoints();
     EndpointSeq retSeq;
-    for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         retSeq.push_back(dynamic_pointer_cast<Endpoint>(*p));
     }
@@ -316,7 +316,7 @@ Ice::ObjectPrx::_batchDatagram() const
     }
     else
     {
-       return _reference->changeMode(Reference::ModeBatchDatagram);
+        return _reference->changeMode(Reference::ModeBatchDatagram);
     }
 }
 
@@ -356,7 +356,7 @@ Ice::ObjectPrx::_compress(bool b) const
     }
     else
     {
-       return ref;
+        return ref;
     }
 }
 
@@ -444,10 +444,7 @@ Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
     auto currentEndpoints = _reference->getEndpoints();
 
     if (equal(
-            endpoints.begin(),
-            endpoints.end(),
-            currentEndpoints.begin(),
-            currentEndpoints.end(),
+            endpoints.begin(), endpoints.end(), currentEndpoints.begin(), currentEndpoints.end(),
             targetEqualTo<EndpointIPtr, EndpointIPtr>))
     {
         return _reference;
@@ -555,7 +552,7 @@ Ice::ObjectPrx::_preferSecure(bool b) const
     }
     else
     {
-       return _reference->changePreferSecure(b);
+        return _reference->changePreferSecure(b);
     }
 }
 
@@ -623,32 +620,31 @@ Ice::ObjectPrx::_twoway() const
 namespace Ice
 {
 
-bool
-operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return targetLess(lhs._getReference(), rhs._getReference());
-}
+    bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
+    {
+        return targetLess(lhs._getReference(), rhs._getReference());
+    }
 
-bool
-operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return targetEqualTo(lhs._getReference(), rhs._getReference());
-}
+    bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
+    {
+        return targetEqualTo(lhs._getReference(), rhs._getReference());
+    }
 
 }
 
 bool
 Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-    return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity() :
-        std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+    return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity()
+                      : std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
 }
 
 bool
 Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-   return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity() :
-        std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));}
+    return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity()
+                      : std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+}
 
 bool
 Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)

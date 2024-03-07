@@ -11,36 +11,37 @@
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEConnection : ICELocalObject
--(void) close:(uint8_t)mode;
--(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error;
--(BOOL) setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nullable)error;
--(nullable ICEObjectAdapter*) getAdapter;
--(ICEEndpoint*) getEndpoint;
--(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;
--(void) flushBatchRequestsAsync:(uint8_t)compress
+- (void)close:(uint8_t)mode;
+- (nullable ICEObjectPrx*)createProxy:(NSString*)name
+                             category:(NSString*)category
+                                error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable* _Nullable)error;
+- (nullable ICEObjectAdapter*)getAdapter;
+- (ICEEndpoint*)getEndpoint;
+- (BOOL)flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable* _Nullable)error;
+- (void)flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent;
--(BOOL) setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable * _Nullable)error;
--(void) setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
--(BOOL) heartbeat:(NSError* _Nullable * _Nullable)error;
--(void) heartbeatAsync:(void (^)(NSError*))exception
-                  sent:(void (^_Nullable)(bool))sent
-                    NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
--(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat;
--(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
--(NSString*) type;
--(int32_t) timeout;
--(NSString*) toString;
--(nullable id) getInfo:(NSError* _Nullable * _Nullable)error;
--(BOOL) setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable * _Nullable)error;
--(BOOL) throwException:(NSError* _Nullable * _Nullable)error;
+- (BOOL)setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable* _Nullable)error;
+- (void)setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
+- (BOOL)heartbeat:(NSError* _Nullable* _Nullable)error;
+- (void)heartbeatAsync:(void (^)(NSError*))exception
+                  sent:(void (^_Nullable)(bool))sent NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
+- (void)setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat;
+- (void)getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
+- (NSString*)type;
+- (int32_t)timeout;
+- (NSString*)toString;
+- (nullable id)getInfo:(NSError* _Nullable* _Nullable)error;
+- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)throwException:(NSError* _Nullable* _Nullable)error;
 @end
 
-ICEIMPL_API @interface ICEConnectionInfo: NSObject
+ICEIMPL_API @interface ICEConnectionInfo : NSObject
 @end
 
 ICEIMPL_API @protocol ICEConnectionInfoFactory
-+(id) createIPConnectionInfo:(id)underlying
++ (id)createIPConnectionInfo:(id)underlying
                     incoming:(BOOL)incoming
                  adapterName:(NSString*)adapterName
                 connectionId:(NSString*)connectionId
@@ -49,7 +50,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                remoteAddress:(NSString*)remoteAddress
                   remotePort:(int32_t)remotePort;
 
-+(id) createTCPConnectionInfo:(id)underlying
++ (id)createTCPConnectionInfo:(id)underlying
                      incoming:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
@@ -60,7 +61,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                       rcvSize:(int32_t)rcvSize
                       sndSize:(int32_t)sndSize;
 
-+(id) createUDPConnectionInfo:(id)underlying
++ (id)createUDPConnectionInfo:(id)underlying
                      incoming:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
@@ -73,13 +74,13 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                       rcvSize:(int32_t)rcvSize
                       sndSize:(int32_t)sndSize;
 
-+(id) createWSConnectionInfo:(id)underlying
++ (id)createWSConnectionInfo:(id)underlying
                     incoming:(BOOL)incoming
                  adapterName:(NSString*)adapterName
                 connectionId:(NSString*)connectionId
                      headers:(NSDictionary<NSString*, NSString*>*)headers;
 
-+(id) createSSLConnectionInfo:(id)underlying
++ (id)createSSLConnectionInfo:(id)underlying
                      incoming:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
@@ -89,7 +90,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
 
 #if TARGET_OS_IPHONE
 
-+(id) createIAPConnectionInfo:(id)underlying
++ (id)createIAPConnectionInfo:(id)underlying
                      incoming:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
@@ -108,8 +109,9 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
 
 id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo>);
 
-@interface ICEConnection()
-@property (nonatomic, readonly) std::shared_ptr<Ice::Connection> connection;
+@interface
+ICEConnection ()
+@property(nonatomic, readonly) std::shared_ptr<Ice::Connection> connection;
 @end
 
 #endif

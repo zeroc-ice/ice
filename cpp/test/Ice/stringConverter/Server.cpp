@@ -14,29 +14,22 @@ using namespace std;
 class MyObjectI : public Test::MyObject
 {
 public:
-
     virtual wstring widen(string msg, const Ice::Current&)
     {
-        return stringToWstring(msg, Ice::getProcessStringConverter(),
-                               Ice::getProcessWstringConverter());
+        return stringToWstring(msg, Ice::getProcessStringConverter(), Ice::getProcessWstringConverter());
     }
 
     virtual string narrow(wstring wmsg, const Ice::Current&)
     {
-        return wstringToString(wmsg, Ice::getProcessStringConverter(),
-                               Ice::getProcessWstringConverter());
+        return wstringToString(wmsg, Ice::getProcessStringConverter(), Ice::getProcessWstringConverter());
     }
 
-    virtual void shutdown(const Ice::Current& current)
-    {
-        current.adapter->getCommunicator()->shutdown();
-    }
+    virtual void shutdown(const Ice::Current& current) { current.adapter->getCommunicator()->shutdown(); }
 };
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

@@ -6,16 +6,16 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#include <Ice/TcpEndpointI.h>
-#include <Ice/Network.h>
-#include <Ice/TcpAcceptor.h>
-#include <Ice/TcpConnector.h>
-#include <Ice/TcpTransceiver.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/HashUtil.h>
+#    include <Ice/TcpEndpointI.h>
+#    include <Ice/Network.h>
+#    include <Ice/TcpAcceptor.h>
+#    include <Ice/TcpConnector.h>
+#    include <Ice/TcpTransceiver.h>
+#    include <Ice/OutputStream.h>
+#    include <Ice/InputStream.h>
+#    include <Ice/LocalException.h>
+#    include <Ice/ProtocolInstance.h>
+#    include <Ice/HashUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -24,36 +24,38 @@ using namespace IceInternal;
 extern "C"
 {
 
-Plugin*
-createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
-{
-    return new EndpointFactoryPlugin(
-        c,
-        make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
+    Plugin* createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
+    {
+        return new EndpointFactoryPlugin(
+            c, make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
+    }
 }
 
-}
-
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, int32_t port,
-                                        const Address& sourceAddr, int32_t timeout, const string& connectionId,
-                                        bool compress) :
-    IPEndpointI(instance, host, port, sourceAddr, connectionId),
-    _timeout(timeout),
-    _compress(compress)
-{
-}
-
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance) :
-    IPEndpointI(instance),
-    _timeout(instance->defaultTimeout()),
-    _compress(false)
+IceInternal::TcpEndpointI::TcpEndpointI(
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int32_t port,
+    const Address& sourceAddr,
+    int32_t timeout,
+    const string& connectionId,
+    bool compress)
+    : IPEndpointI(instance, host, port, sourceAddr, connectionId),
+      _timeout(timeout),
+      _compress(compress)
 {
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, InputStream* s) :
-    IPEndpointI(instance, s),
-    _timeout(-1),
-    _compress(false)
+IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance)
+    : IPEndpointI(instance),
+      _timeout(instance->defaultTimeout()),
+      _compress(false)
+{
+}
+
+IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, InputStream* s)
+    : IPEndpointI(instance, s),
+      _timeout(-1),
+      _compress(false)
 {
     s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
@@ -84,7 +86,7 @@ IceInternal::TcpEndpointI::timeout() const
 EndpointIPtr
 IceInternal::TcpEndpointI::timeout(int32_t timeout) const
 {
-    if(timeout == _timeout)
+    if (timeout == _timeout)
     {
         return const_cast<TcpEndpointI*>(this)->shared_from_this();
     }
@@ -103,7 +105,7 @@ IceInternal::TcpEndpointI::compress() const
 EndpointIPtr
 IceInternal::TcpEndpointI::compress(bool compress) const
 {
-    if(compress == _compress)
+    if (compress == _compress)
     {
         return const_cast<TcpEndpointI*>(this)->shared_from_this();
     }
@@ -129,9 +131,7 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&) const
 {
     return make_shared<TcpAcceptor>(
-        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
-        _instance,
-        _host,
+        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()), _instance, _host,
         _port);
 }
 
@@ -139,7 +139,7 @@ TcpEndpointIPtr
 IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
 {
     int port = acceptor->effectivePort();
-    if(_port == port)
+    if (_port == port)
     {
         return dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
     }
@@ -163,7 +163,7 @@ IceInternal::TcpEndpointI::options() const
 
     s << IPEndpointI::options();
 
-    if(_timeout == -1)
+    if (_timeout == -1)
     {
         s << " -t infinite";
     }
@@ -172,7 +172,7 @@ IceInternal::TcpEndpointI::options() const
         s << " -t " << _timeout;
     }
 
-    if(_compress)
+    if (_compress)
     {
         s << " -z";
     }
@@ -183,28 +183,28 @@ IceInternal::TcpEndpointI::options() const
 bool
 IceInternal::TcpEndpointI::operator==(const Endpoint& r) const
 {
-    if(!IPEndpointI::operator==(r))
+    if (!IPEndpointI::operator==(r))
     {
         return false;
     }
 
     const TcpEndpointI* p = dynamic_cast<const TcpEndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(this == p)
+    if (this == p)
     {
         return true;
     }
 
-    if(_timeout != p->_timeout)
+    if (_timeout != p->_timeout)
     {
         return false;
     }
 
-    if(_compress != p->_compress)
+    if (_compress != p->_compress)
     {
         return false;
     }
@@ -215,35 +215,35 @@ bool
 IceInternal::TcpEndpointI::operator<(const Endpoint& r) const
 {
     const TcpEndpointI* p = dynamic_cast<const TcpEndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
-        if(!e)
+        if (!e)
         {
             return false;
         }
         return type() < e->type();
     }
 
-    if(this == p)
+    if (this == p)
     {
         return false;
     }
 
-    if(_timeout < p->_timeout)
+    if (_timeout < p->_timeout)
     {
         return true;
     }
-    else if(p->_timeout < _timeout)
+    else if (p->_timeout < _timeout)
     {
         return false;
     }
 
-    if(!_compress && p->_compress)
+    if (!_compress && p->_compress)
     {
         return true;
     }
-    else if(p->_compress < _compress)
+    else if (p->_compress < _compress)
     {
         return false;
     }
@@ -270,52 +270,52 @@ IceInternal::TcpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
 bool
 IceInternal::TcpEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    if(IPEndpointI::checkOption(option, argument, endpoint))
+    if (IPEndpointI::checkOption(option, argument, endpoint))
     {
         return true;
     }
 
-    switch(option[1])
+    switch (option[1])
     {
-    case 't':
-    {
-        if(argument.empty())
+        case 't':
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -t option in endpoint " +
-                                         endpoint);
-        }
-
-        if(argument == "infinite")
-        {
-            const_cast<int32_t&>(_timeout) = -1;
-        }
-        else
-        {
-            istringstream t(argument);
-            if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
+            if (argument.empty())
             {
-                throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + argument +
-                                             "' in endpoint " + endpoint);
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
             }
-        }
-        return true;
-    }
 
-    case 'z':
-    {
-        if(!argument.empty())
+            if (argument == "infinite")
+            {
+                const_cast<int32_t&>(_timeout) = -1;
+            }
+            else
+            {
+                istringstream t(argument);
+                if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
+                {
+                    throw EndpointParseException(
+                        __FILE__, __LINE__, "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                }
+            }
+            return true;
+        }
+
+        case 'z':
         {
-            throw EndpointParseException(__FILE__, __LINE__, "unexpected argument `" + argument +
-                                         "' provided for -z option in " + endpoint);
+            if (!argument.empty())
+            {
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+            }
+            const_cast<bool&>(_compress) = true;
+            return true;
         }
-        const_cast<bool&>(_compress) = true;
-        return true;
-    }
 
-    default:
-    {
-        return false;
-    }
+        default:
+        {
+            return false;
+        }
     }
 }
 
@@ -331,13 +331,9 @@ IceInternal::TcpEndpointI::createEndpoint(const string& host, int port, const st
     return make_shared<TcpEndpointI>(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
 }
 
-IceInternal::TcpEndpointFactory::TcpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)
-{
-}
+IceInternal::TcpEndpointFactory::TcpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}
 
-IceInternal::TcpEndpointFactory::~TcpEndpointFactory()
-{
-}
+IceInternal::TcpEndpointFactory::~TcpEndpointFactory() {}
 
 int16_t
 IceInternal::TcpEndpointFactory::type() const

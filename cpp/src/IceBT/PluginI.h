@@ -12,31 +12,30 @@
 namespace IceBT
 {
 
-class PluginI : public Plugin
-{
-public:
+    class PluginI : public Plugin
+    {
+    public:
+        PluginI(const Ice::CommunicatorPtr&);
 
-    PluginI(const Ice::CommunicatorPtr&);
+        //
+        // From Ice::Plugin.
+        //
+        virtual void initialize();
+        virtual void destroy();
 
-    //
-    // From Ice::Plugin.
-    //
-    virtual void initialize();
-    virtual void destroy();
+        //
+        // From IceBT::Plugin.
+        //
+        virtual void startDiscovery(
+            const std::string& address,
+            std::function<void(const std::string& addr, const PropertyMap& props)>);
+        virtual void stopDiscovery(const std::string&);
 
-    //
-    // From IceBT::Plugin.
-    //
-    virtual void startDiscovery(const std::string& address,
-                                std::function<void(const std::string& addr, const PropertyMap& props)>);
-    virtual void stopDiscovery(const std::string&);
+        virtual DeviceMap getDevices() const;
 
-    virtual DeviceMap getDevices() const;
-
-private:
-
-    EnginePtr _engine;
-};
+    private:
+        EnginePtr _engine;
+    };
 
 }
 

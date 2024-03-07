@@ -13,48 +13,48 @@ using namespace IceGrid;
 FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 {
     ifstream file(IceUtilInternal::streamFilename(filename).c_str()); // filename is a UTF-8 string
-    if(!file)
+    if (!file)
     {
         throw runtime_error("cannot open `" + filename + "' for reading: " + IceUtilInternal::errorToString(errno));
     }
 
     const string delim = " \t\r\n";
-    while(true)
+    while (true)
     {
         string line;
         getline(file, line);
-        if(!file)
+        if (!file)
         {
             break;
         }
 
         string::size_type idx = line.find('#');
-        if(idx != string::npos)
+        if (idx != string::npos)
         {
             line.erase(idx);
         }
 
         idx = line.find_last_not_of(delim);
-        if(idx != string::npos && idx + 1 < line.length())
+        if (idx != string::npos && idx + 1 < line.length())
         {
             line.erase(idx + 1);
         }
 
         string::size_type beg = line.find_first_not_of(delim);
-        if(beg == string::npos)
+        if (beg == string::npos)
         {
             continue;
         }
 
         string::size_type end = line.find_first_of(delim, beg);
-        if(end == string::npos || end <= beg)
+        if (end == string::npos || end <= beg)
         {
             continue;
         }
         string account = line.substr(beg, end - beg);
 
         beg = line.find_first_not_of(delim, end);
-        if(beg == string::npos)
+        if (beg == string::npos)
         {
             continue;
         }
@@ -71,7 +71,7 @@ string
 FileUserAccountMapperI::getUserAccount(string user, const Ice::Current&)
 {
     map<string, string>::const_iterator p = _accounts.find(std::move(user));
-    if(p == _accounts.end())
+    if (p == _accounts.end())
     {
         throw UserAccountNotFoundException();
     }

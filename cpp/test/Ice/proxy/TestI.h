@@ -10,7 +10,6 @@
 class MyDerivedClassI final : public Test::MyDerivedClass
 {
 public:
-
     MyDerivedClassI();
 
     std::optional<Ice::ObjectPrx> echo(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
@@ -19,7 +18,6 @@ public:
     Ice::Context getContext(const Ice::Current&) final;
 
 private:
-
     mutable Ice::Context _ctx;
 };
 

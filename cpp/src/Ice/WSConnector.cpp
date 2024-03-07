@@ -33,17 +33,17 @@ bool
 IceInternal::WSConnector::operator==(const Connector& r) const
 {
     const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(this == p)
+    if (this == p)
     {
         return true;
     }
 
-    if(_resource != p->_resource)
+    if (_resource != p->_resource)
     {
         return false;
     }
@@ -55,21 +55,21 @@ bool
 IceInternal::WSConnector::operator<(const Connector& r) const
 {
     const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
-    if(!p)
+    if (!p)
     {
         return type() < r.type();
     }
 
-    if(this == p)
+    if (this == p)
     {
         return false;
     }
 
-    if(_resource < p->_resource)
+    if (_resource < p->_resource)
     {
         return true;
     }
-    else if(p->_resource < _resource)
+    else if (p->_resource < _resource)
     {
         return false;
     }
@@ -77,12 +77,16 @@ IceInternal::WSConnector::operator<(const Connector& r) const
     return Ice::targetLess(_delegate, p->_delegate);
 }
 
-IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host,
-                                      const string& resource) :
-    _instance(instance), _delegate(del), _host(host), _resource(resource)
+IceInternal::WSConnector::WSConnector(
+    const ProtocolInstancePtr& instance,
+    const ConnectorPtr& del,
+    const string& host,
+    const string& resource)
+    : _instance(instance),
+      _delegate(del),
+      _host(host),
+      _resource(resource)
 {
 }
 
-IceInternal::WSConnector::~WSConnector()
-{
-}
+IceInternal::WSConnector::~WSConnector() {}

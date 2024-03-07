@@ -10,8 +10,8 @@
 namespace IceInternal
 {
 
-class Connector;
-using ConnectorPtr = std::shared_ptr<Connector>;
+    class Connector;
+    using ConnectorPtr = std::shared_ptr<Connector>;
 
 }
 

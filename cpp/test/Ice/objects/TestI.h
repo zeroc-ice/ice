@@ -11,7 +11,6 @@
 class BI final : public Test::B
 {
 public:
-
     void ice_preMarshal() final;
     void ice_postUnmarshal() final;
 };
@@ -19,7 +18,6 @@ public:
 class CI final : public Test::C
 {
 public:
-
     void ice_preMarshal() final;
     void ice_postUnmarshal() final;
 };
@@ -27,7 +25,6 @@ public:
 class DI : public Test::D
 {
 public:
-
     void ice_preMarshal() final;
     void ice_postUnmarshal() final;
 };
@@ -35,7 +32,6 @@ public:
 class EI final : public Test::E
 {
 public:
-
     EI();
 
     bool checkValues();
@@ -45,7 +41,6 @@ using EIPtr = std::shared_ptr<EI>;
 class FI : public Test::F
 {
 public:
-
     FI();
     FI(const Test::EPtr&);
 
@@ -56,7 +51,6 @@ using FIPtr = std::shared_ptr<FI>;
 class InitialI final : public Test::Initial
 {
 public:
-
     InitialI(const Ice::ObjectAdapterPtr&);
     ~InitialI();
 
@@ -75,9 +69,10 @@ public:
     bool acceptsClassCycles(const Ice::Current&) final;
 
     GetMBMarshaledResult getMB(const Ice::Current&) final;
-    void getAMDMBAsync(std::function<void(GetAMDMBMarshaledResult)>,
-                               std::function<void(std::exception_ptr)>,
-                               const Ice::Current&) final;
+    void getAMDMBAsync(
+        std::function<void(GetAMDMBMarshaledResult)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
 
     void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&) final;
 
@@ -105,15 +100,11 @@ public:
     Test::MPtr opM(Test::MPtr, Test::MPtr&, const Ice::Current&) final;
 
     Test::F1Ptr opF1(Test::F1Ptr, Test::F1Ptr&, const Ice::Current&) final;
-    std::optional<Test::F2Prx> opF2(
-        std::optional<Test::F2Prx>,
-        std::optional<Test::F2Prx>&,
-        const Ice::Current&) final;
+    std::optional<Test::F2Prx> opF2(std::optional<Test::F2Prx>, std::optional<Test::F2Prx>&, const Ice::Current&) final;
     Test::F3Ptr opF3(Test::F3Ptr, Test::F3Ptr&, const Ice::Current&) final;
     bool hasF3(const Ice::Current&) final;
 
 private:
-
     Ice::ObjectAdapterPtr _adapter;
     Test::BPtr _b1;
     Test::BPtr _b2;
@@ -126,7 +117,6 @@ private:
 class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
-
     bool ice_invoke(std::vector<std::uint8_t>, std::vector<std::uint8_t>&, const Ice::Current&) final;
 };
 using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExceptionTestI>;
@@ -134,7 +124,6 @@ using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExcept
 class TestIntfI : public Test::TestIntf
 {
 public:
-
     Test::BasePtr opDerived(const Ice::Current&) final;
     void throwDerived(const Ice::Current&) final;
 };
@@ -142,10 +131,7 @@ public:
 class F2I : public Test::F2
 {
 public:
-
-    void op(const Ice::Current&)
-    {
-    }
+    void op(const Ice::Current&) {}
 };
 
 #endif

@@ -16,7 +16,7 @@ CallbackReceiverI::callback(int token, const Current&)
     {
         unique_lock<mutex> lock(_mutex);
         checkForHold(lock);
-        if(token != _lastToken)
+        if (token != _lastToken)
         {
             _callback = 0;
             _lastToken = token;
@@ -42,7 +42,7 @@ CallbackReceiverI::callbackOK(int count, int token)
 {
     unique_lock<mutex> lock(_mutex);
 
-    while(_lastToken != token || _callback < count)
+    while (_lastToken != token || _callback < count)
     {
         _condVar.wait(lock);
     }
@@ -56,7 +56,7 @@ CallbackReceiverI::callbackWithPayloadOK(int count)
 {
     unique_lock<mutex> lock(_mutex);
 
-    while(_callbackWithPayload < count)
+    while (_callbackWithPayload < count)
     {
         _condVar.wait(lock);
     }
@@ -85,25 +85,28 @@ CallbackReceiverI::activate()
 void
 CallbackReceiverI::checkForHold(unique_lock<mutex>& lock)
 {
-    while(_holding)
+    while (_holding)
     {
         _condVar.wait(lock);
     }
 }
 
 void
-CallbackI::initiateCallbackAsync(optional<CallbackReceiverPrx> proxy, int token,
-                                 function<void()> response, function<void(exception_ptr)> error,
-                                 const Current& current)
+CallbackI::initiateCallbackAsync(
+    optional<CallbackReceiverPrx> proxy,
+    int token,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     auto p = current.ctx.find("serverOvrd");
     auto ctx = current.ctx;
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
         ctx["_ovrd"] = p->second;
     }
 
-    if(proxy->ice_isTwoway())
+    if (proxy->ice_isTwoway())
     {
         proxy->callbackAsync(token, std::move(response), std::move(error), nullptr, ctx);
     }
@@ -115,19 +118,21 @@ CallbackI::initiateCallbackAsync(optional<CallbackReceiverPrx> proxy, int token,
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(optional<CallbackReceiverPrx> proxy,
-                                            function<void()> response, function<void(exception_ptr)> error,
-                                            const Current& current)
+CallbackI::initiateCallbackWithPayloadAsync(
+    optional<CallbackReceiverPrx> proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     auto p = current.ctx.find("serverOvrd");
     auto ctx = current.ctx;
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
         ctx["_ovrd"] = p->second;
     }
 
     Ice::ByteSeq seq(1000 * 1024, 0);
-    if(proxy->ice_isTwoway())
+    if (proxy->ice_isTwoway())
     {
         proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, ctx);
     }

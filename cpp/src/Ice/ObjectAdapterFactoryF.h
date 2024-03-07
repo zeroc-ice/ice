@@ -10,8 +10,8 @@
 namespace IceInternal
 {
 
-class ObjectAdapterFactory;
-using ObjectAdapterFactoryPtr = ::std::shared_ptr<ObjectAdapterFactory>;
+    class ObjectAdapterFactory;
+    using ObjectAdapterFactoryPtr = ::std::shared_ptr<ObjectAdapterFactory>;
 
 }
 

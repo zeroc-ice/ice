@@ -19,9 +19,7 @@ using namespace Ice;
 class HelloI : public virtual Hello
 {
 public:
-
-    virtual void
-    sayHello(const Ice::Current&)
+    virtual void sayHello(const Ice::Current&)
     {
         // Do nothing, this is just a dummy servant.
     }
@@ -102,7 +100,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj2->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -116,7 +114,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj6->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -130,7 +128,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj3->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -139,7 +137,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj2->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -150,7 +148,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj2->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -159,7 +157,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj3->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -171,7 +169,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj2->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -182,7 +180,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj3->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -193,7 +191,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj2->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -205,7 +203,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         obj5->ice_ping();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -294,66 +292,55 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(++count == locator->getRequestCount());
     int i;
 
-    list<future<void>>  results;
-    for(i = 0; i < 1000; i++)
+    list<future<void>> results;
+    for (i = 0; i < 1000; i++)
     {
         auto result = make_shared<promise<void>>();
-        hello->sayHelloAsync(
-            [result]()
-            {
-                result->set_value();
-            },
-            [result](exception_ptr)
-            {
-                test(false);
-            });
+        hello->sayHelloAsync([result]() { result->set_value(); }, [result](exception_ptr) { test(false); });
         results.push_back(result->get_future());
     }
-    for(auto& result : results)
+    for (auto& result : results)
     {
         result.get();
     }
     results.clear();
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
-    if(locator->getRequestCount() > count + 800)
+    if (locator->getRequestCount() > count + 800)
     {
         cout << "queuing = " << locator->getRequestCount() - count;
     }
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
-    for(i = 0; i < 1000; i++)
+    for (i = 0; i < 1000; i++)
     {
         auto result = make_shared<promise<void>>();
         hello->sayHelloAsync(
-            [result]()
-            {
-                test(false);
-            },
+            [result]() { test(false); },
             [result](exception_ptr ex)
             {
                 try
                 {
                     rethrow_exception(ex);
                 }
-                catch(const Ice::NotRegisteredException&)
+                catch (const Ice::NotRegisteredException&)
                 {
                     result->set_value();
                 }
-                catch(...)
+                catch (...)
                 {
                     test(false);
                 }
             });
         results.push_back(result->get_future());
     }
-    for(auto& result : results)
+    for (auto& result : results)
     {
         result.get();
     }
     results.clear();
     // Take into account the retries.
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
-    if(locator->getRequestCount() > count + 800)
+    if (locator->getRequestCount() > count + 800)
     {
         cout << "queuing = " << locator->getRequestCount() - count;
     }
@@ -365,7 +352,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         test(false);
     }
-    catch(const Ice::NotRegisteredException& ex)
+    catch (const Ice::NotRegisteredException& ex)
     {
         test(ex.kindOfObject == "object adapter");
         test(ex.id == "TestAdapter3");
@@ -374,11 +361,11 @@ allTests(Test::TestHelper* helper, const string& ref)
     try
     {
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
-        registry->setAdapterDirectProxy("TestAdapter3",
-                                        ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
+        registry->setAdapterDirectProxy(
+            "TestAdapter3", ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -388,7 +375,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -396,7 +383,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
@@ -404,11 +391,11 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
-    cout << "ok" <<endl;
+    cout << "ok" << endl;
 
     cout << "testing well-known object locator cache... " << flush;
 
@@ -418,20 +405,19 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
-    catch(const Ice::NotRegisteredException& ex)
+    catch (const Ice::NotRegisteredException& ex)
     {
         test(ex.kindOfObject == "object adapter");
         test(ex.id == "TestUnknown");
     }
     registry->addObject(ObjectPrx(communicator, "test3@TestAdapter4")); // Update
-    registry->setAdapterDirectProxy("TestAdapter4",
-                                    ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
+    registry->setAdapterDirectProxy("TestAdapter4", ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
     try
     {
         ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     registry->setAdapterDirectProxy("TestAdapter4", locator->findAdapterById("TestAdapter"));
@@ -439,18 +425,17 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         ObjectPrx(communicator, "test3")->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
 
-    registry->setAdapterDirectProxy("TestAdapter4",
-                                    ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
+    registry->setAdapterDirectProxy("TestAdapter4", ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
     try
     {
         ObjectPrx(communicator, "test3")->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -460,7 +445,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test@TestAdapter4")->ice_locatorCacheTimeout(0)->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -468,7 +453,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test@TestAdapter4")->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -476,7 +461,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     registry->addObject(ObjectPrx(communicator, "test3@TestAdapter"));
@@ -484,7 +469,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         ObjectPrx(communicator, "test3")->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -495,7 +480,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ObjectPrx(communicator, "test4")->ice_ping();
         test(false);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
     }
     cout << "ok" << endl;
@@ -512,42 +497,42 @@ allTests(Test::TestHelper* helper, const string& ref)
 
         count = locator->getRequestCount();
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
-        ic->stringToProxy("test3")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(0)->ice_ping();             // No locator cache.
         count += 3;
         test(count == locator->getRequestCount());
         registry->setAdapterDirectProxy("TestAdapter5", nullopt);
         registry->addObject(ObjectPrx(communicator, "test3:" + helper->getTestEndpoint(99)));
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
-        ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping();             // 10s timeout.
         test(count == locator->getRequestCount());
         this_thread::sleep_for(chrono::milliseconds(1200));
 
         // The following request should trigger the background updates but still use the cached endpoints
         // and therefore succeed.
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
-        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping();             // 1s timeout.
 
         try
         {
-            while(true)
+            while (true)
             {
                 ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
                 this_thread::sleep_for(chrono::milliseconds(10));
             }
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Expected to fail once they endpoints have been updated in the background.
         }
         try
         {
-            while(true)
+            while (true)
             {
                 ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
                 this_thread::sleep_for(chrono::milliseconds(10));
             }
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Expected to fail once they endpoints have been updated in the background.
         }
@@ -596,7 +581,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         obj2->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -604,7 +589,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         obj3->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -612,7 +597,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         obj5->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     cout << "ok" << endl;

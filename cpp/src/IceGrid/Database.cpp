@@ -33,158 +33,158 @@ using ObjectsMapROCursor = IceDB::ReadOnlyCursor<Ice::Identity, ObjectInfo, IceD
 namespace
 {
 
-const string applicationsDbName = "applications";
-const string adaptersDbName = "adapters";
-const string adaptersByReplicaGroupIdDbName = "adaptersByReplicaGroupId";
-const string objectsDbName = "objects";
-const string objectsByTypeDbName = "objectsByType";
-const string internalObjectsDbName = "internal-objects";
-const string internalObjectsByTypeDbName = "internal-objectsByType";
-const string serialsDbName = "serials";
+    const string applicationsDbName = "applications";
+    const string adaptersDbName = "adapters";
+    const string adaptersByReplicaGroupIdDbName = "adaptersByReplicaGroupId";
+    const string objectsDbName = "objects";
+    const string objectsByTypeDbName = "objectsByType";
+    const string internalObjectsDbName = "internal-objects";
+    const string internalObjectsByTypeDbName = "internal-objectsByType";
+    const string serialsDbName = "serials";
 
-template<typename K, typename V, typename C, typename H> vector<V>
-toVector(const IceDB::ReadOnlyTxn& txn, const IceDB::Dbi<K, V, C, H>& m)
-{
-    vector<V> v;
-    IceDB::ReadOnlyCursor<K, V, C, H> cursor(m, txn);
-    K key;
-    V value;
-    while(cursor.get(key, value, MDB_NEXT))
+    template<typename K, typename V, typename C, typename H>
+    vector<V> toVector(const IceDB::ReadOnlyTxn& txn, const IceDB::Dbi<K, V, C, H>& m)
     {
-        v.push_back(value);
-    }
-    return v;
-}
-
-template<typename K, typename V, typename C, typename H> map<K, V>
-toMap(const IceDB::Txn& txn, const IceDB::Dbi<K, V, C, H>& d)
-{
-    std::map<K, V> m;
-    IceDB::Cursor<K, V, C, H> cursor(d, txn);
-    K key;
-    V value;
-    while(cursor.get(key, value, MDB_NEXT))
-    {
-        typename std::map<K, V>::value_type v(key, value);
-        m.insert(v);
-    }
-    cursor.close();
-    return m;
-}
-
-void
-logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
-{
-    Ice::Error error(com->getLogger());
-    error << "LMDB error: " << ex;
-}
-
-void
-filterAdapterInfos(const string& filter,
-                   const string& replicaGroupId,
-                   const shared_ptr<RegistryPluginFacadeI>& pluginFacade,
-                   const shared_ptr<Ice::Connection>& con,
-                   const Ice::Context& ctx,
-                   AdapterInfoSeq& infos)
-{
-    if(infos.empty() || !pluginFacade->hasReplicaGroupFilters())
-    {
-        return;
-    }
-
-    auto filters = pluginFacade->getReplicaGroupFilters(filter);
-    if(filters.empty())
-    {
-        return;
-    }
-
-    Ice::StringSeq adapterIds;
-    adapterIds.reserve(infos.size());
-    for(const auto& info : infos)
-    {
-        adapterIds.push_back(info.id);
-    }
-
-    for(const auto& f : filters)
-    {
-        adapterIds = f->filter(replicaGroupId, adapterIds, con, ctx);
-    }
-
-    vector<AdapterInfo> filteredAdpts;
-    filteredAdpts.reserve(infos.size());
-    for(const auto& id : adapterIds)
-    {
-        for(const auto& info : infos)
+        vector<V> v;
+        IceDB::ReadOnlyCursor<K, V, C, H> cursor(m, txn);
+        K key;
+        V value;
+        while (cursor.get(key, value, MDB_NEXT))
         {
-            if(id == info.id)
+            v.push_back(value);
+        }
+        return v;
+    }
+
+    template<typename K, typename V, typename C, typename H>
+    map<K, V> toMap(const IceDB::Txn& txn, const IceDB::Dbi<K, V, C, H>& d)
+    {
+        std::map<K, V> m;
+        IceDB::Cursor<K, V, C, H> cursor(d, txn);
+        K key;
+        V value;
+        while (cursor.get(key, value, MDB_NEXT))
+        {
+            typename std::map<K, V>::value_type v(key, value);
+            m.insert(v);
+        }
+        cursor.close();
+        return m;
+    }
+
+    void logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
+    {
+        Ice::Error error(com->getLogger());
+        error << "LMDB error: " << ex;
+    }
+
+    void filterAdapterInfos(
+        const string& filter,
+        const string& replicaGroupId,
+        const shared_ptr<RegistryPluginFacadeI>& pluginFacade,
+        const shared_ptr<Ice::Connection>& con,
+        const Ice::Context& ctx,
+        AdapterInfoSeq& infos)
+    {
+        if (infos.empty() || !pluginFacade->hasReplicaGroupFilters())
+        {
+            return;
+        }
+
+        auto filters = pluginFacade->getReplicaGroupFilters(filter);
+        if (filters.empty())
+        {
+            return;
+        }
+
+        Ice::StringSeq adapterIds;
+        adapterIds.reserve(infos.size());
+        for (const auto& info : infos)
+        {
+            adapterIds.push_back(info.id);
+        }
+
+        for (const auto& f : filters)
+        {
+            adapterIds = f->filter(replicaGroupId, adapterIds, con, ctx);
+        }
+
+        vector<AdapterInfo> filteredAdpts;
+        filteredAdpts.reserve(infos.size());
+        for (const auto& id : adapterIds)
+        {
+            for (const auto& info : infos)
             {
-                filteredAdpts.push_back(info);
-                break;
+                if (id == info.id)
+                {
+                    filteredAdpts.push_back(info);
+                    break;
+                }
             }
         }
+        infos.swap(filteredAdpts);
     }
-    infos.swap(filteredAdpts);
-}
 
-vector<AdapterInfo>
-findByReplicaGroupId(const IceDB::Txn& txn,
-                     const StringAdapterInfoMap& adapters,
-                     const StringStringMap& adaptersByGroupId,
-                     const string& name)
-{
-    vector<AdapterInfo> result;
-    AdaptersByGroupMapCursor cursor(adaptersByGroupId, txn);
-    string id;
-    if(cursor.find(name, id))
+    vector<AdapterInfo> findByReplicaGroupId(
+        const IceDB::Txn& txn,
+        const StringAdapterInfoMap& adapters,
+        const StringStringMap& adaptersByGroupId,
+        const string& name)
     {
-        AdapterInfo info;
-        adapters.get(txn, id, info);
-        result.push_back(info);
-
-        string n;
-        while(cursor.get(n, id, MDB_NEXT) && n == name)
+        vector<AdapterInfo> result;
+        AdaptersByGroupMapCursor cursor(adaptersByGroupId, txn);
+        string id;
+        if (cursor.find(name, id))
         {
+            AdapterInfo info;
             adapters.get(txn, id, info);
             result.push_back(info);
+
+            string n;
+            while (cursor.get(n, id, MDB_NEXT) && n == name)
+            {
+                adapters.get(txn, id, info);
+                result.push_back(info);
+            }
         }
+        return result;
     }
-    return result;
-}
 
-vector<ObjectInfo>
-findByType(const IceDB::ReadOnlyTxn& txn,
-           const IdentityObjectInfoMap& objects,
-           const StringIdentityMap& objectsByType,
-           const string& type)
-{
-    vector<ObjectInfo> result;
-    ObjectsByTypeMapROCursor cursor(objectsByType, txn);
-    Ice::Identity id;
-    if(cursor.find(type, id))
+    vector<ObjectInfo> findByType(
+        const IceDB::ReadOnlyTxn& txn,
+        const IdentityObjectInfoMap& objects,
+        const StringIdentityMap& objectsByType,
+        const string& type)
     {
-        ObjectInfo info;
-        objects.get(txn, id, info);
-        result.push_back(info);
-
-        string t;
-        while(cursor.get(t, id, MDB_NEXT) && t == type)
+        vector<ObjectInfo> result;
+        ObjectsByTypeMapROCursor cursor(objectsByType, txn);
+        Ice::Identity id;
+        if (cursor.find(type, id))
         {
+            ObjectInfo info;
             objects.get(txn, id, info);
             result.push_back(info);
+
+            string t;
+            while (cursor.get(t, id, MDB_NEXT) && t == type)
+            {
+                objects.get(txn, id, info);
+                result.push_back(info);
+            }
         }
+        return result;
     }
-    return result;
-}
 
 }
 
 shared_ptr<Database>
-Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                 const IceStorm::TopicManagerPrxPtr& topicManager,
-                 const string& instanceName,
-                 const shared_ptr<TraceLevels>& traceLevels,
-                 const RegistryInfo& info,
-                 bool readonly)
+Database::create(
+    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const string& instanceName,
+    const shared_ptr<TraceLevels>& traceLevels,
+    const RegistryInfo& info,
+    bool readonly)
 {
     shared_ptr<Database> db(new Database(registryAdapter, topicManager, instanceName, traceLevels, info, readonly));
 
@@ -193,30 +193,33 @@ Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
     return db;
 }
 
-Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                   const IceStorm::TopicManagerPrxPtr& topicManager,
-                   const string& instanceName,
-                   const shared_ptr<TraceLevels>& traceLevels,
-                   const RegistryInfo& info,
-                   bool readonly) :
-    _communicator(registryAdapter->getCommunicator()),
-    _internalAdapter(registryAdapter),
-    _topicManager(topicManager),
-    _instanceName(instanceName),
-    _traceLevels(traceLevels),
-    _master(info.name == "Master"),
-    _readonly(readonly || !_master),
-    _replicaCache(_communicator, topicManager),
-    _nodeCache(_communicator, _replicaCache, _readonly && _master ? string("Master (read-only)") : info.name),
-    _adapterCache(_communicator),
-    _objectCache(_communicator),
-    _allocatableObjectCache(_communicator),
-    _serverCache(_communicator, _instanceName, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
-    _dbLock(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path") + "/icedb.lock"),
-    _env(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path"), 8,
-         IceDB::getMapSize(_communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
-    _pluginFacade(dynamic_pointer_cast<RegistryPluginFacadeI>(getRegistryPluginFacade())),
-    _lock(nullptr)
+Database::Database(
+    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const string& instanceName,
+    const shared_ptr<TraceLevels>& traceLevels,
+    const RegistryInfo& info,
+    bool readonly)
+    : _communicator(registryAdapter->getCommunicator()),
+      _internalAdapter(registryAdapter),
+      _topicManager(topicManager),
+      _instanceName(instanceName),
+      _traceLevels(traceLevels),
+      _master(info.name == "Master"),
+      _readonly(readonly || !_master),
+      _replicaCache(_communicator, topicManager),
+      _nodeCache(_communicator, _replicaCache, _readonly && _master ? string("Master (read-only)") : info.name),
+      _adapterCache(_communicator),
+      _objectCache(_communicator),
+      _allocatableObjectCache(_communicator),
+      _serverCache(_communicator, _instanceName, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
+      _dbLock(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path") + "/icedb.lock"),
+      _env(
+          _communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path"),
+          8,
+          IceDB::getMapSize(_communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
+      _pluginFacade(dynamic_pointer_cast<RegistryPluginFacadeI>(getRegistryPluginFacade())),
+      _lock(nullptr)
 {
     IceDB::ReadWriteTxn txn(_env);
 
@@ -228,13 +231,13 @@ Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
     _applications = StringApplicationInfoMap(txn, applicationsDbName, context, MDB_CREATE);
 
     _adapters = StringAdapterInfoMap(txn, adaptersDbName, context, MDB_CREATE);
-    _adaptersByGroupId = StringStringMap(txn, adaptersByReplicaGroupIdDbName, context, MDB_CREATE|MDB_DUPSORT);
+    _adaptersByGroupId = StringStringMap(txn, adaptersByReplicaGroupIdDbName, context, MDB_CREATE | MDB_DUPSORT);
 
     _objects = IdentityObjectInfoMap(txn, objectsDbName, context, MDB_CREATE);
-    _objectsByType = StringIdentityMap(txn, objectsByTypeDbName, context, MDB_CREATE|MDB_DUPSORT);
+    _objectsByType = StringIdentityMap(txn, objectsByTypeDbName, context, MDB_CREATE | MDB_DUPSORT);
 
     _internalObjects = IdentityObjectInfoMap(txn, internalObjectsDbName, context, MDB_CREATE);
-    _internalObjectsByType = StringIdentityMap(txn, internalObjectsByTypeDbName, context, MDB_CREATE|MDB_DUPSORT);
+    _internalObjectsByType = StringIdentityMap(txn, internalObjectsByTypeDbName, context, MDB_CREATE | MDB_DUPSORT);
 
     _serials = StringLongMap(txn, serialsDbName, context, MDB_CREATE);
 
@@ -243,13 +246,13 @@ Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
     string k;
     ApplicationInfo v;
     ApplicationMapRWCursor cursor(_applications, txn);
-    while(cursor.get(k, v, MDB_NEXT))
+    while (cursor.get(k, v, MDB_NEXT))
     {
         try
         {
             load(ApplicationHelper(_communicator, v.descriptor), entries, v.uuid, v.revision);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             Ice::Error err(_traceLevels->logger);
             err << "invalid application `" << k << "':\n" << ex.reason;
@@ -270,25 +273,25 @@ Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
 
     // Set all serials to 1 if they have not yet been set.
     int64_t serial;
-    if(!_serials.get(txn, applicationsDbName, serial))
+    if (!_serials.get(txn, applicationsDbName, serial))
     {
         _serials.put(txn, applicationsDbName, 1);
     }
-    if(!_serials.get(txn, adaptersDbName, serial))
+    if (!_serials.get(txn, adaptersDbName, serial))
     {
         _serials.put(txn, adaptersDbName, 1);
     }
-    if(!_serials.get(txn, objectsDbName, serial))
+    if (!_serials.get(txn, objectsDbName, serial))
     {
         _serials.put(txn, objectsDbName, 1);
     }
 
-    _applicationObserverTopic = make_shared<ApplicationObserverTopic>(_topicManager, toMap(txn, _applications),
-                                                                      getSerial(txn, applicationsDbName));
-    _adapterObserverTopic = make_shared<AdapterObserverTopic>(_topicManager, toMap(txn, _adapters),
-                                                              getSerial(txn, adaptersDbName));
-    _objectObserverTopic = make_shared<ObjectObserverTopic>(_topicManager, toMap(txn, _objects),
-                                                            getSerial(txn, objectsDbName));
+    _applicationObserverTopic = make_shared<ApplicationObserverTopic>(
+        _topicManager, toMap(txn, _applications), getSerial(txn, applicationsDbName));
+    _adapterObserverTopic =
+        make_shared<AdapterObserverTopic>(_topicManager, toMap(txn, _adapters), getSerial(txn, adaptersDbName));
+    _objectObserverTopic =
+        make_shared<ObjectObserverTopic>(_topicManager, toMap(txn, _objects), getSerial(txn, objectsDbName));
 
     txn.commit();
 
@@ -316,20 +319,20 @@ Database::destroy()
 shared_ptr<ObserverTopic>
 Database::getObserverTopic(TopicName name) const
 {
-    switch(name)
+    switch (name)
     {
-    case TopicName::RegistryObserver:
-        return _registryObserverTopic;
-    case TopicName::NodeObserver:
-        return _nodeObserverTopic;
-    case TopicName::ApplicationObserver:
-        return _applicationObserverTopic;
-    case TopicName::AdapterObserver:
-        return _adapterObserverTopic;
-    case TopicName::ObjectObserver:
-        return _objectObserverTopic;
-    default:
-        break;
+        case TopicName::RegistryObserver:
+            return _registryObserverTopic;
+        case TopicName::NodeObserver:
+            return _nodeObserverTopic;
+        case TopicName::ApplicationObserver:
+            return _applicationObserverTopic;
+        case TopicName::AdapterObserver:
+            return _adapterObserverTopic;
+        case TopicName::ObjectObserver:
+            return _objectObserverTopic;
+        default:
+            break;
     }
     return nullptr;
 }
@@ -337,7 +340,7 @@ Database::getObserverTopic(TopicName name) const
 void
 Database::checkSessionLock(AdminSessionI* session)
 {
-    if(_lock != nullptr && session != _lock)
+    if (_lock != nullptr && session != _lock)
     {
         throw AccessDeniedException(_lockUserId); // Lock held by another session.
     }
@@ -348,7 +351,7 @@ Database::lock(AdminSessionI* session, const string& userId)
 {
     lock_guard lock(_mutex);
 
-    if(_lock != nullptr && session != _lock)
+    if (_lock != nullptr && session != _lock)
     {
         throw AccessDeniedException(_lockUserId); // Lock held by another session.
     }
@@ -365,7 +368,7 @@ Database::unlock(AdminSessionI* session)
 {
     lock_guard lock(_mutex);
 
-    if(_lock != session)
+    if (_lock != session)
     {
         throw AccessDeniedException();
     }
@@ -389,7 +392,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
 
             oldApplications = toMap(txn, _applications);
             _applications.clear(txn);
-            for(ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
+            for (ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
             {
                 _applications.put(txn, p->descriptor.name, *p);
             }
@@ -397,7 +400,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
@@ -406,12 +409,12 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
         ServerEntrySeq entries;
         set<string> names;
 
-        for(ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
+        for (ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
         {
             try
             {
                 map<string, ApplicationInfo>::const_iterator q = oldApplications.find(p->descriptor.name);
-                if(q != oldApplications.end())
+                if (q != oldApplications.end())
                 {
                     ApplicationHelper previous(_communicator, q->second.descriptor);
                     ApplicationHelper helper(_communicator, p->descriptor);
@@ -422,7 +425,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
                     load(ApplicationHelper(_communicator, p->descriptor), entries, p->uuid, p->revision);
                 }
             }
-            catch(const DeploymentException& ex)
+            catch (const DeploymentException& ex)
             {
                 Ice::Warning warn(_traceLevels->logger);
                 warn << "invalid application `" << p->descriptor.name << "':\n" << ex.reason;
@@ -430,20 +433,20 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
             names.insert(p->descriptor.name);
         }
 
-        for(map<string, ApplicationInfo>::iterator s = oldApplications.begin(); s != oldApplications.end(); ++s)
+        for (map<string, ApplicationInfo>::iterator s = oldApplications.begin(); s != oldApplications.end(); ++s)
         {
-            if(names.find(s->first) == names.end())
+            if (names.find(s->first) == names.end())
             {
                 unload(ApplicationHelper(_communicator, s->second.descriptor), entries);
             }
         }
 
-        for(const auto& entry : entries)
+        for (const auto& entry : entries)
         {
             entry->sync();
         }
 
-        if(_traceLevels->application > 0)
+        if (_traceLevels->application > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
             out << "synchronized applications (serial = `" << dbSerial << "')";
@@ -467,7 +470,7 @@ Database::syncAdapters(const AdapterInfoSeq& adapters, int64_t dbSerial)
 
             _adapters.clear(txn);
             _adaptersByGroupId.clear(txn);
-            for(const auto& adapter : adapters)
+            for (const auto& adapter : adapters)
             {
                 addAdapter(txn, adapter);
             }
@@ -475,17 +478,17 @@ Database::syncAdapters(const AdapterInfoSeq& adapters, int64_t dbSerial)
 
             txn.commit();
         }
-        catch(const IceDB::KeyTooLongException&)
+        catch (const IceDB::KeyTooLongException&)
         {
             throw;
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
-        if(_traceLevels->adapter > 0)
+        if (_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
             out << "synchronized adapters (serial = `" << dbSerial << "')";
@@ -509,7 +512,7 @@ Database::syncObjects(const ObjectInfoSeq& objects, int64_t dbSerial)
 
             _objects.clear(txn);
             _objectsByType.clear(txn);
-            for(const auto& obj : objects)
+            for (const auto& obj : objects)
             {
                 addObject(txn, obj, false);
             }
@@ -517,13 +520,13 @@ Database::syncObjects(const ObjectInfoSeq& objects, int64_t dbSerial)
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
-        if(_traceLevels->object > 0)
+        if (_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "synchronized objects (serial = `" << dbSerial << "')";
@@ -544,7 +547,7 @@ Database::getApplications(int64_t& serial)
         serial = getSerial(txn, applicationsDbName);
         return toVector(txn, _applications);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -561,7 +564,7 @@ Database::getAdapters(int64_t& serial)
         serial = getSerial(txn, adaptersDbName);
         return toVector(txn, _adapters);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -578,7 +581,7 @@ Database::getObjects(int64_t& serial)
         serial = getSerial(txn, objectsDbName);
         return toVector(txn, _objects);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -608,7 +611,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
 
         IceDB::ReadWriteTxn txn(_env);
 
-        if(_applications.find(txn, info.descriptor.name))
+        if (_applications.find(txn, info.descriptor.name))
         {
             throw DeploymentException("application `" + info.descriptor.name + "' already exists");
         }
@@ -622,17 +625,17 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
         load(helper, entries, info.uuid, info.revision);
         startUpdating(info.descriptor.name, info.uuid, info.revision);
 
-        for(const auto& entry : entries)
+        for (const auto& entry : entries)
         {
             entry->sync();
         }
         serial = _applicationObserverTopic->applicationAdded(dbSerial, info);
     }
-    catch(const IceDB::KeyTooLongException& ex)
+    catch (const IceDB::KeyTooLongException& ex)
     {
         throw DeploymentException("application name `" + info.descriptor.name + "' is too long: " + ex.what());
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -652,23 +655,23 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
         p->markUpdated();
     }
 
-    if(_master)
+    if (_master)
     {
         try
         {
-            for(ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
+            for (ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
             {
                 try
                 {
                     (*p)->waitForSync();
                 }
-                catch(const NodeUnreachableException&)
+                catch (const NodeUnreachableException&)
                 {
                     // Ignore.
                 }
             }
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             try
             {
@@ -680,25 +683,25 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
                 dbSerial = removeApplication(info.descriptor.name, txn);
                 txn.commit();
 
-                for(const auto& entry : entries)
+                for (const auto& entry : entries)
                 {
                     entry->sync();
                 }
 
                 serial = _applicationObserverTopic->applicationRemoved(dbSerial, info.descriptor.name);
             }
-            catch(const DeploymentException& ex)
+            catch (const DeploymentException& ex)
             {
                 Ice::Error err(_traceLevels->logger);
                 err << "failed to rollback previous application `" << info.descriptor.name << "':\n" << ex.reason;
             }
-            catch(const IceDB::LMDBException& ex)
+            catch (const IceDB::LMDBException& ex)
             {
                 logError(_communicator, ex);
             }
 
             _applicationObserverTopic->waitForSyncedSubscribers(serial);
-            for(const auto& entry : entries)
+            for (const auto& entry : entries)
             {
                 entry->waitForSyncNoThrow();
             }
@@ -707,7 +710,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
         }
     }
 
-    if(_traceLevels->application > 0)
+    if (_traceLevels->application > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
         out << "added application `" << info.descriptor.name << "' (serial = `" << dbSerial << "')";
@@ -716,8 +719,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
 }
 
 void
-Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, AdminSessionI* session,
-                            int64_t dbSerial)
+Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, AdminSessionI* session, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -734,12 +736,12 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, A
 
         IceDB::ReadOnlyTxn txn(_env);
 
-        if(!_applications.get(txn, update.descriptor.name, oldApp))
+        if (!_applications.get(txn, update.descriptor.name, oldApp))
         {
             throw ApplicationNotExistException(update.descriptor.name);
         }
 
-        if(update.revision < 0)
+        if (update.revision < 0)
         {
             update.revision = oldApp.revision + 1;
         }
@@ -749,7 +751,7 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, A
 
         startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -776,7 +778,7 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
 
         IceDB::ReadOnlyTxn txn(_env);
 
-        if(!_applications.get(txn, newDesc.name, oldApp))
+        if (!_applications.get(txn, newDesc.name, oldApp))
         {
             throw ApplicationNotExistException(newDesc.name);
         }
@@ -784,15 +786,15 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, newDesc, true);
 
-        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
-            chrono::system_clock::now().time_since_epoch()).count();
+        update.updateTime =
+            chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
 
         startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -802,10 +804,11 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
 }
 
 void
-Database::instantiateServer(const string& application,
-                            const string& node,
-                            const ServerInstanceDescriptor& instance,
-                            AdminSessionI* session)
+Database::instantiateServer(
+    const string& application,
+    const string& node,
+    const ServerInstanceDescriptor& instance,
+    AdminSessionI* session)
 {
     assert(_master);
 
@@ -823,7 +826,7 @@ Database::instantiateServer(const string& application,
 
         IceDB::ReadOnlyTxn txn(_env);
 
-        if(!_applications.get(txn, application, oldApp))
+        if (!_applications.get(txn, application, oldApp))
         {
             throw ApplicationNotExistException(application);
         }
@@ -831,15 +834,15 @@ Database::instantiateServer(const string& application,
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, previous->instantiateServer(node, instance), true);
 
-        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
-            chrono::system_clock::now().time_since_epoch()).count();
+        update.updateTime =
+            chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
 
         startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -866,7 +869,7 @@ Database::removeApplication(const string& name, AdminSessionI* session, int64_t 
 
         IceDB::ReadWriteTxn txn(_env);
 
-        if(!_applications.get(txn, name, appInfo))
+        if (!_applications.get(txn, name, appInfo))
         {
             throw ApplicationNotExistException(name);
         }
@@ -879,9 +882,9 @@ Database::removeApplication(const string& name, AdminSessionI* session, int64_t 
             checkForRemove(helper);
             unload(helper, entries);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
-            if(init)
+            if (init)
             {
                 throw;
             }
@@ -892,13 +895,13 @@ Database::removeApplication(const string& name, AdminSessionI* session, int64_t 
 
         startUpdating(name, appInfo.uuid, appInfo.revision);
 
-        for(const auto& entry : entries)
+        for (const auto& entry : entries)
         {
             entry->sync();
         }
         serial = _applicationObserverTopic->applicationRemoved(dbSerial, name);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -906,15 +909,15 @@ Database::removeApplication(const string& name, AdminSessionI* session, int64_t 
 
     _applicationObserverTopic->waitForSyncedSubscribers(serial);
 
-    if(_master)
+    if (_master)
     {
-        for(const auto& entry : entries)
+        for (const auto& entry : entries)
         {
             entry->waitForSyncNoThrow();
         }
     }
 
-    if(_traceLevels->application > 0)
+    if (_traceLevels->application > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
         out << "removed application `" << name << "' (serial = `" << dbSerial << "')";
@@ -929,7 +932,7 @@ Database::getApplicationInfo(const std::string& name)
     IceDB::ReadOnlyTxn txn(_env);
 
     ApplicationInfo info;
-    if(!_applications.get(txn, name, info))
+    if (!_applications.get(txn, name, info))
     {
         throw ApplicationNotExistException(name);
     }
@@ -940,20 +943,22 @@ Ice::StringSeq
 Database::getAllApplications(const string& expression)
 {
     IceDB::ReadOnlyTxn txn(_env);
-    return getMatchingKeys<map<string, ApplicationInfo> >(toMap(txn, _applications), expression);
+    return getMatchingKeys<map<string, ApplicationInfo>>(toMap(txn, _applications), expression);
 }
 
 void
-Database::waitForApplicationUpdate(const string& uuid,
-                                   int revision,
-                                   function<void()> response, function<void(exception_ptr)> exception)
+Database::waitForApplicationUpdate(
+    const string& uuid,
+    int revision,
+    function<void()> response,
+    function<void(exception_ptr)> exception)
 {
     lock_guard lock(_mutex);
 
     vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
-    if(p != _updating.end() && !p->updated)
+    if (p != _updating.end() && !p->updated)
     {
-        p->cbs.push_back({ response, exception });
+        p->cbs.push_back({response, exception});
     }
     else
     {
@@ -1010,27 +1015,31 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 }
 
 void
-Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId,
-                                const Ice::ObjectPrxPtr& proxy, int64_t dbSerial)
+Database::setAdapterDirectProxy(
+    const string& adapterId,
+    const string& replicaGroupId,
+    const Ice::ObjectPrxPtr& proxy,
+    int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
     int serial = 0; // Initialize to prevent warning.
     {
         lock_guard lock(_mutex);
-        if(_adapterCache.has(adapterId))
+        if (_adapterCache.has(adapterId))
         {
             throw AdapterExistsException(adapterId);
         }
-        if(_adapterCache.has(replicaGroupId))
+        if (_adapterCache.has(replicaGroupId))
         {
-            throw DeploymentException("registering adapter `" + adapterId + "' with the replica group `" +
-                                      replicaGroupId + "' is not allowed:\nthe replica group was added with an "
-                                      "application descriptor and only adapters specified in an application descriptor "
-                                      "can be member of this replica group");
+            throw DeploymentException(
+                "registering adapter `" + adapterId + "' with the replica group `" + replicaGroupId +
+                "' is not allowed:\nthe replica group was added with an "
+                "application descriptor and only adapters specified in an application descriptor "
+                "can be member of this replica group");
         }
 
-        AdapterInfo info = { adapterId, proxy, replicaGroupId };
+        AdapterInfo info = {adapterId, proxy, replicaGroupId};
 
         bool updated = false;
         try
@@ -1039,11 +1048,11 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 
             AdapterInfo oldInfo;
             bool found = _adapters.get(txn, adapterId, oldInfo);
-            if(proxy)
+            if (proxy)
             {
                 updated = found;
 
-                if(replicaGroupId != oldInfo.replicaGroupId)
+                if (replicaGroupId != oldInfo.replicaGroupId)
                 {
                     _adaptersByGroupId.del(txn, oldInfo.replicaGroupId, adapterId);
                 }
@@ -1051,7 +1060,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
             }
             else
             {
-                if(!found)
+                if (!found)
                 {
                     return;
                 }
@@ -1061,30 +1070,30 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 
             txn.commit();
         }
-        catch(const IceDB::KeyTooLongException&)
+        catch (const IceDB::KeyTooLongException&)
         {
             throw;
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
-        if(_traceLevels->adapter > 0)
+        if (_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
             out << (proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
-            if(!replicaGroupId.empty())
+            if (!replicaGroupId.empty())
             {
                 out << " with replica group `" << replicaGroupId << "'";
             }
             out << " (serial = `" << dbSerial << "')";
         }
 
-        if(proxy)
+        if (proxy)
         {
-            if(updated)
+            if (updated)
             {
                 serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
             }
@@ -1102,35 +1111,37 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 }
 
 Ice::ObjectPrxPtr
-Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& encoding,
-                                const shared_ptr<Ice::Connection>& con,
-                                const Ice::Context& ctx)
+Database::getAdapterDirectProxy(
+    const string& id,
+    const Ice::EncodingVersion& encoding,
+    const shared_ptr<Ice::Connection>& con,
+    const Ice::Context& ctx)
 {
     IceDB::ReadOnlyTxn txn(_env);
 
     AdapterInfo info;
-    if(_adapters.get(txn, id, info))
+    if (_adapters.get(txn, id, info))
     {
         return info.proxy;
     }
 
     Ice::EndpointSeq endpoints;
     vector<AdapterInfo> infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
-    if(infos.empty())
+    if (infos.empty())
     {
         throw AdapterNotExistException(id);
     }
 
     filterAdapterInfos("", id, _pluginFacade, con, ctx, infos);
-    for(unsigned int i = 0; i < infos.size(); ++i)
+    for (unsigned int i = 0; i < infos.size(); ++i)
     {
-        if(IceInternal::isSupported(encoding, infos[i].proxy->ice_getEncodingVersion()))
+        if (IceInternal::isSupported(encoding, infos[i].proxy->ice_getEncodingVersion()))
         {
             Ice::EndpointSeq edpts = infos[i].proxy->ice_getEndpoints();
             endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
         }
     }
-    if(!endpoints.empty())
+    if (!endpoints.empty())
     {
         return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
     }
@@ -1145,12 +1156,12 @@ Database::removeAdapter(const string& adapterId)
     int serial = 0; // Initialize to prevent warning.
     {
         lock_guard lock(_mutex);
-        if(_adapterCache.has(adapterId))
+        if (_adapterCache.has(adapterId))
         {
             auto adpt = _adapterCache.get(adapterId);
-            throw DeploymentException("removing adapter `" + adapterId + "' is not allowed:\n" +
-                                      "the adapter was added with the application descriptor `" +
-                                      adpt->getApplication() + "'");
+            throw DeploymentException(
+                "removing adapter `" + adapterId + "' is not allowed:\n" +
+                "the adapter was added with the application descriptor `" + adpt->getApplication() + "'");
         }
 
         AdapterInfoSeq infos;
@@ -1160,18 +1171,18 @@ Database::removeAdapter(const string& adapterId)
             IceDB::ReadWriteTxn txn(_env);
 
             AdapterInfo info;
-            if(_adapters.get(txn, adapterId, info))
+            if (_adapters.get(txn, adapterId, info))
             {
                 deleteAdapter(txn, info);
             }
             else
             {
                 infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, adapterId);
-                if(infos.empty())
+                if (infos.empty())
                 {
                     throw AdapterNotExistException(adapterId);
                 }
-                for(AdapterInfoSeq::iterator p = infos.begin(); p != infos.end(); ++p)
+                for (AdapterInfoSeq::iterator p = infos.begin(); p != infos.end(); ++p)
                 {
                     _adaptersByGroupId.del(txn, p->replicaGroupId, p->id);
                     p->replicaGroupId.clear();
@@ -1182,29 +1193,30 @@ Database::removeAdapter(const string& adapterId)
 
             txn.commit();
         }
-        catch(const IceDB::KeyTooLongException&)
+        catch (const IceDB::KeyTooLongException&)
         {
             throw;
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
-        if(_traceLevels->adapter > 0)
+        if (_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-            out << "removed " << (infos.empty() ? "adapter" : "replica group") << " `" << adapterId << "' (serial = `" << dbSerial << "')";
+            out << "removed " << (infos.empty() ? "adapter" : "replica group") << " `" << adapterId << "' (serial = `"
+                << dbSerial << "')";
         }
 
-        if(infos.empty())
+        if (infos.empty())
         {
             serial = _adapterObserverTopic->adapterRemoved(dbSerial, adapterId);
         }
         else
         {
-            for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+            for (AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
             {
                 serial = _adapterObserverTopic->adapterUpdated(dbSerial, *p);
             }
@@ -1221,14 +1233,15 @@ Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId,
 }
 
 void
-Database::getLocatorAdapterInfo(const string& id,
-                                const shared_ptr<Ice::Connection>& connection,
-                                const Ice::Context& context,
-                                LocatorAdapterInfoSeq& adpts,
-                                int& count,
-                                bool& replicaGroup,
-                                bool& roundRobin,
-                                const set<string>& excludes)
+Database::getLocatorAdapterInfo(
+    const string& id,
+    const shared_ptr<Ice::Connection>& connection,
+    const Ice::Context& context,
+    LocatorAdapterInfoSeq& adpts,
+    int& count,
+    bool& replicaGroup,
+    bool& roundRobin,
+    const set<string>& excludes)
 {
     string filter;
     {
@@ -1236,29 +1249,29 @@ Database::getLocatorAdapterInfo(const string& id,
         _adapterCache.get(id)->getLocatorAdapterInfo(adpts, count, replicaGroup, roundRobin, filter, excludes);
     }
 
-    if(_pluginFacade->hasReplicaGroupFilters() && !adpts.empty())
+    if (_pluginFacade->hasReplicaGroupFilters() && !adpts.empty())
     {
         auto filters = _pluginFacade->getReplicaGroupFilters(filter);
-        if(!filters.empty())
+        if (!filters.empty())
         {
             Ice::StringSeq adapterIds;
-            for(LocatorAdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
+            for (LocatorAdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
             {
                 adapterIds.push_back(q->id);
             }
 
-            for(const auto& f : filters)
+            for (const auto& f : filters)
             {
                 adapterIds = f->filter(id, adapterIds, connection, context);
             }
 
             LocatorAdapterInfoSeq filteredAdpts;
             filteredAdpts.reserve(adpts.size());
-            for(Ice::StringSeq::const_iterator q = adapterIds.begin(); q != adapterIds.end(); ++q)
+            for (Ice::StringSeq::const_iterator q = adapterIds.begin(); q != adapterIds.end(); ++q)
             {
-                for(LocatorAdapterInfoSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
+                for (LocatorAdapterInfoSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
                 {
-                    if(*q == r->id)
+                    if (*q == r->id)
                     {
                         filteredAdpts.push_back(*r);
                         break;
@@ -1271,9 +1284,10 @@ Database::getLocatorAdapterInfo(const string& id,
 }
 
 bool
-Database::addAdapterSyncCallback(const string& id,
-                                 const shared_ptr<SynchronizationCallback>& callback,
-                                 const std::set<std::string>& excludes)
+Database::addAdapterSyncCallback(
+    const string& id,
+    const shared_ptr<SynchronizationCallback>& callback,
+    const std::set<std::string>& excludes)
 {
     lock_guard lock(_mutex); // Make sure this isn't call during an update.
     return _adapterCache.get(id)->addSyncCallback(callback, excludes);
@@ -1293,10 +1307,10 @@ Database::getAdapterInfo(const string& id)
         lock_guard lock(_mutex); // Make sure this isn't call during an update.
         result = _adapterCache.get(id)->getAdapterInfoAsync();
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
-    if(result)
+    if (result)
     {
         return result->get(); // Don't hold the database lock while waiting for the endpoints
     }
@@ -1309,7 +1323,7 @@ Database::getAdapterInfo(const string& id)
 
     AdapterInfo info;
     AdapterInfoSeq infos;
-    if(_adapters.get(txn, id, info))
+    if (_adapters.get(txn, id, info))
     {
         infos.push_back(info);
     }
@@ -1320,7 +1334,7 @@ Database::getAdapterInfo(const string& id)
         // group...
         //
         infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
-        if(infos.empty())
+        if (infos.empty())
         {
             throw AdapterNotExistException(id);
         }
@@ -1347,13 +1361,13 @@ Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connect
             infos = entry->getAdapterInfoNoEndpoints();
             replicaGroup = dynamic_pointer_cast<ReplicaGroupEntry>(entry);
         }
-        if(replicaGroup)
+        if (replicaGroup)
         {
             filterAdapterInfos(replicaGroup->getFilter(), id, _pluginFacade, con, ctx, infos);
         }
         return infos;
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
 
@@ -1365,7 +1379,7 @@ Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connect
 
     AdapterInfo info;
     AdapterInfoSeq infos;
-    if(_adapters.get(txn, id, info))
+    if (_adapters.get(txn, id, info))
     {
         infos.push_back(info);
     }
@@ -1376,7 +1390,7 @@ Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connect
         // group...
         //
         infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
-        if(infos.empty())
+        if (infos.empty())
         {
             throw AdapterNotExistException(id);
         }
@@ -1392,12 +1406,12 @@ Database::getAdapterServer(const string& id) const
     {
         lock_guard lock(_mutex); // Make sure this isn't call during an update.
         auto adapter = dynamic_pointer_cast<ServerAdapterEntry>(_adapterCache.get(id));
-        if(adapter)
+        if (adapter)
         {
             return adapter->getServerId();
         }
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
     return "";
@@ -1411,7 +1425,7 @@ Database::getAdapterApplication(const string& id) const
         lock_guard lock(_mutex); // Make sure this isn't call during an update.
         return _adapterCache.get(id)->getApplication();
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
     return "";
@@ -1424,12 +1438,12 @@ Database::getAdapterNode(const string& id) const
     {
         lock_guard lock(_mutex); // Make sure this isn't call during an update.
         auto adapter = dynamic_pointer_cast<ServerAdapterEntry>(_adapterCache.get(id));
-        if(adapter)
+        if (adapter)
         {
             return adapter->getNodeName();
         }
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
     return "";
@@ -1449,14 +1463,14 @@ Database::getAllAdapters(const string& expression)
     string name;
     AdapterInfo info;
     AdapterMapROCursor cursor(_adapters, txn);
-    while(cursor.get(name, info, MDB_NEXT))
+    while (cursor.get(name, info, MDB_NEXT))
     {
-        if(expression.empty() || IceUtilInternal::match(name, expression, true))
+        if (expression.empty() || IceUtilInternal::match(name, expression, true))
         {
             result.push_back(name);
         }
         string replicaGroupId = info.replicaGroupId;
-        if(!replicaGroupId.empty() && (expression.empty() || IceUtilInternal::match(replicaGroupId, expression, true)))
+        if (!replicaGroupId.empty() && (expression.empty() || IceUtilInternal::match(replicaGroupId, expression, true)))
         {
             groups.insert(replicaGroupId);
         }
@@ -1466,8 +1480,8 @@ Database::getAllAdapters(const string& expression)
     //
     // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
     //
-    //result.insert(result.end(), groups.begin(), groups.end())
-    for(set<string>::const_iterator q = groups.begin(); q != groups.end(); ++q)
+    // result.insert(result.end(), groups.begin(), groups.end())
+    for (set<string>::const_iterator q = groups.begin(); q != groups.end(); ++q)
     {
         result.push_back(*q);
     }
@@ -1484,7 +1498,7 @@ Database::addObject(const ObjectInfo& info)
         lock_guard lock(_mutex);
         const Ice::Identity id = info.proxy->ice_getIdentity();
 
-        if(_objectCache.has(id))
+        if (_objectCache.has(id))
         {
             throw ObjectExistsException(id);
         }
@@ -1494,7 +1508,7 @@ Database::addObject(const ObjectInfo& info)
         {
             IceDB::ReadWriteTxn txn(_env);
 
-            if(_objects.find(txn, id))
+            if (_objects.find(txn, id))
             {
                 throw ObjectExistsException(id);
             }
@@ -1503,7 +1517,7 @@ Database::addObject(const ObjectInfo& info)
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
@@ -1511,7 +1525,7 @@ Database::addObject(const ObjectInfo& info)
 
         serial = _objectObserverTopic->objectAdded(dbSerial, info);
 
-        if(_traceLevels->object > 0)
+        if (_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "added object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
@@ -1530,7 +1544,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
         lock_guard lock(_mutex);
         const Ice::Identity id = info.proxy->ice_getIdentity();
 
-        if(_objectCache.has(id))
+        if (_objectCache.has(id))
         {
             throw ObjectExistsException(id);
         }
@@ -1543,7 +1557,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
             Ice::Identity k;
             ObjectInfo v;
             update = _objects.get(txn, k, v);
-            if(update)
+            if (update)
             {
                 _objectsByType.del(txn, v.type, v.proxy->ice_getIdentity());
             }
@@ -1552,13 +1566,13 @@ Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
-        if(update)
+        if (update)
         {
             serial = _objectObserverTopic->objectUpdated(dbSerial, info);
         }
@@ -1567,10 +1581,11 @@ Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
             serial = _objectObserverTopic->objectAdded(dbSerial, info);
         }
 
-        if(_traceLevels->object > 0)
+        if (_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id)
+                << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1584,11 +1599,11 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
     int serial = 0; // Initialize to prevent warning.
     {
         lock_guard lock(_mutex);
-        if(_objectCache.has(id))
+        if (_objectCache.has(id))
         {
-            throw DeploymentException("removing object `" + _communicator->identityToString(id) + "' is not allowed:\n"
-                                      + "the object was added with the application descriptor `" +
-                                      _objectCache.get(id)->getApplication());
+            throw DeploymentException(
+                "removing object `" + _communicator->identityToString(id) + "' is not allowed:\n" +
+                "the object was added with the application descriptor `" + _objectCache.get(id)->getApplication());
         }
 
         try
@@ -1596,7 +1611,7 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
             IceDB::ReadWriteTxn txn(_env);
 
             ObjectInfo info;
-            if(!_objects.get(txn, id, info))
+            if (!_objects.get(txn, id, info))
             {
                 throw ObjectNotRegisteredException(id);
             }
@@ -1605,7 +1620,7 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
@@ -1613,7 +1628,7 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
 
         serial = _objectObserverTopic->objectRemoved(dbSerial, id);
 
-        if(_traceLevels->object > 0)
+        if (_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "removed object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
@@ -1632,11 +1647,12 @@ Database::updateObject(const Ice::ObjectPrxPtr& proxy)
         lock_guard lock(_mutex);
 
         const Ice::Identity id = proxy->ice_getIdentity();
-        if(_objectCache.has(id))
+        if (_objectCache.has(id))
         {
-            throw DeploymentException("updating object `" + _communicator->identityToString(id) + "' is not allowed:\n"
-                                      + "the object was added with the application descriptor `" +
-                                      _objectCache.get(id)->getApplication() + "'");
+            throw DeploymentException(
+                "updating object `" + _communicator->identityToString(id) + "' is not allowed:\n" +
+                "the object was added with the application descriptor `" + _objectCache.get(id)->getApplication() +
+                "'");
         }
 
         ObjectInfo info;
@@ -1645,7 +1661,7 @@ Database::updateObject(const Ice::ObjectPrxPtr& proxy)
         {
             IceDB::ReadWriteTxn txn(_env);
 
-            if(!_objects.get(txn, id, info))
+            if (!_objects.get(txn, id, info))
             {
                 throw ObjectNotRegisteredException(id);
             }
@@ -1655,14 +1671,14 @@ Database::updateObject(const Ice::ObjectPrxPtr& proxy)
 
             txn.commit();
         }
-        catch(const IceDB::LMDBException& ex)
+        catch (const IceDB::LMDBException& ex)
         {
             logError(_communicator, ex);
             throw;
         }
 
         serial = _objectObserverTopic->objectUpdated(dbSerial, info);
-        if(_traceLevels->object > 0)
+        if (_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "updated object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
@@ -1678,11 +1694,11 @@ Database::addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     try
     {
         IceDB::ReadWriteTxn txn(_env);
-        for(const auto& obj : objects)
+        for (const auto& obj : objects)
         {
             Ice::Identity id = obj.proxy->ice_getIdentity();
             ObjectInfo info;
-            if(_objects.get(txn, id, info))
+            if (_objects.get(txn, id, info))
             {
                 _objectsByType.del(txn, info.type, id);
             }
@@ -1690,7 +1706,7 @@ Database::addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq& objects)
         }
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -1706,18 +1722,18 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     try
     {
         IceDB::ReadWriteTxn txn(_env);
-        for(const auto& obj : objects)
+        for (const auto& obj : objects)
         {
             Ice::Identity id = obj.proxy->ice_getIdentity();
             ObjectInfo info;
-            if(_objects.get(txn, id, info))
+            if (_objects.get(txn, id, info))
             {
                 deleteObject(txn, info, false);
             }
         }
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -1736,13 +1752,13 @@ Database::getObjectProxy(const Ice::Identity& id)
         //
         return _objectCache.get(id)->getProxy();
     }
-    catch(const ObjectNotRegisteredException&)
+    catch (const ObjectNotRegisteredException&)
     {
     }
 
     IceDB::ReadOnlyTxn txn(_env);
     ObjectInfo info;
-    if(!_objects.get(txn, id, info))
+    if (!_objects.get(txn, id, info))
     {
         throw ObjectNotRegisteredException(id);
     }
@@ -1753,7 +1769,7 @@ Ice::ObjectPrxPtr
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
-    if(objs.empty())
+    if (objs.empty())
     {
         return nullopt;
     }
@@ -1761,11 +1777,14 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
 }
 
 Ice::ObjectPrxPtr
-Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample,
-                                           const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
+Database::getObjectByTypeOnLeastLoadedNode(
+    const string& type,
+    LoadSample sample,
+    const shared_ptr<Ice::Connection>& con,
+    const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
-    if(objs.empty())
+    if (objs.empty())
     {
         return nullopt;
     }
@@ -1773,25 +1792,25 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
     IceUtilInternal::shuffle(objs.begin(), objs.end());
     vector<pair<Ice::ObjectPrxPtr, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
-    for(const auto& obj : objs)
+    for (const auto& obj : objs)
     {
         float load = 1.0f;
-        if(!obj->ice_getAdapterId().empty())
+        if (!obj->ice_getAdapterId().empty())
         {
             try
             {
                 load = _adapterCache.get(obj->ice_getAdapterId())->getLeastLoadedNodeLoad(sample);
             }
-            catch(const AdapterNotExistException&)
+            catch (const AdapterNotExistException&)
             {
             }
         }
         objectsWithLoad.push_back(make_pair(obj, load));
     }
-    return min_element(objectsWithLoad.begin(), objectsWithLoad.end(), [](const auto& lhs, const auto& rhs)
-           {
-               return lhs.second < rhs.second;
-           })->first;
+    return min_element(
+               objectsWithLoad.begin(), objectsWithLoad.end(),
+               [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; })
+        ->first;
 }
 
 Ice::ObjectProxySeq
@@ -1801,9 +1820,9 @@ Database::getObjectsByType(const string& type, const shared_ptr<Ice::Connection>
 
     auto objects = _objectCache.getObjectsByType(type);
 
-    for(const auto& obj : objects)
+    for (const auto& obj : objects)
     {
-        if(_nodeObserverTopic->isServerEnabled(obj->getServer())) // Only return proxies from enabled servers.
+        if (_nodeObserverTopic->isServerEnabled(obj->getServer())) // Only return proxies from enabled servers.
         {
             proxies.push_back(obj->getProxy());
         }
@@ -1811,17 +1830,17 @@ Database::getObjectsByType(const string& type, const shared_ptr<Ice::Connection>
 
     IceDB::ReadOnlyTxn txn(_env);
     vector<ObjectInfo> infos = findByType(txn, _objects, _objectsByType, type);
-    for(const auto& info : infos)
+    for (const auto& info : infos)
     {
         proxies.push_back(info.proxy);
     }
 
-    if(con && !proxies.empty() && _pluginFacade->hasTypeFilters())
+    if (con && !proxies.empty() && _pluginFacade->hasTypeFilters())
     {
         auto filters = _pluginFacade->getTypeFilters(type);
-        if(!filters.empty())
+        if (!filters.empty())
         {
-            for(const auto& filter: filters)
+            for (const auto& filter : filters)
             {
                 proxies = filter->filter(type, proxies, con, ctx);
             }
@@ -1837,13 +1856,13 @@ Database::getObjectInfo(const Ice::Identity& id)
     {
         return _objectCache.get(id)->getObjectInfo();
     }
-    catch(const ObjectNotRegisteredException&)
+    catch (const ObjectNotRegisteredException&)
     {
     }
 
     IceDB::ReadOnlyTxn txn(_env);
     ObjectInfo info;
-    if(!_objects.get(txn, id, info))
+    if (!_objects.get(txn, id, info))
     {
         throw ObjectNotRegisteredException(id);
     }
@@ -1860,9 +1879,9 @@ Database::getAllObjectInfos(const string& expression)
     Ice::Identity id;
     ObjectInfo info;
     ObjectsMapROCursor cursor(_objects, txn);
-    while(cursor.get(id, info, MDB_NEXT))
+    while (cursor.get(id, info, MDB_NEXT))
     {
-        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(id), expression, true))
+        if (expression.empty() || IceUtilInternal::match(_communicator->identityToString(id), expression, true))
         {
             infos.push_back(info);
         }
@@ -1877,7 +1896,7 @@ Database::getObjectInfosByType(const string& type)
 
     IceDB::ReadOnlyTxn txn(_env);
     ObjectInfoSeq dbInfos = findByType(txn, _objects, _objectsByType, type);
-    for(unsigned int i = 0; i < dbInfos.size(); ++i)
+    for (unsigned int i = 0; i < dbInfos.size(); ++i)
     {
         infos.push_back(dbInfos[i]);
     }
@@ -1895,9 +1914,9 @@ Database::addInternalObject(const ObjectInfo& info, bool replace)
         IceDB::ReadWriteTxn txn(_env);
 
         ObjectInfo oldInfo;
-        if(_internalObjects.get(txn, id, oldInfo))
+        if (_internalObjects.get(txn, id, oldInfo))
         {
-            if(!replace)
+            if (!replace)
             {
                 throw ObjectExistsException(id);
             }
@@ -1907,7 +1926,7 @@ Database::addInternalObject(const ObjectInfo& info, bool replace)
 
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -1924,7 +1943,7 @@ Database::removeInternalObject(const Ice::Identity& id)
         IceDB::ReadWriteTxn txn(_env);
 
         ObjectInfo info;
-        if(!_internalObjects.get(txn, id, info))
+        if (!_internalObjects.get(txn, id, info))
         {
             throw ObjectNotRegisteredException(id);
         }
@@ -1932,7 +1951,7 @@ Database::removeInternalObject(const Ice::Identity& id)
 
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -1946,7 +1965,7 @@ Database::getInternalObjectsByType(const string& type)
 
     IceDB::ReadOnlyTxn txn(_env);
     vector<ObjectInfo> infos = findByType(txn, _internalObjects, _internalObjectsByType, type);
-    for(unsigned int i = 0; i < infos.size(); ++i)
+    for (unsigned int i = 0; i < infos.size(); ++i)
     {
         proxies.push_back(infos[i].proxy);
     }
@@ -1962,21 +1981,21 @@ Database::checkForAddition(const ApplicationHelper& app, const IceDB::ReadWriteT
 
     app.getIds(serverIds, adapterIds, objectIds);
 
-    for(const auto& serverId : serverIds)
+    for (const auto& serverId : serverIds)
     {
         checkServerForAddition(serverId);
     }
 
-    if(!adapterIds.empty())
+    if (!adapterIds.empty())
     {
-        for(set<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+        for (set<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
         {
             checkAdapterForAddition(*p, txn);
         }
     }
-    if(!objectIds.empty())
+    if (!objectIds.empty())
     {
-        for(set<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
+        for (set<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
         {
             checkObjectForAddition(*p, txn);
         }
@@ -1985,16 +2004,17 @@ Database::checkForAddition(const ApplicationHelper& app, const IceDB::ReadWriteT
     set<string> repGrps;
     set<string> adptRepGrps;
     app.getReplicaGroups(repGrps, adptRepGrps);
-    for(const auto& repGrp : adptRepGrps)
+    for (const auto& repGrp : adptRepGrps)
     {
         checkReplicaGroupExists(repGrp);
     }
 }
 
 void
-Database::checkForUpdate(const ApplicationHelper& origApp,
-                         const ApplicationHelper& newApp,
-                         const IceDB::ReadWriteTxn& txn)
+Database::checkForUpdate(
+    const ApplicationHelper& origApp,
+    const ApplicationHelper& newApp,
+    const IceDB::ReadWriteTxn& txn)
 {
     set<string> oldSvrs, newSvrs;
     set<string> oldAdpts, newAdpts;
@@ -2005,16 +2025,16 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
 
     Ice::StringSeq addedSvrs;
     set_difference(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), back_inserter(addedSvrs));
-    for(const auto& svr : addedSvrs)
+    for (const auto& svr : addedSvrs)
     {
         checkServerForAddition(svr);
     }
 
     Ice::StringSeq addedAdpts;
     set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), back_inserter(addedAdpts));
-    if(!addedAdpts.empty())
+    if (!addedAdpts.empty())
     {
-        for(const auto& adpt : addedAdpts)
+        for (const auto& adpt : addedAdpts)
         {
             checkAdapterForAddition(adpt, txn);
         }
@@ -2022,9 +2042,9 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
 
     vector<Ice::Identity> addedObjs;
     set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), back_inserter(addedObjs));
-    if(!addedObjs.empty())
+    if (!addedObjs.empty())
     {
-        for(const auto& obj : addedObjs)
+        for (const auto& obj : addedObjs)
         {
             checkObjectForAddition(obj, txn);
         }
@@ -2036,24 +2056,26 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
     newApp.getReplicaGroups(newRepGrps, newAdptRepGrps);
 
     set<string> rmRepGrps;
-    set_difference(oldRepGrps.begin(), oldRepGrps.end(), newRepGrps.begin(),newRepGrps.end(), set_inserter(rmRepGrps));
-    for(const auto& repGrp : rmRepGrps)
+    set_difference(oldRepGrps.begin(), oldRepGrps.end(), newRepGrps.begin(), newRepGrps.end(), set_inserter(rmRepGrps));
+    for (const auto& repGrp : rmRepGrps)
     {
         checkReplicaGroupForRemove(repGrp);
     }
 
     set<string> addedAdptRepGrps;
-    set_difference(newAdptRepGrps.begin(),newAdptRepGrps.end(), oldAdptRepGrps.begin(), oldAdptRepGrps.end(),
-                   set_inserter(addedAdptRepGrps));
-    for(const auto& repGrp : addedAdptRepGrps)
+    set_difference(
+        newAdptRepGrps.begin(), newAdptRepGrps.end(), oldAdptRepGrps.begin(), oldAdptRepGrps.end(),
+        set_inserter(addedAdptRepGrps));
+    for (const auto& repGrp : addedAdptRepGrps)
     {
         checkReplicaGroupExists(repGrp);
     }
 
     vector<string> invalidAdptRepGrps;
-    set_intersection(rmRepGrps.begin(), rmRepGrps.end(), newAdptRepGrps.begin(), newAdptRepGrps.end(),
-                     back_inserter(invalidAdptRepGrps));
-    if(!invalidAdptRepGrps.empty())
+    set_intersection(
+        rmRepGrps.begin(), rmRepGrps.end(), newAdptRepGrps.begin(), newAdptRepGrps.end(),
+        back_inserter(invalidAdptRepGrps));
+    if (!invalidAdptRepGrps.empty())
     {
         throw DeploymentException("couldn't find replica group `" + invalidAdptRepGrps.front() + "'");
     }
@@ -2066,7 +2088,7 @@ Database::checkForRemove(const ApplicationHelper& app)
     set<string> adapterReplicaGroups;
     app.getReplicaGroups(replicaGroups, adapterReplicaGroups);
 
-    for(const auto& replicaGroup : replicaGroups)
+    for (const auto& replicaGroup : replicaGroups)
     {
         checkReplicaGroupForRemove(replicaGroup);
     }
@@ -2075,7 +2097,7 @@ Database::checkForRemove(const ApplicationHelper& app)
 void
 Database::checkServerForAddition(const string& id)
 {
-    if(_serverCache.has(id))
+    if (_serverCache.has(id))
     {
         throw DeploymentException("server `" + id + "' is already registered");
     }
@@ -2085,49 +2107,48 @@ void
 Database::checkAdapterForAddition(const string& id, const IceDB::ReadWriteTxn& txn)
 {
     bool found = false;
-    if(_adapterCache.has(id))
+    if (_adapterCache.has(id))
     {
         found = true;
     }
     else
     {
-        if(_adapters.find(txn, id))
+        if (_adapters.find(txn, id))
         {
             found = true;
         }
         else
         {
-            if(!findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id).empty())
+            if (!findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id).empty())
             {
                 found = true;
             }
         }
     }
 
-    if(found)
+    if (found)
     {
         throw DeploymentException("adapter `" + id + "' is already registered");
     }
 }
 
 void
-Database::checkObjectForAddition(const Ice::Identity& objectId,
-                                 const IceDB::ReadWriteTxn& txn)
+Database::checkObjectForAddition(const Ice::Identity& objectId, const IceDB::ReadWriteTxn& txn)
 {
     bool found = false;
-    if(_objectCache.has(objectId) || _allocatableObjectCache.has(objectId))
+    if (_objectCache.has(objectId) || _allocatableObjectCache.has(objectId))
     {
         found = true;
     }
     else
     {
-        if(_objects.find(txn, objectId))
+        if (_objects.find(txn, objectId))
         {
             found = true;
         }
     }
 
-    if(found)
+    if (found)
     {
         throw DeploymentException("object `" + _communicator->identityToString(objectId) + "' is already registered");
     }
@@ -2141,11 +2162,11 @@ Database::checkReplicaGroupExists(const string& replicaGroup)
     {
         entry = dynamic_pointer_cast<ReplicaGroupEntry>(_adapterCache.get(replicaGroup));
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
 
-    if(!entry)
+    if (!entry)
     {
         throw DeploymentException("couldn't find replica group `" + replicaGroup + "'");
     }
@@ -2159,11 +2180,11 @@ Database::checkReplicaGroupForRemove(const string& replicaGroup)
     {
         entry = dynamic_pointer_cast<ReplicaGroupEntry>(_adapterCache.get(replicaGroup));
     }
-    catch(const AdapterNotExistException&)
+    catch (const AdapterNotExistException&)
     {
     }
 
-    if(!entry)
+    if (!entry)
     {
         //
         // This would indicate an inconsistency with the cache and
@@ -2173,10 +2194,11 @@ Database::checkReplicaGroupForRemove(const string& replicaGroup)
         return;
     }
 
-    if(entry->hasAdaptersFromOtherApplications())
+    if (entry->hasAdaptersFromOtherApplications())
     {
-        throw DeploymentException("couldn't remove application because the replica group `" + replicaGroup +
-                                  "' is used by object adapters from other applications.");
+        throw DeploymentException(
+            "couldn't remove application because the replica group `" + replicaGroup +
+            "' is used by object adapters from other applications.");
     }
 }
 
@@ -2185,23 +2207,23 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
 {
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
     const string application = app.getInstance().name;
-    for(const auto& node : nodes)
+    for (const auto& node : nodes)
     {
         _nodeCache.get(node.first, true)->addDescriptor(application, node.second);
     }
 
     const ReplicaGroupDescriptorSeq& adpts = app.getInstance().replicaGroups;
-    for(const auto& adpt : adpts)
+    for (const auto& adpt : adpts)
     {
         assert(!adpt.id.empty());
         _adapterCache.addReplicaGroup(adpt, application);
-        for(const auto& obj : adpt.objects)
+        for (const auto& obj : adpt.objects)
         {
             _objectCache.add(toObjectInfo(_communicator, obj, adpt.id), application, "");
         }
     }
 
-    for(const auto& server : app.getServerInfos(uuid, revision))
+    for (const auto& server : app.getServerInfos(uuid, revision))
     {
         entries.push_back(_serverCache.add(server.second));
     }
@@ -2210,14 +2232,14 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
 void
 Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
-    for(const auto& server : app.getServerInfos("", 0))
+    for (const auto& server : app.getServerInfos("", 0))
     {
         entries.push_back(_serverCache.remove(server.first, false));
     }
 
-    for(const auto& adpt : app.getInstance().replicaGroups)
+    for (const auto& adpt : app.getInstance().replicaGroups)
     {
-        for(ObjectDescriptorSeq::const_iterator o = adpt.objects.begin(); o != adpt.objects.end(); ++o)
+        for (ObjectDescriptorSeq::const_iterator o = adpt.objects.begin(); o != adpt.objects.end(); ++o)
         {
             _objectCache.remove(o->id);
         }
@@ -2226,19 +2248,20 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
     const string application = app.getInstance().name;
-    for(const auto& node : nodes)
+    for (const auto& node : nodes)
     {
         _nodeCache.get(node.first)->removeDescriptor(application);
     }
 }
 
 void
-Database::reload(const ApplicationHelper& oldApp,
-                 const ApplicationHelper& newApp,
-                 ServerEntrySeq& entries,
-                 const string& uuid,
-                 int revision,
-                 bool noRestart)
+Database::reload(
+    const ApplicationHelper& oldApp,
+    const ApplicationHelper& newApp,
+    ServerEntrySeq& entries,
+    const string& uuid,
+    int revision,
+    bool noRestart)
 {
     const string application = oldApp.getInstance().name;
 
@@ -2247,15 +2270,15 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     auto oldServers = oldApp.getServerInfos(uuid, revision);
     auto newServers = newApp.getServerInfos(uuid, revision);
-    vector<pair<bool, ServerInfo> > load;
-    for(map<string, ServerInfo>::const_iterator p = newServers.begin(); p != newServers.end(); ++p)
+    vector<pair<bool, ServerInfo>> load;
+    for (map<string, ServerInfo>::const_iterator p = newServers.begin(); p != newServers.end(); ++p)
     {
         map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
-        if(q == oldServers.end())
+        if (q == oldServers.end())
         {
             load.push_back(make_pair(false, p->second));
         }
-        else if(isServerUpdated(p->second, q->second))
+        else if (isServerUpdated(p->second, q->second))
         {
             _serverCache.preUpdate(p->second, noRestart);
             load.push_back(make_pair(true, p->second));
@@ -2267,10 +2290,10 @@ Database::reload(const ApplicationHelper& oldApp,
             entries.push_back(server);
         }
     }
-    for(map<string, ServerInfo>::const_iterator p = oldServers.begin(); p != oldServers.end(); ++p)
+    for (map<string, ServerInfo>::const_iterator p = oldServers.begin(); p != oldServers.end(); ++p)
     {
         map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
-        if(q == newServers.end())
+        if (q == newServers.end())
         {
             entries.push_back(_serverCache.remove(p->first, noRestart));
         }
@@ -2281,21 +2304,21 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     const ReplicaGroupDescriptorSeq& oldAdpts = oldApp.getInstance().replicaGroups;
     const ReplicaGroupDescriptorSeq& newAdpts = newApp.getInstance().replicaGroups;
-    for(ReplicaGroupDescriptorSeq::const_iterator r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    for (ReplicaGroupDescriptorSeq::const_iterator r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
         ReplicaGroupDescriptorSeq::const_iterator t;
-        for(t = newAdpts.begin(); t != newAdpts.end(); ++t)
+        for (t = newAdpts.begin(); t != newAdpts.end(); ++t)
         {
-            if(t->id == r->id)
+            if (t->id == r->id)
             {
                 break;
             }
         }
-        for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
             _objectCache.remove(o->id);
         }
-        if(t == newAdpts.end())
+        if (t == newAdpts.end())
         {
             _adapterCache.removeReplicaGroup(r->id);
         }
@@ -2305,7 +2328,7 @@ Database::reload(const ApplicationHelper& oldApp,
     // Remove all the node descriptors.
     //
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
-    for(NodeDescriptorDict::const_iterator n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    for (NodeDescriptorDict::const_iterator n = oldNodes.begin(); n != oldNodes.end(); ++n)
     {
         _nodeCache.get(n->first)->removeDescriptor(application);
     }
@@ -2314,7 +2337,7 @@ Database::reload(const ApplicationHelper& oldApp,
     // Add back node descriptors.
     //
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
-    for(NodeDescriptorDict::const_iterator n = newNodes.begin(); n != newNodes.end(); ++n)
+    for (NodeDescriptorDict::const_iterator n = newNodes.begin(); n != newNodes.end(); ++n)
     {
         _nodeCache.get(n->first, true)->addDescriptor(application, n->second);
     }
@@ -2322,7 +2345,7 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     // Add back replica groups.
     //
-    for(ReplicaGroupDescriptorSeq::const_iterator r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    for (ReplicaGroupDescriptorSeq::const_iterator r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
         try
         {
@@ -2330,12 +2353,12 @@ Database::reload(const ApplicationHelper& oldApp,
             assert(entry);
             entry->update(application, r->loadBalancing, r->filter);
         }
-        catch(const AdapterNotExistException&)
+        catch (const AdapterNotExistException&)
         {
             _adapterCache.addReplicaGroup(*r, application);
         }
 
-        for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
             _objectCache.add(toObjectInfo(_communicator, *o, r->id), application, "");
         }
@@ -2344,9 +2367,9 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     // Add back servers.
     //
-    for(vector<pair<bool, ServerInfo> >::const_iterator q = load.begin(); q != load.end(); ++q)
+    for (vector<pair<bool, ServerInfo>>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
-        if(q->first) // Update
+        if (q->first) // Update
         {
             entries.push_back(_serverCache.postUpdate(q->second, noRestart));
         }
@@ -2374,11 +2397,12 @@ Database::removeApplication(const string& name, const IceDB::ReadWriteTxn& txn, 
 }
 
 void
-Database::checkUpdate(const ApplicationHelper& oldApp,
-                      const ApplicationHelper& newApp,
-                      const string& uuid,
-                      int revision,
-                      bool noRestart)
+Database::checkUpdate(
+    const ApplicationHelper& oldApp,
+    const ApplicationHelper& newApp,
+    const string& uuid,
+    int revision,
+    bool noRestart)
 {
     const string application = oldApp.getInstance().name;
 
@@ -2391,28 +2415,28 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
     vector<shared_ptr<CheckUpdateResult>> results;
     set<string> unreachableNodes;
 
-    if(noRestart)
+    if (noRestart)
     {
-        for(p = oldServers.begin(); p != oldServers.end(); ++p)
+        for (p = oldServers.begin(); p != oldServers.end(); ++p)
         {
             auto q = newServers.find(p->first);
-            if(q == newServers.end())
+            if (q == newServers.end())
             {
                 try
                 {
                     auto info = p->second;
                     info.descriptor = 0; // Clear the descriptor to indicate removal.
                     auto result = _serverCache.get(p->first)->checkUpdate(info, true);
-                    if(result)
+                    if (result)
                     {
                         results.push_back(result);
                     }
                 }
-                catch(const NodeUnreachableException& ex)
+                catch (const NodeUnreachableException& ex)
                 {
                     unreachableNodes.insert(ex.name);
                 }
-                catch(const DeploymentException& ex)
+                catch (const DeploymentException& ex)
                 {
                     servers.push_back(p->first);
                     reasons.push_back(ex.reason);
@@ -2421,14 +2445,13 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
         }
     }
 
-    for(p = newServers.begin(); p != newServers.end(); ++p)
+    for (p = newServers.begin(); p != newServers.end(); ++p)
     {
         auto q = oldServers.find(p->first);
-        if(q != oldServers.end() && isServerUpdated(p->second, q->second))
+        if (q != oldServers.end() && isServerUpdated(p->second, q->second))
         {
-            if(noRestart &&
-               p->second.node == q->second.node &&
-               isServerUpdated(p->second, q->second, true)) // Ignore properties
+            if (noRestart && p->second.node == q->second.node &&
+                isServerUpdated(p->second, q->second, true)) // Ignore properties
             {
                 //
                 // The updates are not only property updates and noRestart is required, no
@@ -2446,16 +2469,16 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
                 try
                 {
                     auto result = _serverCache.get(p->first)->checkUpdate(p->second, noRestart);
-                    if(result)
+                    if (result)
                     {
                         results.push_back(result);
                     }
                 }
-                catch(const NodeUnreachableException& ex)
+                catch (const NodeUnreachableException& ex)
                 {
                     unreachableNodes.insert(ex.name);
                 }
-                catch(const DeploymentException& ex)
+                catch (const DeploymentException& ex)
                 {
                     servers.push_back(p->first);
                     reasons.push_back(ex.reason);
@@ -2464,37 +2487,37 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
         }
     }
 
-    for(const auto& result : results)
+    for (const auto& result : results)
     {
         try
         {
             result->getResult();
         }
-        catch(const NodeUnreachableException& ex)
+        catch (const NodeUnreachableException& ex)
         {
             unreachableNodes.insert(ex.name);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             servers.push_back(result->getServer());
             reasons.push_back(ex.reason);
         }
     }
 
-    if(noRestart)
+    if (noRestart)
     {
-        if(!servers.empty() || !unreachableNodes.empty())
+        if (!servers.empty() || !unreachableNodes.empty())
         {
-            if(_traceLevels->application > 0)
+            if (_traceLevels->application > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
                 out << "check for application `" << application << "' update failed:";
-                if(!unreachableNodes.empty())
+                if (!unreachableNodes.empty())
                 {
 
                     Ice::StringSeq nodes(unreachableNodes.begin(), unreachableNodes.end());
 
-                    if(nodes.size() == 1)
+                    if (nodes.size() == 1)
                     {
                         out << "\nthe node `" << nodes[0] << "' is down";
                     }
@@ -2503,9 +2526,9 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
                         out << "\nthe nodes `" << toString(nodes, ", ") << "' are down";
                     }
                 }
-                if(!reasons.empty())
+                if (!reasons.empty())
                 {
-                    for(vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
+                    for (vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
                     {
                         out << "\n" << *r;
                     }
@@ -2514,9 +2537,9 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
 
             ostringstream os;
             os << "check for application `" << application << "' update failed:";
-            if(!servers.empty())
+            if (!servers.empty())
             {
-                if(servers.size() == 1)
+                if (servers.size() == 1)
                 {
                     os << "\nthe server `" << servers[0] << "' would need to be stopped";
                 }
@@ -2525,10 +2548,10 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
                     os << "\nthe servers `" << toString(servers, ", ") << "' would need to be stopped";
                 }
             }
-            if(!unreachableNodes.empty())
+            if (!unreachableNodes.empty())
             {
                 Ice::StringSeq nodes(unreachableNodes.begin(), unreachableNodes.end());
-                if(nodes.size() == 1)
+                if (nodes.size() == 1)
                 {
                     os << "\nthe node `" << nodes[0] << "' is down";
                 }
@@ -2540,11 +2563,11 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
             throw DeploymentException(os.str());
         }
     }
-    else if(!reasons.empty())
+    else if (!reasons.empty())
     {
         ostringstream os;
         os << "check for application `" << application << "' update failed:";
-        for(vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
+        for (vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
         {
             os << "\n" << *r;
         }
@@ -2553,13 +2576,14 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
 }
 
 void
-Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
-                                  const ApplicationInfo& oldApp,
-                                  const ApplicationHelper& previousAppHelper,
-                                  const ApplicationHelper& appHelper,
-                                  AdminSessionI* /*session*/,
-                                  bool noRestart,
-                                  int64_t dbSerial)
+Database::finishApplicationUpdate(
+    const ApplicationUpdateInfo& update,
+    const ApplicationInfo& oldApp,
+    const ApplicationHelper& previousAppHelper,
+    const ApplicationHelper& appHelper,
+    AdminSessionI* /*session*/,
+    bool noRestart,
+    int64_t dbSerial)
 {
     const ApplicationDescriptor& newDesc = appHelper.getDefinition();
 
@@ -2567,7 +2591,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
     int serial = 0;
     try
     {
-        if(_master)
+        if (_master)
         {
             checkUpdate(previousAppHelper, appHelper, oldApp.uuid, oldApp.revision, noRestart);
         }
@@ -2579,7 +2603,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         checkForUpdate(previousAppHelper, appHelper, txn);
         reload(previousAppHelper, appHelper, entries, oldApp.uuid, oldApp.revision + 1, noRestart);
 
-        for(const auto& entry : entries)
+        for (const auto& entry : entries)
         {
             entry->sync();
         }
@@ -2595,12 +2619,12 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
 
         serial = _applicationObserverTopic->applicationUpdated(dbSerial, update);
     }
-    catch(const DeploymentException&)
+    catch (const DeploymentException&)
     {
         finishUpdating(update.descriptor.name);
         throw;
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_communicator, ex);
         throw;
@@ -2619,23 +2643,23 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         p->markUpdated();
     }
 
-    if(_master)
+    if (_master)
     {
         try
         {
-            for(ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
+            for (ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
             {
                 try
                 {
                     (*p)->waitForSync();
                 }
-                catch(const NodeUnreachableException&)
+                catch (const NodeUnreachableException&)
                 {
                     // Ignore.
                 }
             }
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             ApplicationUpdateInfo newUpdate;
             {
@@ -2653,15 +2677,15 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                     dbSerial = saveApplication(info, txn);
                     txn.commit();
                 }
-                catch(const IceDB::LMDBException& ex)
+                catch (const IceDB::LMDBException& ex)
                 {
                     logError(_communicator, ex);
                 }
 
                 reload(previous, helper, entries, info.uuid, info.revision, noRestart);
 
-                newUpdate.updateTime = chrono::duration_cast<chrono::milliseconds>(
-                    chrono::system_clock::now().time_since_epoch()).count();
+                newUpdate.updateTime =
+                    chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
                 newUpdate.updateUser = _lockUserId;
                 newUpdate.revision = info.revision;
                 newUpdate.descriptor = helper.diff(previous);
@@ -2670,7 +2694,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                 assert(p != _updating.end());
                 p->unmarkUpdated();
 
-                for(const auto& entry : entries)
+                for (const auto& entry : entries)
                 {
                     entry->sync();
                 }
@@ -2679,7 +2703,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
             }
             _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for subscriber to be updated.
 
-            for(const auto& entry : entries)
+            for (const auto& entry : entries)
             {
                 entry->waitForSyncNoThrow();
             }
@@ -2689,7 +2713,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         }
     }
 
-    if(_traceLevels->application > 0)
+    if (_traceLevels->application > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
         out << "updated application `" << update.descriptor.name << "' (serial = `" << dbSerial << "')";
@@ -2734,7 +2758,7 @@ Database::getSerial(const IceDB::Txn& txn, const string& dbName)
 int64_t
 Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, int64_t serial)
 {
-    if(serial == -1) // The master we are talking to doesn't support serials (old IceGrid versions)
+    if (serial == -1) // The master we are talking to doesn't support serials (old IceGrid versions)
     {
         return -1;
     }
@@ -2743,7 +2767,7 @@ Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, int
     // If a serial number is set, just update the serial number from the database,
     // otherwise if the serial is 0, we increment the serial from the database.
     //
-    if(serial > 0)
+    if (serial > 0)
     {
         _serials.put(txn, dbName, serial);
         return serial;
@@ -2774,7 +2798,7 @@ Database::deleteAdapter(const IceDB::ReadWriteTxn& txn, const AdapterInfo& info)
 void
 Database::addObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool internal)
 {
-    if(internal)
+    if (internal)
     {
         _internalObjects.put(txn, info.proxy->ice_getIdentity(), info);
         _internalObjectsByType.put(txn, info.type, info.proxy->ice_getIdentity());
@@ -2785,17 +2809,17 @@ Database::addObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool
         {
             _objects.put(txn, info.proxy->ice_getIdentity(), info);
         }
-        catch(const IceDB::KeyTooLongException& ex)
+        catch (const IceDB::KeyTooLongException& ex)
         {
-            throw DeploymentException("object identity `" +
-                                      _communicator->identityToString(info.proxy->ice_getIdentity())
-                                      + "' is too long: " + ex.what());
+            throw DeploymentException(
+                "object identity `" + _communicator->identityToString(info.proxy->ice_getIdentity()) +
+                "' is too long: " + ex.what());
         }
         try
         {
             _objectsByType.put(txn, info.type, info.proxy->ice_getIdentity());
         }
-        catch(const IceDB::KeyTooLongException& ex)
+        catch (const IceDB::KeyTooLongException& ex)
         {
             throw DeploymentException("object type `" + info.type + "' is too long: " + ex.what());
         }
@@ -2805,7 +2829,7 @@ Database::addObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool
 void
 Database::deleteObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool internal)
 {
-    if(internal)
+    if (internal)
     {
         _internalObjects.del(txn, info.proxy->ice_getIdentity());
         _internalObjectsByType.del(txn, info.type, info.proxy->ice_getIdentity());

@@ -12,41 +12,23 @@ using namespace std;
 class EchoI : public Test::Echo
 {
 public:
+    EchoI(const BlobjectIPtr& blob) : _blob(blob) {}
 
-    EchoI(const BlobjectIPtr& blob) :
-        _blob(blob)
-    {
-    }
+    virtual void setConnection(const Ice::Current& current) { _blob->setConnection(current.con); }
 
-    virtual void setConnection(const Ice::Current& current)
-    {
-        _blob->setConnection(current.con);
-    }
+    virtual void startBatch(const Ice::Current&) { _blob->startBatch(); }
 
-    virtual void startBatch(const Ice::Current&)
-    {
-        _blob->startBatch();
-    }
+    virtual void flushBatch(const Ice::Current&) { _blob->flushBatch(); }
 
-    virtual void flushBatch(const Ice::Current&)
-    {
-        _blob->flushBatch();
-    }
-
-    virtual void shutdown(const Ice::Current& current)
-    {
-        current.adapter->getCommunicator()->shutdown();
-    }
+    virtual void shutdown(const Ice::Current& current) { current.adapter->getCommunicator()->shutdown(); }
 
 private:
-
     BlobjectIPtr _blob;
 };
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

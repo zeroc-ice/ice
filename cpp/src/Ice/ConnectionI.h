@@ -36,322 +36,351 @@
 #include <chrono>
 
 #ifndef ICE_HAS_BZIP2
-#   define ICE_HAS_BZIP2
+#    define ICE_HAS_BZIP2
 #endif
 
 namespace IceInternal
 {
 
-template<typename T> class ThreadPoolMessage;
+    template<typename T> class ThreadPoolMessage;
 
 }
 
 namespace Ice
 {
 
-class LocalException;
-class ObjectAdapterI;
+    class LocalException;
+    class ObjectAdapterI;
 
-class ConnectionI : public Connection,
-                    public IceInternal::EventHandler,
-                    public IceInternal::ResponseHandler,
-                    public IceInternal::CancellationHandler
-{
-    class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
+    class ConnectionI : public Connection,
+                        public IceInternal::EventHandler,
+                        public IceInternal::ResponseHandler,
+                        public IceInternal::CancellationHandler
     {
+        class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
+        {
+        public:
+            Observer();
+
+            void startRead(const IceInternal::Buffer&);
+            void finishRead(const IceInternal::Buffer&);
+            void startWrite(const IceInternal::Buffer&);
+            void finishWrite(const IceInternal::Buffer&);
+
+            void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
+
+        private:
+            std::uint8_t* _readStreamPos;
+            std::uint8_t* _writeStreamPos;
+        };
+
     public:
+        std::shared_ptr<ConnectionI> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
+        }
 
-        Observer();
+        struct OutgoingMessage
+        {
+            OutgoingMessage(Ice::OutputStream* str, bool comp)
+                : stream(str),
+                  compress(comp),
+                  requestId(0),
+                  adopted(false)
+#if defined(ICE_USE_IOCP)
+                  ,
+                  isSent(false),
+                  invokeSent(false),
+                  receivedReply(false)
+#endif
+            {
+            }
 
-        void startRead(const IceInternal::Buffer&);
-        void finishRead(const IceInternal::Buffer&);
-        void startWrite(const IceInternal::Buffer&);
-        void finishWrite(const IceInternal::Buffer&);
+            OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
+                : stream(str),
+                  outAsync(o),
+                  compress(comp),
+                  requestId(rid),
+                  adopted(false)
+#if defined(ICE_USE_IOCP)
+                  ,
+                  isSent(false),
+                  invokeSent(false),
+                  receivedReply(false)
+#endif
+            {
+            }
 
-        void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
+            void adopt(Ice::OutputStream*);
+            void canceled(bool);
+            bool sent();
+            void completed(std::exception_ptr);
+
+            Ice::OutputStream* stream;
+            IceInternal::OutgoingAsyncBasePtr outAsync;
+            bool compress;
+            int requestId;
+            bool adopted;
+#if defined(ICE_USE_IOCP)
+            bool isSent;
+            bool invokeSent;
+            bool receivedReply;
+#endif
+        };
+
+        enum DestructionReason
+        {
+            ObjectAdapterDeactivated,
+            CommunicatorDestroyed
+        };
+
+        void startAsync(
+            std::function<void(ConnectionIPtr)>,
+            std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
+        void activate();
+        void hold();
+        void destroy(DestructionReason);
+        virtual void close(ConnectionClose) noexcept; // From Connection.
+
+        bool isActiveOrHolding() const;
+        bool isFinished() const;
+
+        virtual void throwException() const; // From Connection. Throws the connection exception if destroyed.
+
+        void waitUntilHolding() const;
+        void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
+
+        void updateObserver();
+
+        void monitor(const std::chrono::steady_clock::time_point&, const IceInternal::ACMConfig&);
+
+        IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
+
+        const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
+
+        virtual std::function<void()> flushBatchRequestsAsync(
+            CompressBatch,
+            ::std::function<void(::std::exception_ptr)>,
+            ::std::function<void(bool)> = nullptr);
+
+        virtual void setCloseCallback(CloseCallback);
+        virtual void setHeartbeatCallback(HeartbeatCallback);
+
+        virtual void heartbeat();
+
+        virtual std::function<void()>
+            heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
+
+        virtual void
+        setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&);
+        virtual ACM getACM() noexcept;
+
+        virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
+
+        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
+        virtual void sendNoResponse();
+        virtual bool systemException(std::int32_t, std::exception_ptr, bool);
+        virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
+
+        IceInternal::EndpointIPtr endpoint() const;
+        IceInternal::ConnectorPtr connector() const;
+
+        virtual void setAdapter(const ObjectAdapterPtr&);           // From Connection.
+        virtual ObjectAdapterPtr getAdapter() const noexcept;       // From Connection.
+        virtual EndpointPtr getEndpoint() const noexcept;           // From Connection.
+        virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
+
+        void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
+
+        //
+        // Operations from EventHandler
+        //
+#if defined(ICE_USE_IOCP)
+        bool startAsync(IceInternal::SocketOperation);
+        bool finishAsync(IceInternal::SocketOperation);
+#endif
+
+        virtual void message(IceInternal::ThreadPoolCurrent&);
+        virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
+        virtual std::string toString() const noexcept; // From Connection and EvantHandler.
+        virtual IceInternal::NativeInfoPtr getNativeInfo();
+
+        void timedOut();
+
+        virtual std::string type() const noexcept;     // From Connection.
+        virtual std::int32_t timeout() const noexcept; // From Connection.
+        virtual ConnectionInfoPtr getInfo() const;     // From Connection
+
+        virtual void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize); // From Connection
+
+        void exception(std::exception_ptr);
+
+        void dispatch(
+            std::function<void(ConnectionIPtr)>,
+            const std::vector<OutgoingMessage>&,
+            std::uint8_t,
+            std::int32_t,
+            std::int32_t,
+            const IceInternal::ServantManagerPtr&,
+            const ObjectAdapterPtr&,
+            const IceInternal::OutgoingAsyncBasePtr&,
+            const HeartbeatCallback&,
+            Ice::InputStream&);
+        void finish(bool);
+
+        void closeCallback(const CloseCallback&);
+
+        virtual ~ConnectionI();
 
     private:
+        ConnectionI(
+            const Ice::CommunicatorPtr&,
+            const IceInternal::InstancePtr&,
+            const IceInternal::ACMMonitorPtr&,
+            const IceInternal::TransceiverPtr&,
+            const IceInternal::ConnectorPtr&,
+            const IceInternal::EndpointIPtr&,
+            const std::shared_ptr<ObjectAdapterI>&);
 
-        std::uint8_t* _readStreamPos;
-        std::uint8_t* _writeStreamPos;
-    };
+        static ConnectionIPtr create(
+            const Ice::CommunicatorPtr&,
+            const IceInternal::InstancePtr&,
+            const IceInternal::ACMMonitorPtr&,
+            const IceInternal::TransceiverPtr&,
+            const IceInternal::ConnectorPtr&,
+            const IceInternal::EndpointIPtr&,
+            const std::shared_ptr<ObjectAdapterI>&);
 
-public:
-
-    std::shared_ptr<ConnectionI> shared_from_this()
-    {
-        return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
-    }
-
-    struct OutgoingMessage
-    {
-        OutgoingMessage(Ice::OutputStream* str, bool comp) :
-            stream(str), compress(comp), requestId(0), adopted(false)
-#if defined(ICE_USE_IOCP)
-            , isSent(false), invokeSent(false), receivedReply(false)
-#endif
+        enum State
         {
-        }
+            StateNotInitialized,
+            StateNotValidated,
+            StateActive,
+            StateHolding,
+            StateClosing,
+            StateClosingPending,
+            StateClosed,
+            StateFinished
+        };
 
-        OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str,
-                        bool comp, int rid) :
-            stream(str), outAsync(o), compress(comp), requestId(rid), adopted(false)
-#if defined(ICE_USE_IOCP)
-            , isSent(false), invokeSent(false), receivedReply(false)
-#endif
-        {
-        }
+        friend class IceInternal::IncomingConnectionFactory;
+        friend class IceInternal::OutgoingConnectionFactory;
 
-        void adopt(Ice::OutputStream*);
-        void canceled(bool);
-        bool sent();
-        void completed(std::exception_ptr);
+        void setState(State, std::exception_ptr);
+        void setState(State);
 
-        Ice::OutputStream* stream;
-        IceInternal::OutgoingAsyncBasePtr outAsync;
-        bool compress;
-        int requestId;
-        bool adopted;
-#if defined(ICE_USE_IOCP)
-        bool isSent;
-        bool invokeSent;
-        bool receivedReply;
-#endif
-    };
+        void initiateShutdown();
+        void sendHeartbeatNow();
 
-    enum DestructionReason
-    {
-        ObjectAdapterDeactivated,
-        CommunicatorDestroyed
-    };
-
-    void startAsync(
-        std::function<void(ConnectionIPtr)>,
-        std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
-    void activate();
-    void hold();
-    void destroy(DestructionReason);
-    virtual void close(ConnectionClose) noexcept; // From Connection.
-
-    bool isActiveOrHolding() const;
-    bool isFinished() const;
-
-    virtual void throwException() const; // From Connection. Throws the connection exception if destroyed.
-
-    void waitUntilHolding() const;
-    void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
-
-    void updateObserver();
-
-    void monitor(const std::chrono::steady_clock::time_point&, const IceInternal::ACMConfig&);
-
-    IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
-
-    const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
-
-    virtual std::function<void()>
-    flushBatchRequestsAsync(CompressBatch,
-                            ::std::function<void(::std::exception_ptr)>,
-                            ::std::function<void(bool)> = nullptr);
-
-    virtual void setCloseCallback(CloseCallback);
-    virtual void setHeartbeatCallback(HeartbeatCallback);
-
-    virtual void heartbeat();
-
-    virtual std::function<void()>
-    heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
-
-    virtual void setACM(const std::optional<int>&,
-                        const std::optional<ACMClose>&,
-                        const std::optional<ACMHeartbeat>&);
-    virtual ACM getACM() noexcept;
-
-    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
-
-    virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
-    virtual void sendNoResponse();
-    virtual bool systemException(std::int32_t, std::exception_ptr, bool);
-    virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
-
-    IceInternal::EndpointIPtr endpoint() const;
-    IceInternal::ConnectorPtr connector() const;
-
-    virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
-    virtual ObjectAdapterPtr getAdapter() const noexcept; // From Connection.
-    virtual EndpointPtr getEndpoint() const noexcept; // From Connection.
-    virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
-
-    void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
-
-    //
-    // Operations from EventHandler
-    //
-#if defined(ICE_USE_IOCP)
-    bool startAsync(IceInternal::SocketOperation);
-    bool finishAsync(IceInternal::SocketOperation);
-#endif
-
-    virtual void message(IceInternal::ThreadPoolCurrent&);
-    virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
-    virtual std::string toString() const noexcept; // From Connection and EvantHandler.
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
-
-    void timedOut();
-
-    virtual std::string type() const noexcept; // From Connection.
-    virtual std::int32_t timeout() const noexcept; // From Connection.
-    virtual ConnectionInfoPtr getInfo() const; // From Connection
-
-    virtual void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize); // From Connection
-
-    void exception(std::exception_ptr);
-
-    void dispatch(std::function<void(ConnectionIPtr)>,
-                  const std::vector<OutgoingMessage>&,
-                  std::uint8_t,
-                  std::int32_t,
-                  std::int32_t,
-                  const IceInternal::ServantManagerPtr&,
-                  const ObjectAdapterPtr&,
-                  const IceInternal::OutgoingAsyncBasePtr&,
-                  const HeartbeatCallback&,
-                  Ice::InputStream&);
-    void finish(bool);
-
-    void closeCallback(const CloseCallback&);
-
-    virtual ~ConnectionI();
-
-private:
-
-    ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
-                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-                const IceInternal::EndpointIPtr&, const std::shared_ptr<ObjectAdapterI>&);
-
-    static ConnectionIPtr
-    create(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
-           const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-           const IceInternal::EndpointIPtr&, const std::shared_ptr<ObjectAdapterI>&);
-
-    enum State
-    {
-        StateNotInitialized,
-        StateNotValidated,
-        StateActive,
-        StateHolding,
-        StateClosing,
-        StateClosingPending,
-        StateClosed,
-        StateFinished
-    };
-
-    friend class IceInternal::IncomingConnectionFactory;
-    friend class IceInternal::OutgoingConnectionFactory;
-
-    void setState(State, std::exception_ptr);
-    void setState(State);
-
-    void initiateShutdown();
-    void sendHeartbeatNow();
-
-    bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
-    bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
-    IceInternal::SocketOperation sendNextMessage(std::vector<OutgoingMessage>&);
-    IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
+        bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
+        bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
+        IceInternal::SocketOperation sendNextMessage(std::vector<OutgoingMessage>&);
+        IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifdef ICE_HAS_BZIP2
-    void doCompress(Ice::OutputStream&, Ice::OutputStream&);
-    void doUncompress(Ice::InputStream&, Ice::InputStream&);
+        void doCompress(Ice::OutputStream&, Ice::OutputStream&);
+        void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, std::uint8_t&,
-                                              IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
-                                              IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
+        IceInternal::SocketOperation parseMessage(
+            Ice::InputStream&,
+            std::int32_t&,
+            std::int32_t&,
+            std::uint8_t&,
+            IceInternal::ServantManagerPtr&,
+            ObjectAdapterPtr&,
+            IceInternal::OutgoingAsyncBasePtr&,
+            HeartbeatCallback&,
+            int&);
 
-    void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t,
-                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+        void invokeAll(
+            Ice::InputStream&,
+            std::int32_t,
+            std::int32_t,
+            std::uint8_t,
+            const IceInternal::ServantManagerPtr&,
+            const ObjectAdapterPtr&);
 
-    void scheduleTimeout(IceInternal::SocketOperation status);
-    void unscheduleTimeout(IceInternal::SocketOperation status);
+        void scheduleTimeout(IceInternal::SocketOperation status);
+        void unscheduleTimeout(IceInternal::SocketOperation status);
 
-    Ice::ConnectionInfoPtr initConnectionInfo() const;
-    Ice::Instrumentation::ConnectionState toConnectionState(State) const;
+        Ice::ConnectionInfoPtr initConnectionInfo() const;
+        Ice::Instrumentation::ConnectionState toConnectionState(State) const;
 
-    IceInternal::SocketOperation read(IceInternal::Buffer&);
-    IceInternal::SocketOperation write(IceInternal::Buffer&);
+        IceInternal::SocketOperation read(IceInternal::Buffer&);
+        IceInternal::SocketOperation write(IceInternal::Buffer&);
 
-    void reap();
+        void reap();
 
-    Ice::CommunicatorPtr _communicator;
-    const IceInternal::InstancePtr _instance;
-    IceInternal::ACMMonitorPtr _monitor;
-    const IceInternal::TransceiverPtr _transceiver;
-    const std::string _desc;
-    const std::string _type;
-    const IceInternal::ConnectorPtr _connector;
-    const IceInternal::EndpointIPtr _endpoint;
+        Ice::CommunicatorPtr _communicator;
+        const IceInternal::InstancePtr _instance;
+        IceInternal::ACMMonitorPtr _monitor;
+        const IceInternal::TransceiverPtr _transceiver;
+        const std::string _desc;
+        const std::string _type;
+        const IceInternal::ConnectorPtr _connector;
+        const IceInternal::EndpointIPtr _endpoint;
 
-    mutable Ice::ConnectionInfoPtr _info;
+        mutable Ice::ConnectionInfoPtr _info;
 
-    ObjectAdapterPtr _adapter;
-    IceInternal::ServantManagerPtr _servantManager;
+        ObjectAdapterPtr _adapter;
+        IceInternal::ServantManagerPtr _servantManager;
 
-    const bool _dispatcher;
-    const LoggerPtr _logger;
-    const IceInternal::TraceLevelsPtr _traceLevels;
-    const IceInternal::ThreadPoolPtr _threadPool;
+        const bool _dispatcher;
+        const LoggerPtr _logger;
+        const IceInternal::TraceLevelsPtr _traceLevels;
+        const IceInternal::ThreadPoolPtr _threadPool;
 
-    const IceUtil::TimerPtr _timer;
-    const IceUtil::TimerTaskPtr _writeTimeout;
-    bool _writeTimeoutScheduled;
-    const IceUtil::TimerTaskPtr _readTimeout;
-    bool _readTimeoutScheduled;
+        const IceUtil::TimerPtr _timer;
+        const IceUtil::TimerTaskPtr _writeTimeout;
+        bool _writeTimeoutScheduled;
+        const IceUtil::TimerTaskPtr _readTimeout;
+        bool _readTimeoutScheduled;
 
-    std::function<void(ConnectionIPtr)> _connectionStartCompleted;
-    std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
+        std::function<void(ConnectionIPtr)> _connectionStartCompleted;
+        std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
 
-    const bool _warn;
-    const bool _warnUdp;
+        const bool _warn;
+        const bool _warnUdp;
 
-    std::chrono::steady_clock::time_point _acmLastActivity;
+        std::chrono::steady_clock::time_point _acmLastActivity;
 
-    const int _compressionLevel;
+        const int _compressionLevel;
 
-    std::int32_t _nextRequestId;
+        std::int32_t _nextRequestId;
 
-    std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
-    std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
+        std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
+        std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
-    std::exception_ptr _exception;
+        std::exception_ptr _exception;
 
-    const size_t _messageSizeMax;
-    IceInternal::BatchRequestQueuePtr _batchRequestQueue;
+        const size_t _messageSizeMax;
+        IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 
-    std::deque<OutgoingMessage> _sendStreams;
+        std::deque<OutgoingMessage> _sendStreams;
 
-    Ice::InputStream _readStream;
-    bool _readHeader;
-    Ice::OutputStream _writeStream;
+        Ice::InputStream _readStream;
+        bool _readHeader;
+        Ice::OutputStream _writeStream;
 
-    Observer _observer;
+        Observer _observer;
 
-    int _dispatchCount;
+        int _dispatchCount;
 
-    State _state; // The current state.
-    bool _shutdownInitiated;
-    bool _initialized;
-    bool _validated;
+        State _state; // The current state.
+        bool _shutdownInitiated;
+        bool _initialized;
+        bool _validated;
 
-    CloseCallback _closeCallback;
-    HeartbeatCallback _heartbeatCallback;
+        CloseCallback _closeCallback;
+        HeartbeatCallback _heartbeatCallback;
 
-    mutable std::mutex _mutex;
-    mutable std::condition_variable _conditionVariable;
+        mutable std::mutex _mutex;
+        mutable std::condition_variable _conditionVariable;
 
-    // For locking the _mutex
-    template<typename T> friend class IceInternal::ThreadPoolMessage;
-};
+        // For locking the _mutex
+        template<typename T> friend class IceInternal::ThreadPoolMessage;
+    };
 
 }
 

@@ -11,19 +11,19 @@
 namespace Ice
 {
 
-class OutputStream;
-class InputStream;
+    class OutputStream;
+    class InputStream;
 
 }
 
 namespace IceInternal
 {
 
-void traceSend(const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceRecv(const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void trace(const char*, const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void trace(const char*, const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceSlicing(const char*, ::std::string_view, const char *, const ::Ice::LoggerPtr&);
+    void traceSend(const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+    void traceRecv(const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+    void trace(const char*, const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+    void trace(const char*, const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+    void traceSlicing(const char*, ::std::string_view, const char*, const ::Ice::LoggerPtr&);
 
 }
 

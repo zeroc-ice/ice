@@ -13,44 +13,42 @@
 namespace IceInternal
 {
 
-class TcpConnector;
-class TcpAcceptor;
+    class TcpConnector;
+    class TcpAcceptor;
 
-class TcpTransceiver final : public Transceiver
-{
-public:
+    class TcpTransceiver final : public Transceiver
+    {
+    public:
+        TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
+        ~TcpTransceiver();
+        NativeInfoPtr getNativeInfo() final;
 
-    TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
-    ~TcpTransceiver();
-    NativeInfoPtr getNativeInfo() final;
+        SocketOperation initialize(Buffer&, Buffer&) final;
+        SocketOperation closing(bool, std::exception_ptr) final;
 
-    SocketOperation initialize(Buffer&, Buffer&) final;
-    SocketOperation closing(bool, std::exception_ptr) final;
-
-    void close() final;
-    SocketOperation write(Buffer&) final;
-    SocketOperation read(Buffer&) final;
+        void close() final;
+        SocketOperation write(Buffer&) final;
+        SocketOperation read(Buffer&) final;
 #if defined(ICE_USE_IOCP)
-    bool startWrite(Buffer&) final;
-    void finishWrite(Buffer&) final;
-    void startRead(Buffer&) final;
-    void finishRead(Buffer&) final;
+        bool startWrite(Buffer&) final;
+        void finishWrite(Buffer&) final;
+        void startRead(Buffer&) final;
+        void finishRead(Buffer&) final;
 #endif
-    std::string protocol() const final;
-    std::string toString() const final;
-    std::string toDetailedString() const final;
-    Ice::ConnectionInfoPtr getInfo() const final;
-    void checkSendSize(const Buffer&) final;
-    void setBufferSize(int rcvSize, int sndSize) final;
+        std::string protocol() const final;
+        std::string toString() const final;
+        std::string toDetailedString() const final;
+        Ice::ConnectionInfoPtr getInfo() const final;
+        void checkSendSize(const Buffer&) final;
+        void setBufferSize(int rcvSize, int sndSize) final;
 
-private:
+    private:
+        friend class TcpConnector;
+        friend class TcpAcceptor;
 
-    friend class TcpConnector;
-    friend class TcpAcceptor;
-
-    const ProtocolInstancePtr _instance;
-    const StreamSocketPtr _stream;
-};
+        const ProtocolInstancePtr _instance;
+        const StreamSocketPtr _stream;
+    };
 
 }
 

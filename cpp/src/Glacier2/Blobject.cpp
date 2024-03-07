@@ -14,43 +14,44 @@ using namespace Glacier2::Instrumentation;
 namespace
 {
 
-const string serverForwardContext = "Glacier2.Server.ForwardContext";
-const string clientForwardContext = "Glacier2.Client.ForwardContext";
-const string serverTraceRequest = "Glacier2.Server.Trace.Request";
-const string clientTraceRequest = "Glacier2.Client.Trace.Request";
-const string serverTraceOverride = "Glacier2.Server.Trace.Override";
-const string clientTraceOverride = "Glacier2.Client.Trace.Override";
+    const string serverForwardContext = "Glacier2.Server.ForwardContext";
+    const string clientForwardContext = "Glacier2.Client.ForwardContext";
+    const string serverTraceRequest = "Glacier2.Server.Trace.Request";
+    const string clientTraceRequest = "Glacier2.Client.Trace.Request";
+    const string serverTraceOverride = "Glacier2.Server.Trace.Override";
+    const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 
 }
 
-Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, shared_ptr<Connection> reverseConnection,
-                             const Context& context) :
-    _instance(std::move(instance)),
-    _reverseConnection(std::move(reverseConnection)),
-    _forwardContext(_reverseConnection ?
-                    _instance->properties()->getPropertyAsInt(serverForwardContext) > 0 :
-                    _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
-    _requestTraceLevel(_reverseConnection ?
-                       _instance->properties()->getPropertyAsInt(serverTraceRequest) :
-                       _instance->properties()->getPropertyAsInt(clientTraceRequest)),
-    _overrideTraceLevel(reverseConnection ?
-                        _instance->properties()->getPropertyAsInt(serverTraceOverride) :
-                        _instance->properties()->getPropertyAsInt(clientTraceOverride)),
-    _context(context)
+Glacier2::Blobject::Blobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<Connection> reverseConnection,
+    const Context& context)
+    : _instance(std::move(instance)),
+      _reverseConnection(std::move(reverseConnection)),
+      _forwardContext(
+          _reverseConnection ? _instance->properties()->getPropertyAsInt(serverForwardContext) > 0
+                             : _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
+      _requestTraceLevel(
+          _reverseConnection ? _instance->properties()->getPropertyAsInt(serverTraceRequest)
+                             : _instance->properties()->getPropertyAsInt(clientTraceRequest)),
+      _overrideTraceLevel(
+          reverseConnection ? _instance->properties()->getPropertyAsInt(serverTraceOverride)
+                            : _instance->properties()->getPropertyAsInt(clientTraceOverride)),
+      _context(context)
 {
     auto t = _reverseConnection ? _instance->serverRequestQueueThread() : _instance->clientRequestQueueThread();
-    if(t)
+    if (t)
     {
-        const_cast<shared_ptr<RequestQueue>&>(_requestQueue) = make_shared<RequestQueue>(t,
-                                                                                         _instance,
-                                                                                         _reverseConnection);
+        const_cast<shared_ptr<RequestQueue>&>(_requestQueue) =
+            make_shared<RequestQueue>(t, _instance, _reverseConnection);
     }
 }
 
 void
 Glacier2::Blobject::destroy()
 {
-    if(_requestQueue)
+    if (_requestQueue)
     {
         _requestQueue->destroy();
     }
@@ -59,23 +60,24 @@ Glacier2::Blobject::destroy()
 void
 Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::SessionObserver>& observer)
 {
-    if(_requestQueue)
+    if (_requestQueue)
     {
         _requestQueue->updateObserver(observer);
     }
 }
 
 void
-Glacier2::Blobject::invoke(ObjectPrx& proxy,
-                           const std::pair<const uint8_t*, const uint8_t*>& inParams,
-                           function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                           function<void(exception_ptr)> exception,
-                           const Current& current)
+Glacier2::Blobject::invoke(
+    ObjectPrx& proxy,
+    const std::pair<const uint8_t*, const uint8_t*>& inParams,
+    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Current& current)
 {
     //
     // Set the correct facet on the proxy.
     //
-    if(!current.facet.empty())
+    if (!current.facet.empty())
     {
         proxy = proxy->ice_facet(current.facet);
     }
@@ -84,11 +86,11 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
     // Modify the proxy according to the request id. This can
     // be overridden by the _fwd context.
     //
-    if(current.requestId == 0)
+    if (current.requestId == 0)
     {
         proxy = proxy->ice_oneway();
     }
-    else if(current.requestId > 0)
+    else if (current.requestId > 0)
     {
         proxy = proxy->ice_twoway();
     }
@@ -97,12 +99,12 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
     // Modify the proxy according to the _fwd context field.
     //
     Context::const_iterator p = current.ctx.find("_fwd");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
-        for(unsigned int i = 0; i < p->second.length(); ++i)
+        for (unsigned int i = 0; i < p->second.length(); ++i)
         {
             char option = p->second[i];
-            switch(option)
+            switch (option)
             {
                 case 't':
                 {
@@ -158,15 +160,15 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
         }
     }
 
-    if(_requestTraceLevel >= 1)
+    if (_requestTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
-        if(_reverseConnection)
+        if (_reverseConnection)
         {
             out << "reverse ";
         }
         out << "routing";
-        if(_requestQueue)
+        if (_requestQueue)
         {
             out << " (buffered)";
         }
@@ -174,7 +176,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
         {
             out << " (not buffered)";
         }
-        if(_reverseConnection)
+        if (_reverseConnection)
         {
             out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
         }
@@ -185,17 +187,17 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
         out << "\noperation = " << current.operation;
         out << "\ncontext = ";
         Context::const_iterator q = current.ctx.begin();
-        while(q != current.ctx.end())
+        while (q != current.ctx.end())
         {
             out << q->first << '/' << q->second;
-            if(++q != current.ctx.end())
+            if (++q != current.ctx.end())
             {
                 out << ", ";
             }
         }
     }
 
-    if(_requestQueue)
+    if (_requestQueue)
     {
         //
         // If we are in buffered mode, we create a new request and add
@@ -206,24 +208,24 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
         bool override;
         try
         {
-            override = _requestQueue->addRequest(make_shared<Request>(proxy, inParams, current, _forwardContext,
-                                                                      _context, std::move(response), exception));
+            override = _requestQueue->addRequest(make_shared<Request>(
+                proxy, inParams, current, _forwardContext, _context, std::move(response), exception));
         }
-        catch(const ObjectNotExistException&)
+        catch (const ObjectNotExistException&)
         {
             exception(current_exception());
             return;
         }
 
-        if(override && _overrideTraceLevel >= 1)
+        if (override && _overrideTraceLevel >= 1)
         {
             Trace out(_instance->logger(), "Glacier2");
-            if(_reverseConnection)
+            if (_reverseConnection)
             {
                 out << "reverse ";
             }
             out << "routing override";
-            if(_reverseConnection)
+            if (_reverseConnection)
             {
                 out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
             }
@@ -234,10 +236,10 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
             out << "\noperation = " << current.operation;
             out << "\ncontext = ";
             Context::const_iterator q = current.ctx.begin();
-            while(q != current.ctx.end())
+            while (q != current.ctx.end())
             {
                 out << q->first << '/' << q->second;
-                if(++q != current.ctx.end())
+                if (++q != current.ctx.end())
                 {
                     out << ", ";
                 }
@@ -255,48 +257,49 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy,
             function<void(bool, pair<const uint8_t*, const uint8_t*>)> amiResponse = nullptr;
             function<void(bool)> amiSent = nullptr;
 
-            if(proxy->ice_isTwoway())
+            if (proxy->ice_isTwoway())
             {
                 amiResponse = std::move(response);
             }
             else
             {
-                amiSent = [amdResponse = std::move(response)](bool)
-                    {
-                        amdResponse(true, {nullptr, nullptr});
-                    };
+                amiSent = [amdResponse = std::move(response)](bool) { amdResponse(true, {nullptr, nullptr}); };
             }
 
-            if(_forwardContext)
+            if (_forwardContext)
             {
-                if(_context.size() > 0)
+                if (_context.size() > 0)
                 {
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
-                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           std::move(amiResponse), std::move(exception), std::move(amiSent), ctx);
+                    proxy->ice_invokeAsync(
+                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
+                        std::move(amiSent), ctx);
                 }
                 else
                 {
-                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           std::move(amiResponse), std::move(exception), std::move(amiSent), current.ctx);
+                    proxy->ice_invokeAsync(
+                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
+                        std::move(amiSent), current.ctx);
                 }
             }
             else
             {
-                if(_context.size() > 0)
+                if (_context.size() > 0)
                 {
-                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           std::move(amiResponse), std::move(exception), std::move(amiSent), _context);
+                    proxy->ice_invokeAsync(
+                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
+                        std::move(amiSent), _context);
                 }
                 else
                 {
-                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           std::move(amiResponse), std::move(exception), std::move(amiSent));
+                    proxy->ice_invokeAsync(
+                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
+                        std::move(amiSent));
                 }
             }
         }
-        catch(const LocalException&)
+        catch (const LocalException&)
         {
             exception(current_exception());
         }

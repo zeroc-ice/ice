@@ -11,7 +11,6 @@ using namespace Ice;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

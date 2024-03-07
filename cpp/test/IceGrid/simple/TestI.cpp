@@ -7,9 +7,7 @@
 
 using namespace Test;
 
-TestI::TestI()
-{
-}
+TestI::TestI() {}
 
 void
 TestI::shutdown(const Ice::Current& current)

@@ -10,25 +10,25 @@
 namespace Ice
 {
 
-/** Creates and throws a user exception. */
-using UserExceptionFactory = std::function<void(std::string_view)>;
+    /** Creates and throws a user exception. */
+    using UserExceptionFactory = std::function<void(std::string_view)>;
 
 }
 
 namespace IceInternal
 {
 
-template<class E>
-void
+    template<class E>
+    void
 #ifdef NDEBUG
-defaultUserExceptionFactory(std::string_view)
+    defaultUserExceptionFactory(std::string_view)
 #else
-defaultUserExceptionFactory(std::string_view typeId)
+    defaultUserExceptionFactory(std::string_view typeId)
 #endif
-{
-    assert(typeId == E::ice_staticId());
-    throw E();
-}
+    {
+        assert(typeId == E::ice_staticId());
+        throw E();
+    }
 
 }
 

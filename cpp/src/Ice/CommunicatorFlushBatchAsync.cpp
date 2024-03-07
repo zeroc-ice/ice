@@ -18,8 +18,7 @@ CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync()
     // Out of line to avoid weak vtable
 }
 
-CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) :
-    OutgoingAsyncBase(instance)
+CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) : OutgoingAsyncBase(instance)
 {
     //
     // _useCount is initialized to 1 to prevent premature callbacks.
@@ -35,24 +34,24 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     class FlushBatch final : public OutgoingAsyncBase
     {
     public:
-
-        FlushBatch(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                   const InstancePtr& instance,
-                   InvocationObserver& observer) :
-            OutgoingAsyncBase(instance), _outAsync(outAsync), _parentObserver(observer)
+        FlushBatch(
+            const CommunicatorFlushBatchAsyncPtr& outAsync,
+            const InstancePtr& instance,
+            InvocationObserver& observer)
+            : OutgoingAsyncBase(instance),
+              _outAsync(outAsync),
+              _parentObserver(observer)
         {
         }
 
-        virtual bool
-        sent()
+        virtual bool sent()
         {
             _childObserver.detach();
             _outAsync->check(false);
             return false;
         }
 
-        virtual bool
-        exception(std::exception_ptr ex)
+        virtual bool exception(std::exception_ptr ex)
         {
             _childObserver.failed(getExceptionId(ex));
             _childObserver.detach();
@@ -60,44 +59,21 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             return false;
         }
 
-        virtual InvocationObserver&
-        getObserver()
-        {
-            return _parentObserver;
-        }
+        virtual InvocationObserver& getObserver() { return _parentObserver; }
 
-        bool handleSent(bool, bool) noexcept final
-        {
-            return false;
-        }
+        bool handleSent(bool, bool) noexcept final { return false; }
 
-        bool handleException(std::exception_ptr) noexcept final
-        {
-            return false;
-        }
+        bool handleException(std::exception_ptr) noexcept final { return false; }
 
-        bool handleResponse(bool) final
-        {
-            return false;
-        }
+        bool handleResponse(bool) final { return false; }
 
-        void handleInvokeSent(bool, OutgoingAsyncBase*) const final
-        {
-            assert(false);
-        }
+        void handleInvokeSent(bool, OutgoingAsyncBase*) const final { assert(false); }
 
-        void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const final
-        {
-            assert(false);
-        }
+        void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const final { assert(false); }
 
-        void handleInvokeResponse(bool, OutgoingAsyncBase*) const final
-        {
-            assert(false);
-        }
+        void handleInvokeResponse(bool, OutgoingAsyncBase*) const final { assert(false); }
 
     private:
-
         const CommunicatorFlushBatchAsyncPtr _outAsync;
         InvocationObserver& _parentObserver;
     };
@@ -112,24 +88,24 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         OutgoingAsyncBasePtr flushBatch = make_shared<FlushBatch>(shared_from_this(), _instance, _observer);
         bool compress;
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs(), compress);
-        if(batchRequestNum == 0)
+        if (batchRequestNum == 0)
         {
             flushBatch->sent();
         }
         else
         {
-            if(compressBatch == CompressBatch::Yes)
+            if (compressBatch == CompressBatch::Yes)
             {
                 compress = true;
             }
-            else if(compressBatch == CompressBatch::No)
+            else if (compressBatch == CompressBatch::No)
             {
                 compress = false;
             }
             con->sendAsyncRequest(flushBatch, compress, false, batchRequestNum);
         }
     }
-    catch(const LocalException&)
+    catch (const LocalException&)
     {
         check(false);
         throw;
@@ -151,15 +127,15 @@ CommunicatorFlushBatchAsync::check(bool userThread)
     {
         Lock sync(_m);
         assert(_useCount > 0);
-        if(--_useCount > 0)
+        if (--_useCount > 0)
         {
             return;
         }
     }
 
-    if(sentImpl(true))
+    if (sentImpl(true))
     {
-        if(userThread)
+        if (userThread)
         {
             _sentSynchronously = true;
             invokeSent();

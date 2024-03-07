@@ -13,53 +13,38 @@ using namespace Test;
 namespace
 {
 
-class RouterI final : public Router
-{
-public:
-
-    RouterI() : _nextPort(23456)
+    class RouterI final : public Router
     {
-    }
+    public:
+        RouterI() : _nextPort(23456) {}
 
-    optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final
-    {
-        return nullopt;
-    }
+        optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final { return nullopt; }
 
-    optional<ObjectPrx> getServerProxy(const Current& c) const final
-    {
-        ostringstream os;
-        os << "dummy:tcp -h localhost -p " << _nextPort++ << " -t 30000";
-        return c.adapter->getCommunicator()->stringToProxy(os.str());
-    }
+        optional<ObjectPrx> getServerProxy(const Current& c) const final
+        {
+            ostringstream os;
+            os << "dummy:tcp -h localhost -p " << _nextPort++ << " -t 30000";
+            return c.adapter->getCommunicator()->stringToProxy(os.str());
+        }
 
-    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final
-    {
-        return ObjectProxySeq();
-    }
+        ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
 
-private:
-
-    mutable int _nextPort;
-};
+    private:
+        mutable int _nextPort;
+    };
 
 }
 
-ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>())
-{
-}
+ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>()) {}
 
-ServantLocatorI::~ServantLocatorI()
-{
-    test(_deactivated);
-}
+ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 
 shared_ptr<Object>
 ServantLocatorI::locate(const Current& current, shared_ptr<void>& cookie)
 {
     test(!_deactivated);
 
-    if(current.id.name == "router")
+    if (current.id.name == "router")
     {
         return _router;
     }
@@ -76,7 +61,7 @@ void
 ServantLocatorI::finished(const Current& current, const shared_ptr<Object>&, const shared_ptr<void>& cookie)
 {
     test(!_deactivated);
-    if(current.id.name == "router")
+    if (current.id.name == "router")
     {
         return;
     }

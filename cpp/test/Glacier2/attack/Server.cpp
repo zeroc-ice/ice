@@ -13,7 +13,6 @@ using namespace Test;
 class BackendServer final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

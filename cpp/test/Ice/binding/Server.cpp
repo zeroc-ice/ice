@@ -11,47 +11,31 @@ using namespace std;
 namespace
 {
 
-//
-// A no-op Logger, used when testing the Logger Admin
-//
+    //
+    // A no-op Logger, used when testing the Logger Admin
+    //
 
-class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
-{
-public:
-
-    virtual void print(const string&)
+    class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
     {
-    }
+    public:
+        virtual void print(const string&) {}
 
-    virtual void trace(const string&, const string&)
-    {
-    }
+        virtual void trace(const string&, const string&) {}
 
-    virtual void warning(const string&)
-    {
-    }
+        virtual void warning(const string&) {}
 
-    virtual void error(const string&)
-    {
-    }
+        virtual void error(const string&) {}
 
-    virtual string getPrefix()
-    {
-        return "NullLogger";
-    }
+        virtual string getPrefix() { return "NullLogger"; }
 
-    virtual Ice::LoggerPtr cloneWithPrefix(const string&)
-    {
-        return shared_from_this();
-    }
-};
+        virtual Ice::LoggerPtr cloneWithPrefix(const string&) { return shared_from_this(); }
+    };
 
 }
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

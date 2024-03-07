@@ -12,24 +12,19 @@
 namespace IceBT
 {
 
-class Instance : public IceInternal::ProtocolInstance
-{
-public:
-
-    Instance(const EnginePtr&, std::int16_t, const std::string&);
-    virtual ~Instance();
-
-    EnginePtr engine() const
+    class Instance : public IceInternal::ProtocolInstance
     {
-        return _engine;
-    }
+    public:
+        Instance(const EnginePtr&, std::int16_t, const std::string&);
+        virtual ~Instance();
 
-    bool initialized() const;
+        EnginePtr engine() const { return _engine; }
 
-private:
+        bool initialized() const;
 
-    const EnginePtr _engine;
-};
+    private:
+        const EnginePtr _engine;
+    };
 
 }
 

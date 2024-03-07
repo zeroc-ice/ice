@@ -5,11 +5,10 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
-ICE_DECLSPEC_IMPORT void
-allTests(const Ice::ObjectAdapterPtr&);
+ICE_DECLSPEC_IMPORT void allTests(const Ice::ObjectAdapterPtr&);
 
 #if defined(_MSC_VER)
-#   pragma comment(lib, ICE_LIBNAME("alltests"))
+#    pragma comment(lib, ICE_LIBNAME("alltests"))
 #endif
 
 using namespace std;
@@ -17,7 +16,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

@@ -15,19 +15,14 @@ TimerTask::~TimerTask()
     // Out of line to avoid weak vtable
 }
 
-Timer::Timer() :
-    _destroyed(false),
-    _wakeUpTime(chrono::steady_clock::time_point()),
-    _worker(&Timer::run, this)
-{
-}
+Timer::Timer() : _destroyed(false), _wakeUpTime(chrono::steady_clock::time_point()), _worker(&Timer::run, this) {}
 
 void
 Timer::destroy()
 {
     {
         std::lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
@@ -51,26 +46,27 @@ bool
 Timer::cancel(const TimerTaskPtr& task)
 {
     lock_guard lock(_mutex);
-    if(_destroyed)
+    if (_destroyed)
     {
         return false;
     }
 
     auto p = _tasks.find(task);
-    if(p == _tasks.end())
+    if (p == _tasks.end())
     {
         return false;
     }
 
-    _tokens.erase(Token { p->second, nullopt, p->first });
+    _tokens.erase(Token{p->second, nullopt, p->first});
     _tasks.erase(p);
 
     return true;
 }
 
-void Timer::run()
+void
+Timer::run()
 {
-    Token token { chrono::steady_clock::time_point(), nullopt, nullptr };
+    Token token{chrono::steady_clock::time_point(), nullopt, nullptr};
     while (true)
     {
         {
@@ -89,7 +85,7 @@ void Timer::run()
                         _tokens.insert(token);
                     }
                 }
-                token = { chrono::steady_clock::time_point(), nullopt, nullptr };
+                token = {chrono::steady_clock::time_point(), nullopt, nullptr};
 
                 if (_tokens.empty())
                 {
@@ -134,7 +130,7 @@ void Timer::run()
             {
                 runTimerTask(token.task);
             }
-            catch(const IceUtil::Exception& e)
+            catch (const IceUtil::Exception& e)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__
@@ -142,11 +138,11 @@ void Timer::run()
 #endif
                 consoleErr << endl;
             }
-            catch(const std::exception& e)
+            catch (const std::exception& e)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
             }
-            catch(...)
+            catch (...)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
             }

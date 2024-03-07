@@ -9,15 +9,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::Instance::Instance(const EnginePtr& engine, int16_t type, const string& protocol) :
-    ProtocolInstance(engine->communicator(), type, protocol, type == BTSEndpointType),
-    _engine(engine)
+IceBT::Instance::Instance(const EnginePtr& engine, int16_t type, const string& protocol)
+    : ProtocolInstance(engine->communicator(), type, protocol, type == BTSEndpointType),
+      _engine(engine)
 {
 }
 
-IceBT::Instance::~Instance()
-{
-}
+IceBT::Instance::~Instance() {}
 
 bool
 IceBT::Instance::initialized() const

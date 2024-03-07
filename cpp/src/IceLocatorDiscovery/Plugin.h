@@ -15,33 +15,33 @@
 // Automatically link IceLocatorDiscovery[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
-#   define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
+#    define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
-#   pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
 #endif
 
 #ifndef ICE_LOCATOR_DISCOVERY_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_LOCATOR_DISCOVERY_API /**/
-#   elif defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
-#       define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_LOCATOR_DISCOVERY_API /**/
+#    elif defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
+#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace IceLocatorDiscovery
 {
 
-class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
-{
-public:
-
-    virtual std::vector<Ice::LocatorPrx> getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
-};
-using PluginPtr = std::shared_ptr<Plugin>;
+    class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
+    {
+    public:
+        virtual std::vector<Ice::LocatorPrx>
+        getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
+    };
+    using PluginPtr = std::shared_ptr<Plugin>;
 
 };
 

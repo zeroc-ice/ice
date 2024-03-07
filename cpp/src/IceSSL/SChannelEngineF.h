@@ -7,20 +7,20 @@
 
 #ifdef _WIN32
 
-#include <IceSSL/SChannel.h>
+#    include <IceSSL/SChannel.h>
 
-#include <memory>
+#    include <memory>
 
 namespace IceSSL
 {
 
-namespace SChannel
-{
+    namespace SChannel
+    {
 
-class SSLEngine;
-using SSLEnginePtr = std::shared_ptr<SSLEngine>;
+        class SSLEngine;
+        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 
-}
+    }
 
 }
 

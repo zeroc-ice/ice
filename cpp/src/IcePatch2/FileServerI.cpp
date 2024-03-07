@@ -8,9 +8,9 @@
 #include <IcePatch2/FileServerI.h>
 
 #ifdef _WIN32
-#   include <io.h>
+#    include <io.h>
 #else
-#   include <unistd.h>
+#    include <unistd.h>
 #endif
 
 using namespace std;
@@ -18,8 +18,9 @@ using namespace Ice;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
-IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileInfoSeq& infoSeq) :
-    _dataDir(dataDir), _tree0(FileTree0())
+IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileInfoSeq& infoSeq)
+    : _dataDir(dataDir),
+      _tree0(FileTree0())
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
@@ -28,7 +29,7 @@ IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileI
 LargeFileInfoSeq
 IcePatch2::FileServerI::getLargeFileInfoSeq(int32_t node0, const Current&) const
 {
-    if(node0 < 0 || node0 > 255)
+    if (node0 < 0 || node0 > 255)
     {
         throw PartitionOutOfRangeException();
     }
@@ -41,7 +42,7 @@ IcePatch2::FileServerI::getChecksumSeq(const Current&) const
 {
     ByteSeqSeq checksums(256);
 
-    for(size_t node0 = 0; node0 < 256; ++node0)
+    for (size_t node0 = 0; node0 < 256; ++node0)
     {
         checksums[node0] = _tree0.nodes[node0].checksum;
     }
@@ -68,7 +69,7 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
     {
         vector<uint8_t> buffer;
         getFileCompressedInternal(std::move(pa), pos, num, buffer, true);
-        if(buffer.empty())
+        if (buffer.empty())
         {
             response(make_pair<const uint8_t*, const uint8_t*>(0, 0));
         }
@@ -76,9 +77,8 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
         {
             response(make_pair<const uint8_t*, const uint8_t*>(&buffer[0], &buffer[0] + buffer.size()));
         }
-
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -92,42 +92,41 @@ IcePatch2::FileServerI::getFileCompressedInternal(
     vector<uint8_t>& buffer,
     bool largeFile) const
 {
-    if(IceUtilInternal::isAbsolutePath(pa))
+    if (IceUtilInternal::isAbsolutePath(pa))
     {
         throw FileAccessException(string("illegal absolute path `") + pa + "'");
     }
 
     string path = simplify(pa);
 
-    if(path == ".." ||
-       path.find("/../") != string::npos ||
-       (path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/..")))
+    if (path == ".." || path.find("/../") != string::npos ||
+        (path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/..")))
     {
         throw FileAccessException(string("illegal `..' component in path `") + path + "'");
     }
 
-    if(num <= 0 || pos < 0)
+    if (num <= 0 || pos < 0)
     {
         return;
     }
 
     string absolutePath = _dataDir + '/' + path + ".bz2";
-    int fd = IceUtilInternal::open(absolutePath, O_RDONLY|O_BINARY);
-    if(fd == -1)
+    int fd = IceUtilInternal::open(absolutePath, O_RDONLY | O_BINARY);
+    if (fd == -1)
     {
-        throw FileAccessException(string("cannot open `") + path + "' for reading: " +
-                                  IceUtilInternal::errorToString(errno));
+        throw FileAccessException(
+            string("cannot open `") + path + "' for reading: " + IceUtilInternal::errorToString(errno));
     }
 
-    if(!largeFile)
+    if (!largeFile)
     {
         IceUtilInternal::structstat buf;
-        if(IceUtilInternal::stat(absolutePath, &buf) == -1)
+        if (IceUtilInternal::stat(absolutePath, &buf) == -1)
         {
             throw FileAccessException(string("cannot stat `") + path + "':\n" + IceUtilInternal::lastErrorToString());
         }
 
-        if(buf.st_size > 0x7FFFFFFF)
+        if (buf.st_size > 0x7FFFFFFF)
         {
             ostringstream os;
             os << "cannot encode size `" << buf.st_size << "' for file `" << path << "' as int32_t" << endl;
@@ -135,7 +134,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(
         }
     }
 
-    if(
+    if (
 #if defined(_MSC_VER)
         _lseek(fd, static_cast<off_t>(pos), SEEK_SET)
 #else
@@ -148,17 +147,18 @@ IcePatch2::FileServerI::getFileCompressedInternal(
         ostringstream posStr;
         posStr << pos;
 
-        throw FileAccessException("cannot seek position " + posStr.str() + " in file `" + path + "': " +
-                                  IceUtilInternal::errorToString(errno));
+        throw FileAccessException(
+            "cannot seek position " + posStr.str() + " in file `" + path +
+            "': " + IceUtilInternal::errorToString(errno));
     }
 
     buffer.resize(static_cast<size_t>(num));
 #ifdef _WIN32
     int r;
-    if((r = _read(fd, &buffer[0], static_cast<unsigned int>(num))) == -1)
+    if ((r = _read(fd, &buffer[0], static_cast<unsigned int>(num))) == -1)
 #else
     ssize_t r;
-    if((r = read(fd, &buffer[0], static_cast<size_t>(num))) == -1)
+    if ((r = read(fd, &buffer[0], static_cast<size_t>(num))) == -1)
 #endif
     {
         IceUtilInternal::close(fd);

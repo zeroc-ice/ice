@@ -10,14 +10,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-MarshaledResult::MarshaledResult(MarshaledResult&& rhs)
-{
-    swap(rhs._ostr);
-}
+MarshaledResult::MarshaledResult(MarshaledResult&& rhs) { swap(rhs._ostr); }
 
-MarshaledResult::MarshaledResult(const Current& current) :
-    // currentProtocolEncoding because we're writing the protocol header.
-    _ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding)
+MarshaledResult::MarshaledResult(const Current& current)
+    : // currentProtocolEncoding because we're writing the protocol header.
+      _ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding)
 {
     _ostr.writeBlob(replyHdr, sizeof(replyHdr));
     _ostr.write(current.requestId);

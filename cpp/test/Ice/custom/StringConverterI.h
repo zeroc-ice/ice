@@ -15,24 +15,21 @@
 namespace Test
 {
 
-class StringConverterI : public Ice::StringConverter
-{
-public:
+    class StringConverterI : public Ice::StringConverter
+    {
+    public:
+        virtual std::uint8_t* toUTF8(const char*, const char*, Ice::UTF8Buffer&) const;
+        virtual void
+        fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd, std::string& target) const;
+    };
 
-    virtual std::uint8_t* toUTF8(const char*, const char*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd,
-                          std::string& target) const;
-};
-
-class WstringConverterI : public Ice::WstringConverter
-{
-public:
-
-    virtual std::uint8_t* toUTF8(const wchar_t*, const wchar_t*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd,
-                          std::wstring& target) const;
-
-};
+    class WstringConverterI : public Ice::WstringConverter
+    {
+    public:
+        virtual std::uint8_t* toUTF8(const wchar_t*, const wchar_t*, Ice::UTF8Buffer&) const;
+        virtual void
+        fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd, std::wstring& target) const;
+    };
 
 }
 

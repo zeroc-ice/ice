@@ -11,33 +11,32 @@
 namespace IceInternal
 {
 
-class TraceLevels
-{
-public:
+    class TraceLevels
+    {
+    public:
+        TraceLevels(const ::Ice::PropertiesPtr&);
 
-    TraceLevels(const ::Ice::PropertiesPtr&);
+        const int network;
+        const char* networkCat;
 
-    const int network;
-    const char* networkCat;
+        const int protocol;
+        const char* protocolCat;
 
-    const int protocol;
-    const char* protocolCat;
+        const int retry;
+        const char* retryCat;
 
-    const int retry;
-    const char* retryCat;
+        const int location;
+        const char* locationCat;
 
-    const int location;
-    const char* locationCat;
+        const int slicing;
+        const char* slicingCat;
 
-    const int slicing;
-    const char* slicingCat;
+        const int gc;
+        const char* gcCat;
 
-    const int gc;
-    const char* gcCat;
-
-    const int threadPool;
-    const char* threadPoolCat;
-};
+        const int threadPool;
+        const char* threadPoolCat;
+    };
 
 }
 

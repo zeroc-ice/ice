@@ -14,8 +14,8 @@
 #include <condition_variable>
 
 @protocol ControllerView
--(void) print:(NSString*)msg;
--(void) println:(NSString*)msg;
+- (void)print:(NSString*)msg;
+- (void)println:(NSString*)msg;
 @end
 
 using namespace std;
@@ -29,7 +29,6 @@ namespace
     class ControllerHelperI : public Test::ControllerHelper
     {
     public:
-
         ControllerHelperI(id<ControllerView>, const string&, const StringSeq&);
         virtual ~ControllerHelperI();
 
@@ -47,7 +46,6 @@ namespace
         void completed(int);
 
     private:
-
         id<ControllerView> _controller;
         std::string _dll;
         StringSeq _args;
@@ -63,7 +61,6 @@ namespace
     class ProcessI : public Process
     {
     public:
-
         ProcessI(id<ControllerView>, std::shared_ptr<ControllerHelperI>);
         virtual ~ProcessI();
 
@@ -72,7 +69,6 @@ namespace
         string terminate(const Ice::Current&);
 
     private:
-
         id<ControllerView> _controller;
         std::shared_ptr<ControllerHelperI> _helper;
         std::thread _helperThread;
@@ -81,14 +77,12 @@ namespace
     class ProcessControllerI : public ProcessController
     {
     public:
-
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
         virtual optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
         virtual string getHost(string, bool, const Ice::Current&);
 
     private:
-
         id<ControllerView> _controller;
         string _ipv4;
         string _ipv6;
@@ -97,31 +91,27 @@ namespace
     class ControllerI
     {
     public:
-
         ControllerI(id<ControllerView>, NSString*, NSString*);
         virtual ~ControllerI();
 
     private:
-
         Ice::CommunicatorPtr _communicator;
     };
 
     Test::StreamHelper streamRedirect;
 }
 
-ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string& dll, const StringSeq& args) :
-    _controller(controller),
-    _dll(dll),
-    _args(args),
-    _ready(false),
-    _completed(false),
-    _status(0)
+ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string& dll, const StringSeq& args)
+    : _controller(controller),
+      _dll(dll),
+      _args(args),
+      _ready(false),
+      _completed(false),
+      _status(0)
 {
 }
 
-ControllerHelperI::~ControllerHelperI()
-{
-}
+ControllerHelperI::~ControllerHelperI() {}
 
 void
 ControllerHelperI::serverReady()
@@ -159,7 +149,7 @@ ControllerHelperI::run()
 
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
     CFBundleRef handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
-    if(!handle)
+    if (!handle)
     {
         print([[NSString stringWithFormat:@"Could not find bundle %@", bundlePath] UTF8String]);
         completed(EXIT_FAILURE);
@@ -168,9 +158,9 @@ ControllerHelperI::run()
 
     CFErrorRef error = nil;
     Boolean loaded = CFBundleLoadExecutableAndReturnError(handle, &error);
-    if(error != nil || !loaded)
+    if (error != nil || !loaded)
     {
-        print([[(__bridge NSError *)error description] UTF8String]);
+        print([[(__bridge NSError*)error description] UTF8String]);
         completed(EXIT_FAILURE);
         return;
     }
@@ -180,29 +170,29 @@ ControllerHelperI::run()
     //
     void* sym = 0;
     int attempts = 0;
-    while((sym = CFBundleGetFunctionPointerForName(handle, CFSTR("createHelper"))) == 0 && attempts < 5)
+    while ((sym = CFBundleGetFunctionPointerForName(handle, CFSTR("createHelper"))) == 0 && attempts < 5)
     {
         attempts++;
         [NSThread sleepForTimeInterval:0.2];
     }
 
-    if(sym == 0)
+    if (sym == 0)
     {
-        NSString* err = [NSString stringWithFormat:@"Could not get function pointer createHelper from bundle %@",
-                         bundlePath];
+        NSString* err =
+            [NSString stringWithFormat:@"Could not get function pointer createHelper from bundle %@", bundlePath];
         print([err UTF8String]);
         completed(EXIT_FAILURE);
         return;
     }
 
-    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    if (_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
     {
         streamRedirect.setControllerHelper(this);
     }
 
     CREATE_HELPER_ENTRY_POINT createHelper = (CREATE_HELPER_ENTRY_POINT)sym;
     char** argv = new char*[_args.size() + 1];
-    for(unsigned int i = 0; i < _args.size(); ++i)
+    for (unsigned int i = 0; i < _args.size(); ++i)
     {
         argv[i] = const_cast<char*>(_args[i].c_str());
     }
@@ -214,19 +204,19 @@ ControllerHelperI::run()
         helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         print("unexpected exception while running `" + _args[0] + "':\n" + ex.what());
         completed(1);
     }
-    catch(...)
+    catch (...)
     {
         print("unexpected unknown exception while running `" + _args[0] + "'");
         completed(1);
     }
     delete[] argv;
 
-    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    if (_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
     {
         streamRedirect.setControllerHelper(0);
     }
@@ -249,7 +239,7 @@ void
 ControllerHelperI::shutdown()
 {
     lock_guard lock(_mutex);
-    if(_communicator)
+    if (_communicator)
     {
         _communicator->shutdown();
     }
@@ -259,14 +249,14 @@ void
 ControllerHelperI::waitReady(int timeout) const
 {
     unique_lock<mutex> lock(_mutex);
-    while(!_ready && !_completed)
+    while (!_ready && !_completed)
     {
-        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
+        if (_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to be ready");
         }
     }
-    if(_completed && _status == EXIT_FAILURE)
+    if (_completed && _status == EXIT_FAILURE)
     {
         throw ProcessFailedException(_out.str());
     }
@@ -276,9 +266,9 @@ int
 ControllerHelperI::waitSuccess(int timeout) const
 {
     unique_lock lock(_mutex);
-    while(!_completed)
+    while (!_completed)
     {
-        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
+        if (_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to succeed");
         }
@@ -293,16 +283,14 @@ ControllerHelperI::getOutput() const
     return _out.str();
 }
 
-ProcessI::ProcessI(id<ControllerView> controller, std::shared_ptr<ControllerHelperI> helper) :
-    _controller(controller),
-    _helper(helper),
-    _helperThread([helper] { helper->run(); })
+ProcessI::ProcessI(id<ControllerView> controller, std::shared_ptr<ControllerHelperI> helper)
+    : _controller(controller),
+      _helper(helper),
+      _helperThread([helper] { helper->run(); })
 {
 }
 
-ProcessI::~ProcessI()
-{
-}
+ProcessI::~ProcessI() {}
 
 void
 ProcessI::waitReady(int timeout, const Ice::Current&)
@@ -325,8 +313,10 @@ ProcessI::terminate(const Ice::Current& current)
     return _helper->getOutput();
 }
 
-ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* ipv4, NSString* ipv6) :
-    _controller(controller), _ipv4([ipv4 UTF8String]), _ipv6([ipv6 UTF8String])
+ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
+    : _controller(controller),
+      _ipv4([ipv4 UTF8String]),
+      _ipv6([ipv6 UTF8String])
 {
 }
 
@@ -357,8 +347,8 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");
-    //initData.properties->setProperty("Ice.Trace.Network", "2");
-    //initData.properties->setProperty("Ice.Trace.Protocol", "2");
+    // initData.properties->setProperty("Ice.Trace.Network", "2");
+    // initData.properties->setProperty("Ice.Trace.Protocol", "2");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
 
     _communicator = Ice::initialize(initData);
@@ -386,20 +376,17 @@ static ControllerI* controllerI = 0;
 extern "C"
 {
 
-void
-startController(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
-{
-    controllerI = new ControllerI(controller, ipv4, ipv6);
-}
-
-void
-stopController()
-{
-    if(controllerI)
+    void startController(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
     {
-        delete controllerI;
-        controllerI = 0;
+        controllerI = new ControllerI(controller, ipv4, ipv6);
     }
-}
 
+    void stopController()
+    {
+        if (controllerI)
+        {
+            delete controllerI;
+            controllerI = 0;
+        }
+    }
 }

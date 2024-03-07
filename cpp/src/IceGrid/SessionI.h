@@ -14,138 +14,128 @@
 namespace IceGrid
 {
 
-class Allocatable;
-class AllocationRequest;
-class Database;
-class SessionI;
-class TraceLevels;
+    class Allocatable;
+    class AllocationRequest;
+    class Database;
+    class SessionI;
+    class TraceLevels;
 
-class BaseSessionI : public virtual Ice::Object, public std::enable_shared_from_this<BaseSessionI>
-{
-public:
+    class BaseSessionI : public virtual Ice::Object, public std::enable_shared_from_this<BaseSessionI>
+    {
+    public:
+        virtual ~BaseSessionI() = default;
 
-    virtual ~BaseSessionI() = default;
+        virtual void keepAlive(const Ice::Current&);
 
-    virtual void keepAlive(const Ice::Current&);
+        std::chrono::steady_clock::time_point timestamp() const;
+        void shutdown();
+        Glacier2::IdentitySetPrxPtr getGlacier2IdentitySet();
+        Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet();
 
-    std::chrono::steady_clock::time_point timestamp() const;
-    void shutdown();
-    Glacier2::IdentitySetPrxPtr getGlacier2IdentitySet();
-    Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet();
+        const std::string& getId() const { return _id; }
+        virtual void destroyImpl(bool);
 
-    const std::string& getId() const { return _id; }
-    virtual void destroyImpl(bool);
+    protected:
+        BaseSessionI(const std::string&, const std::string&, const std::shared_ptr<Database>&);
 
-protected:
+        const std::string _id;
+        const std::string _prefix;
+        const std::shared_ptr<TraceLevels> _traceLevels;
+        const std::shared_ptr<Database> _database;
+        std::shared_ptr<SessionServantManager> _servantManager;
+        bool _destroyed;
+        std::chrono::steady_clock::time_point _timestamp;
 
-    BaseSessionI(const std::string&, const std::string&, const std::shared_ptr<Database>&);
+        mutable std::mutex _mutex;
+    };
 
-    const std::string _id;
-    const std::string _prefix;
-    const std::shared_ptr<TraceLevels> _traceLevels;
-    const std::shared_ptr<Database> _database;
-    std::shared_ptr<SessionServantManager> _servantManager;
-    bool _destroyed;
-    std::chrono::steady_clock::time_point _timestamp;
+    struct SessionDestroyedException
+    {
+    };
 
-    mutable std::mutex _mutex;
-};
+    class SessionI final : public BaseSessionI, public Session
+    {
+    public:
+        SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
 
-struct SessionDestroyedException
-{
-};
+        Ice::ObjectPrxPtr
+        _register(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Ice::Connection>&);
 
-class SessionI final : public BaseSessionI, public Session
-{
-public:
+        void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
+        void allocateObjectByIdAsync(
+            Ice::Identity id,
+            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current& current) override;
+        void allocateObjectByTypeAsync(
+            std::string,
+            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current& current) override;
+        void releaseObject(Ice::Identity, const Ice::Current&) override;
+        void setAllocationTimeout(int, const Ice::Current&) override;
+        void destroy(const Ice::Current&) override;
 
-    SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
+        int getAllocationTimeout() const;
+        const IceUtil::TimerPtr& getTimer() const { return _timer; }
 
-    Ice::ObjectPrxPtr _register(const std::shared_ptr<SessionServantManager>&,
-                                              const std::shared_ptr<Ice::Connection>&);
+        bool addAllocationRequest(const std::shared_ptr<AllocationRequest>&);
+        void removeAllocationRequest(const std::shared_ptr<AllocationRequest>&);
+        void addAllocation(const std::shared_ptr<Allocatable>&);
+        void removeAllocation(const std::shared_ptr<Allocatable>&);
 
-    void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
-    void allocateObjectByIdAsync(Ice::Identity id,
-                                 std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                 std::function<void(std::exception_ptr)> exception, const Ice::Current& current)
-                                 override;
-    void allocateObjectByTypeAsync(std::string,
-                                   std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                   std::function<void(std::exception_ptr)> exception, const Ice::Current& current)
-                                   override;
-    void releaseObject(Ice::Identity, const Ice::Current&) override;
-    void setAllocationTimeout(int, const Ice::Current&) override;
-    void destroy(const Ice::Current&) override;
+    protected:
+        void destroyImpl(bool) override;
 
-    int getAllocationTimeout() const;
-    const IceUtil::TimerPtr& getTimer() const { return _timer; }
+        const IceUtil::TimerPtr _timer;
+        int _allocationTimeout;
+        std::set<std::shared_ptr<AllocationRequest>> _requests;
+        std::set<std::shared_ptr<Allocatable>> _allocations;
+    };
 
-    bool addAllocationRequest(const std::shared_ptr<AllocationRequest>&);
-    void removeAllocationRequest(const std::shared_ptr<AllocationRequest>&);
-    void addAllocation(const std::shared_ptr<Allocatable>&);
-    void removeAllocation(const std::shared_ptr<Allocatable>&);
+    class ClientSessionFactory final
+    {
+    public:
+        ClientSessionFactory(
+            const std::shared_ptr<SessionServantManager>&,
+            const std::shared_ptr<Database>&,
+            const IceUtil::TimerPtr&,
+            const std::shared_ptr<ReapThread>&);
 
-protected:
+        Glacier2::SessionPrxPtr createGlacier2Session(const std::string&, const Glacier2::SessionControlPrxPtr&);
+        std::shared_ptr<SessionI> createSessionServant(const std::string&, const Glacier2::SessionControlPrxPtr&);
 
-    void destroyImpl(bool) override;
+        const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
-    const IceUtil::TimerPtr _timer;
-    int _allocationTimeout;
-    std::set<std::shared_ptr<AllocationRequest>> _requests;
-    std::set<std::shared_ptr<Allocatable>> _allocations;
-};
+    private:
+        const std::shared_ptr<SessionServantManager> _servantManager;
+        const std::shared_ptr<Database> _database;
+        const IceUtil::TimerPtr _timer;
+        const std::shared_ptr<ReapThread> _reaper;
+        const bool _filters;
+    };
 
-class ClientSessionFactory final
-{
-public:
+    class ClientSessionManagerI final : public Glacier2::SessionManager
+    {
+    public:
+        ClientSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
-    ClientSessionFactory(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Database>&,
-                         const IceUtil::TimerPtr&,
-                         const std::shared_ptr<ReapThread>&);
+        Glacier2::SessionPrxPtr create(std::string, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
 
-    Glacier2::SessionPrxPtr createGlacier2Session(const std::string&,
-                                                                const Glacier2::SessionControlPrxPtr&);
-    std::shared_ptr<SessionI> createSessionServant(const std::string&,
-                                                   const Glacier2::SessionControlPrxPtr&);
+    private:
+        const std::shared_ptr<ClientSessionFactory> _factory;
+    };
 
-    const std::shared_ptr<TraceLevels>& getTraceLevels() const;
+    class ClientSSLSessionManagerI final : public Glacier2::SSLSessionManager
+    {
+    public:
+        ClientSSLSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
-private:
+        Glacier2::SessionPrxPtr create(Glacier2::SSLInfo, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
 
-    const std::shared_ptr<SessionServantManager> _servantManager;
-    const std::shared_ptr<Database> _database;
-    const IceUtil::TimerPtr _timer;
-    const std::shared_ptr<ReapThread> _reaper;
-    const bool _filters;
-};
-
-class ClientSessionManagerI final : public Glacier2::SessionManager
-{
-public:
-
-    ClientSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
-
-    Glacier2::SessionPrxPtr create(std::string, Glacier2::SessionControlPrxPtr,
-                                                 const Ice::Current&) override;
-
-private:
-
-    const std::shared_ptr<ClientSessionFactory> _factory;
-};
-
-class ClientSSLSessionManagerI final : public Glacier2::SSLSessionManager
-{
-public:
-
-    ClientSSLSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
-
-    Glacier2::SessionPrxPtr create(Glacier2::SSLInfo, Glacier2::SessionControlPrxPtr,
-                                                 const Ice::Current&) override;
-
-private:
-
-    const std::shared_ptr<ClientSessionFactory> _factory;
-};
+    private:
+        const std::shared_ptr<ClientSessionFactory> _factory;
+    };
 
 };
 

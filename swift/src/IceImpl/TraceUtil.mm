@@ -9,7 +9,7 @@
 
 @implementation ICETraceUtil
 
-+(void) traceSlicing:(NSString*)kind
++ (void)traceSlicing:(NSString*)kind
               typeId:(NSString*)typeId
           slicingCat:(NSString*)slicingCat
               logger:(id<ICELoggerProtocol>)logger

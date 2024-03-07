@@ -10,13 +10,13 @@
 namespace Ice
 {
 
-class ConnectionInfo;
-class WSConnectionInfo;
-class Connection;
+    class ConnectionInfo;
+    class WSConnectionInfo;
+    class Connection;
 
-using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
-using ConnectionPtr = ::std::shared_ptr<Connection>;
+    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+    using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
+    using ConnectionPtr = ::std::shared_ptr<Connection>;
 
 }
 

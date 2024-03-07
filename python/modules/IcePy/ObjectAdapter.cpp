@@ -31,92 +31,88 @@ static unsigned long _mainThreadId;
 namespace IcePy
 {
 
-struct ObjectAdapterObject
-{
-    PyObject_HEAD
-    Ice::ObjectAdapterPtr* adapter;
-
-    std::future<void>* deactivateFuture;
-    Ice::Exception* deactivateException;
-    bool deactivated;
-
-    // This mutex protects holdFuture, holdException, and held from concurrent access in activate and waitForHold.
-    std::mutex* holdMutex;
-    std::future<void>* holdFuture;
-    Ice::Exception* holdException;
-    bool held;
-};
-
-class ServantLocatorWrapper final : public Ice::ServantLocator
-{
-public:
-
-    ServantLocatorWrapper(PyObject*);
-    ~ServantLocatorWrapper() final;
-
-    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final;
-
-    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final;
-
-    void deactivate(const string&) final;
-
-    PyObject* getObject();
-
-private:
-
-    //
-    // This object is created in locate() and destroyed after finished().
-    //
-    struct Cookie
+    struct ObjectAdapterObject
     {
-        Cookie();
-        ~Cookie();
+        PyObject_HEAD Ice::ObjectAdapterPtr* adapter;
 
-        PyObject* current;
-        ServantWrapperPtr servant;
-        PyObject* cookie;
+        std::future<void>* deactivateFuture;
+        Ice::Exception* deactivateException;
+        bool deactivated;
+
+        // This mutex protects holdFuture, holdException, and held from concurrent access in activate and waitForHold.
+        std::mutex* holdMutex;
+        std::future<void>* holdFuture;
+        Ice::Exception* holdException;
+        bool held;
     };
-    using CookiePtr = shared_ptr<Cookie>;
 
-    PyObject* _locator;
-    PyObject* _objectType;
-};
+    class ServantLocatorWrapper final : public Ice::ServantLocator
+    {
+    public:
+        ServantLocatorWrapper(PyObject*);
+        ~ServantLocatorWrapper() final;
 
-using ServantLocatorWrapperPtr = shared_ptr<ServantLocatorWrapper>;
+        shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final;
+
+        void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final;
+
+        void deactivate(const string&) final;
+
+        PyObject* getObject();
+
+    private:
+        //
+        // This object is created in locate() and destroyed after finished().
+        //
+        struct Cookie
+        {
+            Cookie();
+            ~Cookie();
+
+            PyObject* current;
+            ServantWrapperPtr servant;
+            PyObject* cookie;
+        };
+        using CookiePtr = shared_ptr<Cookie>;
+
+        PyObject* _locator;
+        PyObject* _objectType;
+    };
+
+    using ServantLocatorWrapperPtr = shared_ptr<ServantLocatorWrapper>;
 
 }
 
 namespace
 {
 
-bool getServantWrapper(PyObject* servant, ServantWrapperPtr& wrapper)
-{
-    PyObject* objectType = lookupType("Ice.Object");
-    if(servant != Py_None && !PyObject_IsInstance(servant, objectType))
+    bool getServantWrapper(PyObject* servant, ServantWrapperPtr& wrapper)
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("expected Ice object or None"));
-        return false;
-    }
-
-    if(servant != Py_None)
-    {
-        wrapper = createServantWrapper(servant);
-        if(PyErr_Occurred())
+        PyObject* objectType = lookupType("Ice.Object");
+        if (servant != Py_None && !PyObject_IsInstance(servant, objectType))
         {
+            PyErr_Format(PyExc_ValueError, STRCAST("expected Ice object or None"));
             return false;
         }
-    }
 
-    return true;
-}
+        if (servant != Py_None)
+        {
+            wrapper = createServantWrapper(servant);
+            if (PyErr_Occurred())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 }
 
 //
 // ServantLocatorWrapper implementation.
 //
-IcePy::ServantLocatorWrapper::ServantLocatorWrapper(PyObject* locator) :
-    _locator(locator)
+IcePy::ServantLocatorWrapper::ServantLocatorWrapper(PyObject* locator) : _locator(locator)
 {
     Py_INCREF(_locator);
     _objectType = lookupType("Ice.Object");
@@ -135,7 +131,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
 
     CookiePtr c = make_shared<Cookie>();
     c->current = createCurrent(current);
-    if(!c->current)
+    if (!c->current)
     {
         throwPythonException();
     }
@@ -146,7 +142,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     // with an optional cookie object.
     //
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("locate"), STRCAST("O"), c->current);
-    if(PyErr_Occurred())
+    if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
 
@@ -159,7 +155,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
         ex.checkSystemExit();
 
         PyObject* userExceptionType = lookupType("Ice.UserException");
-        if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
+        if (PyObject_IsInstance(ex.ex.get(), userExceptionType))
         {
             throw ExceptionWriter(ex.ex);
         }
@@ -167,26 +163,26 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
         ex.raise();
     }
 
-    if(res.get() == Py_None)
+    if (res.get() == Py_None)
     {
         return 0;
     }
 
     PyObject* servantObj = 0;
     PyObject* cookieObj = Py_None;
-    if(PyTuple_Check(res.get()))
+    if (PyTuple_Check(res.get()))
     {
-        if(PyTuple_GET_SIZE(res.get()) > 2)
+        if (PyTuple_GET_SIZE(res.get()) > 2)
         {
             const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-            if(com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 com->getLogger()->warning("invalid return value for ServantLocator::locate");
             }
             return 0;
         }
         servantObj = PyTuple_GET_ITEM(res.get(), 0);
-        if(PyTuple_GET_SIZE(res.get()) > 1)
+        if (PyTuple_GET_SIZE(res.get()) > 1)
         {
             cookieObj = PyTuple_GET_ITEM(res.get(), 1);
         }
@@ -199,10 +195,10 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     //
     // Verify that the servant is an Ice object.
     //
-    if(!PyObject_IsInstance(servantObj, _objectType))
+    if (!PyObject_IsInstance(servantObj, _objectType))
     {
         const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-        if(com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        if (com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             com->getLogger()->warning("return value of ServantLocator::locate is not an Ice object");
         }
@@ -220,8 +216,10 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const shared_ptr<Ice::Object>&,
-                                       const shared_ptr<void>& cookie)
+IcePy::ServantLocatorWrapper::finished(
+    const Ice::Current&,
+    const shared_ptr<Ice::Object>&,
+    const shared_ptr<void>& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -231,9 +229,9 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const shared_ptr<Ice
     ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(c->servant);
     PyObjectHandle servantObj = wrapper->getObject();
 
-    PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current,
-                                             servantObj.get(), c->cookie);
-    if(PyErr_Occurred())
+    PyObjectHandle res =
+        PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current, servantObj.get(), c->cookie);
+    if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
 
@@ -246,7 +244,7 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const shared_ptr<Ice
         ex.checkSystemExit();
 
         PyObject* userExceptionType = lookupType("Ice.UserException");
-        if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
+        if (PyObject_IsInstance(ex.ex.get(), userExceptionType))
         {
             throw ExceptionWriter(ex.ex);
         }
@@ -261,7 +259,7 @@ IcePy::ServantLocatorWrapper::deactivate(const string& category)
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("deactivate"), STRCAST("s"), category.c_str());
-    if(PyErr_Occurred())
+    if (PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.
 
@@ -300,8 +298,8 @@ IcePy::ServantLocatorWrapper::Cookie::~Cookie()
 #ifdef WIN32
 extern "C"
 #endif
-static ObjectAdapterObject*
-adapterNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+    static ObjectAdapterObject*
+    adapterNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("Use communicator.createObjectAdapter to create an adapter"));
     return 0;
@@ -310,8 +308,8 @@ adapterNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 #ifdef WIN32
 extern "C"
 #endif
-static void
-adapterDealloc(ObjectAdapterObject* self)
+    static void
+    adapterDealloc(ObjectAdapterObject* self)
 {
 
     delete self->adapter;
@@ -329,8 +327,8 @@ adapterDealloc(ObjectAdapterObject* self)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     string name;
@@ -338,7 +336,7 @@ adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
     {
         name = (*self->adapter)->getName();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -350,8 +348,8 @@ adapterGetName(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     Ice::CommunicatorPtr communicator;
@@ -359,7 +357,7 @@ adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
     {
         communicator = (*self->adapter)->getCommunicator();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -371,8 +369,8 @@ adapterGetCommunicator(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -382,13 +380,13 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
 
         std::lock_guard lock(*self->holdMutex);
         self->held = false;
-        if(self->holdFuture)
+        if (self->holdFuture)
         {
             delete self->holdFuture;
             self->holdFuture = nullptr;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -401,15 +399,15 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
     {
         (*self->adapter)->hold();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -422,8 +420,8 @@ adapterHold(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // This method differs somewhat from the standard Ice API because of
@@ -435,7 +433,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
     // and ignore the timeout.
     //
     int timeout = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
+    if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
     {
         return 0;
     }
@@ -447,25 +445,21 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
     // Do not call waitForHold from the main thread, because it prevents
     // signals (such as keyboard interrupts) from being delivered to Python.
     //
-    if(PyThread_get_thread_ident() == _mainThreadId)
+    if (PyThread_get_thread_ident() == _mainThreadId)
     {
         std::lock_guard lock(*self->holdMutex);
 
-        if(!self->held)
+        if (!self->held)
         {
-            if(self->holdFuture == nullptr)
+            if (self->holdFuture == nullptr)
             {
                 self->holdFuture = new std::future<void>();
-                *self->holdFuture = std::async(std::launch::async,
-                                               [&self]
-                                               {
-                                                   (*self->adapter)->waitForHold();
-                                               });
+                *self->holdFuture = std::async(std::launch::async, [&self] { (*self->adapter)->waitForHold(); });
             }
 
             {
                 AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                if(self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
+                if (self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
                     PyRETURN_FALSE;
                 }
@@ -476,7 +470,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
             {
                 self->holdFuture->get();
             }
-            catch(const Ice::Exception& ex)
+            catch (const Ice::Exception& ex)
             {
                 // Clone the exception and take ownership of the object.
                 self->holdException = ex.ice_clone().release();
@@ -484,7 +478,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
         }
 
         assert(self->held);
-        if(self->holdException)
+        if (self->holdException)
         {
             setPythonException(*self->holdException);
             return 0;
@@ -497,7 +491,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             (*self->adapter)->waitForHold();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             setPythonException(ex);
             return 0;
@@ -510,8 +504,8 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -519,7 +513,7 @@ adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->deactivate();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -532,8 +526,8 @@ adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // This method differs somewhat from the standard Ice API because of
@@ -545,7 +539,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
     // and ignore the timeout.
     //
     int timeout = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
+    if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
     {
         return 0;
     }
@@ -557,23 +551,20 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
     // Do not call waitForDeactivate from the main thread, because it prevents
     // signals (such as keyboard interrupts) from being delivered to Python.
     //
-    if(PyThread_get_thread_ident() == _mainThreadId)
+    if (PyThread_get_thread_ident() == _mainThreadId)
     {
-        if(!self->deactivated)
+        if (!self->deactivated)
         {
-            if(self->deactivateFuture == nullptr)
+            if (self->deactivateFuture == nullptr)
             {
                 self->deactivateFuture = new std::future<void>();
-                *self->deactivateFuture = std::async(std::launch::async,
-                                                   [&self]
-                                                   {
-                                                       (*self->adapter)->waitForDeactivate();
-                                                   });
+                *self->deactivateFuture =
+                    std::async(std::launch::async, [&self] { (*self->adapter)->waitForDeactivate(); });
             }
 
             {
                 AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                if(self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
+                if (self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
                     PyRETURN_FALSE;
                 }
@@ -584,7 +575,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
             {
                 self->deactivateFuture->get();
             }
-            catch(const Ice::Exception& ex)
+            catch (const Ice::Exception& ex)
             {
                 // Clone the exception and take ownership of the object.
                 self->deactivateException = ex.ice_clone().release();
@@ -592,7 +583,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
         }
 
         assert(self->deactivated);
-        if(self->deactivateException)
+        if (self->deactivateException)
         {
             setPythonException(*self->deactivateException);
             return 0;
@@ -605,7 +596,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             (*self->adapter)->waitForDeactivate();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             setPythonException(ex);
             return 0;
@@ -618,15 +609,15 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
     {
         (*self->adapter)->isDeactivated();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -639,8 +630,8 @@ adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -648,7 +639,7 @@ adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->destroy();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -661,25 +652,25 @@ adapterDestroy(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAdd(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAdd(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* servant;
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("OO!"), &servant, identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("OO!"), &servant, identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper;
-    if(!getServantWrapper(servant, wrapper))
+    if (!getServantWrapper(servant, wrapper))
     {
         return 0;
     }
@@ -690,7 +681,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->add(wrapper, ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -702,32 +693,32 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* servant;
     PyObject* id;
     PyObject* facetObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OO!O"), &servant, identityType, &id, &facetObj))
+    if (!PyArg_ParseTuple(args, STRCAST("OO!O"), &servant, identityType, &id, &facetObj))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper;
-    if(!getServantWrapper(servant, wrapper))
+    if (!getServantWrapper(servant, wrapper))
     {
         return 0;
     }
 
     string facet;
-    if(!getStringArg(facetObj, "facet", facet))
+    if (!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -738,7 +729,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->addFacet(wrapper, ident, facet);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -750,17 +741,17 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &servant))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &servant))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper;
-    if(!getServantWrapper(servant, wrapper))
+    if (!getServantWrapper(servant, wrapper))
     {
         return 0;
     }
@@ -771,7 +762,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->addWithUUID(wrapper);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -783,24 +774,24 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
     PyObject* facetObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OO"), &servant, &facetObj))
+    if (!PyArg_ParseTuple(args, STRCAST("OO"), &servant, &facetObj))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper;
-    if(!getServantWrapper(servant, wrapper))
+    if (!getServantWrapper(servant, wrapper))
     {
         return 0;
     }
 
     string facet;
-    if(!getStringArg(facetObj, "facet", facet))
+    if (!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -811,7 +802,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->addFacetWithUUID(wrapper, facet);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -823,24 +814,24 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* servant;
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OO"), &servant, &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("OO"), &servant, &categoryObj))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper;
-    if(!getServantWrapper(servant, wrapper))
+    if (!getServantWrapper(servant, wrapper))
     {
         return 0;
     }
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -848,9 +839,9 @@ adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
     assert(self->adapter);
     try
     {
-       (*self->adapter)->addDefaultServant(wrapper, category);
+        (*self->adapter)->addDefaultServant(wrapper, category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -863,18 +854,18 @@ adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRemove(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterRemove(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -885,13 +876,13 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->remove(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -905,25 +896,25 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
     PyObject* facetObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
 
     string facet;
-    if(!getStringArg(facetObj, "facet", facet))
+    if (!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -934,13 +925,13 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->removeFacet(ident, facet);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -954,18 +945,18 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -976,24 +967,24 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         facetMap = (*self->adapter)->removeAllFacets(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
     PyObjectHandle result = PyDict_New();
-    if(!result.get())
+    if (!result.get())
     {
         return 0;
     }
 
-    for(Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
+    for (Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
         PyObjectHandle obj = wrapper->getObject();
-        if(PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
+        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
         {
             return 0;
         }
@@ -1005,17 +996,17 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
     {
         return 0;
     }
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -1026,13 +1017,13 @@ adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->removeDefaultServant(category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1046,18 +1037,18 @@ adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFind(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFind(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -1068,13 +1059,13 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->find(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1088,25 +1079,25 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
     PyObject* facetObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
 
     string facet;
-    if(!getStringArg(facetObj, "facet", facet))
+    if (!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -1117,13 +1108,13 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->findFacet(ident, facet);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1137,18 +1128,18 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -1159,24 +1150,24 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
     {
         facetMap = (*self->adapter)->findAllFacets(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
     PyObjectHandle result = PyDict_New();
-    if(!result.get())
+    if (!result.get())
     {
         return 0;
     }
 
-    for(Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
+    for (Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
         PyObjectHandle obj = wrapper->getObject();
-        if(PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
+        if (PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
         {
             return 0;
         }
@@ -1188,15 +1179,15 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 {
     //
     // We don't want to accept None here, so we can specify ProxyType and force
     // the caller to supply a proxy object.
     //
     PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &ProxyType, &proxy))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), &ProxyType, &proxy))
     {
         return 0;
     }
@@ -1209,13 +1200,13 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->findByProxy(prx);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1229,17 +1220,17 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
     {
         return 0;
     }
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -1250,13 +1241,13 @@ adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
     {
         obj = (*self->adapter)->findDefaultServant(category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!obj)
+    if (!obj)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1270,13 +1261,13 @@ adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* locatorType = lookupType("Ice.ServantLocator");
     PyObject* locator;
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O"), locatorType, &locator, &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O!O"), locatorType, &locator, &categoryObj))
     {
         return 0;
     }
@@ -1284,7 +1275,7 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
     ServantLocatorWrapperPtr wrapper = make_shared<ServantLocatorWrapper>(locator);
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -1293,7 +1284,7 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
     {
         (*self->adapter)->addServantLocator(wrapper, category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1306,17 +1297,17 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
     {
         return 0;
     }
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -1327,13 +1318,13 @@ adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
     {
         locator = (*self->adapter)->removeServantLocator(category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!locator)
+    if (!locator)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1347,17 +1338,17 @@ adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* categoryObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
     {
         return 0;
     }
 
     string category;
-    if(!getStringArg(categoryObj, "category", category))
+    if (!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }
@@ -1368,13 +1359,13 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
     {
         locator = (*self->adapter)->findServantLocator(category);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!locator)
+    if (!locator)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1388,18 +1379,18 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -1410,7 +1401,7 @@ adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->createProxy(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1422,18 +1413,18 @@ adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -1444,7 +1435,7 @@ adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->createDirectProxy(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1456,18 +1447,18 @@ adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return 0;
     }
 
     Ice::Identity ident;
-    if(!getIdentity(id, ident))
+    if (!getIdentity(id, ident))
     {
         return 0;
     }
@@ -1478,7 +1469,7 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
     {
         proxy = (*self->adapter)->createIndirectProxy(ident);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1490,17 +1481,17 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return 0;
     }
 
     optional<Ice::ObjectPrx> proxy;
-    if(!getProxyArg(p, "setLocator", "loc", proxy, "Ice.LocatorPrx"))
+    if (!getProxyArg(p, "setLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
@@ -1513,7 +1504,7 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->setLocator(locator);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1526,8 +1517,8 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     optional<Ice::LocatorPrx> locator;
@@ -1535,13 +1526,13 @@ adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
     {
         locator = (*self->adapter)->getLocator();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!locator)
+    if (!locator)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1555,8 +1546,8 @@ adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
 
@@ -1565,7 +1556,7 @@ adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     {
         endpoints = (*self->adapter)->getEndpoints();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1574,10 +1565,10 @@ adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     int count = static_cast<int>(endpoints.size());
     PyObjectHandle result = PyTuple_New(count);
     int i = 0;
-    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
+    for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
         PyObjectHandle endp = createEndpoint(*p);
-        if(!endp.get())
+        if (!endp.get())
         {
             return 0;
         }
@@ -1590,8 +1581,8 @@ adapterGetEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
     try
@@ -1599,7 +1590,7 @@ adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->refreshPublishedEndpoints();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1612,8 +1603,8 @@ adapterRefreshPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
+    static PyObject*
+    adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
 
@@ -1622,7 +1613,7 @@ adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     {
         endpoints = (*self->adapter)->getPublishedEndpoints();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1631,10 +1622,10 @@ adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
     int count = static_cast<int>(endpoints.size());
     PyObjectHandle result = PyTuple_New(count);
     int i = 0;
-    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
+    for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
         PyObjectHandle endp = createEndpoint(*p);
-        if(!endp.get())
+        if (!endp.get())
         {
             return 0;
         }
@@ -1647,25 +1638,25 @@ adapterGetPublishedEndpoints(ObjectAdapterObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
+    static PyObject*
+    adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
 {
     assert(self->adapter);
 
     PyObject* endpoints;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &endpoints))
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &endpoints))
     {
         return 0;
     }
 
-    if(!PyTuple_Check(endpoints) && !PyList_Check(endpoints))
+    if (!PyTuple_Check(endpoints) && !PyList_Check(endpoints))
     {
         PyErr_Format(PyExc_ValueError, STRCAST("argument must be a tuple or list"));
         return 0;
     }
 
     Ice::EndpointSeq seq;
-    if(!toEndpointSeq(endpoints, seq))
+    if (!toEndpointSeq(endpoints, seq))
     {
         return 0;
     }
@@ -1675,12 +1666,12 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->setPublishedEndpoints(seq);
     }
-    catch(const invalid_argument& ex)
+    catch (const invalid_argument& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -1690,130 +1681,126 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
     return Py_None;
 }
 
-static PyMethodDef AdapterMethods[] =
-{
-    { STRCAST("getName"), reinterpret_cast<PyCFunction>(adapterGetName), METH_NOARGS,
-        PyDoc_STR(STRCAST("getName() -> string")) },
-    { STRCAST("getCommunicator"), reinterpret_cast<PyCFunction>(adapterGetCommunicator), METH_NOARGS,
-        PyDoc_STR(STRCAST("getCommunicator() -> Ice.Communicator")) },
-    { STRCAST("activate"), reinterpret_cast<PyCFunction>(adapterActivate), METH_NOARGS,
-        PyDoc_STR(STRCAST("activate() -> None")) },
-    { STRCAST("hold"), reinterpret_cast<PyCFunction>(adapterHold), METH_NOARGS,
-        PyDoc_STR(STRCAST("hold() -> None")) },
-    { STRCAST("waitForHold"), reinterpret_cast<PyCFunction>(adapterWaitForHold), METH_VARARGS,
-        PyDoc_STR(STRCAST("waitForHold() -> None")) },
-    { STRCAST("deactivate"), reinterpret_cast<PyCFunction>(adapterDeactivate), METH_NOARGS,
-        PyDoc_STR(STRCAST("deactivate() -> None")) },
-    { STRCAST("waitForDeactivate"), reinterpret_cast<PyCFunction>(adapterWaitForDeactivate), METH_VARARGS,
-        PyDoc_STR(STRCAST("waitForDeactivate() -> None")) },
-    { STRCAST("isDeactivated"), reinterpret_cast<PyCFunction>(adapterIsDeactivated), METH_NOARGS,
-        PyDoc_STR(STRCAST("isDeactivated() -> None")) },
-    { STRCAST("destroy"), reinterpret_cast<PyCFunction>(adapterDestroy), METH_NOARGS,
-        PyDoc_STR(STRCAST("destroy() -> None")) },
-    { STRCAST("add"), reinterpret_cast<PyCFunction>(adapterAdd), METH_VARARGS,
-        PyDoc_STR(STRCAST("add(servant, identity) -> Ice.ObjectPrx")) },
-    { STRCAST("addFacet"), reinterpret_cast<PyCFunction>(adapterAddFacet), METH_VARARGS,
-        PyDoc_STR(STRCAST("addFacet(servant, identity, facet) -> Ice.ObjectPrx")) },
-    { STRCAST("addWithUUID"), reinterpret_cast<PyCFunction>(adapterAddWithUUID), METH_VARARGS,
-        PyDoc_STR(STRCAST("addWithUUID(servant) -> Ice.ObjectPrx")) },
-    { STRCAST("addFacetWithUUID"), reinterpret_cast<PyCFunction>(adapterAddFacetWithUUID), METH_VARARGS,
-        PyDoc_STR(STRCAST("addFacetWithUUID(servant, facet) -> Ice.ObjectPrx")) },
-    { STRCAST("addDefaultServant"), reinterpret_cast<PyCFunction>(adapterAddDefaultServant), METH_VARARGS,
-        PyDoc_STR(STRCAST("addDefaultServant(servant, category) -> None")) },
-    { STRCAST("remove"), reinterpret_cast<PyCFunction>(adapterRemove), METH_VARARGS,
-        PyDoc_STR(STRCAST("remove(identity) -> Ice.Object")) },
-    { STRCAST("removeFacet"), reinterpret_cast<PyCFunction>(adapterRemoveFacet), METH_VARARGS,
-        PyDoc_STR(STRCAST("removeFacet(identity, facet) -> Ice.Object")) },
-    { STRCAST("removeAllFacets"), reinterpret_cast<PyCFunction>(adapterRemoveAllFacets), METH_VARARGS,
-        PyDoc_STR(STRCAST("removeAllFacets(identity) -> dictionary")) },
-    { STRCAST("removeDefaultServant"), reinterpret_cast<PyCFunction>(adapterRemoveDefaultServant), METH_VARARGS,
-        PyDoc_STR(STRCAST("removeDefaultServant(category) -> Ice.Object")) },
-    { STRCAST("find"), reinterpret_cast<PyCFunction>(adapterFind), METH_VARARGS,
-        PyDoc_STR(STRCAST("find(identity) -> Ice.Object")) },
-    { STRCAST("findFacet"), reinterpret_cast<PyCFunction>(adapterFindFacet), METH_VARARGS,
-        PyDoc_STR(STRCAST("findFacet(identity, facet) -> Ice.Object")) },
-    { STRCAST("findAllFacets"), reinterpret_cast<PyCFunction>(adapterFindAllFacets), METH_VARARGS,
-        PyDoc_STR(STRCAST("findAllFacets(identity) -> dictionary")) },
-    { STRCAST("findByProxy"), reinterpret_cast<PyCFunction>(adapterFindByProxy), METH_VARARGS,
-        PyDoc_STR(STRCAST("findByProxy(Ice.ObjectPrx) -> Ice.Object")) },
-    { STRCAST("findDefaultServant"), reinterpret_cast<PyCFunction>(adapterFindDefaultServant), METH_VARARGS,
-        PyDoc_STR(STRCAST("findDefaultServant(category) -> Ice.Object")) },
-    { STRCAST("addServantLocator"), reinterpret_cast<PyCFunction>(adapterAddServantLocator), METH_VARARGS,
-        PyDoc_STR(STRCAST("addServantLocator(Ice.ServantLocator, category) -> None")) },
-    { STRCAST("removeServantLocator"), reinterpret_cast<PyCFunction>(adapterRemoveServantLocator), METH_VARARGS,
-        PyDoc_STR(STRCAST("removeServantLocator(category) -> Ice.ServantLocator")) },
-    { STRCAST("findServantLocator"), reinterpret_cast<PyCFunction>(adapterFindServantLocator), METH_VARARGS,
-        PyDoc_STR(STRCAST("findServantLocator(category) -> Ice.ServantLocator")) },
-    { STRCAST("createProxy"), reinterpret_cast<PyCFunction>(adapterCreateProxy), METH_VARARGS,
-        PyDoc_STR(STRCAST("createProxy(identity) -> Ice.ObjectPrx")) },
-    { STRCAST("createDirectProxy"), reinterpret_cast<PyCFunction>(adapterCreateDirectProxy), METH_VARARGS,
-        PyDoc_STR(STRCAST("createDirectProxy(identity) -> Ice.ObjectPrx")) },
-    { STRCAST("createIndirectProxy"), reinterpret_cast<PyCFunction>(adapterCreateIndirectProxy), METH_VARARGS,
-        PyDoc_STR(STRCAST("createIndirectProxy(identity) -> Ice.ObjectPrx")) },
-    { STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
-        PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
-    { STRCAST("getLocator"), reinterpret_cast<PyCFunction>(adapterGetLocator), METH_NOARGS,
-        PyDoc_STR(STRCAST("getLocator() -> Ice.LocatorPrx")) },
-    { STRCAST("getEndpoints"), reinterpret_cast<PyCFunction>(adapterGetEndpoints), METH_NOARGS,
-        PyDoc_STR(STRCAST("getEndpoints() -> None")) },
-    { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
-        PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
-    { STRCAST("getPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints), METH_NOARGS,
-        PyDoc_STR(STRCAST("getPublishedEndpoints() -> None")) },
-    { STRCAST("setPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterSetPublishedEndpoints), METH_VARARGS,
-        PyDoc_STR(STRCAST("setPublishedEndpoints(endpoints) -> None")) },
-    { 0, 0 } /* sentinel */
+static PyMethodDef AdapterMethods[] = {
+    {STRCAST("getName"), reinterpret_cast<PyCFunction>(adapterGetName), METH_NOARGS,
+     PyDoc_STR(STRCAST("getName() -> string"))},
+    {STRCAST("getCommunicator"), reinterpret_cast<PyCFunction>(adapterGetCommunicator), METH_NOARGS,
+     PyDoc_STR(STRCAST("getCommunicator() -> Ice.Communicator"))},
+    {STRCAST("activate"), reinterpret_cast<PyCFunction>(adapterActivate), METH_NOARGS,
+     PyDoc_STR(STRCAST("activate() -> None"))},
+    {STRCAST("hold"), reinterpret_cast<PyCFunction>(adapterHold), METH_NOARGS, PyDoc_STR(STRCAST("hold() -> None"))},
+    {STRCAST("waitForHold"), reinterpret_cast<PyCFunction>(adapterWaitForHold), METH_VARARGS,
+     PyDoc_STR(STRCAST("waitForHold() -> None"))},
+    {STRCAST("deactivate"), reinterpret_cast<PyCFunction>(adapterDeactivate), METH_NOARGS,
+     PyDoc_STR(STRCAST("deactivate() -> None"))},
+    {STRCAST("waitForDeactivate"), reinterpret_cast<PyCFunction>(adapterWaitForDeactivate), METH_VARARGS,
+     PyDoc_STR(STRCAST("waitForDeactivate() -> None"))},
+    {STRCAST("isDeactivated"), reinterpret_cast<PyCFunction>(adapterIsDeactivated), METH_NOARGS,
+     PyDoc_STR(STRCAST("isDeactivated() -> None"))},
+    {STRCAST("destroy"), reinterpret_cast<PyCFunction>(adapterDestroy), METH_NOARGS,
+     PyDoc_STR(STRCAST("destroy() -> None"))},
+    {STRCAST("add"), reinterpret_cast<PyCFunction>(adapterAdd), METH_VARARGS,
+     PyDoc_STR(STRCAST("add(servant, identity) -> Ice.ObjectPrx"))},
+    {STRCAST("addFacet"), reinterpret_cast<PyCFunction>(adapterAddFacet), METH_VARARGS,
+     PyDoc_STR(STRCAST("addFacet(servant, identity, facet) -> Ice.ObjectPrx"))},
+    {STRCAST("addWithUUID"), reinterpret_cast<PyCFunction>(adapterAddWithUUID), METH_VARARGS,
+     PyDoc_STR(STRCAST("addWithUUID(servant) -> Ice.ObjectPrx"))},
+    {STRCAST("addFacetWithUUID"), reinterpret_cast<PyCFunction>(adapterAddFacetWithUUID), METH_VARARGS,
+     PyDoc_STR(STRCAST("addFacetWithUUID(servant, facet) -> Ice.ObjectPrx"))},
+    {STRCAST("addDefaultServant"), reinterpret_cast<PyCFunction>(adapterAddDefaultServant), METH_VARARGS,
+     PyDoc_STR(STRCAST("addDefaultServant(servant, category) -> None"))},
+    {STRCAST("remove"), reinterpret_cast<PyCFunction>(adapterRemove), METH_VARARGS,
+     PyDoc_STR(STRCAST("remove(identity) -> Ice.Object"))},
+    {STRCAST("removeFacet"), reinterpret_cast<PyCFunction>(adapterRemoveFacet), METH_VARARGS,
+     PyDoc_STR(STRCAST("removeFacet(identity, facet) -> Ice.Object"))},
+    {STRCAST("removeAllFacets"), reinterpret_cast<PyCFunction>(adapterRemoveAllFacets), METH_VARARGS,
+     PyDoc_STR(STRCAST("removeAllFacets(identity) -> dictionary"))},
+    {STRCAST("removeDefaultServant"), reinterpret_cast<PyCFunction>(adapterRemoveDefaultServant), METH_VARARGS,
+     PyDoc_STR(STRCAST("removeDefaultServant(category) -> Ice.Object"))},
+    {STRCAST("find"), reinterpret_cast<PyCFunction>(adapterFind), METH_VARARGS,
+     PyDoc_STR(STRCAST("find(identity) -> Ice.Object"))},
+    {STRCAST("findFacet"), reinterpret_cast<PyCFunction>(adapterFindFacet), METH_VARARGS,
+     PyDoc_STR(STRCAST("findFacet(identity, facet) -> Ice.Object"))},
+    {STRCAST("findAllFacets"), reinterpret_cast<PyCFunction>(adapterFindAllFacets), METH_VARARGS,
+     PyDoc_STR(STRCAST("findAllFacets(identity) -> dictionary"))},
+    {STRCAST("findByProxy"), reinterpret_cast<PyCFunction>(adapterFindByProxy), METH_VARARGS,
+     PyDoc_STR(STRCAST("findByProxy(Ice.ObjectPrx) -> Ice.Object"))},
+    {STRCAST("findDefaultServant"), reinterpret_cast<PyCFunction>(adapterFindDefaultServant), METH_VARARGS,
+     PyDoc_STR(STRCAST("findDefaultServant(category) -> Ice.Object"))},
+    {STRCAST("addServantLocator"), reinterpret_cast<PyCFunction>(adapterAddServantLocator), METH_VARARGS,
+     PyDoc_STR(STRCAST("addServantLocator(Ice.ServantLocator, category) -> None"))},
+    {STRCAST("removeServantLocator"), reinterpret_cast<PyCFunction>(adapterRemoveServantLocator), METH_VARARGS,
+     PyDoc_STR(STRCAST("removeServantLocator(category) -> Ice.ServantLocator"))},
+    {STRCAST("findServantLocator"), reinterpret_cast<PyCFunction>(adapterFindServantLocator), METH_VARARGS,
+     PyDoc_STR(STRCAST("findServantLocator(category) -> Ice.ServantLocator"))},
+    {STRCAST("createProxy"), reinterpret_cast<PyCFunction>(adapterCreateProxy), METH_VARARGS,
+     PyDoc_STR(STRCAST("createProxy(identity) -> Ice.ObjectPrx"))},
+    {STRCAST("createDirectProxy"), reinterpret_cast<PyCFunction>(adapterCreateDirectProxy), METH_VARARGS,
+     PyDoc_STR(STRCAST("createDirectProxy(identity) -> Ice.ObjectPrx"))},
+    {STRCAST("createIndirectProxy"), reinterpret_cast<PyCFunction>(adapterCreateIndirectProxy), METH_VARARGS,
+     PyDoc_STR(STRCAST("createIndirectProxy(identity) -> Ice.ObjectPrx"))},
+    {STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
+     PyDoc_STR(STRCAST("setLocator(proxy) -> None"))},
+    {STRCAST("getLocator"), reinterpret_cast<PyCFunction>(adapterGetLocator), METH_NOARGS,
+     PyDoc_STR(STRCAST("getLocator() -> Ice.LocatorPrx"))},
+    {STRCAST("getEndpoints"), reinterpret_cast<PyCFunction>(adapterGetEndpoints), METH_NOARGS,
+     PyDoc_STR(STRCAST("getEndpoints() -> None"))},
+    {STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
+     PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None"))},
+    {STRCAST("getPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints), METH_NOARGS,
+     PyDoc_STR(STRCAST("getPublishedEndpoints() -> None"))},
+    {STRCAST("setPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterSetPublishedEndpoints), METH_VARARGS,
+     PyDoc_STR(STRCAST("setPublishedEndpoints(endpoints) -> None"))},
+    {0, 0} /* sentinel */
 };
 
 namespace IcePy
 {
 
-PyTypeObject ObjectAdapterType =
-{
-    /* The ob_type field must be initialized in the module init function
-     * to be portable to Windows without using C++. */
-    PyVarObject_HEAD_INIT(0, 0)
-    STRCAST("IcePy.ObjectAdapter"),  /* tp_name */
-    sizeof(ObjectAdapterObject),     /* tp_basicsize */
-    0,                               /* tp_itemsize */
-    /* methods */
-    reinterpret_cast<destructor>(adapterDealloc), /* tp_dealloc */
-    0,                               /* tp_print */
-    0,                               /* tp_getattr */
-    0,                               /* tp_setattr */
-    0,                               /* tp_reserved */
-    0,                               /* tp_repr */
-    0,                               /* tp_as_number */
-    0,                               /* tp_as_sequence */
-    0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
-    0,                               /* tp_call */
-    0,                               /* tp_str */
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
-    0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,              /* tp_flags */
-    0,                               /* tp_doc */
-    0,                               /* tp_traverse */
-    0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,                               /* tp_iter */
-    0,                               /* tp_iternext */
-    AdapterMethods,                  /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
-    0,                               /* tp_base */
-    0,                               /* tp_dict */
-    0,                               /* tp_descr_get */
-    0,                               /* tp_descr_set */
-    0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                               /* tp_alloc */
-    reinterpret_cast<newfunc>(adapterNew), /* tp_new */
-    0,                               /* tp_free */
-    0,                               /* tp_is_gc */
-};
+    PyTypeObject ObjectAdapterType = {
+        /* The ob_type field must be initialized in the module init function
+         * to be portable to Windows without using C++. */
+        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.ObjectAdapter"), /* tp_name */
+        sizeof(ObjectAdapterObject),                                /* tp_basicsize */
+        0,                                                          /* tp_itemsize */
+        /* methods */
+        reinterpret_cast<destructor>(adapterDealloc), /* tp_dealloc */
+        0,                                            /* tp_print */
+        0,                                            /* tp_getattr */
+        0,                                            /* tp_setattr */
+        0,                                            /* tp_reserved */
+        0,                                            /* tp_repr */
+        0,                                            /* tp_as_number */
+        0,                                            /* tp_as_sequence */
+        0,                                            /* tp_as_mapping */
+        0,                                            /* tp_hash */
+        0,                                            /* tp_call */
+        0,                                            /* tp_str */
+        0,                                            /* tp_getattro */
+        0,                                            /* tp_setattro */
+        0,                                            /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT,                           /* tp_flags */
+        0,                                            /* tp_doc */
+        0,                                            /* tp_traverse */
+        0,                                            /* tp_clear */
+        0,                                            /* tp_richcompare */
+        0,                                            /* tp_weaklistoffset */
+        0,                                            /* tp_iter */
+        0,                                            /* tp_iternext */
+        AdapterMethods,                               /* tp_methods */
+        0,                                            /* tp_members */
+        0,                                            /* tp_getset */
+        0,                                            /* tp_base */
+        0,                                            /* tp_dict */
+        0,                                            /* tp_descr_get */
+        0,                                            /* tp_descr_set */
+        0,                                            /* tp_dictoffset */
+        0,                                            /* tp_init */
+        0,                                            /* tp_alloc */
+        reinterpret_cast<newfunc>(adapterNew),        /* tp_new */
+        0,                                            /* tp_free */
+        0,                                            /* tp_is_gc */
+    };
 
 }
 
@@ -1822,12 +1809,12 @@ IcePy::initObjectAdapter(PyObject* module)
 {
     _mainThreadId = PyThread_get_thread_ident();
 
-    if(PyType_Ready(&ObjectAdapterType) < 0)
+    if (PyType_Ready(&ObjectAdapterType) < 0)
     {
         return false;
     }
     PyTypeObject* type = &ObjectAdapterType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("ObjectAdapter"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, STRCAST("ObjectAdapter"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -1840,7 +1827,7 @@ IcePy::createObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
 {
     ObjectAdapterObject* obj =
         reinterpret_cast<ObjectAdapterObject*>(ObjectAdapterType.tp_alloc(&ObjectAdapterType, 0));
-    if(obj)
+    if (obj)
     {
         obj->adapter = new Ice::ObjectAdapterPtr(adapter);
 
@@ -1871,14 +1858,14 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     // Create an Ice.ObjectAdapter wrapper for IcePy.ObjectAdapter.
     //
     PyObjectHandle adapterI = createObjectAdapter(adapter);
-    if(!adapterI.get())
+    if (!adapterI.get())
     {
         return 0;
     }
     PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
     assert(wrapperType);
     PyObjectHandle args = PyTuple_New(1);
-    if(!args.get())
+    if (!args.get())
     {
         return 0;
     }

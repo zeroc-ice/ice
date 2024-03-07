@@ -10,16 +10,19 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrxPtr& registry,
-                                                       const shared_ptr<NodeI>& node,
-                                                       NodeSessionManager& manager) :
-    SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger), _node(node), _manager(manager)
+NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(
+    const InternalRegistryPrxPtr& registry,
+    const shared_ptr<NodeI>& node,
+    NodeSessionManager& manager)
+    : SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger),
+      _node(node),
+      _manager(manager)
 {
     assert(registry && node);
     string name = registry->ice_getIdentity().name;
     const string prefix("InternalRegistry-");
     string::size_type pos = name.find(prefix);
-    if(pos != string::npos)
+    if (pos != string::npos)
     {
         name = name.substr(prefix.size());
     }
@@ -34,20 +37,20 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
     auto traceLevels = _node->getTraceLevels();
     try
     {
-        if(traceLevels && traceLevels->replica > 1)
+        if (traceLevels && traceLevels->replica > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
             out << "trying to establish session with replica `" << _replicaName << "'";
         }
 
         set<InternalRegistryPrxPtr> used;
-        if(!registry->ice_getEndpoints().empty())
+        if (!registry->ice_getEndpoints().empty())
         {
             try
             {
                 session = createSessionImpl(registry, timeout);
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 exceptionMessage = ex.what();
                 used.insert(registry);
@@ -55,18 +58,18 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
             }
         }
 
-        if(!session)
+        if (!session)
         {
             vector<future<Ice::ObjectPrxPtr>> results;
             auto queryObjects = _manager.getQueryObjects();
-            for(const auto& object : queryObjects)
+            for (const auto& object : queryObjects)
             {
                 results.push_back(object->findObjectByIdAsync(registry->ice_getIdentity()));
             }
 
-            for(auto& result : results)
+            for (auto& result : results)
             {
-                if(isDestroyed())
+                if (isDestroyed())
                 {
                     break;
                 }
@@ -76,17 +79,17 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
                 {
                     auto obj = result.get();
                     newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(obj);
-                    if(newRegistry && used.find(newRegistry) == used.end())
+                    if (newRegistry && used.find(newRegistry) == used.end())
                     {
                         session = createSessionImpl(newRegistry, timeout);
                         registry = newRegistry;
                         break;
                     }
                 }
-                catch(const Ice::LocalException& ex)
+                catch (const Ice::LocalException& ex)
                 {
                     exceptionMessage = ex.what();
-                    if(newRegistry)
+                    if (newRegistry)
                     {
                         used.insert(newRegistry);
                     }
@@ -94,31 +97,31 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
             }
         }
     }
-    catch(const NodeActiveException& ex)
+    catch (const NodeActiveException& ex)
     {
-        if(traceLevels)
+        if (traceLevels)
         {
-            traceLevels->logger->error("a node with the same name is already active with the replica `" +
-                                       _replicaName + "'");
+            traceLevels->logger->error(
+                "a node with the same name is already active with the replica `" + _replicaName + "'");
         }
         exceptionMessage = ex.what();
     }
-    catch(const PermissionDeniedException& ex)
+    catch (const PermissionDeniedException& ex)
     {
-        if(traceLevels)
+        if (traceLevels)
         {
             traceLevels->logger->error("connection to the registry `" + _replicaName + "' was denied:\n" + ex.reason);
         }
         exceptionMessage = ex.what();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         exceptionMessage = ex.what();
     }
 
-    if(session)
+    if (session)
     {
-        if(traceLevels && traceLevels->replica > 0)
+        if (traceLevels && traceLevels->replica > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
             out << "established session with replica `" << _replicaName << "'";
@@ -126,11 +129,11 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
     }
     else
     {
-        if(traceLevels && traceLevels->replica > 1)
+        if (traceLevels && traceLevels->replica > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
             out << "failed to establish session with replica `" << _replicaName << "':\n";
-            if(!exceptionMessage.empty())
+            if (!exceptionMessage.empty())
             {
                 out << exceptionMessage;
             }
@@ -152,7 +155,7 @@ NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrxPtr& regi
     {
         session = _node->registerWithRegistry(registry);
         auto t = session->getTimeout();
-        if(t > 0)
+        if (t > 0)
         {
             // Timeout is used to configure the delay to wait between two keep alives
             // If we used t directly, a delayed keep alive could kill the session
@@ -161,7 +164,7 @@ NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrxPtr& regi
         _node->addObserver(session, session->getObserver());
         return session;
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         destroySession(session);
         throw;
@@ -173,21 +176,21 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrxPtr& session)
 {
     _node->removeObserver(session);
 
-    if(session)
+    if (session)
     {
         try
         {
             session->destroy();
 
-            if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+            if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
             {
                 Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
                 out << "destroyed replica `" << _replicaName << "' session";
             }
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
-            if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+            if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
             {
                 Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
                 out << "couldn't destroy replica `" << _replicaName << "' session:\n" << ex;
@@ -199,7 +202,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrxPtr& session)
 bool
 NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrxPtr& session)
 {
-    if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
+    if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
         out << "sending keep alive message to replica `" << _replicaName << "'";
@@ -210,10 +213,10 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrxPtr& session)
         session->keepAlive(_node->getPlatformInfo().getLoadInfo());
         return true;
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         _node->removeObserver(session);
-        if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+        if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
             out << "lost session with replica `" << _replicaName << "':\n" << ex;
@@ -222,10 +225,10 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrxPtr& session)
     }
 }
 
-NodeSessionManager::NodeSessionManager(const shared_ptr<Ice::Communicator>& communicator, const string& instanceName) :
-    SessionManager(communicator, instanceName),
-    _destroyed(false),
-    _activated(false)
+NodeSessionManager::NodeSessionManager(const shared_ptr<Ice::Communicator>& communicator, const string& instanceName)
+    : SessionManager(communicator, instanceName),
+      _destroyed(false),
+      _activated(false)
 {
 }
 
@@ -254,7 +257,7 @@ NodeSessionManager::create(const InternalRegistryPrxPtr& replica)
 {
     assert(_thread);
     shared_ptr<NodeSessionKeepAliveThread> thread;
-    if(replica->ice_getIdentity() == _master->ice_getIdentity())
+    if (replica->ice_getIdentity() == _master->ice_getIdentity())
     {
         thread = _thread;
         thread->setRegistry(replica);
@@ -265,7 +268,7 @@ NodeSessionManager::create(const InternalRegistryPrxPtr& replica)
         thread = addReplicaSession(replica);
     }
 
-    if(thread)
+    if (thread)
     {
         thread->tryCreateSession();
         thread->waitTryCreateSession();
@@ -286,14 +289,14 @@ NodeSessionManager::activate()
     // replica observer is set on the session.
     //
     auto session = _thread->getSession();
-    if(session)
+    if (session)
     {
         try
         {
             session->setReplicaObserver(_node->getProxy());
             syncServers(session);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             Ice::Warning out(_node->getTraceLevels()->logger);
             out << "failed to set replica observer:\n" << ex;
@@ -328,7 +331,7 @@ NodeSessionManager::destroy()
     NodeSessionMap sessions;
     {
         lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
@@ -337,33 +340,32 @@ NodeSessionManager::destroy()
         _condVar.notify_all();
     }
 
-    if(_thread)
+    if (_thread)
     {
         _thread->terminate();
     }
 
-    for(const auto& session : sessions)
+    for (const auto& session : sessions)
     {
         session.second->terminate();
     }
 
-    if(_thread)
+    if (_thread)
     {
         _thread->join();
     }
 
-    for(const auto& session : sessions)
+    for (const auto& session : sessions)
     {
         session.second->join();
     }
-
 }
 
 void
 NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas)
 {
     lock_guard lock(_mutex);
-    if(_destroyed)
+    if (_destroyed)
     {
         return;
     }
@@ -372,7 +374,7 @@ NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas)
     // Initialize the set of replicas known by the master.
     //
     _replicas.clear();
-    for(const auto& replica : replicas)
+    for (const auto& replica : replicas)
     {
         _replicas.insert(replica->ice_getIdentity());
         addReplicaSession(replica)->tryCreateSession();
@@ -383,7 +385,7 @@ void
 NodeSessionManager::replicaAdded(const InternalRegistryPrxPtr& replica)
 {
     lock_guard lock(_mutex);
-    if(_destroyed)
+    if (_destroyed)
     {
         return;
     }
@@ -396,7 +398,7 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrxPtr& replica)
 {
     {
         lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
@@ -415,7 +417,7 @@ NodeSessionManager::addReplicaSession(const InternalRegistryPrxPtr& replica)
     assert(!_destroyed);
     auto p = _sessions.find(replica->ice_getIdentity());
     shared_ptr<NodeSessionKeepAliveThread> thread;
-    if(p != _sessions.end())
+    if (p != _sessions.end())
     {
         thread = p->second;
         thread->setRegistry(replica);
@@ -436,15 +438,15 @@ NodeSessionManager::reapReplicas()
     vector<shared_ptr<NodeSessionKeepAliveThread>> reap;
     {
         lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
 
         auto q = _sessions.begin();
-        while(q != _sessions.end())
+        while (q != _sessions.end())
         {
-            if(_replicas.find(q->first) == _replicas.end() && q->second->terminateIfDisconnected())
+            if (_replicas.find(q->first) == _replicas.end() && q->second->terminateIfDisconnected())
             {
                 _node->removeObserver(q->second->getSession());
                 reap.push_back(q->second);
@@ -457,7 +459,7 @@ NodeSessionManager::reapReplicas()
         }
     }
 
-    for(const auto& r : reap)
+    for (const auto& r : reap)
     {
         r->join();
     }
@@ -499,14 +501,14 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
     // We also set the replica observer to receive notifications of
     // replica addition/removal.
     //
-    if(session && activated)
+    if (session && activated)
     {
         try
         {
             session->setReplicaObserver(_node->getProxy());
             syncServers(session);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             Ice::Warning out(_node->getTraceLevels()->logger);
             out << "failed to set replica observer:\n" << ex;
@@ -523,7 +525,7 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
     //
 
     InternalRegistryPrxSeq replicas;
-    if(session)
+    if (session)
     {
         assert(!activated); // The node adapter isn't activated yet so
                             // we're not subscribed yet to the replica
@@ -532,7 +534,7 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
         {
             replicas = _thread->getRegistry()->getReplicas();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
     }
@@ -554,20 +556,20 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
         // more reliable.
         //
 
-        for(const auto& object : queryObjects)
+        for (const auto& object : queryObjects)
         {
             results1.push_back(object->findAllObjectsByTypeAsync(InternalRegistry::ice_staticId()));
         }
-        for(const auto& object : queryObjects)
+        for (const auto& object : queryObjects)
         {
             results2.push_back(object->findAllObjectsByTypeAsync(Registry::ice_staticId()));
         }
 
         map<Ice::Identity, Ice::ObjectPrxPtr> proxies;
 
-        for(auto& result : results1)
+        for (auto& result : results1)
         {
-            if(isDestroyed())
+            if (isDestroyed())
             {
                 return;
             }
@@ -575,19 +577,19 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
             try
             {
                 auto prxs = result.get();
-                for(const auto& prx : prxs)
+                for (const auto& prx : prxs)
                 {
                     proxies[prx->ice_getIdentity()] = prx;
                 }
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
                 // Ignore.
             }
         }
-        for(auto& result : results2)
+        for (auto& result : results2)
         {
-            if(isDestroyed())
+            if (isDestroyed())
             {
                 return;
             }
@@ -595,12 +597,12 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
             try
             {
                 auto prxs = result.get();
-                for(auto prx : prxs)
+                for (auto prx : prxs)
                 {
                     Ice::Identity id = prx->ice_getIdentity();
                     const string prefix("Registry-");
                     string::size_type pos = id.name.find(prefix);
-                    if(pos == string::npos)
+                    if (pos == string::npos)
                     {
                         continue; // Ignore the master registry proxy.
                     }
@@ -614,13 +616,13 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
                     proxies[id] = std::move(prx);
                 }
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
                 // Ignore
             }
         }
 
-        for(const auto& prx : proxies)
+        for (const auto& prx : proxies)
         {
             replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
         }
@@ -629,7 +631,7 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
     vector<shared_ptr<NodeSessionKeepAliveThread>> sessions;
     {
         lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
@@ -638,16 +640,16 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
         // If the node adapter was activated since we last check, we don't need
         // to initialize the replicas here, it will be done by replicaInit().
         //
-        if(!session || !_activated)
+        if (!session || !_activated)
         {
             _replicas.clear();
-            for(const auto& replica : replicas)
+            for (const auto& replica : replicas)
             {
-                if(replica->ice_getIdentity() != _master->ice_getIdentity())
+                if (replica->ice_getIdentity() != _master->ice_getIdentity())
                 {
                     _replicas.insert(replica->ice_getIdentity());
 
-                    if(_sessions.find(replica->ice_getIdentity()) == _sessions.end())
+                    if (_sessions.find(replica->ice_getIdentity()) == _sessions.end())
                     {
                         auto thread = addReplicaSession(replica);
                         thread->tryCreateSession();
@@ -668,14 +670,14 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
     // activated.
     //
     auto before = chrono::system_clock::now();
-    for(const auto& s : sessions)
+    for (const auto& s : sessions)
     {
-        if(isDestroyed())
+        if (isDestroyed())
         {
             return;
         }
         auto timeout = 5s - (chrono::system_clock::now() - before);
-        if(timeout <= 0s)
+        if (timeout <= 0s)
         {
             break;
         }

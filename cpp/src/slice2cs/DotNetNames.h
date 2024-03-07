@@ -10,19 +10,22 @@
 namespace Slice
 {
 
-namespace DotNet
-{
+    namespace DotNet
+    {
 
-enum BaseType
-{
-    Object=1, ICloneable=2, Exception=4, END=8
-};
+        enum BaseType
+        {
+            Object = 1,
+            ICloneable = 2,
+            Exception = 4,
+            END = 8
+        };
 
-extern const char * manglePrefix;
+        extern const char* manglePrefix;
 
-std::string mangleName(const std::string&, unsigned int baseTypes = 0);
+        std::string mangleName(const std::string&, unsigned int baseTypes = 0);
 
-}
+    }
 
 }
 

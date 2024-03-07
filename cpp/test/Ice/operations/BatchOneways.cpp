@@ -16,73 +16,60 @@ using namespace Ice;
 namespace
 {
 
-class BatchRequestInterceptorI final
-{
-public:
-
-    BatchRequestInterceptorI() : _enabled(false), _count(0), _size(0), _lastRequestSize(0)
+    class BatchRequestInterceptorI final
     {
-    }
+    public:
+        BatchRequestInterceptorI() : _enabled(false), _count(0), _size(0), _lastRequestSize(0) {}
 
-    virtual void
-    enqueue(const BatchRequest& request, int32_t count, int32_t size)
-    {
-        test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");
-        test(request.getProxy()->ice_isBatchOneway());
-
-        if(count > 0)
+        virtual void enqueue(const BatchRequest& request, int32_t count, int32_t size)
         {
-            test(_lastRequestSize + _size == size);
+            test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");
+            test(request.getProxy()->ice_isBatchOneway());
+
+            if (count > 0)
+            {
+                test(_lastRequestSize + _size == size);
+            }
+            _count = count;
+            _size = size;
+
+            if (_size + request.getSize() > 25000)
+            {
+                request.getProxy()->ice_flushBatchRequestsAsync();
+                _size = 18; // header
+            }
+
+            if (_enabled)
+            {
+                _lastRequestSize = request.getSize();
+                ++_count;
+                request.enqueue();
+            }
         }
-        _count = count;
-        _size = size;
 
-        if(_size + request.getSize() > 25000)
-        {
-            request.getProxy()->ice_flushBatchRequestsAsync();
-            _size = 18; // header
-        }
+        void enqueue(bool enabled) { _enabled = enabled; }
 
-        if(_enabled)
-        {
-            _lastRequestSize = request.getSize();
-            ++_count;
-            request.enqueue();
-        }
-    }
+        int count() { return _count; }
 
-    void
-    enqueue(bool enabled)
-    {
-        _enabled = enabled;
-    }
-
-    int
-    count()
-    {
-        return _count;
-    }
-
-private:
-
-    bool _enabled;
-    int _count;
-    int _size;
-    int _lastRequestSize;
-};
-using BatchRequestInterceptorIPtr = std::shared_ptr<BatchRequestInterceptorI>;
+    private:
+        bool _enabled;
+        int _count;
+        int _size;
+        int _lastRequestSize;
+    };
+    using BatchRequestInterceptorIPtr = std::shared_ptr<BatchRequestInterceptorI>;
 
 }
 
 void
 batchOneways(const MyClassPrx& p)
 {
-    const ByteS bs1(10  * 1024);
+    const ByteS bs1(10 * 1024);
 
     MyClassPrx batch = p->ice_batchOneway();
 
     batch->ice_flushBatchRequests(); // Empty flush
-    if(batch->ice_getConnection())
+    if (batch->ice_getConnection())
     {
         batch->ice_getConnection()->flushBatchRequests(CompressBatch::BasedOnProxy);
     }
@@ -90,13 +77,13 @@ batchOneways(const MyClassPrx& p)
 
     int i;
     p->opByteSOnewayCallCount(); // Reset the call count
-    for(i = 0 ; i < 30 ; ++i)
+    for (i = 0; i < 30; ++i)
     {
         try
         {
             batch->opByteSOneway(bs1);
         }
-        catch(const LocalException& ex)
+        catch (const LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -104,14 +91,14 @@ batchOneways(const MyClassPrx& p)
     }
 
     int count = 0;
-    while(count < 27) // 3 * 9 requests auto-flushed.
+    while (count < 27) // 3 * 9 requests auto-flushed.
     {
         count += p->opByteSOnewayCallCount();
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+    if (batch->ice_getConnection() &&
+        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
         MyClassPrx batch1 = p->ice_batchOneway();
         MyClassPrx batch2 = p->ice_batchOneway();
@@ -145,17 +132,15 @@ batchOneways(const MyClassPrx& p)
         batch->ice_ping();
     }
 
-    if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+    if (batch->ice_getConnection() &&
+        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
         InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
         BatchRequestInterceptorIPtr interceptor = std::make_shared<BatchRequestInterceptorI>();
 
         initData.batchRequestInterceptor = [=](const BatchRequest& request, int countP, int size)
-        {
-            interceptor->enqueue(request, countP, size);
-        };
+        { interceptor->enqueue(request, countP, size); };
         CommunicatorPtr ic = initialize(initData);
 
         auto batch4 = MyClassPrx(ic, p->ice_toString())->ice_batchOneway();
@@ -193,12 +178,12 @@ batchOneways(const MyClassPrx& p)
     {
         supportsCompress = p->supportsCompress();
     }
-    catch(const OperationNotExistException&)
+    catch (const OperationNotExistException&)
     {
     }
 
-    if(supportsCompress && batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
+    if (supportsCompress && batch->ice_getConnection() &&
+        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
     {
         MyClassPrx prx = batch->ice_fixed(batch->ice_getConnection())->ice_batchOneway();
 

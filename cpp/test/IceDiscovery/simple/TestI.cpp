@@ -16,10 +16,7 @@ TestIntfI::getAdapterId(const Ice::Current& current)
 }
 
 void
-ControllerI::activateObjectAdapter(string name,
-                                   string adapterId,
-                                   string replicaGroupId,
-                                   const Ice::Current& current)
+ControllerI::activateObjectAdapter(string name, string adapterId, string replicaGroupId, const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::PropertiesPtr properties = communicator->getProperties();

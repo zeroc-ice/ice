@@ -12,26 +12,17 @@
 class DispatcherCall
 {
 public:
+    DispatcherCall(std::function<void()> call) : _call(std::move(call)) {}
 
-    DispatcherCall(std::function<void()> call) :
-        _call(std::move(call))
-    {
-    }
-
-    void run()
-    {
-        _call();
-    }
+    void run() { _call(); }
 
 private:
-
     std::function<void()> _call;
 };
 
 class Dispatcher
 {
 public:
-
     static std::shared_ptr<Dispatcher> create();
     void dispatch(const std::shared_ptr<DispatcherCall>&, const std::shared_ptr<Ice::Connection>&);
 
@@ -41,7 +32,6 @@ public:
     static bool isDispatcherThread();
 
 private:
-
     Dispatcher();
     static std::shared_ptr<Dispatcher> _instance;
     std::deque<std::shared_ptr<DispatcherCall>> _calls;

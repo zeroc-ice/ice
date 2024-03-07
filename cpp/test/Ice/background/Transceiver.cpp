@@ -3,7 +3,7 @@
 //
 
 #ifndef TEST_API_EXPORTS
-#   define TEST_API_EXPORTS
+#    define TEST_API_EXPORTS
 #endif
 
 #include <Transceiver.h>
@@ -22,12 +22,12 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     IceInternal::SocketOperation status = IceInternal::SocketOperationNone;
 #ifndef ICE_USE_IOCP
     status = _configuration->initializeSocketOperation();
-    if(status == IceInternal::SocketOperationConnect || status == IceInternal::SocketOperationWrite)
+    if (status == IceInternal::SocketOperationConnect || status == IceInternal::SocketOperationWrite)
     {
-        if(!_initialized)
+        if (!_initialized)
         {
             IceInternal::SocketOperation s = _transceiver->initialize(readBuffer, writeBuffer);
-            if(s != IceInternal::SocketOperationNone)
+            if (s != IceInternal::SocketOperationNone)
             {
                 return s;
             }
@@ -35,17 +35,17 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
         }
         return status;
     }
-    else if(status == IceInternal::SocketOperationRead)
+    else if (status == IceInternal::SocketOperationRead)
     {
         return status;
     }
 #endif
 
     _configuration->checkInitializeException();
-    if(!_initialized)
+    if (!_initialized)
     {
         status = _transceiver->initialize(readBuffer, writeBuffer);
-        if(status != IceInternal::SocketOperationNone)
+        if (status != IceInternal::SocketOperationNone)
         {
             return status;
         }
@@ -69,7 +69,7 @@ Transceiver::close()
 IceInternal::SocketOperation
 Transceiver::write(IceInternal::Buffer& buf)
 {
-    if(!_configuration->writeReady() && (!buf.b.empty() && buf.i < buf.b.end()))
+    if (!_configuration->writeReady() && (!buf.b.empty() && buf.i < buf.b.end()))
     {
         return IceInternal::SocketOperationWrite;
     }
@@ -81,22 +81,22 @@ Transceiver::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 Transceiver::read(IceInternal::Buffer& buf)
 {
-    if(!_configuration->readReady() && (!buf.b.empty() && buf.i < buf.b.end()))
+    if (!_configuration->readReady() && (!buf.b.empty() && buf.i < buf.b.end()))
     {
         return IceInternal::SocketOperationRead;
     }
 
     _configuration->checkReadException();
 
-    if(_buffered)
+    if (_buffered)
     {
-        while(buf.i != buf.b.end())
+        while (buf.i != buf.b.end())
         {
-            if(_readBufferPos == _readBuffer.i)
+            if (_readBufferPos == _readBuffer.i)
             {
                 _readBufferPos = _readBuffer.i = _readBuffer.b.begin();
                 _transceiver->read(_readBuffer);
-                if(_readBufferPos == _readBuffer.i)
+                if (_readBufferPos == _readBuffer.i)
                 {
                     _transceiver->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
                     return IceInternal::SocketOperationRead;
@@ -106,7 +106,7 @@ Transceiver::read(IceInternal::Buffer& buf)
             size_t requested = static_cast<size_t>(buf.b.end() - buf.i);
             size_t available = static_cast<size_t>(_readBuffer.i - _readBufferPos);
             assert(available > 0);
-            if(available >= requested)
+            if (available >= requested)
             {
                 available = requested;
             }
@@ -115,7 +115,7 @@ Transceiver::read(IceInternal::Buffer& buf)
             _readBufferPos += available;
             buf.i += available;
         }
-        if(_readBufferPos < _readBuffer.i)
+        if (_readBufferPos < _readBuffer.i)
         {
             _transceiver->getNativeInfo()->ready(IceInternal::SocketOperationRead, true);
         }
@@ -146,14 +146,14 @@ void
 Transceiver::startRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
-    if(_buffered && _initialized)
+    if (_buffered && _initialized)
     {
         size_t available = _readBuffer.i - _readBufferPos;
-        if(available > 0)
+        if (available > 0)
         {
             size_t requested = buf.b.end() - buf.i;
             assert(available > 0);
-            if(available >= requested)
+            if (available >= requested)
             {
                 available = requested;
             }
@@ -163,7 +163,7 @@ Transceiver::startRead(IceInternal::Buffer& buf)
             buf.i += available;
         }
 
-        if(_readBufferPos == _readBuffer.i && buf.i != buf.b.end())
+        if (_readBufferPos == _readBuffer.i && buf.i != buf.b.end())
         {
             _readBufferPos = _readBuffer.i = _readBuffer.b.begin();
             _transceiver->startRead(_readBuffer);
@@ -184,17 +184,17 @@ void
 Transceiver::finishRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
-    if(_buffered && _initialized)
+    if (_buffered && _initialized)
     {
-        if(buf.i != buf.b.end())
+        if (buf.i != buf.b.end())
         {
             _transceiver->finishRead(_readBuffer);
 
             size_t requested = buf.b.end() - buf.i;
             size_t available = _readBuffer.i - _readBufferPos;
-            if(available > 0)
+            if (available > 0)
             {
-                if(available >= requested)
+                if (available >= requested)
                 {
                     available = requested;
                 }
@@ -251,11 +251,11 @@ Transceiver::setBufferSize(int rcvSize, int sndSize)
 //
 // Only for use by Connector, Acceptor
 //
-Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver) :
-    _transceiver(transceiver),
-    _configuration(Configuration::getInstance()),
-    _initialized(false),
-    _buffered(_configuration->buffered())
+Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver)
+    : _transceiver(transceiver),
+      _configuration(Configuration::getInstance()),
+      _initialized(false),
+      _buffered(_configuration->buffered())
 {
     _readBuffer.b.resize(1024 * 8); // 8KB buffer
     _readBufferPos = _readBuffer.b.begin();

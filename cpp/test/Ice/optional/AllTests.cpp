@@ -3,7 +3,7 @@
 //
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4244) // '=': conversion from x to y, possible loss of data
+#    pragma warning(disable : 4244) // '=': conversion from x to y, possible loss of data
 #endif
 
 #include <Ice/Ice.h>
@@ -16,27 +16,22 @@ using namespace Test;
 namespace
 {
 
-//
-// Converts a vector to an "array range"
-//
-template<typename T> pair<const T*, const T*>
-toArrayRange(const vector<T>& v)
-{
-    return make_pair(&v[0], &v[0] + v.size());
-}
+    //
+    // Converts a vector to an "array range"
+    //
+    template<typename T> pair<const T*, const T*> toArrayRange(const vector<T>& v)
+    {
+        return make_pair(&v[0], &v[0] + v.size());
+    }
 
-template<typename T> pair<const T*, const T*>
-toArrayRange(const T* v, size_t sz)
-{
-    return make_pair(v, v + sz);
-}
+    template<typename T> pair<const T*, const T*> toArrayRange(const T* v, size_t sz) { return make_pair(v, v + sz); }
 
 }
 
 class TestObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const {}
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -47,7 +42,6 @@ public:
     }
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -58,7 +52,7 @@ protected:
 class BObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const {}
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -76,7 +70,6 @@ public:
     }
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -87,7 +80,7 @@ protected:
 class CObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const {}
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -108,7 +101,6 @@ public:
     }
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -119,7 +111,6 @@ protected:
 class DObjectWriter : public Ice::Value
 {
 public:
-
     virtual void _iceWrite(Ice::OutputStream* out) const
     {
         out->startValue(nullptr);
@@ -127,7 +118,7 @@ public:
         out->startSlice("::Test::D", -1, false);
         string s = "test";
         out->write(s);
-        optional<vector<string> > o;
+        optional<vector<string>> o;
         o = vector<string>();
         o->push_back("test1");
         o->push_back("test2");
@@ -150,10 +141,9 @@ public:
         out->endValue();
     }
 
-    virtual void _iceRead(Ice::InputStream*) { }
+    virtual void _iceRead(Ice::InputStream*) {}
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -164,7 +154,7 @@ protected:
 class DObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const {}
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -174,10 +164,11 @@ public:
         string s;
         in->read(s);
         test(s == "test");
-        optional<vector<string> > o;
+        optional<vector<string>> o;
         in->read(1, o);
-        test(o && o->size() == 4 &&
-             (*o)[0] == "test1" && (*o)[1] == "test2" && (*o)[2] == "test3" && (*o)[3] == "test4");
+        test(
+            o && o->size() == 4 && (*o)[0] == "test1" && (*o)[1] == "test2" && (*o)[2] == "test3" &&
+            (*o)[3] == "test4");
         in->read(1000, a);
         in->endSlice();
         // ::Test::B
@@ -192,13 +183,9 @@ public:
         in->endValue();
     }
 
-    void check()
-    {
-        test((*a)->mc == 18);
-    }
+    void check() { test((*a)->mc == 18); }
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -206,14 +193,13 @@ protected:
     }
 
 private:
-
     optional<APtr> a;
 };
 
 class FObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const {}
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -221,7 +207,7 @@ public:
         in->startValue();
         in->startSlice();
         // Don't read af on purpose
-        //in.read(1, _f->af);
+        // in.read(1, _f->af);
         in->endSlice();
         in->startSlice();
         in->read(_f->ae);
@@ -229,14 +215,9 @@ public:
         in->endValue();
     }
 
-    FPtr
-    getF()
-    {
-        return _f;
-    }
+    FPtr getF() { return _f; }
 
 protected:
-
     virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
@@ -244,7 +225,6 @@ protected:
     }
 
 private:
-
     FPtr _f;
 };
 
@@ -253,52 +233,44 @@ class FactoryI
     bool _enabled;
 
 public:
+    FactoryI() : _enabled(false) {}
 
-    FactoryI() : _enabled(false)
+    shared_ptr<Ice::Value> create(string_view typeId)
     {
-    }
-
-    shared_ptr<Ice::Value>
-    create(string_view typeId)
-    {
-        if(!_enabled)
+        if (!_enabled)
         {
             return 0;
         }
 
-        if(typeId == "::Test::OneOptional")
+        if (typeId == "::Test::OneOptional")
         {
-           return make_shared<TestObjectReader>();
+            return make_shared<TestObjectReader>();
         }
-        else if(typeId == "::Test::MultiOptional")
+        else if (typeId == "::Test::MultiOptional")
         {
-           return make_shared<TestObjectReader>();
+            return make_shared<TestObjectReader>();
         }
-        else if(typeId == "::Test::B")
+        else if (typeId == "::Test::B")
         {
-           return make_shared<BObjectReader>();
+            return make_shared<BObjectReader>();
         }
-        else if(typeId == "::Test::C")
+        else if (typeId == "::Test::C")
         {
-           return make_shared<CObjectReader>();
+            return make_shared<CObjectReader>();
         }
-        else if(typeId == "::Test::D")
+        else if (typeId == "::Test::D")
         {
-           return make_shared<DObjectReader>();
+            return make_shared<DObjectReader>();
         }
-        else if(typeId == "::Test::F")
+        else if (typeId == "::Test::F")
         {
-           return make_shared<FObjectReader>();
+            return make_shared<FObjectReader>();
         }
 
         return 0;
     }
 
-    void
-    setEnabled(bool enabled)
-    {
-        _enabled = enabled;
-    }
+    void setEnabled(bool enabled) { _enabled = enabled; }
 };
 
 InitialPrx
@@ -307,11 +279,7 @@ allTests(Test::TestHelper* helper, bool)
     Ice::CommunicatorPtr communicator = helper->communicator();
     auto factory = make_shared<FactoryI>();
 
-    communicator->getValueFactoryManager()->add([factory](string_view typeId)
-                                                {
-                                                    return factory->create(typeId);
-                                                },
-                                                "");
+    communicator->getValueFactoryManager()->add([factory](string_view typeId) { return factory->create(typeId); }, "");
 
     InitialPrx initial(communicator, "initial:" + helper->getTestEndpoint());
 
@@ -435,15 +403,17 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing comparison operators... " << flush;
 
-    test(mo1->a == static_cast<uint8_t>(15) && static_cast<uint8_t>(15) == mo1->a &&
+    test(
+        mo1->a == static_cast<uint8_t>(15) && static_cast<uint8_t>(15) == mo1->a &&
         mo1->a != static_cast<uint8_t>(16) && static_cast<uint8_t>(16) != mo1->a);
-    test(mo1->a < static_cast<uint8_t>(16) && mo1->a > static_cast<uint8_t>(14) &&
-        mo1->a <= static_cast<uint8_t>(15) && mo1->a >= static_cast<uint8_t>(15) &&
-        mo1->a <= static_cast<uint8_t>(16) && mo1->a >= static_cast<uint8_t>(14));
+    test(
+        mo1->a < static_cast<uint8_t>(16) && mo1->a > static_cast<uint8_t>(14) && mo1->a <= static_cast<uint8_t>(15) &&
+        mo1->a >= static_cast<uint8_t>(15) && mo1->a <= static_cast<uint8_t>(16) && mo1->a >= static_cast<uint8_t>(14));
     test(mo1->a > optional<uint8_t>() && optional<uint8_t>() < mo1->a);
     test(14 > optional<int>() && optional<int>() < 14);
 
-    test(mo1->h == string("test") && string("test") == mo1->h && mo1->h != string("testa") && string("testa") != mo1->h);
+    test(
+        mo1->h == string("test") && string("test") == mo1->h && mo1->h != string("testa") && string("testa") != mo1->h);
     test(mo1->h < string("test1") && mo1->h > string("tesa") && mo1->h <= string("test"));
     test(mo1->h >= string("test") && mo1->h <= string("test1") && mo1->h >= string("tesa"));
     test(mo1->h > optional<string>() && optional<string>() < mo1->h);
@@ -520,7 +490,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
     test(mo5->mips.value().size() == mo1->mips.value().size());
-    for(size_t i = 0; i< mo5->mips.value().size(); ++i)
+    for (size_t i = 0; i < mo5->mips.value().size(); ++i)
     {
         test(mo5->mips.value()[i] == mo1->mips.value()[i]);
     }
@@ -531,7 +501,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
 
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
-    for(auto& v : mo5->imipd.value())
+    for (auto& v : mo5->imipd.value())
     {
         test(mo1->imipd.value()[v.first] == v.second);
     }
@@ -635,7 +605,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo8->oos);
 
     test(mo8->mips.value().size() == mo1->mips.value().size());
-    for(size_t i = 0; i< mo8->mips.value().size(); ++i)
+    for (size_t i = 0; i < mo8->mips.value().size(); ++i)
     {
         test(mo8->mips.value()[i] == mo1->mips.value()[i]);
     }
@@ -757,7 +727,7 @@ allTests(Test::TestHelper* helper, bool)
     mc->fss = fsSeq;
 
     IntFixedStructDict ifsd;
-    for(int i = 0; i < 300; ++i)
+    for (int i = 0; i < 300; ++i)
     {
         ifsd.insert(make_pair(i, FixedStruct()));
     }
@@ -864,7 +834,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!wd->s);
     cout << "ok" << endl;
 
-    if(communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
+    if (communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
         cout << "testing marshalling with unknown class slices... " << flush;
         {
@@ -1294,7 +1264,7 @@ allTests(Test::TestHelper* helper, bool)
         optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
         test(!p2 && !p3);
 
-        if(initial->supportsNullOptional())
+        if (initial->supportsNullOptional())
         {
             p2 = initial->opOneOptional(OneOptionalPtr(), p3);
             test(*p2 == nullptr && *p3 == nullptr);
@@ -1376,7 +1346,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing optional parameters and custom sequences... " << flush;
     {
-        optional<std::pair<const uint8_t*, const uint8_t*> > p1;
+        optional<std::pair<const uint8_t*, const uint8_t*>> p1;
         optional<ByteSeq> p3;
         optional<ByteSeq> p2 = initial->opByteSeq(p1, p3);
         test(!p2 && !p3);
@@ -1407,7 +1377,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const bool*, const bool*> > p1;
+        optional<std::pair<const bool*, const bool*>> p1;
         optional<BoolSeq> p3;
         optional<BoolSeq> p2 = initial->opBoolSeq(p1, p3);
         test(!p2 && !p3);
@@ -1439,7 +1409,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const int16_t*, const int16_t*> > p1;
+        optional<std::pair<const int16_t*, const int16_t*>> p1;
         optional<ShortSeq> p3;
         optional<ShortSeq> p2 = initial->opShortSeq(p1, p3);
         test(!p2 && !p3);
@@ -1470,7 +1440,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const int32_t*, const int32_t*> > p1;
+        optional<std::pair<const int32_t*, const int32_t*>> p1;
         optional<IntSeq> p3;
         optional<IntSeq> p2 = initial->opIntSeq(p1, p3);
         test(!p2 && !p3);
@@ -1501,7 +1471,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const int64_t*, const int64_t*> > p1;
+        optional<std::pair<const int64_t*, const int64_t*>> p1;
         optional<LongSeq> p3;
         optional<LongSeq> p2 = initial->opLongSeq(p1, p3);
         test(!p2 && !p3);
@@ -1532,7 +1502,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const float*, const float*> > p1;
+        optional<std::pair<const float*, const float*>> p1;
         optional<FloatSeq> p3;
         optional<FloatSeq> p2 = initial->opFloatSeq(p1, p3);
         test(!p2 && !p3);
@@ -1563,7 +1533,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const double*, const double*> > p1;
+        optional<std::pair<const double*, const double*>> p1;
         optional<DoubleSeq> p3;
         optional<DoubleSeq> p2 = initial->opDoubleSeq(p1, p3);
         test(!p2 && !p3);
@@ -1594,7 +1564,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const FixedStruct*, const FixedStruct*> > p1;
+        optional<std::pair<const FixedStruct*, const FixedStruct*>> p1;
         optional<FixedStructSeq> p3;
         optional<FixedStructSeq> p2 = initial->opFixedStructSeq(p1, p3);
         test(!p2 && !p3);
@@ -1743,7 +1713,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opOptionalException(nullopt, nullopt, nullopt);
             test(false);
         }
-        catch(const OptionalException& ex)
+        catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
@@ -1755,7 +1725,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
             test(false);
         }
-        catch(const OptionalException& ex)
+        catch (const OptionalException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
@@ -1767,11 +1737,11 @@ allTests(Test::TestHelper* helper, bool)
             //
             // Use the 1.0 encoding with an exception whose only class members are optional.
             //
-            initial->ice_encodingVersion(Ice::Encoding_1_0)->
-                opOptionalException(30, string("test"), make_shared<OneOptional>(53));
+            initial->ice_encodingVersion(Ice::Encoding_1_0)
+                ->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
             test(false);
         }
-        catch(const OptionalException& ex)
+        catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
@@ -1786,7 +1756,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opDerivedException(a, b, o);
             test(false);
         }
-        catch(const DerivedException& ex)
+        catch (const DerivedException& ex)
         {
             test(!ex.a);
             test(!ex.b);
@@ -1796,7 +1766,7 @@ allTests(Test::TestHelper* helper, bool)
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
-        catch(const OptionalException&)
+        catch (const OptionalException&)
         {
             test(false);
         }
@@ -1809,7 +1779,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opDerivedException(a, b, o);
             test(false);
         }
-        catch(const DerivedException& ex)
+        catch (const DerivedException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
@@ -1819,7 +1789,7 @@ allTests(Test::TestHelper* helper, bool)
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
-        catch(const OptionalException&)
+        catch (const OptionalException&)
         {
             test(false);
         }
@@ -1832,7 +1802,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opRequiredException(a, b, o);
             test(false);
         }
-        catch(const RequiredException& ex)
+        catch (const RequiredException& ex)
         {
             test(!ex.a);
             test(!ex.b);
@@ -1840,7 +1810,7 @@ allTests(Test::TestHelper* helper, bool)
             test(ex.ss == string("test"));
             test(!ex.o2);
         }
-        catch(const OptionalException&)
+        catch (const OptionalException&)
         {
             test(false);
         }
@@ -1853,7 +1823,7 @@ allTests(Test::TestHelper* helper, bool)
             initial->opRequiredException(a, b, o);
             test(false);
         }
-        catch(const RequiredException& ex)
+        catch (const RequiredException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
@@ -1861,7 +1831,7 @@ allTests(Test::TestHelper* helper, bool)
             test(ex.ss == string("test2"));
             test(ex.o2->a == 53);
         }
-        catch(const OptionalException&)
+        catch (const OptionalException&)
         {
             test(false);
         }

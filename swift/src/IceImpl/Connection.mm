@@ -11,94 +11,95 @@
 
 @implementation ICEConnection
 
--(std::shared_ptr<Ice::Connection>) connection
+- (std::shared_ptr<Ice::Connection>)connection
 {
     return std::static_pointer_cast<Ice::Connection>(self.cppObject);
 }
 
--(void) close:(std::uint8_t)mode
+- (void)close:(std::uint8_t)mode
 {
     self.connection->close(Ice::ConnectionClose(mode));
 }
 
--(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
+- (nullable ICEObjectPrx*)createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
 {
     try
     {
         auto prx = self.connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return nil;
     }
 }
 
--(BOOL) setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nullable)error;
+- (BOOL)setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable* _Nullable)error;
 {
     try
     {
         self.connection->setAdapter(oa == nil ? nullptr : [oa objectAdapter]);
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return NO;
     }
 }
 
--(nullable ICEObjectAdapter*) getAdapter
+- (nullable ICEObjectAdapter*)getAdapter
 {
     auto cppAdapter = self.connection->getAdapter();
 
     return [ICEObjectAdapter getHandle:cppAdapter];
 }
 
--(ICEEndpoint*) getEndpoint
+- (ICEEndpoint*)getEndpoint
 {
     auto endpoint = self.connection->getEndpoint();
     return [ICEEndpoint getHandle:endpoint];
 }
 
--(BOOL) flushBatchRequests:(std::uint8_t)compress error:(NSError**)error
+- (BOOL)flushBatchRequests:(std::uint8_t)compress error:(NSError**)error
 {
     try
     {
         self.connection->flushBatchRequests(Ice::CompressBatch(compress));
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return NO;
     }
 }
 
--(void) flushBatchRequestsAsync:(std::uint8_t)compress
+- (void)flushBatchRequestsAsync:(std::uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
 {
     try
     {
-        self.connection->flushBatchRequestsAsync(Ice::CompressBatch(compress),
-                                               [exception](std::exception_ptr e)
-                                               {
-                                                   @autoreleasepool
-                                                   {
-                                                       exception(convertException(e));
-                                                   }
-                                               },
-                                               [sent](bool sentSynchronously)
-                                               {
-                                                   if(sent)
-                                                   {
-                                                        sent(sentSynchronously);
-                                                   }
-                                               });
+        self.connection->flushBatchRequestsAsync(
+            Ice::CompressBatch(compress),
+            [exception](std::exception_ptr e)
+            {
+                @autoreleasepool
+                {
+                    exception(convertException(e));
+                }
+            },
+            [sent](bool sentSynchronously)
+            {
+                if (sent)
+                {
+                    sent(sentSynchronously);
+                }
+            });
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
@@ -107,17 +108,46 @@
     }
 }
 
--(BOOL) setCloseCallback:(void (^)(ICEConnection*))callback error:(NSError**)error
+- (BOOL)setCloseCallback:(void (^)(ICEConnection*))callback error:(NSError**)error
 {
     try
     {
-        if(!callback)
+        if (!callback)
         {
             self.connection->setCloseCallback(nullptr);
         }
         else
         {
-            self.connection->setCloseCallback([callback](auto connection)
+            self.connection->setCloseCallback(
+                [callback](auto connection)
+                {
+                    ICEConnection* conn = [ICEConnection getHandle:connection];
+                    assert(conn);
+                    @autoreleasepool
+                    {
+                        callback(conn);
+                    }
+                });
+        }
+        return YES;
+    }
+    catch (const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
+- (void)setHeartbeatCallback:(void (^)(ICEConnection*))callback
+{
+    if (!callback)
+    {
+        self.connection->setHeartbeatCallback(nullptr);
+    }
+    else
+    {
+        self.connection->setHeartbeatCallback(
+            [callback](auto connection)
             {
                 ICEConnection* conn = [ICEConnection getHandle:connection];
                 assert(conn);
@@ -126,71 +156,44 @@
                     callback(conn);
                 }
             });
-        }
-        return YES;
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return NO;
     }
 }
 
--(void) setHeartbeatCallback:(void (^)(ICEConnection*))callback
-{
-    if(!callback)
-    {
-        self.connection->setHeartbeatCallback(nullptr);
-    }
-    else
-    {
-        self.connection->setHeartbeatCallback([callback](auto connection)
-        {
-            ICEConnection* conn = [ICEConnection getHandle:connection];
-            assert(conn);
-            @autoreleasepool
-            {
-                callback(conn);
-            }
-        });
-    }
-}
-
--(BOOL) heartbeat:(NSError**)error
+- (BOOL)heartbeat:(NSError**)error
 {
     try
     {
         self.connection->heartbeat();
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return NO;
     }
 }
 
--(void) heartbeatAsync:(void (^)(NSError*))exception
-                  sent:(void (^_Nullable)(bool))sent
+- (void)heartbeatAsync:(void (^)(NSError*))exception sent:(void (^_Nullable)(bool))sent
 {
     try
     {
-        self.connection->heartbeatAsync([exception](std::exception_ptr e)
-                                    {
-                                        @autoreleasepool
-                                        {
-                                            exception(convertException(e));
-                                        }
-                                    },
-                                    [sent](bool sentSynchronously)
-                                    {
-                                        if(sent)
-                                        {
-                                            sent(sentSynchronously);
-                                        }
-                                    });
+        self.connection->heartbeatAsync(
+            [exception](std::exception_ptr e)
+            {
+                @autoreleasepool
+                {
+                    exception(convertException(e));
+                }
+            },
+            [sent](bool sentSynchronously)
+            {
+                if (sent)
+                {
+                    sent(sentSynchronously);
+                }
+            });
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
@@ -199,23 +202,23 @@
     }
 }
 
--(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat
+- (void)setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat
 {
     std::optional<int> opTimeout;
     std::optional<Ice::ACMClose> opClose;
     std::optional<Ice::ACMHeartbeat> opHeartbeat;
 
-    if(timeout != nil)
+    if (timeout != nil)
     {
         opTimeout = [timeout intValue];
     }
 
-    if(close != nil)
+    if (close != nil)
     {
         opClose = Ice::ACMClose([close unsignedCharValue]);
     }
 
-    if(heartbeat != nil)
+    if (heartbeat != nil)
     {
         opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
     }
@@ -223,7 +226,7 @@
     self.connection->setACM(opTimeout, opClose, opHeartbeat);
 }
 
--(void) getACM:(int32_t*)timeout close:(std::uint8_t*)close heartbeat:(std::uint8_t*)heartbeat
+- (void)getACM:(int32_t*)timeout close:(std::uint8_t*)close heartbeat:(std::uint8_t*)heartbeat
 {
     auto acm = self.connection->getACM();
     *timeout = acm.timeout;
@@ -231,57 +234,57 @@
     *heartbeat = static_cast<std::uint8_t>(acm.heartbeat);
 }
 
--(NSString*) type
+- (NSString*)type
 {
     return toNSString(self.connection->type());
 }
 
--(int32_t) timeout
+- (int32_t)timeout
 {
     return self.connection->timeout();
 }
 
--(NSString*) toString
+- (NSString*)toString
 {
     return toNSString(self.connection->toString());
 }
 
--(id) getInfo:(NSError**)error
+- (id)getInfo:(NSError**)error
 {
     try
     {
         auto info = self.connection->getInfo();
         return createConnectionInfo(info);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return nil;
     }
 }
 
--(BOOL) setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError**)error
+- (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError**)error
 {
     try
     {
         self.connection->setBufferSize(rcvSize, sndSize);
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return NO;
     }
 }
 
--(BOOL) throwException:(NSError**)error
+- (BOOL)throwException:(NSError**)error
 {
     try
     {
         self.connection->throwException();
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         *error = convertException(ex);
         return NO;
@@ -289,14 +292,15 @@
 }
 @end
 
-id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
+id
+createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
 {
     id underlying = infoPtr->underlying ? createConnectionInfo(infoPtr->underlying) : [NSNull null];
 
     Class<ICEConnectionInfoFactory> factory = [ICEUtil connectionInfoFactory];
 
     auto ipInfo = std::dynamic_pointer_cast<Ice::IPConnectionInfo>(infoPtr);
-    if(ipInfo)
+    if (ipInfo)
     {
         [factory createIPConnectionInfo:underlying
                                incoming:infoPtr->incoming
@@ -309,7 +313,7 @@ id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     }
 
     auto tcpInfo = std::dynamic_pointer_cast<Ice::TCPConnectionInfo>(infoPtr);
-    if(tcpInfo)
+    if (tcpInfo)
     {
         return [factory createTCPConnectionInfo:underlying
                                        incoming:tcpInfo->incoming
@@ -324,7 +328,7 @@ id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     }
 
     auto udpInfo = std::dynamic_pointer_cast<Ice::UDPConnectionInfo>(infoPtr);
-    if(udpInfo)
+    if (udpInfo)
     {
         return [factory createUDPConnectionInfo:underlying
                                        incoming:infoPtr->incoming
@@ -341,7 +345,7 @@ id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     }
 
     auto wsInfo = std::dynamic_pointer_cast<Ice::WSConnectionInfo>(infoPtr);
-    if(wsInfo)
+    if (wsInfo)
     {
         return [factory createWSConnectionInfo:underlying
                                       incoming:wsInfo->incoming
@@ -351,7 +355,7 @@ id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     }
 
     auto sslInfo = std::dynamic_pointer_cast<IceSSL::ConnectionInfo>(infoPtr);
-    if(sslInfo)
+    if (sslInfo)
     {
         return [factory createSSLConnectionInfo:underlying
                                        incoming:sslInfo->incoming
@@ -365,7 +369,7 @@ id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
 #if TARGET_OS_IPHONE
 
     auto iapInfo = std::dynamic_pointer_cast<IceIAP::ConnectionInfo>(infoPtr);
-    if(iapInfo)
+    if (iapInfo)
     {
         return [factory createIAPConnectionInfo:underlying
                                        incoming:iapInfo->incoming

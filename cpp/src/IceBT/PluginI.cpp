@@ -29,30 +29,27 @@ IceBT::BluetoothException::ice_print(ostream& out) const
 extern "C"
 {
 
-ICEBT_API Ice::Plugin*
-createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
-{
-    return new PluginI(communicator);
-}
-
+    ICEBT_API Ice::Plugin*
+    createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
+    {
+        return new PluginI(communicator);
+    }
 }
 
 namespace Ice
 {
 
-ICEBT_API void
-registerIceBT(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
-}
+    ICEBT_API void registerIceBT(bool loadOnInitialize)
+    {
+        Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
+    }
 
 }
 
 //
 // Plugin implementation.
 //
-IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) :
-    _engine(new Engine(com))
+IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) : _engine(new Engine(com))
 {
     IceInternal::ProtocolPluginFacadePtr f = IceInternal::getProtocolPluginFacade(com);
 

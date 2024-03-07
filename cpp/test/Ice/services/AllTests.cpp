@@ -15,59 +15,39 @@ using namespace Test;
 namespace
 {
 
-class ClockI : public Clock
-{
-public:
-
-    virtual void
-    tick(string time, const Ice::Current&)
+    class ClockI : public Clock
     {
-        cout << time << endl;
-    }
-};
+    public:
+        virtual void tick(string time, const Ice::Current&) { cout << time << endl; }
+    };
 
-class SessionCallbackI : public Glacier2::SessionCallback
-{
-
-public:
-
-    virtual void
-    connected(const Glacier2::SessionHelperPtr&)
+    class SessionCallbackI : public Glacier2::SessionCallback
     {
-    }
 
-    virtual void
-    disconnected(const Glacier2::SessionHelperPtr&)
+    public:
+        virtual void connected(const Glacier2::SessionHelperPtr&) {}
+
+        virtual void disconnected(const Glacier2::SessionHelperPtr&) {}
+
+        virtual void connectFailed(const Glacier2::SessionHelperPtr&, std::exception_ptr) {}
+
+        virtual void createdCommunicator(const Glacier2::SessionHelperPtr&) {}
+    };
+
+    class SessionHelperClient
     {
-    }
+    public:
+        int run(int, char*[])
+        {
+            _factory = make_shared<Glacier2::SessionFactoryHelper>(make_shared<SessionCallbackI>());
+            return EXIT_SUCCESS;
+        }
 
-    virtual void
-    connectFailed(const Glacier2::SessionHelperPtr&, std::exception_ptr)
-    {
-    }
-
-    virtual void
-    createdCommunicator(const Glacier2::SessionHelperPtr&)
-    {
-    }
-};
-
-class SessionHelperClient
-{
-public:
-
-    int run(int, char*[])
-    {
-        _factory = make_shared<Glacier2::SessionFactoryHelper>(make_shared<SessionCallbackI>());
-        return EXIT_SUCCESS;
-    }
-
-private:
-
-    Glacier2::SessionHelperPtr _session;
-    Glacier2::SessionFactoryHelperPtr _factory;
-    Ice::InitializationData _initData;
-};
+    private:
+        Glacier2::SessionHelperPtr _session;
+        Glacier2::SessionFactoryHelperPtr _factory;
+        Ice::InitializationData _initData;
+    };
 
 } // Anonymous namespace end
 
@@ -97,15 +77,15 @@ allTests(Test::TestHelper* helper)
             topic = manager->retrieve(topicName);
             test(false);
         }
-        catch(const IceStorm::NoSuchTopic&)
+        catch (const IceStorm::NoSuchTopic&)
         {
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
 
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber", "tcp");
         Ice::ObjectPrx subscriber(adapter->addWithUUID(std::make_shared<ClockI>()));
         adapter->activate();
         assert(!topic);
@@ -123,11 +103,11 @@ allTests(Test::TestHelper* helper)
             session = registry->createAdminSession("username", "password");
             test(false);
         }
-        catch(const IceGrid::PermissionDeniedException&)
+        catch (const IceGrid::PermissionDeniedException&)
         {
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
         assert(!admin);

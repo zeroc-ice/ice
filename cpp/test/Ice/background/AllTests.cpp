@@ -20,21 +20,16 @@ using namespace Test;
 class OpThread final
 {
 public:
-
-    OpThread(const BackgroundPrx& background) :
-        _destroyed(false),
-        _background(background->ice_oneway())
-    {
-    }
+    OpThread(const BackgroundPrx& background) : _destroyed(false), _background(background->ice_oneway()) {}
 
     void run()
     {
         int count = 0;
-        while(true)
+        while (true)
         {
             {
                 lock_guard lock(_mutex);
-                if(_destroyed)
+                if (_destroyed)
                 {
                     return;
                 }
@@ -42,7 +37,7 @@ public:
 
             try
             {
-                if(++count == 10) // Don't blast the connection with only oneway's
+                if (++count == 10) // Don't blast the connection with only oneway's
                 {
                     count = 0;
                     _background->ice_twoway()->ice_ping();
@@ -50,21 +45,19 @@ public:
                 _background->opAsync();
                 this_thread::sleep_for(chrono::milliseconds(1));
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
             }
         }
     }
 
-    void
-    destroy()
+    void destroy()
     {
         lock_guard lock(_mutex);
         _destroyed = true;
     }
 
 private:
-
     bool _destroyed;
     BackgroundPrx _background;
     mutex _mutex;
@@ -84,8 +77,7 @@ allTests(TestHelper* helper)
 
     BackgroundPrx background(communicator, "background:" + endp);
     BackgroundControllerPrx backgroundController(
-        communicator,
-        "backgroundController:" + helper->getTestEndpoint(1, "tcp"));
+        communicator, "backgroundController:" + helper->getTestEndpoint(1, "tcp"));
 
     auto plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
     assert(plugin);
@@ -126,7 +118,7 @@ allTests(TestHelper* helper)
             obj->ice_ping();
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
         }
         backgroundController->resumeCall("findAdapterById");
@@ -140,8 +132,8 @@ allTests(TestHelper* helper)
         promise<void> p1;
         promise<void> p2;
 
-        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        bg->opAsync([&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); });
+        bg->opAsync([&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); });
 
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
@@ -167,7 +159,7 @@ allTests(TestHelper* helper)
             obj->ice_ping();
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
         }
         backgroundController->resumeCall("getClientProxy");
@@ -180,8 +172,8 @@ allTests(TestHelper* helper)
         promise<void> p1;
         promise<void> p2;
 
-        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        bg->opAsync([&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); });
+        bg->opAsync([&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); });
 
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
@@ -198,7 +190,7 @@ allTests(TestHelper* helper)
 
     const bool ws = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-ws";
     const bool wss = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-wss";
-    if(!ws && !wss)
+    if (!ws && !wss)
     {
         cout << "testing buffered transport... " << flush;
 
@@ -209,15 +201,15 @@ allTests(TestHelper* helper)
         background->opAsync();
 
         vector<future<void>> results;
-        for(int i = 0; i < 10000; ++i)
+        for (int i = 0; i < 10000; ++i)
         {
             auto f = background->opAsync();
-            if(i % 50 == 0)
+            if (i % 50 == 0)
             {
                 backgroundController->holdAdapter();
                 backgroundController->resumeAdapter();
             }
-            if(i % 100 == 0)
+            if (i % 100 == 0)
             {
                 f.get();
             }
@@ -227,7 +219,7 @@ allTests(TestHelper* helper)
             }
         }
 
-        for(auto& f : results)
+        for (auto& f : results)
         {
             f.get(); // Ensure all the calls are completed before destroying the communicator
         }
@@ -244,15 +236,15 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
     {
         background->op();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
-    for(int i = 0; i < 4; ++i)
+    for (int i = 0; i < 4; ++i)
     {
-        if(i == 0 || i == 2)
+        if (i == 0 || i == 2)
         {
             configuration->connectorsException(new Ice::DNSException(__FILE__, __LINE__));
         }
@@ -267,7 +259,7 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             prx->op();
             test(false);
         }
-        catch(const Ice::Exception&)
+        catch (const Ice::Exception&)
         {
         }
 
@@ -275,18 +267,8 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             promise<void> completed;
             promise<bool> sent;
             prx->opAsync(
-                []()
-                {
-                    test(false);
-                },
-                [&completed](exception_ptr)
-                {
-                    completed.set_value();
-                },
-                [&sent](bool value)
-                {
-                    sent.set_value(value);
-                });
+                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
@@ -296,23 +278,13 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             promise<bool> sent;
 
             prx->opAsync(
-                []()
-                {
-                    test(false);
-                },
-                [&completed](exception_ptr)
-                {
-                    completed.set_value();
-                },
-                [&sent](bool value)
-                {
-                    sent.set_value(value);
-                });
+                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
 
-        if(i == 0 || i == 2)
+        if (i == 0 || i == 2)
         {
             configuration->connectorsException(0);
         }
@@ -328,13 +300,13 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
     OpThreadPtr opThread2 = make_shared<OpThread>(background);
     auto worker2 = thread([opThread2] { opThread2->run(); });
 
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         try
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -347,7 +319,7 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
     }
@@ -360,15 +332,16 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
 }
 
 void
-initializeTests(const ConfigurationPtr& configuration,
-                const BackgroundPrx& background,
-                const BackgroundControllerPrx& ctl)
+initializeTests(
+    const ConfigurationPtr& configuration,
+    const BackgroundPrx& background,
+    const BackgroundControllerPrx& ctl)
 {
     try
     {
         background->op();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -376,9 +349,9 @@ initializeTests(const ConfigurationPtr& configuration,
     }
     background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        if(i == 0 || i == 2)
+        if (i == 0 || i == 2)
         {
             configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
         }
@@ -398,7 +371,7 @@ initializeTests(const ConfigurationPtr& configuration,
             prx->op();
             test(false);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
         }
 
@@ -406,22 +379,12 @@ initializeTests(const ConfigurationPtr& configuration,
         promise<void> completed;
 
         prx->opAsync(
-            []()
-            {
-                test(false);
-            },
-            [&completed](exception_ptr)
-            {
-                completed.set_value();
-            },
-            [&sent](bool value)
-            {
-                sent.set_value(value);
-            });
+            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
 
-        if(i == 0 || i == 2)
+        if (i == 0 || i == 2)
         {
             configuration->initializeException(0);
         }
@@ -439,7 +402,7 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -453,7 +416,7 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -472,11 +435,11 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
         ctl->initializeException(false);
     }
-    catch(const Ice::SecurityException&)
+    catch (const Ice::SecurityException&)
     {
         ctl->initializeException(false);
     }
@@ -488,7 +451,7 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -503,12 +466,12 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
         ctl->initializeException(false);
         ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::SecurityException&)
+    catch (const Ice::SecurityException&)
     {
         ctl->initializeException(false);
         ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
@@ -520,13 +483,13 @@ initializeTests(const ConfigurationPtr& configuration,
     auto opThread2 = make_shared<OpThread>(background);
     thread worker2 = thread([opThread2] { opThread2->run(); });
 
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         try
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -541,14 +504,14 @@ initializeTests(const ConfigurationPtr& configuration,
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
         try
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -568,14 +531,14 @@ initializeTests(const ConfigurationPtr& configuration,
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
         try
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -594,7 +557,7 @@ initializeTests(const ConfigurationPtr& configuration,
             background->op();
 #endif
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -610,15 +573,16 @@ initializeTests(const ConfigurationPtr& configuration,
 }
 
 void
-validationTests(const ConfigurationPtr& configuration,
-                const BackgroundPrx& background,
-                const BackgroundControllerPrx& ctl)
+validationTests(
+    const ConfigurationPtr& configuration,
+    const BackgroundPrx& background,
+    const BackgroundControllerPrx& ctl)
 {
     try
     {
         background->op();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -631,18 +595,18 @@ validationTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::SocketException&)
+    catch (const Ice::SocketException&)
     {
         configuration->readException(0);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
         BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
@@ -650,25 +614,15 @@ validationTests(const ConfigurationPtr& configuration,
         promise<void> completed;
 
         prx->opAsync(
-            []()
-            {
-                test(false);
-            },
-            [&completed](exception_ptr)
-            {
-                completed.set_value();
-            },
-            [&sent](bool value)
-            {
-                sent.set_value(value);
-            });
+            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
         configuration->readException(0);
     }
 
-    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-       background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
     {
         try
         {
@@ -677,7 +631,7 @@ validationTests(const ConfigurationPtr& configuration,
             background->op();
             configuration->readReady(true);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -693,39 +647,36 @@ validationTests(const ConfigurationPtr& configuration,
             background->op();
             test(false);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             configuration->readException(0);
             configuration->readReady(true);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
 
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
             background->opAsync(
-                []()
-                {
-                    test(false);
-                },
+                []() { test(false); },
                 [&completed](exception_ptr err)
                 {
                     try
                     {
                         rethrow_exception(err);
                     }
-                    catch(const Ice::SocketException&)
+                    catch (const Ice::SocketException&)
                     {
                         completed.set_value();
                     }
-                    catch(...)
+                    catch (...)
                     {
                         test(false);
                     }
@@ -744,32 +695,12 @@ validationTests(const ConfigurationPtr& configuration,
     promise<bool> s2;
 
     background->opAsync(
-        [&p1]()
-        {
-            p1.set_value();
-        },
-        [&p1](exception_ptr e)
-        {
-            p1.set_exception(e);
-        },
-        [&s1](bool value)
-        {
-            s1.set_value(value);
-        });
+        [&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); },
+        [&s1](bool value) { s1.set_value(value); });
 
     background->opAsync(
-        [&p2]()
-        {
-            p2.set_value();
-        },
-        [&p2](exception_ptr e)
-        {
-            p2.set_exception(e);
-        },
-        [&s2](bool value)
-        {
-            s2.set_value(value);
-        });
+        [&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); },
+        [&s2](bool value) { s2.set_value(value); });
 
     test(s1.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
     test(s2.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
@@ -786,62 +717,62 @@ validationTests(const ConfigurationPtr& configuration,
     f2.get();
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-       background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
     {
 #endif
-    try
-    {
-        // Get the write() of connection validation to throw right away.
-        ctl->writeException(true);
-        background->op();
-        test(false);
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        ctl->writeException(false);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
-        test(false);
-    }
+        try
+        {
+            // Get the write() of connection validation to throw right away.
+            ctl->writeException(true);
+            background->op();
+            test(false);
+        }
+        catch (const Ice::ConnectionLostException&)
+        {
+            ctl->writeException(false);
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            cerr << "stack: " << ex.ice_stackTrace() << endl;
+            test(false);
+        }
 
-    try
-    {
-        // Get the write() of the connection validation to return "would block"
-        ctl->writeReady(false);
-        background->op();
-        ctl->writeReady(true);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
-        test(false);
-    }
-    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+        try
+        {
+            // Get the write() of the connection validation to return "would block"
+            ctl->writeReady(false);
+            background->op();
+            ctl->writeReady(true);
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            cerr << "stack: " << ex.ice_stackTrace() << endl;
+            test(false);
+        }
+        background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
-    try
-    {
-        // Get the write() of the connection validation to return "would block" and then throw.
-        ctl->writeReady(false);
-        ctl->writeException(true);
-        background->op();
-        test(false);
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        ctl->writeException(false);
-        ctl->writeReady(true);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
-        test(false);
-    }
+        try
+        {
+            // Get the write() of the connection validation to return "would block" and then throw.
+            ctl->writeReady(false);
+            ctl->writeException(true);
+            background->op();
+            test(false);
+        }
+        catch (const Ice::ConnectionLostException&)
+        {
+            ctl->writeException(false);
+            ctl->writeReady(true);
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            cerr << "stack: " << ex.ice_stackTrace() << endl;
+            test(false);
+        }
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
     }
 #endif
@@ -864,7 +795,7 @@ validationTests(const ConfigurationPtr& configuration,
     {
         backgroundBatchOneway->ice_flushBatchRequests();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -884,7 +815,7 @@ validationTests(const ConfigurationPtr& configuration,
     {
         backgroundBatchOneway->ice_flushBatchRequests();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -915,22 +846,23 @@ validationTests(const ConfigurationPtr& configuration,
 }
 
 void
-readWriteTests(const ConfigurationPtr& configuration,
-               const BackgroundPrx& background,
-               const BackgroundControllerPrx& ctl)
+readWriteTests(
+    const ConfigurationPtr& configuration,
+    const BackgroundPrx& background,
+    const BackgroundControllerPrx& ctl)
 {
     try
     {
         background->op();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
 
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
 
@@ -941,7 +873,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             prx->op();
             test(false);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             configuration->writeException(0);
         }
@@ -951,29 +883,23 @@ readWriteTests(const ConfigurationPtr& configuration,
         promise<bool> sent;
         promise<void> completed;
         prx->opAsync(
-            []()
-            {
-                test(false);
-            },
+            []() { test(false); },
             [&completed](exception_ptr e)
             {
                 try
                 {
                     rethrow_exception(e);
                 }
-                catch(const Ice::SocketException&)
+                catch (const Ice::SocketException&)
                 {
                     completed.set_value();
                 }
-                catch(...)
+                catch (...)
                 {
                     test(false);
                 }
             },
-            [&sent](bool value)
-            {
-                sent.set_value(value);
-            });
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
         configuration->writeException(0);
@@ -986,7 +912,7 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::SocketException&)
+    catch (const Ice::SocketException&)
     {
         configuration->readException(0);
     }
@@ -997,21 +923,18 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         promise<void> completed;
         background->opAsync(
-            []()
-            {
-                test(false);
-            },
+            []() { test(false); },
             [&completed](exception_ptr e)
             {
                 try
                 {
                     rethrow_exception(e);
                 }
-                catch(const Ice::SocketException&)
+                catch (const Ice::SocketException&)
                 {
                     completed.set_value();
                 }
-                catch(...)
+                catch (...)
                 {
                     test(false);
                 }
@@ -1022,8 +945,8 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readReady(true);
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-       background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
     {
 #endif
         try
@@ -1033,7 +956,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             background->op();
             configuration->writeReady(true);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -1045,7 +968,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             background->op();
             configuration->readReady(true);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             cerr << "stack: " << ex.ice_stackTrace() << endl;
@@ -1060,13 +983,13 @@ readWriteTests(const ConfigurationPtr& configuration,
             background->op();
             test(false);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             configuration->writeReady(true);
             configuration->writeException(0);
         }
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
 
@@ -1076,29 +999,23 @@ readWriteTests(const ConfigurationPtr& configuration,
             promise<void> completed;
             promise<bool> sent;
             prx->opAsync(
-                []()
-                {
-                    test(false);
-                },
+                []() { test(false); },
                 [&completed](exception_ptr e)
                 {
                     try
                     {
                         rethrow_exception(e);
                     }
-                    catch(const Ice::SocketException&)
+                    catch (const Ice::SocketException&)
                     {
                         completed.set_value();
                     }
-                    catch(...)
+                    catch (...)
                     {
                         test(false);
                     }
                 },
-                [&sent](bool value)
-                {
-                    sent.set_value(value);
-                });
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
             configuration->writeReady(true);
@@ -1113,7 +1030,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             background->op();
             test(false);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             configuration->readException(0);
             configuration->readReady(true);
@@ -1125,21 +1042,18 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
             background->opAsync(
-                []()
-                {
-                    test(false);
-                },
+                []() { test(false); },
                 [&completed](exception_ptr e)
                 {
                     try
                     {
                         rethrow_exception(e);
                     }
-                    catch(const Ice::SocketException&)
+                    catch (const Ice::SocketException&)
                     {
                         completed.set_value();
                     }
-                    catch(...)
+                    catch (...)
                     {
                         test(false);
                     }
@@ -1156,21 +1070,18 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
             background->opAsync(
-                []()
-                {
-                    test(false);
-                },
+                []() { test(false); },
                 [&](exception_ptr e)
                 {
                     try
                     {
                         rethrow_exception(e);
                     }
-                    catch(const Ice::SocketException&)
+                    catch (const Ice::SocketException&)
                     {
                         completed.set_value();
                     }
-                    catch(...)
+                    catch (...)
                     {
                         test(false);
                     }
@@ -1193,76 +1104,42 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     Ice::ByteSeq seq;
     seq.resize(10024); // Make sure the request doesn't compress too well.
-    for(Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
+    for (Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
     {
         *p = static_cast<uint8_t>(IceUtilInternal::random(255));
     }
 
     // Fill up the receive and send buffers
-    for(int i = 0; i < 200; ++i) // 2MB
+    for (int i = 0; i < 200; ++i) // 2MB
     {
         backgroundOneway->opWithPayloadAsync(
-            seq,
-            []()
-            {
-                test(false);
-            },
-            [](exception_ptr)
-            {
-                test(false);
-            });
+            seq, []() { test(false); }, [](exception_ptr) { test(false); });
     }
     promise<void> c1;
     promise<bool> s1;
 
     background->opAsync(
-        [&c1]()
-        {
-            c1.set_value();
-        },
-        [](exception_ptr)
-        {
-            test(false);
-        },
-        [&s1](bool value)
-        {
-            s1.set_value(value);
-        });
+        [&c1]() { c1.set_value(); }, [](exception_ptr) { test(false); }, [&s1](bool value) { s1.set_value(value); });
     auto fs1 = s1.get_future();
     test(fs1.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<void> c2;
     promise<bool> s2;
     background->opAsync(
-        [&c2]()
-        {
-            c2.set_value();
-        },
-        [](exception_ptr)
-        {
-            test(false);
-        },
-        [&s2](bool value)
-        {
-            s2.set_value(value);
-        });
+        [&c2]() { c2.set_value(); }, [](exception_ptr) { test(false); }, [&s2](bool value) { s2.set_value(value); });
 
     auto fs2 = s2.get_future();
     test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s3;
-    backgroundOneway->opWithPayloadAsync(seq,
-                                          [](){ test(false); },
-                                          [](exception_ptr){ test(false); },
-                                          [&s3](bool value){ s3.set_value(value); });
+    backgroundOneway->opWithPayloadAsync(
+        seq, []() { test(false); }, [](exception_ptr) { test(false); }, [&s3](bool value) { s3.set_value(value); });
     auto fs3 = s3.get_future();
     test(fs3.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s4;
-    backgroundOneway->opWithPayloadAsync(seq,
-                                          [](){ test(false); },
-                                          [](exception_ptr){ test(false); },
-                                          [&s4](bool value){ s4.set_value(value); });
+    backgroundOneway->opWithPayloadAsync(
+        seq, []() { test(false); }, [](exception_ptr) { test(false); }, [&s4](bool value) { s4.set_value(value); });
     auto fs4 = s4.get_future();
     test(fs4.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
@@ -1287,7 +1164,7 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
         ctl->writeException(false);
     }
@@ -1299,66 +1176,66 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->op();
         test(false);
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
         ctl->readException(false);
     }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
+    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
     {
 #endif
-    try
-    {
-        background->ice_ping();
-        ctl->writeReady(false);
-        background->op();
-        ctl->writeReady(true);
-    }
-    catch(const Ice::LocalException&)
-    {
-        test(false);
-    }
+        try
+        {
+            background->ice_ping();
+            ctl->writeReady(false);
+            background->op();
+            ctl->writeReady(true);
+        }
+        catch (const Ice::LocalException&)
+        {
+            test(false);
+        }
 
-    try
-    {
-        background->ice_ping();
-        ctl->readReady(false);
-        background->op();
-        ctl->readReady(true);
-    }
-    catch(const Ice::LocalException&)
-    {
-        test(false);
-    }
+        try
+        {
+            background->ice_ping();
+            ctl->readReady(false);
+            background->op();
+            ctl->readReady(true);
+        }
+        catch (const Ice::LocalException&)
+        {
+            test(false);
+        }
 
-    try
-    {
-        background->ice_ping();
-        ctl->writeReady(false);
-        ctl->writeException(true);
-        background->op();
-        test(false);
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        ctl->writeException(false);
-        ctl->writeReady(true);
-    }
+        try
+        {
+            background->ice_ping();
+            ctl->writeReady(false);
+            ctl->writeException(true);
+            background->op();
+            test(false);
+        }
+        catch (const Ice::ConnectionLostException&)
+        {
+            ctl->writeException(false);
+            ctl->writeReady(true);
+        }
 
-    try
-    {
-        background->ice_ping();
-        ctl->readReady(false);
-        ctl->readException(true);
-        background->op();
-        test(false);
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        ctl->readException(false);
-        ctl->readReady(true);
-    }
+        try
+        {
+            background->ice_ping();
+            ctl->readReady(false);
+            ctl->readException(true);
+            background->op();
+            test(false);
+        }
+        catch (const Ice::ConnectionLostException&)
+        {
+            ctl->readException(false);
+            ctl->readReady(true);
+        }
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
     }
 #endif
@@ -1368,13 +1245,13 @@ readWriteTests(const ConfigurationPtr& configuration,
     auto opThread2 = make_shared<OpThread>(background);
     auto worker2 = thread([opThread2] { opThread2->run(); });
 
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         try
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -1385,7 +1262,7 @@ readWriteTests(const ConfigurationPtr& configuration,
         {
             background->op();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
         configuration->writeException(0);

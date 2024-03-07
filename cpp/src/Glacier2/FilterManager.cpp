@@ -37,117 +37,116 @@ stringToSeq(const string& str, vector<Identity>& seq)
     //
     string::size_type current = str.find_first_not_of(ws, 0);
     string::size_type end = 0;
-    while(current != string::npos)
+    while (current != string::npos)
     {
-        switch(str[current])
+        switch (str[current])
         {
-        case '"':
-        case '\'':
-        {
-            char quote = str[current];
-            end = current+1;
-            while(true)
+            case '"':
+            case '\'':
             {
-                end = str.find(quote, end);
+                char quote = str[current];
+                end = current + 1;
+                while (true)
+                {
+                    end = str.find(quote, end);
 
-                if(end == string::npos)
-                {
-                    //
-                    // TODO: should this be an unmatched quote error?
-                    //
-                    seq.push_back(stringToIdentity(str.substr(current)));
-                    break;
-                }
+                    if (end == string::npos)
+                    {
+                        //
+                        // TODO: should this be an unmatched quote error?
+                        //
+                        seq.push_back(stringToIdentity(str.substr(current)));
+                        break;
+                    }
 
-                bool markString = true;
-                for(string::size_type r = end -1 ; r > current && str[r] == '\\' ; --r)
-                {
-                    markString = !markString;
+                    bool markString = true;
+                    for (string::size_type r = end - 1; r > current && str[r] == '\\'; --r)
+                    {
+                        markString = !markString;
+                    }
+                    //
+                    // We don't want the quote so we skip that.
+                    //
+                    if (markString)
+                    {
+                        ++current;
+                        seq.push_back(stringToIdentity(str.substr(current, end - current)));
+                        break;
+                    }
+                    else
+                    {
+                        ++end;
+                    }
                 }
-                //
-                // We don't want the quote so we skip that.
-                //
-                if(markString)
-                {
-                    ++current;
-                    seq.push_back(stringToIdentity(str.substr(current, end-current)));
-                    break;
-                }
-                else
+                if (end != string::npos)
                 {
                     ++end;
                 }
+                break;
             }
-            if(end != string::npos)
-            {
-                ++end;
-            }
-            break;
-        }
 
-        default:
-        {
-            end = str.find_first_of(ws, current);
-            string::size_type len = (end == string::npos) ? string::npos : end - current;
-            seq.push_back(stringToIdentity(str.substr(current, len)));
-            break;
-        }
+            default:
+            {
+                end = str.find_first_of(ws, current);
+                string::size_type len = (end == string::npos) ? string::npos : end - current;
+                seq.push_back(stringToIdentity(str.substr(current, len)));
+                break;
+            }
         }
         current = str.find_first_not_of(ws, end);
     }
 }
 
-Glacier2::FilterManager::~FilterManager()
-{
-    destroy();
-}
+Glacier2::FilterManager::~FilterManager() { destroy(); }
 
 void
 Glacier2::FilterManager::destroy()
 {
     auto adapter = _instance->serverObjectAdapter();
-    if(adapter)
+    if (adapter)
     {
         try
         {
-            if(_categoriesPrx)
+            if (_categoriesPrx)
             {
                 adapter->remove(_categoriesPrx->ice_getIdentity());
             }
         }
-        catch(const Exception&)
+        catch (const Exception&)
         {
         }
         try
         {
-            if(_adapterIdsPrx)
+            if (_adapterIdsPrx)
             {
                 adapter->remove(_adapterIdsPrx->ice_getIdentity());
             }
         }
-        catch(const Exception&)
+        catch (const Exception&)
         {
         }
         try
         {
-            if(_identitiesPrx)
+            if (_identitiesPrx)
             {
                 adapter->remove(_identitiesPrx->ice_getIdentity());
             }
         }
-        catch(const Exception&)
+        catch (const Exception&)
         {
         }
     }
 }
 
-Glacier2::FilterManager::FilterManager(shared_ptr<Instance> instance, shared_ptr<Glacier2::StringSetI> categories,
-                                       shared_ptr<Glacier2::StringSetI> adapters,
-                                       shared_ptr<Glacier2::IdentitySetI> identities) :
-    _categories(std::move(categories)),
-    _adapters(std::move(adapters)),
-    _identities(std::move(identities)),
-    _instance(std::move(instance))
+Glacier2::FilterManager::FilterManager(
+    shared_ptr<Instance> instance,
+    shared_ptr<Glacier2::StringSetI> categories,
+    shared_ptr<Glacier2::StringSetI> adapters,
+    shared_ptr<Glacier2::IdentitySetI> identities)
+    : _categories(std::move(categories)),
+      _adapters(std::move(adapters)),
+      _identities(std::move(identities)),
+      _instance(std::move(instance))
 {
     try
     {
@@ -159,7 +158,7 @@ Glacier2::FilterManager::FilterManager(shared_ptr<Instance> instance, shared_ptr
             _identitiesPrx = Glacier2::IdentitySetPrx(adapter->addWithUUID(_identities));
         }
     }
-    catch(...)
+    catch (...)
     {
         destroy();
         throw;
@@ -174,21 +173,21 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     vector<string> allowSeq;
     stringToSeq(allow, allowSeq);
 
-    if(allowAddUser)
+    if (allowAddUser)
     {
         int addUserMode = 0;
-        if(!props->getProperty("Glacier2.Filter.Category.AcceptUser").empty())
+        if (!props->getProperty("Glacier2.Filter.Category.AcceptUser").empty())
         {
             addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
         }
 
-        if(addUserMode > 0 && !userId.empty())
+        if (addUserMode > 0 && !userId.empty())
         {
-            if(addUserMode == 1)
+            if (addUserMode == 1)
             {
                 allowSeq.push_back(userId); // Add user id to allowed categories.
             }
-            else if(addUserMode == 2)
+            else if (addUserMode == 2)
             {
                 allowSeq.push_back('_' + userId); // Add user id with prepended underscore to allowed categories.
             }
@@ -213,8 +212,5 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     auto identityFilter = make_shared<Glacier2::IdentitySetI>(allowIdSeq);
 
     return make_shared<Glacier2::FilterManager>(
-        std::move(instance),
-        std::move(categoryFilter),
-        std::move(adapterIdFilter),
-        std::move(identityFilter));
+        std::move(instance), std::move(categoryFilter), std::move(adapterIdFilter), std::move(identityFilter));
 }

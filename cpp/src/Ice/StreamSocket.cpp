@@ -8,23 +8,26 @@
 
 using namespace IceInternal;
 
-StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
-                           const NetworkProxyPtr& proxy,
-                           const Address& addr,
-                           const Address& sourceAddr) :
-    NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
-    _instance(instance),
-    _proxy(proxy),
-    _addr(addr),
-    _sourceAddr(sourceAddr),
-    _state(StateNeedConnect)
+StreamSocket::StreamSocket(
+    const ProtocolInstancePtr& instance,
+    const NetworkProxyPtr& proxy,
+    const Address& addr,
+    const Address& sourceAddr)
+    : NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
+      _instance(instance),
+      _proxy(proxy),
+      _addr(addr),
+      _sourceAddr(sourceAddr),
+      _state(StateNeedConnect)
 #if defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead), _write(SocketOperationWrite)
+      ,
+      _read(SocketOperationRead),
+      _write(SocketOperationWrite)
 #endif
 {
     init();
 #if !defined(ICE_USE_IOCP)
-    if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
+    if (doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
         _state = _proxy ? StateProxyWrite : StateConnected;
     }
@@ -33,21 +36,23 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
     {
         _desc = fdToString(_fd, _proxy, _addr);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         closeSocketNoThrow(_fd);
         throw;
     }
 }
 
-StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
-    NativeInfo(fd),
-    _instance(instance),
-    _addr(),
-    _sourceAddr(),
-    _state(StateConnected)
+StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
+    : NativeInfo(fd),
+      _instance(instance),
+      _addr(),
+      _sourceAddr(),
+      _state(StateConnected)
 #if defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead), _write(SocketOperationWrite)
+      ,
+      _read(SocketOperationRead),
+      _write(SocketOperationWrite)
 #endif
 {
     init();
@@ -55,27 +60,24 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
     {
         _desc = fdToString(fd);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         closeSocketNoThrow(fd);
         throw;
     }
 }
 
-StreamSocket::~StreamSocket()
-{
-    assert(_fd == INVALID_SOCKET);
-}
+StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
 
 SocketOperation
 StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 {
-    if(_state == StateNeedConnect)
+    if (_state == StateNeedConnect)
     {
         _state = StateConnectPending;
         return SocketOperationConnect;
     }
-    else if(_state <= StateConnectPending)
+    else if (_state <= StateConnectPending)
     {
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
@@ -86,17 +88,17 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
         _state = _proxy ? StateProxyWrite : StateConnected;
     }
 
-    if(_state == StateProxyWrite)
+    if (_state == StateProxyWrite)
     {
         _proxy->beginWrite(_addr, writeBuffer);
         return IceInternal::SocketOperationWrite;
     }
-    else if(_state == StateProxyRead)
+    else if (_state == StateProxyRead)
     {
         _proxy->beginRead(readBuffer);
         return IceInternal::SocketOperationRead;
     }
-    else if(_state == StateProxyConnected)
+    else if (_state == StateProxyConnected)
     {
         _proxy->finish(readBuffer, writeBuffer);
 
@@ -148,18 +150,18 @@ StreamSocket::setBufferSize(int rcvSize, int sndSize)
 SocketOperation
 StreamSocket::read(Buffer& buf)
 {
-    if(_state == StateProxyRead)
+    if (_state == StateProxyRead)
     {
-        while(true)
+        while (true)
         {
             ssize_t ret = read(reinterpret_cast<char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
-            if(ret == 0)
+            if (ret == 0)
             {
                 return SocketOperationRead;
             }
             buf.i += ret;
             _state = toState(_proxy->endRead(buf));
-            if(_state != StateProxyRead)
+            if (_state != StateProxyRead)
             {
                 return SocketOperationNone;
             }
@@ -172,18 +174,18 @@ StreamSocket::read(Buffer& buf)
 SocketOperation
 StreamSocket::write(Buffer& buf)
 {
-    if(_state == StateProxyWrite)
+    if (_state == StateProxyWrite)
     {
-        while(true)
+        while (true)
         {
             ssize_t ret = write(reinterpret_cast<const char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
-            if(ret == 0)
+            if (ret == 0)
             {
                 return SocketOperationWrite;
             }
             buf.i += ret;
             _state = toState(_proxy->endWrite(buf));
-            if(_state != StateProxyWrite)
+            if (_state != StateProxyWrite)
             {
                 return SocketOperationNone;
             }
@@ -201,36 +203,36 @@ StreamSocket::read(char* buf, size_t length)
     size_t packetSize = length;
     ssize_t read = 0;
 
-    while(length > 0)
+    while (length > 0)
     {
 #ifdef _WIN32
         ssize_t ret = ::recv(_fd, buf, static_cast<int>(packetSize), 0);
 #else
         ssize_t ret = ::recv(_fd, buf, packetSize, 0);
 #endif
-        if(ret == 0)
+        if (ret == 0)
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(ret == SOCKET_ERROR)
+        else if (ret == SOCKET_ERROR)
         {
-            if(interrupted())
+            if (interrupted())
             {
                 continue;
             }
 
-            if(noBuffers() && packetSize > 1024)
+            if (noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
                 continue;
             }
 
-            if(wouldBlock())
+            if (wouldBlock())
             {
                 return read;
             }
 
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -244,7 +246,7 @@ StreamSocket::read(char* buf, size_t length)
         read += ret;
         length -= static_cast<size_t>(ret);
 
-        if(packetSize > length)
+        if (packetSize > length)
         {
             packetSize = length;
         }
@@ -268,36 +270,36 @@ StreamSocket::write(const char* buf, size_t length)
     size_t packetSize = length;
 #endif
     ssize_t sent = 0;
-    while(length > 0)
+    while (length > 0)
     {
 #ifdef _WIN32
         ssize_t ret = ::send(_fd, buf, static_cast<int>(packetSize), 0);
 #else
         ssize_t ret = ::send(_fd, buf, packetSize, 0);
 #endif
-        if(ret == 0)
+        if (ret == 0)
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(ret == SOCKET_ERROR)
+        else if (ret == SOCKET_ERROR)
         {
-            if(interrupted())
+            if (interrupted())
             {
                 continue;
             }
 
-            if(noBuffers() && packetSize > 1024)
+            if (noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
                 continue;
             }
 
-            if(wouldBlock())
+            if (wouldBlock())
             {
                 return sent;
             }
 
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -311,7 +313,7 @@ StreamSocket::write(const char* buf, size_t length)
         sent += ret;
         length -= static_cast<size_t>(ret);
 
-        if(packetSize > length)
+        if (packetSize > length)
         {
             packetSize = length;
         }
@@ -323,15 +325,15 @@ StreamSocket::write(const char* buf, size_t length)
 AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
 {
-    switch(op)
+    switch (op)
     {
-    case SocketOperationRead:
-        return &_read;
-    case SocketOperationWrite:
-        return &_write;
-    default:
-        assert(false);
-        return 0;
+        case SocketOperationRead:
+            return &_read;
+        case SocketOperationWrite:
+            return &_write;
+        default:
+            assert(false);
+            return 0;
     }
 }
 #endif
@@ -341,7 +343,7 @@ StreamSocket::getAsyncInfo(SocketOperation op)
 bool
 StreamSocket::startWrite(Buffer& buf)
 {
-    if(_state == StateConnectPending)
+    if (_state == StateConnectPending)
     {
         doConnectAsync(_fd, _proxy ? _proxy->getAddress() : _addr, _sourceAddr, _write);
         return false;
@@ -355,11 +357,11 @@ StreamSocket::startWrite(Buffer& buf)
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _write.error = ERROR_SUCCESS;
     int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, nullptr);
-    if(err == SOCKET_ERROR)
+    if (err == SOCKET_ERROR)
     {
-        if(!wouldBlock())
+        if (!wouldBlock())
         {
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -375,15 +377,15 @@ StreamSocket::startWrite(Buffer& buf)
 void
 StreamSocket::finishWrite(Buffer& buf)
 {
-    if(_fd == INVALID_SOCKET || (_state < StateConnected && _state != StateProxyWrite))
+    if (_fd == INVALID_SOCKET || (_state < StateConnected && _state != StateProxyWrite))
     {
         return;
     }
 
-    if(_write.error != ERROR_SUCCESS)
+    if (_write.error != ERROR_SUCCESS)
     {
         WSASetLastError(_write.error);
-        if(connectionLost())
+        if (connectionLost())
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
         }
@@ -394,7 +396,7 @@ StreamSocket::finishWrite(Buffer& buf)
     }
 
     buf.i += _write.count;
-    if(_state == StateProxyWrite)
+    if (_state == StateProxyWrite)
     {
         _state = toState(_proxy->endWrite(buf));
     }
@@ -411,11 +413,11 @@ StreamSocket::startRead(Buffer& buf)
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _read.error = ERROR_SUCCESS;
     int err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, nullptr);
-    if(err == SOCKET_ERROR)
+    if (err == SOCKET_ERROR)
     {
-        if(!wouldBlock())
+        if (!wouldBlock())
         {
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -430,15 +432,15 @@ StreamSocket::startRead(Buffer& buf)
 void
 StreamSocket::finishRead(Buffer& buf)
 {
-    if(_fd == INVALID_SOCKET)
+    if (_fd == INVALID_SOCKET)
     {
         return;
     }
 
-    if(_read.error != ERROR_SUCCESS)
+    if (_read.error != ERROR_SUCCESS)
     {
         WSASetLastError(_read.error);
-        if(connectionLost())
+        if (connectionLost())
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
         }
@@ -447,18 +449,17 @@ StreamSocket::finishRead(Buffer& buf)
             throw Ice::SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
-    else if(_read.count == 0)
+    else if (_read.count == 0)
     {
         throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
     }
 
     buf.i += _read.count;
 
-    if(_state == StateProxyRead)
+    if (_state == StateProxyRead)
     {
         _state = toState(_proxy->endRead(buf));
     }
-
 }
 
 #endif
@@ -472,7 +473,7 @@ StreamSocket::close()
         closeSocket(_fd);
         _fd = INVALID_SOCKET;
     }
-    catch(const Ice::SocketException&)
+    catch (const Ice::SocketException&)
     {
         _fd = INVALID_SOCKET;
         throw;
@@ -507,13 +508,13 @@ StreamSocket::init()
 StreamSocket::State
 StreamSocket::toState(SocketOperation operation) const
 {
-    switch(operation)
+    switch (operation)
     {
-    case SocketOperationRead:
-        return StateProxyRead;
-    case SocketOperationWrite:
-        return StateProxyWrite;
-    default:
-        return StateProxyConnected;
+        case SocketOperationRead:
+            return StateProxyRead;
+        case SocketOperationWrite:
+            return StateProxyWrite;
+        default:
+            return StateProxyConnected;
     }
 }

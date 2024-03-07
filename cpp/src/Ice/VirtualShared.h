@@ -8,28 +8,25 @@
 namespace IceInternal
 {
 
-class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
-{
-public:
-
-    virtual ~VirtualEnableSharedFromThisBase() = default;
-};
-
-template<typename T>
-class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
-{
-public:
-
-    std::shared_ptr<T> shared_from_this()
+    class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
     {
-        return std::dynamic_pointer_cast<T>(VirtualEnableSharedFromThisBase::shared_from_this());
-    }
+    public:
+        virtual ~VirtualEnableSharedFromThisBase() = default;
+    };
 
-    std::shared_ptr<T const> shared_from_this() const
+    template<typename T> class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
     {
-        return std::dynamic_pointer_cast<T const>(VirtualEnableSharedFromThisBase::shared_from_this());
-    }
-};
+    public:
+        std::shared_ptr<T> shared_from_this()
+        {
+            return std::dynamic_pointer_cast<T>(VirtualEnableSharedFromThisBase::shared_from_this());
+        }
+
+        std::shared_ptr<T const> shared_from_this() const
+        {
+            return std::dynamic_pointer_cast<T const>(VirtualEnableSharedFromThisBase::shared_from_this());
+        }
+    };
 
 }
 #endif

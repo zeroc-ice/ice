@@ -30,13 +30,11 @@ private:
 class SessionI final : public Test::TestSession
 {
 public:
-
     SessionI(std::optional<Glacier2::SessionControlPrx>, std::shared_ptr<TestControllerI>);
     void shutdown(const Ice::Current&) override;
     void destroy(const Ice::Current&) override;
 
 private:
-
     std::optional<Glacier2::SessionControlPrx> _sessionControl;
     std::shared_ptr<TestControllerI> _controller;
 };

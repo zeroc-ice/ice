@@ -10,8 +10,8 @@
 namespace Ice
 {
 
-class Logger;
-using LoggerPtr = ::std::shared_ptr<Logger>;
+    class Logger;
+    using LoggerPtr = ::std::shared_ptr<Logger>;
 
 }
 

@@ -7,29 +7,17 @@
 using namespace std;
 using namespace IcePy;
 
-IcePy::AllowThreads::AllowThreads()
-{
-    _state = PyEval_SaveThread();
-}
+IcePy::AllowThreads::AllowThreads() { _state = PyEval_SaveThread(); }
 
-IcePy::AllowThreads::~AllowThreads()
-{
-    PyEval_RestoreThread(_state);
-}
+IcePy::AllowThreads::~AllowThreads() { PyEval_RestoreThread(_state); }
 
-IcePy::AdoptThread::AdoptThread()
-{
-    _state = PyGILState_Ensure();
-}
+IcePy::AdoptThread::AdoptThread() { _state = PyGILState_Ensure(); }
 
-IcePy::AdoptThread::~AdoptThread()
-{
-    PyGILState_Release(_state);
-}
+IcePy::AdoptThread::~AdoptThread() { PyGILState_Release(_state); }
 
-IcePy::ThreadHook::ThreadHook(PyObject* threadStart, PyObject* threadStop) :
-    _threadStart(threadStart),
-    _threadStop(threadStop)
+IcePy::ThreadHook::ThreadHook(PyObject* threadStart, PyObject* threadStop)
+    : _threadStart(threadStart),
+      _threadStop(threadStop)
 {
     if (threadStart && !PyCallable_Check(threadStart))
     {

@@ -14,33 +14,31 @@ using namespace Test;
 namespace
 {
 
-IPEndpointInfoPtr
-getIPEndpointInfo(const EndpointInfoPtr& info)
-{
-    for(EndpointInfoPtr p = info; p; p = p->underlying)
+    IPEndpointInfoPtr getIPEndpointInfo(const EndpointInfoPtr& info)
     {
-        IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<IPEndpointInfo>(p);
-        if(ipInfo)
+        for (EndpointInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<IPEndpointInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
-IPConnectionInfoPtr
-getIPConnectionInfo(const ConnectionInfoPtr& info)
-{
-    for(ConnectionInfoPtr p = info; p; p = p->underlying)
+    IPConnectionInfoPtr getIPConnectionInfo(const ConnectionInfoPtr& info)
     {
-        IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<IPConnectionInfo>(p);
-        if(ipInfo)
+        for (ConnectionInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<IPConnectionInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
 }
 
@@ -73,7 +71,7 @@ TestI::getEndpointInfoAsContext(const Current& c)
     os << ipinfo->port;
     ctx["port"] = os.str();
 
-    if(dynamic_pointer_cast<UDPEndpointInfo>(ipinfo))
+    if (dynamic_pointer_cast<UDPEndpointInfo>(ipinfo))
     {
         UDPEndpointInfoPtr udp = dynamic_pointer_cast<UDPEndpointInfo>(ipinfo);
         ctx["mcastInterface"] = udp->mcastInterface;
@@ -104,9 +102,9 @@ TestI::getConnectionInfoAsContext(const Current& c)
     ctx["remotePort"] = os.str();
 
     WSConnectionInfoPtr wsinfo = dynamic_pointer_cast<WSConnectionInfo>(info);
-    if(wsinfo)
+    if (wsinfo)
     {
-        for(HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
+        for (HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
         {
             ctx["ws." + p->first] = p->second;
         }

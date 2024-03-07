@@ -24,7 +24,7 @@ IceSSL::ConnectorI::connect()
     //
     // The plug-in may not be initialized.
     //
-    if(!_instance->initialized())
+    if (!_instance->initialized())
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
     }
@@ -48,12 +48,12 @@ bool
 IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
 {
     const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(this == p)
+    if (this == p)
     {
         return true;
     }
@@ -65,12 +65,12 @@ bool
 IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
     const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
-    if(!p)
+    if (!p)
     {
         return type() < r.type();
     }
 
-    if(this == p)
+    if (this == p)
     {
         return false;
     }
@@ -78,11 +78,11 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return Ice::targetLess(_delegate, p->_delegate);
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal::ConnectorPtr& del, const string& h) :
-    _instance(instance), _delegate(del), _host(h)
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal::ConnectorPtr& del, const string& h)
+    : _instance(instance),
+      _delegate(del),
+      _host(h)
 {
 }
 
-IceSSL::ConnectorI::~ConnectorI()
-{
-}
+IceSSL::ConnectorI::~ConnectorI() {}

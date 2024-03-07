@@ -13,12 +13,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::RetryTask::RetryTask(const InstancePtr& instance,
-                                  const RetryQueuePtr& queue,
-                                  const ProxyOutgoingAsyncBasePtr& outAsync) :
-    _instance(instance),
-    _queue(queue),
-    _outAsync(outAsync)
+IceInternal::RetryTask::RetryTask(
+    const InstancePtr& instance,
+    const RetryQueuePtr& queue,
+    const ProxyOutgoingAsyncBasePtr& outAsync)
+    : _instance(instance),
+      _queue(queue),
+      _outAsync(outAsync)
 {
 }
 
@@ -39,9 +40,9 @@ IceInternal::RetryTask::runTimerTask()
 void
 IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, exception_ptr ex)
 {
-    if(_queue->cancel(shared_from_this()))
+    if (_queue->cancel(shared_from_this()))
     {
-        if(_instance->traceLevels()->retry >= 1)
+        if (_instance->traceLevels()->retry >= 1)
         {
             try
             {
@@ -53,7 +54,7 @@ IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAs
                 out << "operation retry canceled\n" << e;
             }
         }
-        if(_outAsync->exception(ex))
+        if (_outAsync->exception(ex))
         {
             _outAsync->invokeExceptionAsync();
         }
@@ -67,21 +68,19 @@ IceInternal::RetryTask::destroy()
     {
         _outAsync->abort(make_exception_ptr(CommunicatorDestroyedException(__FILE__, __LINE__)));
     }
-    catch(const CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
         // Abort can throw if there's no callback, ignore.
     }
 }
 
-IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(instance)
-{
-}
+IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(instance) {}
 
 void
 IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
 {
     lock_guard<mutex> lock(_mutex);
-    if(!_instance)
+    if (!_instance)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -91,7 +90,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
     {
         _instance->timer()->schedule(task, chrono::milliseconds(interval));
     }
-    catch(const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
+    catch (const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -105,9 +104,9 @@ IceInternal::RetryQueue::destroy()
     assert(_instance);
 
     set<RetryTaskPtr>::iterator p = _requests.begin();
-    while(p != _requests.end())
+    while (p != _requests.end())
     {
-        if(_instance->timer()->cancel(*p))
+        if (_instance->timer()->cancel(*p))
         {
             (*p)->destroy();
             _requests.erase(p++);
@@ -128,7 +127,7 @@ IceInternal::RetryQueue::remove(const RetryTaskPtr& task)
     lock_guard<mutex> lock(_mutex);
     assert(_requests.find(task) != _requests.end());
     _requests.erase(task);
-    if(!_instance && _requests.empty())
+    if (!_instance && _requests.empty())
     {
         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
         _conditionVariable.notify_one();
@@ -139,13 +138,13 @@ bool
 IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
 {
     lock_guard<mutex> lock(_mutex);
-    if(_requests.erase(task) > 0)
+    if (_requests.erase(task) > 0)
     {
-        if(_instance)
+        if (_instance)
         {
             return _instance->timer()->cancel(task);
         }
-        else if(_requests.empty())
+        else if (_requests.empty())
         {
             // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
             _conditionVariable.notify_one();

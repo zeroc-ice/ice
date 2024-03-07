@@ -18,7 +18,7 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 namespace IcePHP
 {
 
-zend_class_entry* connectionClassEntry = 0;
+    zend_class_entry* connectionClassEntry = 0;
 
 }
 
@@ -35,22 +35,19 @@ static zend_object_handlers _connectionInfoHandlers;
 
 extern "C"
 {
-static zend_object* handleConnectionAlloc(zend_class_entry*);
-static void handleConnectionFreeStorage(zend_object*);
-static int handleConnectionCompare(zval*, zval*);
+    static zend_object* handleConnectionAlloc(zend_class_entry*);
+    static void handleConnectionFreeStorage(zend_object*);
+    static int handleConnectionCompare(zval*, zval*);
 
-static zend_object* handleConnectionInfoAlloc(zend_class_entry*);
-static void handleConnectionInfoFreeStorage(zend_object*);
+    static zend_object* handleConnectionInfoAlloc(zend_class_entry*);
+    static void handleConnectionInfoFreeStorage(zend_object*);
 }
 
-ZEND_METHOD(Ice_Connection, __construct)
-{
-    runtimeError("Connection cannot be instantiated");
-}
+ZEND_METHOD(Ice_Connection, __construct) { runtimeError("Connection cannot be instantiated"); }
 
 ZEND_METHOD(Ice_Connection, __toString)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -63,7 +60,7 @@ ZEND_METHOD(Ice_Connection, __toString)
         string str = _this->toString();
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -71,7 +68,7 @@ ZEND_METHOD(Ice_Connection, __toString)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_close_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, mode)
+ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Connection, close)
@@ -80,12 +77,12 @@ ZEND_METHOD(Ice_Connection, close)
     assert(_this);
 
     zval* mode;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &mode) != SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &mode) != SUCCESS)
     {
         RETURN_NULL();
     }
 
-    if(Z_TYPE_P(mode) != IS_LONG)
+    if (Z_TYPE_P(mode) != IS_LONG)
     {
         invalidArgument("value for 'mode' argument must be an enumerator of ConnectionClose");
         RETURN_NULL();
@@ -96,7 +93,7 @@ ZEND_METHOD(Ice_Connection, close)
     {
         _this->close(cc);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -105,7 +102,7 @@ ZEND_METHOD(Ice_Connection, close)
 
 ZEND_METHOD(Ice_Connection, getEndpoint)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -115,12 +112,12 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
 
     try
     {
-        if(!createEndpoint(return_value, _this->getEndpoint()))
+        if (!createEndpoint(return_value, _this->getEndpoint()))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -128,18 +125,18 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_flushBatchRequests_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, compress)
+ZEND_ARG_INFO(0, compress)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Connection, flushBatchRequests)
 {
     zval* compress;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &compress) != SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &compress) != SUCCESS)
     {
         RETURN_NULL();
     }
 
-    if(Z_TYPE_P(compress) != IS_LONG)
+    if (Z_TYPE_P(compress) != IS_LONG)
     {
         invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch");
         RETURN_NULL();
@@ -153,7 +150,7 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     {
         _this->flushBatchRequests(cb);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -162,7 +159,7 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
 
 ZEND_METHOD(Ice_Connection, heartbeat)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -174,7 +171,7 @@ ZEND_METHOD(Ice_Connection, heartbeat)
     {
         _this->heartbeat();
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -182,9 +179,9 @@ ZEND_METHOD(Ice_Connection, heartbeat)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_setACM_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
-    ZEND_ARG_INFO(0, timeout)
-    ZEND_ARG_INFO(0, close)
-    ZEND_ARG_INFO(0, heartbeat)
+ZEND_ARG_INFO(0, timeout)
+ZEND_ARG_INFO(0, close)
+ZEND_ARG_INFO(0, heartbeat)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Connection, setACM)
@@ -195,7 +192,7 @@ ZEND_METHOD(Ice_Connection, setACM)
     zval* t;
     zval* c;
     zval* h;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zzz"), &t, &c, &h) != SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zzz"), &t, &c, &h) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -204,9 +201,9 @@ ZEND_METHOD(Ice_Connection, setACM)
     optional<Ice::ACMClose> close;
     optional<Ice::ACMHeartbeat> heartbeat;
 
-    if(!isUnset(t))
+    if (!isUnset(t))
     {
-        if(Z_TYPE_P(t) != IS_LONG)
+        if (Z_TYPE_P(t) != IS_LONG)
         {
             invalidArgument("value for 'timeout' argument must be Unset or an integer");
             RETURN_NULL();
@@ -214,9 +211,9 @@ ZEND_METHOD(Ice_Connection, setACM)
         timeout = static_cast<int32_t>(Z_LVAL_P(t));
     }
 
-    if(!isUnset(c))
+    if (!isUnset(c))
     {
-        if(Z_TYPE_P(c) != IS_LONG)
+        if (Z_TYPE_P(c) != IS_LONG)
         {
             invalidArgument("value for 'close' argument must be Unset or an enumerator of ACMClose");
             RETURN_NULL();
@@ -224,9 +221,9 @@ ZEND_METHOD(Ice_Connection, setACM)
         close = static_cast<Ice::ACMClose>(Z_LVAL_P(c));
     }
 
-    if(!isUnset(h))
+    if (!isUnset(h))
     {
-        if(Z_TYPE_P(h) != IS_LONG)
+        if (Z_TYPE_P(h) != IS_LONG)
         {
             invalidArgument("value for 'heartbeat' argument must be Unset or an enumerator of ACMHeartbeat");
             RETURN_NULL();
@@ -238,7 +235,7 @@ ZEND_METHOD(Ice_Connection, setACM)
     {
         _this->setACM(timeout, close, heartbeat);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -247,7 +244,7 @@ ZEND_METHOD(Ice_Connection, setACM)
 
 ZEND_METHOD(Ice_Connection, getACM)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -261,7 +258,7 @@ ZEND_METHOD(Ice_Connection, getACM)
 
         zend_class_entry* acmClass = idToClass("::Ice::ACM");
 
-        if(object_init_ex(return_value, const_cast<zend_class_entry*>(acmClass)) != SUCCESS)
+        if (object_init_ex(return_value, const_cast<zend_class_entry*>(acmClass)) != SUCCESS)
         {
             runtimeError("unable to initialize object of type %s", acmClass->name);
             RETURN_NULL();
@@ -271,7 +268,7 @@ ZEND_METHOD(Ice_Connection, getACM)
         add_property_long(return_value, "close", static_cast<long>(acm.close));
         add_property_long(return_value, "heartbeat", static_cast<long>(acm.heartbeat));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -280,7 +277,7 @@ ZEND_METHOD(Ice_Connection, getACM)
 
 ZEND_METHOD(Ice_Connection, type)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -292,7 +289,7 @@ ZEND_METHOD(Ice_Connection, type)
         string str = _this->type();
         RETURN_STRINGL(str.c_str(), str.length());
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -301,7 +298,7 @@ ZEND_METHOD(Ice_Connection, type)
 
 ZEND_METHOD(Ice_Connection, timeout)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if (ZEND_NUM_ARGS() != 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -313,21 +310,18 @@ ZEND_METHOD(Ice_Connection, timeout)
         int32_t timeout = _this->timeout();
         ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
     }
 }
 
-ZEND_METHOD(Ice_Connection, toString)
-{
-    ZEND_MN(Ice_Connection___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
+ZEND_METHOD(Ice_Connection, toString) { ZEND_MN(Ice_Connection___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 
 ZEND_METHOD(Ice_Connection, getInfo)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if (ZEND_NUM_ARGS() != 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -337,12 +331,12 @@ ZEND_METHOD(Ice_Connection, getInfo)
     try
     {
         Ice::ConnectionInfoPtr info = _this->getInfo();
-        if(!createConnectionInfo(return_value, _this->getInfo()))
+        if (!createConnectionInfo(return_value, _this->getInfo()))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -350,8 +344,8 @@ ZEND_METHOD(Ice_Connection, getInfo)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_setBufferSize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, rcvSize)
-    ZEND_ARG_INFO(0, sndSize)
+ZEND_ARG_INFO(0, rcvSize)
+ZEND_ARG_INFO(0, sndSize)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Connection, setBufferSize)
@@ -361,7 +355,7 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
 
     zval* r;
     zval* s;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &r, &s) != SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &r, &s) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -373,7 +367,7 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     {
         _this->setBufferSize(rcvSize, sndSize);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -382,7 +376,7 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
 
 ZEND_METHOD(Ice_Connection, throwException)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -393,7 +387,7 @@ ZEND_METHOD(Ice_Connection, throwException)
     {
         _this->throwException();
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -441,41 +435,35 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
 }
 
 // Predefined methods for Connection.
-static zend_function_entry _interfaceMethods[] =
-{
-    {0, 0, 0}
-};
+static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
-static zend_function_entry _connectionClassMethods[] =
-{
-    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Connection, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
+static zend_function_entry _connectionClassMethods[] = {
+    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
+        Ice_Connection,
+        __toString,
+        ice_to_string_arginfo,
+        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
+        ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                        ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                                            Ice_Connection,
+                                            setBufferSize,
+                                            Ice_Connection_setBufferSize_arginfo,
+                                            ZEND_ACC_PUBLIC)
+                                            ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){
+                                                0, 0, 0}};
 
-ZEND_METHOD(Ice_ConnectionInfo, __construct)
-{
-    runtimeError("ConnectionInfo cannot be instantiated");
-}
+ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 
 // Predefined methods for ConnectionInfo.
-static zend_function_entry _connectionInfoClassMethods[] =
-{
-    ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    {0, 0, 0}
-};
+static zend_function_entry _connectionInfoClassMethods[] = {
+    ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR){0, 0, 0}};
 
 static zend_object*
 handleConnectionInfoAlloc(zend_class_entry* ce)
@@ -527,11 +515,7 @@ IcePHP::connectionInit(void)
 
     zend_declare_property_bool(connectionInfoClassEntry, "incoming", sizeof("incoming") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
-        connectionInfoClassEntry,
-        "adapterName",
-        sizeof("adapterName") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+        connectionInfoClassEntry, "adapterName", sizeof("adapterName") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_null(connectionInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Register the IPConnectionInfo class.
@@ -539,18 +523,10 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(
-        ipConnectionInfoClassEntry,
-        "localAddress",
-        sizeof("localAddress") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+        ipConnectionInfoClassEntry, "localAddress", sizeof("localAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "localPort", sizeof("localPort") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
-        ipConnectionInfoClassEntry,
-        "remoteAddress",
-        sizeof("remoteAddress") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+        ipConnectionInfoClassEntry, "remoteAddress", sizeof("remoteAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "remotePort", sizeof("remotePort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the TCPConnectionInfo class.
@@ -565,11 +541,7 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_string(
-        udpConnectionInfoClassEntry,
-        "mcastAddress",
-        sizeof("mcastAddress") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+        udpConnectionInfoClassEntry, "mcastAddress", sizeof("mcastAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
@@ -592,7 +564,7 @@ IcePHP::connectionInit(void)
 bool
 IcePHP::createConnection(zval* zv, const Ice::ConnectionPtr& p)
 {
-    if(object_init_ex(zv, connectionClassEntry) != SUCCESS)
+    if (object_init_ex(zv, connectionClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize connection");
         return false;
@@ -609,19 +581,19 @@ IcePHP::createConnection(zval* zv, const Ice::ConnectionPtr& p)
 bool
 IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
 {
-    if(ZVAL_IS_NULL(zv))
+    if (ZVAL_IS_NULL(zv))
     {
         connection = 0;
     }
     else
     {
-        if(Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != connectionClassEntry)
+        if (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != connectionClassEntry)
         {
             invalidArgument("value is not a connection");
             return false;
         }
         Wrapper<Ice::ConnectionPtr>* obj = Wrapper<Ice::ConnectionPtr>::extract(zv);
-        if(!obj)
+        if (!obj)
         {
             return false;
         }
@@ -633,21 +605,21 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
 bool
 IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 {
-    if(!p)
+    if (!p)
     {
         ZVAL_NULL(zv);
         return true;
     }
 
     int status;
-    if(dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
+    if (dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::WSConnectionInfo>(p);
-        if((status = object_init_ex(zv, wsConnectionInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, wsConnectionInfoClassEntry)) == SUCCESS)
         {
             zval zmap;
             AutoDestroy mapDestroyer(&zmap);
-            if(createStringMap(&zmap, info->headers))
+            if (createStringMap(&zmap, info->headers))
             {
                 add_property_zval(zv, "headers", &zmap);
             }
@@ -657,19 +629,19 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             }
         }
     }
-    else if(dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
-        if((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
         {
             add_property_long(zv, "rcvSize", static_cast<long>(info->rcvSize));
             add_property_long(zv, "sndSize", static_cast<long>(info->sndSize));
         }
     }
-    else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(p);
-        if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, "mcastAddress", const_cast<char*>(info->mcastAddress.c_str()));
             add_property_long(zv, "mcastPort", static_cast<long>(info->mcastPort));
@@ -677,11 +649,11 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             add_property_long(zv, "sndSize", static_cast<long>(info->sndSize));
         }
     }
-    else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    else if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         status = object_init_ex(zv, sslConnectionInfoClassEntry);
     }
-    else if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         status = object_init_ex(zv, ipConnectionInfoClassEntry);
     }
@@ -690,13 +662,13 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         status = object_init_ex(zv, connectionInfoClassEntry);
     }
 
-    if(status != SUCCESS)
+    if (status != SUCCESS)
     {
         runtimeError("unable to initialize connection info");
         return false;
     }
 
-    if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
         add_property_string(zv, "cipher", const_cast<char*>(info->cipher.c_str()));
@@ -707,12 +679,10 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 
         Ice::StringSeq encoded;
         transform(
-            info->certs.cbegin(),
-            info->certs.cend(),
-            back_inserter(encoded),
+            info->certs.cbegin(), info->certs.cend(), back_inserter(encoded),
             [](const auto& cert) { return cert->encode(); });
 
-        if(createStringArray(&zarr, encoded))
+        if (createStringArray(&zarr, encoded))
         {
             add_property_zval(zv, "certs", &zarr);
         }
@@ -722,7 +692,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         }
     }
 
-    if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
+    if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         add_property_string(zv, "localAddress", const_cast<char*>(info->localAddress.c_str()));
@@ -732,7 +702,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     }
 
     zval underlying;
-    if(!createConnectionInfo(&underlying, p->underlying))
+    if (!createConnectionInfo(&underlying, p->underlying))
     {
         runtimeError("unable to initialize connection info");
         return false;

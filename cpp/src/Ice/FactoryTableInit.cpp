@@ -12,18 +12,18 @@ using namespace std;
 namespace IceInternal
 {
 
-//
-// Single global instance of the factory table for non-local
-// exceptions and non-abstract classes.
-//
-ICE_API FactoryTable* factoryTable;
+    //
+    // Single global instance of the factory table for non-local
+    // exceptions and non-abstract classes.
+    //
+    ICE_API FactoryTable* factoryTable;
 
 }
 
 namespace
 {
 
-atomic<int> initCount = 0;   // Initialization count
+    atomic<int> initCount = 0; // Initialization count
 
 }
 
@@ -38,7 +38,7 @@ atomic<int> initCount = 0;   // Initialization count
 //
 IceInternal::FactoryTableInit::FactoryTableInit()
 {
-    if(0 == initCount++)
+    if (0 == initCount++)
     {
         factoryTable = new FactoryTable;
     }
@@ -50,20 +50,16 @@ IceInternal::FactoryTableInit::FactoryTableInit()
 //
 IceInternal::FactoryTableInit::~FactoryTableInit()
 {
-    if(0 == --initCount)
+    if (0 == --initCount)
     {
         delete factoryTable;
     }
 }
 
-IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) :
-    _compactId(compactId)
+IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) : _compactId(compactId)
 {
     assert(_compactId >= 0);
     factoryTable->addTypeId(_compactId, typeId);
 }
 
-IceInternal::CompactIdInit::~CompactIdInit()
-{
-    factoryTable->removeTypeId(_compactId);
-}
+IceInternal::CompactIdInit::~CompactIdInit() { factoryTable->removeTypeId(_compactId); }

@@ -10,10 +10,10 @@
 namespace IcePHP
 {
 
-bool loggerInit(void);
-bool createLogger(zval*, const Ice::LoggerPtr&);
-bool fetchLogger(zval*, Ice::LoggerPtr&);
-extern zend_class_entry* loggerClassEntry;
+    bool loggerInit(void);
+    bool createLogger(zval*, const Ice::LoggerPtr&);
+    bool fetchLogger(zval*, Ice::LoggerPtr&);
+    extern zend_class_entry* loggerClassEntry;
 
 } // End of namespace IcePHP
 

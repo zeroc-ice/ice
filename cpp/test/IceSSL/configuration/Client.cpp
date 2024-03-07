@@ -8,7 +8,7 @@
 #include <Test.h>
 
 #if defined(ICE_USE_OPENSSL)
-#   include <IceSSL/OpenSSL.h>
+#    include <IceSSL/OpenSSL.h>
 #endif
 
 using namespace std;
@@ -16,10 +16,7 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
-    Client() : Test::TestHelper(false)
-    {
-    }
+    Client() : Test::TestHelper(false) {}
 
     void run(int, char**);
 };
@@ -43,7 +40,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     string testdir;
 #if TARGET_OS_IPHONE == 0
-    if(argc < 2)
+    if (argc < 2)
     {
         ostringstream os;
         os << "Usage: " << argv[0] << " testdir";

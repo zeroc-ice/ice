@@ -12,64 +12,63 @@
 namespace Ice
 {
 
-/** Encapsulates bytes in the UTF-8 encoding. */
-typedef IceUtil::UTF8Buffer UTF8Buffer;
+    /** Encapsulates bytes in the UTF-8 encoding. */
+    typedef IceUtil::UTF8Buffer UTF8Buffer;
 
-/** Narrow string converter. */
-typedef IceUtil::StringConverter StringConverter;
-typedef IceUtil::StringConverterPtr StringConverterPtr;
+    /** Narrow string converter. */
+    typedef IceUtil::StringConverter StringConverter;
+    typedef IceUtil::StringConverterPtr StringConverterPtr;
 
-/** Wide string converter. */
-typedef IceUtil::WstringConverter WstringConverter;
-typedef IceUtil::WstringConverterPtr WstringConverterPtr;
+    /** Wide string converter. */
+    typedef IceUtil::WstringConverter WstringConverter;
+    typedef IceUtil::WstringConverterPtr WstringConverterPtr;
 
-/** Indicates an error occurred during string conversion. */
-typedef IceUtil::IllegalConversionException IllegalConversionException;
+    /** Indicates an error occurred during string conversion. */
+    typedef IceUtil::IllegalConversionException IllegalConversionException;
 
-/** Base class for a string converter. */
-template<typename charT>
-using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
+    /** Base class for a string converter. */
+    template<typename charT> using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
 
 #ifdef _WIN32
-/**
- * Creates a string converter that converts between multi-byte and UTF-8 strings and uses MultiByteToWideChar
- * and WideCharToMultiByte for its implementation.
- */
-using IceUtil::createWindowsStringConverter;
+    /**
+     * Creates a string converter that converts between multi-byte and UTF-8 strings and uses MultiByteToWideChar
+     * and WideCharToMultiByte for its implementation.
+     */
+    using IceUtil::createWindowsStringConverter;
 #endif
 
-/** Creates a string converter that converts between Unicode wide strings and UTF-8 strings. */
-using IceUtil::createUnicodeWstringConverter;
+    /** Creates a string converter that converts between Unicode wide strings and UTF-8 strings. */
+    using IceUtil::createUnicodeWstringConverter;
 
-/** Installs a default narrow string converter for the process. */
-using IceUtil::setProcessStringConverter;
+    /** Installs a default narrow string converter for the process. */
+    using IceUtil::setProcessStringConverter;
 
-/** Obtains the default narrow string converter for the process. */
-using IceUtil::getProcessStringConverter;
+    /** Obtains the default narrow string converter for the process. */
+    using IceUtil::getProcessStringConverter;
 
-/** Installs a default wide string converter for the process. */
-using IceUtil::setProcessWstringConverter;
+    /** Installs a default wide string converter for the process. */
+    using IceUtil::setProcessWstringConverter;
 
-/** Obtains the default wide string converter for the process. */
-using IceUtil::getProcessWstringConverter;
+    /** Obtains the default wide string converter for the process. */
+    using IceUtil::getProcessWstringConverter;
 
-/** Converts a wide string to a narrow string. */
-using IceUtil::wstringToString;
+    /** Converts a wide string to a narrow string. */
+    using IceUtil::wstringToString;
 
-/** Converts a narrow string to a wide string. */
-using IceUtil::stringToWstring;
+    /** Converts a narrow string to a wide string. */
+    using IceUtil::stringToWstring;
 
-/**
- * Converts a narrow string to a UTF-8 encoded string using a string converter.
- * No conversion is performed if the string converter is nil.
- */
-using IceUtil::nativeToUTF8;
+    /**
+     * Converts a narrow string to a UTF-8 encoded string using a string converter.
+     * No conversion is performed if the string converter is nil.
+     */
+    using IceUtil::nativeToUTF8;
 
-/**
- * Converts a UTF-8 encoded string to a narrow string using a string converter.
- * No conversion is performed if the string converter is nil.
- */
-using IceUtil::UTF8ToNative;
+    /**
+     * Converts a UTF-8 encoded string to a narrow string using a string converter.
+     * No conversion is performed if the string converter is nil.
+     */
+    using IceUtil::UTF8ToNative;
 
 }
 

@@ -13,77 +13,80 @@
 namespace IceInternal
 {
 
-class UdpEndpointI final : public IPEndpointI
-{
-public:
+    class UdpEndpointI final : public IPEndpointI
+    {
+    public:
+        UdpEndpointI(
+            const ProtocolInstancePtr&,
+            const std::string&,
+            std::int32_t,
+            const Address&,
+            const std::string&,
+            std::int32_t,
+            bool,
+            const std::string&,
+            bool);
+        UdpEndpointI(const ProtocolInstancePtr&);
+        UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
-    UdpEndpointI(const ProtocolInstancePtr&, const std::string&, std::int32_t, const Address&, const std::string&,
-                 std::int32_t, bool, const std::string&, bool);
-    UdpEndpointI(const ProtocolInstancePtr&);
-    UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
+        void streamWriteImpl(Ice::OutputStream*) const final;
 
-    void streamWriteImpl(Ice::OutputStream*) const final;
+        Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    Ice::EndpointInfoPtr getInfo() const noexcept final;
+        std::int32_t timeout() const final;
+        EndpointIPtr timeout(std::int32_t) const final;
+        bool compress() const final;
+        EndpointIPtr compress(bool) const final;
+        bool datagram() const final;
 
-    std::int32_t timeout() const final;
-    EndpointIPtr timeout(std::int32_t) const final;
-    bool compress() const final;
-    EndpointIPtr compress(bool) const final;
-    bool datagram() const final;
+        TransceiverPtr transceiver() const final;
+        AcceptorPtr acceptor(const std::string&) const final;
+        std::string options() const final;
 
-    TransceiverPtr transceiver() const final;
-    AcceptorPtr acceptor(const std::string&) const final;
-    std::string options() const final;
+        bool operator==(const Ice::Endpoint&) const final;
+        bool operator<(const Ice::Endpoint&) const final;
 
-    bool operator==(const Ice::Endpoint&) const final;
-    bool operator<(const Ice::Endpoint&) const final;
+        UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
-    UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
+        using IPEndpointI::connectionId;
 
-    using IPEndpointI::connectionId;
+        void initWithOptions(std::vector<std::string>&, bool) final;
 
-    void initWithOptions(std::vector<std::string>&, bool) final;
+    protected:
+        void hashInit(std::int32_t&) const final;
+        void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
+        bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-protected:
+        ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
+        IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
-    void hashInit(std::int32_t&) const final;
-    void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
-    bool checkOption(const std::string&, const std::string&, const std::string&) final;
+    private:
+        //
+        // All members are const, because endpoints are immutable.
+        //
+        const std::int32_t _mcastTtl;
+        const std::string _mcastInterface;
+        const bool _connect;
+        const bool _compress;
+    };
 
-    ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
-    IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
+    class UdpEndpointFactory final : public EndpointFactory
+    {
+    public:
+        UdpEndpointFactory(const ProtocolInstancePtr&);
+        ~UdpEndpointFactory();
 
-private:
+        std::int16_t type() const final;
+        std::string protocol() const final;
+        EndpointIPtr create(std::vector<std::string>&, bool) const final;
+        EndpointIPtr read(Ice::InputStream*) const final;
+        void destroy() final;
 
-    //
-    // All members are const, because endpoints are immutable.
-    //
-    const std::int32_t _mcastTtl;
-    const std::string _mcastInterface;
-    const bool _connect;
-    const bool _compress;
-};
+        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
 
-class UdpEndpointFactory final : public EndpointFactory
-{
-public:
-
-    UdpEndpointFactory(const ProtocolInstancePtr&);
-    ~UdpEndpointFactory();
-
-    std::int16_t type() const final;
-    std::string protocol() const final;
-    EndpointIPtr create(std::vector<std::string>&, bool) const final;
-    EndpointIPtr read(Ice::InputStream*) const final;
-    void destroy() final;
-
-    EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
-
-private:
-
-    ProtocolInstancePtr _instance;
-};
+    private:
+        ProtocolInstancePtr _instance;
+    };
 
 }
 

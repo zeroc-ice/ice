@@ -28,131 +28,133 @@
 namespace IceInternal
 {
 
-class CommunicatorFlushBatchAsync;
-using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+    class CommunicatorFlushBatchAsync;
+    using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
 
 }
 
 namespace Ice
 {
 
-class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
-{
-public:
+    class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
+    {
+    public:
+        std::string getName() const noexcept final;
 
-    std::string getName() const noexcept final;
+        CommunicatorPtr getCommunicator() const noexcept final;
 
-    CommunicatorPtr getCommunicator() const noexcept final;
+        void activate() final;
+        void hold() final;
+        void waitForHold() final;
+        void deactivate() noexcept;
+        void waitForDeactivate() noexcept final;
+        bool isDeactivated() const noexcept final;
+        void destroy() noexcept final;
 
-    void activate() final;
-    void hold() final;
-    void waitForHold() final;
-    void deactivate() noexcept;
-    void waitForDeactivate() noexcept final;
-    bool isDeactivated() const noexcept final;
-    void destroy() noexcept final;
+        ObjectPrx add(const std::shared_ptr<Object>&, const Identity&) final;
+        ObjectPrx addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
+        ObjectPrx addWithUUID(const std::shared_ptr<Object>&) final;
+        ObjectPrx addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
+        void addDefaultServant(const std::shared_ptr<Object>&, const std::string&) final;
+        std::shared_ptr<Object> remove(const Identity&) final;
+        std::shared_ptr<Object> removeFacet(const Identity&, const std::string&) final;
+        FacetMap removeAllFacets(const Identity&) final;
+        std::shared_ptr<Object> removeDefaultServant(const std::string&) final;
+        std::shared_ptr<Object> find(const Identity&) const final;
+        std::shared_ptr<Object> findFacet(const Identity&, const std::string&) const final;
+        FacetMap findAllFacets(const Identity&) const final;
+        std::shared_ptr<Object> findByProxy(const ObjectPrx&) const final;
+        std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
 
-    ObjectPrx add(const std::shared_ptr<Object>&, const Identity&) final;
-    ObjectPrx addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
-    ObjectPrx addWithUUID(const std::shared_ptr<Object>&) final;
-    ObjectPrx addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
-    void addDefaultServant(const std::shared_ptr<Object>&, const std::string&) final;
-    std::shared_ptr<Object> remove(const Identity&) final;
-    std::shared_ptr<Object> removeFacet(const Identity&, const std::string&) final;
-    FacetMap removeAllFacets(const Identity&) final;
-    std::shared_ptr<Object> removeDefaultServant(const std::string&) final;
-    std::shared_ptr<Object> find(const Identity&) const final;
-    std::shared_ptr<Object> findFacet(const Identity&, const std::string&) const final;
-    FacetMap findAllFacets(const Identity&) const final;
-    std::shared_ptr<Object> findByProxy(const ObjectPrx&) const final;
-    std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
+        void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
+        std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
+        std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
 
-    void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
-    std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
-    std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
+        ObjectPrx createProxy(const Identity&) const final;
+        ObjectPrx createDirectProxy(const Identity&) const final;
+        ObjectPrx createIndirectProxy(const Identity&) const final;
 
-    ObjectPrx createProxy(const Identity&) const final;
-    ObjectPrx createDirectProxy(const Identity&) const final;
-    ObjectPrx createIndirectProxy(const Identity&) const final;
+        void setLocator(const std::optional<LocatorPrx>&) final;
+        std::optional<LocatorPrx> getLocator() const noexcept;
+        EndpointSeq getEndpoints() const noexcept;
 
-    void setLocator(const std::optional<LocatorPrx>&) final;
-    std::optional<LocatorPrx> getLocator() const noexcept;
-    EndpointSeq getEndpoints() const noexcept;
-
-    void refreshPublishedEndpoints() final;
-    EndpointSeq getPublishedEndpoints() const noexcept;
-    void setPublishedEndpoints(const EndpointSeq&) final;
+        void refreshPublishedEndpoints() final;
+        EndpointSeq getPublishedEndpoints() const noexcept;
+        void setPublishedEndpoints(const EndpointSeq&) final;
 
 #ifdef ICE_SWIFT
-    dispatch_queue_t getDispatchQueue() const final;
+        dispatch_queue_t getDispatchQueue() const final;
 #endif
 
-    bool isLocal(const IceInternal::ReferencePtr&) const;
+        bool isLocal(const IceInternal::ReferencePtr&) const;
 
-    void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
+        void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
 
-    void updateConnectionObservers();
-    void updateThreadObservers();
+        void updateConnectionObservers();
+        void updateThreadObservers();
 
-    void incDirectCount();
-    void decDirectCount();
+        void incDirectCount();
+        void decDirectCount();
 
-    IceInternal::ThreadPoolPtr getThreadPool() const;
-    IceInternal::ServantManagerPtr getServantManager() const;
-    IceInternal::ACMConfig getACM() const;
-    void setAdapterOnConnection(const Ice::ConnectionIPtr&);
-    size_t messageSizeMax() const { return _messageSizeMax; }
+        IceInternal::ThreadPoolPtr getThreadPool() const;
+        IceInternal::ServantManagerPtr getServantManager() const;
+        IceInternal::ACMConfig getACM() const;
+        void setAdapterOnConnection(const Ice::ConnectionIPtr&);
+        size_t messageSizeMax() const { return _messageSizeMax; }
 
-    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
-                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, bool);
-    virtual ~ObjectAdapterI();
+        ObjectAdapterI(
+            const IceInternal::InstancePtr&,
+            const CommunicatorPtr&,
+            const IceInternal::ObjectAdapterFactoryPtr&,
+            const std::string&,
+            bool);
+        virtual ~ObjectAdapterI();
 
-private:
+    private:
+        void initialize(std::optional<RouterPrx>);
+        friend class IceInternal::ObjectAdapterFactory;
 
-    void initialize(std::optional<RouterPrx>);
-    friend class IceInternal::ObjectAdapterFactory;
+        ObjectPrx newProxy(const Identity&, const std::string&) const;
+        ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
+        ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
+        void checkForDeactivation() const;
+        std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
+        std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
+        void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
+        bool filterProperties(Ice::StringSeq&);
 
-    ObjectPrx newProxy(const Identity&, const std::string&) const;
-    ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
-    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
-    void checkForDeactivation() const;
-    std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
-    std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
-    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
-    bool filterProperties(Ice::StringSeq&);
-
-    enum State
-    {
-        StateUninitialized,
-        StateHeld,
-        StateActivating,
-        StateActive,
-        StateDeactivating,
-        StateDeactivated,
-        StateDestroying,
-        StateDestroyed
+        enum State
+        {
+            StateUninitialized,
+            StateHeld,
+            StateActivating,
+            StateActive,
+            StateDeactivating,
+            StateDeactivated,
+            StateDestroying,
+            StateDestroyed
+        };
+        State _state;
+        IceInternal::InstancePtr _instance;
+        CommunicatorPtr _communicator;
+        IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
+        IceInternal::ThreadPoolPtr _threadPool;
+        IceInternal::ACMConfig _acm;
+        IceInternal::ServantManagerPtr _servantManager;
+        const std::string _name;
+        const std::string _id;
+        const std::string _replicaGroupId;
+        IceInternal::ReferencePtr _reference;
+        std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
+        IceInternal::RouterInfoPtr _routerInfo;
+        std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
+        IceInternal::LocatorInfoPtr _locatorInfo;
+        int _directCount; // The number of direct proxies dispatching on this object adapter.
+        bool _noConfig;
+        size_t _messageSizeMax;
+        mutable std::recursive_mutex _mutex;
+        std::condition_variable_any _conditionVariable;
     };
-    State _state;
-    IceInternal::InstancePtr _instance;
-    CommunicatorPtr _communicator;
-    IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
-    IceInternal::ThreadPoolPtr _threadPool;
-    IceInternal::ACMConfig _acm;
-    IceInternal::ServantManagerPtr _servantManager;
-    const std::string _name;
-    const std::string _id;
-    const std::string _replicaGroupId;
-    IceInternal::ReferencePtr _reference;
-    std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    IceInternal::RouterInfoPtr _routerInfo;
-    std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
-    IceInternal::LocatorInfoPtr _locatorInfo;
-    int _directCount; // The number of direct proxies dispatching on this object adapter.
-    bool _noConfig;
-    size_t _messageSizeMax;
-    mutable std::recursive_mutex _mutex;
-    std::condition_variable_any _conditionVariable;
-};
 
 }
 

@@ -25,19 +25,24 @@ using namespace IceInternal;
 namespace IceUtilInternal
 {
 
-extern bool printStackTraces;
+    extern bool printStackTraces;
 
 }
 
-Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
-                                        Ice::ConnectionPtr connection, ObjectAdapterPtr adapter,
-                                        bool twoWay, uint8_t compress, int32_t requestId) :
-    _isTwoWay(twoWay),
-    _compress(compress),
-    _format(Ice::FormatType::DefaultFormat),
-    _os(instance, Ice::currentProtocolEncoding),
-    _responseHandler(std::move(responseHandler)),
-    _is(nullptr)
+Incoming::Incoming(
+    Instance* instance,
+    ResponseHandlerPtr responseHandler,
+    Ice::ConnectionPtr connection,
+    ObjectAdapterPtr adapter,
+    bool twoWay,
+    uint8_t compress,
+    int32_t requestId)
+    : _isTwoWay(twoWay),
+      _compress(compress),
+      _format(Ice::FormatType::DefaultFormat),
+      _os(instance, Ice::currentProtocolEncoding),
+      _responseHandler(std::move(responseHandler)),
+      _is(nullptr)
 {
     _current.adapter = std::move(adapter);
     _current.con = std::move(connection);
@@ -46,17 +51,17 @@ Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
     _current.encoding.minor = 0;
 }
 
-Incoming::Incoming(Incoming&& other) :
-    _current(std::move(other._current)),
-    _servant(std::move(other._servant)),
-    _locator(std::move(other._locator)),
-    _cookie(std::move(other._cookie)),
-    _isTwoWay(std::move(other._isTwoWay)),
-    _compress(std::move(other._compress)),
-    _format(std::move(other._format)),
-    _os(other._os.instance(), Ice::currentProtocolEncoding), // TODO: make movable
-    _responseHandler(std::move(other._responseHandler)),
-    _is(std::move(other._is)) // just copies the pointer
+Incoming::Incoming(Incoming&& other)
+    : _current(std::move(other._current)),
+      _servant(std::move(other._servant)),
+      _locator(std::move(other._locator)),
+      _cookie(std::move(other._cookie)),
+      _isTwoWay(std::move(other._isTwoWay)),
+      _compress(std::move(other._compress)),
+      _format(std::move(other._format)),
+      _os(other._os.instance(), Ice::currentProtocolEncoding), // TODO: make movable
+      _responseHandler(std::move(other._responseHandler)),
+      _is(std::move(other._is)) // just copies the pointer
 {
     _observer.adopt(other._observer); // TODO: make movable
 }
@@ -64,7 +69,7 @@ Incoming::Incoming(Incoming&& other) :
 OutputStream*
 Incoming::startWriteParams()
 {
-    if(!_isTwoWay)
+    if (!_isTwoWay)
     {
         throw MarshalException(__FILE__, __LINE__, "can't marshal out parameters for oneway dispatch");
     }
@@ -81,7 +86,7 @@ Incoming::startWriteParams()
 void
 Incoming::endWriteParams()
 {
-    if(_isTwoWay)
+    if (_isTwoWay)
     {
         _os.endEncapsulation();
     }
@@ -90,7 +95,7 @@ Incoming::endWriteParams()
 void
 Incoming::writeEmptyParams()
 {
-    if(_isTwoWay)
+    if (_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
@@ -103,18 +108,18 @@ Incoming::writeEmptyParams()
 void
 Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 {
-    if(!ok)
+    if (!ok)
     {
         _observer.userException();
     }
 
-    if(_isTwoWay)
+    if (_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
         _os.write(_current.requestId);
         _os.write(ok ? replyOK : replyUserException);
-        if(sz == 0)
+        if (sz == 0)
         {
             _os.writeEmptyEncapsulation(_current.encoding);
         }
@@ -136,13 +141,13 @@ Incoming::response(bool amd)
 {
     try
     {
-        if(_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished(amd))
         {
             return;
         }
 
         assert(_responseHandler);
-        if(_isTwoWay)
+        if (_isTwoWay)
         {
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
@@ -152,9 +157,10 @@ Incoming::response(bool amd)
             _responseHandler->sendNoResponse();
         }
     }
-    catch(const LocalException&)
+    catch (const LocalException&)
     {
-        _responseHandler->invokeException(_current.requestId, current_exception(), 1, amd); // Fatal invocation exception
+        _responseHandler->invokeException(
+            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
     }
 
     _observer.detach();
@@ -166,15 +172,16 @@ Incoming::exception(std::exception_ptr exc, bool amd)
 {
     try
     {
-        if(_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished(amd))
         {
             return;
         }
         handleException(exc, amd);
     }
-    catch(const LocalException&)
+    catch (const LocalException&)
     {
-        _responseHandler->invokeException(_current.requestId, current_exception(), 1, amd);  // Fatal invocation exception
+        _responseHandler->invokeException(
+            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
     }
 }
 
@@ -205,21 +212,21 @@ Incoming::warning(const Exception& ex) const
     out << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
-    if(_current.con)
+    if (_current.con)
     {
         try
         {
-            for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+            for (Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
             {
                 Ice::IPConnectionInfoPtr ipConnInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(connInfo);
-                if(ipConnInfo)
+                if (ipConnInfo)
                 {
                     out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
                     break;
                 }
             }
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Ignore.
         }
@@ -250,12 +257,12 @@ Incoming::warning(std::exception_ptr ex) const
     out << "\nfacet: " << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
-    if(_current.con)
+    if (_current.con)
     {
-        for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+        for (Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
         {
             Ice::IPConnectionInfoPtr ipConnInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(connInfo);
-            if(ipConnInfo)
+            if (ipConnInfo)
             {
                 out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
                 break;
@@ -296,44 +303,44 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
     }
     catch (RequestFailedException& rfe)
     {
-        if(rfe.id.name.empty())
+        if (rfe.id.name.empty())
         {
             rfe.id = _current.id;
         }
 
-        if(rfe.facet.empty() && !_current.facet.empty())
+        if (rfe.facet.empty() && !_current.facet.empty())
         {
             rfe.facet = _current.facet;
         }
 
-        if(rfe.operation.empty() && !_current.operation.empty())
+        if (rfe.operation.empty() && !_current.operation.empty())
         {
             rfe.operation = _current.operation;
         }
 
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+        if (_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
         {
             warning(rfe);
         }
 
-        if(_observer)
+        if (_observer)
         {
             _observer.failed(rfe.ice_id());
         }
 
-        if(_isTwoWay)
+        if (_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
-            if(dynamic_cast<ObjectNotExistException*>(&rfe))
+            if (dynamic_cast<ObjectNotExistException*>(&rfe))
             {
                 _os.write(replyObjectNotExist);
             }
-            else if(dynamic_cast<FacetNotExistException*>(&rfe))
+            else if (dynamic_cast<FacetNotExistException*>(&rfe))
             {
                 _os.write(replyFacetNotExist);
             }
-            else if(dynamic_cast<OperationNotExistException*>(&rfe))
+            else if (dynamic_cast<OperationNotExistException*>(&rfe))
             {
                 _os.write(replyOperationNotExist);
             }
@@ -347,7 +354,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             //
             // For compatibility with the old FacetPath.
             //
-            if(rfe.facet.empty())
+            if (rfe.facet.empty())
             {
                 _os.write(static_cast<string*>(0), static_cast<string*>(0));
             }
@@ -373,7 +380,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
         //
-        if(_isTwoWay)
+        if (_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -393,61 +400,61 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
     {
         if (dynamic_cast<const SystemException*>(&ex))
         {
-            if(_responseHandler->systemException(_current.requestId, exc, amd))
+            if (_responseHandler->systemException(_current.requestId, exc, amd))
             {
                 return;
             }
             // else, keep going
         }
 
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        if (_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             warning(ex);
         }
 
-        if(_observer)
+        if (_observer)
         {
             _observer.failed(ex.ice_id());
         }
 
-        if(_isTwoWay)
+        if (_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
-            if(const UnknownLocalException* ule = dynamic_cast<const UnknownLocalException*>(&ex))
+            if (const UnknownLocalException* ule = dynamic_cast<const UnknownLocalException*>(&ex))
             {
                 _os.write(replyUnknownLocalException);
                 _os.write(ule->unknown, false);
             }
-            else if(const UnknownUserException* uue = dynamic_cast<const UnknownUserException*>(&ex))
+            else if (const UnknownUserException* uue = dynamic_cast<const UnknownUserException*>(&ex))
             {
                 _os.write(replyUnknownUserException);
                 _os.write(uue->unknown, false);
             }
-            else if(const UnknownException* ue = dynamic_cast<const UnknownException*>(&ex))
+            else if (const UnknownException* ue = dynamic_cast<const UnknownException*>(&ex))
             {
                 _os.write(replyUnknownException);
                 _os.write(ue->unknown, false);
             }
-            else if(const LocalException* le = dynamic_cast<const LocalException*>(&ex))
+            else if (const LocalException* le = dynamic_cast<const LocalException*>(&ex))
             {
                 _os.write(replyUnknownLocalException);
                 ostringstream str;
                 str << *le;
-                if(IceUtilInternal::printStackTraces)
+                if (IceUtilInternal::printStackTraces)
                 {
-                    str <<  '\n' << ex.ice_stackTrace();
+                    str << '\n' << ex.ice_stackTrace();
                 }
                 _os.write(str.str(), false);
             }
-            else if(const UserException* use = dynamic_cast<const UserException*>(&ex))
+            else if (const UserException* use = dynamic_cast<const UserException*>(&ex))
             {
                 _os.write(replyUnknownUserException);
                 ostringstream str;
                 str << *use;
-                if(IceUtilInternal::printStackTraces)
+                if (IceUtilInternal::printStackTraces)
                 {
-                    str <<  '\n' << ex.ice_stackTrace();
+                    str << '\n' << ex.ice_stackTrace();
                 }
                 _os.write(str.str(), false);
             }
@@ -456,9 +463,9 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
                 _os.write(replyUnknownException);
                 ostringstream str;
                 str << ex;
-                if(IceUtilInternal::printStackTraces)
+                if (IceUtilInternal::printStackTraces)
                 {
-                    str <<  '\n' << ex.ice_stackTrace();
+                    str << '\n' << ex.ice_stackTrace();
                 }
                 _os.write(str.str(), false);
             }
@@ -475,17 +482,17 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
     {
         string exceptionId = getExceptionId(exc);
 
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        if (_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             warning(exc);
         }
 
-        if(_observer)
+        if (_observer)
         {
             _observer.failed(exceptionId);
         }
 
-        if(_isTwoWay)
+        if (_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -526,9 +533,9 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
     {
         vector<string> facetPath;
         _is->read(facetPath);
-        if(!facetPath.empty())
+        if (!facetPath.empty())
         {
-            if(facetPath.size() > 1)
+            if (facetPath.size() > 1)
             {
                 throw MarshalException(__FILE__, __LINE__);
             }
@@ -544,7 +551,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
     _current.mode = static_cast<OperationMode>(b);
 
     int32_t sz = _is->readSize();
-    while(sz--)
+    while (sz--)
     {
         pair<const string, string> pr;
         _is->read(const_cast<string&>(pr.first));
@@ -553,7 +560,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
     }
 
     const CommunicatorObserverPtr& obsv = _is->instance()->initializationData().observer;
-    if(obsv)
+    if (obsv)
     {
         // Read the parameter encapsulation size.
         int32_t encapsSize;
@@ -569,18 +576,18 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
     // the caller of this operation.
     //
 
-    if(servantManager)
+    if (servantManager)
     {
         _servant = servantManager->findServant(_current.id, _current.facet);
-        if(!_servant)
+        if (!_servant)
         {
             _locator = servantManager->findServantLocator(_current.id.category);
-            if(!_locator && !_current.id.category.empty())
+            if (!_locator && !_current.id.category.empty())
             {
                 _locator = servantManager->findServantLocator("");
             }
 
-            if(_locator)
+            if (_locator)
             {
                 try
                 {
@@ -596,11 +603,11 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         }
     }
 
-    if(!_servant)
+    if (!_servant)
     {
         try
         {
-            if(servantManager && servantManager->hasServant(_current.id))
+            if (servantManager && servantManager->hasServant(_current.id))
             {
                 throw FacetNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
             }

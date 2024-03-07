@@ -9,143 +9,156 @@
 
 extern "C"
 {
-ZEND_FUNCTION(Ice_stringVersion);
-ZEND_FUNCTION(Ice_intVersion);
-ZEND_FUNCTION(Ice_generateUUID);
-ZEND_FUNCTION(Ice_currentProtocol);
-ZEND_FUNCTION(Ice_currentProtocolEncoding);
-ZEND_FUNCTION(Ice_currentEncoding);
-ZEND_FUNCTION(Ice_protocolVersionToString);
-ZEND_FUNCTION(Ice_stringToProtocolVersion);
-ZEND_FUNCTION(Ice_encodingVersionToString);
-ZEND_FUNCTION(Ice_stringToEncodingVersion);
+    ZEND_FUNCTION(Ice_stringVersion);
+    ZEND_FUNCTION(Ice_intVersion);
+    ZEND_FUNCTION(Ice_generateUUID);
+    ZEND_FUNCTION(Ice_currentProtocol);
+    ZEND_FUNCTION(Ice_currentProtocolEncoding);
+    ZEND_FUNCTION(Ice_currentEncoding);
+    ZEND_FUNCTION(Ice_protocolVersionToString);
+    ZEND_FUNCTION(Ice_stringToProtocolVersion);
+    ZEND_FUNCTION(Ice_encodingVersionToString);
+    ZEND_FUNCTION(Ice_stringToEncodingVersion);
 }
 
 namespace IcePHP
 {
 
-void* createWrapper(zend_class_entry*, size_t);
-void* extractWrapper(zval*);
+    void* createWrapper(zend_class_entry*, size_t);
+    void* extractWrapper(zval*);
 
-// Wraps a C++ pointer inside a PHP object.
-template<typename T>
-struct Wrapper
-{
-    T* ptr;
-
-    static Wrapper<T>* create(zend_class_entry* ce)
+    // Wraps a C++ pointer inside a PHP object.
+    template<typename T> struct Wrapper
     {
-        Wrapper<T>* w = static_cast<Wrapper<T>*>(ecalloc(1, sizeof(Wrapper<T>) + zend_object_properties_size(ce)));
+        T* ptr;
 
-        zend_object_std_init(&w->zobj, ce);
-        object_properties_init(&w->zobj, ce);
-
-        w->ptr = 0;
-        return w;
-    }
-
-    static Wrapper<T>* extract(zval* zv)
-    {
-        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(extractWrapper(zv)) - XtOffsetOf(Wrapper<T>, zobj));
-    }
-
-    static Wrapper<T>* fetch(zend_object* object)
-    {
-        return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char *>(object) - XtOffsetOf(Wrapper<T>, zobj));
-    }
-
-    static T value(zval* zv)
-    {
-        Wrapper<T>* w = extract(zv);
-        if(w)
+        static Wrapper<T>* create(zend_class_entry* ce)
         {
-            return *w->ptr;
+            Wrapper<T>* w = static_cast<Wrapper<T>*>(ecalloc(1, sizeof(Wrapper<T>) + zend_object_properties_size(ce)));
+
+            zend_object_std_init(&w->zobj, ce);
+            object_properties_init(&w->zobj, ce);
+
+            w->ptr = 0;
+            return w;
         }
-        return 0;
-    }
 
-    // This must be last element in the struct
-    zend_object zobj;
-};
+        static Wrapper<T>* extract(zval* zv)
+        {
+            return reinterpret_cast<Wrapper<T>*>(
+                reinterpret_cast<char*>(extractWrapper(zv)) - XtOffsetOf(Wrapper<T>, zobj));
+        }
 
-zend_class_entry* idToClass(const std::string&);
-zend_class_entry* nameToClass(const std::string&);
+        static Wrapper<T>* fetch(zend_object* object)
+        {
+            return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(object) - XtOffsetOf(Wrapper<T>, zobj));
+        }
 
-bool createIdentity(zval*, const Ice::Identity&);
-bool extractIdentity(zval*, Ice::Identity&);
+        static T value(zval* zv)
+        {
+            Wrapper<T>* w = extract(zv);
+            if (w)
+            {
+                return *w->ptr;
+            }
+            return 0;
+        }
 
-bool createStringMap(zval*, const std::map<std::string, std::string>&);
-bool extractStringMap(zval*, std::map<std::string, std::string>&);
+        // This must be last element in the struct
+        zend_object zobj;
+    };
 
-bool createStringArray(zval*, const Ice::StringSeq&);
-bool extractStringArray(zval*, Ice::StringSeq&);
+    zend_class_entry* idToClass(const std::string&);
+    zend_class_entry* nameToClass(const std::string&);
 
-// Create a PHP instance of Ice_ProtocolVersion.
-bool createProtocolVersion(zval*, const Ice::ProtocolVersion&);
+    bool createIdentity(zval*, const Ice::Identity&);
+    bool extractIdentity(zval*, Ice::Identity&);
 
-// Create a PHP instance of Ice_EncodingVersion.
-bool createEncodingVersion(zval*, const Ice::EncodingVersion&);
+    bool createStringMap(zval*, const std::map<std::string, std::string>&);
+    bool extractStringMap(zval*, std::map<std::string, std::string>&);
 
-// Extracts the members of an encoding version.
-bool extractEncodingVersion(zval*, Ice::EncodingVersion&);
+    bool createStringArray(zval*, const Ice::StringSeq&);
+    bool extractStringArray(zval*, Ice::StringSeq&);
 
-// Convert the given exception into its PHP equivalent.
-void convertException(zval*, const Ice::Exception&);
+    // Create a PHP instance of Ice_ProtocolVersion.
+    bool createProtocolVersion(zval*, const Ice::ProtocolVersion&);
 
-// Convert the exception and "throw" it.
-void throwException(const Ice::Exception&);
+    // Create a PHP instance of Ice_EncodingVersion.
+    bool createEncodingVersion(zval*, const Ice::EncodingVersion&);
 
-// Convert a Zend type (e.g., IS_BOOL, etc.) to a string for use in error messages.
-std::string zendTypeToString(int);
+    // Extracts the members of an encoding version.
+    bool extractEncodingVersion(zval*, Ice::EncodingVersion&);
 
-// Raise RuntimeException with the given message.
-void runtimeError(const char*, ...);
+    // Convert the given exception into its PHP equivalent.
+    void convertException(zval*, const Ice::Exception&);
 
-// Raise InvalidArgumentException with the given message.
-void invalidArgument(const char*, ...);
+    // Convert the exception and "throw" it.
+    void throwException(const Ice::Exception&);
 
-// Invoke a method on a PHP object. The method must not take any arguments.
-bool invokeMethod(zval*, const std::string&);
+    // Convert a Zend type (e.g., IS_BOOL, etc.) to a string for use in error messages.
+    std::string zendTypeToString(int);
 
-// Invoke a method on a PHP object. The method must take one string argument.
-bool invokeMethod(zval*, const std::string&, const std::string&);
+    // Raise RuntimeException with the given message.
+    void runtimeError(const char*, ...);
 
-// Check inheritance.
-bool checkClass(zend_class_entry*, zend_class_entry*);
+    // Raise InvalidArgumentException with the given message.
+    void invalidArgument(const char*, ...);
 
-// Exception-safe efree.
-class AutoEfree
-{
-public:
-    AutoEfree(void* p) : _p(p) {}
-    ~AutoEfree() { efree(_p); }
+    // Invoke a method on a PHP object. The method must not take any arguments.
+    bool invokeMethod(zval*, const std::string&);
 
-private:
-    void* _p;
-};
+    // Invoke a method on a PHP object. The method must take one string argument.
+    bool invokeMethod(zval*, const std::string&, const std::string&);
 
-// Exception-safe zval destroy.
-class AutoDestroy
-{
-public:
-    AutoDestroy(zval* zv) : _zv(zv) {}
-    ~AutoDestroy() { if(_zv) zval_ptr_dtor(_zv); }
+    // Check inheritance.
+    bool checkClass(zend_class_entry*, zend_class_entry*);
 
-    zval* release() { zval* z = _zv; _zv = 0; return z; }
+    // Exception-safe efree.
+    class AutoEfree
+    {
+    public:
+        AutoEfree(void* p) : _p(p) {}
+        ~AutoEfree() { efree(_p); }
 
-private:
-    zval* _zv;
-};
+    private:
+        void* _p;
+    };
 
-class AutoReleaseString
-{
-public:
-    AutoReleaseString(zend_string* s) : _s(s) {}
-    ~AutoReleaseString() { if(_s) zend_string_release(_s); }
+    // Exception-safe zval destroy.
+    class AutoDestroy
+    {
+    public:
+        AutoDestroy(zval* zv) : _zv(zv) {}
+        ~AutoDestroy()
+        {
+            if (_zv)
+                zval_ptr_dtor(_zv);
+        }
 
-private:
-    zend_string* _s;
-};
+        zval* release()
+        {
+            zval* z = _zv;
+            _zv = 0;
+            return z;
+        }
+
+    private:
+        zval* _zv;
+    };
+
+    class AutoReleaseString
+    {
+    public:
+        AutoReleaseString(zend_string* s) : _s(s) {}
+        ~AutoReleaseString()
+        {
+            if (_s)
+                zend_string_release(_s);
+        }
+
+    private:
+        zend_string* _s;
+    };
 
 } // End of namespace IcePHP
 

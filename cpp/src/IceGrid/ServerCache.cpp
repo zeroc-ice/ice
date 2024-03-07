@@ -20,12 +20,17 @@
 using namespace std;
 using namespace IceGrid;
 
-CheckUpdateResult::CheckUpdateResult(const string& server,
-                                     const string& node,
-                                     bool noRestart,
-                                     bool remove,
-                                     future<bool>&& result) :
-    _server(server), _node(node), _remove(remove), _noRestart(noRestart), _result(std::move(result))
+CheckUpdateResult::CheckUpdateResult(
+    const string& server,
+    const string& node,
+    bool noRestart,
+    bool remove,
+    future<bool>&& result)
+    : _server(server),
+      _node(node),
+      _remove(remove),
+      _noRestart(noRestart),
+      _result(std::move(result))
 {
 }
 
@@ -36,10 +41,10 @@ CheckUpdateResult::getResult()
     {
         return _result.get();
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         ostringstream os;
-        if(_remove)
+        if (_remove)
         {
             os << "check for server `" << _server << "' remove failed: " << ex.reason;
         }
@@ -49,15 +54,15 @@ CheckUpdateResult::getResult()
         }
         throw DeploymentException(os.str());
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
-        if(_noRestart)
+        if (_noRestart)
         {
             throw DeploymentException("server `" + _server + "' doesn't support check for updates");
         }
         return false;
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         ostringstream os;
         os << ex;
@@ -65,18 +70,19 @@ CheckUpdateResult::getResult()
     }
 }
 
-ServerCache::ServerCache(const shared_ptr<Ice::Communicator>& communicator,
-                         const string& instanceName,
-                         NodeCache& nodeCache,
-                         AdapterCache& adapterCache,
-                         ObjectCache& objectCache,
-                         AllocatableObjectCache& allocatableObjectCache) :
-    _communicator(communicator),
-    _instanceName(instanceName),
-    _nodeCache(nodeCache),
-    _adapterCache(adapterCache),
-    _objectCache(objectCache),
-    _allocatableObjectCache(allocatableObjectCache)
+ServerCache::ServerCache(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const string& instanceName,
+    NodeCache& nodeCache,
+    AdapterCache& adapterCache,
+    ObjectCache& objectCache,
+    AllocatableObjectCache& allocatableObjectCache)
+    : _communicator(communicator),
+      _instanceName(instanceName),
+      _nodeCache(nodeCache),
+      _adapterCache(adapterCache),
+      _objectCache(objectCache),
+      _allocatableObjectCache(allocatableObjectCache)
 {
 }
 
@@ -86,7 +92,7 @@ ServerCache::add(const ServerInfo& info)
     lock_guard lock(_mutex);
 
     auto entry = getImpl(info.descriptor->id);
-    if(!entry)
+    if (!entry)
     {
         entry = make_shared<ServerEntry>(*this, info.descriptor->id);
         addImpl(info.descriptor->id, entry);
@@ -95,12 +101,11 @@ ServerCache::add(const ServerInfo& info)
 
     _nodeCache.get(info.node, true)->addServer(entry);
 
-    forEachCommunicator(info.descriptor, [this, entry, application = info.application](const auto& descriptor)
-        {
-            addCommunicator(nullptr, descriptor, entry, application);
-        });
+    forEachCommunicator(
+        info.descriptor, [this, entry, application = info.application](const auto& descriptor)
+        { addCommunicator(nullptr, descriptor, entry, application); });
 
-    if(_traceLevels && _traceLevels->server > 0)
+    if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
         out << "added server `" << info.descriptor->id << "' (`" << info.uuid << "', `" << info.revision << "')";
@@ -114,7 +119,7 @@ ServerCache::get(const string& id) const
 {
     lock_guard lock(_mutex);
     auto entry = getImpl(id);
-    if(!entry)
+    if (!entry)
     {
         throw ServerNotExistException(id);
     }
@@ -138,16 +143,13 @@ ServerCache::remove(const string& id, bool noRestart)
     assert(entry);
 
     ServerInfo info = entry->getInfo();
-    forEachCommunicator(info.descriptor, [this, entry](const auto& desc)
-        {
-            removeCommunicator(desc, nullptr, entry);
-        });
+    forEachCommunicator(info.descriptor, [this, entry](const auto& desc) { removeCommunicator(desc, nullptr, entry); });
     _nodeCache.get(info.node)->removeServer(entry);
 
     entry->destroy(noRestart); // This must be done after otherwise some allocatable objects
                                // might allocate a destroyed server.
 
-    if(_traceLevels && _traceLevels->server > 0)
+    if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
         out << "removed server `" << id << "'";
@@ -165,21 +167,20 @@ ServerCache::preUpdate(const ServerInfo& newInfo, bool noRestart)
     auto entry = getImpl(id);
     assert(entry);
 
-    if(!noRestart)
+    if (!noRestart)
     {
         ServerInfo info = entry->getInfo();
-        forEachCommunicator(info.descriptor, newInfo.descriptor, [this, entry](const auto& oldDesc, const auto& newDesc)
-            {
-                removeCommunicator(oldDesc, newDesc, entry);
-            });
+        forEachCommunicator(
+            info.descriptor, newInfo.descriptor,
+            [this, entry](const auto& oldDesc, const auto& newDesc) { removeCommunicator(oldDesc, newDesc, entry); });
         _nodeCache.get(info.node)->removeServer(entry);
     }
 
-    if(_traceLevels && _traceLevels->server > 0)
+    if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
         out << "updating server `" << id << "'";
-        if(noRestart)
+        if (noRestart)
         {
             out << " with no restart";
         }
@@ -197,18 +198,17 @@ ServerCache::postUpdate(const ServerInfo& info, bool noRestart)
     ServerInfo oldInfo = entry->getInfo();
     entry->update(info, noRestart);
 
-    if(!noRestart)
+    if (!noRestart)
     {
         _nodeCache.get(info.node, true)->addServer(entry);
 
-        forEachCommunicator(oldInfo.descriptor, info.descriptor,
+        forEachCommunicator(
+            oldInfo.descriptor, info.descriptor,
             [this, entry, application = info.application](const auto& oldDesc, const auto& newDesc)
-            {
-                addCommunicator(oldDesc, newDesc, entry, application);
-            });
+            { addCommunicator(oldDesc, newDesc, entry, application); });
     }
 
-    if(_traceLevels && _traceLevels->server > 0)
+    if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
         out << "updated server `" << info.descriptor->id << "' (`" << info.uuid << "', `" << info.revision << "')";
@@ -231,23 +231,24 @@ ServerCache::setNodeObserverTopic(const shared_ptr<NodeObserverTopic>& nodeObser
 }
 
 void
-ServerCache::addCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
-                             const shared_ptr<CommunicatorDescriptor>& newDesc,
-                             const shared_ptr<ServerEntry>& server,
-                             const string& application)
+ServerCache::addCommunicator(
+    const shared_ptr<CommunicatorDescriptor>& oldDesc,
+    const shared_ptr<CommunicatorDescriptor>& newDesc,
+    const shared_ptr<ServerEntry>& server,
+    const string& application)
 {
-    if(!newDesc)
+    if (!newDesc)
     {
         return; // Nothing to add
     }
-    for(AdapterDescriptorSeq::const_iterator q = newDesc->adapters.begin() ; q != newDesc->adapters.end(); ++q)
+    for (AdapterDescriptorSeq::const_iterator q = newDesc->adapters.begin(); q != newDesc->adapters.end(); ++q)
     {
         AdapterDescriptor oldAdpt;
-        if(oldDesc)
+        if (oldDesc)
         {
-            for(AdapterDescriptorSeq::const_iterator p = oldDesc->adapters.begin() ; p != oldDesc->adapters.end(); ++p)
+            for (AdapterDescriptorSeq::const_iterator p = oldDesc->adapters.begin(); p != oldDesc->adapters.end(); ++p)
             {
-                if(p->id == q->id)
+                if (p->id == q->id)
                 {
                     oldAdpt = *p;
                     break;
@@ -257,15 +258,16 @@ ServerCache::addCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
         assert(!q->id.empty());
         _adapterCache.addServerAdapter(*q, server, application);
 
-        for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+        for (ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
             _objectCache.add(toObjectInfo(_communicator, *r, q->id), application, server->getId());
         }
-        for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for (ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
             ObjectDescriptorSeq::const_iterator s;
-            for(s = oldAdpt.allocatables.begin(); s != oldAdpt.allocatables.end() && s->id != r->id; ++s);
-            if(s == oldAdpt.allocatables.end() || *s != *r) // Only add new or updated allocatables
+            for (s = oldAdpt.allocatables.begin(); s != oldAdpt.allocatables.end() && s->id != r->id; ++s)
+                ;
+            if (s == oldAdpt.allocatables.end() || *s != *r) // Only add new or updated allocatables
             {
                 _allocatableObjectCache.add(toObjectInfo(_communicator, *r, q->id), server);
             }
@@ -274,22 +276,23 @@ ServerCache::addCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
 }
 
 void
-ServerCache::removeCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
-                                const shared_ptr<CommunicatorDescriptor>& newDesc,
-                                const shared_ptr<ServerEntry>&)
+ServerCache::removeCommunicator(
+    const shared_ptr<CommunicatorDescriptor>& oldDesc,
+    const shared_ptr<CommunicatorDescriptor>& newDesc,
+    const shared_ptr<ServerEntry>&)
 {
-    if(!oldDesc)
+    if (!oldDesc)
     {
         return; // Nothing to remove
     }
-    for(AdapterDescriptorSeq::const_iterator q = oldDesc->adapters.begin() ; q != oldDesc->adapters.end(); ++q)
+    for (AdapterDescriptorSeq::const_iterator q = oldDesc->adapters.begin(); q != oldDesc->adapters.end(); ++q)
     {
         AdapterDescriptor newAdpt;
-        if(newDesc)
+        if (newDesc)
         {
-            for(AdapterDescriptorSeq::const_iterator p = newDesc->adapters.begin() ; p != newDesc->adapters.end(); ++p)
+            for (AdapterDescriptorSeq::const_iterator p = newDesc->adapters.begin(); p != newDesc->adapters.end(); ++p)
             {
-                if(p->id == q->id)
+                if (p->id == q->id)
                 {
                     newAdpt = *p;
                     break;
@@ -297,16 +300,17 @@ ServerCache::removeCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDes
             }
         }
 
-        for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+        for (ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
             _objectCache.remove((*r).id);
         }
-        for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for (ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
             // Don't remove the allocatable if it's still in the new descriptor.
             ObjectDescriptorSeq::const_iterator s;
-            for(s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != r->id; ++s);
-            if(s == newAdpt.allocatables.end() || *s != *r) // Only removed updated or removed allocatables
+            for (s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != r->id; ++s)
+                ;
+            if (s == newAdpt.allocatables.end() || *s != *r) // Only removed updated or removed allocatables
             {
                 _allocatableObjectCache.remove(r->id);
             }
@@ -315,15 +319,15 @@ ServerCache::removeCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDes
     }
 }
 
-ServerEntry::ServerEntry(ServerCache& cache, const string& id) :
-    Allocatable(false, nullptr),
-    _cache(cache),
-    _id(id),
-    _activationTimeout(-1),
-    _deactivationTimeout(-1),
-    _synchronizing(false),
-    _updated(false),
-    _noRestart(false)
+ServerEntry::ServerEntry(ServerCache& cache, const string& id)
+    : Allocatable(false, nullptr),
+      _cache(cache),
+      _id(id),
+      _activationTimeout(-1),
+      _deactivationTimeout(-1),
+      _synchronizing(false),
+      _updated(false),
+      _noRestart(false)
 {
 }
 
@@ -346,11 +350,11 @@ ServerEntry::waitForSyncNoThrow(chrono::seconds timeout)
     {
         waitImpl(timeout);
     }
-    catch(const SynchronizationException&)
+    catch (const SynchronizationException&)
     {
         assert(timeout >= 0s);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
     }
 }
@@ -359,7 +363,7 @@ void
 ServerEntry::unsync()
 {
     lock_guard lock(_mutex);
-    if(_loaded.get())
+    if (_loaded.get())
     {
         _load.reset(_loaded.release());
     }
@@ -373,11 +377,11 @@ bool
 ServerEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& callback)
 {
     lock_guard lock(_mutex);
-    if(!_loaded.get() && !_load.get())
+    if (!_loaded.get() && !_load.get())
     {
         throw ServerNotExistException();
     }
-    if(_synchronizing)
+    if (_synchronizing)
     {
         _callbacks.push_back(callback);
     }
@@ -393,13 +397,13 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
 
     _updated = true;
 
-    if(!_destroy.get())
+    if (!_destroy.get())
     {
-        if(_loaded.get() && descriptor->node != _loaded->node)
+        if (_loaded.get() && descriptor->node != _loaded->node)
         {
             _destroy.reset(_loaded.release());
         }
-        else if(_load.get() && descriptor->node != _load->node)
+        else if (_load.get() && descriptor->node != _load->node)
         {
             _destroy.reset(_load.release());
         }
@@ -409,7 +413,7 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
     _noRestart = noRestart;
     _loaded.reset();
     _allocatable = info.descriptor->allocatable;
-    if(info.descriptor->activation == "session")
+    if (info.descriptor->activation == "session")
     {
         _allocatable = true;
         _load->sessionId = _allocationSession ? _allocationSession->getId() : string("");
@@ -424,14 +428,14 @@ ServerEntry::destroy(bool noRestart)
     _updated = true;
 
     assert(_loaded.get() || _load.get());
-    if(!_destroy.get())
+    if (!_destroy.get())
     {
-        if(_loaded.get())
+        if (_loaded.get())
         {
             assert(!_destroy.get());
             _destroy.reset(_loaded.release());
         }
-        else if(_load.get())
+        else if (_load.get())
         {
             assert(!_destroy.get());
             _destroy.reset(_load.release());
@@ -451,7 +455,7 @@ ServerEntry::getInfo(bool resolve) const
     shared_ptr<SessionI> session;
     {
         lock_guard lock(_mutex);
-        if(!_loaded.get() && !_load.get())
+        if (!_loaded.get() && !_load.get())
         {
             throw ServerNotExistException();
         }
@@ -459,19 +463,19 @@ ServerEntry::getInfo(bool resolve) const
         session = _allocationSession;
     }
     assert(info.descriptor);
-    if(resolve)
+    if (resolve)
     {
         try
         {
             return _cache.getNodeCache().get(info.node)->getServerInfo(info, session);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
         }
-        catch(const NodeUnreachableException&)
+        catch (const NodeUnreachableException&)
         {
         }
     }
@@ -498,18 +502,22 @@ ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 }
 
 ServerPrxPtr
-ServerEntry::getProxy(chrono::seconds& activationTimeout, chrono::seconds& deactivationTimeout, string& node,
-                      bool upToDate, chrono::seconds timeout)
+ServerEntry::getProxy(
+    chrono::seconds& activationTimeout,
+    chrono::seconds& deactivationTimeout,
+    string& node,
+    bool upToDate,
+    chrono::seconds timeout)
 {
     //
     // NOTE: this might throw ServerNotExistException, NodeUnreachableException
     // or DeploymentException.
     //
-    while(true)
+    while (true)
     {
         {
             lock_guard lock(_mutex);
-            if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
+            if (_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
                 assert(_loaded.get() || _load.get() || _destroy.get());
                 activationTimeout = _activationTimeout;
@@ -517,7 +525,7 @@ ServerEntry::getProxy(chrono::seconds& activationTimeout, chrono::seconds& deact
                 node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
                 return _proxy;
             }
-            else if(!_load.get() && !_destroy.get())
+            else if (!_load.get() && !_destroy.get())
             {
                 throw ServerNotExistException(_id);
             }
@@ -534,7 +542,7 @@ ServerEntry::getAdminProxy()
     //
     // The category must match the server admin category used by nodes
     //
-    return getProxy(true)->ice_identity({ _id, _cache.getInstanceName() + "-NodeServerAdminRouter" });
+    return getProxy(true)->ice_identity({_id, _cache.getInstanceName() + "-NodeServerAdminRouter"});
 }
 
 AdapterPrxPtr
@@ -550,21 +558,24 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 }
 
 AdapterPrxPtr
-ServerEntry::getAdapter(chrono::seconds& activationTimeout, chrono::seconds& deactivationTimeout, const string& id,
-                        bool upToDate)
+ServerEntry::getAdapter(
+    chrono::seconds& activationTimeout,
+    chrono::seconds& deactivationTimeout,
+    const string& id,
+    bool upToDate)
 {
     //
     // NOTE: this might throw AdapterNotExistException, NodeUnreachableException
     // or DeploymentException.
     //
-    while(true)
+    while (true)
     {
         {
             lock_guard lock(_mutex);
-            if(_loaded || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
+            if (_loaded || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
                 AdapterPrxDict::const_iterator p = _adapters.find(id);
-                if(p != _adapters.end())
+                if (p != _adapters.end())
                 {
                     assert(p->second);
                     activationTimeout = _activationTimeout;
@@ -576,7 +587,7 @@ ServerEntry::getAdapter(chrono::seconds& activationTimeout, chrono::seconds& dea
                     throw AdapterNotExistException(id);
                 }
             }
-            else if(!_load && !_destroy)
+            else if (!_load && !_destroy)
             {
                 throw AdapterNotExistException(id);
             }
@@ -594,12 +605,12 @@ ServerEntry::getLoad(LoadSample sample) const
     string node;
     {
         lock_guard lock(_mutex);
-        if(_loaded.get())
+        if (_loaded.get())
         {
             application = _loaded->application;
             node = _loaded->node;
         }
-        else if(_load.get())
+        else if (_load.get())
         {
             application = _load->application;
             node = _load->node;
@@ -612,17 +623,17 @@ ServerEntry::getLoad(LoadSample sample) const
 
     float factor;
     LoadInfo load = _cache.getNodeCache().get(node)->getLoadInfoAndLoadFactor(application, factor);
-    switch(sample)
+    switch (sample)
     {
-    case LoadSample::LoadSample1:
-        return load.avg1 < 0.f ? 1.0f : load.avg1 * factor;
-    case LoadSample::LoadSample5:
-        return load.avg5 < 0.f ? 1.0f : load.avg5 * factor;
-    case LoadSample::LoadSample15:
-        return load.avg15 < 0.f ? 1.0f : load.avg15 * factor;
-    default:
-        assert(false);
-        return 1.0f;
+        case LoadSample::LoadSample1:
+            return load.avg1 < 0.f ? 1.0f : load.avg1 * factor;
+        case LoadSample::LoadSample5:
+            return load.avg5 < 0.f ? 1.0f : load.avg5 * factor;
+        case LoadSample::LoadSample15:
+            return load.avg15 < 0.f ? 1.0f : load.avg15 * factor;
+        default:
+            assert(false);
+            return 1.0f;
     }
 }
 
@@ -637,12 +648,12 @@ ServerEntry::syncImpl()
 
     {
         lock_guard lock(_mutex);
-        if(_synchronizing)
+        if (_synchronizing)
         {
             return;
         }
 
-        if(!_load.get() && !_destroy.get())
+        if (!_load.get() && !_destroy.get())
         {
             _load.reset(_loaded.release()); // Re-load the current server.
         }
@@ -650,12 +661,12 @@ ServerEntry::syncImpl()
         _updated = false;
         _exception = nullptr;
 
-        if(_destroy.get())
+        if (_destroy.get())
         {
             destroy = *_destroy;
             timeout = _deactivationTimeout;
         }
-        else if(_load.get())
+        else if (_load.get())
         {
             load = *_load;
             session = _allocationSession;
@@ -670,24 +681,27 @@ ServerEntry::syncImpl()
         _synchronizing = true;
     }
 
-    if(destroy.descriptor)
+    if (destroy.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(destroy.node)->destroyServer(static_pointer_cast<ServerEntry>(shared_from_this()), destroy, timeout, noRestart);
+            _cache.getNodeCache()
+                .get(destroy.node)
+                ->destroyServer(static_pointer_cast<ServerEntry>(shared_from_this()), destroy, timeout, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(destroy.node, "node is not active")));
         }
     }
-    else if(load.descriptor)
+    else if (load.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(load.node, "node is not active")));
         }
@@ -698,13 +712,13 @@ void
 ServerEntry::waitImpl(chrono::seconds timeout)
 {
     unique_lock lock(_mutex);
-    if(timeout != 0s)
+    if (timeout != 0s)
     {
-        while(_synchronizing)
+        while (_synchronizing)
         {
-            if(timeout > 0s)
+            if (timeout > 0s)
             {
-                if(_condVar.wait_for(lock, timeout) == cv_status::timeout)
+                if (_condVar.wait_for(lock, timeout) == cv_status::timeout)
                 {
                     break; // Timeout
                 }
@@ -715,31 +729,31 @@ ServerEntry::waitImpl(chrono::seconds timeout)
             }
         }
     }
-    if(_synchronizing) // If we are still synchronizing, throw SynchronizationException
+    if (_synchronizing) // If we are still synchronizing, throw SynchronizationException
     {
         throw SynchronizationException(__FILE__, __LINE__);
     }
 
-    if(_exception)
+    if (_exception)
     {
         try
         {
             rethrow_exception(_exception);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             throw;
         }
-        catch(const NodeUnreachableException&)
+        catch (const NodeUnreachableException&)
         {
             throw;
         }
-        catch(const Ice::Exception& ex) // This shouldn't happen.
+        catch (const Ice::Exception& ex) // This shouldn't happen.
         {
             ostringstream os;
             os << "unexpected exception while synchronizing server `" + _id + "':\n" << ex;
             auto traceLevels = _cache.getTraceLevels();
-            if(traceLevels)
+            if (traceLevels)
             {
                 Ice::Error err(traceLevels->logger);
                 err << os.str();
@@ -757,13 +771,13 @@ ServerEntry::synchronized()
         lock_guard lock(_mutex);
         _callbacks.swap(callbacks);
     }
-    for(const auto& callback : callbacks)
+    for (const auto& callback : callbacks)
     {
         try
         {
             callback->synchronized();
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
             assert(false);
         }
@@ -778,13 +792,13 @@ ServerEntry::synchronized(exception_ptr ex)
         lock_guard lock(_mutex);
         _callbacks.swap(callbacks);
     }
-    for(const auto& callback : callbacks)
+    for (const auto& callback : callbacks)
     {
         try
         {
             callback->synchronized(ex);
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
             assert(false);
         }
@@ -792,8 +806,11 @@ ServerEntry::synchronized(exception_ptr ex)
 }
 
 void
-ServerEntry::loadCallback(const ServerPrxPtr& proxy, const AdapterPrxDict& adpts,
-                          chrono::seconds activationTimeout, chrono::seconds deactivationTimeout)
+ServerEntry::loadCallback(
+    const ServerPrxPtr& proxy,
+    const AdapterPrxDict& adpts,
+    chrono::seconds activationTimeout,
+    chrono::seconds deactivationTimeout)
 {
     ServerInfo load;
     shared_ptr<SessionI> session;
@@ -804,7 +821,7 @@ ServerEntry::loadCallback(const ServerPrxPtr& proxy, const AdapterPrxDict& adpts
 
     {
         lock_guard lock(_mutex);
-        if(!_updated)
+        if (!_updated)
         {
             //
             // Set timeout on server and adapter proxies. Most of the
@@ -828,12 +845,12 @@ ServerEntry::loadCallback(const ServerPrxPtr& proxy, const AdapterPrxDict& adpts
         else
         {
             _updated = false;
-            if(_destroy.get())
+            if (_destroy.get())
             {
                 destroy = *_destroy;
                 noRestart = _noRestart;
             }
-            else if(_load.get())
+            else if (_load.get())
             {
                 load = *_load;
                 noRestart = _noRestart;
@@ -843,31 +860,34 @@ ServerEntry::loadCallback(const ServerPrxPtr& proxy, const AdapterPrxDict& adpts
         }
     }
 
-    if(synced)
+    if (synced)
     {
         synchronized();
         return;
     }
 
     assert(destroy.descriptor || load.descriptor);
-    if(destroy.descriptor)
+    if (destroy.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(destroy.node)->destroyServer(static_pointer_cast<ServerEntry>(shared_from_this()), destroy, timeout, noRestart);
+            _cache.getNodeCache()
+                .get(destroy.node)
+                ->destroyServer(static_pointer_cast<ServerEntry>(shared_from_this()), destroy, timeout, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(destroy.node, "node is not active")));
         }
     }
-    else if(load.descriptor)
+    else if (load.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(load.node, "node is not active")));
         }
@@ -889,7 +909,7 @@ ServerEntry::destroyCallback()
         _activationTimeout = -1s;
         _deactivationTimeout = -1s;
 
-        if(!_load.get())
+        if (!_load.get())
         {
             assert(!_load.get() && !_loaded.get());
             _synchronizing = false;
@@ -904,14 +924,14 @@ ServerEntry::destroyCallback()
         }
     }
 
-    if(load.descriptor)
+    if (load.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, -1s, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, -1s, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(load.node, "node is not active")));
         }
@@ -934,7 +954,7 @@ ServerEntry::exception(exception_ptr ex)
 
     {
         lock_guard lock(_mutex);
-        if((_destroy.get() && !_load.get()) || (!_destroy.get() && !_updated))
+        if ((_destroy.get() && !_load.get()) || (!_destroy.get() && !_updated))
         {
             remove = _destroy.get();
             _destroy = nullptr;
@@ -957,14 +977,14 @@ ServerEntry::exception(exception_ptr ex)
         }
     }
 
-    if(load.descriptor)
+    if (load.descriptor)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             exception(make_exception_ptr(NodeUnreachableException(load.node, "node is not active")));
         }
@@ -972,7 +992,7 @@ ServerEntry::exception(exception_ptr ex)
     else
     {
         synchronized(ex);
-        if(remove)
+        if (remove)
         {
             _cache.clear(_id);
         }
@@ -982,15 +1002,15 @@ ServerEntry::exception(exception_ptr ex)
 bool
 ServerEntry::isDestroyed()
 {
-     lock_guard lock(_mutex);
-     return !_loaded.get() && !_load.get();
+    lock_guard lock(_mutex);
+    return !_loaded.get() && !_load.get();
 }
 
 bool
 ServerEntry::canRemove()
 {
-     lock_guard lock(_mutex);
-     return !_loaded.get() && !_load.get() && !_destroy.get();
+    lock_guard lock(_mutex);
+    return !_loaded.get() && !_load.get() && !_destroy.get();
 }
 
 shared_ptr<CheckUpdateResult>
@@ -1000,7 +1020,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     ServerInfo oldInfo;
     {
         lock_guard lock(_mutex);
-        if(!_loaded.get() && !_load.get())
+        if (!_loaded.get() && !_load.get())
         {
             throw ServerNotExistException();
         }
@@ -1014,7 +1034,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     {
         node = _cache.getNodeCache().get(oldInfo.node);
     }
-    catch(const NodeNotExistException&)
+    catch (const NodeNotExistException&)
     {
         throw NodeUnreachableException(info.node, "node is not active");
     }
@@ -1024,16 +1044,16 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     {
         server = getProxy(true, 5s);
     }
-    catch(const SynchronizationException&)
+    catch (const SynchronizationException&)
     {
         ostringstream os;
         os << "check for server `" << _id << "' update failed:";
         os << "timeout while waiting for the server to be loaded on the node";
         throw DeploymentException(os.str());
     }
-    catch(const DeploymentException&)
+    catch (const DeploymentException&)
     {
-        if(noRestart)
+        if (noRestart)
         {
             // If the server can't be loaded and no restart is required, we throw
             // to indicate that the server update can't be checked.
@@ -1052,13 +1072,13 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     // is stopped.
     //
     shared_ptr<InternalServerDescriptor> desc;
-    if(info.node == oldInfo.node && info.descriptor)
+    if (info.node == oldInfo.node && info.descriptor)
     {
         desc = node->getInternalServerDescriptor(info, session); // The new descriptor
     }
 
-    return make_shared<CheckUpdateResult>(_id, oldInfo.node, noRestart, desc != nullptr,
-                                          server->checkUpdateAsync(desc, noRestart));
+    return make_shared<CheckUpdateResult>(
+        _id, oldInfo.node, noRestart, desc != nullptr, server->checkUpdateAsync(desc, noRestart));
 }
 
 bool
@@ -1070,13 +1090,13 @@ ServerEntry::isEnabled() const
 void
 ServerEntry::allocated(const shared_ptr<SessionI>& session)
 {
-    if(!_loaded.get() && !_load.get())
+    if (!_loaded.get() && !_load.get())
     {
         return;
     }
 
     auto traceLevels = _cache.getTraceLevels();
-    if(traceLevels && traceLevels->server > 1)
+    if (traceLevels && traceLevels->server > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
         out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
@@ -1090,10 +1110,10 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
     // possible to use ${session.*} variable with server with the
     // session activation mode.
     //
-    if(desc->activation == "session")
+    if (desc->activation == "session")
     {
         _updated = true;
-        if(!_load.get())
+        if (!_load.get())
         {
             _load.reset(_loaded.release());
         }
@@ -1103,7 +1123,7 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
 
     auto identitySet = session->getGlacier2IdentitySet();
     auto adapterIdSet = session->getGlacier2AdapterIdSet();
-    if(identitySet && adapterIdSet)
+    if (identitySet && adapterIdSet)
     {
         auto helper = createHelper(desc);
         multiset<string> adapterIds;
@@ -1111,16 +1131,17 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
         helper->getIds(adapterIds, identities);
         try
         {
-            adapterIdSet->add({ adapterIds.begin(), adapterIds.end() });
-            identitySet->add({ identities.begin(), identities.end() });
+            adapterIdSet->add({adapterIds.begin(), adapterIds.end()});
+            identitySet->add({identities.begin(), identities.end()});
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
-            if(traceLevels && traceLevels->server > 0)
+            if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "couldn't add Glacier2 filters for server `" << _id << "' allocated by `"
-                    << session->getId() << ":\n" << ex;
+                out << "couldn't add Glacier2 filters for server `" << _id << "' allocated by `" << session->getId()
+                    << ":\n"
+                    << ex;
             }
         }
     }
@@ -1131,9 +1152,8 @@ ServerEntry::allocatedNoSync(const shared_ptr<SessionI>&)
 {
     {
         lock_guard lock(_mutex);
-        if(!_updated ||
-           (_loaded.get() && _loaded->descriptor->activation != "session") ||
-           (_load.get() && _load->descriptor->activation != "session"))
+        if (!_updated || (_loaded.get() && _loaded->descriptor->activation != "session") ||
+            (_load.get() && _load->descriptor->activation != "session"))
         {
             return;
         }
@@ -1146,7 +1166,7 @@ ServerEntry::allocatedNoSync(const shared_ptr<SessionI>&)
 void
 ServerEntry::released(const shared_ptr<SessionI>& session)
 {
-    if(!_loaded.get() && !_load.get())
+    if (!_loaded.get() && !_load.get())
     {
         return;
     }
@@ -1160,10 +1180,10 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
     // session activation mode. Synchronizing the server will also
     // shutdown the server on the node.
     //
-    if(desc->activation == "session")
+    if (desc->activation == "session")
     {
         _updated = true;
-        if(!_load.get())
+        if (!_load.get())
         {
             _load.reset(_loaded.release());
         }
@@ -1175,7 +1195,7 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
 
     auto identitySet = session->getGlacier2IdentitySet();
     auto adapterIdSet = session->getGlacier2AdapterIdSet();
-    if(identitySet && adapterIdSet)
+    if (identitySet && adapterIdSet)
     {
         auto helper = createHelper(desc);
         multiset<string> adapterIds;
@@ -1183,12 +1203,12 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
         helper->getIds(adapterIds, identities);
         try
         {
-            adapterIdSet->remove({ adapterIds.begin(), adapterIds.end() });
-            identitySet->remove({ identities.begin(), identities.end() });
+            adapterIdSet->remove({adapterIds.begin(), adapterIds.end()});
+            identitySet->remove({identities.begin(), identities.end()});
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
-            if(traceLevels && traceLevels->server > 0)
+            if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
                 out << "couldn't remove Glacier2 filters for server `" << _id << "' allocated by `";
@@ -1197,7 +1217,7 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
         }
     }
 
-    if(traceLevels && traceLevels->server > 1)
+    if (traceLevels && traceLevels->server > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
         out << "server `" << _id << "' released by `" << session->getId() << "' (" << _count << ")";
@@ -1209,9 +1229,8 @@ ServerEntry::releasedNoSync(const shared_ptr<SessionI>& /*session*/)
 {
     {
         lock_guard lock(_mutex);
-        if(!_updated ||
-           (_loaded.get() && _loaded->descriptor->activation != "session") ||
-           (_load.get() && _load->descriptor->activation != "session"))
+        if (!_updated || (_loaded.get() && _loaded->descriptor->activation != "session") ||
+            (_load.get() && _load->descriptor->activation != "session"))
         {
             return;
         }

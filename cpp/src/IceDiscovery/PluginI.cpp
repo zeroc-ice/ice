@@ -14,11 +14,11 @@ using namespace std;
 using namespace IceDiscovery;
 
 #ifndef ICE_DISCOVERY_API
-#   ifdef ICE_DISCOVERY_API_EXPORTS
-#       define ICE_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_DISCOVERY_API /**/
-#   endif
+#    ifdef ICE_DISCOVERY_API_EXPORTS
+#        define ICE_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_DISCOVERY_API /**/
+#    endif
 #endif
 
 //
@@ -33,24 +33,21 @@ createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, cons
 namespace Ice
 {
 
-ICE_DISCOVERY_API void
-registerIceDiscovery(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
+    ICE_DISCOVERY_API void registerIceDiscovery(bool loadOnInitialize)
+    {
+        Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
 
 #ifdef ICE_STATIC_LIBS
-    //
-    // Also register the UDP plugin with static builds to ensure the UDP transport is loaded.
-    //
-    registerIceUDP(true);
+        //
+        // Also register the UDP plugin with static builds to ensure the UDP transport is loaded.
+        //
+        registerIceUDP(true);
 #endif
-}
+    }
 
 }
 
-PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
-{
-}
+PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
 
 void
 PluginI::initialize()
@@ -60,7 +57,7 @@ PluginI::initialize()
     bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
     bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
     string address;
-    if(ipv4 && !preferIPv6)
+    if (ipv4 && !preferIPv6)
     {
         address = properties->getPropertyWithDefault("IceDiscovery.Address", "239.255.0.1");
     }
@@ -71,11 +68,11 @@ PluginI::initialize()
     int port = properties->getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
     string intf = properties->getProperty("IceDiscovery.Interface");
 
-    if(properties->getProperty("IceDiscovery.Multicast.Endpoints").empty())
+    if (properties->getProperty("IceDiscovery.Multicast.Endpoints").empty())
     {
         ostringstream os;
         os << "udp -h \"" << address << "\" -p " << port;
-        if(!intf.empty())
+        if (!intf.empty())
         {
             os << " --interface \"" << intf << "\"";
         }
@@ -83,7 +80,7 @@ PluginI::initialize()
     }
 
     string lookupEndpoints = properties->getProperty("IceDiscovery.Lookup");
-    if(lookupEndpoints.empty())
+    if (lookupEndpoints.empty())
     {
         //
         // If no lookup endpoints are specified, we get all the network interfaces and create
@@ -92,9 +89,9 @@ PluginI::initialize()
         IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
         vector<string> interfaces = IceInternal::getInterfacesForMulticast(intf, protocol);
         ostringstream lookup;
-        for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+        for (vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
         {
-            if(p != interfaces.begin())
+            if (p != interfaces.begin())
             {
                 lookup << ":";
             }
@@ -103,12 +100,12 @@ PluginI::initialize()
         lookupEndpoints = lookup.str();
     }
 
-    if(properties->getProperty("IceDiscovery.Reply.Endpoints").empty())
+    if (properties->getProperty("IceDiscovery.Reply.Endpoints").empty())
     {
         properties->setProperty("IceDiscovery.Reply.Endpoints", "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
     }
 
-    if(properties->getProperty("IceDiscovery.Locator.Endpoints").empty())
+    if (properties->getProperty("IceDiscovery.Locator.Endpoints").empty())
     {
         properties->setProperty("IceDiscovery.Locator.AdapterId", Ice::generateUUID());
     }
@@ -157,7 +154,7 @@ PluginI::destroy()
     _locatorAdapter->destroy();
     _lookup->destroy();
     // Restore original default locator proxy, if the user didn't change it in the meantime.
-    if(_communicator->getDefaultLocator() == _locator)
+    if (_communicator->getDefaultLocator() == _locator)
     {
         _communicator->setDefaultLocator(_defaultLocator);
     }

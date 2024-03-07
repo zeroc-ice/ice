@@ -10,13 +10,13 @@
 namespace IceSSL
 {
 
-class Instance;
-using InstancePtr = std::shared_ptr<Instance>;
+    class Instance;
+    using InstancePtr = std::shared_ptr<Instance>;
 
-class EndpointI;
-using EndpointIPtr = std::shared_ptr<EndpointI>;
+    class EndpointI;
+    using EndpointIPtr = std::shared_ptr<EndpointI>;
 
-class AcceptorI;
+    class AcceptorI;
 }
 
 #endif

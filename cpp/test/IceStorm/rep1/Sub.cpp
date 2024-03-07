@@ -16,16 +16,12 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-
-    void event(int, const Current&) override
-    {
-    }
+    void event(int, const Current&) override {}
 };
 
 class Sub final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -41,7 +37,7 @@ Sub::run(int argc, char** argv)
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;
@@ -50,7 +46,7 @@ Sub::run(int argc, char** argv)
 
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -59,7 +55,7 @@ Sub::run(int argc, char** argv)
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -71,7 +67,7 @@ Sub::run(int argc, char** argv)
     auto topic = manager->retrieve("single");
 
     auto prx = adapter->add(make_shared<SingleI>(), stringToIdentity(opts.optArg("id")));
-    if(opts.isSet("unsub"))
+    if (opts.isSet("unsub"))
     {
         topic->unsubscribe(prx);
     }

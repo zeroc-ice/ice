@@ -6,37 +6,37 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#include "Transceiver.h"
-#include "EndpointI.h"
+#    include "Transceiver.h"
+#    include "EndpointI.h"
 
-#include <IceIAP/ConnectionInfo.h>
+#    include <IceIAP/ConnectionInfo.h>
 
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/Buffer.h>
+#    include <Ice/LocalException.h>
+#    include <Ice/ProtocolInstance.h>
+#    include <Ice/Buffer.h>
 
-#import <Foundation/NSRunLoop.h>
-#import <Foundation/NSError.h>
-#import <Foundation/NSString.h>
+#    import <Foundation/NSRunLoop.h>
+#    import <Foundation/NSError.h>
+#    import <Foundation/NSString.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-@interface iAPTransceiverCallback : NSObject<NSStreamDelegate>
+@interface iAPTransceiverCallback : NSObject <NSStreamDelegate>
 {
 @private
 
     SelectorReadyCallback* callback;
 }
--(id) init:(SelectorReadyCallback*)cb;
+- (id)init:(SelectorReadyCallback*)cb;
 @end
 
 @implementation iAPTransceiverCallback
--(id) init:(SelectorReadyCallback*)cb
+- (id)init:(SelectorReadyCallback*)cb
 {
     self = [super init];
-    if(!self)
+    if (!self)
     {
         return nil;
     }
@@ -44,35 +44,35 @@ using namespace IceInternal;
     return self;
 }
 
-- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode
+- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
 {
-    switch(eventCode)
+    switch (eventCode)
     {
-    case NSStreamEventHasBytesAvailable:
-        callback->readyCallback(SocketOperationRead);
-        break;
-    case NSStreamEventHasSpaceAvailable:
-        callback->readyCallback(SocketOperationWrite);
-        break;
-    case NSStreamEventOpenCompleted:
-        if([[stream class] isSubclassOfClass:[NSInputStream class]])
-        {
-            callback->readyCallback(static_cast<SocketOperation>(SocketOperationConnect | SocketOperationRead));
-        }
-        else
-        {
-            callback->readyCallback(static_cast<SocketOperation>(SocketOperationConnect | SocketOperationWrite));
-        }
-        break;
-    default:
-        if([[stream class] isSubclassOfClass:[NSInputStream class]])
-        {
-            callback->readyCallback(SocketOperationRead, -1); // Error
-        }
-        else
-        {
-            callback->readyCallback(SocketOperationWrite, -1); // Error
-        }
+        case NSStreamEventHasBytesAvailable:
+            callback->readyCallback(SocketOperationRead);
+            break;
+        case NSStreamEventHasSpaceAvailable:
+            callback->readyCallback(SocketOperationWrite);
+            break;
+        case NSStreamEventOpenCompleted:
+            if ([[stream class] isSubclassOfClass:[NSInputStream class]])
+            {
+                callback->readyCallback(static_cast<SocketOperation>(SocketOperationConnect | SocketOperationRead));
+            }
+            else
+            {
+                callback->readyCallback(static_cast<SocketOperation>(SocketOperationConnect | SocketOperationWrite));
+            }
+            break;
+        default:
+            if ([[stream class] isSubclassOfClass:[NSInputStream class]])
+            {
+                callback->readyCallback(SocketOperationRead, -1); // Error
+            }
+            else
+            {
+                callback->readyCallback(SocketOperationWrite, -1); // Error
+            }
     }
 }
 @end
@@ -90,9 +90,9 @@ IceObjC::iAPTransceiver::registerWithRunLoop(SocketOperation op)
 {
     lock_guard lock(_mutex);
     SocketOperation readyOp = SocketOperationNone;
-    if(op & SocketOperationConnect)
+    if (op & SocketOperationConnect)
     {
-        if([_writeStream streamStatus] != NSStreamStatusNotOpen || [_readStream streamStatus] != NSStreamStatusNotOpen)
+        if ([_writeStream streamStatus] != NSStreamStatusNotOpen || [_readStream streamStatus] != NSStreamStatusNotOpen)
         {
             return SocketOperationConnect;
         }
@@ -103,41 +103,41 @@ IceObjC::iAPTransceiver::registerWithRunLoop(SocketOperation op)
         [_readStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 
         _writeStreamRegistered = true; // Note: this must be set after the schedule call
-        _readStreamRegistered = true; // Note: this must be set after the schedule call
+        _readStreamRegistered = true;  // Note: this must be set after the schedule call
 
         [_writeStream open];
         [_readStream open];
     }
     else
     {
-        if(op & SocketOperationWrite)
+        if (op & SocketOperationWrite)
         {
-            if([_writeStream hasSpaceAvailable])
+            if ([_writeStream hasSpaceAvailable])
             {
                 readyOp = static_cast<SocketOperation>(readyOp | SocketOperationWrite);
             }
-            else if(!_writeStreamRegistered)
+            else if (!_writeStreamRegistered)
             {
                 [_writeStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
                 _writeStreamRegistered = true; // Note: this must be set after the schedule call
-                if([_writeStream hasSpaceAvailable])
+                if ([_writeStream hasSpaceAvailable])
                 {
                     readyOp = static_cast<SocketOperation>(readyOp | SocketOperationWrite);
                 }
             }
         }
 
-        if(op & SocketOperationRead)
+        if (op & SocketOperationRead)
         {
-            if([_readStream hasBytesAvailable])
+            if ([_readStream hasBytesAvailable])
             {
                 readyOp = static_cast<SocketOperation>(readyOp | SocketOperationRead);
             }
-            else if(!_readStreamRegistered)
+            else if (!_readStreamRegistered)
             {
                 [_readStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
                 _readStreamRegistered = true; // Note: this must be set after the schedule call
-                if([_readStream hasBytesAvailable])
+                if ([_readStream hasBytesAvailable])
                 {
                     readyOp = static_cast<SocketOperation>(readyOp | SocketOperationRead);
                 }
@@ -153,10 +153,10 @@ IceObjC::iAPTransceiver::unregisterFromRunLoop(SocketOperation op, bool error)
     lock_guard lock(_mutex);
     _error |= error;
 
-    if(_opening)
+    if (_opening)
     {
         // Wait for the stream to be ready for write
-        if(op == SocketOperationWrite)
+        if (op == SocketOperationWrite)
         {
             _writeStreamRegistered = false;
         }
@@ -168,13 +168,13 @@ IceObjC::iAPTransceiver::unregisterFromRunLoop(SocketOperation op, bool error)
         // the WebSocket transport, the server actually waits for the
         // client to write the HTTP upgrade request.
         //
-        //if(op & SocketOperationRead && (_fd != INVALID_SOCKET || !(op & SocketOperationConnect)))
-        if(op == (SocketOperationRead | SocketOperationConnect))
+        // if(op & SocketOperationRead && (_fd != INVALID_SOCKET || !(op & SocketOperationConnect)))
+        if (op == (SocketOperationRead | SocketOperationConnect))
         {
             _readStreamRegistered = false;
         }
 
-        if(error || (!_readStreamRegistered && !_writeStreamRegistered))
+        if (error || (!_readStreamRegistered && !_writeStreamRegistered))
         {
             [_writeStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
             [_readStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -188,13 +188,13 @@ IceObjC::iAPTransceiver::unregisterFromRunLoop(SocketOperation op, bool error)
     }
     else
     {
-        if(op & SocketOperationWrite && _writeStreamRegistered)
+        if (op & SocketOperationWrite && _writeStreamRegistered)
         {
             [_writeStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
             _writeStreamRegistered = false;
         }
 
-        if(op & SocketOperationRead && _readStreamRegistered)
+        if (op & SocketOperationRead && _readStreamRegistered)
         {
             [_readStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
             _readStreamRegistered = false;
@@ -209,9 +209,9 @@ IceObjC::iAPTransceiver::closeStreams()
     [_writeStream setDelegate:nil];
     [_readStream setDelegate:nil];
 
-#if defined(__clang__) && !__has_feature(objc_arc)
+#    if defined(__clang__) && !__has_feature(objc_arc)
     [_callback release];
-#endif
+#    endif
     _callback = 0;
 
     [_writeStream close];
@@ -228,15 +228,15 @@ SocketOperation
 IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
     lock_guard lock(_mutex);
-    if(_state == StateNeedConnect)
+    if (_state == StateNeedConnect)
     {
         _state = StateConnectPending;
         return SocketOperationConnect;
     }
 
-    if(_state <= StateConnectPending)
+    if (_state <= StateConnectPending)
     {
-        if(_error)
+        if (_error)
         {
             checkErrorStatus(_writeStream, __FILE__, __LINE__);
             checkErrorStatus(_readStream, __FILE__, __LINE__);
@@ -267,30 +267,30 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
     // the stream notification callbacks with an internal lock held.
     {
         lock_guard lock(_mutex);
-        if(_error)
+        if (_error)
         {
             checkErrorStatus(_writeStream, __FILE__, __LINE__);
         }
-        else if(_writeStreamRegistered)
+        else if (_writeStreamRegistered)
         {
             return SocketOperationWrite;
         }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-    while(buf.i != buf.b.end())
+    while (buf.i != buf.b.end())
     {
-        if(![_writeStream hasSpaceAvailable])
+        if (![_writeStream hasSpaceAvailable])
         {
             return SocketOperationWrite;
         }
         assert([_writeStream streamStatus] >= NSStreamStatusOpen);
 
         NSInteger ret = [_writeStream write:reinterpret_cast<const UInt8*>(&*buf.i) maxLength:packetSize];
-        if(ret == SOCKET_ERROR)
+        if (ret == SOCKET_ERROR)
         {
             checkErrorStatus(_writeStream, __FILE__, __LINE__);
-            if(noBuffers() && packetSize > 1024)
+            if (noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
             }
@@ -299,7 +299,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
+        if (packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
@@ -315,35 +315,35 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
     // the stream notification callbacks with an internal lock held.
     {
         lock_guard lock(_mutex);
-        if(_error)
+        if (_error)
         {
             checkErrorStatus(_readStream, __FILE__, __LINE__);
         }
-        else if(_readStreamRegistered)
+        else if (_readStreamRegistered)
         {
             return SocketOperationRead;
         }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-    while(buf.i != buf.b.end())
+    while (buf.i != buf.b.end())
     {
-        if(![_readStream hasBytesAvailable] && [_readStream streamStatus] != NSStreamStatusError)
+        if (![_readStream hasBytesAvailable] && [_readStream streamStatus] != NSStreamStatusError)
         {
             return SocketOperationRead;
         }
         assert([_readStream streamStatus] >= NSStreamStatusOpen);
 
         NSInteger ret = [_readStream read:reinterpret_cast<UInt8*>(&*buf.i) maxLength:packetSize];
-        if(ret == 0)
+        if (ret == 0)
         {
             throw ConnectionLostException(__FILE__, __LINE__);
         }
 
-        if(ret == SOCKET_ERROR)
+        if (ret == SOCKET_ERROR)
         {
             checkErrorStatus(_readStream, __FILE__, __LINE__);
-            if(noBuffers() && packetSize > 1024)
+            if (noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
             }
@@ -352,7 +352,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
+        if (packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
@@ -402,20 +402,20 @@ IceObjC::iAPTransceiver::setBufferSize(int, int)
 {
 }
 
-IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EASession* session) :
-    StreamNativeInfo(INVALID_SOCKET),
-    _instance(instance),
-#if defined(__clang__) && !__has_feature(objc_arc)
-    _session([session retain]),
-#else
-    _session(session),
-#endif
-    _readStream([session inputStream]),
-    _writeStream([session outputStream]),
-    _readStreamRegistered(false),
-    _writeStreamRegistered(false),
-    _error(false),
-    _state(StateNeedConnect)
+IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EASession* session)
+    : StreamNativeInfo(INVALID_SOCKET),
+      _instance(instance),
+#    if defined(__clang__) && !__has_feature(objc_arc)
+      _session([session retain]),
+#    else
+      _session(session),
+#    endif
+      _readStream([session inputStream]),
+      _writeStream([session outputStream]),
+      _readStreamRegistered(false),
+      _writeStreamRegistered(false),
+      _error(false),
+      _state(StateNeedConnect)
 {
     ostringstream os;
     os << "name = " << [session.accessory.name UTF8String] << "\n";
@@ -425,16 +425,16 @@ IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EAS
 
 IceObjC::iAPTransceiver::~iAPTransceiver()
 {
-#if defined(__clang__) && !__has_feature(objc_arc)
+#    if defined(__clang__) && !__has_feature(objc_arc)
     [_session release];
-#endif
+#    endif
 }
 
 void
 IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, int line)
 {
     NSStreamStatus status = [stream streamStatus];
-    if(status == NSStreamStatusAtEnd || status == NSStreamStatusClosed)
+    if (status == NSStreamStatusAtEnd || status == NSStreamStatusClosed)
     {
         throw ConnectionLostException(file, line);
     }
@@ -444,20 +444,20 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     assert(err != nil);
 
     NSString* domain = [err domain];
-    if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
+    if ([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {
         errno = static_cast<int>([err code]);
-        if(interrupted() || noBuffers())
+        if (interrupted() || noBuffers())
         {
             return;
         }
-        else if(connectionRefused())
+        else if (connectionRefused())
         {
             ConnectionRefusedException ex(file, line);
             ex.error = getSocketErrno();
             throw ex;
         }
-        else if(connectFailed())
+        else if (connectFailed())
         {
             ConnectFailedException ex(file, line);
             ex.error = getSocketErrno();

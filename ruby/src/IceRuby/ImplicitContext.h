@@ -11,9 +11,9 @@
 namespace IceRuby
 {
 
-void initImplicitContext(VALUE);
-Ice::ImplicitContextPtr getImplicitContext(VALUE);
-VALUE createImplicitContext(const Ice::ImplicitContextPtr&);
+    void initImplicitContext(VALUE);
+    Ice::ImplicitContextPtr getImplicitContext(VALUE);
+    VALUE createImplicitContext(const Ice::ImplicitContextPtr&);
 
 }
 

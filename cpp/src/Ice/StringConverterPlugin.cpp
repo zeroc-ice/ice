@@ -17,37 +17,34 @@ using namespace std;
 namespace
 {
 
-class StringConverterPlugin : public Plugin
-{
-public:
+    class StringConverterPlugin : public Plugin
+    {
+    public:
+        StringConverterPlugin(const CommunicatorPtr&, const StringConverterPtr&, const WstringConverterPtr&);
 
-    StringConverterPlugin(const CommunicatorPtr&,
-                          const StringConverterPtr&, const WstringConverterPtr&);
+        virtual void initialize();
 
-    virtual void initialize();
+        virtual void destroy();
+    };
 
-    virtual void destroy();
-};
+    StringConverterPlugin::StringConverterPlugin(
+        const CommunicatorPtr& /*notused*/,
+        const StringConverterPtr& stringConverter,
+        const WstringConverterPtr& wstringConverter)
+    {
+        setProcessStringConverter(stringConverter);
+        setProcessWstringConverter(wstringConverter);
+    }
 
-StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& /*notused*/,
-                                             const StringConverterPtr& stringConverter,
-                                             const WstringConverterPtr& wstringConverter)
-{
-    setProcessStringConverter(stringConverter);
-    setProcessWstringConverter(wstringConverter);
-}
+    void StringConverterPlugin::initialize()
+    {
+        // no op
+    }
 
-void
-StringConverterPlugin::initialize()
-{
-    // no op
-}
-
-void
-StringConverterPlugin::destroy()
-{
-    // no op
-}
+    void StringConverterPlugin::destroy()
+    {
+        // no op
+    }
 
 }
 
@@ -57,127 +54,125 @@ StringConverterPlugin::destroy()
 extern "C"
 {
 
-ICE_API Plugin*
-createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
-{
-    StringConverterPtr stringConverter;
-    WstringConverterPtr wstringConverter;
-
-    if(args.size() > 2)
+    ICE_API Plugin*
+    createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
     {
-        Error out(communicator->getLogger());
-        out << "Plugin " << name << ": too many arguments";
-        return 0;
-    }
+        StringConverterPtr stringConverter;
+        WstringConverterPtr wstringConverter;
 
-    try
-    {
+        if (args.size() > 2)
+        {
+            Error out(communicator->getLogger());
+            out << "Plugin " << name << ": too many arguments";
+            return 0;
+        }
+
+        try
+        {
 
 #ifdef _WIN32
-        int cp = -1;
+            int cp = -1;
 
-        for(size_t i = 0; i < args.size(); ++i)
-        {
-            if(args[i].find("windows=") == 0)
+            for (size_t i = 0; i < args.size(); ++i)
             {
-                cp = atoi(args[i].substr(strlen("windows=")).c_str());
-            }
-            else if(args[i].find("iconv=") != 0)
-            {
-                Error out(communicator->getLogger());
-                out << "Plugin " << name << ": invalid \"" << args[i] << "\" argument";
-                return 0;
-            }
-        }
-
-        if(cp == -1)
-        {
-            Error out(communicator->getLogger());
-            out << "Plugin " << name << ": missing windows=<code page> argument";
-            return 0;
-        }
-
-        if(cp == 0 || cp == INT_MAX || cp < 0)
-        {
-            Error out(communicator->getLogger());
-            out << "Plugin " << name << ": invalid Windows code page";
-            return 0;
-        }
-
-        stringConverter = createWindowsStringConverter(static_cast<unsigned int>(cp));
-#else
-        StringSeq iconvArgs;
-
-        for(size_t i = 0; i < args.size(); ++i)
-        {
-            if(args[i].find("iconv=") == 0)
-            {
-                if(!IceUtilInternal::splitString(args[i].substr(strlen("iconv=")), ", \t\r\n", iconvArgs))
+                if (args[i].find("windows=") == 0)
+                {
+                    cp = atoi(args[i].substr(strlen("windows=")).c_str());
+                }
+                else if (args[i].find("iconv=") != 0)
                 {
                     Error out(communicator->getLogger());
-                    out << "Plugin " << name << ": invalid iconv argument";
+                    out << "Plugin " << name << ": invalid \"" << args[i] << "\" argument";
                     return 0;
                 }
             }
-            else if(args[i].find("windows=") != 0)
+
+            if (cp == -1)
             {
                 Error out(communicator->getLogger());
-                out << "Plugin " << name << ": invalid \"" << args[i] << "\" argument";
+                out << "Plugin " << name << ": missing windows=<code page> argument";
                 return 0;
             }
-        }
 
-        switch(iconvArgs.size())
-        {
-            case 0:
+            if (cp == 0 || cp == INT_MAX || cp < 0)
             {
-                stringConverter = createIconvStringConverter<char>();
-                break;
+                Error out(communicator->getLogger());
+                out << "Plugin " << name << ": invalid Windows code page";
+                return 0;
             }
-            case 1:
+
+            stringConverter = createWindowsStringConverter(static_cast<unsigned int>(cp));
+#else
+            StringSeq iconvArgs;
+
+            for (size_t i = 0; i < args.size(); ++i)
             {
-                stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
-                break;
+                if (args[i].find("iconv=") == 0)
+                {
+                    if (!IceUtilInternal::splitString(args[i].substr(strlen("iconv=")), ", \t\r\n", iconvArgs))
+                    {
+                        Error out(communicator->getLogger());
+                        out << "Plugin " << name << ": invalid iconv argument";
+                        return 0;
+                    }
+                }
+                else if (args[i].find("windows=") != 0)
+                {
+                    Error out(communicator->getLogger());
+                    out << "Plugin " << name << ": invalid \"" << args[i] << "\" argument";
+                    return 0;
+                }
             }
-            case 2:
+
+            switch (iconvArgs.size())
             {
-                stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
-                wstringConverter = createIconvStringConverter<wchar_t>(iconvArgs[1]);
-                break;
+                case 0:
+                {
+                    stringConverter = createIconvStringConverter<char>();
+                    break;
+                }
+                case 1:
+                {
+                    stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
+                    break;
+                }
+                case 2:
+                {
+                    stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
+                    wstringConverter = createIconvStringConverter<wchar_t>(iconvArgs[1]);
+                    break;
+                }
+                default:
+                {
+                    assert(0);
+                }
             }
-            default:
-            {
-                assert(0);
-            }
-        }
 
 #endif
 
-        return new StringConverterPlugin(communicator, stringConverter, wstringConverter);
+            return new StringConverterPlugin(communicator, stringConverter, wstringConverter);
+        }
+        catch (const std::exception& ex)
+        {
+            Error out(communicator->getLogger());
+            out << "Plugin " << name << ": creation failed with " << ex.what();
+            return 0;
+        }
+        catch (...)
+        {
+            Error out(communicator->getLogger());
+            out << "Plugin " << name << ": creation failed with unknown exception";
+            return 0;
+        }
     }
-    catch(const std::exception& ex)
-    {
-        Error out(communicator->getLogger());
-        out << "Plugin " << name << ": creation failed with " << ex.what();
-        return 0;
-    }
-    catch(...)
-    {
-        Error out(communicator->getLogger());
-        out << "Plugin " << name << ": creation failed with unknown exception";
-        return 0;
-    }
-}
-
 }
 
 namespace Ice
 {
 
-ICE_API void
-registerIceStringConverter(bool loadOnInitialize)
-{
-    registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
-}
+    ICE_API void registerIceStringConverter(bool loadOnInitialize)
+    {
+        registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
+    }
 
 }

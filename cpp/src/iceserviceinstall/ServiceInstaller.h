@@ -12,7 +12,6 @@
 class IceServiceInstaller
 {
 public:
-
     static const int icegridregistry = 0;
     static const int icegridnode = 1;
     static const int glacier2router = 2;
@@ -31,12 +30,14 @@ public:
     static std::string getServiceInstallerPath();
 
 private:
-
     void initializeSid(const std::string&);
 
     bool fileExists(const std::string&) const;
-    void grantPermissions(const std::string& path, SE_OBJECT_TYPE type = SE_FILE_OBJECT,
-                     bool inherit = false, DWORD desiredAccess = GENERIC_READ) const;
+    void grantPermissions(
+        const std::string& path,
+        SE_OBJECT_TYPE type = SE_FILE_OBJECT,
+        bool inherit = false,
+        DWORD desiredAccess = GENERIC_READ) const;
     bool mkdir(const std::string&) const;
 
     void addLog(const std::string&) const;

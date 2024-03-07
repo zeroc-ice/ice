@@ -11,41 +11,39 @@
 namespace IceGrid
 {
 
-class Database;
+    class Database;
 
-class WellKnownObjectsManager
-{
-public:
+    class WellKnownObjectsManager
+    {
+    public:
+        WellKnownObjectsManager(const std::shared_ptr<Database>&);
 
-    WellKnownObjectsManager(const std::shared_ptr<Database>&);
+        void add(const Ice::ObjectPrx&, const std::string&);
+        void addEndpoint(const std::string&, const Ice::ObjectPrx&);
+        void finish();
 
-    void add(const Ice::ObjectPrx&, const std::string&);
-    void addEndpoint(const std::string&, const Ice::ObjectPrx&);
-    void finish();
+        void registerAll();
+        void registerAll(const ReplicaSessionPrxPtr&);
+        void updateReplicatedWellKnownObjects();
 
-    void registerAll();
-    void registerAll(const ReplicaSessionPrxPtr&);
-    void updateReplicatedWellKnownObjects();
+        Ice::ObjectPrxPtr getEndpoints(const std::string&);
 
-    Ice::ObjectPrxPtr getEndpoints(const std::string&);
+        LocatorPrxPtr getLocator();
+        Ice::LocatorRegistryPrxPtr getLocatorRegistry();
 
-    LocatorPrxPtr getLocator();
-    Ice::LocatorRegistryPrxPtr getLocatorRegistry();
+    private:
+        bool initialized() const;
 
-private:
+        Ice::ObjectPrxPtr getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
-    bool initialized() const;
+        const std::shared_ptr<Database> _database;
+        bool _initialized;
 
-    Ice::ObjectPrxPtr getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
+        StringObjectProxyDict _endpoints;
+        ObjectInfoSeq _wellKnownObjects;
 
-    const std::shared_ptr<Database> _database;
-    bool _initialized;
-
-    StringObjectProxyDict _endpoints;
-    ObjectInfoSeq _wellKnownObjects;
-
-    mutable std::mutex _mutex;
-};
+        mutable std::mutex _mutex;
+    };
 
 };
 

@@ -25,9 +25,9 @@ string
 getProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    for(const auto& prop : properties)
+    for (const auto& prop : properties)
     {
-        if(prop.name == name)
+        if (prop.name == name)
         {
             return prop.value;
         }
@@ -39,22 +39,23 @@ void
 removeProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    properties.erase(remove_if(properties.begin(), properties.end(),[&name](const auto& p) { return p.name == name; }));
+    properties.erase(
+        remove_if(properties.begin(), properties.end(), [&name](const auto& p) { return p.name == name; }));
 }
 
 PropertyDescriptor
 createProperty(const string& name, const string& value)
 {
-    return { name, value};
+    return {name, value};
 }
 
 bool
 hasProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name, const string& value)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    for(const auto& prop : properties)
+    for (const auto& prop : properties)
     {
-        if(prop.name == name)
+        if (prop.name == name)
         {
             return prop.value == value;
         }
@@ -63,8 +64,7 @@ hasProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string
 }
 
 void
-updateServerRuntimeProperties(const optional<AdminPrx>& admin, const string&,
-                              const shared_ptr<ServerDescriptor>& desc)
+updateServerRuntimeProperties(const optional<AdminPrx>& admin, const string&, const shared_ptr<ServerDescriptor>& desc)
 {
     ApplicationUpdateDescriptor update;
     update.name = "TestApp";
@@ -76,7 +76,7 @@ updateServerRuntimeProperties(const optional<AdminPrx>& admin, const string&,
     {
         admin->updateApplicationWithoutRestart(update);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -89,9 +89,9 @@ getServiceDescriptor(const optional<AdminPrx>& admin, const string& service)
     auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);
     auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-    for(const auto& serviceInstance : iceBox->services)
+    for (const auto& serviceInstance : iceBox->services)
     {
-        if(serviceInstance.descriptor->name == service)
+        if (serviceInstance.descriptor->name == service)
         {
             return serviceInstance.descriptor;
         }
@@ -100,15 +100,15 @@ getServiceDescriptor(const optional<AdminPrx>& admin, const string& service)
 }
 
 void
-updateServiceRuntimeProperties(const optional<AdminPrx>& admin,  const shared_ptr<ServiceDescriptor>& desc)
+updateServiceRuntimeProperties(const optional<AdminPrx>& admin, const shared_ptr<ServiceDescriptor>& desc)
 {
     auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);
 
     auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-    for(const auto& serviceInstance : iceBox->services)
+    for (const auto& serviceInstance : iceBox->services)
     {
-        if(serviceInstance.descriptor->name == desc->name)
+        if (serviceInstance.descriptor->name == desc->name)
         {
             serviceInstance.descriptor->propertySet.properties = desc->propertySet.properties;
         }
@@ -123,12 +123,12 @@ updateServiceRuntimeProperties(const optional<AdminPrx>& admin,  const shared_pt
     {
         admin->updateApplicationWithoutRestart(update);
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -140,14 +140,11 @@ allTests(Test::TestHelper* helper)
 {
     auto communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator,
-        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     auto admin = session->getAdmin();
     test(admin);
@@ -200,12 +197,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -241,7 +238,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -261,7 +258,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -281,10 +278,10 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -298,10 +295,10 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -315,12 +312,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -330,7 +327,7 @@ allTests(Test::TestHelper* helper)
             admin->getServerPid("Server2");
             test(false);
         }
-        catch(const ServerNotExistException&)
+        catch (const ServerNotExistException&)
         {
         }
 
@@ -391,7 +388,7 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(server1Pid == admin->getServerPid("Server1"));
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -412,7 +409,7 @@ allTests(Test::TestHelper* helper)
             server1Pid = admin->getServerPid("Server1");
             test(hasProperty(admin->getServerInfo("Server1").descriptor, "test", "test"));
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -432,11 +429,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Can't update server adapters without restart
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -455,11 +452,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Can't update server objects without restart
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -477,11 +474,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Can't update server allocatables without restart
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -493,7 +490,7 @@ allTests(Test::TestHelper* helper)
 
         auto service = make_shared<ServiceDescriptor>();
         addProperty(service, "Ice.Warn.UnknownProperties", "0");
-        //addProperty(service, "Ice.Trace.Admin.Properties", "1");
+        // addProperty(service, "Ice.Trace.Admin.Properties", "1");
         service->name = "Service1";
 
         service->entry = properties->getProperty("ServiceDir") + "/TestService:create";
@@ -535,12 +532,12 @@ allTests(Test::TestHelper* helper)
             test(server1Pid == admin->getServerPid("Server1"));
             admin->startServer("IceBox");
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -558,13 +555,13 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // can't add service without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
             icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -578,13 +575,13 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // can't remove service without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
             icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -598,13 +595,13 @@ allTests(Test::TestHelper* helper)
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // can't update service entry point without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
             icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -658,7 +655,7 @@ allTests(Test::TestHelper* helper)
         // Wait for the server to be active to have the guarantee that
         // the property update will return once the properties are
         // updated.
-        while(admin->getServerState("IceBox") != IceGrid::ServerState::Active)
+        while (admin->getServerState("IceBox") != IceGrid::ServerState::Active)
         {
             this_thread::sleep_for(100ms);
         }

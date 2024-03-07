@@ -10,8 +10,8 @@
 namespace Ice
 {
 
-class Communicator;
-using CommunicatorPtr = ::std::shared_ptr<Communicator>;
+    class Communicator;
+    using CommunicatorPtr = ::std::shared_ptr<Communicator>;
 
 }
 

@@ -14,80 +14,74 @@
 namespace IceBT
 {
 
-//
-// Notifies the transport about a new incoming connection.
-//
-class ProfileCallback
-{
-public:
+    //
+    // Notifies the transport about a new incoming connection.
+    //
+    class ProfileCallback
+    {
+    public:
+        virtual void newConnection(int) = 0;
+    };
+    using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
 
-    virtual void newConnection(int) = 0;
-};
-using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
+    //
+    // Represents an outgoing (client) connection. The transport must keep a reference to this object
+    // and call close() when no longer needed.
+    //
+    class Connection
+    {
+    public:
+        virtual void close() = 0;
+    };
+    using ConnectionPtr = std::shared_ptr<Connection>;
 
-//
-// Represents an outgoing (client) connection. The transport must keep a reference to this object
-// and call close() when no longer needed.
-//
-class Connection
-{
-public:
+    //
+    // Callback API for an outgoing connection attempt.
+    //
+    class ConnectCallback
+    {
+    public:
+        virtual void completed(int, const ConnectionPtr&) = 0;
+        virtual void failed(std::exception_ptr) = 0;
+    };
+    using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 
-    virtual void close() = 0;
+    //
+    // Engine encapsulates all Bluetooth activities.
+    //
+    class Engine
+    {
+    public:
+        Engine(const Ice::CommunicatorPtr&);
 
-};
-using ConnectionPtr = std::shared_ptr<Connection>;
+        Ice::CommunicatorPtr communicator() const;
 
-//
-// Callback API for an outgoing connection attempt.
-//
-class ConnectCallback
-{
-public:
+        void initialize();
+        bool initialized() const;
 
-    virtual void completed(int, const ConnectionPtr&) = 0;
-    virtual void failed(std::exception_ptr) = 0;
-};
-using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
+        std::string getDefaultAdapterAddress() const;
+        bool adapterExists(const std::string&) const;
 
-//
-// Engine encapsulates all Bluetooth activities.
-//
-class Engine
-{
-public:
+        bool deviceExists(const std::string&) const;
 
-    Engine(const Ice::CommunicatorPtr&);
+        std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
+        void unregisterProfile(const std::string&);
 
-    Ice::CommunicatorPtr communicator() const;
+        void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
 
-    void initialize();
-    bool initialized() const;
+        void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
+        void stopDiscovery(const std::string&);
 
-    std::string getDefaultAdapterAddress() const;
-    bool adapterExists(const std::string&) const;
+        DeviceMap getDevices() const;
 
-    bool deviceExists(const std::string&) const;
+        void destroy();
 
-    std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
-    void unregisterProfile(const std::string&);
-
-    void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
-
-    void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
-    void stopDiscovery(const std::string&);
-
-    DeviceMap getDevices() const;
-
-    void destroy();
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
-    bool _initialized;
-    mutable std::mutex _mutex;
-    BluetoothServicePtr _service;
-};
+    private:
+        const Ice::CommunicatorPtr _communicator;
+        bool _initialized;
+        mutable std::mutex _mutex;
+        BluetoothServicePtr _service;
+    };
 
 }
 

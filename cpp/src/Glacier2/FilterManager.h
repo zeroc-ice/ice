@@ -16,67 +16,42 @@
 namespace Glacier2
 {
 
-class FilterManager
-{
-public:
-    FilterManager(std::shared_ptr<Instance>,
-                  std::shared_ptr<StringSetI>,
-                  std::shared_ptr<StringSetI>,
-                  std::shared_ptr<IdentitySetI>);
-    virtual ~FilterManager();
-
-    void destroy();
-
-    std::shared_ptr<StringSetI>
-    categories() const
+    class FilterManager
     {
-        return _categories;
-    }
+    public:
+        FilterManager(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<StringSetI>,
+            std::shared_ptr<StringSetI>,
+            std::shared_ptr<IdentitySetI>);
+        virtual ~FilterManager();
 
-    std::shared_ptr<StringSetI>
-    adapterIds() const
-    {
-        return _adapters;
-    }
+        void destroy();
 
-    std::shared_ptr<IdentitySetI>
-    identities() const
-    {
-        return _identities;
-    }
+        std::shared_ptr<StringSetI> categories() const { return _categories; }
 
-    std::optional<StringSetPrx>
-    categoriesPrx() const
-    {
-        return _categoriesPrx;
-    }
+        std::shared_ptr<StringSetI> adapterIds() const { return _adapters; }
 
-    std::optional<StringSetPrx>
-    adapterIdsPrx() const
-    {
-        return _adapterIdsPrx;
-    }
+        std::shared_ptr<IdentitySetI> identities() const { return _identities; }
 
-    std::optional<IdentitySetPrx>
-    identitiesPrx() const
-    {
-        return _identitiesPrx;
-    }
+        std::optional<StringSetPrx> categoriesPrx() const { return _categoriesPrx; }
 
-    static std::shared_ptr<FilterManager>
-    create(std::shared_ptr<Instance>, const std::string&, bool);
+        std::optional<StringSetPrx> adapterIdsPrx() const { return _adapterIdsPrx; }
 
-private:
+        std::optional<IdentitySetPrx> identitiesPrx() const { return _identitiesPrx; }
 
-    std::optional<StringSetPrx> _categoriesPrx;
-    std::optional<StringSetPrx> _adapterIdsPrx;
-    std::optional<IdentitySetPrx> _identitiesPrx;
+        static std::shared_ptr<FilterManager> create(std::shared_ptr<Instance>, const std::string&, bool);
 
-    const std::shared_ptr<StringSetI> _categories;
-    const std::shared_ptr<StringSetI> _adapters;
-    const std::shared_ptr<IdentitySetI> _identities;
-    const std::shared_ptr<Instance> _instance;
-};
+    private:
+        std::optional<StringSetPrx> _categoriesPrx;
+        std::optional<StringSetPrx> _adapterIdsPrx;
+        std::optional<IdentitySetPrx> _identitiesPrx;
+
+        const std::shared_ptr<StringSetI> _categories;
+        const std::shared_ptr<StringSetI> _adapters;
+        const std::shared_ptr<IdentitySetI> _identities;
+        const std::shared_ptr<Instance> _instance;
+    };
 }
 
 #endif /* FILTER_MANAGER_H */

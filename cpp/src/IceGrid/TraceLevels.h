@@ -11,50 +11,49 @@
 namespace IceGrid
 {
 
-class TraceLevels
-{
-public:
+    class TraceLevels
+    {
+    public:
+        TraceLevels(const std::shared_ptr<Ice::Communicator>&, const std::string&);
 
-    TraceLevels(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        const int admin;
+        const std::string adminCat;
 
-    const int admin;
-    const std::string adminCat;
+        const int application;
+        const std::string applicationCat;
 
-    const int application;
-    const std::string applicationCat;
+        const int node;
+        const std::string nodeCat;
 
-    const int node;
-    const std::string nodeCat;
+        const int replica;
+        const std::string replicaCat;
 
-    const int replica;
-    const std::string replicaCat;
+        const int server;
+        const std::string serverCat;
 
-    const int server;
-    const std::string serverCat;
+        const int adapter;
+        const std::string adapterCat;
 
-    const int adapter;
-    const std::string adapterCat;
+        const int object;
+        const std::string objectCat;
 
-    const int object;
-    const std::string objectCat;
+        const int activator;
+        const std::string activatorCat;
 
-    const int activator;
-    const std::string activatorCat;
+        const int patch;
+        const std::string patchCat;
 
-    const int patch;
-    const std::string patchCat;
+        const int locator;
+        const std::string locatorCat;
 
-    const int locator;
-    const std::string locatorCat;
+        const int session;
+        const std::string sessionCat;
 
-    const int session;
-    const std::string sessionCat;
+        const int discovery;
+        const std::string discoveryCat;
 
-    const int discovery;
-    const std::string discoveryCat;
-
-    const std::shared_ptr<Ice::Logger> logger;
-};
+        const std::shared_ptr<Ice::Logger> logger;
+    };
 
 } // End namespace IceGrid
 

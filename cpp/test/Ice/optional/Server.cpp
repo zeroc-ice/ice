@@ -12,7 +12,6 @@ using namespace Test;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

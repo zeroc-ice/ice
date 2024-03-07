@@ -14,7 +14,6 @@ using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
-
     virtual void op(const Ice::Current&);
     virtual void sleep(std::int32_t, const Ice::Current&);
     virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
@@ -24,14 +23,12 @@ public:
 class TestIntfControllerI : public Test::TestIntfController
 {
 public:
-
     virtual void holdAdapter(const Ice::Current&);
     virtual void resumeAdapter(const Ice::Current&);
 
     TestIntfControllerI(const Ice::ObjectAdapterPtr&);
 
 private:
-
     Ice::ObjectAdapterPtr _adapter;
 };
 

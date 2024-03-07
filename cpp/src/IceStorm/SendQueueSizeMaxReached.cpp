@@ -6,9 +6,7 @@
 
 #include "SendQueueSizeMaxReached.h"
 
-IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached()
-{
-}
+IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached() {}
 
 std::string_view
 IceStorm::SendQueueSizeMaxReached::ice_staticId()

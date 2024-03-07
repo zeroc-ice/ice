@@ -14,27 +14,27 @@ using namespace std;
 namespace
 {
 
-// Helper char to hex functions
-inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
-{
-    if(hb < 10)
+    // Helper char to hex functions
+    inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
     {
-        *hexBuffer++ = '0' + static_cast<char>(hb);
+        if (hb < 10)
+        {
+            *hexBuffer++ = '0' + static_cast<char>(hb);
+        }
+        else
+        {
+            *hexBuffer++ = 'A' + static_cast<char>(hb - 10);
+        }
     }
-    else
-    {
-        *hexBuffer++ = 'A' + static_cast<char>(hb - 10);
-    }
-}
 
-inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
-{
-    for(size_t i = 0; i < len; i++)
+    inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
     {
-        halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
-        halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        for (size_t i = 0; i < len; i++)
+        {
+            halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
+            halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        }
     }
-}
 
 }
 

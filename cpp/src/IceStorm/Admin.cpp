@@ -8,8 +8,8 @@
 #include <IceStorm/Parser.h>
 
 #ifdef _WIN32
-#   include <fcntl.h>
-#   include <io.h>
+#    include <fcntl.h>
+#    include <io.h>
 #endif
 
 using namespace std;
@@ -47,7 +47,7 @@ main(int argc, char* argv[])
 
         status = run(communicator, args);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << ex.what() << endl;
         status = 1;
@@ -60,13 +60,11 @@ void
 usage(const string& name)
 {
     consoleErr << "Usage: " << name << " [options]\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "-e COMMANDS          Execute COMMANDS.\n"
-        "-d, --debug          Print debug messages.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help           Show this message.\n"
+                  "-v, --version        Display the Ice version.\n"
+                  "-e COMMANDS          Execute COMMANDS.\n"
+                  "-d, --debug          Print debug messages.\n";
 }
 
 int
@@ -83,34 +81,34 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
 
     try
     {
-        if(!opts.parse(args).empty())
+        if (!opts.parse(args).empty())
         {
             consoleErr << args[0] << ": too many arguments" << endl;
             usage(args[0]);
             return 1;
         }
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);
         return 1;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(args[0]);
         return 0;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
         return 0;
     }
-    if(opts.isSet("e"))
+    if (opts.isSet("e"))
     {
         vector<string> optargs = opts.argVec("e");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
             commands += *i + ";";
         }
@@ -129,7 +127,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             //
             // Ignore proxy property settings. eg IceStormAdmin.TopicManager.*.LocatorCacheTimeout
             //
-            if(p.first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
+            if (p.first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
             {
                 try
                 {
@@ -138,7 +136,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     assert(manager);
                     managers.insert({manager->ice_getIdentity(), *manager});
                 }
-                catch(const Ice::ProxyParseException&)
+                catch (const Ice::ProxyParseException&)
                 {
                     consoleErr << args[0] << ": malformed proxy: " << p.second << endl;
                     return 1;
@@ -173,7 +171,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         {
             defaultManager = finder->getTopicManager();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Ignore.
         }
@@ -188,10 +186,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     IceStorm::Parser p(communicator, *defaultManager, managers);
     int status = 0;
 
-    if(!commands.empty()) // Commands were given
+    if (!commands.empty()) // Commands were given
     {
         int parseStatus = p.parse(commands, debug);
-        if(parseStatus == 1)
+        if (parseStatus == 1)
         {
             status = 1;
         }
@@ -201,7 +199,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         p.showBanner();
 
         int parseStatus = p.parse(stdin, debug);
-        if(parseStatus == 1)
+        if (parseStatus == 1)
         {
             status = 1;
         }

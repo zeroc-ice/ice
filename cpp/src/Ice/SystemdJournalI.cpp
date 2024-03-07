@@ -4,19 +4,16 @@
 
 #ifdef ICE_USE_SYSTEMD
 
-#include <Ice/SystemdJournalI.h>
-#include <Ice/LocalException.h>
-#include <syslog.h>
-#include <systemd/sd-journal.h>
+#    include <Ice/SystemdJournalI.h>
+#    include <Ice/LocalException.h>
+#    include <syslog.h>
+#    include <systemd/sd-journal.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::SystemdJournalI::SystemdJournalI(const string& prefix) :
-    _prefix(prefix)
-{
-}
+Ice::SystemdJournalI::SystemdJournalI(const string& prefix) : _prefix(prefix) {}
 
 void
 Ice::SystemdJournalI::print(const string& message)
@@ -57,10 +54,9 @@ Ice::SystemdJournalI::cloneWithPrefix(const string& prefix)
 void
 Ice::SystemdJournalI::write(int priority, const string& message) const
 {
-    sd_journal_send("MESSAGE=%s", message.c_str(),
-                    "PRIORITY=%i", priority,
-                    "SYSLOG_IDENTIFIER=%s", _prefix.c_str(),
-                    NULL); // Using NULL is necessary for EL7, see #293
+    sd_journal_send(
+        "MESSAGE=%s", message.c_str(), "PRIORITY=%i", priority, "SYSLOG_IDENTIFIER=%s", _prefix.c_str(),
+        NULL); // Using NULL is necessary for EL7, see #293
 }
 
 #endif

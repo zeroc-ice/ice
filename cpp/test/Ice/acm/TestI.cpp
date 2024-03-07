@@ -13,13 +13,12 @@ using namespace Test;
 namespace
 {
 
-string
-toString(int value)
-{
-    ostringstream os;
-    os << value;
-    return os.str();
-}
+    string toString(int value)
+    {
+        ostringstream os;
+        os << value;
+        return os.str();
+    }
 
 }
 
@@ -30,21 +29,21 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     Ice::PropertiesPtr properties = com->getProperties();
     string protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
     string opts;
-    if(protocol != "bt")
+    if (protocol != "bt")
     {
         opts = " -h \"" + properties->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1") + "\"";
     }
 
     string name = generateUUID();
-    if(timeout >= 0)
+    if (timeout >= 0)
     {
         properties->setProperty(name + ".ACM.Timeout", toString(timeout));
     }
-    if(close >= 0)
+    if (close >= 0)
     {
         properties->setProperty(name + ".ACM.Close", toString(close));
     }
-    if(heartbeat >= 0)
+    if (heartbeat >= 0)
     {
         properties->setProperty(name + ".ACM.Heartbeat", toString(heartbeat));
     }
@@ -60,9 +59,9 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
-    _testIntf(TestIntfPrx(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
+RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter)
+    : _adapter(adapter),
+      _testIntf(TestIntfPrx(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
 {
     _adapter->activate();
 }
@@ -92,7 +91,7 @@ RemoteObjectAdapterI::deactivate(const Ice::Current&)
     {
         _adapter->destroy();
     }
-    catch(const ObjectAdapterDeactivatedException&)
+    catch (const ObjectAdapterDeactivatedException&)
     {
     }
 }
@@ -125,9 +124,7 @@ TestI::startHeartbeatCount(const Ice::Current& current)
     _callback = make_shared<HeartbeatCallbackI>();
     HeartbeatCallbackIPtr callback = _callback;
     current.con->setHeartbeatCallback([callback](Ice::ConnectionPtr connection)
-    {
-        callback->heartbeat(std::move(connection));
-    });
+                                      { callback->heartbeat(std::move(connection)); });
 }
 
 void

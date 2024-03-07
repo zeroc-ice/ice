@@ -7,88 +7,70 @@
 
 #ifdef __APPLE__
 
-#include <CoreFoundation/CoreFoundation.h>
+#    include <CoreFoundation/CoreFoundation.h>
 
 namespace IceInternal
 {
 
-//
-// UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
-//
-template<typename R>
-class UniqueRef
-{
-public:
-
-    explicit UniqueRef(R ref = 0) :
-        _ref(ref)
+    //
+    // UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
+    //
+    template<typename R> class UniqueRef
     {
-    }
+    public:
+        explicit UniqueRef(R ref = 0) : _ref(ref) {}
 
-    ~UniqueRef()
-    {
-        if(_ref != 0)
+        ~UniqueRef()
         {
-            CFRelease(_ref);
+            if (_ref != 0)
+            {
+                CFRelease(_ref);
+            }
         }
-    }
 
-    R release()
-    {
-        R r = _ref;
-        _ref = 0;
-        return r;
-    }
-
-    void reset(R ref = 0)
-    {
-        //
-        // Support "self-reset" for CF objects. This is useful if CF allocation methods return
-        // the same object with an increased reference count.
-        //
-        //assert(ref == 0 || ref != _ref);
-
-        if(_ref != 0)
+        R release()
         {
-            CFRelease(_ref);
+            R r = _ref;
+            _ref = 0;
+            return r;
         }
-        _ref = ref;
-    }
 
-    void retain(R ref)
-    {
-        reset(ref ? (R)CFRetain(ref) : ref);
-    }
+        void reset(R ref = 0)
+        {
+            //
+            // Support "self-reset" for CF objects. This is useful if CF allocation methods return
+            // the same object with an increased reference count.
+            //
+            // assert(ref == 0 || ref != _ref);
 
-    R& get()
-    {
-        return _ref;
-    }
+            if (_ref != 0)
+            {
+                CFRelease(_ref);
+            }
+            _ref = ref;
+        }
 
-    R get() const
-    {
-        return _ref;
-    }
+        void retain(R ref) { reset(ref ? (R)CFRetain(ref) : ref); }
 
-    operator bool() const
-    {
-        return _ref != 0;
-    }
+        R& get() { return _ref; }
 
-    void swap(UniqueRef& a)
-    {
-        R tmp = a._ref;
-        a._ref = _ref;
-        _ref = tmp;
-    }
+        R get() const { return _ref; }
 
-private:
+        operator bool() const { return _ref != 0; }
 
-    UniqueRef(UniqueRef&);
-    UniqueRef& operator=(UniqueRef&);
+        void swap(UniqueRef& a)
+        {
+            R tmp = a._ref;
+            a._ref = _ref;
+            _ref = tmp;
+        }
 
-    R _ref;
-};
+    private:
+        UniqueRef(UniqueRef&);
+        UniqueRef& operator=(UniqueRef&);
+
+        R _ref;
+    };
 
 }
 

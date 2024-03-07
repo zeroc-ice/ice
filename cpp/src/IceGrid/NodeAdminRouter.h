@@ -11,24 +11,23 @@
 namespace IceGrid
 {
 
-//
-// Routes requests to a server's admin object through the Node
-//
-class NodeServerAdminRouter final : public AdminRouter
-{
-public:
+    //
+    // Routes requests to a server's admin object through the Node
+    //
+    class NodeServerAdminRouter final : public AdminRouter
+    {
+    public:
+        NodeServerAdminRouter(const std::shared_ptr<NodeI>&);
 
-    NodeServerAdminRouter(const std::shared_ptr<NodeI>&);
+        void ice_invokeAsync(
+            std::pair<const std::uint8_t*, const std::uint8_t*>,
+            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current& current) override;
 
-    void ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*>,
-                         std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
-                         std::function<void(std::exception_ptr)>,
-                         const Ice::Current& current) override;
-
-private:
-
-    std::shared_ptr<NodeI> _node;
-};
+    private:
+        std::shared_ptr<NodeI> _node;
+    };
 
 }
 #endif

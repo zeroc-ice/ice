@@ -3,7 +3,7 @@
 //
 
 #ifndef TEST_API_EXPORTS
-#   define TEST_API_EXPORTS
+#    define TEST_API_EXPORTS
 #endif
 
 #include <Ice/EndpointFactoryManager.h>
@@ -13,10 +13,7 @@
 
 using namespace std;
 
-EndpointFactory::EndpointFactory(const IceInternal::EndpointFactoryPtr& factory) :
-    _factory(factory)
-{
-}
+EndpointFactory::EndpointFactory(const IceInternal::EndpointFactoryPtr& factory) : _factory(factory) {}
 
 int16_t
 EndpointFactory::type() const

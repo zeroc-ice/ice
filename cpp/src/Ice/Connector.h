@@ -12,20 +12,19 @@
 namespace IceInternal
 {
 
-class ICE_API Connector
-{
-public:
+    class ICE_API Connector
+    {
+    public:
+        virtual ~Connector();
 
-    virtual ~Connector();
+        virtual TransceiverPtr connect() = 0;
 
-    virtual TransceiverPtr connect() = 0;
+        virtual std::int16_t type() const = 0;
+        virtual std::string toString() const = 0;
 
-    virtual std::int16_t type() const = 0;
-    virtual std::string toString() const = 0;
-
-    virtual bool operator==(const Connector&) const = 0;
-    virtual bool operator<(const Connector&) const = 0;
-};
+        virtual bool operator==(const Connector&) const = 0;
+        virtual bool operator<(const Connector&) const = 0;
+    };
 
 }
 

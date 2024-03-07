@@ -15,105 +15,103 @@
 namespace IceInternal
 {
 
-std::vector<unsigned char> calcSHA1(const std::vector<unsigned char>&);
+    std::vector<unsigned char> calcSHA1(const std::vector<unsigned char>&);
 
-typedef std::map<std::string, std::pair<std::string, std::string> > HeaderFields;
+    typedef std::map<std::string, std::pair<std::string, std::string>> HeaderFields;
 
-class WebSocketException
-{
-public:
-    WebSocketException(const std::string&);
-
-    std::string reason;
-};
-
-class HttpParser
-{
-public:
-
-    HttpParser();
-
-    enum Type
+    class WebSocketException
     {
-        TypeUnknown,
-        TypeRequest,
-        TypeResponse
+    public:
+        WebSocketException(const std::string&);
+
+        std::string reason;
     };
 
-    const std::uint8_t* isCompleteMessage(const std::uint8_t*, const std::uint8_t*) const;
-
-    bool parse(const std::uint8_t*, const std::uint8_t*);
-
-    Type type() const;
-
-    std::string method() const;
-    std::string uri() const;
-    int versionMajor() const;
-    int versionMinor() const;
-
-    int status() const;
-    std::string reason() const;
-
-    bool getHeader(const std::string&, std::string&, bool) const;
-
-    std::map<std::string, std::string> getHeaders() const;
-
-private:
-
-    Type _type;
-
-    std::string _method;
-    std::string _uri;
-
-    HeaderFields _headers;
-    std::string _headerName;
-
-    int _versionMajor;
-    int _versionMinor;
-
-    int _status;
-    std::string _reason;
-
-    enum State
+    class HttpParser
     {
-        StateInit,
-        StateType,
-        StateTypeCheck,
-        StateRequest,
-        StateRequestMethod,
-        StateRequestMethodSP,
-        StateRequestURI,
-        StateRequestURISP,
-        StateRequestLF,
-        StateHeaderFieldStart,
-        StateHeaderFieldContStart,
-        StateHeaderFieldCont,
-        StateHeaderFieldNameStart,
-        StateHeaderFieldName,
-        StateHeaderFieldNameEnd,
-        StateHeaderFieldValueStart,
-        StateHeaderFieldValue,
-        StateHeaderFieldValueEnd,
-        StateHeaderFieldLF,
-        StateHeaderFieldEndLF,
-        StateVersion,
-        StateVersionH,
-        StateVersionHT,
-        StateVersionHTT,
-        StateVersionHTTP,
-        StateVersionMajor,
-        StateVersionMinor,
-        StateResponse,
-        StateResponseVersionSP,
-        StateResponseStatus,
-        StateResponseReasonStart,
-        StateResponseReason,
-        StateResponseLF,
-        StateComplete
+    public:
+        HttpParser();
+
+        enum Type
+        {
+            TypeUnknown,
+            TypeRequest,
+            TypeResponse
+        };
+
+        const std::uint8_t* isCompleteMessage(const std::uint8_t*, const std::uint8_t*) const;
+
+        bool parse(const std::uint8_t*, const std::uint8_t*);
+
+        Type type() const;
+
+        std::string method() const;
+        std::string uri() const;
+        int versionMajor() const;
+        int versionMinor() const;
+
+        int status() const;
+        std::string reason() const;
+
+        bool getHeader(const std::string&, std::string&, bool) const;
+
+        std::map<std::string, std::string> getHeaders() const;
+
+    private:
+        Type _type;
+
+        std::string _method;
+        std::string _uri;
+
+        HeaderFields _headers;
+        std::string _headerName;
+
+        int _versionMajor;
+        int _versionMinor;
+
+        int _status;
+        std::string _reason;
+
+        enum State
+        {
+            StateInit,
+            StateType,
+            StateTypeCheck,
+            StateRequest,
+            StateRequestMethod,
+            StateRequestMethodSP,
+            StateRequestURI,
+            StateRequestURISP,
+            StateRequestLF,
+            StateHeaderFieldStart,
+            StateHeaderFieldContStart,
+            StateHeaderFieldCont,
+            StateHeaderFieldNameStart,
+            StateHeaderFieldName,
+            StateHeaderFieldNameEnd,
+            StateHeaderFieldValueStart,
+            StateHeaderFieldValue,
+            StateHeaderFieldValueEnd,
+            StateHeaderFieldLF,
+            StateHeaderFieldEndLF,
+            StateVersion,
+            StateVersionH,
+            StateVersionHT,
+            StateVersionHTT,
+            StateVersionHTTP,
+            StateVersionMajor,
+            StateVersionMinor,
+            StateResponse,
+            StateResponseVersionSP,
+            StateResponseStatus,
+            StateResponseReasonStart,
+            StateResponseReason,
+            StateResponseLF,
+            StateComplete
+        };
+        State _state;
     };
-    State _state;
-};
-using HttpParserPtr = std::shared_ptr<HttpParser>;
+    using HttpParserPtr = std::shared_ptr<HttpParser>;
 
 }
 

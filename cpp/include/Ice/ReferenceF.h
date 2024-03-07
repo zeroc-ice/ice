@@ -10,8 +10,8 @@
 namespace IceInternal
 {
 
-class Reference;
-using ReferencePtr = std::shared_ptr<Reference>;
+    class Reference;
+    using ReferencePtr = std::shared_ptr<Reference>;
 
 }
 

@@ -20,9 +20,10 @@ struct Subscription;
 class EventI : public Event
 {
 public:
-
-    EventI(shared_ptr<Communicator> communicator, int total) :
-        _communicator(std::move(communicator)), _total(total), _count(0)
+    EventI(shared_ptr<Communicator> communicator, int total)
+        : _communicator(std::move(communicator)),
+          _total(total),
+          _count(0)
     {
     }
 
@@ -32,12 +33,9 @@ public:
         return _count;
     }
 
-    virtual void check(const Subscription&)
-    {
-    }
+    virtual void check(const Subscription&) {}
 
 protected:
-
     shared_ptr<Communicator> _communicator;
     const int _total;
     int _count;
@@ -57,19 +55,14 @@ struct Subscription final
 class OrderEventI final : public EventI
 {
 public:
+    OrderEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
 
-    OrderEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(std::move(communicator), total)
-    {
-    }
-
-    void
-    pub(int counter, const Ice::Current&) override
+    void pub(int counter, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        if(counter != _count || counter == _total - 1)
+        if (counter != _count || counter == _total - 1)
         {
-            if(counter != _count)
+            if (counter != _count)
             {
                 cerr << "failed! expected event: " << _count << " received event: " << counter << endl;
             }
@@ -82,17 +75,12 @@ public:
 class CountEventI final : public EventI
 {
 public:
+    CountEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
 
-    CountEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(std::move(communicator), total)
-    {
-    }
-
-    void
-    pub(int, const Ice::Current&) override
+    void pub(int, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        if(++_count == _total)
+        if (++_count == _total)
         {
             _communicator->shutdown();
         }
@@ -102,26 +90,21 @@ public:
 class SlowEventI final : public EventI
 {
 public:
+    SlowEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
 
-    SlowEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(std::move(communicator), total)
-    {
-    }
-
-    void
-    pub(int, const Ice::Current&) override
+    void pub(int, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         //
         // Ignore events over and above the expected.
         //
-        if(_count >= _total)
+        if (_count >= _total)
         {
             return;
         }
         // Sleep for 3 seconds
         this_thread::sleep_for(3s);
-        if(++_count == _total)
+        if (++_count == _total)
         {
             _communicator->shutdown();
         }
@@ -131,20 +114,17 @@ public:
 class ErraticEventI final : public EventI
 {
 public:
-
-    ErraticEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(std::move(communicator), total)
+    ErraticEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total)
     {
         ++_remaining;
     }
 
-    void
-    pub(int, const Ice::Current& current) override
+    void pub(int, const Ice::Current& current) override
     {
         lock_guard<mutex> lg(_mutex);
 
         // Randomly close the connection.
-        if(!_done && (_rd() % 10 == 1 || ++_count == _total))
+        if (!_done && (_rd() % 10 == 1 || ++_count == _total))
         {
             _done = true;
             current.con->close(ConnectionClose::Forcefully);
@@ -153,7 +133,7 @@ public:
             current.adapter->deactivate();
             _count = _total;
             {
-                if(--_remaining == 0)
+                if (--_remaining == 0)
                 {
                     _communicator->shutdown();
                 }
@@ -162,7 +142,6 @@ public:
     }
 
 private:
-
     static atomic_int _remaining;
     bool _done = false;
     random_device _rd;
@@ -173,43 +152,42 @@ atomic_int ErraticEventI::_remaining = 0;
 class MaxQueueEventI final : public EventI
 {
 public:
-
-    MaxQueueEventI(shared_ptr<Communicator> communicator, int expected, int total, bool removeSubscriber) :
-        EventI(std::move(communicator), total), _removeSubscriber(removeSubscriber), _expected(expected)
+    MaxQueueEventI(shared_ptr<Communicator> communicator, int expected, int total, bool removeSubscriber)
+        : EventI(std::move(communicator), total),
+          _removeSubscriber(removeSubscriber),
+          _expected(expected)
     {
     }
 
-    void
-    pub(int counter, const Ice::Current&) override
+    void pub(int counter, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
 
-        if(counter != _count)
+        if (counter != _count)
         {
             cerr << "failed! expected event: " << _count << " received event: " << counter << endl;
         }
 
-        if(_removeSubscriber)
+        if (_removeSubscriber)
         {
             _count = _total;
             _communicator->shutdown();
             return;
         }
 
-        if(_count == 0)
+        if (_count == 0)
         {
             _count = _total - _expected;
         }
-        else if(++_count == _total)
+        else if (++_count == _total)
         {
             _communicator->shutdown();
         }
     }
 
-    void
-    check(const Subscription& subscription) override
+    void check(const Subscription& subscription) override
     {
-        if(_removeSubscriber)
+        if (_removeSubscriber)
         {
             try
             {
@@ -218,21 +196,20 @@ public:
                 // message from this subscriber, retry if the ice_ping still succeeds.
                 //
                 int nRetry = 10;
-                while(--nRetry > 0)
+                while (--nRetry > 0)
                 {
                     subscription.publisher->ice_ping();
                     this_thread::sleep_for(200ms);
                 }
                 test(false);
             }
-            catch(const Ice::ObjectNotExistException&)
+            catch (const Ice::ObjectNotExistException&)
             {
             }
         }
     }
 
 private:
-
     bool _removeSubscriber;
     int _expected;
 };
@@ -240,31 +217,28 @@ private:
 class ControllerEventI final : public EventI
 {
 public:
-
-    ControllerEventI(shared_ptr<Communicator> communicator, int total, shared_ptr<ObjectAdapter> adapter) :
-        EventI(std::move(communicator), total), _adapter(std::move(adapter))
+    ControllerEventI(shared_ptr<Communicator> communicator, int total, shared_ptr<ObjectAdapter> adapter)
+        : EventI(std::move(communicator), total),
+          _adapter(std::move(adapter))
     {
     }
 
-    void
-    pub(int, const Ice::Current&) override
+    void pub(int, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        if(++_count == _total)
+        if (++_count == _total)
         {
             _adapter->activate();
         }
     }
 
 private:
-
     const shared_ptr<Ice::ObjectAdapter> _adapter;
 };
 
 class Subscriber final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -285,7 +259,7 @@ Subscriber::run(int argc, char** argv)
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;
@@ -294,11 +268,11 @@ Subscriber::run(int argc, char** argv)
 
     int events = 1000;
     string s = opts.optArg("events");
-    if(!s.empty())
+    if (!s.empty())
     {
         events = atoi(s.c_str());
     }
-    if(events <= 0)
+    if (events <= 0)
     {
         ostringstream os;
         os << argv[0] << ": events must be > 0.";
@@ -308,16 +282,16 @@ Subscriber::run(int argc, char** argv)
     IceStorm::QoS cmdLineQos;
 
     vector<string> sqos = opts.argVec("qos");
-    for(const auto& q: sqos)
+    for (const auto& q : sqos)
     {
         string::size_type off = q.find(",");
-        if(off == string::npos)
+        if (off == string::npos)
         {
             ostringstream os;
             os << argv[0] << ": parse error: no , in QoS";
             throw invalid_argument(os.str());
         }
-        cmdLineQos[q.substr(0, off)] = q.substr(off+1);
+        cmdLineQos[q.substr(0, off)] = q.substr(off + 1);
     }
 
     bool slow = opts.isSet("slow");
@@ -326,12 +300,12 @@ Subscriber::run(int argc, char** argv)
     bool erratic = false;
     int erraticNum = 0;
     s = opts.optArg("erratic");
-    if(!s.empty())
+    if (!s.empty())
     {
         erratic = true;
         erraticNum = atoi(s.c_str());
     }
-    if(events <= 0)
+    if (events <= 0)
     {
         ostringstream os;
         os << argv[0] << ": events must be > 0.";
@@ -341,7 +315,7 @@ Subscriber::run(int argc, char** argv)
     auto properties = communicator->getProperties();
     string managerProxyProperty = "IceStormAdmin.TopicManager.Default";
     string managerProxy = properties->getProperty(managerProxyProperty);
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `" << managerProxyProperty << "' is not set";
@@ -352,9 +326,9 @@ Subscriber::run(int argc, char** argv)
 
     vector<Subscription> subs;
 
-    if(erratic)
+    if (erratic)
     {
-        for(int i = 0 ; i < erraticNum; ++i)
+        for (int i = 0; i < erraticNum; ++i)
         {
             ostringstream os;
             os << "SubscriberAdapter" << i;
@@ -365,7 +339,7 @@ Subscriber::run(int argc, char** argv)
             subs.push_back(item);
         }
     }
-    else if(slow)
+    else if (slow)
     {
         Subscription item;
         item.adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
@@ -373,11 +347,11 @@ Subscriber::run(int argc, char** argv)
         item.qos = cmdLineQos;
         subs.push_back(item);
     }
-    else if(maxQueueDropEvents || maxQueueRemoveSub)
+    else if (maxQueueDropEvents || maxQueueRemoveSub)
     {
         Subscription item1;
         item1.adapter = communicator->createObjectAdapterWithEndpoints("MaxQueueAdapter", "default");
-        if(maxQueueDropEvents)
+        if (maxQueueDropEvents)
         {
             item1.servant = make_shared<MaxQueueEventI>(communicator, maxQueueDropEvents, events, false);
         }
@@ -401,7 +375,7 @@ Subscriber::run(int argc, char** argv)
         item.adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
         item.qos = cmdLineQos;
         auto p = item.qos.find("reliability");
-        if(p != item.qos.end() && p->second == "ordered")
+        if (p != item.qos.end() && p->second == "ordered")
         {
             item.servant = make_shared<OrderEventI>(communicator, events);
         }
@@ -415,30 +389,30 @@ Subscriber::run(int argc, char** argv)
     auto topic = manager->retrieve("fed1");
 
     {
-        for(auto& p: subs)
+        for (auto& p : subs)
         {
             p.obj = p.adapter->addWithUUID(p.servant);
 
             IceStorm::QoS qos;
             string reliability = "";
             IceStorm::QoS::const_iterator q = p.qos.find("reliability");
-            if(q != p.qos.end())
+            if (q != p.qos.end())
             {
                 reliability = q->second;
             }
-            if(reliability == "twoway")
+            if (reliability == "twoway")
             {
                 // Do nothing.
             }
-            else if(reliability == "ordered")
+            else if (reliability == "ordered")
             {
                 qos["reliability"] = "ordered";
             }
-            else if(reliability == "batch")
+            else if (reliability == "batch")
             {
                 p.obj = p.obj->ice_batchOneway();
             }
-            else //if(reliability == "oneway")
+            else // if(reliability == "oneway")
             {
                 p.obj = p.obj->ice_oneway();
             }
@@ -447,9 +421,9 @@ Subscriber::run(int argc, char** argv)
     }
 
     {
-        for(const auto& p: subs)
+        for (const auto& p : subs)
         {
-            if(p.activate)
+            if (p.activate)
             {
                 p.adapter->activate();
             }
@@ -459,11 +433,11 @@ Subscriber::run(int argc, char** argv)
     communicator->waitForShutdown();
 
     {
-        for(const auto& p: subs)
+        for (const auto& p : subs)
         {
             p.servant->check(p);
             topic->unsubscribe(p.obj);
-            if(p.servant->count() != events)
+            if (p.servant->count() != events)
             {
                 ostringstream os;
                 os << "expected " << events << " events but got " << p.servant->count() << " events.";

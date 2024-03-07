@@ -18,65 +18,56 @@ NetworkProxy::~NetworkProxy()
 namespace
 {
 
-class SOCKSNetworkProxy final : public NetworkProxy
-{
-public:
+    class SOCKSNetworkProxy final : public NetworkProxy
+    {
+    public:
+        SOCKSNetworkProxy(const string&, int);
+        SOCKSNetworkProxy(const Address&);
 
-    SOCKSNetworkProxy(const string&, int);
-    SOCKSNetworkProxy(const Address&);
+        void beginWrite(const Address&, Buffer&) final;
+        SocketOperation endWrite(Buffer&) final;
+        void beginRead(Buffer&) final;
+        SocketOperation endRead(Buffer&) final;
+        void finish(Buffer&, Buffer&) final;
+        NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+        Address getAddress() const final;
+        string getName() const final;
+        ProtocolSupport getProtocolSupport() const final;
 
-    void beginWrite(const Address&, Buffer&) final;
-    SocketOperation endWrite(Buffer&) final;
-    void beginRead(Buffer&) final;
-    SocketOperation endRead(Buffer&) final;
-    void finish(Buffer&, Buffer&) final;
-    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
-    Address getAddress() const final;
-    string getName() const final;
-    ProtocolSupport getProtocolSupport() const final;
+    private:
+        string _host;
+        int _port;
+        Address _address;
+    };
 
-private:
+    class HTTPNetworkProxy final : public NetworkProxy
+    {
+    public:
+        HTTPNetworkProxy(const string&, int);
+        HTTPNetworkProxy(const Address&, ProtocolSupport);
 
-    string _host;
-    int _port;
-    Address _address;
-};
+        void beginWrite(const Address&, Buffer&) final;
+        SocketOperation endWrite(Buffer&) final;
+        void beginRead(Buffer&) final;
+        SocketOperation endRead(Buffer&) final;
+        void finish(Buffer&, Buffer&) final;
+        NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+        Address getAddress() const final;
+        string getName() const final;
+        ProtocolSupport getProtocolSupport() const final;
 
-class HTTPNetworkProxy final : public NetworkProxy
-{
-public:
-
-    HTTPNetworkProxy(const string&, int);
-    HTTPNetworkProxy(const Address&, ProtocolSupport);
-
-    void beginWrite(const Address&, Buffer&) final;
-    SocketOperation endWrite(Buffer&) final;
-    void beginRead(Buffer&) final;
-    SocketOperation endRead(Buffer&) final;
-    void finish(Buffer&, Buffer&) final;
-    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
-    Address getAddress() const final;
-    string getName() const final;
-    ProtocolSupport getProtocolSupport() const final;
-
-private:
-
-    string _host;
-    int _port;
-    Address _address;
-    ProtocolSupport _protocol;
-};
+    private:
+        string _host;
+        int _port;
+        Address _address;
+        ProtocolSupport _protocol;
+    };
 
 }
 
-SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) : _host(host), _port(port)
-{
-    assert(!host.empty());
-}
+SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) : _host(host), _port(port) { assert(!host.empty()); }
 
-SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) : _port(0), _address(addr)
-{
-}
+SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) : _port(0), _address(addr) {}
 
 void
 SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
@@ -140,7 +131,7 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
 {
     readBuffer.i = readBuffer.b.begin();
 
-    if(readBuffer.b.end() - readBuffer.i < 2)
+    if (readBuffer.b.end() - readBuffer.i < 2)
     {
         throw Ice::UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -148,7 +139,7 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
     const uint8_t* src = &(*readBuffer.i);
     const uint8_t b1 = *src++;
     const uint8_t b2 = *src++;
-    if(b1 != 0x00 || b2 != 0x5a)
+    if (b1 != 0x00 || b2 != 0x5a)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__);
     }
@@ -158,7 +149,8 @@ NetworkProxyPtr
 SOCKSNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return make_shared<SOCKSNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
+    return make_shared<SOCKSNetworkProxy>(
+        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
 }
 
 Address
@@ -180,14 +172,15 @@ SOCKSNetworkProxy::getProtocolSupport() const
     return EnableIPv4;
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) :
-    _host(host), _port(port), _protocol(EnableBoth)
+HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) : _host(host), _port(port), _protocol(EnableBoth)
 {
     assert(!host.empty());
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) :
-    _port(0), _address(addr), _protocol(protocol)
+HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol)
+    : _port(0),
+      _address(addr),
+      _protocol(protocol)
 {
 }
 
@@ -198,7 +191,8 @@ HTTPNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
     // HTTP connect request
     //
     ostringstream out;
-    out << "CONNECT " << addrToString(addr) << " HTTP/1.1\r\n" << "Host: " << addrToString(addr) << "\r\n\r\n";
+    out << "CONNECT " << addrToString(addr) << " HTTP/1.1\r\n"
+        << "Host: " << addrToString(addr) << "\r\n\r\n";
     string str = out.str();
     buf.b.resize(str.size());
     memcpy(&buf.b[0], str.c_str(), str.size());
@@ -230,7 +224,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
     // reading otherwise we're done.
     //
     const uint8_t* end = HttpParser().isCompleteMessage(buf.b.begin(), buf.i);
-    if(!end && buf.i == buf.b.end())
+    if (!end && buf.i == buf.b.end())
     {
         //
         // Read one more byte, we can't easily read bytes in advance
@@ -251,7 +245,7 @@ HTTPNetworkProxy::finish(Buffer& readBuffer, Buffer&)
 {
     HttpParser parser;
     parser.parse(readBuffer.b.begin(), readBuffer.b.end());
-    if(parser.status() != 200)
+    if (parser.status() != 200)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__);
     }
@@ -261,7 +255,8 @@ NetworkProxyPtr
 HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return make_shared<HTTPNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
+    return make_shared<HTTPNetworkProxy>(
+        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
 }
 
 Address
@@ -289,9 +284,9 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     string proxyHost;
 
     proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
-    if(!proxyHost.empty())
+    if (!proxyHost.empty())
     {
-        if(protocolSupport == EnableIPv6)
+        if (protocolSupport == EnableIPv6)
         {
             throw Ice::InitializationException(__FILE__, __LINE__, "IPv6 only is not supported with SOCKS4 proxies");
         }
@@ -300,9 +295,10 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     }
 
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
-    if(!proxyHost.empty())
+    if (!proxyHost.empty())
     {
-        return make_shared<HTTPNetworkProxy>(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        return make_shared<HTTPNetworkProxy>(
+            proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
     }
 
     return nullptr;

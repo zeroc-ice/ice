@@ -23,71 +23,56 @@ using namespace IceStormElection;
 namespace
 {
 
-struct SendQueueSizeMaxReached : std::exception
-{
-    const char* what() const noexcept override
+    struct SendQueueSizeMaxReached : std::exception
     {
-        return "maximum size of send queue reached";
-    }
-};
+        const char* what() const noexcept override { return "maximum size of send queue reached"; }
+    };
 
-class PerSubscriberPublisherI final : public Ice::BlobjectArray
-{
-public:
-
-    PerSubscriberPublisherI(shared_ptr<Instance> instance) :
-        _instance(std::move(instance))
+    class PerSubscriberPublisherI final : public Ice::BlobjectArray
     {
-    }
+    public:
+        PerSubscriberPublisherI(shared_ptr<Instance> instance) : _instance(std::move(instance)) {}
 
-    void
-    setSubscriber(shared_ptr<Subscriber> subscriber)
+        void setSubscriber(shared_ptr<Subscriber> subscriber) { _subscriber = std::move(subscriber); }
+
+        bool ice_invoke(pair<const uint8_t*, const uint8_t*> inParams, vector<uint8_t>&, const Ice::Current& current)
+            override
+        {
+            // Use cached reads.
+            CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
+
+            EventData event = {current.operation, current.mode, Ice::ByteSeq(), current.ctx};
+
+            Ice::ByteSeq data(inParams.first, inParams.second);
+            event.data.swap(data);
+
+            EventDataSeq e;
+            e.push_back(std::move(event));
+            _subscriber->queue(false, std::move(e));
+            return true;
+        }
+
+    private:
+        const shared_ptr<Instance> _instance;
+        shared_ptr<Subscriber> _subscriber;
+    };
+
+    IceStorm::Instrumentation::SubscriberState toSubscriberState(Subscriber::SubscriberState s)
     {
-        _subscriber = std::move(subscriber);
+        switch (s)
+        {
+            case Subscriber::SubscriberStateOnline:
+                return IceStorm::Instrumentation::SubscriberState::SubscriberStateOnline;
+            case Subscriber::SubscriberStateOffline:
+                return IceStorm::Instrumentation::SubscriberState::SubscriberStateOffline;
+            case Subscriber::SubscriberStateError:
+            case Subscriber::SubscriberStateReaped:
+                return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
+            default:
+                assert(false);
+                return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
+        }
     }
-
-    bool
-    ice_invoke(pair<const uint8_t*, const uint8_t*> inParams,
-               vector<uint8_t>&,
-               const Ice::Current& current) override
-    {
-        // Use cached reads.
-        CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
-
-        EventData event = { current.operation, current.mode, Ice::ByteSeq(), current.ctx };
-
-        Ice::ByteSeq data(inParams.first, inParams.second);
-        event.data.swap(data);
-
-        EventDataSeq e;
-        e.push_back(std::move(event));
-        _subscriber->queue(false, std::move(e));
-        return true;
-    }
-
-private:
-
-    const shared_ptr<Instance> _instance;
-    shared_ptr<Subscriber> _subscriber;
-};
-
-IceStorm::Instrumentation::SubscriberState
-toSubscriberState(Subscriber::SubscriberState s)
-{
-    switch(s)
-    {
-    case Subscriber::SubscriberStateOnline:
-        return IceStorm::Instrumentation::SubscriberState::SubscriberStateOnline;
-    case Subscriber::SubscriberStateOffline:
-        return IceStorm::Instrumentation::SubscriberState::SubscriberStateOffline;
-    case Subscriber::SubscriberStateError:
-    case Subscriber::SubscriberStateReaped:
-        return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
-    default:
-        assert(false);
-        return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
-    }
-}
 
 }
 
@@ -95,56 +80,50 @@ toSubscriberState(Subscriber::SubscriberState s)
 namespace
 {
 
-class SubscriberOneway final : public Subscriber
-{
-public:
+    class SubscriberOneway final : public Subscriber
+    {
+    public:
+        SubscriberOneway(
+            const shared_ptr<Instance>&,
+            const SubscriberRecord&,
+            const Ice::ObjectPrx&,
+            int,
+            Ice::ObjectPrx);
 
-    SubscriberOneway(
-        const shared_ptr<Instance>&,
-        const SubscriberRecord&,
-        const Ice::ObjectPrx&,
-        int,
-        Ice::ObjectPrx);
+        void flush() override;
+        void sentAsynchronously();
 
-    void flush() override;
-    void sentAsynchronously();
+    private:
+        const Ice::ObjectPrx _obj;
+    };
 
-private:
+    class SubscriberTwoway final : public Subscriber
+    {
+    public:
+        SubscriberTwoway(
+            const shared_ptr<Instance>&,
+            const SubscriberRecord&,
+            const Ice::ObjectPrx&,
+            int,
+            int,
+            Ice::ObjectPrx);
 
-    const Ice::ObjectPrx _obj;
-};
+        void flush() override;
 
-class SubscriberTwoway final : public Subscriber
-{
-public:
+    private:
+        const Ice::ObjectPrx _obj;
+    };
 
-    SubscriberTwoway(
-        const shared_ptr<Instance>&,
-        const SubscriberRecord&,
-        const Ice::ObjectPrx&,
-        int,
-        int,
-        Ice::ObjectPrx);
+    class SubscriberLink final : public Subscriber
+    {
+    public:
+        SubscriberLink(const shared_ptr<Instance>&, const SubscriberRecord&);
 
-    void flush() override;
+        void flush() override;
 
-private:
-
-   const Ice::ObjectPrx _obj;
-};
-
-class SubscriberLink final : public Subscriber
-{
-public:
-
-    SubscriberLink(const shared_ptr<Instance>&, const SubscriberRecord&);
-
-    void flush() override;
-
-private:
-
-    const TopicLinkPrx _obj;
-};
+    private:
+        const TopicLinkPrx _obj;
+    };
 
 }
 
@@ -153,9 +132,9 @@ SubscriberOneway::SubscriberOneway(
     const SubscriberRecord& rec,
     const Ice::ObjectPrx& proxy,
     int retryCount,
-    Ice::ObjectPrx obj) :
-    Subscriber(instance, rec, proxy, retryCount, 5),
-    _obj(std::move(obj))
+    Ice::ObjectPrx obj)
+    : Subscriber(instance, rec, proxy, retryCount, 5),
+      _obj(std::move(obj))
 {
 }
 
@@ -167,13 +146,13 @@ SubscriberOneway::flush()
     //
     // If the subscriber isn't online we're done.
     //
-    if(_state != SubscriberStateOnline || _events.empty())
+    if (_state != SubscriberStateOnline || _events.empty())
     {
         return;
     }
 
     // Send up to _maxOutstanding pending events.
-    while(_outstanding < _maxOutstanding && !_events.empty())
+    while (_outstanding < _maxOutstanding && !_events.empty())
     {
         //
         // Dequeue the head event, count one more outstanding AMI
@@ -181,7 +160,7 @@ SubscriberOneway::flush()
         //
         EventData e = std::move(_events.front());
         _events.pop_front();
-        if(_observer)
+        if (_observer)
         {
             _observer->outstanding(1);
         }
@@ -192,15 +171,12 @@ SubscriberOneway::flush()
             auto isSent = make_shared<promise<bool>>();
             auto future = isSent->get_future();
 
-            _obj->ice_invokeAsync(e.op, e.mode, e.data, nullptr,
-                [self](exception_ptr ex)
-                {
-                    self->error(true, ex);
-                },
+            _obj->ice_invokeAsync(
+                e.op, e.mode, e.data, nullptr, [self](exception_ptr ex) { self->error(true, ex); },
                 [self, isSent](bool sentSynchronously)
                 {
                     isSent->set_value(sentSynchronously);
-                    if(!sentSynchronously)
+                    if (!sentSynchronously)
                     {
                         self->sentAsynchronously();
                     }
@@ -216,23 +192,23 @@ SubscriberOneway::flush()
             // Otherwise if the request was sent asynchronously but quick enough so that the isSent promise is already
             // fulfilled, we need to verify the sent callback's sentSynchronously value
             //
-            if(future.wait_for(0s) != future_status::ready || future.get() == false)
+            if (future.wait_for(0s) != future_status::ready || future.get() == false)
             {
                 ++_outstanding;
             }
-            else if(_observer)
+            else if (_observer)
             {
                 _observer->delivered(1);
             }
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
             error(false, current_exception());
             return;
         }
     }
 
-    if(_events.empty() && _outstanding == 0 && _shutdown)
+    if (_events.empty() && _outstanding == 0 && _shutdown)
     {
         _condVar.notify_one();
     }
@@ -246,16 +222,16 @@ SubscriberOneway::sentAsynchronously()
     // Decrement the _outstanding count.
     --_outstanding;
     assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
-    if(_observer)
+    if (_observer)
     {
         _observer->delivered(1);
     }
 
-    if(_events.empty() && _outstanding == 0 && _shutdown)
+    if (_events.empty() && _outstanding == 0 && _shutdown)
     {
         _condVar.notify_one();
     }
-    else if(_outstanding <= 0 && !_events.empty())
+    else if (_outstanding <= 0 && !_events.empty())
     {
         flush();
     }
@@ -267,9 +243,9 @@ SubscriberTwoway::SubscriberTwoway(
     const Ice::ObjectPrx& proxy,
     int retryCount,
     int maxOutstanding,
-    Ice::ObjectPrx obj) :
-    Subscriber(instance, rec, proxy, retryCount, maxOutstanding),
-    _obj(std::move(obj))
+    Ice::ObjectPrx obj)
+    : Subscriber(instance, rec, proxy, retryCount, maxOutstanding),
+      _obj(std::move(obj))
 {
 }
 
@@ -281,13 +257,13 @@ SubscriberTwoway::flush()
     //
     // If the subscriber isn't online we're done.
     //
-    if(_state != SubscriberStateOnline || _events.empty())
+    if (_state != SubscriberStateOnline || _events.empty())
     {
         return;
     }
 
     // Send up to _maxOutstanding pending events.
-    while(_outstanding < _maxOutstanding && !_events.empty())
+    while (_outstanding < _maxOutstanding && !_events.empty())
     {
         //
         // Dequeue the head event, count one more outstanding AMI
@@ -298,7 +274,7 @@ SubscriberTwoway::flush()
 
         ++_outstanding;
 
-        if(_observer)
+        if (_observer)
         {
             _observer->outstanding(1);
         }
@@ -306,18 +282,11 @@ SubscriberTwoway::flush()
         try
         {
             auto self = static_pointer_cast<SubscriberTwoway>(shared_from_this());
-            _obj->ice_invokeAsync(e.op, e.mode, e.data,
-                [self](bool, vector<uint8_t>)
-                {
-                    self->completed();
-                },
-                [self](exception_ptr ex)
-                {
-                    self->error(true, ex);
-                },
-                nullptr, e.context);
+            _obj->ice_invokeAsync(
+                e.op, e.mode, e.data, [self](bool, vector<uint8_t>) { self->completed(); },
+                [self](exception_ptr ex) { self->error(true, ex); }, nullptr, e.context);
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
             error(true, current_exception());
             return;
@@ -328,84 +297,80 @@ SubscriberTwoway::flush()
 namespace
 {
 
-SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance,
-                               const SubscriberRecord& rec) :
-    Subscriber(instance, rec, nullopt, -1, 1),
-    _obj(TopicLinkPrx(
-        rec.obj->ice_collocationOptimized(false)->ice_timeout(static_cast<int>(instance->sendTimeout().count()))))
-{
-}
-
-void
-SubscriberLink::flush()
-{
-    lock_guard lock(_mutex);
-
-    if(_state != SubscriberStateOnline || _outstanding > 0)
+    SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
+        : Subscriber(instance, rec, nullopt, -1, 1),
+          _obj(TopicLinkPrx(
+              rec.obj->ice_collocationOptimized(false)->ice_timeout(static_cast<int>(instance->sendTimeout().count()))))
     {
-        return;
     }
 
-    EventDataSeq v;
-    v.swap(_events);
-
-    auto p = v.begin();
-    while(p != v.end())
+    void SubscriberLink::flush()
     {
-        if(_rec.cost != 0)
+        lock_guard lock(_mutex);
+
+        if (_state != SubscriberStateOnline || _outstanding > 0)
         {
-            int cost = 0;
-            auto q = p->context.find("cost");
-            if(q != p->context.end())
+            return;
+        }
+
+        EventDataSeq v;
+        v.swap(_events);
+
+        auto p = v.begin();
+        while (p != v.end())
+        {
+            if (_rec.cost != 0)
             {
-                try
+                int cost = 0;
+                auto q = p->context.find("cost");
+                if (q != p->context.end())
                 {
-                    cost = stoi(q->second);
+                    try
+                    {
+                        cost = stoi(q->second);
+                    }
+                    catch (const std::invalid_argument&)
+                    {
+                        cost = 0;
+                    }
                 }
-                catch(const std::invalid_argument&)
+                if (cost > _rec.cost)
                 {
-                    cost = 0;
+                    p = v.erase(p);
+                    continue;
                 }
             }
-            if(cost > _rec.cost)
+            ++p;
+        }
+
+        if (!v.empty())
+        {
+            try
             {
-                p = v.erase(p);
-                continue;
+                ++_outstanding;
+                if (_observer)
+                {
+                    _outstandingCount = static_cast<int>(v.size());
+                    _observer->outstanding(_outstandingCount);
+                }
+
+                auto self = shared_from_this();
+                _obj->forwardAsync(
+                    v, [self]() { self->completed(); }, [self](exception_ptr ex) { self->error(true, ex); });
+            }
+            catch (const std::exception&)
+            {
+                error(true, current_exception());
             }
         }
-        ++p;
     }
-
-    if(!v.empty())
-    {
-        try
-        {
-            ++_outstanding;
-            if(_observer)
-            {
-                _outstandingCount = static_cast<int>(v.size());
-                _observer->outstanding(_outstandingCount);
-            }
-
-            auto self = shared_from_this();
-            _obj->forwardAsync(
-                v,
-                [self]() { self->completed(); },
-                [self](exception_ptr ex) { self->error(true, ex); });
-        }
-        catch(const std::exception&)
-        {
-            error(true, current_exception());
-        }
-    }
-}
 
 }
 
 shared_ptr<Subscriber>
 Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
 {
-    if(rec.link)
+    if (rec.link)
     {
         return make_shared<SubscriberLink>(instance, rec);
     }
@@ -415,7 +380,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
         Ice::Identity perId;
         perId.category = instance->instanceName();
         perId.name = "topic." + rec.topicName + ".publish." +
-            instance->communicator()->identityToString(rec.obj->ice_getIdentity());
+                     instance->communicator()->identityToString(rec.obj->ice_getIdentity());
         auto proxy = instance->publishAdapter()->add(per, perId);
         auto traceLevels = instance->traceLevels();
         shared_ptr<Subscriber> subscriber;
@@ -424,18 +389,18 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
         {
             int retryCount = 0;
             QoS::const_iterator p = rec.theQoS.find("retryCount");
-            if(p != rec.theQoS.end())
+            if (p != rec.theQoS.end())
             {
                 retryCount = atoi(p->second.c_str());
             }
 
             string reliability;
             p = rec.theQoS.find("reliability");
-            if(p != rec.theQoS.end())
+            if (p != rec.theQoS.end())
             {
                 reliability = p->second;
             }
-            if(!reliability.empty() && reliability != "ordered")
+            if (!reliability.empty() && reliability != "ordered")
             {
                 throw BadQoS("invalid reliability: " + reliability);
             }
@@ -446,7 +411,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             {
                 newObj = rec.obj->ice_timeout(static_cast<int>(instance->sendTimeout().count()));
             }
-            catch(const Ice::FixedProxyException&)
+            catch (const Ice::FixedProxyException&)
             {
                 // In the event IceStorm is collocated this could be a fixed proxy in which case its not possible to
                 // set the timeout.
@@ -454,11 +419,11 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             }
 
             p = rec.theQoS.find("locatorCacheTimeout");
-            if(p != rec.theQoS.end())
+            if (p != rec.theQoS.end())
             {
                 istringstream is(IceUtilInternal::trim(p->second));
                 int locatorCacheTimeout;
-                if(!(is >> locatorCacheTimeout) || !is.eof())
+                if (!(is >> locatorCacheTimeout) || !is.eof())
                 {
                     throw BadQoS("invalid locator cache timeout (numeric value required): " + p->second);
                 }
@@ -466,42 +431,42 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             }
 
             p = rec.theQoS.find("connectionCached");
-            if(p != rec.theQoS.end())
+            if (p != rec.theQoS.end())
             {
                 istringstream is(IceUtilInternal::trim(p->second));
                 int connectionCached;
-                if(!(is >> connectionCached) || !is.eof())
+                if (!(is >> connectionCached) || !is.eof())
                 {
                     throw BadQoS("invalid connection cached setting (numeric value required): " + p->second);
                 }
                 newObj = newObj->ice_connectionCached(connectionCached > 0);
             }
 
-            if(newObj->ice_isBatchOneway())
+            if (newObj->ice_isBatchOneway())
             {
                 // Use Oneway in case of Batch Oneway
                 newObj = newObj->ice_oneway();
             }
-            else if(newObj->ice_isBatchDatagram())
+            else if (newObj->ice_isBatchDatagram())
             {
                 // Use Datagram in case of Batch Datagram
                 newObj = newObj->ice_datagram();
             }
             assert(newObj);
 
-            if(reliability == "ordered")
+            if (reliability == "ordered")
             {
-                if(!newObj->ice_isTwoway())
+                if (!newObj->ice_isTwoway())
                 {
                     throw BadQoS("ordered reliability requires a twoway proxy");
                 }
                 subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 1, *newObj);
             }
-            else if(newObj->ice_isOneway() || newObj->ice_isDatagram())
+            else if (newObj->ice_isOneway() || newObj->ice_isDatagram())
             {
                 subscriber = make_shared<SubscriberOneway>(instance, rec, proxy, retryCount, *newObj);
             }
-            else //if(newObj->ice_isTwoway())
+            else // if(newObj->ice_isTwoway())
             {
                 assert(newObj->ice_isTwoway());
                 subscriber = make_shared<SubscriberTwoway>(instance, rec, proxy, retryCount, 5, *newObj);
@@ -544,58 +509,58 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
     // If this is a link subscriber if the set of events were
     // forwarded from another IceStorm instance then do not queue the
     // events.
-    if(forwarded && _rec.link)
+    if (forwarded && _rec.link)
     {
         return true;
     }
 
-    switch(_state)
+    switch (_state)
     {
-    case SubscriberStateOffline:
-    {
-        if(chrono::steady_clock::now() < _next)
+        case SubscriberStateOffline:
         {
+            if (chrono::steady_clock::now() < _next)
+            {
+                break;
+            }
+
+            //
+            // State transition to online.
+            //
+            setState(SubscriberStateOnline);
+        }
+            /* FALLTHROUGH */
+
+        case SubscriberStateOnline:
+        {
+            for (EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
+            {
+                if (static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
+                {
+                    if (_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
+                    {
+                        error(false, make_exception_ptr(SendQueueSizeMaxReached(__FILE__, __LINE__)));
+                        return false;
+                    }
+                    else // DropEvents
+                    {
+                        _events.pop_front();
+                    }
+                }
+                _events.push_back(*p);
+            }
+
+            if (_observer)
+            {
+                _observer->queued(static_cast<int32_t>(events.size()));
+            }
+            flush();
             break;
         }
+        case SubscriberStateError:
+            return false;
 
-        //
-        // State transition to online.
-        //
-        setState(SubscriberStateOnline);
-    }
-    /* FALLTHROUGH */
-
-    case SubscriberStateOnline:
-    {
-        for(EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
-        {
-            if(static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
-            {
-                if(_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
-                {
-                    error(false, make_exception_ptr(SendQueueSizeMaxReached(__FILE__, __LINE__)));
-                    return false;
-                }
-                else // DropEvents
-                {
-                    _events.pop_front();
-                }
-            }
-            _events.push_back(*p);
-        }
-
-        if(_observer)
-        {
-            _observer->queued(static_cast<int32_t>(events.size()));
-        }
-        flush();
-        break;
-    }
-    case SubscriberStateError:
-        return false;
-
-    case SubscriberStateReaped:
-        break;
+        case SubscriberStateReaped:
+            break;
     }
 
     return true;
@@ -606,7 +571,7 @@ Subscriber::reap()
 {
     lock_guard lock(_mutex);
     assert(_state >= SubscriberStateError);
-    if(_state == SubscriberStateError)
+    if (_state == SubscriberStateError)
     {
         setState(SubscriberStateReaped);
         return true;
@@ -619,7 +584,7 @@ Subscriber::resetIfReaped()
 {
     lock_guard lock(_mutex);
 
-    if(_state == SubscriberStateReaped)
+    if (_state == SubscriberStateReaped)
     {
         setState(SubscriberStateError);
     }
@@ -639,17 +604,17 @@ Subscriber::destroy()
     //
     // Clear the per-subscriber object if it exists.
     //
-    if(_proxy)
+    if (_proxy)
     {
         try
         {
             _instance->publishAdapter()->remove(_proxy->ice_getIdentity());
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
             // Ignore
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
             // Ignore
         }
@@ -667,7 +632,7 @@ Subscriber::completed()
     // Decrement the _outstanding count.
     --_outstanding;
     assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
-    if(_observer)
+    if (_observer)
     {
         _observer->delivered(_outstandingCount);
     }
@@ -678,7 +643,7 @@ Subscriber::completed()
     //
     _currentRetry = 0;
 
-    if(_events.empty() && _outstanding == 0 && _shutdown)
+    if (_events.empty() && _outstanding == 0 && _shutdown)
     {
         _condVar.notify_one();
     }
@@ -693,7 +658,7 @@ Subscriber::error(bool dec, exception_ptr e)
 {
     lock_guard lock(_mutex);
 
-    if(dec)
+    if (dec)
     {
         // Decrement the _outstanding count.
         --_outstanding;
@@ -704,9 +669,9 @@ Subscriber::error(bool dec, exception_ptr e)
     // It's possible to be already in the error state if the queue maximum size
     // has been reached or if an ObjectNotExistException occurred before.
     //
-    if(_state >= SubscriberStateError)
+    if (_state >= SubscriberStateError)
     {
-        if(_shutdown)
+        if (_shutdown)
         {
             _condVar.notify_one();
         }
@@ -720,22 +685,22 @@ Subscriber::error(bool dec, exception_ptr e)
     {
         rethrow_exception(e);
     }
-    catch(const Ice::ObjectNotExistException& ex)
+    catch (const Ice::ObjectNotExistException& ex)
     {
         hardError = true;
         what = ex.what();
     }
-    catch(const Ice::NotRegisteredException& ex)
+    catch (const Ice::NotRegisteredException& ex)
     {
         hardError = true;
         what = ex.what();
     }
-    catch(const SendQueueSizeMaxReached& ex)
+    catch (const SendQueueSizeMaxReached& ex)
     {
         hardError = true;
         what = ex.what();
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         hardError = false;
         what = ex.what();
@@ -748,7 +713,7 @@ Subscriber::error(bool dec, exception_ptr e)
     // next request.
     //
     auto now = std::chrono::steady_clock::now();
-    if(!hardError && _state == SubscriberStateOffline && now < _next)
+    if (!hardError && _state == SubscriberStateOffline && now < _next)
     {
         return;
     }
@@ -758,35 +723,34 @@ Subscriber::error(bool dec, exception_ptr e)
     // (that is ObjectNotExistException or NotRegisteredException)
     // then we transition to an offline state.
     //
-    if(!hardError && (_retryCount == -1 || _currentRetry < _retryCount))
+    if (!hardError && (_retryCount == -1 || _currentRetry < _retryCount))
     {
         assert(_state < SubscriberStateError);
 
         auto traceLevels = _instance->traceLevels();
-        if(_currentRetry == 0)
+        if (_currentRetry == 0)
         {
             Ice::Warning warn(traceLevels->logger);
             warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_rec.id);
-            if(traceLevels->subscriber > 1)
+            if (traceLevels->subscriber > 1)
             {
                 warn << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
             }
-            warn << " subscriber offline: " << what
-                 << " discarding events: " << _instance->discardInterval().count() << "s retryCount: " << _retryCount;
+            warn << " subscriber offline: " << what << " discarding events: " << _instance->discardInterval().count()
+                 << "s retryCount: " << _retryCount;
         }
         else
         {
-            if(traceLevels->subscriber > 0)
+            if (traceLevels->subscriber > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
                 out << _instance->communicator()->identityToString(_rec.id);
-                if(traceLevels->subscriber > 1)
+                if (traceLevels->subscriber > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
                 }
-                out << " subscriber offline: " << what
-                    << " discarding events: " << _instance->discardInterval().count() << "s retry: "
-                    << _currentRetry << "/" << _retryCount;
+                out << " subscriber offline: " << what << " discarding events: " << _instance->discardInterval().count()
+                    << "s retry: " << _currentRetry << "/" << _retryCount;
             }
         }
 
@@ -798,26 +762,25 @@ Subscriber::error(bool dec, exception_ptr e)
         setState(SubscriberStateOffline);
     }
     // Errored out.
-    else if(_state < SubscriberStateError)
+    else if (_state < SubscriberStateError)
     {
         _events.clear();
         setState(SubscriberStateError);
 
         auto traceLevels = _instance->traceLevels();
-        if(traceLevels->subscriber > 0)
+        if (traceLevels->subscriber > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
             out << _instance->communicator()->identityToString(_rec.id);
-            if(traceLevels->subscriber > 1)
+            if (traceLevels->subscriber > 1)
             {
                 out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
             }
-            out << " subscriber errored out: " << what
-                << " retry: " << _currentRetry << "/" << _retryCount;
+            out << " subscriber errored out: " << what << " retry: " << _currentRetry << "/" << _retryCount;
         }
     }
 
-    if(_shutdown && _events.empty())
+    if (_shutdown && _events.empty())
     {
         _condVar.notify_one();
     }
@@ -829,7 +792,7 @@ Subscriber::shutdown()
     unique_lock lock(_mutex);
 
     _shutdown = true;
-    while(_outstanding > 0 && !_events.empty())
+    while (_outstanding > 0 && !_events.empty())
     {
         _condVar.wait(lock);
     }
@@ -842,85 +805,77 @@ Subscriber::updateObserver()
 {
     lock_guard lock(_mutex);
 
-    if(_instance->observer())
+    if (_instance->observer())
     {
         assert(_rec.obj);
-        _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
-                                                                      _rec.topicName,
-                                                                      *_rec.obj,
-                                                                      _rec.theQoS,
-                                                                      _rec.theTopic,
-                                                                      toSubscriberState(_state),
-                                                                      _observer.get()));
+        _observer.attach(_instance->observer()->getSubscriberObserver(
+            _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            _observer.get()));
     }
 }
 
-Subscriber::Subscriber(shared_ptr<Instance> instance,
-                       SubscriberRecord rec,
-                       optional<Ice::ObjectPrx> proxy,
-                       int retryCount,
-                       int maxOutstanding) :
-    _instance(std::move(instance)),
-    _rec(std::move(rec)),
-    _retryCount(retryCount),
-    _maxOutstanding(maxOutstanding),
-    _proxy(std::move(proxy)),
-    _proxyReplica(_proxy),
-    _shutdown(false),
-    _state(SubscriberStateOnline),
-    _outstanding(0),
-    _outstandingCount(1),
-    _currentRetry(0)
+Subscriber::Subscriber(
+    shared_ptr<Instance> instance,
+    SubscriberRecord rec,
+    optional<Ice::ObjectPrx> proxy,
+    int retryCount,
+    int maxOutstanding)
+    : _instance(std::move(instance)),
+      _rec(std::move(rec)),
+      _retryCount(retryCount),
+      _maxOutstanding(maxOutstanding),
+      _proxy(std::move(proxy)),
+      _proxyReplica(_proxy),
+      _shutdown(false),
+      _state(SubscriberStateOnline),
+      _outstanding(0),
+      _outstandingCount(1),
+      _currentRetry(0)
 {
-    if(_proxy && _instance->publisherReplicaProxy())
+    if (_proxy && _instance->publisherReplicaProxy())
     {
         const_cast<optional<Ice::ObjectPrx>&>(_proxyReplica) =
             _instance->publisherReplicaProxy()->ice_identity(_proxy->ice_getIdentity());
     }
 
-    if(_instance->observer())
+    if (_instance->observer())
     {
         assert(_rec.obj);
-        _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
-                                                                      _rec.topicName,
-                                                                      *_rec.obj,
-                                                                      _rec.theQoS,
-                                                                      _rec.theTopic,
-                                                                      toSubscriberState(_state),
-                                                                      0));
+        _observer.attach(_instance->observer()->getSubscriberObserver(
+            _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            0));
     }
 }
 
 namespace
 {
 
-string
-stateToString(Subscriber::SubscriberState state)
-{
-    switch(state)
+    string stateToString(Subscriber::SubscriberState state)
     {
-    case Subscriber::SubscriberStateOnline:
-        return "online";
-    case Subscriber::SubscriberStateOffline:
-        return "offline";
-    case Subscriber::SubscriberStateError:
-        return "error";
-    case Subscriber::SubscriberStateReaped:
-        return "reaped";
-    default:
-        return "???";
+        switch (state)
+        {
+            case Subscriber::SubscriberStateOnline:
+                return "online";
+            case Subscriber::SubscriberStateOffline:
+                return "offline";
+            case Subscriber::SubscriberStateError:
+                return "error";
+            case Subscriber::SubscriberStateReaped:
+                return "reaped";
+            default:
+                return "???";
+        }
     }
-}
 
 }
 
 void
 Subscriber::setState(Subscriber::SubscriberState state)
 {
-    if(state != _state)
+    if (state != _state)
     {
         auto traceLevels = _instance->traceLevels();
-        if(traceLevels->subscriber > 1)
+        if (traceLevels->subscriber > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
             out << "endpoints: " << IceStormInternal::describeEndpoints(_rec.obj)
@@ -928,16 +883,12 @@ Subscriber::setState(Subscriber::SubscriberState state)
         }
         _state = state;
 
-        if(_instance->observer())
+        if (_instance->observer())
         {
             assert(_rec.obj);
-            _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
-                                                                          _rec.topicName,
-                                                                          *_rec.obj,
-                                                                          _rec.theQoS,
-                                                                          _rec.theTopic,
-                                                                          toSubscriberState(_state),
-                                                                          _observer.get()));
+            _observer.attach(_instance->observer()->getSubscriberObserver(
+                _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic,
+                toSubscriberState(_state), _observer.get()));
         }
     }
 }

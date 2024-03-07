@@ -13,12 +13,12 @@
 namespace IcePy
 {
 
-bool initConnection(PyObject*);
+    bool initConnection(PyObject*);
 
-PyObject* createConnection(const Ice::ConnectionPtr&, const Ice::CommunicatorPtr&);
+    PyObject* createConnection(const Ice::ConnectionPtr&, const Ice::CommunicatorPtr&);
 
-bool checkConnection(PyObject*);
-bool getConnectionArg(PyObject*, const std::string&, const std::string&, Ice::ConnectionPtr&);
+    bool checkConnection(PyObject*);
+    bool getConnectionArg(PyObject*, const std::string&, const std::string&, Ice::ConnectionPtr&);
 
 }
 

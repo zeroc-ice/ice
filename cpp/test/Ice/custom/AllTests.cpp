@@ -9,7 +9,7 @@
 #include <iterator>
 
 #ifdef _MSC_VER
-#   pragma warning( 4 : 4503 ) // C4503: ... : decorated name length exceeded, name was truncated
+#    pragma warning(4 : 4503) // C4503: ... : decorated name length exceeded, name was truncated
 #endif
 
 using namespace std;
@@ -19,25 +19,24 @@ using namespace Test;
 namespace
 {
 
-template<typename T> bool
-arrayRangeEquals(pair<const T*, const T*> lhs, pair<const T*, const T*> rhs)
-{
-    if(lhs.second - lhs.first != rhs.second - rhs.first)
+    template<typename T> bool arrayRangeEquals(pair<const T*, const T*> lhs, pair<const T*, const T*> rhs)
     {
-        return false;
-    }
-
-    T* l = const_cast<T*>(lhs.first);
-    T* r = const_cast<T*>(rhs.first);
-    while(l != lhs.second)
-    {
-        if(*l++ != *r++)
+        if (lhs.second - lhs.first != rhs.second - rhs.first)
         {
             return false;
         }
+
+        T* l = const_cast<T*>(lhs.first);
+        T* r = const_cast<T*>(rhs.first);
+        while (l != lhs.second)
+        {
+            if (*l++ != *r++)
+            {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-}
 
 }
 
@@ -46,9 +45,7 @@ allTests(TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
-    TestIntfPrx t(
-        communicator,
-        communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp));
+    TestIntfPrx t(communicator, communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp));
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
     test(t->ice_id() == TestIntfPrx::ice_staticId());
@@ -66,7 +63,7 @@ allTests(TestHelper* helper)
         in[3] = 4 / 3;
         in[4] = -5.725;
         double inArray[5];
-        for(size_t i = 0; i < 5; ++i)
+        for (size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -86,7 +83,7 @@ allTests(TestHelper* helper)
         in[3] = false;
         in[4] = true;
         bool inArray[5];
-        for(size_t i = 0; i < 5; ++i)
+        for (size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -200,7 +197,7 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
             *p = static_cast<uint8_t>('1' + i++);
         }
@@ -256,7 +253,7 @@ allTests(TestHelper* helper)
     {
         list<Fixed> in(5);
         short num = 1;
-        for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
@@ -337,11 +334,11 @@ allTests(TestHelper* helper)
 
     {
         deque<E> in(5);
-        in[0] =  E::E1;
-        in[1] =  E::E2;
-        in[2] =  E::E3;
-        in[3] =  E::E1;
-        in[4] =  E::E3;
+        in[0] = E::E1;
+        in[1] = E::E2;
+        in[2] = E::E3;
+        in[3] = E::E1;
+        in[4] = E::E3;
 
         deque<E> out;
         deque<E> ret = t->opESeq(in, out);
@@ -351,11 +348,11 @@ allTests(TestHelper* helper)
 
     {
         list<E> in;
-        in.push_back( E::E1);
-        in.push_back( E::E2);
-        in.push_back( E::E3);
-        in.push_back( E::E1);
-        in.push_back( E::E3);
+        in.push_back(E::E1);
+        in.push_back(E::E2);
+        in.push_back(E::E3);
+        in.push_back(E::E1);
+        in.push_back(E::E3);
 
         list<E> out;
         list<E> ret = t->opEList(in, out);
@@ -377,7 +374,7 @@ allTests(TestHelper* helper)
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for(auto i: in)
+        for (auto i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -397,7 +394,7 @@ allTests(TestHelper* helper)
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for(auto i: in)
+        for (auto i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -416,7 +413,7 @@ allTests(TestHelper* helper)
         deque<CPtr> ret = t->opCSeq(in, out);
         test(out.size() == in.size());
         test(ret.size() == in.size());
-        for(unsigned int i = 1; i < in.size(); ++i)
+        for (unsigned int i = 1; i < in.size(); ++i)
         {
             test(out[i] == out[0]);
             test(ret[i] == out[i]);
@@ -437,7 +434,7 @@ allTests(TestHelper* helper)
         test(ret.size() == in.size());
         list<CPtr>::const_iterator p1;
         list<CPtr>::const_iterator p2;
-        for(p1 = out.begin(), p2 = ret.begin(); p1 != out.end(); ++p1, ++p2)
+        for (p1 = out.begin(), p2 = ret.begin(); p1 != out.end(); ++p1, ++p2)
         {
             test(*p1 == *p2);
         }
@@ -480,7 +477,7 @@ allTests(TestHelper* helper)
         test(out == idict);
 
         test(ret.size() == 1000);
-        for(CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for (CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -541,7 +538,7 @@ allTests(TestHelper* helper)
             in[3] = 4 / 3;
             in[4] = -5.725;
             double inArray[5];
-            for(size_t i = 0; i < 5; ++i)
+            for (size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
@@ -559,7 +556,7 @@ allTests(TestHelper* helper)
             in[3] = false;
             in[4] = true;
             bool inArray[5];
-            for(size_t i = 0; i < 5; ++i)
+            for (size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
@@ -665,7 +662,7 @@ allTests(TestHelper* helper)
         {
             MyByteSeq in(5);
             int i = 0;
-            for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+            for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
             {
                 *p = static_cast<uint8_t>('1' + i++);
             }
@@ -717,7 +714,7 @@ allTests(TestHelper* helper)
         {
             list<Fixed> in(5);
             short num = 1;
-            for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+            for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
             {
                 (*p).s = num++;
             }
@@ -793,11 +790,11 @@ allTests(TestHelper* helper)
 
         {
             deque<E> in(5);
-            in[0] =  E::E1;
-            in[1] =  E::E2;
-            in[2] =  E::E3;
-            in[3] =  E::E1;
-            in[4] =  E::E3;
+            in[0] = E::E1;
+            in[1] = E::E2;
+            in[2] = E::E3;
+            in[3] = E::E1;
+            in[4] = E::E3;
 
             auto r = t->opESeqAsync(in).get();
             test(std::get<1>(r) == in);
@@ -806,11 +803,11 @@ allTests(TestHelper* helper)
 
         {
             list<E> in;
-            in.push_back( E::E1);
-            in.push_back( E::E2);
-            in.push_back( E::E3);
-            in.push_back( E::E1);
-            in.push_back( E::E3);
+            in.push_back(E::E1);
+            in.push_back(E::E2);
+            in.push_back(E::E3);
+            in.push_back(E::E1);
+            in.push_back(E::E3);
 
             auto r = t->opEListAsync(in).get();
             test(std::get<1>(r) == in);
@@ -833,7 +830,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for(auto i: in)
+            for (auto i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -856,7 +853,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for(auto i: in)
+            for (auto i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -876,7 +873,7 @@ allTests(TestHelper* helper)
             test(std::get<0>(r).size() == in.size());
 
             auto rp = std::get<0>(r).begin();
-            for(auto o: std::get<1>(r))
+            for (auto o : std::get<1>(r))
             {
                 test(o == std::get<1>(r)[0]);
                 test(*rp++ == o);
@@ -921,7 +918,7 @@ allTests(TestHelper* helper)
         in[3] = 4 / 3;
         in[4] = -5.725;
         double inArray[5];
-        for(size_t i = 0; i < 5; ++i)
+        for (size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -929,18 +926,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opDoubleArrayAsync(inPair,
-                              [&](pair<const double*, const double*> ret,
-                                  pair<const double*, const double*> out)
-                              {
-                                  test(arrayRangeEquals<double>(out, inPair));
-                                  test(arrayRangeEquals<double>(ret, inPair));
-                                  done.set_value(true);
-                              },
-                              [&](std::exception_ptr)
-                              {
-                                  done.set_value(false);
-                              });
+        t->opDoubleArrayAsync(
+            inPair,
+            [&](pair<const double*, const double*> ret, pair<const double*, const double*> out)
+            {
+                test(arrayRangeEquals<double>(out, inPair));
+                test(arrayRangeEquals<double>(ret, inPair));
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -953,7 +947,7 @@ allTests(TestHelper* helper)
         in[3] = false;
         in[4] = true;
         bool inArray[5];
-        for(size_t i = 0; i < 5; ++i)
+        for (size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -961,18 +955,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opBoolArrayAsync(inPair,
-                            [&](pair<const bool*, const bool*> ret,
-                                pair<const bool*, const bool*> out)
-                            {
-                                test(arrayRangeEquals<bool>(out, inPair));
-                                test(arrayRangeEquals<bool>(ret, inPair));
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        t->opBoolArrayAsync(
+            inPair,
+            [&](pair<const bool*, const bool*> ret, pair<const bool*, const bool*> out)
+            {
+                test(arrayRangeEquals<bool>(out, inPair));
+                test(arrayRangeEquals<bool>(ret, inPair));
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -988,18 +979,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opByteArrayAsync(inPair,
-                            [&](pair<const uint8_t*, const uint8_t*> ret,
-                                pair<const uint8_t*, const uint8_t*> out)
-                            {
-                                test(arrayRangeEquals<uint8_t>(out, inPair));
-                                test(arrayRangeEquals<uint8_t>(ret, inPair));
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        t->opByteArrayAsync(
+            inPair,
+            [&](pair<const uint8_t*, const uint8_t*> ret, pair<const uint8_t*, const uint8_t*> out)
+            {
+                test(arrayRangeEquals<uint8_t>(out, inPair));
+                test(arrayRangeEquals<uint8_t>(ret, inPair));
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1021,18 +1009,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opVariableArrayAsync(inPair,
-                                [&](pair<const Variable*, const Variable*> ret,
-                                    pair<const Variable*, const Variable*> out)
-                                {
-                                    test(arrayRangeEquals<Variable>(out, inPair));
-                                    test(arrayRangeEquals<Variable>(ret, inPair));
-                                    done.set_value(true);
-                                },
-                                [&](std::exception_ptr)
-                                {
-                                    done.set_value(false);
-                                });
+        t->opVariableArrayAsync(
+            inPair,
+            [&](pair<const Variable*, const Variable*> ret, pair<const Variable*, const Variable*> out)
+            {
+                test(arrayRangeEquals<Variable>(out, inPair));
+                test(arrayRangeEquals<Variable>(ret, inPair));
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1047,17 +1032,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opBoolSeqAsync(in,
-                          [&](deque<bool>ret, deque<bool> out)
-                          {
-                              test(ret == out);
-                              test(ret == in);
-                              done.set_value(true);
-                          },
-                          [&](std::exception_ptr)
-                          {
-                              done.set_value(false);
-                          });
+        t->opBoolSeqAsync(
+            in,
+            [&](deque<bool> ret, deque<bool> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1072,17 +1055,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opBoolListAsync(in,
-                          [&](list<bool>ret, list<bool> out)
-                          {
-                              test(ret == out);
-                              test(ret == in);
-                              done.set_value(true);
-                          },
-                          [&](std::exception_ptr)
-                          {
-                              done.set_value(false);
-                          });
+        t->opBoolListAsync(
+            in,
+            [&](list<bool> ret, list<bool> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1097,17 +1078,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opByteSeqAsync(in,
-                          [&](deque<uint8_t> ret, deque<uint8_t> out)
-                          {
-                              test(ret == out);
-                              test(ret == in);
-                              done.set_value(true);
-                          },
-                          [&](std::exception_ptr)
-                          {
-                              done.set_value(false);
-                          });
+        t->opByteSeqAsync(
+            in,
+            [&](deque<uint8_t> ret, deque<uint8_t> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1122,17 +1101,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opByteListAsync(in,
-                           [&](list<uint8_t> ret, list<uint8_t> out)
-                           {
-                               test(ret == out);
-                               test(ret == in);
-                               done.set_value(true);
-                           },
-                           [&](std::exception_ptr)
-                           {
-                               done.set_value(false);
-                           });
+        t->opByteListAsync(
+            in,
+            [&](list<uint8_t> ret, list<uint8_t> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1140,24 +1117,22 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
             *p = static_cast<uint8_t>('1' + i++);
         }
 
         promise<bool> done;
 
-        t->opMyByteSeqAsync(in,
-                            [&](MyByteSeq ret, MyByteSeq out)
-                            {
-                                test(ret == out);
-                                test(ret == in);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        t->opMyByteSeqAsync(
+            in,
+            [&](MyByteSeq ret, MyByteSeq out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1172,17 +1147,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opStringSeqAsync(in,
-                            [&](deque<string> ret, deque<string> out)
-                            {
-                                test(ret == out);
-                                test(ret == in);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        t->opStringSeqAsync(
+            in,
+            [&](deque<string> ret, deque<string> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1197,17 +1170,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opStringListAsync(in,
-                             [&](list<string> ret, list<string> out)
-                             {
-                                 test(ret == out);
-                                 test(ret == in);
-                                 done.set_value(true);
-                             },
-                             [&](std::exception_ptr)
-                             {
-                                 done.set_value(false);
-                             });
+        t->opStringListAsync(
+            in,
+            [&](list<string> ret, list<string> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1222,17 +1193,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opFixedSeqAsync(in,
-                           [&](deque<Fixed> ret, deque<Fixed> out)
-                           {
-                               test(ret == out);
-                               test(ret == in);
-                               done.set_value(true);
-                           },
-                           [&](std::exception_ptr)
-                           {
-                               done.set_value(false);
-                           });
+        t->opFixedSeqAsync(
+            in,
+            [&](deque<Fixed> ret, deque<Fixed> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1240,24 +1209,22 @@ allTests(TestHelper* helper)
     {
         list<Fixed> in(5);
         short num = 1;
-        for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
 
         promise<bool> done;
 
-        t->opFixedListAsync(in,
-                            [&](list<Fixed> ret, list<Fixed> out)
-                            {
-                                test(ret == out);
-                                test(ret == in);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        t->opFixedListAsync(
+            in,
+            [&](list<Fixed> ret, list<Fixed> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1272,17 +1239,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opVariableSeqAsync(in,
-                              [&](deque<Variable> ret, deque<Variable> out)
-                              {
-                                  test(ret == out);
-                                  test(ret == in);
-                                  done.set_value(true);
-                              },
-                              [&](std::exception_ptr)
-                              {
-                                  done.set_value(false);
-                              });
+        t->opVariableSeqAsync(
+            in,
+            [&](deque<Variable> ret, deque<Variable> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1303,17 +1268,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opVariableListAsync(in,
-                               [&](list<Variable> ret, list<Variable> out)
-                               {
-                                   test(ret == out);
-                                   test(ret == in);
-                                   done.set_value(true);
-                               },
-                               [&](std::exception_ptr)
-                               {
-                                   done.set_value(false);
-                               });
+        t->opVariableListAsync(
+            in,
+            [&](list<Variable> ret, list<Variable> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1328,17 +1291,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opStringStringDictSeqAsync(in,
-                                      [&](deque<StringStringDict> ret, deque<StringStringDict> out)
-                                      {
-                                          test(ret == out);
-                                          test(ret == in);
-                                          done.set_value(true);
-                                       },
-                                      [&](std::exception_ptr)
-                                      {
-                                          done.set_value(false);
-                                      });
+        t->opStringStringDictSeqAsync(
+            in,
+            [&](deque<StringStringDict> ret, deque<StringStringDict> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1359,67 +1320,61 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opStringStringDictListAsync(in,
-                                   [&](list<StringStringDict> ret, list<StringStringDict> out)
-                                   {
-                                       test(ret == out);
-                                       test(ret == in);
-                                       done.set_value(true);
-                                   },
-                                   [&](std::exception_ptr)
-                                   {
-                                       done.set_value(false);
-                                   });
+        t->opStringStringDictListAsync(
+            in,
+            [&](list<StringStringDict> ret, list<StringStringDict> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
 
     {
         deque<E> in(5);
-        in[0] =  E::E1;
-        in[1] =  E::E2;
-        in[2] =  E::E3;
-        in[3] =  E::E1;
-        in[4] =  E::E3;
+        in[0] = E::E1;
+        in[1] = E::E2;
+        in[2] = E::E3;
+        in[3] = E::E1;
+        in[4] = E::E3;
 
         promise<bool> done;
 
-        t->opESeqAsync(in,
-                       [&](deque<E> ret, deque<E> out)
-                       {
-                           test(ret == out);
-                           test(ret == in);
-                           done.set_value(true);
-                       },
-                       [&](std::exception_ptr)
-                       {
-                           done.set_value(false);
-                       });
+        t->opESeqAsync(
+            in,
+            [&](deque<E> ret, deque<E> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
 
     {
         list<E> in;
-        in.push_back( E::E1);
-        in.push_back( E::E2);
-        in.push_back( E::E3);
-        in.push_back( E::E1);
-        in.push_back( E::E3);
+        in.push_back(E::E1);
+        in.push_back(E::E2);
+        in.push_back(E::E3);
+        in.push_back(E::E1);
+        in.push_back(E::E3);
 
         promise<bool> done;
 
-        t->opEListAsync(in,
-                        [&](list<E> ret, list<E> out)
-                        {
-                            test(ret == out);
-                            test(ret == in);
-                            done.set_value(true);
-                        },
-                        [&](std::exception_ptr)
-                        {
-                            done.set_value(false);
-                        });
+        t->opEListAsync(
+            in,
+            [&](list<E> ret, list<E> out)
+            {
+                test(ret == out);
+                test(ret == in);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1434,23 +1389,21 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opDPrxSeqAsync(in,
-                          [&](deque<optional<DPrx>> ret, deque<optional<DPrx>> out)
-                          {
-                              test(ret.size() == in.size());
-                              auto op = out.begin();
-                              auto rp = ret.begin();
-                              for(auto i: in)
-                              {
-                                  test(*op++ == i);
-                                  test(*rp++ == i);
-                              }
-                              done.set_value(true);
-                          },
-                          [&](std::exception_ptr)
-                          {
-                              done.set_value(false);
-                          });
+        t->opDPrxSeqAsync(
+            in,
+            [&](deque<optional<DPrx>> ret, deque<optional<DPrx>> out)
+            {
+                test(ret.size() == in.size());
+                auto op = out.begin();
+                auto rp = ret.begin();
+                for (auto i : in)
+                {
+                    test(*op++ == i);
+                    test(*rp++ == i);
+                }
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1465,23 +1418,21 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opDPrxListAsync(in,
-                           [&](list<optional<DPrx>> ret, list<optional<DPrx>> out)
-                           {
-                               test(ret.size() == in.size());
-                              auto op = out.begin();
-                              auto rp = ret.begin();
-                              for(auto i: in)
-                              {
-                                  test(*op++ == i);
-                                  test(*rp++ == i);
-                              }
-                              done.set_value(true);
-                          },
-                          [&](std::exception_ptr)
-                          {
-                              done.set_value(false);
-                          });
+        t->opDPrxListAsync(
+            in,
+            [&](list<optional<DPrx>> ret, list<optional<DPrx>> out)
+            {
+                test(ret.size() == in.size());
+                auto op = out.begin();
+                auto rp = ret.begin();
+                for (auto i : in)
+                {
+                    test(*op++ == i);
+                    test(*rp++ == i);
+                }
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1496,17 +1447,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opCSeqAsync(in,
-                       [&](deque<shared_ptr<C>> ret, deque<shared_ptr<C>> out)
-                       {
-                           test(ret == out);
-                           test(ret.size() == in.size());
-                           done.set_value(true);
-                       },
-                       [&](std::exception_ptr)
-                       {
-                           done.set_value(false);
-                       });
+        t->opCSeqAsync(
+            in,
+            [&](deque<shared_ptr<C>> ret, deque<shared_ptr<C>> out)
+            {
+                test(ret == out);
+                test(ret.size() == in.size());
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1521,17 +1470,15 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opCListAsync(in,
-                        [&](list<shared_ptr<C>> ret, list<shared_ptr<C>> out)
-                        {
-                            test(ret == out);
-                            test(ret.size() == in.size());
-                            done.set_value(true);
-                        },
-                        [&](std::exception_ptr)
-                        {
-                            done.set_value(false);
-                        });
+        t->opCListAsync(
+            in,
+            [&](list<shared_ptr<C>> ret, list<shared_ptr<C>> out)
+            {
+                test(ret == out);
+                test(ret.size() == in.size());
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1545,17 +1492,14 @@ allTests(TestHelper* helper)
 
         promise<bool> done;
 
-        t->opOutArrayByteSeqAsync(in,
-                                  [&](pair<const uint8_t*, const uint8_t*> out)
-                                  {
-                                      test(arrayRangeEquals<uint8_t>(
-                                               make_pair<const uint8_t*>(&in[0], &in[0] + in.size()), out));
-                                      done.set_value(true);
-                                  },
-                                  [&](std::exception_ptr)
-                                  {
-                                      done.set_value(false);
-                                  });
+        t->opOutArrayByteSeqAsync(
+            in,
+            [&](pair<const uint8_t*, const uint8_t*> out)
+            {
+                test(arrayRangeEquals<uint8_t>(make_pair<const uint8_t*>(&in[0], &in[0] + in.size()), out));
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1588,7 +1532,7 @@ allTests(TestHelper* helper)
             auto r = t->opVarDictAsync(idict).get();
             test(std::get<1>(r) == idict);
             test(std::get<0>(r).size() == 1000);
-            for(auto i: std::get<0>(r))
+            for (auto i : std::get<0>(r))
             {
                 test(i.second == i.first * i.first);
             }
@@ -1608,17 +1552,15 @@ allTests(TestHelper* helper)
 
             promise<bool> done;
 
-            t->opIntStringDictAsync(idict,
-                                    [&](map<int, string> ret, map<int, string> out)
-                                    {
-                                        test(ret == out);
-                                        test(ret == idict);
-                                        done.set_value(true);
-                                    },
-                                    [&](std::exception_ptr)
-                                    {
-                                        done.set_value(false);
-                                    });
+            t->opIntStringDictAsync(
+                idict,
+                [&](map<int, string> ret, map<int, string> out)
+                {
+                    test(ret == out);
+                    test(ret == idict);
+                    done.set_value(true);
+                },
+                [&](std::exception_ptr) { done.set_value(false); });
 
             test(done.get_future().get());
         }
@@ -1633,21 +1575,19 @@ allTests(TestHelper* helper)
 
             promise<bool> done;
 
-            t->opVarDictAsync(idict,
-                              [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
-                              {
-                                  test(out == idict);
-                                  for(auto i: ret)
-                                  {
-                                      test(i.second == i.first * i.first);
-                                  }
+            t->opVarDictAsync(
+                idict,
+                [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
+                {
+                    test(out == idict);
+                    for (auto i : ret)
+                    {
+                        test(i.second == i.first * i.first);
+                    }
 
-                                  done.set_value(true);
-                              },
-                              [&](std::exception_ptr)
-                              {
-                                  done.set_value(false);
-                              });
+                    done.set_value(true);
+                },
+                [&](std::exception_ptr) { done.set_value(false); });
 
             test(done.get_future().get());
         }
@@ -1691,17 +1631,15 @@ allTests(TestHelper* helper)
     {
         promise<bool> done;
 
-        wsc1->opStringAsync(wstr,
-                            [&](wstring retP, wstring outP)
-                            {
-                                test(outP == wstr);
-                                test(retP == wstr);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        wsc1->opStringAsync(
+            wstr,
+            [&](wstring retP, wstring outP)
+            {
+                test(outP == wstr);
+                test(retP == wstr);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1719,17 +1657,15 @@ allTests(TestHelper* helper)
     {
         promise<bool> done;
 
-        wsc2->opStringAsync(wstr,
-                            [&](wstring retP, wstring outP)
-                            {
-                                test(outP == wstr);
-                                test(retP == wstr);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
+        wsc2->opStringAsync(
+            wstr,
+            [&](wstring retP, wstring outP)
+            {
+                test(outP == wstr);
+                test(retP == wstr);
+                done.set_value(true);
+            },
+            [&](std::exception_ptr) { done.set_value(false); });
 
         test(done.get_future().get());
     }
@@ -1752,7 +1688,7 @@ allTests(TestHelper* helper)
     {
         wsc1->throwExcept(wstr);
     }
-    catch(const Test1::WstringException& ex)
+    catch (const Test1::WstringException& ex)
     {
         test(ex.reason == wstr);
     }
@@ -1764,7 +1700,7 @@ allTests(TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Test1::WstringException& ex)
+        catch (const Test1::WstringException& ex)
         {
             test(ex.reason == wstr);
         }
@@ -1773,27 +1709,24 @@ allTests(TestHelper* helper)
     {
         promise<bool> done;
 
-        wsc1->throwExceptAsync(wstr,
-                               [&]()
-                               {
-                                   done.set_value(false);
-                               },
-                               [&](std::exception_ptr eptr)
-                               {
-                                   try
-                                   {
-                                       std::rethrow_exception(eptr);
-                                   }
-                                   catch(const Test1::WstringException& ex)
-                                   {
-                                       test(ex.reason == wstr);
-                                       done.set_value(true);
-                                   }
-                                   catch(...)
-                                   {
-                                       done.set_value(false);
-                                   }
-                               });
+        wsc1->throwExceptAsync(
+            wstr, [&]() { done.set_value(false); },
+            [&](std::exception_ptr eptr)
+            {
+                try
+                {
+                    std::rethrow_exception(eptr);
+                }
+                catch (const Test1::WstringException& ex)
+                {
+                    test(ex.reason == wstr);
+                    done.set_value(true);
+                }
+                catch (...)
+                {
+                    done.set_value(false);
+                }
+            });
 
         test(done.get_future().get());
     }
@@ -1802,7 +1735,7 @@ allTests(TestHelper* helper)
     {
         wsc2->throwExcept(wstr);
     }
-    catch(const Test2::WstringException& ex)
+    catch (const Test2::WstringException& ex)
     {
         test(ex.reason == wstr);
     }
@@ -1814,7 +1747,7 @@ allTests(TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Test2::WstringException& ex)
+        catch (const Test2::WstringException& ex)
         {
             test(ex.reason == wstr);
         }
@@ -1823,27 +1756,24 @@ allTests(TestHelper* helper)
     {
         promise<bool> done;
 
-        wsc2->throwExceptAsync(wstr,
-                               [&]()
-                               {
-                                   done.set_value(false);
-                               },
-                               [&](std::exception_ptr eptr)
-                               {
-                                   try
-                                   {
-                                       std::rethrow_exception(eptr);
-                                   }
-                                   catch(const Test2::WstringException& ex)
-                                   {
-                                       test(ex.reason == wstr);
-                                       done.set_value(true);
-                                   }
-                                   catch(...)
-                                   {
-                                       done.set_value(false);
-                                   }
-                               });
+        wsc2->throwExceptAsync(
+            wstr, [&]() { done.set_value(false); },
+            [&](std::exception_ptr eptr)
+            {
+                try
+                {
+                    std::rethrow_exception(eptr);
+                }
+                catch (const Test2::WstringException& ex)
+                {
+                    test(ex.reason == wstr);
+                    done.set_value(true);
+                }
+                catch (...)
+                {
+                    done.set_value(false);
+                }
+            });
 
         test(done.get_future().get());
     }

@@ -11,7 +11,6 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -39,7 +38,7 @@ Server::run(int argc, char** argv)
     {
         adapter->activate();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     communicator->waitForShutdown();

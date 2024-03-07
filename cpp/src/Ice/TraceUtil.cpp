@@ -25,7 +25,7 @@ static void
 printIdentityFacetOperation(ostream& s, InputStream& stream)
 {
     ToStringMode toStringMode = ToStringMode::Unicode;
-    if(stream.instance())
+    if (stream.instance())
     {
         toStringMode = stream.instance()->toStringMode();
     }
@@ -37,7 +37,7 @@ printIdentityFacetOperation(ostream& s, InputStream& stream)
     vector<string> facet;
     stream.read(facet);
     s << "\nfacet = ";
-    if(!facet.empty())
+    if (!facet.empty())
     {
         s << escapeString(facet[0], "", toStringMode);
     }
@@ -50,7 +50,7 @@ printIdentityFacetOperation(ostream& s, InputStream& stream)
 static string
 getMessageTypeAsString(uint8_t type)
 {
-    switch(type)
+    switch (type)
     {
         case requestMsg:
             return "request";
@@ -75,7 +75,7 @@ printRequestHeader(ostream& s, InputStream& stream)
     uint8_t mode;
     stream.read(mode);
     s << "\nmode = " << static_cast<int>(mode) << ' ';
-    switch(static_cast<OperationMode>(mode))
+    switch (static_cast<OperationMode>(mode))
     {
         case OperationMode::Normal:
         {
@@ -104,20 +104,20 @@ printRequestHeader(ostream& s, InputStream& stream)
 
     int32_t sz = stream.readSize();
     s << "\ncontext = ";
-    while(sz--)
+    while (sz--)
     {
         pair<string, string> pair;
         stream.read(pair.first);
         stream.read(pair.second);
         s << pair.first << '/' << pair.second;
-        if(sz)
+        if (sz)
         {
             s << ", ";
         }
     }
 
     Ice::EncodingVersion v = stream.skipEncapsulation();
-    if(v > Ice::Encoding_1_0)
+    if (v > Ice::Encoding_1_0)
     {
         s << "\nencoding = " << v;
     }
@@ -127,7 +127,7 @@ static uint8_t
 printHeader(ostream& s, InputStream& stream)
 {
     uint8_t magicNumber;
-    stream.read(magicNumber);   // Don't bother printing the magic number
+    stream.read(magicNumber); // Don't bother printing the magic number
     stream.read(magicNumber);
     stream.read(magicNumber);
     stream.read(magicNumber);
@@ -136,25 +136,25 @@ printHeader(ostream& s, InputStream& stream)
     uint8_t pMinor;
     stream.read(pMajor);
     stream.read(pMinor);
-//    s << "\nprotocol version = " << static_cast<unsigned>(pMajor)
-//      << "." << static_cast<unsigned>(pMinor);
+    //    s << "\nprotocol version = " << static_cast<unsigned>(pMajor)
+    //      << "." << static_cast<unsigned>(pMinor);
 
     uint8_t eMajor;
     uint8_t eMinor;
     stream.read(eMajor);
     stream.read(eMinor);
-//    s << "\nencoding version = " << static_cast<unsigned>(eMajor)
-//      << "." << static_cast<unsigned>(eMinor);
+    //    s << "\nencoding version = " << static_cast<unsigned>(eMajor)
+    //      << "." << static_cast<unsigned>(eMinor);
 
     uint8_t type;
     stream.read(type);
-    s << "\nmessage type = "  << static_cast<int>(type) << " (" << getMessageTypeAsString(type) << ')';
+    s << "\nmessage type = " << static_cast<int>(type) << " (" << getMessageTypeAsString(type) << ')';
 
     uint8_t compress;
     stream.read(compress);
-    s << "\ncompression status = "  << static_cast<int>(compress) << ' ';
+    s << "\ncompression status = " << static_cast<int>(compress) << ' ';
 
-    switch(compress)
+    switch (compress)
     {
         case 0:
         {
@@ -194,7 +194,7 @@ printRequest(ostream& s, InputStream& stream)
     int32_t requestId;
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
-    if(requestId == 0)
+    if (requestId == 0)
     {
         s << " (oneway)";
     }
@@ -209,7 +209,7 @@ printBatchRequest(ostream& s, InputStream& stream)
     stream.read(batchRequestNum);
     s << "\nnumber of requests = " << batchRequestNum;
 
-    for(int i = 0; i < batchRequestNum; ++i)
+    for (int i = 0; i < batchRequestNum; ++i)
     {
         s << "\nrequest #" << i << ':';
         printRequestHeader(s, stream);
@@ -226,103 +226,103 @@ printReply(ostream& s, InputStream& stream)
     uint8_t replyStatus;
     stream.read(replyStatus);
     s << "\nreply status = " << static_cast<int>(replyStatus) << ' ';
-    switch(replyStatus)
+    switch (replyStatus)
     {
-    case replyOK:
-    {
-        s << "(ok)";
-        break;
-    }
-
-    case replyUserException:
-    {
-        s << "(user exception)";
-        break;
-    }
-
-    case replyObjectNotExist:
-    case replyFacetNotExist:
-    case replyOperationNotExist:
-    {
-        switch(replyStatus)
+        case replyOK:
         {
+            s << "(ok)";
+            break;
+        }
+
+        case replyUserException:
+        {
+            s << "(user exception)";
+            break;
+        }
+
         case replyObjectNotExist:
-        {
-            s << "(object not exist)";
-            break;
-        }
-
         case replyFacetNotExist:
-        {
-            s << "(facet not exist)";
-            break;
-        }
-
         case replyOperationNotExist:
         {
-            s << "(operation not exist)";
+            switch (replyStatus)
+            {
+                case replyObjectNotExist:
+                {
+                    s << "(object not exist)";
+                    break;
+                }
+
+                case replyFacetNotExist:
+                {
+                    s << "(facet not exist)";
+                    break;
+                }
+
+                case replyOperationNotExist:
+                {
+                    s << "(operation not exist)";
+                    break;
+                }
+
+                default:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+
+            printIdentityFacetOperation(s, stream);
             break;
         }
 
-        default:
-        {
-            assert(false);
-            break;
-        }
-        }
-
-        printIdentityFacetOperation(s, stream);
-        break;
-    }
-
-    case replyUnknownException:
-    case replyUnknownLocalException:
-    case replyUnknownUserException:
-    {
-        switch(replyStatus)
-        {
         case replyUnknownException:
-        {
-            s << "(unknown exception)";
-            break;
-        }
-
         case replyUnknownLocalException:
-        {
-            s << "(unknown local exception)";
-            break;
-        }
-
         case replyUnknownUserException:
         {
-            s << "(unknown user exception)";
+            switch (replyStatus)
+            {
+                case replyUnknownException:
+                {
+                    s << "(unknown exception)";
+                    break;
+                }
+
+                case replyUnknownLocalException:
+                {
+                    s << "(unknown local exception)";
+                    break;
+                }
+
+                case replyUnknownUserException:
+                {
+                    s << "(unknown user exception)";
+                    break;
+                }
+
+                default:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+
+            string unknown;
+            stream.read(unknown, false);
+            s << "\nunknown = " << unknown;
             break;
         }
 
         default:
         {
-            assert(false);
+            s << "(unknown)";
             break;
         }
-        }
-
-        string unknown;
-        stream.read(unknown, false);
-        s << "\nunknown = " << unknown;
-        break;
     }
 
-    default:
-    {
-        s << "(unknown)";
-        break;
-    }
-    }
-
-    if(replyStatus == replyOK || replyStatus == replyUserException)
+    if (replyStatus == replyOK || replyStatus == replyUserException)
     {
         Ice::EncodingVersion v = stream.skipEncapsulation();
-        if(v > Ice::Encoding_1_0)
+        if (v > Ice::Encoding_1_0)
         {
             s << "\nencoding = " << v;
         }
@@ -334,37 +334,37 @@ printMessage(ostream& s, InputStream& stream)
 {
     uint8_t type = printHeader(s, stream);
 
-    switch(type)
+    switch (type)
     {
-    case closeConnectionMsg:
-    case validateConnectionMsg:
-    {
-        // We're done.
-        break;
-    }
+        case closeConnectionMsg:
+        case validateConnectionMsg:
+        {
+            // We're done.
+            break;
+        }
 
-    case requestMsg:
-    {
-        printRequest(s, stream);
-        break;
-    }
+        case requestMsg:
+        {
+            printRequest(s, stream);
+            break;
+        }
 
-    case requestBatchMsg:
-    {
-        printBatchRequest(s, stream);
-        break;
-    }
+        case requestBatchMsg:
+        {
+            printBatchRequest(s, stream);
+            break;
+        }
 
-    case replyMsg:
-    {
-        printReply(s, stream);
-        break;
-    }
+        case replyMsg:
+        {
+            printReply(s, stream);
+            break;
+        }
 
-    default:
-    {
-        break;
-    }
+        default:
+        {
+            break;
+        }
     }
 
     return type;
@@ -373,7 +373,7 @@ printMessage(ostream& s, InputStream& stream)
 namespace
 {
 
-mutex slicingMutex;
+    mutex slicingMutex;
 
 }
 
@@ -396,7 +396,7 @@ IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slic
 void
 IceInternal::traceSend(const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
-    if(tl->protocol >= 1)
+    if (tl->protocol >= 1)
     {
         OutputStream& stream = const_cast<OutputStream&>(str);
         InputStream is(stream.instance(), stream.getEncoding(), stream);
@@ -412,7 +412,7 @@ IceInternal::traceSend(const OutputStream& str, const LoggerPtr& logger, const T
 void
 IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
-    if(tl->protocol >= 1)
+    if (tl->protocol >= 1)
     {
         InputStream& stream = const_cast<InputStream&>(str);
         InputStream::Container::iterator p = stream.i;
@@ -429,7 +429,7 @@ IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const Tr
 void
 IceInternal::trace(const char* heading, const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
-    if(tl->protocol >= 1)
+    if (tl->protocol >= 1)
     {
         OutputStream& stream = const_cast<OutputStream&>(str);
         InputStream is(stream.instance(), stream.getEncoding(), stream);
@@ -446,7 +446,7 @@ IceInternal::trace(const char* heading, const OutputStream& str, const LoggerPtr
 void
 IceInternal::trace(const char* heading, const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
-    if(tl->protocol >= 1)
+    if (tl->protocol >= 1)
     {
         InputStream& stream = const_cast<InputStream&>(str);
         InputStream::Container::iterator p = stream.i;

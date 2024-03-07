@@ -8,7 +8,7 @@
 #include <TestHelper.h>
 
 #if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 using namespace std;
@@ -18,7 +18,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -39,15 +38,15 @@ Client::run(int argc, char** argv)
     unsigned int maxCollisions = 10;
     unsigned int maxIterations = 10000;
 
-    for(i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
+    for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
         ostringstream os;
         os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
-                << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
+           << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
 
         ObjectPrx obj(communicator, os.str());
         EndpointSeq endpoints = obj->ice_getEndpoints();
-        if(!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
+        if (!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
         {
             ++proxyCollisions;
         }
@@ -89,10 +88,11 @@ Client::run(int argc, char** argv)
     test(communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->_hash() == proxyMap["prx6"]);
     test(communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->_hash() == proxyMap["prx7"]);
     test(communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->_hash() == proxyMap["prx8"]);
-    test(communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->_hash() ==
-         proxyMap["prx9"]);
-    test(communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->_hash() ==
-         proxyMap["prx10"]);
+    test(
+        communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->_hash() == proxyMap["prx9"]);
+    test(
+        communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->_hash() ==
+        proxyMap["prx10"]);
 
     cerr << "ok" << endl;
 }

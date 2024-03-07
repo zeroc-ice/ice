@@ -15,45 +15,43 @@ using namespace std;
 namespace
 {
 
-string
-replace(string s, string patt, string val)
-{
-    auto r = s;
-    auto pos = r.find(patt);
-    while(pos != string::npos)
+    string replace(string s, string patt, string val)
     {
-        r.replace(pos, patt.size(), val);
-        pos += val.size();
-        pos = r.find(patt, pos);
+        auto r = s;
+        auto pos = r.find(patt);
+        while (pos != string::npos)
+        {
+            r.replace(pos, patt.size(), val);
+            pos += val.size();
+            pos = r.find(patt, pos);
+        }
+        return r;
     }
-    return r;
-}
 
-void
-getMajorMinor(mxArray* p, uint8_t& major, uint8_t& minor)
-{
-    auto maj = mxGetProperty(p, 0, "major");
-    assert(maj);
-    if(!mxIsScalar(maj))
+    void getMajorMinor(mxArray* p, uint8_t& major, uint8_t& minor)
     {
-        throw std::invalid_argument("major is not a scalar");
+        auto maj = mxGetProperty(p, 0, "major");
+        assert(maj);
+        if (!mxIsScalar(maj))
+        {
+            throw std::invalid_argument("major is not a scalar");
+        }
+        major = static_cast<uint8_t>(mxGetScalar(maj));
+        auto min = mxGetProperty(p, 0, "minor");
+        assert(min);
+        if (!mxIsScalar(min))
+        {
+            throw std::invalid_argument("minor is not a scalar");
+        }
+        minor = static_cast<uint8_t>(mxGetScalar(min));
     }
-    major = static_cast<uint8_t>(mxGetScalar(maj));
-    auto min = mxGetProperty(p, 0, "minor");
-    assert(min);
-    if(!mxIsScalar(min))
-    {
-        throw std::invalid_argument("minor is not a scalar");
-    }
-    minor = static_cast<uint8_t>(mxGetScalar(min));
-}
 
 }
 
 mxArray*
 IceMatlab::createStringFromUTF8(const string& s)
 {
-    if(s.empty())
+    if (s.empty())
     {
         return mxCreateString("");
     }
@@ -66,15 +64,15 @@ IceMatlab::createStringFromUTF8(const string& s)
 #else
         u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
 #endif
-        mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
+        mwSize dims[2] = {1, static_cast<mwSize>(utf16.size())};
         auto r = mxCreateCharArray(2, dims);
         auto buf = mxGetChars(r);
         int i = 0;
 
 #if defined(_MSC_VER)
-        for(wchar_t c : utf16)
+        for (wchar_t c : utf16)
 #else
-        for(char16_t c : utf16)
+        for (char16_t c : utf16)
 #endif
         {
             buf[i++] = static_cast<mxChar>(c);
@@ -87,7 +85,7 @@ string
 IceMatlab::getStringFromUTF16(mxArray* p)
 {
     auto s = mxArrayToUTF8String(p);
-    if(!s)
+    if (!s)
     {
         throw std::invalid_argument("value is not a char array");
     }
@@ -173,14 +171,14 @@ IceMatlab::createEnumerator(const string& type, int v)
     mxArray* r;
     mexCallMATLAB(1, &r, 1, &param, func.c_str());
     // Calling this causes MATLAB to crash:
-    //mxFree(param);
+    // mxFree(param);
     return r;
 }
 
 int
 IceMatlab::getEnumerator(mxArray* p, const string& type)
 {
-    if(!mxIsClass(p, type.c_str()))
+    if (!mxIsClass(p, type.c_str()))
     {
         throw invalid_argument("expected enumerator of type " + type);
     }
@@ -191,7 +189,7 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     mexCallMATLAB(1, &i, 1, &p, "int32");
     int r = static_cast<int>(mxGetScalar(i));
     // Calling this causes MATLAB to crash:
-    //mxFree(i);
+    // mxFree(i);
     return r;
 }
 
@@ -209,7 +207,7 @@ IceMatlab::createIdentity(const Ice::Identity& id)
 void
 IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
 {
-    if(!mxIsClass(p, "Ice.Identity"))
+    if (!mxIsClass(p, "Ice.Identity"))
     {
         throw std::invalid_argument("argument is not Ice.Identity");
     }
@@ -225,7 +223,7 @@ mxArray*
 IceMatlab::createStringMap(const map<string, string>& m)
 {
     mxArray* r;
-    if(m.empty())
+    if (m.empty())
     {
         mexCallMATLAB(1, &r, 0, 0, "containers.Map");
     }
@@ -236,7 +234,7 @@ IceMatlab::createStringMap(const map<string, string>& m)
         auto keys = mxCreateCellArray(2, dims);
         auto values = mxCreateCellArray(2, dims);
         int idx = 0;
-        for(auto p : m)
+        for (auto p : m)
         {
             mxSetCell(keys, idx, createStringFromUTF8(p.first));
             mxSetCell(values, idx, createStringFromUTF8(p.second));
@@ -253,11 +251,11 @@ IceMatlab::createStringMap(const map<string, string>& m)
 void
 IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
 {
-    if(mxIsEmpty(p))
+    if (mxIsEmpty(p))
     {
         m.clear();
     }
-    else if(!mxIsClass(p, "containers.Map"))
+    else if (!mxIsClass(p, "containers.Map"))
     {
         throw std::invalid_argument("argument is not a containers.Map");
     }
@@ -274,7 +272,7 @@ IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
         const size_t n = mxGetN(keys);
         try
         {
-            for(size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 auto k = getStringFromUTF16(mxGetCell(keys, static_cast<int>(i)));
                 auto v = getStringFromUTF16(mxGetCell(values, static_cast<int>(i)));
@@ -283,7 +281,7 @@ IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
             mxDestroyArray(keys);
             mxDestroyArray(values);
         }
-        catch(...)
+        catch (...)
         {
             mxDestroyArray(keys);
             mxDestroyArray(values);
@@ -306,7 +304,7 @@ IceMatlab::createEncodingVersion(const Ice::EncodingVersion& v)
 void
 IceMatlab::getEncodingVersion(mxArray* p, Ice::EncodingVersion& v)
 {
-    if(!mxIsClass(p, "Ice.EncodingVersion"))
+    if (!mxIsClass(p, "Ice.EncodingVersion"))
     {
         throw std::invalid_argument("argument is not Ice.EncodingVersion");
     }
@@ -327,7 +325,7 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
 void
 IceMatlab::getProtocolVersion(mxArray* p, Ice::ProtocolVersion& v)
 {
-    if(!mxIsClass(p, "Ice.ProtocolVersion"))
+    if (!mxIsClass(p, "Ice.ProtocolVersion"))
     {
         throw std::invalid_argument("argument is not Ice.ProtocolVersion");
     }
@@ -338,7 +336,7 @@ mxArray*
 IceMatlab::convertException(const std::exception& exc)
 {
     mxArray* ex;
-    if(dynamic_cast<const Ice::LocalException*>(&exc))
+    if (dynamic_cast<const Ice::LocalException*>(&exc))
     {
         auto iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
         auto typeId = iceEx->ice_id();
@@ -360,135 +358,135 @@ IceMatlab::convertException(const std::exception& exc)
         {
             iceEx->ice_throw();
         }
-        catch(const Ice::InitializationException& e)
+        catch (const Ice::InitializationException& e)
         {
             msg = e.reason;
             params[idx++] = createStringFromUTF8(e.reason);
         }
-        catch(const Ice::PluginInitializationException& e)
+        catch (const Ice::PluginInitializationException& e)
         {
             msg = e.reason;
             params[idx++] = createStringFromUTF8(e.reason);
         }
-        catch(const Ice::AlreadyRegisteredException& e)
+        catch (const Ice::AlreadyRegisteredException& e)
         {
             params[idx++] = createStringFromUTF8(e.kindOfObject);
             params[idx++] = createStringFromUTF8(e.id);
         }
-        catch(const Ice::NotRegisteredException& e)
+        catch (const Ice::NotRegisteredException& e)
         {
             params[idx++] = createStringFromUTF8(e.kindOfObject);
             params[idx++] = createStringFromUTF8(e.id);
         }
-        catch(const Ice::TwowayOnlyException& e)
+        catch (const Ice::TwowayOnlyException& e)
         {
             params[idx++] = createStringFromUTF8(e.operation);
         }
-        catch(const Ice::UnknownException& e)
+        catch (const Ice::UnknownException& e)
         {
             params[idx++] = createStringFromUTF8(e.unknown);
         }
-        catch(const Ice::ObjectAdapterDeactivatedException& e)
+        catch (const Ice::ObjectAdapterDeactivatedException& e)
         {
             params[idx++] = createStringFromUTF8(e.name);
         }
-        catch(const Ice::ObjectAdapterIdInUseException& e)
+        catch (const Ice::ObjectAdapterIdInUseException& e)
         {
             params[idx++] = createStringFromUTF8(e.id);
         }
-        catch(const Ice::NoEndpointException& e)
+        catch (const Ice::NoEndpointException& e)
         {
             params[idx++] = createStringFromUTF8(e.proxy);
         }
-        catch(const Ice::EndpointParseException& e)
+        catch (const Ice::EndpointParseException& e)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::EndpointSelectionTypeParseException& e)
+        catch (const Ice::EndpointSelectionTypeParseException& e)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::VersionParseException& e)
+        catch (const Ice::VersionParseException& e)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::IdentityParseException& e)
+        catch (const Ice::IdentityParseException& e)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::ProxyParseException& e)
+        catch (const Ice::ProxyParseException& e)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::IllegalServantException& e)
+        catch (const Ice::IllegalServantException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
-        catch(const Ice::RequestFailedException& e)
+        catch (const Ice::RequestFailedException& e)
         {
             params[idx++] = createIdentity(e.id);
             params[idx++] = createStringFromUTF8(e.facet);
             params[idx++] = createStringFromUTF8(e.operation);
         }
-        catch(const Ice::FileException& e)
+        catch (const Ice::FileException& e)
         {
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.path);
         }
-        catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
+        catch (const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
         {
             params[idx++] = mxCreateDoubleScalar(e.error);
         }
-        catch(const Ice::DNSException& e)
+        catch (const Ice::DNSException& e)
         {
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.host);
         }
-        catch(const Ice::BadMagicException& e)
+        catch (const Ice::BadMagicException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createByteList(e.badMagic);
         }
-        catch(const Ice::UnsupportedProtocolException& e)
+        catch (const Ice::UnsupportedProtocolException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createProtocolVersion(e.bad);
             params[idx++] = createProtocolVersion(e.supported);
         }
-        catch(const Ice::UnsupportedEncodingException& e)
+        catch (const Ice::UnsupportedEncodingException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createEncodingVersion(e.bad);
             params[idx++] = createEncodingVersion(e.supported);
         }
-        catch(const Ice::NoValueFactoryException& e)
+        catch (const Ice::NoValueFactoryException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createStringFromUTF8(e.type);
         }
-        catch(const Ice::UnexpectedObjectException& e)
+        catch (const Ice::UnexpectedObjectException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createStringFromUTF8(e.type);
             params[idx++] = createStringFromUTF8(e.expectedType);
         }
-        catch(const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
+        catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
-        catch(const Ice::ConnectionManuallyClosedException& e)
+        catch (const Ice::ConnectionManuallyClosedException& e)
         {
             params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
         }
-        catch(const Ice::FeatureNotSupportedException& e)
+        catch (const Ice::FeatureNotSupportedException& e)
         {
             params[idx++] = createStringFromUTF8(e.unsupportedFeature);
         }
-        catch(const Ice::SecurityException& e)
+        catch (const Ice::SecurityException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             //
             // Nothing to do.
@@ -502,7 +500,7 @@ IceMatlab::convertException(const std::exception& exc)
         params[1] = createStringFromUTF8(msg);
         mexCallMATLAB(1, &ex, idx, params, cls.c_str());
     }
-    else if(dynamic_cast<const std::invalid_argument*>(&exc))
+    else if (dynamic_cast<const std::invalid_argument*>(&exc))
     {
         mxArray* params[2];
         params[0] = createStringFromUTF8("Ice:InvalidArgumentException");
@@ -547,7 +545,7 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, optionalFields);
     mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
-    if(hasValue)
+    if (hasValue)
     {
         mxSetFieldByNumber(r, 0, 1, value);
     }
@@ -559,7 +557,7 @@ IceMatlab::createStringList(const vector<string>& strings)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(strings.size()));
     mwIndex i = 0;
-    for(auto s : strings)
+    for (auto s : strings)
     {
         mxSetCell(r, i++, createStringFromUTF8(s));
     }
@@ -569,17 +567,17 @@ IceMatlab::createStringList(const vector<string>& strings)
 void
 IceMatlab::getStringList(mxArray* m, vector<string>& v)
 {
-    if(!mxIsCell(m))
+    if (!mxIsCell(m))
     {
         throw std::invalid_argument("argument is not a cell array");
     }
-    if(mxGetM(m) > 1)
+    if (mxGetM(m) > 1)
     {
         throw std::invalid_argument("invalid dimension in cell array");
     }
     size_t n = mxGetN(m);
     v.clear();
-    for(mwIndex i = 0; i < n; ++i)
+    for (mwIndex i = 0; i < n; ++i)
     {
         mxArray* c = mxGetCell(m, i);
         v.push_back(getStringFromUTF16(c));
@@ -599,7 +597,7 @@ IceMatlab::createByteList(const vector<uint8_t>& bytes)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
     mwIndex i = 0;
-    for(auto byte : bytes)
+    for (auto byte : bytes)
     {
         mxSetCell(r, i++, createByte(byte));
     }
@@ -611,7 +609,7 @@ IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(certs.size()));
     mwIndex i = 0;
-    for(auto cert : certs)
+    for (auto cert : certs)
     {
         mxSetCell(r, i++, createStringFromUTF8(cert->encode()));
     }
@@ -621,59 +619,53 @@ IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
 namespace
 {
 
-string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    // This list must match the one in slice2matlab.
-    //
-    static const string keywordList[] =
+    string lookupKwd(const string& name)
     {
-        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
-        "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"
-    };
-    bool found = binary_search(&keywordList[0],
-                               &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                               name);
-    return found ? "slice_" + name : name;
-}
+        //
+        // Keyword list. *Must* be kept in alphabetical order.
+        //
+        // This list must match the one in slice2matlab.
+        //
+        static const string keywordList[] = {
+            "break",  "case", "catch",     "classdef", "continue",   "else",   "elseif", "end",    "for", "function",
+            "global", "if",   "otherwise", "parfor",   "persistent", "return", "spmd",   "switch", "try", "while"};
+        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
+        return found ? "slice_" + name : name;
+    }
 
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-vector<string>
-splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    vector<string> ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while ((pos = scoped.find("::", next)) != string::npos)
+    //
+    // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+    //
+    vector<string> splitScopedName(const string& scoped)
     {
-        pos += 2;
-        if (pos != scoped.size())
+        assert(scoped[0] == ':');
+        vector<string> ids;
+        string::size_type next = 0;
+        string::size_type pos;
+        while ((pos = scoped.find("::", next)) != string::npos)
         {
-            string::size_type endpos = scoped.find("::", pos);
-            if (endpos != string::npos)
+            pos += 2;
+            if (pos != scoped.size())
             {
-                ids.push_back(scoped.substr(pos, endpos - pos));
+                string::size_type endpos = scoped.find("::", pos);
+                if (endpos != string::npos)
+                {
+                    ids.push_back(scoped.substr(pos, endpos - pos));
+                }
             }
+            next = pos;
         }
-        next = pos;
-    }
-    if (next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
+        if (next != scoped.size())
+        {
+            ids.push_back(scoped.substr(next));
+        }
+        else
+        {
+            ids.push_back("");
+        }
 
-    return ids;
-}
+        return ids;
+    }
 
 }
 
@@ -683,9 +675,9 @@ IceMatlab::idToClass(const string& typeId)
     auto ids = splitScopedName(typeId);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     ostringstream result;
-    for(auto i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
-        if(i != ids.begin())
+        if (i != ids.begin())
         {
             result << ".";
         }

@@ -18,14 +18,11 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator,
-        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     optional<AdminPrx> admin = session->getAdmin();
     test(admin);
@@ -42,7 +39,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-all", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -74,7 +71,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-all-direct", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -94,7 +91,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchApplication("Test", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -133,7 +130,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-all", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -155,7 +152,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-all-direct", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -178,7 +175,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchApplication("Test", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -219,7 +216,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-dir1", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -247,7 +244,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchApplication("Test", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -277,7 +274,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchServer("server-dir1", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -306,7 +303,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->patchApplication("Test", true);
         }
-        catch(const PatchException& ex)
+        catch (const PatchException& ex)
         {
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
@@ -317,7 +314,7 @@ allTests(Test::TestHelper* helper)
         test(testPrx->getServerFile("dir1/file2") == "dummy-file2");
         test(testPrx->getServerFile("dir2/file3") == "dummy-file3");
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         cerr << ex << ":\n" << ex.reason << endl;
         test(false);

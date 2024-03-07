@@ -14,25 +14,20 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
 class TestActivationFailure : public std::runtime_error
 {
 public:
-
-    TestActivationFailure(const string& what_arg) :
-        runtime_error(what_arg)
-    {
-    }
+    TestActivationFailure(const string& what_arg) : runtime_error(what_arg) {}
 };
 
 void
 Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    if(properties->getPropertyAsInt("FailOnStartup") > 0)
+    if (properties->getPropertyAsInt("FailOnStartup") > 0)
     {
         throw TestActivationFailure("FailOnStartup");
     }
@@ -43,7 +38,7 @@ Server::run(int argc, char** argv)
     adapter->add(testI, Ice::stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
 
     int delay = properties->getPropertyAsInt("ActivationDelay");
-    if(delay > 0)
+    if (delay > 0)
     {
         this_thread::sleep_for(chrono::seconds(delay));
     }
@@ -52,18 +47,18 @@ Server::run(int argc, char** argv)
     {
         adapter->activate();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     communicator->waitForShutdown();
 
     delay = properties->getPropertyAsInt("DeactivationDelay");
-    if(delay > 0)
+    if (delay > 0)
     {
         this_thread::sleep_for(chrono::seconds(delay));
     }
 
-    if(testI->isFailed())
+    if (testI->isFailed())
     {
         throw TestActivationFailure("test failed");
     }
@@ -78,11 +73,11 @@ main(int argc, char** argv)
         Server server;
         server.run(argc, argv);
     }
-    catch(const TestActivationFailure&)
+    catch (const TestActivationFailure&)
     {
         status = 1; // excpected failure
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         std::cerr << "error: " << ex.what() << std::endl;
         status = 1;

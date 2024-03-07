@@ -10,9 +10,7 @@ using namespace Test;
 using namespace std;
 using namespace Ice;
 
-TestI::TestI()
-{
-}
+TestI::TestI() {}
 
 void
 TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
@@ -23,7 +21,7 @@ TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, co
         b.b = "Base.b";
         throw b;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -39,7 +37,7 @@ TestI::unknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)>
         d.ud = "UnknownDerived.ud";
         throw d;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -55,7 +53,7 @@ TestI::knownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> e
         d.kd = "KnownDerived.kd";
         throw d;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -71,7 +69,7 @@ TestI::knownDerivedAsKnownDerivedAsync(function<void()>, function<void(exception
         d.kd = "KnownDerived.kd";
         throw d;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -87,7 +85,7 @@ TestI::unknownIntermediateAsBaseAsync(function<void()>, function<void(exception_
         ui.ui = "UnknownIntermediate.ui";
         throw ui;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -103,7 +101,7 @@ TestI::knownIntermediateAsBaseAsync(function<void()>, function<void(exception_pt
         ki.ki = "KnownIntermediate.ki";
         throw ki;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -120,15 +118,14 @@ TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr
         kmd.kmd = "KnownMostDerived.kmd";
         throw kmd;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
 }
 
 void
-TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                 const Current&)
+TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -137,15 +134,14 @@ TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void
         ki.ki = "KnownIntermediate.ki";
         throw ki;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
 }
 
 void
-TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                const Current&)
+TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -155,16 +151,14 @@ TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(
         kmd.kmd = "KnownMostDerived.kmd";
         throw kmd;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
 }
 
 void
-TestI::
-knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(exception_ptr)> error,
-                                        const Current&)
+TestI::knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -174,7 +168,7 @@ knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(exceptio
         kmd.kmd = "KnownMostDerived.kmd";
         throw kmd;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -191,15 +185,17 @@ TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_
         umd1.umd1 = "UnknownMostDerived1.umd1";
         throw umd1;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
 }
 
 void
-TestI::unknownMostDerived1AsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                   const Current&)
+TestI::unknownMostDerived1AsKnownIntermediateAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const Current&)
 {
     try
     {
@@ -209,7 +205,7 @@ TestI::unknownMostDerived1AsKnownIntermediateAsync(function<void()>, function<vo
         umd1.umd1 = "UnknownMostDerived1.umd1";
         throw umd1;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -226,7 +222,7 @@ TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_
         umd2.umd2 = "UnknownMostDerived2.umd2";
         throw umd2;
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }

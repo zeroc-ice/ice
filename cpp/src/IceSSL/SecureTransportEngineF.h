@@ -7,20 +7,20 @@
 
 #ifdef __APPLE__
 
-#include <IceSSL/Plugin.h>
+#    include <IceSSL/Plugin.h>
 
-#include <memory>
+#    include <memory>
 
 namespace IceSSL
 {
 
-namespace SecureTransport
-{
+    namespace SecureTransport
+    {
 
-class SSLEngine;
-using SSLEnginePtr = std::shared_ptr<SSLEngine>;
+        class SSLEngine;
+        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 
-}
+    }
 
 }
 

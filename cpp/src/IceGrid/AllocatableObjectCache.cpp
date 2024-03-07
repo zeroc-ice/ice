@@ -16,11 +16,12 @@ using namespace IceGrid;
 namespace
 {
 
-bool compareAllocatableObjectEntry(const shared_ptr<AllocatableObjectEntry>& lhs,
-                                   const shared_ptr<AllocatableObjectEntry>& rhs)
-{
-    return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
-}
+    bool compareAllocatableObjectEntry(
+        const shared_ptr<AllocatableObjectEntry>& lhs,
+        const shared_ptr<AllocatableObjectEntry>& rhs)
+    {
+        return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
+    }
 
 };
 
@@ -31,7 +32,7 @@ AllocatableObjectCache::TypeEntry::add(const shared_ptr<AllocatableObjectEntry>&
     // No mutex protection here, this is called with the cache locked.
     //
     _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, compareAllocatableObjectEntry), obj);
-    if(!_requests.empty())
+    if (!_requests.empty())
     {
         canTryAllocate(obj, false);
     }
@@ -48,11 +49,12 @@ AllocatableObjectCache::TypeEntry::remove(const shared_ptr<AllocatableObjectEntr
     assert(q->get() == obj.get());
     _objects.erase(q);
 
-    if(!_requests.empty() && _objects.empty())
+    if (!_requests.empty() && _objects.empty())
     {
-        for(const auto& req : _requests)
+        for (const auto& req : _requests)
         {
-            req->cancel(make_exception_ptr(AllocationException("no allocatable objects with type `" + obj->getType() + "' registered")));
+            req->cancel(make_exception_ptr(
+                AllocationException("no allocatable objects with type `" + obj->getType() + "' registered")));
         }
     }
     return _objects.empty();
@@ -64,7 +66,7 @@ AllocatableObjectCache::TypeEntry::addAllocationRequest(const shared_ptr<ObjectA
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    if(request->pending())
+    if (request->pending())
     {
         _requests.push_back(request);
     }
@@ -77,21 +79,21 @@ AllocatableObjectCache::TypeEntry::canTryAllocate(const shared_ptr<AllocatableOb
     // No mutex protection here, this is called with the cache locked.
     //
     auto p = _requests.begin();
-    while(p != _requests.end())
+    while (p != _requests.end())
     {
         auto request = *p;
         try
         {
-            if(request->isCanceled()) // If the request has been canceled, we just remove it.
+            if (request->isCanceled()) // If the request has been canceled, we just remove it.
             {
                 p = _requests.erase(p);
             }
-            else if(entry->tryAllocate(request, fromRelease))
+            else if (entry->tryAllocate(request, fromRelease))
             {
                 p = _requests.erase(p);
                 return true; // The request successfully allocated the entry!
             }
-            else if(entry->getSession()) // If entry is allocated, we're done
+            else if (entry->getSession()) // If entry is allocated, we're done
             {
                 return false;
             }
@@ -100,7 +102,7 @@ AllocatableObjectCache::TypeEntry::canTryAllocate(const shared_ptr<AllocatableOb
                 ++p;
             }
         }
-        catch(const SessionDestroyedException&)
+        catch (const SessionDestroyedException&)
         {
             p = _requests.erase(p);
         }
@@ -108,8 +110,8 @@ AllocatableObjectCache::TypeEntry::canTryAllocate(const shared_ptr<AllocatableOb
     return false;
 }
 
-AllocatableObjectCache::AllocatableObjectCache(const shared_ptr<Ice::Communicator>& communicator) :
-    _communicator(communicator)
+AllocatableObjectCache::AllocatableObjectCache(const shared_ptr<Ice::Communicator>& communicator)
+    : _communicator(communicator)
 {
 }
 
@@ -120,7 +122,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
 
     lock_guard lock(_mutex);
 
-    if(getImpl(id))
+    if (getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
         out << "can't add duplicate allocatable object `" << _communicator->identityToString(id) << "'";
@@ -131,13 +133,13 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
-    if(p == _types.end())
+    if (p == _types.end())
     {
         p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));
     }
     p->second.add(entry);
 
-    if(_traceLevels && _traceLevels->object > 0)
+    if (_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
         out << "added allocatable object `" << _communicator->identityToString(id) << "'";
@@ -150,7 +152,7 @@ AllocatableObjectCache::get(const Ice::Identity& id) const
     lock_guard lock(_mutex);
 
     auto entry = getImpl(id);
-    if(!entry)
+    if (!entry)
     {
         throw ObjectNotRegisteredException(id);
     }
@@ -165,7 +167,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         lock_guard lock(_mutex);
 
         entry = getImpl(id);
-        if(!entry)
+        if (!entry)
         {
             Ice::Error out(_communicator->getLogger());
             out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
@@ -174,12 +176,12 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
 
         auto p = _types.find(entry->getType());
         assert(p != _types.end());
-        if(p->second.remove(entry))
+        if (p->second.remove(entry))
         {
             _types.erase(p);
         }
 
-        if(_traceLevels && _traceLevels->object > 0)
+        if (_traceLevels && _traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "removed allocatable object `" << _communicator->identityToString(id) << "'";
@@ -201,7 +203,7 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
     lock_guard lock(_mutex);
 
     auto p = _types.find(type);
-    if(p == _types.end())
+    if (p == _types.end())
     {
         throw AllocationException("no allocatable objects with type `" + type + "' registered");
     }
@@ -211,23 +213,23 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
     int allocatable = 0;
     try
     {
-        for(const auto& obj : objects)
+        for (const auto& obj : objects)
         {
-            if(obj->isEnabled())
+            if (obj->isEnabled())
             {
                 ++allocatable;
-                if(obj->tryAllocate(request))
+                if (obj->tryAllocate(request))
                 {
                     return;
                 }
             }
         }
     }
-    catch(const SessionDestroyedException&)
+    catch (const SessionDestroyedException&)
     {
         return; // The request has been answered already, no need to throw here.
     }
-    if(allocatable == 0)
+    if (allocatable == 0)
     {
         throw AllocationException("no allocatable objects with type `" + type + "' enabled");
     }
@@ -242,21 +244,22 @@ AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>&
     //
     lock_guard lock(_mutex);
     auto p = _types.find(entry->getType());
-    if(p == _types.end())
+    if (p == _types.end())
     {
         return false;
     }
     return p->second.canTryAllocate(entry, true);
 }
 
-AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
-                                               const ObjectInfo& info,
-                                               const shared_ptr<ServerEntry>& parent) :
-    Allocatable(true, parent),
-    _cache(cache),
-    _info(info),
-    _server(parent),
-    _destroyed(false)
+AllocatableObjectEntry::AllocatableObjectEntry(
+    AllocatableObjectCache& cache,
+    const ObjectInfo& info,
+    const shared_ptr<ServerEntry>& parent)
+    : Allocatable(true, parent),
+      _cache(cache),
+      _info(info),
+      _server(parent),
+      _destroyed(false)
 {
     assert(_server);
 }
@@ -295,7 +298,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
     session->addAllocation(shared_from_this());
 
     auto traceLevels = _cache.getTraceLevels();
-    if(traceLevels && traceLevels->object > 1)
+    if (traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
         out << "object `" << _info.proxy->ice_toString() << "' allocated by `" << session->getId() << "' (" << _count
@@ -303,7 +306,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
     }
 
     auto identities = session->getGlacier2IdentitySet();
-    if(identities)
+    if (identities)
     {
         try
         {
@@ -311,9 +314,9 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
             seq.push_back(_info.proxy->ice_getIdentity());
             identities->add(seq);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
-            if(traceLevels && traceLevels->object > 0)
+            if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
                 out << "couldn't add Glacier2 filter for object `" << _info.proxy->ice_toString();
@@ -334,7 +337,7 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
     auto traceLevels = _cache.getTraceLevels();
 
     auto identities = session->getGlacier2IdentitySet();
-    if(identities)
+    if (identities)
     {
         try
         {
@@ -342,9 +345,9 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
             seq.push_back(_info.proxy->ice_getIdentity());
             identities->remove(seq);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
-            if(traceLevels && traceLevels->object > 0)
+            if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
                 out << "couldn't remove Glacier2 filter for object `" << _info.proxy->ice_toString();
@@ -353,7 +356,7 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
         }
     }
 
-    if(traceLevels && traceLevels->object > 1)
+    if (traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
         out << "object `" << _info.proxy->ice_toString() << "' released by `" << session->getId() << "' (" << _count
@@ -370,13 +373,13 @@ AllocatableObjectEntry::destroy()
         _destroyed = true;
         session = _session;
     }
-    if(session)
+    if (session)
     {
         try
         {
             release(session);
         }
-        catch(const AllocationException&)
+        catch (const AllocationException&)
         {
         }
     }
@@ -385,7 +388,7 @@ AllocatableObjectEntry::destroy()
 void
 AllocatableObjectEntry::checkAllocatable()
 {
-    if(_destroyed)
+    if (_destroyed)
     {
         throw ObjectNotRegisteredException(_info.proxy->ice_getIdentity());
     }

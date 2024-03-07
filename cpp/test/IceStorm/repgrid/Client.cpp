@@ -15,24 +15,21 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-
-    void
-    event(int, const Current&) override
+    void event(int, const Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        if(++_count == 1000)
+        if (++_count == 1000)
         {
             _condVar.notify_one();
         }
     }
 
-    void
-    waitForEvents()
+    void waitForEvents()
     {
         unique_lock<mutex> lock(_mutex);
-        while(_count < 1000)
+        while (_count < 1000)
         {
-            if(_condVar.wait_for(lock, 20s) == cv_status::timeout)
+            if (_condVar.wait_for(lock, 20s) == cv_status::timeout)
             {
                 test(false);
             }
@@ -40,7 +37,6 @@ public:
     }
 
 private:
-
     int _count = 0;
     mutex _mutex;
     condition_variable _condVar;
@@ -49,7 +45,6 @@ private:
 class Client final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -59,7 +54,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     auto base = communicator->stringToProxy("Test.IceStorm/TopicManager");
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `Test.IceStorm/TopicManager' is not running";
@@ -83,16 +78,16 @@ Client::run(int argc, char** argv)
     auto p1 = topic->getPublisher();
     auto p2 = topic->getNonReplicatedPublisher();
     test(p1->ice_getAdapterId() == "PublishReplicaGroup");
-    test(p2->ice_getAdapterId() == "Test.IceStorm1.Publish" ||
-         p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
-         p2->ice_getAdapterId() == "Test.IceStorm3.Publish");
+    test(
+        p2->ice_getAdapterId() == "Test.IceStorm1.Publish" || p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
+        p2->ice_getAdapterId() == "Test.IceStorm3.Publish");
 
     //
     // Get a publisher object, create a twoway proxy and then cast to
     // a Single object.
     //
     optional<SinglePrx> single(topic->getPublisher()->ice_twoway());
-    for(int i = 0; i < 1000; ++i)
+    for (int i = 0; i < 1000; ++i)
     {
         single->event(i);
     }

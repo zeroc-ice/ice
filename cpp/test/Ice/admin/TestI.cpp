@@ -12,46 +12,31 @@ using namespace std;
 namespace
 {
 
-//
-// A no-op Logger, used when testing the Logger Admin
-//
+    //
+    // A no-op Logger, used when testing the Logger Admin
+    //
 
-class NullLogger final : public Logger, public enable_shared_from_this<NullLogger>
-{
-public:
-
-    void print(const string&) final
+    class NullLogger final : public Logger, public enable_shared_from_this<NullLogger>
     {
-    }
+    public:
+        void print(const string&) final {}
 
-    void trace(const string&, const string&) final
-    {
-    }
+        void trace(const string&, const string&) final {}
 
-    void warning(const string&) final
-    {
-    }
+        void warning(const string&) final {}
 
-    void error(const string&) final
-    {
-    }
+        void error(const string&) final {}
 
-    string getPrefix() final
-    {
-        return "NullLogger";
-    }
+        string getPrefix() final { return "NullLogger"; }
 
-    LoggerPtr cloneWithPrefix(const string&) final
-    {
-        return shared_from_this();
-    }
-};
+        LoggerPtr cloneWithPrefix(const string&) final { return shared_from_this(); }
+    };
 
 }
 
-RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator) :
-    _communicator(communicator),
-    _removeCallback(nullptr)
+RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator)
+    : _communicator(communicator),
+      _removeCallback(nullptr)
 {
 }
 
@@ -66,9 +51,9 @@ RemoteCommunicatorI::getChanges(const Current&)
 {
     lock_guard lock(_mutex);
 
-    if(_removeCallback)
+    if (_removeCallback)
     {
-       return _changes;
+        return _changes;
     }
     else
     {
@@ -82,12 +67,11 @@ RemoteCommunicatorI::addUpdateCallback(const Current&)
     lock_guard lock(_mutex);
 
     ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if(propFacet)
+    if (propFacet)
     {
         NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
         assert(admin);
-        _removeCallback =
-            admin->addUpdateCallback([this](const PropertyDict& changes) { updated(changes); });
+        _removeCallback = admin->addUpdateCallback([this](const PropertyDict& changes) { updated(changes); });
     }
 }
 
@@ -97,17 +81,16 @@ RemoteCommunicatorI::removeUpdateCallback(const Current&)
     lock_guard lock(_mutex);
 
     ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if(propFacet)
+    if (propFacet)
     {
         NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
         assert(admin);
-        if(_removeCallback)
+        if (_removeCallback)
         {
             _removeCallback();
             _removeCallback = nullptr;
         }
     }
-
 }
 
 void
@@ -116,8 +99,7 @@ RemoteCommunicatorI::print(string message, const Current&)
     _communicator->getLogger()->print(message);
 }
 void
-RemoteCommunicatorI::trace(string category,
-                           string message, const Current&)
+RemoteCommunicatorI::trace(string category, string message, const Current&)
 {
     _communicator->getLogger()->trace(category, message);
 }
@@ -169,12 +151,12 @@ RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current
     //
     InitializationData init;
     init.properties = createProperties();
-    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         init.properties->setProperty(p->first, p->second);
     }
 
-    if(init.properties->getPropertyAsInt("NullLogger") > 0)
+    if (init.properties->getPropertyAsInt("NullLogger") > 0)
     {
         init.logger = make_shared<NullLogger>();
     }

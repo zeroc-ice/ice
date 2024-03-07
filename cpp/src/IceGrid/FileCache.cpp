@@ -16,8 +16,8 @@
 using namespace std;
 using namespace IceGrid;
 
-FileCache::FileCache(const shared_ptr<Ice::Communicator>& com) :
-    _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
+FileCache::FileCache(const shared_ptr<Ice::Communicator>& com)
+    : _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
 {
 }
 
@@ -25,19 +25,19 @@ int64_t
 FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
     ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
-    if(is.fail())
+    if (is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
-    if(originalCount < 0)
+    if (originalCount < 0)
     {
         return 0;
     }
 
     is.seekg(0, ios::end);
     streampos endOfFile = is.tellg();
-    if(originalCount == 0)
+    if (originalCount == 0)
     {
         return endOfFile;
     }
@@ -46,7 +46,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     streampos lastBlockOffset = endOfFile;
     int totalCount = 0;
     string line;
-    deque<pair<streampos, string> > lines;
+    deque<pair<streampos, string>> lines;
     do
     {
         lines.clear();
@@ -56,7 +56,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         // read.
         //
         is.clear();
-        if(lastBlockOffset - blockSize > streamoff(0))
+        if (lastBlockOffset - blockSize > streamoff(0))
         {
             is.seekg(lastBlockOffset - blockSize);
             getline(is, line); // Ignore the first line as it's most likely not complete.
@@ -72,46 +72,45 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         // the lines read at the begining of the file.
         //
         int count = originalCount - totalCount; // Number of lines left to find.
-        while(is.good() && is.tellg() <= streamoff(lastBlockOffset))
+        while (is.good() && is.tellg() <= streamoff(lastBlockOffset))
         {
             streampos beg = is.tellg();
             getline(is, line);
-            if(is.eof() && line.empty()) // Don't count the last line if it's empty.
+            if (is.eof() && line.empty()) // Don't count the last line if it's empty.
             {
                 continue;
             }
 
             lines.push_back(make_pair(beg, line));
             ++totalCount;
-            if(lines.size() == static_cast<unsigned int>(count + 1))
+            if (lines.size() == static_cast<unsigned int>(count + 1))
             {
                 --totalCount;
                 lines.pop_front();
             }
         }
 
-        if(lastBlockOffset - blockSize < streamoff(0))
+        if (lastBlockOffset - blockSize < streamoff(0))
         {
             break; // We're done if the block started at the begining of the file.
         }
-        else if(totalCount < originalCount)
+        else if (totalCount < originalCount)
         {
             //
             // Otherwise, it we still didn't find the required number of lines,
             // read another block of text before this block.
             //
             lastBlockOffset -= blockSize; // Position of the block we just read.
-            blockSize *= 2; // Read a bigger block.
+            blockSize *= 2;               // Read a bigger block.
         }
-    }
-    while(totalCount < originalCount && !is.bad());
+    } while (totalCount < originalCount && !is.bad());
 
-    if(is.bad())
+    if (is.bad())
     {
         throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }
 
-    if(lines.empty())
+    if (lines.empty())
     {
         return 0;
     }
@@ -126,18 +125,18 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
 {
     assert(size > 0);
 
-    if(size > _messageSizeMax)
+    if (size > _messageSizeMax)
     {
         size = _messageSizeMax;
     }
 
-    if(size <= 5)
+    if (size <= 5)
     {
         throw FileNotAvailableException("maximum bytes per read request is too low");
     }
 
     ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
-    if(is.fail())
+    if (is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");
     }
@@ -148,7 +147,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
     // the EOF.
     //
     is.seekg(0, ios::end);
-    if(offset >= is.tellg())
+    if (offset >= is.tellg())
     {
         newOffset = is.tellg();
         lines = Ice::StringSeq();
@@ -164,14 +163,14 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
     int totalSize = 0;
     string line;
 
-    while(is.good())
+    while (is.good())
     {
         getline(is, line);
 
         int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
-        if(lineSize + totalSize > size)
+        if (lineSize + totalSize > size)
         {
-            if(totalSize + 5 < size)
+            if (totalSize + 5 < size)
             {
                 // There's some room left for a part of the string, return a partial string
                 line = line.substr(0, static_cast<size_t>(size - totalSize - 5));
@@ -193,7 +192,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         // otherwise we have read a new complete line and we can use tellg to update
         // the offset.
         //
-        if(!is.good())
+        if (!is.good())
         {
             newOffset += line.size();
         }
@@ -203,7 +202,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         }
     }
 
-    if(is.bad())
+    if (is.bad())
     {
         throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }

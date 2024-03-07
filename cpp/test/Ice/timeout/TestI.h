@@ -10,7 +10,6 @@
 class TimeoutI final : public Test::Timeout
 {
 public:
-
     void op(const Ice::Current&) final;
     void sendData(Test::ByteSeq, const Ice::Current&) final;
     void sleep(std::int32_t, const Ice::Current&) final;
@@ -19,7 +18,6 @@ public:
 class ControllerI final : public Test::Controller
 {
 public:
-
     ControllerI(const Ice::ObjectAdapterPtr&);
 
     void holdAdapter(std::int32_t, const Ice::Current&) final;
@@ -27,7 +25,6 @@ public:
     void shutdown(const Ice::Current&) final;
 
 private:
-
     const Ice::ObjectAdapterPtr _adapter;
 };
 

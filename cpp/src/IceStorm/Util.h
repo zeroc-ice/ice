@@ -13,38 +13,31 @@
 namespace IceStorm
 {
 
-//
-// Forward declarations.
-//
-class Instance;
+    //
+    // Forward declarations.
+    //
+    class Instance;
 
-using SubscriberMap = IceDB::Dbi<IceStorm::SubscriberRecordKey,
-                                 IceStorm::SubscriberRecord,
-                                 IceDB::IceContext,
-                                 Ice::OutputStream>;
-using LLUMap = IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>;
+    using SubscriberMap =
+        IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>;
+    using LLUMap = IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>;
 
-const std::string lluDbKey = "_manager";
+    const std::string lluDbKey = "_manager";
 
 }
 
 namespace IceStormInternal
 {
 
-std::string
-identityToTopicName(const Ice::Identity&);
+    std::string identityToTopicName(const Ice::Identity&);
 
-Ice::Identity
-nameToIdentity(const std::shared_ptr<IceStorm::Instance>&, const std::string&);
+    Ice::Identity nameToIdentity(const std::shared_ptr<IceStorm::Instance>&, const std::string&);
 
-std::string
-describeEndpoints(const std::optional<Ice::ObjectPrx>&);
+    std::string describeEndpoints(const std::optional<Ice::ObjectPrx>&);
 
-int
-compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);
+    int compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);
 
-IceStormElection::LogUpdate
-getIncrementedLLU(const IceDB::ReadWriteTxn&, IceStorm::LLUMap&);
+    IceStormElection::LogUpdate getIncrementedLLU(const IceDB::ReadWriteTxn&, IceStorm::LLUMap&);
 
 }
 

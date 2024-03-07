@@ -11,13 +11,13 @@
 #include <Ice/Selector.h>
 
 #ifndef TEST_API
-#   if defined(ICE_STATIC_LIBS)
-#       define TEST_API /**/
-#   elif defined(TEST_API_EXPORTS)
-#       define TEST_API ICE_DECLSPEC_EXPORT
-#   else
-#       define TEST_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define TEST_API /**/
+#    elif defined(TEST_API_EXPORTS)
+#        define TEST_API ICE_DECLSPEC_EXPORT
+#    else
+#        define TEST_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 class Configuration;
@@ -26,7 +26,6 @@ using ConfigurationPtr = std::shared_ptr<Configuration>;
 class TEST_API Configuration : public std::enable_shared_from_this<Configuration>
 {
 public:
-
     Configuration();
     void init();
 
@@ -59,7 +58,6 @@ public:
     static ConfigurationPtr getInstance();
 
 private:
-
     std::unique_ptr<Ice::LocalException> _connectorsException;
     std::unique_ptr<Ice::LocalException> _connectException;
     IceInternal::SocketOperation _initializeSocketOperation;

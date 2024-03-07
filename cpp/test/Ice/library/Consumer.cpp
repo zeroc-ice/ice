@@ -6,7 +6,7 @@
 #include <TestHelper.h>
 
 #if defined(_MSC_VER)
-#   pragma comment(lib, ICE_LIBNAME("gencode"))
+#    pragma comment(lib, ICE_LIBNAME("gencode"))
 #endif
 
 using namespace std;
@@ -39,11 +39,11 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
     {
         proxy->op(true);
     }
-    catch(const Test::UserError&)
+    catch (const Test::UserError&)
     {
         // expected
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -52,11 +52,11 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
     {
         servant->op(true, Ice::emptyCurrent);
     }
-    catch(const Test::UserError&)
+    catch (const Test::UserError&)
     {
         // expected
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }

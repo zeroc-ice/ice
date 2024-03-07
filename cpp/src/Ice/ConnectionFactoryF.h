@@ -10,11 +10,11 @@
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory;
-using OutgoingConnectionFactoryPtr = std::shared_ptr<OutgoingConnectionFactory>;
+    class OutgoingConnectionFactory;
+    using OutgoingConnectionFactoryPtr = std::shared_ptr<OutgoingConnectionFactory>;
 
-class IncomingConnectionFactory;
-using IncomingConnectionFactoryPtr = ::std::shared_ptr<IncomingConnectionFactory>;
+    class IncomingConnectionFactory;
+    using IncomingConnectionFactoryPtr = ::std::shared_ptr<IncomingConnectionFactory>;
 
 }
 

@@ -24,26 +24,24 @@ static VALUE iceModule;
 extern "C"
 {
 
-void
-ICE_DECLSPEC_EXPORT Init_IceRuby()
-{
-    Ice::registerIceSSL(false);
-    Ice::registerIceDiscovery(false);
-    Ice::registerIceLocatorDiscovery(false);
+    void ICE_DECLSPEC_EXPORT Init_IceRuby()
+    {
+        Ice::registerIceSSL(false);
+        Ice::registerIceDiscovery(false);
+        Ice::registerIceLocatorDiscovery(false);
 
-    iceModule = rb_define_module("Ice");
-    initCommunicator(iceModule);
-    initLogger(iceModule);
-    initOperation(iceModule);
-    initProperties(iceModule);
-    initProxy(iceModule);
-    initSlice(iceModule);
-    initTypes(iceModule);
-    initImplicitContext(iceModule);
-    initUtil(iceModule);
-    initConnection(iceModule);
-    initEndpoint(iceModule);
-    initValueFactoryManager(iceModule);
-}
-
+        iceModule = rb_define_module("Ice");
+        initCommunicator(iceModule);
+        initLogger(iceModule);
+        initOperation(iceModule);
+        initProperties(iceModule);
+        initProxy(iceModule);
+        initSlice(iceModule);
+        initTypes(iceModule);
+        initImplicitContext(iceModule);
+        initUtil(iceModule);
+        initConnection(iceModule);
+        initEndpoint(iceModule);
+        initValueFactoryManager(iceModule);
+    }
 }

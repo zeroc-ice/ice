@@ -17,36 +17,33 @@ using namespace IceGrid;
 namespace
 {
 
-void
-writeLongLine(ostream& os)
-{
-    os << 'a';
-    for(int i = 0; i < 2400; i++)
+    void writeLongLine(ostream& os)
     {
-        os << 'b';
+        os << 'a';
+        for (int i = 0; i < 2400; i++)
+        {
+            os << 'b';
+        }
+        os << 'c';
     }
-    os << 'c';
-}
 
-bool
-isLongLineStart(const string& line)
-{
-    test(line.size() < 1024);
-    return line.size() > 1 && line[0] == 'a' && line[1] == 'b';
-}
+    bool isLongLineStart(const string& line)
+    {
+        test(line.size() < 1024);
+        return line.size() > 1 && line[0] == 'a' && line[1] == 'b';
+    }
 
-bool
-isLongLineContent(const string& line)
-{
-    test(line.size() < 1024);
-    return line.size() > 1 && line[0] == 'b' && line[line.size() - 1] == 'b';
-}
+    bool isLongLineContent(const string& line)
+    {
+        test(line.size() < 1024);
+        return line.size() > 1 && line[0] == 'b' && line[line.size() - 1] == 'b';
+    }
 
-bool isLongLineEnd(const string& line)
-{
-    test(line.size() < 1024);
-    return line.size() > 1 && line[line.size() - 2] == 'b' && line[line.size() - 1] == 'c';
-}
+    bool isLongLineEnd(const string& line)
+    {
+        test(line.size() < 1024);
+        return line.size() > 1 && line[line.size() - 2] == 'b' && line[line.size() - 1] == 'c';
+    }
 
 }
 
@@ -54,9 +51,7 @@ function<bool(const optional<Ice::ObjectPrx>&)>
 proxyIdentityEqual(const string& strId)
 {
     return [id = Ice::stringToIdentity(strId)](const optional<Ice::ObjectPrx>& obj)
-    {
-        return obj->ice_getIdentity() == id;
-    };
+    { return obj->ice_getIdentity() == id; };
 }
 
 void
@@ -70,7 +65,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         session->openServerStdErr("LogServer", -1);
         test(false);
     }
-    catch(const FileNotAvailableException&)
+    catch (const FileNotAvailableException&)
     {
     }
     try
@@ -78,7 +73,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         session->openServerStdOut("LogServer", -1);
         test(false);
     }
-    catch(const FileNotAvailableException&)
+    catch (const FileNotAvailableException&)
     {
     }
     try
@@ -86,7 +81,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         session->openServerLog("LogServer", "unknown.txt", -1);
         test(false);
     }
-    catch(const FileNotAvailableException&)
+    catch (const FileNotAvailableException&)
     {
     }
 
@@ -96,7 +91,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         session->openServerStdErr("LogServer", -1)->destroy();
         session->openServerStdOut("LogServer", -1)->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -128,7 +123,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -167,7 +162,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -214,7 +209,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         test(lines[1].empty());
         it->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -267,7 +262,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         test(lines[3].empty());
         it->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -317,10 +312,10 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         os << endl;
         writeLongLine(os);
         os.flush();
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
@@ -349,7 +344,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
         test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
         it->destroy();
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -367,14 +362,12 @@ allTests(Test::TestHelper* helper)
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     optional<AdminPrx> admin = session->getAdmin();
     test(admin);
 
-    cout << "testing server registration... "  << flush;
+    cout << "testing server registration... " << flush;
     Ice::StringSeq serverIds = admin->getAllServerIds();
     test(find(serverIds.begin(), serverIds.end(), "Server1") != serverIds.end());
     test(find(serverIds.begin(), serverIds.end(), "Server2") != serverIds.end());
@@ -422,15 +415,17 @@ allTests(Test::TestHelper* helper)
     {
         optional<Ice::ObjectPrx> obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
-             id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
+        test(
+            id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
+            id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
         optional<Ice::ObjectPrx> obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
-             id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
+        test(
+            id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
+            id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
@@ -522,7 +517,9 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("PropertyWithHash") == "foo#bar");
     test(obj->getProperty("PropertyWithTab") == "foo\tbar");
     test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
-    test(obj->getProperty("PropertyWithProperty") == "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
+    test(
+        obj->getProperty("PropertyWithProperty") ==
+        "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
@@ -540,7 +537,9 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("PropertyWithHash") == "foo#bar");
     test(obj->getProperty("PropertyWithTab") == "foo\tbar");
     test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
-    test(obj->getProperty("PropertyWithProperty") == "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
+    test(
+        obj->getProperty("PropertyWithProperty") ==
+        "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
 
     obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
     test(obj->getProperty("Service2.Type") == "nonstandard");
@@ -566,7 +565,7 @@ allTests(Test::TestHelper* helper)
     obj = TestIntfPrx(comm, "SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService");
     proxies.push_back(obj);
 
-    for(const auto& p : proxies)
+    for (const auto& p : proxies)
     {
         test(p->getProperty("AppVarProp") == "AppVar");
         test(p->getProperty("NodeVarProp") == "NodeVar");
@@ -621,12 +620,12 @@ allTests(Test::TestHelper* helper)
     // getApplicationDescriptor doesn't return the instantiated
     // application descriptor...
     //
-//     ApplicationDescriptor desc = admin->getApplicationDescriptor("test");
-//     test(desc.description == "APP AppVar");
-//     test(desc.nodes["localnode"].description == "NODE NodeVar");
-//     test(desc.replicaGroups[0].description == "REPLICA GROUP AppVar");
-//     test(desc.nodes["localnode"].servers.size() == 2);
-//    const int idx = desc.nodes["localnode"].servers[0]->id == "SimpleServer" ? 0 : 1;
+    //     ApplicationDescriptor desc = admin->getApplicationDescriptor("test");
+    //     test(desc.description == "APP AppVar");
+    //     test(desc.nodes["localnode"].description == "NODE NodeVar");
+    //     test(desc.replicaGroups[0].description == "REPLICA GROUP AppVar");
+    //     test(desc.nodes["localnode"].servers.size() == 2);
+    //    const int idx = desc.nodes["localnode"].servers[0]->id == "SimpleServer" ? 0 : 1;
     ServerInfo info = admin->getServerInfo("SimpleServer");
     test(info.descriptor->id == "SimpleServer");
     test(info.descriptor->description == "SERVER NodeVar");
@@ -703,11 +702,11 @@ allTests(Test::TestHelper* helper)
         admin->addApplication(desc);
         test(false);
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         test(ex.reason.find("duplicate parameters") != string::npos);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);

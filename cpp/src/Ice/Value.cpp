@@ -33,9 +33,9 @@ Ice::Value::_iceWrite(Ice::OutputStream* os) const
 void
 Ice::Value::_iceRead(Ice::InputStream* is)
 {
-   is->startValue();
-   _iceReadImpl(is);
-   _slicedData = is->endValue();
+    is->startValue();
+    _iceReadImpl(is);
+    _slicedData = is->endValue();
 }
 
 string

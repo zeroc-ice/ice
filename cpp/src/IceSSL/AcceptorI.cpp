@@ -47,7 +47,6 @@ void
 IceSSL::AcceptorI::startAccept()
 {
     _delegate->startAccept();
-
 }
 
 void
@@ -63,7 +62,7 @@ IceSSL::AcceptorI::accept()
     //
     // The plug-in may not be initialized.
     //
-    if(!_instance->initialized())
+    if (!_instance->initialized())
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
     }
@@ -89,15 +88,16 @@ IceSSL::AcceptorI::toDetailedString() const
     return _delegate->toDetailedString();
 }
 
-IceSSL::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& instance,
-                             const IceInternal::AcceptorPtr& del, const string& adapterName) :
-    _endpoint(endpoint),
-    _instance(instance),
-    _delegate(del),
-    _adapterName(adapterName)
+IceSSL::AcceptorI::AcceptorI(
+    const EndpointIPtr& endpoint,
+    const InstancePtr& instance,
+    const IceInternal::AcceptorPtr& del,
+    const string& adapterName)
+    : _endpoint(endpoint),
+      _instance(instance),
+      _delegate(del),
+      _adapterName(adapterName)
 {
 }
 
-IceSSL::AcceptorI::~AcceptorI()
-{
-}
+IceSSL::AcceptorI::~AcceptorI() {}

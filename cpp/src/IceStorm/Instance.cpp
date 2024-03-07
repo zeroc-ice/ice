@@ -21,7 +21,7 @@ using namespace IceStormInternal;
 
 namespace IceStormInternal
 {
-extern IceDB::IceContext dbContext;
+    extern IceDB::IceContext dbContext;
 }
 
 void
@@ -40,45 +40,45 @@ TopicReaper::consumeReapedTopics()
     return reaped;
 }
 
-Instance::Instance(const string& instanceName,
-                   const string& name,
-                   shared_ptr<Ice::Communicator> communicator,
-                   shared_ptr<Ice::ObjectAdapter> publishAdapter,
-                   shared_ptr<Ice::ObjectAdapter> topicAdapter,
-                   shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                   optional<NodePrx> nodeProxy) :
-    _instanceName(instanceName),
-    _serviceName(name),
-    _communicator(std::move(communicator)),
-    _publishAdapter(std::move(publishAdapter)),
-    _topicAdapter(std::move(topicAdapter)),
-    _nodeAdapter(std::move(nodeAdapter)),
-    _nodeProxy(std::move(nodeProxy)),
-    _traceLevels(make_shared<TraceLevels>(name, _communicator->getProperties(), _communicator->getLogger())),
-    // default one minute.
-    _discardInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Discard.Interval", 60)),
-    // default one second.
-    _flushInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Flush.Timeout", 1000)),
-    // default one minute.
-    _sendTimeout(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
-    _sendQueueSizeMax(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueSizeMax", -1)),
-    _sendQueueSizeMaxPolicy(RemoveSubscriber),
-    _topicReaper(make_shared<TopicReaper>()),
-    _observers(make_shared<Observers>(_traceLevels))
+Instance::Instance(
+    const string& instanceName,
+    const string& name,
+    shared_ptr<Ice::Communicator> communicator,
+    shared_ptr<Ice::ObjectAdapter> publishAdapter,
+    shared_ptr<Ice::ObjectAdapter> topicAdapter,
+    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    optional<NodePrx> nodeProxy)
+    : _instanceName(instanceName),
+      _serviceName(name),
+      _communicator(std::move(communicator)),
+      _publishAdapter(std::move(publishAdapter)),
+      _topicAdapter(std::move(topicAdapter)),
+      _nodeAdapter(std::move(nodeAdapter)),
+      _nodeProxy(std::move(nodeProxy)),
+      _traceLevels(make_shared<TraceLevels>(name, _communicator->getProperties(), _communicator->getLogger())),
+      // default one minute.
+      _discardInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Discard.Interval", 60)),
+      // default one second.
+      _flushInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Flush.Timeout", 1000)),
+      // default one minute.
+      _sendTimeout(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
+      _sendQueueSizeMax(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueSizeMax", -1)),
+      _sendQueueSizeMaxPolicy(RemoveSubscriber),
+      _topicReaper(make_shared<TopicReaper>()),
+      _observers(make_shared<Observers>(_traceLevels))
 {
     try
     {
         auto properties = _communicator->getProperties();
-        if(properties->getProperty(name + ".TopicManager.AdapterId").empty())
+        if (properties->getProperty(name + ".TopicManager.AdapterId").empty())
         {
             string p = properties->getProperty(name + ".ReplicatedTopicManagerEndpoints");
-            if(!p.empty())
+            if (!p.empty())
             {
-                const_cast<optional<Ice::ObjectPrx>&>(_topicReplicaProxy) =
-                    Ice::ObjectPrx{_communicator, "dummy:" + p};
+                const_cast<optional<Ice::ObjectPrx>&>(_topicReplicaProxy) = Ice::ObjectPrx{_communicator, "dummy:" + p};
             }
             p = properties->getProperty(name + ".ReplicatedPublishEndpoints");
-            if(!p.empty())
+            if (!p.empty())
             {
                 const_cast<optional<Ice::ObjectPrx>&>(_publisherReplicaProxy) =
                     Ice::ObjectPrx{_communicator, "dummy:" + p};
@@ -88,15 +88,15 @@ Instance::Instance(const string& instanceName,
         _timer = make_shared<IceUtil::Timer>();
 
         string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
-        if(policy == "RemoveSubscriber")
+        if (policy == "RemoveSubscriber")
         {
             const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = RemoveSubscriber;
         }
-        else if(policy == "DropEvents")
+        else if (policy == "DropEvents")
         {
             const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = DropEvents;
         }
-        else if(!policy.empty())
+        else if (!policy.empty())
         {
             Ice::Warning warn(_traceLevels->logger);
             warn << "invalid value `" << policy << "' for `" << name << ".Send.QueueSizeMaxPolicy'";
@@ -107,12 +107,12 @@ Instance::Instance(const string& instanceName,
         // enable metrics for IceStorm.
         //
         auto o = dynamic_pointer_cast<IceInternal::CommunicatorObserverI>(_communicator->getObserver());
-        if(o)
+        if (o)
         {
             _observer = make_shared<TopicManagerObserverI>(o->getFacet());
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         shutdown();
         destroy();
@@ -120,9 +120,7 @@ Instance::Instance(const string& instanceName,
     }
 }
 
-Instance::~Instance()
-{
-}
+Instance::~Instance() {}
 
 void
 Instance::setNode(shared_ptr<NodeI> node)
@@ -259,7 +257,7 @@ Instance::sendQueueSizeMaxPolicy() const
 void
 Instance::shutdown()
 {
-    if(_node)
+    if (_node)
     {
         _node->destroy();
         assert(_nodeAdapter);
@@ -269,7 +267,7 @@ Instance::shutdown()
     _topicAdapter->destroy();
     _publishAdapter->destroy();
 
-    if(_timer)
+    if (_timer)
     {
         _timer->destroy();
     }
@@ -290,24 +288,27 @@ Instance::destroy()
     _observer = nullptr;
 }
 
-PersistentInstance::PersistentInstance(const string& instanceName,
-                                       const string& name,
-                                       shared_ptr<Ice::Communicator> communicator,
-                                       shared_ptr<Ice::ObjectAdapter> publishAdapter,
-                                       shared_ptr<Ice::ObjectAdapter> topicAdapter,
-                                       shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                                       optional<NodePrx> nodeProxy) :
-    Instance(
-        instanceName,
-        name,
-        communicator,
-        std::move(publishAdapter),
-        std::move(topicAdapter),
-        std::move(nodeAdapter),
-        std::move(nodeProxy)),
-    _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
-    _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name), 2,
-        IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
+PersistentInstance::PersistentInstance(
+    const string& instanceName,
+    const string& name,
+    shared_ptr<Ice::Communicator> communicator,
+    shared_ptr<Ice::ObjectAdapter> publishAdapter,
+    shared_ptr<Ice::ObjectAdapter> topicAdapter,
+    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    optional<NodePrx> nodeProxy)
+    : Instance(
+          instanceName,
+          name,
+          communicator,
+          std::move(publishAdapter),
+          std::move(topicAdapter),
+          std::move(nodeAdapter),
+          std::move(nodeProxy)),
+      _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
+      _dbEnv(
+          communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name),
+          2,
+          IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
 {
     try
     {
@@ -322,7 +323,7 @@ PersistentInstance::PersistentInstance(const string& instanceName,
 
         txn.commit();
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         shutdown();
         destroy();

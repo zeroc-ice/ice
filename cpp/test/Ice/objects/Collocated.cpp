@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Test;
 
-template <typename T>
+template<typename T>
 function<shared_ptr<T>(string_view)>
 makeFactory()
 {
@@ -19,7 +19,6 @@ makeFactory()
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

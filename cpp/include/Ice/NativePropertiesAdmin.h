@@ -10,23 +10,22 @@
 namespace Ice
 {
 
-/**
- * Base class for the Properties admin facet.
- * \headerfile Ice/Ice.h
- */
-class ICE_API NativePropertiesAdmin
-{
-public:
-
-    virtual ~NativePropertiesAdmin();
-
     /**
-     * Register an update callback that will be invoked when property updates occur.
-     * @param cb The callback.
+     * Base class for the Properties admin facet.
+     * \headerfile Ice/Ice.h
      */
-    virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
-};
-using NativePropertiesAdminPtr = std::shared_ptr<NativePropertiesAdmin>;
+    class ICE_API NativePropertiesAdmin
+    {
+    public:
+        virtual ~NativePropertiesAdmin();
+
+        /**
+         * Register an update callback that will be invoked when property updates occur.
+         * @param cb The callback.
+         */
+        virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
+    };
+    using NativePropertiesAdminPtr = std::shared_ptr<NativePropertiesAdmin>;
 
 }
 

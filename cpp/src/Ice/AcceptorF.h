@@ -10,11 +10,11 @@
 namespace IceInternal
 {
 
-class Acceptor;
-using AcceptorPtr = std::shared_ptr<Acceptor>;
+    class Acceptor;
+    using AcceptorPtr = std::shared_ptr<Acceptor>;
 
-class TcpAcceptor;
-using TcpAcceptorPtr = std::shared_ptr<TcpAcceptor>;
+    class TcpAcceptor;
+    using TcpAcceptorPtr = std::shared_ptr<TcpAcceptor>;
 
 }
 

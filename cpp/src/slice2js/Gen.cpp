@@ -20,345 +20,341 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string
-sliceModeToIceMode(Operation::Mode opMode)
-{
-    switch(opMode)
+    string sliceModeToIceMode(Operation::Mode opMode)
     {
-    case Operation::Normal:
-        return "0";
-    case Operation::Nonmutating:
-        return "1";
-    case Operation::Idempotent:
-        return "2";
-    default:
-        assert(false);
+        switch (opMode)
+        {
+            case Operation::Normal:
+                return "0";
+            case Operation::Nonmutating:
+                return "1";
+            case Operation::Idempotent:
+                return "2";
+            default:
+                assert(false);
+        }
+
+        return "???";
     }
 
-    return "???";
-}
-
-string
-opFormatTypeToString(const OperationPtr& op)
-{
-    switch(op->format())
+    string opFormatTypeToString(const OperationPtr& op)
     {
-    case DefaultFormat:
-        return "0";
-    case CompactFormat:
-        return "1";
-    case SlicedFormat:
-        return "2";
-    default:
-        assert(false);
+        switch (op->format())
+        {
+            case DefaultFormat:
+                return "0";
+            case CompactFormat:
+                return "1";
+            case SlicedFormat:
+                return "2";
+            default:
+                assert(false);
+        }
+
+        return "???";
     }
 
-    return "???";
-}
-
-string
-getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
-{
-    string deprecateMetadata, deprecateReason;
-    if(p1->findMetaData("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    string getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
     {
-        deprecateReason = "This " + type + " has been deprecated.";
-        const string prefix = "deprecate:";
-        if(deprecateMetadata.find(prefix) == 0 && deprecateMetadata.size() > prefix.size())
+        string deprecateMetadata, deprecateReason;
+        if (p1->findMetaData("deprecate", deprecateMetadata) ||
+            (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
         {
-            deprecateReason = deprecateMetadata.substr(prefix.size());
-        }
-    }
-    return deprecateReason;
-}
-
-void
-printHeader(IceUtilInternal::Output& out)
-{
-    static const char* header =
-        "//\n"
-        "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
-        "//\n"
-        ;
-
-    out << header;
-    out << "//\n";
-    out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    out << "//\n";
-}
-
-string
-escapeParam(const ParamDeclList& params, const string& name)
-{
-    string r = name;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-        if(Slice::JsGenerator::fixId((*p)->name()) == name)
-        {
-            r = name + "_";
-            break;
-        }
-    }
-    return r;
-}
-
-void
-writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
-{
-    StringList l = lines;
-    if(!commentFirst)
-    {
-        out << l.front();
-        l.pop_front();
-    }
-    for(StringList::const_iterator i = l.begin(); i != l.end(); ++i)
-    {
-        out << nl << " *";
-        if(!i->empty())
-        {
-            out << space << *i;
-        }
-    }
-}
-
-void
-writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
-{
-    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        out << nl << " *";
-        if(!i->empty())
-        {
-            out << space << "@see " << *i;
-        }
-    }
-}
-
-string
-getDocSentence(const StringList& lines)
-{
-    //
-    // Extract the first sentence.
-    //
-    ostringstream ostr;
-    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string ws = " \t";
-
-        if(i->empty())
-        {
-            break;
-        }
-        if(i != lines.begin() && i->find_first_not_of(ws) == 0)
-        {
-            ostr << " ";
-        }
-        string::size_type pos = i->find('.');
-        if(pos == string::npos)
-        {
-            ostr << *i;
-        }
-        else if(pos == i->size() - 1)
-        {
-            ostr << *i;
-            break;
-        }
-        else
-        {
-            //
-            // Assume a period followed by whitespace indicates the end of the sentence.
-            //
-            while(pos != string::npos)
+            deprecateReason = "This " + type + " has been deprecated.";
+            const string prefix = "deprecate:";
+            if (deprecateMetadata.find(prefix) == 0 && deprecateMetadata.size() > prefix.size())
             {
-                if(ws.find((*i)[pos + 1]) != string::npos)
-                {
-                    break;
-                }
-                pos = i->find('.', pos + 1);
+                deprecateReason = deprecateMetadata.substr(prefix.size());
             }
-            if(pos != string::npos)
+        }
+        return deprecateReason;
+    }
+
+    void printHeader(IceUtilInternal::Output& out)
+    {
+        static const char* header = "//\n"
+                                    "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                    "//\n";
+
+        out << header;
+        out << "//\n";
+        out << "// Ice version " << ICE_STRING_VERSION << "\n";
+        out << "//\n";
+    }
+
+    string escapeParam(const ParamDeclList& params, const string& name)
+    {
+        string r = name;
+        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        {
+            if (Slice::JsGenerator::fixId((*p)->name()) == name)
             {
-                ostr << i->substr(0, pos + 1);
+                r = name + "_";
+                break;
+            }
+        }
+        return r;
+    }
+
+    void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+    {
+        StringList l = lines;
+        if (!commentFirst)
+        {
+            out << l.front();
+            l.pop_front();
+        }
+        for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+        {
+            out << nl << " *";
+            if (!i->empty())
+            {
+                out << space << *i;
+            }
+        }
+    }
+
+    void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
+    {
+        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        {
+            out << nl << " *";
+            if (!i->empty())
+            {
+                out << space << "@see " << *i;
+            }
+        }
+    }
+
+    string getDocSentence(const StringList& lines)
+    {
+        //
+        // Extract the first sentence.
+        //
+        ostringstream ostr;
+        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        {
+            const string ws = " \t";
+
+            if (i->empty())
+            {
+                break;
+            }
+            if (i != lines.begin() && i->find_first_not_of(ws) == 0)
+            {
+                ostr << " ";
+            }
+            string::size_type pos = i->find('.');
+            if (pos == string::npos)
+            {
+                ostr << *i;
+            }
+            else if (pos == i->size() - 1)
+            {
+                ostr << *i;
                 break;
             }
             else
             {
-                ostr << *i;
+                //
+                // Assume a period followed by whitespace indicates the end of the sentence.
+                //
+                while (pos != string::npos)
+                {
+                    if (ws.find((*i)[pos + 1]) != string::npos)
+                    {
+                        break;
+                    }
+                    pos = i->find('.', pos + 1);
+                }
+                if (pos != string::npos)
+                {
+                    ostr << i->substr(0, pos + 1);
+                    break;
+                }
+                else
+                {
+                    ostr << *i;
+                }
             }
         }
+
+        return ostr.str();
     }
 
-    return ostr.str();
-}
-
-void
-writeDocSummary(Output& out, const ContainedPtr& p)
-{
-    if(p->comment().empty())
+    void writeDocSummary(Output& out, const ContainedPtr& p)
     {
-        return;
-    }
-
-    CommentPtr doc = p->parseComment(false);
-
-    out << nl << "/**";
-
-    if(!doc->overview().empty())
-    {
-        writeDocLines(out, doc->overview(), true);
-    }
-
-    if(!doc->misc().empty())
-    {
-        writeDocLines(out, doc->misc(), true);
-    }
-
-    if(!doc->seeAlso().empty())
-    {
-        writeSeeAlso(out, doc->seeAlso());
-    }
-
-    if(!doc->deprecated().empty())
-    {
-        out << nl << " *";
-        out << nl << " * @deprecated ";
-        writeDocLines(out, doc->deprecated(), false);
-    }
-    else if(doc->isDeprecated())
-    {
-        out << nl << " *";
-        out << nl << " * @deprecated";
-    }
-
-    out << nl << " */";
-}
-
-enum OpDocParamType { OpDocInParams, OpDocOutParams, OpDocAllParams };
-
-void
-writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
-                 const StringList& preParams = StringList(), const StringList& postParams = StringList())
-{
-    ParamDeclList params;
-    switch (type)
-    {
-    case OpDocInParams:
-        params = op->inParameters();
-        break;
-    case OpDocOutParams:
-        params = op->outParameters();
-        break;
-    case OpDocAllParams:
-        params = op->parameters();
-        break;
-    }
-
-    if (!preParams.empty())
-    {
-        writeDocLines(out, preParams, true);
-    }
-
-    map<string, StringList> paramDoc = doc->parameters();
-    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
-    {
-        map<string, StringList>::iterator q = paramDoc.find((*p)->name());
-        if(q != paramDoc.end())
+        if (p->comment().empty())
         {
-            out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
-            writeDocLines(out, q->second, false);
+            return;
+        }
+
+        CommentPtr doc = p->parseComment(false);
+
+        out << nl << "/**";
+
+        if (!doc->overview().empty())
+        {
+            writeDocLines(out, doc->overview(), true);
+        }
+
+        if (!doc->misc().empty())
+        {
+            writeDocLines(out, doc->misc(), true);
+        }
+
+        if (!doc->seeAlso().empty())
+        {
+            writeSeeAlso(out, doc->seeAlso());
+        }
+
+        if (!doc->deprecated().empty())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated ";
+            writeDocLines(out, doc->deprecated(), false);
+        }
+        else if (doc->isDeprecated())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated";
+        }
+
+        out << nl << " */";
+    }
+
+    enum OpDocParamType
+    {
+        OpDocInParams,
+        OpDocOutParams,
+        OpDocAllParams
+    };
+
+    void writeOpDocParams(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList())
+    {
+        ParamDeclList params;
+        switch (type)
+        {
+            case OpDocInParams:
+                params = op->inParameters();
+                break;
+            case OpDocOutParams:
+                params = op->outParameters();
+                break;
+            case OpDocAllParams:
+                params = op->parameters();
+                break;
+        }
+
+        if (!preParams.empty())
+        {
+            writeDocLines(out, preParams, true);
+        }
+
+        map<string, StringList> paramDoc = doc->parameters();
+        for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+        {
+            map<string, StringList>::iterator q = paramDoc.find((*p)->name());
+            if (q != paramDoc.end())
+            {
+                out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
+                writeDocLines(out, q->second, false);
+            }
+        }
+
+        if (!postParams.empty())
+        {
+            writeDocLines(out, postParams, true);
         }
     }
 
-    if(!postParams.empty())
+    void writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
     {
-        writeDocLines(out, postParams, true);
-    }
-}
-
-void
-writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
-{
-    map<string, StringList> exDoc = doc->exceptions();
-    for (map<string, StringList>::iterator p = exDoc.begin(); p != exDoc.end(); ++p)
-    {
-        //
-        // Try to locate the exception's definition using the name given in the comment.
-        //
-        string name = p->first;
-        ExceptionPtr ex = op->container()->lookupException(name, false);
-        if (ex)
+        map<string, StringList> exDoc = doc->exceptions();
+        for (map<string, StringList>::iterator p = exDoc.begin(); p != exDoc.end(); ++p)
         {
-            name = ex->scoped().substr(2);
+            //
+            // Try to locate the exception's definition using the name given in the comment.
+            //
+            string name = p->first;
+            ExceptionPtr ex = op->container()->lookupException(name, false);
+            if (ex)
+            {
+                name = ex->scoped().substr(2);
+            }
+            out << nl << " * @throws " << name << " ";
+            writeDocLines(out, p->second, false);
         }
-        out << nl << " * @throws " << name << " ";
-        writeDocLines(out, p->second, false);
     }
+
+    void writeOpDocSummary(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        bool showExceptions,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList(),
+        const StringList& returns = StringList())
+    {
+        out << nl << "/**";
+
+        if (!doc->overview().empty())
+        {
+            writeDocLines(out, doc->overview(), true);
+        }
+
+        writeOpDocParams(out, op, doc, type, preParams, postParams);
+
+        if (!returns.empty())
+        {
+            out << nl << " * @return ";
+            writeDocLines(out, returns, false);
+        }
+
+        if (showExceptions)
+        {
+            writeOpDocExceptions(out, op, doc);
+        }
+
+        if (!doc->misc().empty())
+        {
+            writeDocLines(out, doc->misc(), true);
+        }
+
+        if (!doc->seeAlso().empty())
+        {
+            writeSeeAlso(out, doc->seeAlso());
+        }
+
+        if (!doc->deprecated().empty())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated ";
+            writeDocLines(out, doc->deprecated(), false);
+        }
+        else if (doc->isDeprecated())
+        {
+            out << nl << " *";
+            out << nl << " * @deprecated";
+        }
+
+        out << nl << " */";
+    }
+
 }
 
-void
-writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type, bool showExceptions,
-                  const StringList& preParams = StringList(), const StringList& postParams = StringList(),
-                  const StringList& returns = StringList())
-{
-    out << nl << "/**";
+Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) : _out(out), _imports(imports) {}
 
-    if (!doc->overview().empty())
-    {
-        writeDocLines(out, doc->overview(), true);
-    }
+Slice::JsVisitor::~JsVisitor() {}
 
-    writeOpDocParams(out, op, doc, type, preParams, postParams);
-
-    if(!returns.empty())
-    {
-        out << nl << " * @return ";
-        writeDocLines(out, returns, false);
-    }
-
-    if(showExceptions)
-    {
-        writeOpDocExceptions(out, op, doc);
-    }
-
-    if(!doc->misc().empty())
-    {
-        writeDocLines(out, doc->misc(), true);
-    }
-
-    if(!doc->seeAlso().empty())
-    {
-        writeSeeAlso(out, doc->seeAlso());
-    }
-
-    if(!doc->deprecated().empty())
-    {
-        out << nl << " *";
-        out << nl << " * @deprecated ";
-        writeDocLines(out, doc->deprecated(), false);
-    }
-    else if(doc->isDeprecated())
-    {
-        out << nl << " *";
-        out << nl << " * @deprecated";
-    }
-
-    out << nl << " */";
-}
-
-}
-
-Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string> >& imports) :
-    _out(out),
-    _imports(imports)
-{
-}
-
-Slice::JsVisitor::~JsVisitor()
-{
-}
-
-vector<pair<string, string> >
+vector<pair<string, string>>
 Slice::JsVisitor::imports() const
 {
     return _imports;
@@ -367,15 +363,15 @@ Slice::JsVisitor::imports() const
 void
 Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if (!(*q)->optional())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
         }
     }
 
-    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
     }
@@ -384,15 +380,15 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
 void
 Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if (!(*q)->optional())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
         }
     }
 
-    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
     }
@@ -401,7 +397,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
 void
 Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         const string m = fixId((*q)->name());
         _out << nl << "this." << m << " = " << m << ';';
@@ -414,9 +410,9 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
     assert(type);
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             {
@@ -454,13 +450,13 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         return fixId(en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return "new " + typeToString(type) + "()";
     }
@@ -469,12 +465,15 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
 }
 
 string
-Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
-                                     const string& value)
+Slice::JsVisitor::writeConstantValue(
+    const string& /*scope*/,
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value)
 {
     ostringstream os;
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if(constant)
+    if (constant)
     {
         os << fixId(constant->scoped());
     }
@@ -482,14 +481,14 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
     {
         BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         EnumPtr ep;
-        if(bp && bp->kind() == Builtin::KindString)
+        if (bp && bp->kind() == Builtin::KindString)
         {
             //
             // For now, we generate strings in ECMAScript 5 format, with two \unnnn for astral characters
             //
             os << "\"" << toStringLiteral(value, "\b\f\n\r\t\v", "", ShortUCN, 0) << "\"";
         }
-        else if(bp && bp->kind() == Builtin::KindLong)
+        else if (bp && bp->kind() == Builtin::KindLong)
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
 
@@ -510,7 +509,7 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
                 os << "new Ice.Long(" << ((l >> 32) & 0xFFFFFFFF) << ", " << (l & 0xFFFFFFFF) << ")";
             }
         }
-        else if((ep = dynamic_pointer_cast<Enum>(type)))
+        else if ((ep = dynamic_pointer_cast<Enum>(type)))
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
@@ -532,13 +531,13 @@ Slice::JsVisitor::splitComment(const ContainedPtr& p)
     string comment = p->comment();
     string::size_type pos = 0;
     string::size_type nextPos;
-    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
     {
         result.push_back(string(comment, pos, nextPos - pos));
         pos = nextPos + 1;
     }
     string lastLine = string(comment, pos);
-    if(lastLine.find_first_not_of(" \t\n\r") != string::npos)
+    if (lastLine.find_first_not_of(" \t\n\r") != string::npos)
     {
         result.push_back(lastLine);
     }
@@ -550,9 +549,9 @@ void
 Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecateReason, const string& extraParam)
 {
     StringList lines = splitComment(p);
-    if(lines.empty())
+    if (lines.empty())
     {
-        if(!deprecateReason.empty())
+        if (!deprecateReason.empty())
         {
             _out << nl << "/**";
             _out << nl << " * @deprecated " << deprecateReason;
@@ -564,18 +563,18 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << "/**";
 
     bool doneExtraParam = false;
-    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
     {
         //
         // @param must precede @return, so emit any extra parameter
         // when @return is seen.
         //
-        if(i->find("@return") != string::npos && !extraParam.empty())
+        if (i->find("@return") != string::npos && !extraParam.empty())
         {
             _out << nl << " * " << extraParam;
             doneExtraParam = true;
         }
-        if((*i).empty())
+        if ((*i).empty())
         {
             _out << nl << " *";
         }
@@ -585,7 +584,7 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
         }
     }
 
-    if(!doneExtraParam && !extraParam.empty())
+    if (!doneExtraParam && !extraParam.empty())
     {
         //
         // Above code doesn't emit the comment for the extra parameter
@@ -594,7 +593,7 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
         _out << nl << " * " << extraParam;
     }
 
-    if(!deprecateReason.empty())
+    if (!deprecateReason.empty())
     {
         _out << nl << " * @deprecated " << deprecateReason;
     }
@@ -602,28 +601,28 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript) :
-    _includePaths(includePaths),
-    _useStdout(false),
-    _typeScript(typeScript)
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)
+    : _includePaths(includePaths),
+      _useStdout(false),
+      _typeScript(typeScript)
 {
     _fileBase = base;
 
     string::size_type pos = base.find_last_of("/\\");
-    if(pos != string::npos)
+    if (pos != string::npos)
     {
         _fileBase = base.substr(pos + 1);
     }
 
     string file = _fileBase + ".js";
 
-    if(!dir.empty())
+    if (!dir.empty())
     {
         file = dir + '/' + file;
     }
 
     _jsout.open(file.c_str());
-    if(!_jsout)
+    if (!_jsout)
     {
         ostringstream os;
         os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -631,17 +630,17 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
 
-    if(typeScript)
+    if (typeScript)
     {
         file = _fileBase + ".d.ts";
 
-        if(!dir.empty())
+        if (!dir.empty())
         {
             file = dir + '/' + file;
         }
 
         _tsout.open(file.c_str());
-        if(!_tsout)
+        if (!_tsout)
         {
             ostringstream os;
             os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -651,17 +650,21 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& /*dir*/, bool typeScript,
-                ostream& out) :
-    _jsout(out),
-    _tsout(out),
-    _includePaths(includePaths),
-    _useStdout(true),
-    _typeScript(typeScript)
+Slice::Gen::Gen(
+    const string& base,
+    const vector<string>& includePaths,
+    const string& /*dir*/,
+    bool typeScript,
+    ostream& out)
+    : _jsout(out),
+      _tsout(out),
+      _includePaths(includePaths),
+      _useStdout(true),
+      _typeScript(typeScript)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
-    if(pos != string::npos)
+    if (pos != string::npos)
     {
         _fileBase = base.substr(pos + 1);
     }
@@ -669,12 +672,12 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
 Slice::Gen::~Gen()
 {
-    if(_jsout.isOpen() || _useStdout)
+    if (_jsout.isOpen() || _useStdout)
     {
         _jsout << '\n';
     }
 
-    if(_tsout.isOpen() || _useStdout)
+    if (_tsout.isOpen() || _useStdout)
     {
         _tsout << '\n';
     }
@@ -690,13 +693,13 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         const string prefix = "js:module:";
         const string m = dc->findMetaData(prefix);
-        if(!m.empty())
+        if (!m.empty())
         {
             module = m.substr(prefix.size());
         }
     }
 
-    if(_useStdout)
+    if (_useStdout)
     {
         _jsout << "\n";
         _jsout << "/** slice2js: " << _fileBase << ".js generated begin module:\"" << module << "\" **/";
@@ -724,9 +727,9 @@ Slice::Gen::generate(const UnitPtr& p)
     _jsout << nl << "/* jshint ignore: start */";
     _jsout << nl;
 
-    if(iifemodule)
+    if (iifemodule)
     {
-        if(icejs)
+        if (icejs)
         {
             _jsout.zeroIndent();
             _jsout << nl << "/* slice2js browser-bundle-skip */";
@@ -734,7 +737,7 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         _jsout << nl << "(function(module, require, exports)";
         _jsout << sb;
-        if(icejs)
+        if (icejs)
         {
             _jsout.zeroIndent();
             _jsout << nl << "/* slice2js browser-bundle-skip-end */";
@@ -755,9 +758,9 @@ Slice::Gen::generate(const UnitPtr& p)
         p->visit(&exportVisitor, false);
     }
 
-    if(iifemodule)
+    if (iifemodule)
     {
-        if(icejs)
+        if (icejs)
         {
             _jsout.zeroIndent();
             _jsout << nl << "/* slice2js browser-bundle-skip */";
@@ -765,13 +768,16 @@ Slice::Gen::generate(const UnitPtr& p)
         }
 
         _jsout << eb;
-        _jsout << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
-               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
-               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
-               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
-               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
+        _jsout
+            << nl
+            << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
+            << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :" << nl
+            << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require "
+               ": window.Ice._require,"
+            << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :" << nl
+            << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
 
-        if(icejs)
+        if (icejs)
         {
             _jsout.zeroIndent();
             _jsout << nl << "/* slice2js browser-bundle-skip-end */";
@@ -779,16 +785,16 @@ Slice::Gen::generate(const UnitPtr& p)
         }
     }
 
-    if(_useStdout)
+    if (_useStdout)
     {
         _jsout << "\n";
         _jsout << "/** slice2js: generated end **/";
         _jsout << "\n";
     }
 
-    if(_typeScript)
+    if (_typeScript)
     {
-        if(_useStdout)
+        if (_useStdout)
         {
             _tsout << "\n";
             _tsout << "/** slice2js: " << _fileBase << ".d.ts generated begin module:\"" << module << "\" **/";
@@ -813,7 +819,7 @@ Slice::Gen::generate(const UnitPtr& p)
         TypeScriptVisitor typeScriptVisitor(_tsout, requireVisitor.imports());
         p->visit(&typeScriptVisitor, false);
 
-        if(_useStdout)
+        if (_useStdout)
         {
             _tsout << "\n";
             _tsout << "/** slice2js: generated end **/";
@@ -825,34 +831,37 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::closeOutput()
 {
-    if(_jsout.isOpen())
+    if (_jsout.isOpen())
     {
         _jsout.close();
     }
 
-    if(_tsout.isOpen())
+    if (_tsout.isOpen())
     {
         _tsout.close();
     }
 }
 
-Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths,
-                                           bool icejs, bool es6modules) :
-    JsVisitor(out),
-    _icejs(icejs),
-    _es6modules(es6modules),
-    _seenClass(false),
-    _seenInterface(false),
-    _seenCompactId(false),
-    _seenOperation(false),
-    _seenStruct(false),
-    _seenUserException(false),
-    _seenEnum(false),
-    _seenObjectSeq(false),
-    _seenObjectDict(false),
-    _includePaths(includePaths)
+Slice::Gen::RequireVisitor::RequireVisitor(
+    IceUtilInternal::Output& out,
+    vector<string> includePaths,
+    bool icejs,
+    bool es6modules)
+    : JsVisitor(out),
+      _icejs(icejs),
+      _es6modules(es6modules),
+      _seenClass(false),
+      _seenInterface(false),
+      _seenCompactId(false),
+      _seenOperation(false),
+      _seenStruct(false),
+      _seenUserException(false),
+      _seenEnum(false),
+      _seenObjectSeq(false),
+      _seenObjectDict(false),
+      _includePaths(includePaths)
 {
-    for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         *p = fullPath(*p);
     }
@@ -862,7 +871,7 @@ bool
 Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _seenClass = true;
-    if(p->compactId() >= 0)
+    if (p->compactId() >= 0)
     {
         _seenCompactId = true;
     }
@@ -872,7 +881,7 @@ Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::RequireVisitor::visitInterfaceDefStart(const InterfaceDefPtr&)
 {
-    _seenInterface= true;
+    _seenInterface = true;
     return true;
 }
 
@@ -900,18 +909,18 @@ void
 Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
-        case Builtin::KindObject:
-            _seenObjectSeq = true;
-            break;
-        case Builtin::KindObjectProxy:
-            _seenObjectProxySeq = true;
-            break;
-        default:
-            break;
+            case Builtin::KindObject:
+                _seenObjectSeq = true;
+                break;
+            case Builtin::KindObjectProxy:
+                _seenObjectProxySeq = true;
+                break;
+            default:
+                break;
         }
     }
 }
@@ -920,18 +929,18 @@ void
 Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(dict->valueType());
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
-        case Builtin::KindObject:
-            _seenObjectDict = true;
-            break;
-        case Builtin::KindObjectProxy:
-            _seenObjectProxyDict = true;
-            break;
-        default:
-            break;
+            case Builtin::KindObject:
+                _seenObjectDict = true;
+                break;
+            case Builtin::KindObjectProxy:
+                _seenObjectProxyDict = true;
+                break;
+            default:
+                break;
         }
     }
 }
@@ -945,10 +954,10 @@ Slice::Gen::RequireVisitor::visitEnum(const EnumPtr&)
 namespace
 {
 
-bool iceBuiltinModule(const string& name)
-{
-    return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
-}
+    bool iceBuiltinModule(const string& name)
+    {
+        return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
+    }
 
 }
 
@@ -956,43 +965,43 @@ vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
-    map<string, list<string> > jsRequires;
-    if(_icejs)
+    map<string, list<string>> jsRequires;
+    if (_icejs)
     {
         jsRequires["Ice"] = list<string>();
 
         //
         // Generate require() statements for all of the run-time code needed by the generated code.
         //
-        if(_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
+        if (_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
         {
             jsRequires["Ice"].push_back("Ice/Object");
             jsRequires["Ice"].push_back("Ice/Value");
         }
-        if(_seenInterface)
+        if (_seenInterface)
         {
             jsRequires["Ice"].push_back("Ice/ObjectPrx");
         }
-        if(_seenOperation)
+        if (_seenOperation)
         {
             jsRequires["Ice"].push_back("Ice/Operation");
         }
-        if(_seenStruct)
+        if (_seenStruct)
         {
             jsRequires["Ice"].push_back("Ice/Struct");
         }
 
-        if(_seenUserException)
+        if (_seenUserException)
         {
             jsRequires["Ice"].push_back("Ice/Exception");
         }
 
-        if(_seenEnum)
+        if (_seenEnum)
         {
             jsRequires["Ice"].push_back("Ice/EnumBase");
         }
 
-        if(_seenCompactId)
+        if (_seenCompactId)
         {
             jsRequires["Ice"].push_back("Ice/CompactIdRegistry");
         }
@@ -1010,44 +1019,44 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     }
 
     StringList includes = p->includeFiles();
-    if(_es6modules)
+    if (_es6modules)
     {
         const string prefix = "js:module:";
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
         string m1 = dc->findMetaData(prefix);
-        if(!m1.empty())
+        if (!m1.empty())
         {
             m1 = m1.substr(prefix.size());
         }
 
         seenModules.push_back("Ice");
 
-        map<string, set<string> > imports;
+        map<string, set<string>> imports;
         set<string> mImports;
         {
             mImports.insert("Ice");
             imports["ice"] = mImports;
         }
 
-        for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
+        for (StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
 
             dc = p->findDefinitionContext(*i);
 
             string m2 = dc->findMetaData(prefix);
-            if(!m2.empty())
+            if (!m2.empty())
             {
                 m2 = m2.substr(prefix.size());
             }
 
-            if(m1 != m2 && !m2.empty())
+            if (m1 != m2 && !m2.empty())
             {
-                for(const auto& j : modules)
+                for (const auto& j : modules)
                 {
-                    if(imports.find(m2) == imports.end())
+                    if (imports.find(m2) == imports.end())
                     {
-                        imports[m2] = set<string> { j };
+                        imports[m2] = set<string>{j};
                     }
                     else
                     {
@@ -1069,7 +1078,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
                 string f = relativePath(*i, p->topLevelFile());
                 string::size_type pos;
-                if((pos = f.rfind('.')) != string::npos)
+                if ((pos = f.rfind('.')) != string::npos)
                 {
                     f.erase(pos);
                 }
@@ -1083,10 +1092,10 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         //
         _out << nl << "import { ";
         mImports = imports["ice"];
-        for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
+        for (set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
         {
             _out << (*i);
-            if(++i != mImports.end())
+            if (++i != mImports.end())
             {
                 _out << ", ";
             }
@@ -1095,19 +1104,19 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
         _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
 
-        for (map<string, set<string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        for (map<string, set<string>>::const_iterator i = imports.begin(); i != imports.end(); ++i)
         {
-            if(i->first != "ice")
+            if (i->first != "ice")
             {
                 mImports = i->second;
                 _out << nl << "import ";
-                if(!mImports.empty())
+                if (!mImports.empty())
                 {
                     _out << "{ ";
                     for (set<string>::const_iterator j = mImports.begin(); j != mImports.end();)
                     {
                         _out << (*j);
-                        if(++j != mImports.end())
+                        if (++j != mImports.end())
                         {
                             _out << ", ";
                         }
@@ -1121,14 +1130,14 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     }
     else
     {
-        for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
+        for (StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
-            for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+            for (set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
             {
-                if(!_icejs && iceBuiltinModule(*j))
+                if (!_icejs && iceBuiltinModule(*j))
                 {
-                    if(jsRequires.find(*j) == jsRequires.end())
+                    if (jsRequires.find(*j) == jsRequires.end())
                     {
                         jsRequires[*j] = list<string>();
                         jsRequires[*j].push_back("ice");
@@ -1136,7 +1145,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 }
                 else
                 {
-                    if(jsRequires.find(*j) == jsRequires.end())
+                    if (jsRequires.find(*j) == jsRequires.end())
                     {
                         jsRequires[*j] = list<string>();
                     }
@@ -1145,14 +1154,14 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
         }
 
-        if(_icejs)
+        if (_icejs)
         {
             _out.zeroIndent();
             _out << nl << "/* slice2js browser-bundle-skip */";
             _out.restoreIndent();
         }
 
-        if(!_icejs)
+        if (!_icejs)
         {
             _out << nl << "const Ice = require(\"ice\").Ice;";
             _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
@@ -1162,17 +1171,17 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             _out << nl << "const _ModuleRegistry = require(\"../Ice/ModuleRegistry\").Ice._ModuleRegistry;";
         }
 
-        for(map<string, list<string> >::const_iterator i = jsRequires.begin(); i != jsRequires.end(); ++i)
+        for (map<string, list<string>>::const_iterator i = jsRequires.begin(); i != jsRequires.end(); ++i)
         {
-            if(!_icejs && i->first == "Ice")
+            if (!_icejs && i->first == "Ice")
             {
                 continue;
             }
 
-            if(i->second.size() == 1)
+            if (i->second.size() == 1)
             {
                 _out << nl << "const " << i->first << " = require(\"";
-                if(_icejs && iceBuiltinModule(i->first))
+                if (_icejs && iceBuiltinModule(i->first))
                 {
                     _out << "../";
                 }
@@ -1180,14 +1189,14 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
             else
             {
-                for(list<string>::const_iterator j = i->second.begin(); j != i->second.end(); ++j)
+                for (list<string>::const_iterator j = i->second.begin(); j != i->second.end(); ++j)
                 {
                     _out << nl << "require(\"";
-                    if(_icejs && iceBuiltinModule(i->first))
+                    if (_icejs && iceBuiltinModule(i->first))
                     {
                         _out << "../";
                     }
-                    _out <<  *j << "\");";
+                    _out << *j << "\");";
                 }
                 _out << nl << "const " << i->first << " = _ModuleRegistry.module(\"" << i->first << "\");";
                 _out << sp;
@@ -1197,7 +1206,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
         _out << nl << "const Slice = Ice.Slice;";
 
-        if(_icejs)
+        if (_icejs)
         {
             _out.zeroIndent();
             _out << nl << "/* slice2js browser-bundle-skip-end */";
@@ -1207,10 +1216,10 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     return seenModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules, bool icejs) :
-    JsVisitor(out),
-    _seenModules(seenModules),
-    _icejs(icejs)
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules, bool icejs)
+    : JsVisitor(out),
+      _seenModules(seenModules),
+      _icejs(icejs)
 {
 }
 
@@ -1228,9 +1237,9 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     //
     const string scoped = getLocalScope(p->scoped());
     vector<string>::const_iterator i = find(_seenModules.begin(), _seenModules.end(), scoped);
-    if(i == _seenModules.end())
+    if (i == _seenModules.end())
     {
-        if(_icejs)
+        if (_icejs)
         {
             _out.zeroIndent();
             _out << nl << "/* slice2js browser-bundle-skip */";
@@ -1241,13 +1250,13 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
         const bool topLevel = dynamic_pointer_cast<Unit>(p->container()) != nullptr;
         _out << sp;
         _out << nl;
-        if(topLevel)
+        if (topLevel)
         {
             _out << "let ";
         }
         _out << scoped << " = _ModuleRegistry.module(\"" << scoped << "\");";
 
-        if(_icejs)
+        if (_icejs)
         {
             _out.zeroIndent();
             _out << nl << "/* slice2js browser-bundle-skip-end */";
@@ -1277,7 +1286,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         allParamNames.push_back(fixId((*q)->name()));
     }
@@ -1285,10 +1294,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
-    if(base)
+    if (base)
     {
         baseDataMembers = base->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             baseParamNames.push_back(fixId((*q)->name()));
         }
@@ -1300,20 +1309,20 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << " extends " << baseRef;
 
     _out << sb;
-    if(!allParamNames.empty())
+    if (!allParamNames.empty())
     {
         _out << nl << "constructor" << spar;
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             _out << fixId((*q)->name());
         }
 
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             string value;
-            if((*q)->optional())
+            if ((*q)->optional())
             {
-                if((*q)->defaultValueType())
+                if ((*q)->defaultValueType())
                 {
                     value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
                 }
@@ -1324,7 +1333,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             else
             {
-                if((*q)->defaultValueType())
+                if ((*q)->defaultValueType())
                 {
                     value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
                 }
@@ -1341,7 +1350,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeInitDataMembers(dataMembers);
         _out << eb;
 
-        if(p->compactId() != -1)
+        if (p->compactId() != -1)
         {
             _out << sp;
             _out << nl << "static get _iceCompactId()";
@@ -1350,7 +1359,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
         }
 
-        if(!dataMembers.empty())
+        if (!dataMembers.empty())
         {
             _out << sp;
             _out << nl << "_iceWriteMemberImpl(ostr)";
@@ -1370,7 +1379,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
 
     _out << nl << "Slice.defineValue(" << localScope << "." << name << ", \"" << scoped << "\"";
-    if(p->compactId() >= 0)
+    if (p->compactId() >= 0)
     {
         _out << ", " << p->compactId();
     }
@@ -1395,9 +1404,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
     _out.inc();
 
-    for(StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
+    for (StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
     {
-        if(q != ids.begin())
+        if (q != ids.begin())
         {
             _out << ',';
         }
@@ -1417,18 +1426,18 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << "Ice.Object";
     _out << sb;
 
-    if(!bases.empty())
+    if (!bases.empty())
     {
         _out << sp;
         _out << nl << "static get _iceImplements()";
         _out << sb;
         _out << nl << "return [";
         _out.inc();
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
             _out << nl << getLocalScope(base->scope()) << "." << base->name();
-            if(++q != bases.end())
+            if (++q != bases.end())
             {
                 _out << ",";
             }
@@ -1450,7 +1459,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << proxyType << " = class extends " << baseProxy;
     _out << sb;
 
-    if(!bases.empty())
+    if (!bases.empty())
     {
         _out << sp;
         _out << nl << "static get _implements()";
@@ -1458,12 +1467,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "return [";
 
         _out.inc();
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
 
             _out << nl << getLocalScope(base->scope()) << "." << base->name() << "Prx";
-            if(++q != bases.end())
+            if (++q != bases.end())
             {
                 _out << ",";
             }
@@ -1475,18 +1484,17 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << eb << ";";
 
-    _out << sp << nl << "Slice.defineOperations(" << localScope << "."
-         << p->name() << ", " << proxyType << ", "
+    _out << sp << nl << "Slice.defineOperations(" << localScope << "." << p->name() << ", " << proxyType << ", "
          << "iceC_" << getLocalScope(scoped, "_") << "_ids, \"" << scoped << "\"";
 
     const OperationList ops = p->operations();
-    if(!ops.empty())
+    if (!ops.empty())
     {
         _out << ',';
         _out << sb;
-        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
-            if(q != ops.begin())
+            if (q != ops.begin())
             {
                 _out << ',';
             }
@@ -1496,9 +1504,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             const ParamDeclList paramList = op->parameters();
             const TypePtr ret = op->returnType();
             ParamDeclList inParams, outParams;
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+            for (ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
             {
-                if((*pli)->isOutParam())
+                if ((*pli)->isOutParam())
                 {
                     outParams.push_back(*pli);
                 }
@@ -1527,25 +1535,25 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             _out << nl << "\"" << op->name() << "\": ["; // Operation name over-the-wire.
 
-            if(opName != op->name())
+            if (opName != op->name())
             {
                 _out << "\"" << opName << "\""; // Native method name.
             }
             _out << ", ";
 
-            if(op->mode() != Operation::Normal)
+            if (op->mode() != Operation::Normal)
             {
                 _out << sliceModeToIceMode(op->mode()); // Mode.
             }
             _out << ", ";
 
-            if(op->sendMode() != Operation::Normal)
+            if (op->sendMode() != Operation::Normal)
             {
                 _out << sliceModeToIceMode(op->sendMode()); // Send mode.
             }
             _out << ", ";
 
-            if(op->format() != DefaultFormat)
+            if (op->format() != DefaultFormat)
             {
                 _out << opFormatTypeToString(op); // Format.
             }
@@ -1554,17 +1562,17 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Return type.
             //
-            if(ret)
+            if (ret)
             {
                 _out << '[' << encodeTypeForOperation(ret);
                 const bool isObj = isClassType(ret);
-                if(isObj)
+                if (isObj)
                 {
                     _out << ", true";
                 }
-                if(op->returnIsOptional())
+                if (op->returnIsOptional())
                 {
-                    if(!isObj)
+                    if (!isObj)
                     {
                         _out << ", ";
                     }
@@ -1577,25 +1585,25 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // In params.
             //
-            if(!inParams.empty())
+            if (!inParams.empty())
             {
                 _out << '[';
-                for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+                for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
-                    if(pli != inParams.begin())
+                    if (pli != inParams.begin())
                     {
                         _out << ", ";
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
                     const bool isObj = isClassType(t);
-                    if(isObj)
+                    if (isObj)
                     {
                         _out << ", true";
                     }
-                    if((*pli)->optional())
+                    if ((*pli)->optional())
                     {
-                        if(!isObj)
+                        if (!isObj)
                         {
                             _out << ", ";
                         }
@@ -1610,25 +1618,25 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Out params.
             //
-            if(!outParams.empty())
+            if (!outParams.empty())
             {
                 _out << '[';
-                for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
+                for (ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
-                    if(pli != outParams.begin())
+                    if (pli != outParams.begin())
                     {
                         _out << ", ";
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
                     const bool isObj = isClassType(t);
-                    if(isObj)
+                    if (isObj)
                     {
                         _out << ", true";
                     }
-                    if((*pli)->optional())
+                    if ((*pli)->optional())
                     {
-                        if(!isObj)
+                        if (!isObj)
                         {
                             _out << ", ";
                         }
@@ -1647,7 +1655,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             throws.sort();
             throws.unique();
             throws.sort(Slice::DerivedToBaseCompare());
-            if(throws.empty())
+            if (throws.empty())
             {
                 _out << " ";
             }
@@ -1655,9 +1663,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 _out << nl << '[';
                 _out.inc();
-                for(ExceptionList::const_iterator eli = throws.begin(); eli != throws.end(); ++eli)
+                for (ExceptionList::const_iterator eli = throws.begin(); eli != throws.end(); ++eli)
                 {
-                    if(eli != throws.begin())
+                    if (eli != throws.begin())
                     {
                         _out << ',';
                     }
@@ -1668,13 +1676,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            if(op->sendsClasses(false))
+            if (op->sendsClasses(false))
             {
                 _out << "true";
             }
             _out << ", ";
 
-            if(op->returnsClasses(false))
+            if (op->returnsClasses(false))
             {
                 _out << "true";
             }
@@ -1704,10 +1712,11 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp;
     _out << nl << "Slice.defineSequence(" << scope << ", \"" << propertyName << "\", "
-         << "\"" << getHelper(type) << "\"" << ", " << (fixed ? "true" : "false");
-    if(isClassType(type))
+         << "\"" << getHelper(type) << "\""
+         << ", " << (fixed ? "true" : "false");
+    if (isClassType(type))
     {
-        _out<< ", \"" << typeToString(type) << "\"";
+        _out << ", \"" << typeToString(type) << "\"";
     }
 
     _out << ");";
@@ -1721,7 +1730,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixId(p->name());
     const ExceptionPtr base = p->base();
     string baseRef;
-    if(base)
+    if (base)
     {
         baseRef = fixId(base->scoped());
     }
@@ -1735,7 +1744,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         allParamNames.push_back(fixId((*q)->name()));
     }
@@ -1743,10 +1752,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
-    if(p->base())
+    if (p->base())
     {
         baseDataMembers = p->base()->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             baseParamNames.push_back(fixId((*q)->name()));
         }
@@ -1759,17 +1768,17 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
     {
         _out << fixId((*q)->name());
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if ((*q)->optional())
         {
-            if((*q)->defaultValueType())
+            if ((*q)->defaultValueType())
             {
                 value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
             }
@@ -1780,7 +1789,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         else
         {
-            if((*q)->defaultValueType())
+            if ((*q)->defaultValueType())
             {
                 value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
             }
@@ -1816,7 +1825,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return " << localScope << '.' << name << ";";
     _out << eb;
 
-    if(!dataMembers.empty())
+    if (!dataMembers.empty())
     {
         _out << sp;
         _out << nl << "_writeMemberImpl(ostr)";
@@ -1831,7 +1840,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << eb;
     }
 
-    if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+    if (p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
     {
         _out << sp;
         _out << nl << "_usesClasses()";
@@ -1855,7 +1864,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
 
     vector<string> paramNames;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         paramNames.push_back(fixId((*q)->name()));
     }
@@ -1867,12 +1876,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if ((*q)->optional())
         {
-            if((*q)->defaultValueType())
+            if ((*q)->defaultValueType())
             {
                 value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
             }
@@ -1883,7 +1892,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         }
         else
         {
-            if((*q)->defaultValueType())
+            if ((*q)->defaultValueType())
             {
                 value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
             }
@@ -1927,9 +1936,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
 
     _out << sp;
-    _out << nl << "Slice.defineStruct(" << localScope << '.' << name << ", "
-         << (legalKeyType ? "true" : "false") << ", "
-         << (p->isVariableLength() ? "true" : "false") << ");";
+    _out << nl << "Slice.defineStruct(" << localScope << '.' << name << ", " << (legalKeyType ? "true" : "false")
+         << ", " << (p->isVariableLength() ? "true" : "false") << ");";
     return false;
 }
 
@@ -1945,7 +1953,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     //
     bool keyUseEquals = false;
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
-    if((b && b->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
+    if ((b && b->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
     {
         keyUseEquals = true;
     }
@@ -1962,11 +1970,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp;
     _out << nl << "Slice.defineDictionary(" << scope << ", \"" << name << "\", \"" << propertyName << "\", "
          << "\"" << getHelper(keyType) << "\", "
-         << "\"" << getHelper(valueType) << "\", "
-         << (fixed ? "true" : "false") << ", "
+         << "\"" << getHelper(valueType) << "\", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
-    if(isClassType(valueType))
+    if (isClassType(valueType))
     {
         _out << ", \"" << typeToString(valueType) << "\"";
     }
@@ -1975,7 +1982,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out << ", undefined";
     }
 
-    if(dynamic_pointer_cast<Sequence>(valueType))
+    if (dynamic_pointer_cast<Sequence>(valueType))
     {
         _out << ", Ice.ArrayUtil.equals";
     }
@@ -1997,11 +2004,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     const EnumeratorList enumerators = p->enumerators();
     int i = 0;
-    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
-        if(en != enumerators.begin())
+        if (en != enumerators.begin())
         {
-            if(++i % 5 == 0)
+            if (++i % 5 == 0)
             {
                 _out << ',' << nl;
             }
@@ -2041,8 +2048,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 {
     assert(type);
 
-    static const char* builtinTable[] =
-    {
+    static const char* builtinTable[] = {
         "0",  // byte
         "1",  // bool
         "2",  // short
@@ -2057,43 +2063,43 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     };
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
+    if (proxy)
     {
         return "\"" + fixId(proxy->scoped() + "Prx") + "\"";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         return "\"" + fixId(seq->scoped() + "Helper") + "\"";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if(d)
+    if (d)
     {
         return "\"" + fixId(d->scoped() + "Helper") + "\"";
     }
 
     EnumPtr e = dynamic_pointer_cast<Enum>(type);
-    if(e)
+    if (e)
     {
         return fixId(e->scoped()) + "._helper";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return fixId(st->scoped());
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
         return "\"" + fixId(cl->scoped()) + "\"";
     }
@@ -2101,10 +2107,10 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icejs, bool es6modules) :
-    JsVisitor(out),
-    _icejs(icejs),
-    _es6modules(es6modules)
+Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icejs, bool es6modules)
+    : JsVisitor(out),
+      _icejs(icejs),
+      _es6modules(es6modules)
 {
 }
 
@@ -2112,27 +2118,27 @@ bool
 Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
 {
     const bool topLevel = dynamic_pointer_cast<Unit>(p->container()) != nullptr;
-    if(topLevel)
+    if (topLevel)
     {
         const string localScope = getLocalScope(p->scope());
         const string name = localScope.empty() ? fixId(p->name()) : localScope + "." + p->name();
-        if(find(_exported.begin(), _exported.end(), name) == _exported.end())
+        if (find(_exported.begin(), _exported.end(), name) == _exported.end())
         {
             _exported.push_back(name);
-            if(_es6modules)
+            if (_es6modules)
             {
                 _out << nl << "export { " << name << " };";
             }
             else
             {
-                if(_icejs)
+                if (_icejs)
                 {
                     _out.zeroIndent();
                     _out << nl << "/* slice2js browser-bundle-skip */";
                     _out.restoreIndent();
                 }
                 _out << nl << "exports." << name << " = " << name << ";";
-                if(_icejs)
+                if (_icejs)
                 {
                     _out.zeroIndent();
                     _out << nl << "/* slice2js browser-bundle-skip-end */";
@@ -2144,10 +2150,10 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypeScriptRequireVisitor::TypeScriptRequireVisitor(IceUtilInternal::Output& out, bool icejs) :
-    JsVisitor(out),
-    _icejs(icejs),
-    _nextImport(0)
+Slice::Gen::TypeScriptRequireVisitor::TypeScriptRequireVisitor(IceUtilInternal::Output& out, bool icejs)
+    : JsVisitor(out),
+      _icejs(icejs),
+      _nextImport(0)
 {
 }
 
@@ -2162,7 +2168,7 @@ Slice::Gen::TypeScriptRequireVisitor::nextImportPrefix()
 void
 Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
 {
-    if(!dynamic_pointer_cast<Builtin>(definition))
+    if (!dynamic_pointer_cast<Builtin>(definition))
     {
         string m1 = getModuleMetadata(definition);
         const string m2 = getModuleMetadata(toplevel);
@@ -2172,12 +2178,12 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const
 
         InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(definition);
 
-        if(p)
+        if (p)
         {
-            if(p->definition() == 0)
+            if (p->definition() == 0)
             {
                 string definedIn = getDefinedIn(p);
-                if(!definedIn.empty())
+                if (!definedIn.empty())
                 {
                     p1 = definedIn;
                 }
@@ -2205,29 +2211,28 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const ContainedPtr& definition, 
 }
 
 void
-Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& m2,
-                                                const string& p1, const string& p2)
+Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& m2, const string& p1, const string& p2)
 {
     //
     // Generate an import for a definition that is outside a JS module and comes from
     // a different definition context or for a definition defined in a module different
     // than the current module.
     //
-    if(m1.empty())
+    if (m1.empty())
     {
-        if(p1 != p2)
+        if (p1 != p2)
         {
             string relpath = relativePath(p1, p2);
 
             string::size_type pos = relpath.rfind('.');
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 relpath.erase(pos);
             }
 
-            for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+            for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
             {
-                if(i->first == relpath)
+                if (i->first == relpath)
                 {
                     return;
                 }
@@ -2235,11 +2240,11 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& 
             _imports.push_back(make_pair(relpath, nextImportPrefix()));
         }
     }
-    else if(m1 != m2)
+    else if (m1 != m2)
     {
-        for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
         {
-            if(i->first == m1)
+            if (i->first == m1)
             {
                 return;
             }
@@ -2254,7 +2259,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Import ice module if not building Ice
     //
-    if(dynamic_pointer_cast<Unit>(p->container()) && !_icejs && _imports.empty())
+    if (dynamic_pointer_cast<Unit>(p->container()) && !_icejs && _imports.empty())
     {
         _imports.push_back(make_pair("ice", nextImportPrefix()));
     }
@@ -2277,7 +2282,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
     {
         addImport((*i)->type(), p);
     }
@@ -2292,7 +2297,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
     // Add imports required for base interfaces
     //
     InterfaceList bases = p->bases();
-    for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
         addImport(dynamic_pointer_cast<Contained>(*i), p);
     }
@@ -2301,16 +2306,16 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
     // Add imports required for operation parameters and return type
     //
     const OperationList operationList = p->allOperations();
-    for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    for (OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
     {
         const TypePtr ret = (*i)->returnType();
-        if(ret && ret->definitionContext())
+        if (ret && ret->definitionContext())
         {
             addImport(ret, p);
         }
 
         const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
         {
             addImport((*j)->type(), p);
         }
@@ -2325,7 +2330,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitStructStart(const StructPtr& p)
     // Add imports required for data members
     //
     const DataMemberList dataMembers = p->dataMembers();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
     {
         addImport((*i)->type(), p);
     }
@@ -2339,7 +2344,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add imports required for base exceptions
     //
     ExceptionPtr base = p->base();
-    if(base)
+    if (base)
     {
         addImport(dynamic_pointer_cast<Contained>(base), p);
     }
@@ -2348,7 +2353,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
     {
         addImport((*i)->type(), p);
     }
@@ -2374,10 +2379,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitDictionary(const DictionaryPtr& dict)
     addImport(dict->valueType(), dict);
 }
 
-Slice::Gen::TypeScriptAliasVisitor::TypeScriptAliasVisitor(IceUtilInternal::Output& out) :
-    JsVisitor(out)
-{
-}
+Slice::Gen::TypeScriptAliasVisitor::TypeScriptAliasVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
 
 void
 Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const ContainedPtr& toplevel)
@@ -2388,7 +2390,7 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const Con
     //
     // Do not add alias for a type defined in the current module
     //
-    if(!m1.empty() && m1 == m2)
+    if (!m1.empty() && m1 == m2)
     {
         return;
     }
@@ -2408,19 +2410,16 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const TypePtr& type, const Containe
     //
     // Do not add alias for a type defined in the current module
     //
-    if(!m1.empty() && m1 == m2)
+    if (!m1.empty() && m1 == m2)
     {
         return;
     }
 
-    addAlias(typeToString(type, toplevel, imports(), true),
-             importPrefix(type, toplevel, imports()),
-             toplevel);
+    addAlias(typeToString(type, toplevel, imports(), true), importPrefix(type, toplevel, imports()), toplevel);
 }
 
 void
-Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& prefix,
-                                             const ContainedPtr& toplevel)
+Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& prefix, const ContainedPtr& toplevel)
 {
     const string scope = fixId(toplevel->scoped()) + ".";
     //
@@ -2428,13 +2427,13 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& p
     // name prefix
     //
     string::size_type i = type.find(".");
-    if(prefix.empty() && i != string::npos)
+    if (prefix.empty() && i != string::npos)
     {
-        if(scope.find("." + type.substr(0, i + 1)) != string::npos)
+        if (scope.find("." + type.substr(0, i + 1)) != string::npos)
         {
-            for(vector<pair<string, string> >::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
+            for (vector<pair<string, string>>::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
             {
-                if(j->first == type)
+                if (j->first == type)
                 {
                     return;
                 }
@@ -2473,7 +2472,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Add alias required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
     {
         addAlias((*i)->type(), module);
     }
@@ -2489,7 +2488,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
     // Add alias required for base interfces
     //
     InterfaceList bases = p->bases();
-    for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
         addAlias(dynamic_pointer_cast<Type>((*i)->declaration()), module);
     }
@@ -2498,16 +2497,16 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
     // Add alias required for operation parameters
     //
     const OperationList operationList = p->allOperations();
-    for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    for (OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
     {
         const TypePtr ret = (*i)->returnType();
-        if(ret && ret->definitionContext())
+        if (ret && ret->definitionContext())
         {
             addAlias(ret, module);
         }
 
         const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
         {
             addAlias((*j)->type(), module);
         }
@@ -2523,7 +2522,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
     // Add alias required for data members
     //
     const DataMemberList dataMembers = p->dataMembers();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
     {
         addAlias((*i)->type(), module);
     }
@@ -2538,7 +2537,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add alias required for base exception
     //
     ExceptionPtr base = p->base();
-    if(base)
+    if (base)
     {
         addAlias(base, module);
     }
@@ -2547,7 +2546,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add alias required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
     {
         addAlias((*i)->type(), module);
     }
@@ -2571,29 +2570,30 @@ Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr&)
 {
-    if(!_aliases.empty())
+    if (!_aliases.empty())
     {
         _out << sp;
-        for(vector<pair<string, string> >::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
+        for (vector<pair<string, string>>::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
         {
             _out << nl << "type " << i->second << " = " << i->first << ";";
         }
     }
 }
 
-Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(::IceUtilInternal::Output& out,
-                                                 const vector<pair<string, string> >& imports) :
-    JsVisitor(out, imports),
-    _wroteImports(false)
+Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
+    ::IceUtilInternal::Output& out,
+    const vector<pair<string, string>>& imports)
+    : JsVisitor(out, imports),
+      _wroteImports(false)
 {
 }
 
 void
 Slice::Gen::TypeScriptVisitor::writeImports()
 {
-    if(!_wroteImports)
+    if (!_wroteImports)
     {
-        for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
         {
             _out << nl << "import * as " << i->second << " from \"" << i->first << "\"";
         }
@@ -2605,7 +2605,7 @@ bool
 Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
     UnitPtr unit = dynamic_pointer_cast<Unit>(p->container());
-    if(unit)
+    if (unit)
     {
         _out << sp;
         writeImports();
@@ -2650,22 +2650,22 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "/**";
     _out << nl << " * One-shot constructor to initialize all data members.";
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         CommentPtr comment = (*q)->parseComment(false);
-        if(comment)
+        if (comment)
         {
             _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
         }
     }
     _out << nl << " */";
     _out << nl << "constructor" << spar;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
     }
     _out << epar << ";";
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         writeDocSummary(_out, *q);
         _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
@@ -2690,15 +2690,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
     _out << sb;
 
-    for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
         ParamDeclList inParams, outParams;
-        for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
         {
-            if((*r)->isOutParam())
+            if ((*r)->isOutParam())
             {
                 outParams.push_back(*r);
             }
@@ -2712,7 +2712,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         CommentPtr comment = op->parseComment(false);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
-        if(comment)
+        if (comment)
         {
             StringList postParams, returns;
             postParams.push_back(contextDoc);
@@ -2720,7 +2720,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
         _out << nl << fixId((*q)->name()) << spar;
-        for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
         {
             _out
                 << (fixId((*r)->name()) + ((*r)->optional() ? "?" : "") + ":" +
@@ -2730,11 +2730,11 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << epar;
 
         _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
-        if(!ret && outParams.empty())
+        if (!ret && outParams.empty())
         {
             _out << "<void>";
         }
-        else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+        else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
             _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
@@ -2742,15 +2742,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else
         {
             _out << "<[";
-            if(ret)
+            if (ret)
             {
                 _out << typeToString(ret, p, imports(), true, false, true) << ", ";
             }
 
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
                 _out << typeToString((*i)->type(), p, imports(), true, false, true);
-                if(++i != outParams.end())
+                if (++i != outParams.end())
                 {
                     _out << ", ";
                 }
@@ -2790,15 +2790,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "abstract class " << fixId(p->name()) << " extends " << icePrefix
          << getUnqualified("Ice.Object", p->scope(), icePrefix);
     _out << sb;
-    for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
         ParamDeclList inParams, outParams;
-        for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
         {
-            if((*r)->isOutParam())
+            if ((*r)->isOutParam())
             {
                 outParams.push_back(*r);
             }
@@ -2813,7 +2813,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
-        if(comment)
+        if (comment)
         {
             StringList postParams, returns;
             postParams.push_back(currentDoc);
@@ -2821,18 +2821,18 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
         _out << nl << "abstract " << fixId((*q)->name()) << spar;
-        for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
         {
             _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
         }
         _out << ("current:" + icePrefix + getUnqualified("Ice.Current", p->scope(), icePrefix));
         _out << epar << ":";
 
-        if(!ret && outParams.empty())
+        if (!ret && outParams.empty())
         {
             _out << "PromiseLike<void>|void";
         }
-        else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+        else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
             string returnType = typeToString(t, p, imports(), true, false, true);
@@ -2841,15 +2841,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else
         {
             ostringstream os;
-            if(ret)
+            if (ret)
             {
                 os << typeToString(ret, p, imports(), true, false, true) << ", ";
             }
 
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
                 os << typeToString((*i)->type(), p, imports(), true, false, true);
-                if(++i != outParams.end())
+                if (++i != outParams.end())
                 {
                     os << ", ";
                 }
@@ -2879,7 +2879,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     ExceptionPtr base = p->base();
     string baseRef;
-    if(base)
+    if (base)
     {
         const string prefix = importPrefix(dynamic_pointer_cast<Contained>(base), p, imports());
         baseRef = prefix + getUnqualified(fixId(base->scoped()), p->scope(), prefix);
@@ -2892,14 +2892,14 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << name << " extends " << baseRef << sb;
-    if(!allDataMembers.empty())
+    if (!allDataMembers.empty())
     {
         _out << nl << "/**";
         _out << nl << " * One-shot constructor to initialize all data members.";
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
             CommentPtr comment = (*q)->parseComment(false);
-            if(comment)
+            if (comment)
             {
                 _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
             }
@@ -2907,14 +2907,14 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl << " * @param ice_cause The error that cause this exception.";
         _out << nl << " */";
         _out << nl << "constructor" << spar;
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
             _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
         }
         _out << "ice_cause?:string|Error";
         _out << epar << ";";
     }
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
     }
@@ -2933,7 +2933,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     writeDocSummary(_out, p);
     _out << nl << "class " << name << sb;
     _out << nl << "constructor" << spar;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
     }
@@ -2947,12 +2947,12 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     //
     bool containsSequence = false;
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
-    if(legalKeyType)
+    if (legalKeyType)
     {
         _out << nl << "hashCode():number;";
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
     }
@@ -2962,8 +2962,8 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     //
     _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
          << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
-         << name << ";";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
+         << "):" << name << ";";
     _out << eb;
     return false;
 }
@@ -2986,8 +2986,8 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
     //
     _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
          << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
-         << name << ";";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
+         << "):" << name << ";";
     _out << eb;
 }
 
@@ -3011,8 +3011,8 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
     //
     _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
          << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
-         << name << ";";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
+         << "):" << name << ";";
     _out << eb;
 }
 
@@ -3024,7 +3024,7 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << fixId(p->name());
     _out << sb;
     const EnumeratorList enumerators = p->enumerators();
-    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
         writeDocSummary(_out, *en);
         _out << nl << "static readonly " << fixId((*en)->name()) << ":" << fixId(p->name()) << ";";

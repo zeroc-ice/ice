@@ -17,15 +17,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::EndpointFactoryManager::EndpointFactoryManager(const InstancePtr& instance)
-    : _instance(instance)
-{
-}
+IceInternal::EndpointFactoryManager::EndpointFactoryManager(const InstancePtr& instance) : _instance(instance) {}
 
 void
 IceInternal::EndpointFactoryManager::initialize() const
 {
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
         _factories[i]->initialize();
     }
@@ -39,9 +36,9 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
     //
     // TODO: Optimize with a map?
     //
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if(_factories[i]->type() == factory->type())
+        if (_factories[i]->type() == factory->type())
         {
             assert(false); // TODO: Exception?
         }
@@ -57,9 +54,9 @@ IceInternal::EndpointFactoryManager::get(int16_t type) const
     //
     // TODO: Optimize with a map?
     //
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if(_factories[i]->type() == type)
+        if (_factories[i]->type() == type)
         {
             return _factories[i];
         }
@@ -72,12 +69,12 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 {
     vector<string> v;
     bool b = IceUtilInternal::splitString(str, " \t\n\r", v);
-    if(!b)
+    if (!b)
     {
         throw EndpointParseException(__FILE__, __LINE__, "mismatched quote");
     }
 
-    if(v.empty())
+    if (v.empty())
     {
         throw EndpointParseException(__FILE__, __LINE__, "value has no non-whitespace characters");
     }
@@ -85,7 +82,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     string protocol = v.front();
     v.erase(v.begin());
 
-    if(protocol == "default")
+    if (protocol == "default")
     {
         protocol = _instance->defaultsAndOverrides()->defaultProtocol;
     }
@@ -97,22 +94,22 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         //
         // TODO: Optimize with a map?
         //
-        for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+        for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
         {
-            if(_factories[i]->protocol() == protocol)
+            if (_factories[i]->protocol() == protocol)
             {
                 factory = _factories[i];
             }
         }
     }
 
-    if(factory)
+    if (factory)
     {
         EndpointIPtr e = factory->create(v, oaEndpoint);
-        if(!v.empty())
+        if (!v.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "unrecognized argument `" + v.front() +
-                                         "' in endpoint `" + str + "'");
+            throw EndpointParseException(
+                __FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
         }
         return e;
     }
@@ -121,16 +118,16 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     // If the stringified endpoint is opaque, create an unknown endpoint,
     // then see whether the type matches one of the known endpoints.
     //
-    if(protocol == "opaque")
+    if (protocol == "opaque")
     {
         EndpointIPtr ue = make_shared<OpaqueEndpointI>(v);
-        if(!v.empty())
+        if (!v.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" +
-                                         str + "'");
+            throw EndpointParseException(
+                __FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
         }
         factory = get(ue->type());
-        if(factory)
+        if (factory)
         {
             //
             // Make a temporary stream, write the opaque endpoint data into the stream,
@@ -165,7 +162,7 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
 
     s->startEncapsulation();
 
-    if(factory)
+    if (factory)
     {
         e = factory->read(s);
     }
@@ -175,7 +172,7 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
     // isn't available. In this case, the factory needs to make sure the stream position
     // is preserved for reading the opaque endpoint.
     //
-    if(!e)
+    if (!e)
     {
         e = make_shared<OpaqueEndpointI>(type, s);
     }
@@ -188,7 +185,7 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
 void
 IceInternal::EndpointFactoryManager::destroy()
 {
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
         _factories[i]->destroy();
     }
