@@ -16,7 +16,6 @@ using namespace Test;
 
 extern "C"
 {
-
     Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 };
 

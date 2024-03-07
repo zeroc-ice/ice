@@ -1332,7 +1332,6 @@ input(void)
 void
 yyrestart(FILE* input_file)
 {
-
     if (!YY_CURRENT_BUFFER)
     {
         yyensure_buffer_stack();
@@ -1350,7 +1349,6 @@ yyrestart(FILE* input_file)
 void
 yy_switch_to_buffer(YY_BUFFER_STATE new_buffer)
 {
-
     /* TODO. We should be able to replace this entire function body
      * with
      *		yypop_buffer_state();
@@ -1426,7 +1424,6 @@ yy_create_buffer(FILE* file, int size)
 void
 yy_delete_buffer(YY_BUFFER_STATE b)
 {
-
     if (!b)
         return;
 
@@ -1562,7 +1559,6 @@ yyensure_buffer_stack(void)
 
     if (!(yy_buffer_stack))
     {
-
         /* First allocation is just for 2 elements, since we don't know if this
          * scanner will even need a stack. We use 2 instead of 1 to avoid an
          * immediate realloc on the next call.
@@ -1581,7 +1577,6 @@ yyensure_buffer_stack(void)
 
     if ((yy_buffer_stack_top) >= ((yy_buffer_stack_max)) - 1)
     {
-
         /* Increase the buffer to prepare for a possible push. */
         yy_size_t grow_size = 8 /* arbitrary grow size */;
 
@@ -1640,11 +1635,7 @@ yy_scan_buffer(char* base, yy_size_t size)
  *       yy_scan_bytes() instead.
  */
 YY_BUFFER_STATE
-yy_scan_string(const char* yystr)
-{
-
-    return yy_scan_bytes(yystr, (int)strlen(yystr));
-}
+yy_scan_string(const char* yystr) { return yy_scan_bytes(yystr, (int)strlen(yystr)); }
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
@@ -1719,7 +1710,6 @@ yy_fatal_error(const char* msg)
 int
 yyget_lineno(void)
 {
-
     return yylineno;
 }
 
@@ -1767,7 +1757,6 @@ yyget_text(void)
 void
 yyset_lineno(int _line_number)
 {
-
     yylineno = _line_number;
 }
 
@@ -1834,7 +1823,6 @@ yy_init_globals(void)
 int
 yylex_destroy(void)
 {
-
     /* Pop the buffer stack, destroying each element. */
     while (YY_CURRENT_BUFFER)
     {
@@ -1862,7 +1850,6 @@ yylex_destroy(void)
 static void
 yy_flex_strncpy(char* s1, const char* s2, int n)
 {
-
     int i;
     for (i = 0; i < n; ++i)
         s1[i] = s2[i];
@@ -1890,7 +1877,6 @@ yyalloc(yy_size_t size)
 void*
 yyrealloc(void* ptr, yy_size_t size)
 {
-
     /* The cast to (char *) in the following accommodates both
      * implementations that use char* generic pointers, and those
      * that use void* generic pointers.  It works with the latter

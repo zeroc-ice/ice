@@ -686,7 +686,6 @@ Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<Ob
 bool
 Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-
     if (lhs && rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();

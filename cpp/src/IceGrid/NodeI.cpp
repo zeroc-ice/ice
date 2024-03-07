@@ -785,7 +785,6 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
     {
         if (sent.find(observer.second) == sent.end())
         {
-
             queueUpdate(
                 observer.second,
                 [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)

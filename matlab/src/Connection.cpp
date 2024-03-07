@@ -115,7 +115,6 @@ namespace
 
 extern "C"
 {
-
     mxArray* Ice_Connection_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::Connection>*>(self);

@@ -109,7 +109,6 @@ CtrlCHandler::~CtrlCHandler()
 
 extern "C"
 {
-
     static void* sigwaitThread(void*)
     {
         sigset_t ctrlCLikeSignals;

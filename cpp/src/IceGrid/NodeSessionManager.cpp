@@ -540,7 +540,6 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
     }
     else
     {
-
         vector<future<Ice::ObjectProxySeq>> results1;
         vector<future<Ice::ObjectProxySeq>> results2;
         auto queryObjects = findAllQueryObjects(false);

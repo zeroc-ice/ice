@@ -35,7 +35,6 @@ namespace
 
     class SCHannelX509ExtensionI : public X509Extension
     {
-
     public:
         SCHannelX509ExtensionI(CERT_EXTENSION, const string&, const CertInfoHolderPtr&);
         virtual bool isCritical() const;

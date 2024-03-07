@@ -12,7 +12,6 @@ using namespace IceMatlab;
 
 extern "C"
 {
-
     //
     // Implementation note: We need to pass the implementation object from MATLAB code for the defaults argument.
     // If we passed the wrapper object instead, there is no way to extract the void pointer from the mxArray object.

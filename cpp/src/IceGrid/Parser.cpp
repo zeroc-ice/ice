@@ -2185,7 +2185,6 @@ Parser::showFile(
     bool follow,
     int lineCount)
 {
-
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
     FileIteratorPrxPtr it;

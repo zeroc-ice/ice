@@ -42,7 +42,6 @@ namespace
 
     class SessionHelperI final : public Glacier2::SessionHelper, public std::enable_shared_from_this<SessionHelperI>
     {
-
     public:
         SessionHelperI(
             const Glacier2::SessionThreadCallbackPtr&,
@@ -238,7 +237,6 @@ namespace
 
     class ConnectStrategySecureConnection final : public ConnectStrategy
     {
-
     public:
         ConnectStrategySecureConnection(const map<string, string>& context) : _context(context) {}
 
@@ -253,7 +251,6 @@ namespace
 
     class ConnectStrategyUserPassword final : public ConnectStrategy
     {
-
     public:
         ConnectStrategyUserPassword(const string& user, const string& password, const map<string, string>& context)
             : _user(user),

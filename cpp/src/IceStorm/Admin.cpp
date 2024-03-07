@@ -131,7 +131,6 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             {
                 try
                 {
-
                     auto manager = communicator->propertyToProxy<IceStorm::TopicManagerPrx>(p.first);
                     assert(manager);
                     managers.insert({manager->ice_getIdentity(), *manager});

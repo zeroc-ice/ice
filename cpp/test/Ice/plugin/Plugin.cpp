@@ -12,7 +12,6 @@ namespace
 
     class Plugin : public Ice::Plugin
     {
-
     public:
         Plugin(const Ice::CommunicatorPtr& communicator)
             : _communicator(communicator),
@@ -40,7 +39,6 @@ namespace
 
     class PluginInitializeFailExeption : public std::exception
     {
-
     public:
         PluginInitializeFailExeption() noexcept {}
         virtual const char* what() const noexcept { return "PluginInitializeFailExeption"; }
@@ -48,7 +46,6 @@ namespace
 
     class PluginInitializeFail : public Ice::Plugin
     {
-
     public:
         PluginInitializeFail(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
 
@@ -65,7 +62,6 @@ namespace
 
     class BasePlugin : public Ice::Plugin
     {
-
     public:
         BasePlugin(const Ice::CommunicatorPtr& communicator)
             : _communicator(communicator),
@@ -87,7 +83,6 @@ namespace
 
     class PluginOne : public BasePlugin
     {
-
     public:
         PluginOne(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
@@ -108,7 +103,6 @@ namespace
 
     class PluginTwo : public BasePlugin
     {
-
     public:
         PluginTwo(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
@@ -129,7 +123,6 @@ namespace
 
     class PluginThree : public BasePlugin
     {
-
     public:
         PluginThree(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
@@ -153,7 +146,6 @@ namespace
 
     class BasePluginFail : public Ice::Plugin
     {
-
     public:
         BasePluginFail(const Ice::CommunicatorPtr& communicator)
             : _communicator(communicator),
@@ -177,7 +169,6 @@ namespace
 
     class PluginOneFail : public BasePluginFail
     {
-
     public:
         PluginOneFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
@@ -212,7 +203,6 @@ namespace
 
     class PluginTwoFail : public BasePluginFail
     {
-
     public:
         PluginTwoFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
@@ -243,7 +233,6 @@ namespace
 
     class PluginThreeFail : public BasePluginFail
     {
-
     public:
         PluginThreeFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 

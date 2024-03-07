@@ -140,7 +140,6 @@ IceMatlab::SimpleFuture::stateImpl() const
 
 extern "C"
 {
-
     mxArray* Ice_SimpleFuture_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);

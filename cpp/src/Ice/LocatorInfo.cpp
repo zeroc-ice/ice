@@ -98,7 +98,6 @@ IceInternal::LocatorManager::destroy()
 LocatorInfoPtr
 IceInternal::LocatorManager::get(const LocatorPrx& loc)
 {
-
     LocatorPrx locator = loc->ice_locator(nullopt); // The locator can't be located.
 
     //

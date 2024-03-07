@@ -53,7 +53,6 @@ namespace
 //
 extern "C"
 {
-
     ICE_API Plugin*
     createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
     {
@@ -69,7 +68,6 @@ extern "C"
 
         try
         {
-
 #ifdef _WIN32
             int cp = -1;
 

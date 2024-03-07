@@ -21,7 +21,6 @@ using namespace Ice;
 
 extern "C"
 {
-
     Plugin* createTestTransport(const CommunicatorPtr&, const std::string&, const StringSeq&);
 };
 

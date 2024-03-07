@@ -12,7 +12,6 @@ namespace
 
     class MyPlugin : public Ice::Plugin
     {
-
     public:
         MyPlugin() : _initialized(false), _destroyed(false) {}
 
@@ -39,7 +38,6 @@ namespace
 
 extern "C"
 {
-
     Ice::Plugin* createMyPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&)
     {
         return new MyPlugin();

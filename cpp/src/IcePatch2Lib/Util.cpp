@@ -358,7 +358,6 @@ IcePatch2Internal::getDirname(const string& pa)
 void
 IcePatch2Internal::rename(const string& fromPa, const string& toPa)
 {
-
     const string fromPath = simplify(fromPa);
     const string toPath = simplify(toPa);
 
@@ -799,7 +798,6 @@ namespace
         }
         else
         {
-
             IceUtilInternal::structstat buf;
             if (IceUtilInternal::stat(path, &buf) == -1)
             {

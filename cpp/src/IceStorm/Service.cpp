@@ -76,7 +76,6 @@ namespace
 
 extern "C"
 {
-
     ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const shared_ptr<Communicator>&) { return new ServiceI; }
 }
 

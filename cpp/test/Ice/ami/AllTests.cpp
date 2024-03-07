@@ -357,7 +357,6 @@ allTests(TestHelper* helper, bool collocated)
 
     cout << "testing future API... " << flush;
     {
-
         test(p->ice_isAAsync(TestIntf::ice_staticId()).get());
         test(p->ice_isAAsync(TestIntf::ice_staticId(), ctx).get());
 

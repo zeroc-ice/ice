@@ -375,7 +375,6 @@ static ControllerI* controllerI = 0;
 
 extern "C"
 {
-
     void startController(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
     {
         controllerI = new ControllerI(controller, ipv4, ipv6);

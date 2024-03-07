@@ -8,7 +8,6 @@ extern "C" BOOL WINAPI _CRT_INIT(HINSTANCE, DWORD, LPVOID);
 
 extern "C"
 {
-
     BOOL WINAPI ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     {
         //

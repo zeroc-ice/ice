@@ -195,7 +195,6 @@ namespace
 
     class OpenSSLX509ExtensionI : public IceSSL::X509Extension
     {
-
     public:
         OpenSSLX509ExtensionI(struct X509_extension_st*, const string&, x509_st*);
         ~OpenSSLX509ExtensionI();

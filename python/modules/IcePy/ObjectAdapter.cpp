@@ -311,7 +311,6 @@ extern "C"
     static void
     adapterDealloc(ObjectAdapterObject* self)
 {
-
     delete self->adapter;
 
     delete self->deactivateException;

@@ -273,7 +273,6 @@
                              category:(NSString*)category
                                 error:(NSError**)error
 {
-
     try
     {
         auto ident = Ice::Identity{fromNSString(name), fromNSString(category)};

@@ -28,7 +28,6 @@ IceBT::BluetoothException::ice_print(ostream& out) const
 //
 extern "C"
 {
-
     ICEBT_API Ice::Plugin*
     createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
     {

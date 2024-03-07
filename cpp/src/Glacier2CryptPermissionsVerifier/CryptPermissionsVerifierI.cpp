@@ -456,7 +456,6 @@ namespace
 //
 extern "C"
 {
-
     CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin* createCryptPermissionsVerifier(
         const shared_ptr<Communicator>& communicator,
         const string& name,

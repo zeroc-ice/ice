@@ -1013,7 +1013,6 @@ YYSTYPE* yyvaluep;
 
     switch (yytype)
     {
-
         default:
             break;
     }

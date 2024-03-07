@@ -2514,7 +2514,6 @@ Database::checkUpdate(
                 out << "check for application `" << application << "' update failed:";
                 if (!unreachableNodes.empty())
                 {
-
                     Ice::StringSeq nodes(unreachableNodes.begin(), unreachableNodes.end());
 
                     if (nodes.size() == 1)
@@ -2790,7 +2789,6 @@ Database::addAdapter(const IceDB::ReadWriteTxn& txn, const AdapterInfo& info)
 void
 Database::deleteAdapter(const IceDB::ReadWriteTxn& txn, const AdapterInfo& info)
 {
-
     _adapters.del(txn, info.id);
     _adaptersByGroupId.del(txn, info.replicaGroupId, info.id);
 }

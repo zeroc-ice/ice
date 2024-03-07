@@ -23,7 +23,6 @@ using namespace IceInternal;
 
 extern "C"
 {
-
     Plugin* createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
     {
         return new EndpointFactoryPlugin(

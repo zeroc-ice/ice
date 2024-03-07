@@ -218,7 +218,6 @@ ServerAdapterI::clear()
 void
 ServerAdapterI::activationFailed(const std::string& reason)
 {
-
     //
     // The server couldn't be activated, trace and return the current adapter proxy.
     //

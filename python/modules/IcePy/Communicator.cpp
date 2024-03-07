@@ -1034,7 +1034,6 @@ extern "C"
 
     for (Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
-
         PyObjectHandle obj = plainObject;
 
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);

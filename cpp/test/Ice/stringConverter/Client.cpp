@@ -50,7 +50,6 @@ Client::run(int argc, char** argv)
 
     if (useIconv)
     {
-
 #if defined(__hpux)
         narrowEncoding = "iso815";
         wideEncoding = "ucs4";

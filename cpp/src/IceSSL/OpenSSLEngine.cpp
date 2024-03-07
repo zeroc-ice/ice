@@ -47,7 +47,6 @@ namespace
 }
 extern "C"
 {
-
     int IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     {
         OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);

@@ -30,7 +30,6 @@ ReplicaSessionI::create(
     const InternalRegistryPrxPtr& proxy,
     chrono::seconds timeout)
 {
-
     shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(database, wellKnownObjects, info, proxy, timeout));
 
     try

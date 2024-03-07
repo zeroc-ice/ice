@@ -207,7 +207,6 @@ allTests(Test::TestHelper* helper, int num)
         }
 
         {
-
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");

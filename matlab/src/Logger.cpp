@@ -11,7 +11,6 @@ using namespace IceMatlab;
 
 extern "C"
 {
-
     mxArray* Ice_Logger_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::Logger>*>(self);

@@ -565,7 +565,6 @@
         bytesRead:(NSInteger*)bytesRead
             error:(NSError**)error
 {
-
     std::pair<const std::uint8_t*, const std::uint8_t*> p;
     p.first = static_cast<const std::uint8_t*>(data.bytes);
     p.second = p.first + data.length;

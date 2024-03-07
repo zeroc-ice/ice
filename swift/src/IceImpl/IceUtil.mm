@@ -191,7 +191,6 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 {
     try
     {
-
         auto instance = IceInternal::getInstance([communicator communicator]);
         return toNSString(
             IceInternal::escapeString(fromNSString(string), fromNSString(special), instance->toStringMode()));

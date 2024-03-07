@@ -20,7 +20,6 @@ namespace IceGrid
 
     class AllocateObject final : public ObjectAllocationRequest
     {
-
     public:
         AllocateObject(
             const shared_ptr<SessionI>& session,

@@ -19,7 +19,6 @@ public:
 
 extern "C"
 {
-
     //
     // Factory function
     //

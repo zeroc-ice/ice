@@ -1161,7 +1161,6 @@ TopicImpl::updateSubscriberObservers()
 LogUpdate
 TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
 {
-
     // Clear out the database records related to this topic.
     LogUpdate llu;
     try

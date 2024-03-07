@@ -302,7 +302,6 @@ struct CallbackData
 
 extern "C"
 {
-
     static void startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
     {
         CallbackData* cb = static_cast<CallbackData*>(data);

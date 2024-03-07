@@ -1002,7 +1002,6 @@ namespace Ice
 
         class Encaps : private ::IceUtil::noncopyable
         {
-
         public:
             Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
             {

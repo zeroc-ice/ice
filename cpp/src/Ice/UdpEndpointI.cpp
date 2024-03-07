@@ -20,7 +20,6 @@ using namespace IceInternal;
 
 extern "C"
 {
-
     Plugin* createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
     {
         return new EndpointFactoryPlugin(

@@ -3327,7 +3327,6 @@ Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 void
 Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList& bases, const UnitPtr& ut)
 {
-
     // Check whether, for multiple inheritance, any of the bases define the same operations.
     if (bases.size() > 1)
     {

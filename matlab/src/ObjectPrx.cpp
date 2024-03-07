@@ -153,7 +153,6 @@ namespace
 
 extern "C"
 {
-
     mxArray* Ice_ObjectPrx_unref(void* self)
     {
         delete reinterpret_cast<Ice::ObjectPrx*>(self);

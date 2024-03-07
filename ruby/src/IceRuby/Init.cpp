@@ -23,7 +23,6 @@ static VALUE iceModule;
 
 extern "C"
 {
-
     void ICE_DECLSPEC_EXPORT Init_IceRuby()
     {
         Ice::registerIceSSL(false);

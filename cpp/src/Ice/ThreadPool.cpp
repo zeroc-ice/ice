@@ -892,7 +892,6 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     if (_sizeMax > 1)
     {
-
 #if !defined(ICE_USE_IOCP)
         --_inUseIO;
 

@@ -77,7 +77,6 @@ PluginI::setPasswordPrompt(std::function<std::string()> prompt)
 
 extern "C"
 {
-
     ICESSL_API Ice::Plugin* createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);
 }
 

@@ -29,7 +29,6 @@ namespace
 
 extern "C"
 {
-
     mxArray* Ice_initialize(mxArray* args, void* propsImpl, void** r)
     {
         try

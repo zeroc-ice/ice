@@ -426,7 +426,6 @@ IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg, int, VALUE*)
 
 extern "C"
 {
-
 // Defined Ruby >= 2.1. Ruby 2.7 enables RB_BLOCK_CALL_FUNC_STRICT by default
 #ifdef RB_BLOCK_CALL_FUNC_STRICT
     typedef rb_block_call_func_t ICE_RUBY_HASH_FOREACH_CALLBACK;

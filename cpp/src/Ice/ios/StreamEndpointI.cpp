@@ -32,7 +32,6 @@ using namespace IceInternal;
 
 extern "C"
 {
-
     Plugin* createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
     {
         IceObjC::InstancePtr tcpInstance = make_shared<IceObjC::Instance>(com, TCPEndpointType, "tcp", false);

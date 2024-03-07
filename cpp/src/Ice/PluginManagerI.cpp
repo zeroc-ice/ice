@@ -186,7 +186,6 @@ Ice::PluginManagerI::destroy() noexcept
     {
         if (_initialized)
         {
-
             //
             // Destroy the plug-ins that have been successfully initialized, in the
             // reverse order.

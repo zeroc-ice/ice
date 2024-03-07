@@ -55,7 +55,6 @@ namespace Slice
 
         class TypesVisitor : public SwiftGenerator, public ParserVisitor
         {
-
         public:
             TypesVisitor(IceUtilInternal::Output&);
 

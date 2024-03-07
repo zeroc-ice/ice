@@ -224,7 +224,6 @@ namespace
 
 extern "C"
 {
-
     static zend_object* handleAlloc(zend_class_entry*);
     static void handleFreeStorage(zend_object*);
     static zend_object* handleClone(zend_object*);

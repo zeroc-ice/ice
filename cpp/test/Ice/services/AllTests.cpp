@@ -23,7 +23,6 @@ namespace
 
     class SessionCallbackI : public Glacier2::SessionCallback
     {
-
     public:
         virtual void connected(const Glacier2::SessionHelperPtr&) {}
 

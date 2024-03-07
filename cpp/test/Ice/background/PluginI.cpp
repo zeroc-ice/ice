@@ -34,7 +34,6 @@ private:
 //
 extern "C"
 {
-
     ICE_DECLSPEC_EXPORT Ice::Plugin*
     createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
     {

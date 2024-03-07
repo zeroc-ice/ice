@@ -180,7 +180,6 @@ Client::run(int argc, char* argv[])
 
     if (argc > 2)
     {
-
         threadCount = atoi(argv[2]);
         if (threadCount <= 0)
         {

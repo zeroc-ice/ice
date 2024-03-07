@@ -45,7 +45,6 @@ namespace
 
 extern "C"
 {
-
     Plugin* createIceWS(const CommunicatorPtr& c, const string&, const StringSeq&)
     {
         return new WSEndpointFactoryPlugin(c);

@@ -154,7 +154,6 @@ namespace
 //
 extern "C"
 {
-
     ICE_DECLSPEC_EXPORT Ice::Plugin*
     createRegistryPlugin(const shared_ptr<Ice::Communicator>& communicator, const string&, const Ice::StringSeq&)
     {
