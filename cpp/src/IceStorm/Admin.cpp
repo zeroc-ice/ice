@@ -118,13 +118,13 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     debug = opts.isSet("debug");
 
     // The complete set of Ice::Identity -> manager proxies.
-    map<Ice::Identity, IceStorm::TopicManagerPrxPtr> managers;
+    map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
     auto properties = communicator->getProperties();
-    IceStorm::TopicManagerPrxPtr defaultManager;
+    optional<IceStorm::TopicManagerPrx> defaultManager;
 
     auto props = communicator->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {
-        for(const auto& p : props)
+        for (const auto& p : props)
         {
             //
             // Ignore proxy property settings. eg IceStormAdmin.TopicManager.*.LocatorCacheTimeout
@@ -133,8 +133,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             {
                 try
                 {
+
                     auto manager = communicator->propertyToProxy<IceStorm::TopicManagerPrx>(p.first);
-                    managers.insert({manager->ice_getIdentity(), manager});
+                    assert(manager);
+                    managers.insert({manager->ice_getIdentity(), *manager});
                 }
                 catch(const Ice::ProxyParseException&)
                 {
@@ -145,17 +147,17 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         }
 
         string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-        if(!managerProxy.empty())
+        if (!managerProxy.empty())
         {
-            defaultManager = Ice::uncheckedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
+            defaultManager = IceStorm::TopicManagerPrx(communicator, managerProxy);
         }
-        else if(!managers.empty())
+        else if (!managers.empty())
         {
             defaultManager = managers.begin()->second;
         }
     }
 
-    if(!defaultManager)
+    if (!defaultManager)
     {
         string host = properties->getProperty("IceStormAdmin.Host");
         string port = properties->getProperty("IceStormAdmin.Port");
@@ -165,6 +167,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         os << "IceStorm/Finder";
         os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
         os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+
         IceStorm::FinderPrx finder{communicator, os.str()};
         try
         {
@@ -176,13 +179,13 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         }
     }
 
-    if(!defaultManager)
+    if (!defaultManager)
     {
         consoleErr << args[0] << ": no manager proxies configured" << endl;
         return 1;
     }
 
-    IceStorm::Parser p(communicator, defaultManager, managers);
+    IceStorm::Parser p(communicator, *defaultManager, managers);
     int status = 0;
 
     if(!commands.empty()) // Commands were given

@@ -20,10 +20,10 @@ TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instan
 {
 }
 
-TopicPrxPtr
+optional<TopicPrx>
 TransientTopicManagerImpl::create(string name, const Ice::Current&)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -53,15 +53,15 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     //
     // The identity is the name of the Topic.
     //
-    auto prx = Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->add(topicImpl, id));
+    TopicPrx prx(_instance->topicAdapter()->add(topicImpl, id));
     _topics.insert({ name, topicImpl });
     return prx;
 }
 
-TopicPrxPtr
+optional<TopicPrx>
 TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -74,13 +74,13 @@ TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
     // Here we cannot just reconstruct the identity since the
     // identity could be either instanceName/topic name, or if
     // created with pre-3.2 IceStorm / topic name.
-    return Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->createProxy(p->second->id()));
+    return TopicPrx(_instance->topicAdapter()->createProxy(p->second->id()));
 }
 
 TopicDict
 TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -92,14 +92,13 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
         // identity could be either "<instanceName>/topic.<topicname>"
         // name, or if created with pre-3.2 IceStorm "/<topicname>".
         //
-        all.insert({ topic.first,
-                     Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->createProxy(topic.second->id())) });
+        all.insert({topic.first, TopicPrx(_instance->topicAdapter()->createProxy(topic.second->id()))});
     }
 
     return all;
 }
 
-IceStormElection::NodePrxPtr
+optional<IceStormElection::NodePrx>
 TransientTopicManagerImpl::getReplicaNode(const Ice::Current&) const
 {
     return nullopt;
@@ -111,10 +110,9 @@ TransientTopicManagerImpl::reap()
     //
     // Must be called called with mutex locked.
     //
-    vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
-    for(vector<string>::const_iterator p = reaped.begin(); p != reaped.end(); ++p)
+    for (const string& topic : _instance->topicReaper()->consumeReapedTopics())
     {
-        auto i = _topics.find(*p);
+        auto i = _topics.find(topic);
         if(i != _topics.end() && i->second->destroyed())
         {
             auto id = i->second->id();
@@ -142,9 +140,8 @@ TransientTopicManagerImpl::reap()
 void
 TransientTopicManagerImpl::shutdown()
 {
-    lock_guard<mutex> lg(_mutex);
-
-    for(const auto& topic : _topics)
+    lock_guard lock(_mutex);
+    for (const auto& topic : _topics)
     {
         topic.second->shutdown();
     }

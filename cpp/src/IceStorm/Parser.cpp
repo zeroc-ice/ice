@@ -56,8 +56,10 @@ private:
 
 }
 
-Parser::Parser(shared_ptr<Communicator> communicator, TopicManagerPrxPtr admin,
-               map<Ice::Identity, TopicManagerPrxPtr> managers) :
+Parser::Parser(
+    shared_ptr<Communicator> communicator,
+    TopicManagerPrx admin,
+    map<Ice::Identity, TopicManagerPrx> managers) :
     _communicator(std::move(communicator)),
     _defaultManager(std::move(admin)),
     _managers(std::move(managers))
@@ -197,17 +199,9 @@ Parser::links(const list<string>& args)
 
     try
     {
-        TopicManagerPrxPtr manager;
-        if(args.size() == 0)
-        {
-            manager = _defaultManager;
-        }
-        else
-        {
-            manager = findManagerByCategory(args.front());
-        }
+        TopicManagerPrx manager = args.size() == 0 ? _defaultManager : findManagerByCategory(args.front());
 
-        for(const auto& topic : manager->retrieveAll())
+        for (const auto& topic : manager->retrieveAll())
         {
             for(const auto& linkInfo : topic.second->getLinkInfoSeq())
             {
@@ -232,17 +226,8 @@ Parser::topics(const list<string>& args)
 
     try
     {
-        TopicManagerPrxPtr manager;
-        if(args.size() == 0)
-        {
-            manager = _defaultManager;
-        }
-        else
-        {
-            manager = findManagerByCategory(args.front());
-        }
-
-        for(const auto& topic : manager->retrieveAll())
+        TopicManagerPrx manager = args.size() == 0 ? _defaultManager : findManagerByCategory(args.front());
+        for (const auto& topic : manager->retrieveAll())
         {
             consoleOut << topic.first << endl;
         }
@@ -264,16 +249,8 @@ Parser::replica(const list<string>& args)
 
     try
     {
-        TopicManagerPrxPtr m;
-        if(args.size() == 0)
-        {
-            m = _defaultManager;
-        }
-        else
-        {
-            m = findManagerByCategory(args.front());
-        }
-        auto manager = Ice::uncheckedCast<TopicManagerInternalPrx>(m);
+        auto manager = TopicManagerInternalPrx(
+            args.size() == 0 ? _defaultManager : findManagerByCategory(args.front()));
         auto node = manager->getReplicaNode();
         if(!node)
         {
@@ -607,7 +584,7 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-TopicManagerPrxPtr
+TopicManagerPrx
 Parser::findManagerById(const string& full, string& arg) const
 {
     auto id = Ice::stringToIdentity(full);
@@ -625,7 +602,7 @@ Parser::findManagerById(const string& full, string& arg) const
     return p->second;
 }
 
-TopicManagerPrxPtr
+TopicManagerPrx
 Parser::findManagerByCategory(const string& full) const
 {
     Ice::Identity id = {"TopicManager", full};
@@ -637,7 +614,7 @@ Parser::findManagerByCategory(const string& full) const
     return p->second;
 }
 
-TopicPrxPtr
+optional<TopicPrx>
 Parser::findTopic(const string& full) const
 {
     string topicName;

@@ -89,11 +89,11 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
         {
             assert(slave.observer);
 
-            auto observer = Ice::uncheckedCast<ReplicaObserverPrx>(slave.observer);
+            ReplicaObserverPrx observer(*slave.observer);
 
             auto future = observer->initAsync(llu, content);
 
-            observers.push_back({ slave.id, observer, std::move(future) });
+            observers.push_back({slave.id, observer, std::move(future)});
         }
         catch(const Ice::Exception& ex)
         {

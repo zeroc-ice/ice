@@ -14,9 +14,10 @@ namespace Ice
 {
 
 /**
- * Verifies that a proxy received from the client is not null.
+ * Verifies that a proxy received from the client is not null, and throws a MarshalException if it is.
  * @param prx The proxy to check.
  * @param current The Current object for the invocation.
+ * @throw MarshalException If the proxy is null.
  * */
 template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 void checkNotNull(std::optional<Prx> prx, const Current& current)
