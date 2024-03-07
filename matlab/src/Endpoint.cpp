@@ -93,7 +93,7 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
     {
         mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
         byte* p = &opaqueInfo->rawBytes[0];
-        mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(reinterpret_cast<const byte*>(p), p + opaqueInfo->rawBytes.size()));
+        mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(reinterpret_cast<const uint8_t*>(p), reinterpret_cast<const uint8_t*>(p + opaqueInfo->rawBytes.size())));
     }
 
     auto udpInfo = dynamic_pointer_cast<Ice::UDPEndpointInfo>(info);
