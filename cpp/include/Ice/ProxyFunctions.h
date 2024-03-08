@@ -15,11 +15,13 @@ namespace Ice
     /**
      * Verifies that a proxy received from the client is not null, and throws a MarshalException if it is.
      * @param prx The proxy to check.
+     * @param file The source file name.
+     * @param line The source line number.
      * @param current The Current object for the invocation.
      * @throw MarshalException If the proxy is null.
      * */
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-    void checkNotNull(std::optional<Prx> prx, const Current& current)
+    void checkNotNull(std::optional<Prx> prx, const char* file, int line, const Current& current)
     {
         if (!prx)
         {
@@ -27,7 +29,7 @@ namespace Ice
             std::ostringstream os;
             os << "null proxy passed to " << current.operation << " on object "
                << current.adapter->getCommunicator()->identityToString(current.id);
-            throw MarshalException{__FILE__, __LINE__, os.str()};
+            throw MarshalException{file, line, os.str()};
         }
     }
 
