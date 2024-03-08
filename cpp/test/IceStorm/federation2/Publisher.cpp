@@ -17,7 +17,6 @@ using namespace Test;
 class Publisher final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -32,7 +31,7 @@ Publisher::run(int argc, char** argv)
 
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
@@ -44,14 +43,14 @@ Publisher::run(int argc, char** argv)
 
     string arg = opts.optArg("count");
     int count = 1;
-    if(arg.empty())
+    if (arg.empty())
     {
         count = atoi(arg.c_str());
     }
 
-    while(true)
+    while (true)
     {
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             eventFed1->pub("fed1");
         }
@@ -61,7 +60,7 @@ Publisher::run(int argc, char** argv)
         //
         eventFed1->ice_twoway()->ice_ping();
 
-        if(count == 0)
+        if (count == 0)
         {
             break;
         }

@@ -11,49 +11,68 @@
 
 namespace Slice
 {
+    class Preprocessor;
+    using PreprocessorPtr = std::shared_ptr<Preprocessor>;
 
-class Preprocessor;
-using PreprocessorPtr = std::shared_ptr<Preprocessor>;
+    class Preprocessor
+    {
+    public:
+        static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);
 
-class Preprocessor
-{
-public:
+        Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+        ~Preprocessor();
 
-    static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);
+        FILE* preprocess(bool, const std::string& = "");
+        FILE* preprocess(bool, const std::vector<std::string>&);
+        bool close();
 
-    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
-    ~Preprocessor();
+        enum Language
+        {
+            CPlusPlus,
+            Java,
+            CSharp,
+            Python,
+            Ruby,
+            PHP,
+            JavaScript,
+            JavaScriptJSON,
+            ObjC,
+            SliceXML,
+            MATLAB,
+            Swift
+        };
 
-    FILE* preprocess(bool, const std::string& = "");
-    FILE* preprocess(bool, const std::vector<std::string>&);
-    bool close();
+        bool printMakefileDependencies(
+            std::ostream&,
+            Language,
+            const std::vector<std::string>&,
+            const std::string& = "",
+            const std::string& = "cpp",
+            const std::string& = "");
+        bool printMakefileDependencies(
+            std::ostream&,
+            Language,
+            const std::vector<std::string>&,
+            const std::vector<std::string>&,
+            const std::string& = "cpp",
+            const std::string& = "");
 
-    enum Language { CPlusPlus, Java, CSharp, Python, Ruby, PHP, JavaScript, JavaScriptJSON, ObjC, SliceXML, MATLAB, Swift };
+        std::string getFileName();
+        std::string getBaseName();
 
-    bool printMakefileDependencies(std::ostream&, Language, const std::vector<std::string>&, const std::string& = "",
-                                   const std::string& = "cpp", const std::string& = "");
-    bool printMakefileDependencies(std::ostream&, Language, const std::vector<std::string>&,
-                                   const std::vector<std::string>&, const std::string& = "cpp",
-                                   const std::string& = "");
+        static std::string addQuotes(const std::string&);
+        static std::string normalizeIncludePath(const std::string&);
 
-    std::string getFileName();
-    std::string getBaseName();
+    private:
+        bool checkInputFile();
 
-    static std::string addQuotes(const std::string&);
-    static std::string normalizeIncludePath(const std::string&);
-
-private:
-
-    bool checkInputFile();
-
-    const std::string _path;
-    const std::string _fileName;
-    const std::string _shortFileName;
-    const std::vector<std::string> _args;
-    std::string _cppFile;
-    FILE* _cppHandle;
-};
-
+        const std::string _path;
+        const std::string _fileName;
+        const std::string _shortFileName;
+        const std::vector<std::string> _args;
+        std::string _cppFile;
+        FILE* _cppHandle;
+    };
 }
 
 #endif

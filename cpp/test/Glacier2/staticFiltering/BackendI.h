@@ -10,7 +10,6 @@
 class BackendI final : public Test::Backend
 {
 public:
-
     void shutdown(const Ice::Current&) override;
 };
 

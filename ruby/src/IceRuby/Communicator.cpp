@@ -24,8 +24,7 @@ static VALUE _communicatorClass;
 using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
 static CommunicatorMap _communicatorMap;
 
-extern "C"
-void
+extern "C" void
 IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
 {
     assert(p);
@@ -35,14 +34,13 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
         assert(vfm);
         vfm->markSelf();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         // Ignore. This is expected.
     }
 }
 
-extern "C"
-void
+extern "C" void
 IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
 {
     assert(p);
@@ -51,27 +49,19 @@ IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
 
 namespace
 {
-
-class CommunicatorDestroyer
-{
-public:
-
-    CommunicatorDestroyer(const Ice::CommunicatorPtr& c) : _communicator(c) {}
-
-    ~CommunicatorDestroyer()
+    class CommunicatorDestroyer
     {
-        _communicator->destroy();
-    }
+    public:
+        CommunicatorDestroyer(const Ice::CommunicatorPtr& c) : _communicator(c) {}
 
-private:
+        ~CommunicatorDestroyer() { _communicator->destroy(); }
 
-    Ice::CommunicatorPtr _communicator;
-};
-
+    private:
+        Ice::CommunicatorPtr _communicator;
+    };
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
@@ -89,7 +79,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // An implicit block is optional.
         //
 
-        if(argc > 2)
+        if (argc > 2)
         {
             throw RubyException(rb_eArgError, "invalid number of arguments to Ice::initialize");
         }
@@ -97,48 +87,49 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         volatile VALUE initDataCls = callRuby(rb_path2class, "Ice::InitializationData");
         volatile VALUE args = Qnil, initData = Qnil, configFile = Qnil;
 
-        if(argc >= 1)
+        if (argc >= 1)
         {
-            if(isArray(argv[0]))
+            if (isArray(argv[0]))
             {
                 args = argv[0];
             }
-            else if(callRuby(rb_obj_is_instance_of, argv[0], initDataCls) == Qtrue)
+            else if (callRuby(rb_obj_is_instance_of, argv[0], initDataCls) == Qtrue)
             {
                 initData = argv[0];
             }
-            else if(TYPE(argv[0]) == T_STRING)
+            else if (TYPE(argv[0]) == T_STRING)
             {
                 configFile = argv[0];
             }
             else
             {
-                throw RubyException(rb_eTypeError,
+                throw RubyException(
+                    rb_eTypeError,
                     "initialize expects an argument list, InitializationData or a configuration filename");
             }
         }
 
-        if(argc >= 2)
+        if (argc >= 2)
         {
-            if(isArray(argv[1]))
+            if (isArray(argv[1]))
             {
-                if(!NIL_P(args))
+                if (!NIL_P(args))
                 {
                     throw RubyException(rb_eTypeError, "unexpected array argument to initialize");
                 }
                 args = argv[1];
             }
-            else if(callRuby(rb_obj_is_instance_of, argv[1], initDataCls) == Qtrue)
+            else if (callRuby(rb_obj_is_instance_of, argv[1], initDataCls) == Qtrue)
             {
-                if(!NIL_P(initData))
+                if (!NIL_P(initData))
                 {
                     throw RubyException(rb_eTypeError, "unexpected InitializationData argument to initialize");
                 }
                 initData = argv[1];
             }
-            else if(TYPE(argv[1]) == T_STRING)
+            else if (TYPE(argv[1]) == T_STRING)
             {
-                if(!NIL_P(configFile))
+                if (!NIL_P(configFile))
                 {
                     throw RubyException(rb_eTypeError, "unexpected string argument to initialize");
                 }
@@ -146,35 +137,36 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             }
             else
             {
-                throw RubyException(rb_eTypeError,
+                throw RubyException(
+                    rb_eTypeError,
                     "initialize expects an argument list, InitializationData or a configuration filename");
             }
         }
 
-        if(!NIL_P(initData) && !NIL_P(configFile))
+        if (!NIL_P(initData) && !NIL_P(configFile))
         {
-            throw RubyException(rb_eTypeError,
-                "initialize accepts either Ice.InitializationData or a configuration filename");
+            throw RubyException(
+                rb_eTypeError, "initialize accepts either Ice.InitializationData or a configuration filename");
         }
 
         Ice::StringSeq seq;
-        if(!NIL_P(args) && !arrayToStringSeq(args, seq))
+        if (!NIL_P(args) && !arrayToStringSeq(args, seq))
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::initialize");
         }
 
         Ice::InitializationData data;
-        if(!NIL_P(initData))
+        if (!NIL_P(initData))
         {
             volatile VALUE properties = callRuby(rb_iv_get, initData, "@properties");
             volatile VALUE logger = callRuby(rb_iv_get, initData, "@logger");
 
-            if(!NIL_P(properties))
+            if (!NIL_P(properties))
             {
                 data.properties = getProperties(properties);
             }
 
-            if(!NIL_P(logger))
+            if (!NIL_P(logger))
             {
                 throw RubyException(rb_eArgError, "custom logger is not supported");
             }
@@ -190,17 +182,17 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         data.compactIdResolver = [](int id) { return IceRuby::resolveCompactId(id); };
         data.valueFactoryManager = ValueFactoryManager::create();
 
-        if(!data.properties)
+        if (!data.properties)
         {
             data.properties = Ice::createProperties();
         }
 
-        if(!NIL_P(configFile))
+        if (!NIL_P(configFile))
         {
             data.properties->load(getString(configFile));
         }
 
-        if(!NIL_P(args))
+        if (!NIL_P(args))
         {
             data.properties = Ice::createProperties(seq, data.properties);
         }
@@ -224,7 +216,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         Ice::CommunicatorPtr communicator;
         try
         {
-            if(!NIL_P(args))
+            if (!NIL_P(args))
             {
                 communicator = Ice::initialize(ac, av, data);
             }
@@ -233,9 +225,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
                 communicator = Ice::initialize(data);
             }
         }
-        catch(...)
+        catch (...)
         {
-            for(i = 0; i < ac + 1; ++i)
+            for (i = 0; i < ac + 1; ++i)
             {
                 free(av[i]);
             }
@@ -247,34 +239,32 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         //
         // Replace the contents of the given argument list with the filtered arguments.
         //
-        if(!NIL_P(args))
+        if (!NIL_P(args))
         {
             callRuby(rb_ary_clear, args);
 
             //
             // We start at index 1 in order to skip the element that we inserted earlier.
             //
-            for(i = 1; i < ac; ++i)
+            for (i = 1; i < ac; ++i)
             {
                 volatile VALUE str = createString(av[i]);
                 callRuby(rb_ary_push, args, str);
             }
         }
 
-        for(i = 0; i < ac + 1; ++i)
+        for (i = 0; i < ac + 1; ++i)
         {
             free(av[i]);
         }
         delete[] av;
 
         VALUE result = Data_Wrap_Struct(
-            _communicatorClass,
-            IceRuby_Communicator_mark,
-            IceRuby_Communicator_free,
+            _communicatorClass, IceRuby_Communicator_mark, IceRuby_Communicator_free,
             new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
-        if(p != _communicatorMap.end())
+        if (p != _communicatorMap.end())
         {
             _communicatorMap.erase(p);
         }
@@ -284,7 +274,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // If an implicit block was provided, yield to the block and pass it the communicator instance.
         // We destroy the communicator after the block is finished, and return the result of the block.
         //
-        if(rb_block_given_p())
+        if (rb_block_given_p())
         {
             CommunicatorDestroyer destroyer(communicator);
             //
@@ -294,11 +284,11 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             //
             VALUE proc = callRuby(rb_block_proc);
             int arity = rb_proc_arity(proc);
-            if(arity == 1)
+            if (arity == 1)
             {
                 return callRuby(rb_yield, result);
             }
-            else if(arity == 2)
+            else if (arity == 2)
             {
                 VALUE blockArgs = createArray(2);
                 RARRAY_ASET(blockArgs, 0, result);
@@ -319,8 +309,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_stringToIdentity(VALUE /*self*/, VALUE str)
 {
     ICE_RUBY_TRY
@@ -333,13 +322,12 @@ IceRuby_stringToIdentity(VALUE /*self*/, VALUE str)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_identityToString(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
-        if(argc < 1 || argc > 2)
+        if (argc < 1 || argc > 2)
         {
             throw RubyException(rb_eArgError, "wrong number of arguments");
         }
@@ -347,7 +335,7 @@ IceRuby_identityToString(int argc, VALUE* argv, VALUE /*self*/)
         Ice::Identity ident = getIdentity(argv[0]);
 
         Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
-        if(argc == 2)
+        if (argc == 2)
         {
             volatile VALUE modeValue = callRuby(rb_funcall, argv[1], rb_intern("to_i"), 0);
             assert(TYPE(modeValue) == T_FIXNUM);
@@ -361,8 +349,7 @@ IceRuby_identityToString(int argc, VALUE* argv, VALUE /*self*/)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_destroy(VALUE self)
 {
     Ice::CommunicatorPtr p = getCommunicator(self);
@@ -370,10 +357,7 @@ IceRuby_Communicator_destroy(VALUE self)
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
     assert(vfm);
 
-    ICE_RUBY_TRY
-    {
-        p->destroy();
-    }
+    ICE_RUBY_TRY { p->destroy(); }
     ICE_RUBY_CATCH
 
     vfm->destroy();
@@ -381,8 +365,7 @@ IceRuby_Communicator_destroy(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_shutdown(VALUE self)
 {
     ICE_RUBY_TRY
@@ -394,8 +377,7 @@ IceRuby_Communicator_shutdown(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_isShutdown(VALUE self)
 {
     ICE_RUBY_TRY
@@ -407,8 +389,7 @@ IceRuby_Communicator_isShutdown(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_waitForShutdown(VALUE self)
 {
     ICE_RUBY_TRY
@@ -420,8 +401,7 @@ IceRuby_Communicator_waitForShutdown(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
 {
     ICE_RUBY_TRY
@@ -429,7 +409,7 @@ IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
         optional<Ice::ObjectPrx> proxy = p->stringToProxy(s);
-        if(proxy)
+        if (proxy)
         {
             return createProxy(proxy.value());
         }
@@ -438,17 +418,16 @@ IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_proxyToString(VALUE self, VALUE proxy)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         optional<Ice::ObjectPrx> prx;
-        if(!NIL_P(proxy))
+        if (!NIL_P(proxy))
         {
-            if(!checkProxy(proxy))
+            if (!checkProxy(proxy))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
@@ -461,8 +440,7 @@ IceRuby_Communicator_proxyToString(VALUE self, VALUE proxy)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
 {
     ICE_RUBY_TRY
@@ -470,7 +448,7 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
         optional<Ice::ObjectPrx> proxy = p->propertyToProxy(s);
-        if(proxy)
+        if (proxy)
         {
             return createProxy(proxy.value());
         }
@@ -479,13 +457,12 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
 {
     ICE_RUBY_TRY
     {
-        if(!checkProxy(obj))
+        if (!checkProxy(obj))
         {
             throw RubyException(rb_eTypeError, "argument must be a proxy");
         }
@@ -494,7 +471,7 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
         string s = getString(str);
         Ice::PropertyDict dict = p->proxyToProperty(o, s);
         volatile VALUE result = callRuby(rb_hash_new);
-        for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
+        for (Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
         {
             volatile VALUE key = createString(q->first);
             volatile VALUE value = createString(q->second);
@@ -506,8 +483,7 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_identityToString(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
@@ -521,8 +497,7 @@ IceRuby_Communicator_identityToString(VALUE self, VALUE id)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getValueFactoryManager(VALUE self)
 {
     ICE_RUBY_TRY
@@ -536,8 +511,7 @@ IceRuby_Communicator_getValueFactoryManager(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getImplicitContext(VALUE self)
 {
     ICE_RUBY_TRY
@@ -550,8 +524,7 @@ IceRuby_Communicator_getImplicitContext(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getProperties(VALUE self)
 {
     ICE_RUBY_TRY
@@ -564,8 +537,7 @@ IceRuby_Communicator_getProperties(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getLogger(VALUE self)
 {
     ICE_RUBY_TRY
@@ -578,15 +550,14 @@ IceRuby_Communicator_getLogger(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getDefaultRouter(VALUE self)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         optional<Ice::RouterPrx> router = p->getDefaultRouter();
-        if(router)
+        if (router)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
             assert(!NIL_P(cls));
@@ -597,17 +568,16 @@ IceRuby_Communicator_getDefaultRouter(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_setDefaultRouter(VALUE self, VALUE router)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         optional<Ice::RouterPrx> proxy;
-        if(!NIL_P(router))
+        if (!NIL_P(router))
         {
-            if(!checkProxy(router))
+            if (!checkProxy(router))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
@@ -619,15 +589,14 @@ IceRuby_Communicator_setDefaultRouter(VALUE self, VALUE router)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_getDefaultLocator(VALUE self)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         optional<Ice::LocatorPrx> locator = p->getDefaultLocator();
-        if(locator)
+        if (locator)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
             assert(!NIL_P(cls));
@@ -638,17 +607,16 @@ IceRuby_Communicator_getDefaultLocator(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_setDefaultLocator(VALUE self, VALUE locator)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         optional<Ice::LocatorPrx> proxy;
-        if(!NIL_P(locator))
+        if (!NIL_P(locator))
         {
-            if(!checkProxy(locator))
+            if (!checkProxy(locator))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
@@ -660,8 +628,7 @@ IceRuby_Communicator_setDefaultLocator(VALUE self, VALUE locator)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Communicator_flushBatchRequests(VALUE self, VALUE compress)
 {
     ICE_RUBY_TRY
@@ -669,10 +636,10 @@ IceRuby_Communicator_flushBatchRequests(VALUE self, VALUE compress)
         Ice::CommunicatorPtr p = getCommunicator(self);
 
         volatile VALUE type = callRuby(rb_path2class, "Ice::CompressBatch");
-        if(callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
+        if (callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
-                "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
+            throw RubyException(
+                rb_eTypeError, "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
         }
         volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
         assert(TYPE(compressValue) == T_FIXNUM);
@@ -701,7 +668,8 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
-    rb_define_method(_communicatorClass, "getValueFactoryManager", CAST_METHOD(IceRuby_Communicator_getValueFactoryManager), 0);
+    rb_define_method(
+        _communicatorClass, "getValueFactoryManager", CAST_METHOD(IceRuby_Communicator_getValueFactoryManager), 0);
     rb_define_method(_communicatorClass, "getImplicitContext", CAST_METHOD(IceRuby_Communicator_getImplicitContext), 0);
     rb_define_method(_communicatorClass, "getProperties", CAST_METHOD(IceRuby_Communicator_getProperties), 0);
     rb_define_method(_communicatorClass, "getLogger", CAST_METHOD(IceRuby_Communicator_getLogger), 0);
@@ -724,7 +692,7 @@ VALUE
 IceRuby::lookupCommunicator(const Ice::CommunicatorPtr& p)
 {
     CommunicatorMap::iterator q = _communicatorMap.find(p);
-    if(q != _communicatorMap.end())
+    if (q != _communicatorMap.end())
     {
         return q->second;
     }

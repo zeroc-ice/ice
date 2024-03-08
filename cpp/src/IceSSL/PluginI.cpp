@@ -24,8 +24,7 @@ IceSSL::Plugin::~Plugin()
 //
 // Plugin implementation.
 //
-PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
-    _engine(engine)
+PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) : _engine(engine)
 {
     //
     // Register the endpoint factory. We have to do this now, rather
@@ -33,7 +32,8 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
     // interpret proxies before the plug-in is fully initialized.
     //
     InstancePtr instance = make_shared<Instance>(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(make_shared<EndpointFactoryI>(instance, TCPEndpointType));
+    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(
+        make_shared<EndpointFactoryI>(instance, TCPEndpointType));
 }
 
 void
@@ -52,7 +52,7 @@ PluginI::destroy()
 void
 PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL::ConnectionInfo>&)> verifier)
 {
-    if(verifier)
+    if (verifier)
     {
         _engine->setCertificateVerifier(make_shared<CertificateVerifier>(std::move(verifier)));
     }
@@ -65,33 +65,27 @@ PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL:
 void
 PluginI::setPasswordPrompt(std::function<std::string()> prompt)
 {
-     if(prompt)
-     {
-         _engine->setPasswordPrompt(make_shared<PasswordPrompt>(std::move(prompt)));
-     }
-     else
-     {
-         _engine->setPasswordPrompt(nullptr);
-     }
+    if (prompt)
+    {
+        _engine->setPasswordPrompt(make_shared<PasswordPrompt>(std::move(prompt)));
+    }
+    else
+    {
+        _engine->setPasswordPrompt(nullptr);
+    }
 }
 
 extern "C"
 {
-
-ICESSL_API Ice::Plugin*
-createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);
-
+    ICESSL_API Ice::Plugin* createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);
 }
 
 namespace Ice
 {
-
-ICESSL_API void
-registerIceSSL(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
-}
-
+    ICESSL_API void registerIceSSL(bool loadOnInitialize)
+    {
+        Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
+    }
 }
 
 IceSSL::TrustError
@@ -108,7 +102,7 @@ IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
 std::string
 IceSSL::getTrustErrorDescription(TrustError error)
 {
-    switch(error)
+    switch (error)
     {
         case IceSSL::TrustError::NoError:
         {

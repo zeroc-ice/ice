@@ -10,7 +10,6 @@
 class TestI : public Test::TestIntf
 {
 public:
-
     virtual void requestFailedException(const Ice::Current&);
     virtual void unknownUserException(const Ice::Current&);
     virtual void unknownLocalException(const Ice::Current&);
@@ -34,7 +33,6 @@ public:
 class Cookie
 {
 public:
-
     std::string message() const;
 };
 

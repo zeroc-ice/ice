@@ -10,7 +10,6 @@
 class BlobjectI final : public Ice::BlobjectAsync
 {
 public:
-
     BlobjectI();
 
     void startBatch();
@@ -24,7 +23,6 @@ public:
         const Ice::Current&) final;
 
 private:
-
     Ice::ConnectionPtr getConnection(const Ice::Current&);
 
     bool _startBatch;

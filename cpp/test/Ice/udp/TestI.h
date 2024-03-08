@@ -10,7 +10,6 @@
 class TestIntfI final : public Test::TestIntf
 {
 public:
-
     void ping(std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
     void sendByteSeq(Test::ByteSeq, std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
     void pingBiDir(Ice::Identity, const Ice::Current&) final;

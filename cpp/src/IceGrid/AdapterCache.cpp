@@ -21,115 +21,108 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
-class ReplicaGroupSyncCallback final : public SynchronizationCallback
-{
-public:
-
-    ReplicaGroupSyncCallback(const shared_ptr<SynchronizationCallback>& callback, int count, int nReplicas) :
-        _callback(callback),
-        _responseCalled(false),
-        _synchronizeCount(count),
-        _synchronizedCount(0),
-        _nReplicas(nReplicas > count ? count : nReplicas)
+    class ReplicaGroupSyncCallback final : public SynchronizationCallback
     {
-    }
-
-    bool
-    response()
-    {
-        lock_guard lock(_mutex);
-        _responseCalled = true;
-        if(_synchronizedCount >= _nReplicas)
+    public:
+        ReplicaGroupSyncCallback(const shared_ptr<SynchronizationCallback>& callback, int count, int nReplicas)
+            : _callback(callback),
+              _responseCalled(false),
+              _synchronizeCount(count),
+              _synchronizedCount(0),
+              _nReplicas(nReplicas > count ? count : nReplicas)
         {
-            _callback = nullptr;
-            return false;
         }
-        else if(_synchronizeCount == 0)
-        {
-            if(_synchronizedCount == 0 && _exception)
-            {
-                rethrow_exception(_exception);
-            }
-            _callback = nullptr;
-            return false;
-        }
-        return true;
-    }
 
-    void
-    synchronized()
-    {
-        shared_ptr<SynchronizationCallback> callback;
+        bool response()
         {
             lock_guard lock(_mutex);
-            ++_synchronizedCount;
-            --_synchronizeCount;
-
-            if(!_responseCalled)
+            _responseCalled = true;
+            if (_synchronizedCount >= _nReplicas)
             {
-                return;
+                _callback = nullptr;
+                return false;
             }
-
-            if(_synchronizedCount < _nReplicas && _synchronizeCount > 0)
+            else if (_synchronizeCount == 0)
             {
-                return;
+                if (_synchronizedCount == 0 && _exception)
+                {
+                    rethrow_exception(_exception);
+                }
+                _callback = nullptr;
+                return false;
             }
-
-            callback = _callback;
-            _callback = nullptr;
+            return true;
         }
 
-        if(callback)
+        void synchronized()
         {
-            callback->synchronized();
-        }
-    }
+            shared_ptr<SynchronizationCallback> callback;
+            {
+                lock_guard lock(_mutex);
+                ++_synchronizedCount;
+                --_synchronizeCount;
 
-    void
-    synchronized(exception_ptr ex)
-    {
-        shared_ptr<SynchronizationCallback> callback;
+                if (!_responseCalled)
+                {
+                    return;
+                }
+
+                if (_synchronizedCount < _nReplicas && _synchronizeCount > 0)
+                {
+                    return;
+                }
+
+                callback = _callback;
+                _callback = nullptr;
+            }
+
+            if (callback)
+            {
+                callback->synchronized();
+            }
+        }
+
+        void synchronized(exception_ptr ex)
         {
-            lock_guard lock(_mutex);
-            if(!_exception)
+            shared_ptr<SynchronizationCallback> callback;
             {
-                _exception = ex;
+                lock_guard lock(_mutex);
+                if (!_exception)
+                {
+                    _exception = ex;
+                }
+
+                --_synchronizeCount;
+                if (!_responseCalled)
+                {
+                    return;
+                }
+
+                if (_synchronizeCount > 0)
+                {
+                    return;
+                }
+
+                callback = _callback;
+                _callback = 0;
             }
 
-            --_synchronizeCount;
-            if(!_responseCalled)
+            if (callback)
             {
-                return;
+                callback->synchronized(ex);
             }
-
-            if(_synchronizeCount > 0)
-            {
-                return;
-            }
-
-            callback = _callback;
-            _callback = 0;
         }
 
-        if(callback)
-        {
-            callback->synchronized(ex);
-        }
-    }
+    private:
+        shared_ptr<SynchronizationCallback> _callback;
+        bool _responseCalled;
+        int _synchronizeCount;
+        int _synchronizedCount;
+        int _nReplicas;
+        exception_ptr _exception;
 
-private:
-
-    shared_ptr<SynchronizationCallback> _callback;
-    bool _responseCalled;
-    int _synchronizeCount;
-    int _synchronizedCount;
-    int _nReplicas;
-    exception_ptr _exception;
-
-    mutex _mutex;
-};
-
+        mutex _mutex;
+    };
 }
 
 void
@@ -143,11 +136,11 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
     {
         _results.push_back(adapter->getProxy("", true)->getDirectProxyAsync());
     }
-    catch(const SynchronizationException&)
+    catch (const SynchronizationException&)
     {
         _results.push_back(nullopt);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         _results.push_back(nullopt);
     }
@@ -157,31 +150,29 @@ AdapterInfoSeq
 GetAdapterInfoResult::get()
 {
     vector<AdapterInfo>::iterator q = _adapters.begin();
-    for(auto p = _results.begin(); p != _results.end(); ++p, ++q)
+    for (auto p = _results.begin(); p != _results.end(); ++p, ++q)
     {
         try
         {
-            if(*p)
+            if (*p)
             {
                 q->proxy = Ice::uncheckedCast<AdapterPrx>((*p)->get());
             }
         }
-        catch(const Ice::Exception&)
+        catch (const Ice::Exception&)
         {
         }
     }
     return _adapters;
 }
 
-AdapterCache::AdapterCache(const shared_ptr<Ice::Communicator>& communicator) : _communicator(communicator)
-{
-}
+AdapterCache::AdapterCache(const shared_ptr<Ice::Communicator>& communicator) : _communicator(communicator) {}
 
 void
 AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<ServerEntry>& server, const string& app)
 {
     lock_guard lock(_mutex);
-    if(getImpl(desc.id))
+    if (getImpl(desc.id))
     {
         Ice::Error out(_communicator->getLogger());
         out << "can't add duplicate adapter `" << desc.id << "'";
@@ -193,24 +184,24 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<S
     {
         priority = stoi(desc.priority);
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
     }
 
     auto entry = make_shared<ServerAdapterEntry>(*this, desc.id, app, desc.replicaGroupId, priority, server);
     addImpl(desc.id, entry);
 
-    if(!desc.replicaGroupId.empty())
+    if (!desc.replicaGroupId.empty())
     {
         auto repEntry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(desc.replicaGroupId));
-        if(!repEntry)
+        if (!repEntry)
         {
             //
             // Add an un-assigned replica group, the replica group will in theory be added
             // shortly after when its application is loaded.
             //
-            repEntry = make_shared<ReplicaGroupEntry>(*this, desc.replicaGroupId, "",
-                                                      make_shared<RandomLoadBalancingPolicy>("0"), "");
+            repEntry = make_shared<ReplicaGroupEntry>(
+                *this, desc.replicaGroupId, "", make_shared<RandomLoadBalancingPolicy>("0"), "");
             addImpl(desc.replicaGroupId, repEntry);
         }
         repEntry->addReplica(desc.id, entry);
@@ -222,13 +213,13 @@ AdapterCache::addReplicaGroup(const ReplicaGroupDescriptor& desc, const string& 
 {
     lock_guard lock(_mutex);
     auto repEntry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(desc.id));
-    if(repEntry)
+    if (repEntry)
     {
         //
         // If the replica group isn't assigned to an application,
         // assign it. Otherwise, it's a duplicate so we log an error.
         //
-        if(repEntry->getApplication().empty())
+        if (repEntry->getApplication().empty())
         {
             repEntry->update(app, desc.loadBalancing, desc.filter);
         }
@@ -248,7 +239,7 @@ AdapterCache::get(const string& id) const
     lock_guard lock(_mutex);
 
     auto entry = getImpl(id);
-    if(!entry)
+    if (!entry)
     {
         throw AdapterNotExistException(id);
     }
@@ -261,7 +252,7 @@ AdapterCache::removeServerAdapter(const string& id)
     lock_guard lock(_mutex);
 
     auto entry = dynamic_pointer_cast<ServerAdapterEntry>(getImpl(id));
-    if(!entry)
+    if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
         out << "can't remove unknown adapter `" << id << "'";
@@ -270,10 +261,10 @@ AdapterCache::removeServerAdapter(const string& id)
     removeImpl(id);
 
     string replicaGroupId = entry->getReplicaGroupId();
-    if(!replicaGroupId.empty())
+    if (!replicaGroupId.empty())
     {
         auto repEntry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(replicaGroupId));
-        if(!repEntry)
+        if (!repEntry)
         {
             Ice::Error out(_communicator->getLogger());
             out << "can't remove adapter `" << id << "' from unknown replica group `" << replicaGroupId << "'";
@@ -283,7 +274,7 @@ AdapterCache::removeServerAdapter(const string& id)
             //
             // If the replica group is empty and it's not assigned, remove it.
             //
-            if(repEntry->removeReplica(id))
+            if (repEntry->removeReplica(id))
             {
                 removeImpl(replicaGroupId);
             }
@@ -297,7 +288,7 @@ AdapterCache::removeReplicaGroup(const string& id)
     lock_guard lock(_mutex);
 
     auto entry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(id));
-    if(!entry)
+    if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
         out << "can't remove unknown replica group `" << id << "'";
@@ -309,7 +300,7 @@ AdapterCache::removeReplicaGroup(const string& id)
 shared_ptr<AdapterEntry>
 AdapterCache::addImpl(const string& id, const shared_ptr<AdapterEntry>& entry)
 {
-    if(_traceLevels && _traceLevels->adapter > 0)
+    if (_traceLevels && _traceLevels->adapter > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
         out << "added adapter `" << id << "'";
@@ -320,7 +311,7 @@ AdapterCache::addImpl(const string& id, const shared_ptr<AdapterEntry>& entry)
 void
 AdapterCache::removeImpl(const string& id)
 {
-    if(_traceLevels && _traceLevels->adapter > 0)
+    if (_traceLevels && _traceLevels->adapter > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
         out << "removed adapter `" << id << "'";
@@ -328,10 +319,10 @@ AdapterCache::removeImpl(const string& id)
     Cache<string, AdapterEntry>::removeImpl(id);
 }
 
-AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, const string& application) :
-    _cache(cache),
-    _id(id),
-    _application(application)
+AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, const string& application)
+    : _cache(cache),
+      _id(id),
+      _application(application)
 {
 }
 
@@ -353,16 +344,17 @@ AdapterEntry::getApplication() const
     return _application;
 }
 
-ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
-                                       const string& id,
-                                       const string& application,
-                                       const string& replicaGroupId,
-                                       int priority,
-                                       const shared_ptr<ServerEntry>& server) :
-    AdapterEntry(cache, id, application),
-    _replicaGroupId(replicaGroupId),
-    _priority(priority),
-    _server(server)
+ServerAdapterEntry::ServerAdapterEntry(
+    AdapterCache& cache,
+    const string& id,
+    const string& application,
+    const string& replicaGroupId,
+    int priority,
+    const shared_ptr<ServerEntry>& server)
+    : AdapterEntry(cache, id, application),
+      _replicaGroupId(replicaGroupId),
+      _priority(priority),
+      _server(server)
 {
 }
 
@@ -373,15 +365,20 @@ ServerAdapterEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& c
     {
         return _server->addSyncCallback(callback);
     }
-    catch(const ServerNotExistException&)
+    catch (const ServerNotExistException&)
     {
         throw AdapterNotExistException(_id);
     }
 }
 
 void
-ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
-                                          bool& roundRobin, string&, const set<string>&)
+ServerAdapterEntry::getLocatorAdapterInfo(
+    LocatorAdapterInfoSeq& adapters,
+    int& nReplicas,
+    bool& replicaGroup,
+    bool& roundRobin,
+    string&,
+    const set<string>&)
 {
     nReplicas = 1;
     replicaGroup = false;
@@ -396,18 +393,18 @@ ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     {
         return _server->getLoad(loadSample);
     }
-    catch(const ServerNotExistException&)
+    catch (const ServerNotExistException&)
     {
         // This might happen if the application is updated concurrently.
     }
-    catch(const NodeNotExistException&)
+    catch (const NodeNotExistException&)
     {
         // This might happen if the application is updated concurrently.
     }
-    catch(const NodeUnreachableException&)
+    catch (const NodeUnreachableException&)
     {
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         Ice::Error error(_cache.getTraceLevels()->logger);
         error << "unexpected exception while getting node load:\n" << ex;
@@ -418,7 +415,7 @@ ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 AdapterInfoSeq
 ServerAdapterEntry::getAdapterInfoNoEndpoints() const
 {
-    return { { _id, nullopt, _replicaGroupId } };
+    return {{_id, nullopt, _replicaGroupId}};
 }
 
 shared_ptr<GetAdapterInfoResult>
@@ -432,13 +429,13 @@ ServerAdapterEntry::getAdapterInfoAsync() const
 AdapterPrxPtr
 ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
-    if(replicaGroupId.empty())
+    if (replicaGroupId.empty())
     {
         return _server->getAdapter(_id, upToDate);
     }
     else
     {
-        if(_replicaGroupId != replicaGroupId) // Validate the replica group.
+        if (_replicaGroupId != replicaGroupId) // Validate the replica group.
         {
             throw Ice::InvalidReplicaGroupIdException();
         }
@@ -452,7 +449,7 @@ ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters) const
     chrono::seconds activationTimeout, deactivationTimeout;
     auto proxy = _server->getAdapter(activationTimeout, deactivationTimeout, _id, true);
 
-    LocatorAdapterInfo info = { _id, std::move(proxy), activationTimeout, deactivationTimeout };
+    LocatorAdapterInfo info = {_id, std::move(proxy), activationTimeout, deactivationTimeout};
     adapters.push_back(info);
 }
 
@@ -475,20 +472,21 @@ ServerAdapterEntry::getNodeName() const
     {
         return _server->getInfo().node;
     }
-    catch(const ServerNotExistException&)
+    catch (const ServerNotExistException&)
     {
         return "";
     }
 }
 
-ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
-                                     const string& id,
-                                     const string& application,
-                                     const shared_ptr<LoadBalancingPolicy>& policy,
-                                     const string& filter) :
-    AdapterEntry(cache, id, application),
-    _lastReplica(0),
-    _requestInProgress(false)
+ReplicaGroupEntry::ReplicaGroupEntry(
+    AdapterCache& cache,
+    const string& id,
+    const string& application,
+    const shared_ptr<LoadBalancingPolicy>& policy,
+    const string& filter)
+    : AdapterEntry(cache, id, application),
+      _lastReplica(0),
+      _requestInProgress(false)
 {
     update(application, policy, filter);
 }
@@ -504,22 +502,22 @@ ReplicaGroupEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& ca
 
         nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
         roundRobin = dynamic_pointer_cast<RoundRobinLoadBalancingPolicy>(_loadBalancing) != nullptr;
-        if(!roundRobin)
+        if (!roundRobin)
         {
             replicas = _replicas;
         }
         else
         {
-            for(const auto& replica : _replicas)
+            for (const auto& replica : _replicas)
             {
-                if(excludes.find(replica->getId()) == excludes.end())
+                if (excludes.find(replica->getId()) == excludes.end())
                 {
                     replicas.push_back(replica);
                 }
             }
         }
 
-        if(replicas.empty())
+        if (replicas.empty())
         {
             return false;
         }
@@ -527,16 +525,16 @@ ReplicaGroupEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& ca
 
     auto cb = make_shared<ReplicaGroupSyncCallback>(callback, static_cast<int>(replicas.size()), nReplicas);
     set<string> emptyExcludes;
-    for(const auto& replica : replicas)
+    for (const auto& replica : replicas)
     {
         try
         {
-            if(!replica->addSyncCallback(cb, emptyExcludes))
+            if (!replica->addSyncCallback(cb, emptyExcludes))
             {
                 cb->synchronized();
             }
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
             cb->synchronized(current_exception());
         }
@@ -555,9 +553,9 @@ bool
 ReplicaGroupEntry::removeReplica(const string& replicaId)
 {
     lock_guard lock(_mutex);
-    for(auto p = _replicas.cbegin(); p != _replicas.cend(); ++p)
+    for (auto p = _replicas.cbegin(); p != _replicas.cend(); ++p)
     {
-        if(replicaId == (*p)->getId())
+        if (replicaId == (*p)->getId())
         {
             _replicas.erase(p);
             // Make sure _lastReplica is still within the bounds.
@@ -571,7 +569,10 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
 }
 
 void
-ReplicaGroupEntry::update(const string& application, const shared_ptr<LoadBalancingPolicy>& policy, const string& filter)
+ReplicaGroupEntry::update(
+    const string& application,
+    const shared_ptr<LoadBalancingPolicy>& policy,
+    const string& filter)
 {
     lock_guard lock(_mutex);
 
@@ -586,23 +587,23 @@ ReplicaGroupEntry::update(const string& application, const shared_ptr<LoadBalanc
     {
         nReplicas = stoi(_loadBalancing->nReplicas);
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
     }
 
     _loadBalancingNReplicas = nReplicas < 0 ? 1 : nReplicas;
     auto alb = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(_loadBalancing);
-    if(alb)
+    if (alb)
     {
-        if(alb->loadSample == "1")
+        if (alb->loadSample == "1")
         {
             _loadSample = LoadSample::LoadSample1;
         }
-        else if(alb->loadSample == "5")
+        else if (alb->loadSample == "5")
         {
             _loadSample = LoadSample::LoadSample5;
         }
-        else if(alb->loadSample == "15")
+        else if (alb->loadSample == "15")
         {
             _loadSample = LoadSample::LoadSample15;
         }
@@ -614,8 +615,13 @@ ReplicaGroupEntry::update(const string& application, const shared_ptr<LoadBalanc
 }
 
 void
-ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
-                                         bool& roundRobin, string& filter, const set<string>& excludes)
+ReplicaGroupEntry::getLocatorAdapterInfo(
+    LocatorAdapterInfoSeq& adapters,
+    int& nReplicas,
+    bool& replicaGroup,
+    bool& roundRobin,
+    string& filter,
+    const set<string>& excludes)
 {
     vector<shared_ptr<ServerAdapterEntry>> replicas;
     bool adaptive = false;
@@ -627,41 +633,39 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         filter = _filter;
         nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
 
-        if(_replicas.empty())
+        if (_replicas.empty())
         {
             return;
         }
 
         replicas.reserve(_replicas.size());
-        if(dynamic_pointer_cast<RoundRobinLoadBalancingPolicy>(_loadBalancing))
+        if (dynamic_pointer_cast<RoundRobinLoadBalancingPolicy>(_loadBalancing))
         {
             // Serialize round-robin requests
-            _condVar.wait(lock, [this] { return !_requestInProgress; } );
+            _condVar.wait(lock, [this] { return !_requestInProgress; });
             _requestInProgress = true;
-            for(size_t i = 0; i < _replicas.size(); ++i)
+            for (size_t i = 0; i < _replicas.size(); ++i)
             {
                 replicas.push_back(_replicas[(static_cast<size_t>(_lastReplica) + i) % _replicas.size()]);
             }
             _lastReplica = (_lastReplica + 1) % static_cast<int>(_replicas.size());
             roundRobin = true;
         }
-        else if(dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(_loadBalancing))
+        else if (dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
             IceUtilInternal::shuffle(replicas.begin(), replicas.end());
             loadSample = _loadSample;
             adaptive = true;
         }
-        else if(dynamic_pointer_cast<OrderedLoadBalancingPolicy>(_loadBalancing))
+        else if (dynamic_pointer_cast<OrderedLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
-            sort(replicas.begin(), replicas.end(),
-                [](const auto& lhs, const auto& rhs)
-                {
-                    return lhs->getPriority() < rhs->getPriority();
-                });
+            sort(
+                replicas.begin(), replicas.end(),
+                [](const auto& lhs, const auto& rhs) { return lhs->getPriority() < rhs->getPriority(); });
         }
-        else if(dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
+        else if (dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
             IceUtilInternal::shuffle(replicas.begin(), replicas.end());
@@ -672,7 +676,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
     bool synchronizing = false;
     try
     {
-        if(adaptive)
+        if (adaptive)
         {
             //
             // This must be done outside the synchronization block since
@@ -682,10 +686,10 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
             // each adapter and sort the snapshot.
             //
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
-            transform(replicas.begin(), replicas.end(), back_inserter(rl),
-                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
-                {
-                    return { value -> getLeastLoadedNodeLoad(loadSample), value };
+            transform(
+                replicas.begin(), replicas.end(), back_inserter(rl),
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                    return {value->getLeastLoadedNodeLoad(loadSample), value};
                 });
             sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
@@ -699,22 +703,22 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         //
         set<string> emptyExcludes;
         bool firstUnreachable = true;
-        for(const auto& replica : replicas)
+        for (const auto& replica : replicas)
         {
-            if(!roundRobin || excludes.find(replica->getId()) == excludes.end())
+            if (!roundRobin || excludes.find(replica->getId()) == excludes.end())
             {
                 try
                 {
                     replica->getLocatorAdapterInfo(adapters);
                     firstUnreachable = false;
                 }
-                catch(const SynchronizationException&)
+                catch (const SynchronizationException&)
                 {
                     synchronizing = true;
                 }
-                catch(const Ice::UserException&)
+                catch (const Ice::UserException&)
                 {
-                    if(firstUnreachable)
+                    if (firstUnreachable)
                     {
                         ++unreachable; // Count the number of un-reachable nodes.
                     }
@@ -722,9 +726,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
             }
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
-        if(roundRobin)
+        if (roundRobin)
         {
             lock_guard lock(_mutex);
             assert(_requestInProgress);
@@ -734,19 +738,19 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         throw;
     }
 
-    if(roundRobin)
+    if (roundRobin)
     {
         lock_guard lock(_mutex);
         assert(_requestInProgress);
         _requestInProgress = false;
         _condVar.notify_one();
-        if(unreachable > 0)
+        if (unreachable > 0)
         {
             _lastReplica = (_lastReplica + unreachable) % static_cast<int>(_replicas.size());
         }
     }
 
-    if(adapters.empty() && synchronizing)
+    if (adapters.empty() && synchronizing)
     {
         throw SynchronizationException(__FILE__, __LINE__);
     }
@@ -761,11 +765,11 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
         replicas = _replicas;
     }
 
-    if(replicas.empty())
+    if (replicas.empty())
     {
         return 999.9f;
     }
-    else if(replicas.size() == 1)
+    else if (replicas.size() == 1)
     {
         return replicas.back()->getLeastLoadedNodeLoad(loadSample);
     }
@@ -773,16 +777,13 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     {
         IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
-        transform(replicas.begin(), replicas.end(), back_inserter(rl),
-            [loadSample] (const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
-            {
-                return { value->getLeastLoadedNodeLoad(loadSample), value };
+        transform(
+            replicas.begin(), replicas.end(), back_inserter(rl),
+            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                return {value->getLeastLoadedNodeLoad(loadSample), value};
             });
-        return min_element(rl.begin(), rl.end(),
-            [](const auto& lhs, const auto& rhs)
-            {
-                return lhs.first < rhs.first;
-            })->first;
+        return min_element(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; })
+            ->first;
     }
 }
 
@@ -800,7 +801,7 @@ ReplicaGroupEntry::getAdapterInfoNoEndpoints() const
     }
 
     AdapterInfoSeq infos;
-    for(const auto& replica : replicas)
+    for (const auto& replica : replicas)
     {
         AdapterInfoSeq infs = replica->getAdapterInfoNoEndpoints();
         assert(infs.size() == 1);
@@ -818,7 +819,7 @@ ReplicaGroupEntry::getAdapterInfoAsync() const
         lock_guard lock(_mutex);
         replicas = _replicas;
     }
-    for(const auto& replica : replicas)
+    for (const auto& replica : replicas)
     {
         result->add(replica.get());
     }
@@ -835,9 +836,9 @@ ReplicaGroupEntry::hasAdaptersFromOtherApplications() const
     }
 
     AdapterInfoSeq infos;
-    for(const auto& replica : replicas)
+    for (const auto& replica : replicas)
     {
-        if(replica->getApplication() != _application)
+        if (replica->getApplication() != _application)
         {
             return true;
         }

@@ -8,22 +8,22 @@
 
 @implementation ICEEndpointInfo
 
--(std::shared_ptr<Ice::EndpointInfo>) info
+- (std::shared_ptr<Ice::EndpointInfo>)info
 {
     return std::static_pointer_cast<Ice::EndpointInfo>(self.cppObject);
 }
 
--(int16_t) getType
+- (int16_t)getType
 {
     return self.info->type();
 }
 
--(BOOL) getDatagram
+- (BOOL)getDatagram
 {
     return self.info->datagram();
 }
 
--(BOOL) getSecure
+- (BOOL)getSecure
 {
     return self.info->secure();
 }
@@ -32,28 +32,28 @@
 
 @implementation ICEEndpoint
 
--(std::shared_ptr<Ice::Endpoint>) endpoint
+- (std::shared_ptr<Ice::Endpoint>)endpoint
 {
     return std::static_pointer_cast<Ice::Endpoint>(self.cppObject);
 }
 
--(NSString*) toString
+- (NSString*)toString
 {
     return toNSString(self.endpoint->toString());
 }
 
--(id) getInfo
+- (id)getInfo
 {
     auto info = self.endpoint->getInfo();
     return [ICEEndpoint createEndpointInfo:info];
 }
 
--(bool) isEqual:(ICEEndpoint*)other
+- (bool)isEqual:(ICEEndpoint*)other
 {
     return Ice::targetEqualTo(self.endpoint, other.endpoint);
 }
 
-+(id) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr
++ (id)createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr
 {
     ICEEndpointInfo* handle = [ICEEndpointInfo getHandle:infoPtr];
     id underlying = infoPtr->underlying ? [self createEndpointInfo:infoPtr->underlying] : [NSNull null];
@@ -67,7 +67,7 @@
     //
 
     auto opaqueInfo = std::dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(infoPtr);
-    if(opaqueInfo)
+    if (opaqueInfo)
     {
         NSData* rawBytes = [[NSData alloc] initWithBytes:opaqueInfo->rawBytes.data()
                                                   length:opaqueInfo->rawBytes.size()];
@@ -82,7 +82,7 @@
     }
 
     auto udpInfo = std::dynamic_pointer_cast<Ice::UDPEndpointInfo>(infoPtr);
-    if(udpInfo)
+    if (udpInfo)
     {
         return [factory createUDPEndpointInfo:handle
                                    underlying:underlying
@@ -96,7 +96,7 @@
     }
 
     auto ipInfo = std::dynamic_pointer_cast<Ice::IPEndpointInfo>(infoPtr);
-    if(std::dynamic_pointer_cast<Ice::TCPEndpointInfo>(infoPtr))
+    if (std::dynamic_pointer_cast<Ice::TCPEndpointInfo>(infoPtr))
     {
         return [factory createTCPEndpointInfo:handle
                                    underlying:underlying
@@ -108,16 +108,16 @@
     }
 
     auto wsInfo = std::dynamic_pointer_cast<Ice::WSEndpointInfo>(infoPtr);
-    if(wsInfo)
+    if (wsInfo)
     {
         return [factory createWSEndpointInfo:handle
-                                   underlying:underlying
-                                      timeout:infoPtr->timeout
-                                     compress:infoPtr->compress
-                                     resource:toNSString(wsInfo->resource)];
+                                  underlying:underlying
+                                     timeout:infoPtr->timeout
+                                    compress:infoPtr->compress
+                                    resource:toNSString(wsInfo->resource)];
     }
 
-    if(std::dynamic_pointer_cast<IceSSL::EndpointInfo>(infoPtr))
+    if (std::dynamic_pointer_cast<IceSSL::EndpointInfo>(infoPtr))
     {
         return [factory createSSLEndpointInfo:handle
                                    underlying:underlying
@@ -128,7 +128,7 @@
 #if TARGET_OS_IPHONE
 
     auto iapInfo = std::dynamic_pointer_cast<IceIAP::EndpointInfo>(infoPtr);
-    if(iapInfo)
+    if (iapInfo)
     {
         return [factory createIAPEndpointInfo:handle
                                    underlying:underlying

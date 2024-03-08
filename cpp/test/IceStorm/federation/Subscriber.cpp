@@ -15,18 +15,15 @@ using namespace Test;
 class EventI final : public Event
 {
 public:
-
-    void
-    pub(string, const Ice::Current& current) override
+    void pub(string, const Ice::Current& current) override
     {
-        if(++_count == 30 + 40 + 30)
+        if (++_count == 30 + 40 + 30)
         {
             current.adapter->getCommunicator()->shutdown();
         }
     }
 
 private:
-
     static atomic_int _count;
 };
 
@@ -36,16 +33,14 @@ void
 usage(const char* appName)
 {
     cerr << "Usage: " << appName << " [options]\n";
-    cerr <<
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-b                   Use batch reliability.\n";
+    cerr << "Options:\n"
+            "-h, --help           Show this message.\n"
+            "-b                   Use batch reliability.\n";
 }
 
 class Subscriber final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -56,42 +51,42 @@ Subscriber::run(int argc, char** argv)
     bool batch = false;
 
     int idx = 1;
-    while(idx < argc)
+    while (idx < argc)
     {
-        if(strcmp(argv[idx], "-b") == 0)
+        if (strcmp(argv[idx], "-b") == 0)
         {
             batch = true;
 
-            for(int i = idx ; i + 1 < argc ; ++i)
+            for (int i = idx; i + 1 < argc; ++i)
             {
                 argv[i] = argv[i + 1];
             }
             --argc;
         }
-        else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+        else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage(argv[0]);
             return;
         }
-        else if(argv[idx][0] == '-')
+        else if (argv[idx][0] == '-')
         {
             usage(argv[0]);
             ostringstream os;
-            os << argv[0] <<": unknown option `" << argv[idx] << "'";
+            os << argv[0] << ": unknown option `" << argv[idx] << "'";
             throw invalid_argument(os.str());
         }
     }
 
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -107,7 +102,7 @@ Subscriber::run(int argc, char** argv)
     auto objFed3 = adapter->addWithUUID(make_shared<EventI>());
 
     IceStorm::QoS qos;
-    if(batch)
+    if (batch)
     {
         objFed1 = objFed1->ice_batchOneway();
         objFed2 = objFed1->ice_batchOneway();

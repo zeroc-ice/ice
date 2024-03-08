@@ -30,8 +30,8 @@ allTests(Test::TestHelper* helper)
     test(facetFilter.size() == 1 && facetFilter[0] == "foo'bar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
-    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" &&
-         facetFilter[2] == "titi");
+    test(
+        facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && facetFilter[2] == "titi");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");
@@ -45,7 +45,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
         {
             ostr << "default -a *";
         }
@@ -56,8 +56,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
         ObjectPtr obj = std::make_shared<EmptyI>();
@@ -68,7 +68,7 @@ allTests(Test::TestHelper* helper)
             adapter->addFacet(obj, stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const AlreadyRegisteredException&)
+        catch (const AlreadyRegisteredException&)
         {
         }
         adapter->removeFacet(stringToIdentity("d"), "facetABCD");
@@ -77,7 +77,7 @@ allTests(Test::TestHelper* helper)
             adapter->removeFacet(stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const NotRegisteredException&)
+        catch (const NotRegisteredException&)
         {
         }
         cout << "ok" << endl;
@@ -100,7 +100,7 @@ allTests(Test::TestHelper* helper)
             adapter->removeAllFacets(stringToIdentity("id1"));
             test(false);
         }
-        catch(const NotRegisteredException&)
+        catch (const NotRegisteredException&)
         {
         }
         fm = adapter->removeAllFacets(stringToIdentity("id2"));

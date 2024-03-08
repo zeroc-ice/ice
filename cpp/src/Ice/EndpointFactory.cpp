@@ -11,13 +11,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::EndpointFactory::EndpointFactory()
-{
-}
+IceInternal::EndpointFactory::EndpointFactory() {}
 
-IceInternal::EndpointFactory::~EndpointFactory()
-{
-}
+IceInternal::EndpointFactory::~EndpointFactory() {}
 
 void
 IceInternal::EndpointFactory::initialize()
@@ -25,8 +21,9 @@ IceInternal::EndpointFactory::initialize()
     // Nothing to do, can be overridden by specialization to finish initialization.
 }
 
-IceInternal::EndpointFactoryPlugin::EndpointFactoryPlugin(const CommunicatorPtr& communicator,
-                                                          const EndpointFactoryPtr& factory)
+IceInternal::EndpointFactoryPlugin::EndpointFactoryPlugin(
+    const CommunicatorPtr& communicator,
+    const EndpointFactoryPtr& factory)
 {
     assert(communicator);
     getInstance(communicator)->endpointFactoryManager()->add(factory);
@@ -42,9 +39,11 @@ IceInternal::EndpointFactoryPlugin::destroy()
 {
 }
 
-IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(const ProtocolInstancePtr& instance,
-                                                                          int16_t type) :
-    _instance(instance), _type(type)
+IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(
+    const ProtocolInstancePtr& instance,
+    int16_t type)
+    : _instance(instance),
+      _type(type)
 {
 }
 
@@ -56,7 +55,7 @@ IceInternal::EndpointFactoryWithUnderlying::initialize()
     // our protocol instance.
     //
     EndpointFactoryPtr factory = _instance->getEndpointFactory(_type);
-    if(factory)
+    if (factory)
     {
         _underlying = factory->clone(_instance);
         _underlying->initialize();
@@ -78,7 +77,7 @@ IceInternal::EndpointFactoryWithUnderlying::protocol() const
 EndpointIPtr
 IceInternal::EndpointFactoryWithUnderlying::create(vector<string>& args, bool oaEndpoint) const
 {
-    if(!_underlying)
+    if (!_underlying)
     {
         return nullptr; // Can't create an endpoint without underlying factory.
     }
@@ -88,7 +87,7 @@ IceInternal::EndpointFactoryWithUnderlying::create(vector<string>& args, bool oa
 EndpointIPtr
 IceInternal::EndpointFactoryWithUnderlying::read(InputStream* s) const
 {
-    if(!_underlying)
+    if (!_underlying)
     {
         return nullptr; // Can't create an endpoint without underlying factory.
     }
@@ -98,7 +97,7 @@ IceInternal::EndpointFactoryWithUnderlying::read(InputStream* s) const
 void
 IceInternal::EndpointFactoryWithUnderlying::destroy()
 {
-    if(_underlying)
+    if (_underlying)
     {
         _underlying->destroy();
     }
@@ -111,10 +110,13 @@ IceInternal::EndpointFactoryWithUnderlying::clone(const ProtocolInstancePtr& ins
     return cloneWithUnderlying(instance, _type);
 }
 
-IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(const ProtocolInstancePtr& instance,
-                                                                  int16_t type,
-                                                                  int16_t underlying) :
-    _instance(instance), _type(type), _underlying(underlying)
+IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(
+    const ProtocolInstancePtr& instance,
+    int16_t type,
+    int16_t underlying)
+    : _instance(instance),
+      _type(type),
+      _underlying(underlying)
 {
 }
 
@@ -127,10 +129,10 @@ IceInternal::UnderlyingEndpointFactory::initialize()
     // our underlying factory.
     //
     EndpointFactoryPtr factory = _instance->getEndpointFactory(_type);
-    if(factory)
+    if (factory)
     {
         EndpointFactoryWithUnderlying* f = dynamic_cast<EndpointFactoryWithUnderlying*>(factory.get());
-        if(f)
+        if (f)
         {
             _factory = f->cloneWithUnderlying(_instance, _underlying);
             _factory->initialize();
@@ -153,7 +155,7 @@ IceInternal::UnderlyingEndpointFactory::protocol() const
 EndpointIPtr
 IceInternal::UnderlyingEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    if(!_factory)
+    if (!_factory)
     {
         return nullptr;
     }
@@ -163,7 +165,7 @@ IceInternal::UnderlyingEndpointFactory::create(vector<string>& args, bool oaEndp
 EndpointIPtr
 IceInternal::UnderlyingEndpointFactory::read(InputStream* s) const
 {
-    if(!_factory)
+    if (!_factory)
     {
         return nullptr;
     }
@@ -173,7 +175,7 @@ IceInternal::UnderlyingEndpointFactory::read(InputStream* s) const
 void
 IceInternal::UnderlyingEndpointFactory::destroy()
 {
-    if(_factory)
+    if (_factory)
     {
         _factory->destroy();
     }

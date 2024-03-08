@@ -26,11 +26,9 @@ using namespace IceGrid;
 
 namespace
 {
-
     class ServerProxyWrapper
     {
     public:
-
         ServerProxyWrapper(const shared_ptr<Database>& database, const string& id) : _id(id)
         {
             try
@@ -45,12 +43,12 @@ namespace
 
         ServerProxyWrapper(const ServerProxyWrapper& wrapper) = default;
 
-        template<typename Func, typename... Args>
-        auto invoke(Func&& f, Args&&... args)
+        template<typename Func, typename... Args> auto invoke(Func&& f, Args&&... args)
         {
             try
             {
-                return std::invoke(std::forward<Func>(f), _proxy, std::forward<Args>(args)..., ::Ice::noExplicitContext);
+                return std::invoke(
+                    std::forward<Func>(f), _proxy, std::forward<Args>(args)..., ::Ice::noExplicitContext);
             }
             catch (const Ice::Exception&)
             {
@@ -63,17 +61,19 @@ namespace
         auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
         {
             auto exceptionWrapper = [this, exception = std::move(exception)](exception_ptr ex)
+            {
+                try
                 {
-                    try
-                    {
-                        handleException(ex);
-                    }
-                    catch (const std::exception&)
-                    {
-                        exception(current_exception());
-                    }
-                };
-            return std::invoke(std::forward<Func>(f), _proxy, std::move(response), std::move(exceptionWrapper), nullptr, Ice::noExplicitContext);
+                    handleException(ex);
+                }
+                catch (const std::exception&)
+                {
+                    exception(current_exception());
+                }
+            };
+            return std::invoke(
+                std::forward<Func>(f), _proxy, std::move(response), std::move(exceptionWrapper), nullptr,
+                Ice::noExplicitContext);
         }
 
         void useActivationTimeout()
@@ -121,7 +121,6 @@ namespace
         }
 
     private:
-
         string _id;
         ServerPrxPtr _proxy;
         chrono::seconds _activationTimeout;
@@ -132,7 +131,6 @@ namespace
     class AMDPatcherFeedbackAggregator : public PatcherFeedbackAggregator
     {
     public:
-
         AMDPatcherFeedbackAggregator(
             function<void()> response,
             function<void(exception_ptr)> exception,
@@ -140,31 +138,23 @@ namespace
             const shared_ptr<TraceLevels>& traceLevels,
             const string& type,
             const string& name,
-            int nodeCount) :
-            PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
-            _response(std::move(response)),
-            _exception(std::move(exception))
+            int nodeCount)
+            : PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
+              _response(std::move(response)),
+              _exception(std::move(exception))
         {
         }
 
     private:
+        void response() { _response(); }
 
-        void response()
-        {
-            _response();
-        }
-
-        void exception(exception_ptr ex)
-        {
-            _exception(ex);
-        }
+        void exception(exception_ptr ex) { _exception(ex); }
 
         function<void()> _response;
         function<void(exception_ptr)> _exception;
     };
 
-    shared_ptr<AMDPatcherFeedbackAggregator>
-    static newPatcherFeedback(
+    shared_ptr<AMDPatcherFeedbackAggregator> static newPatcherFeedback(
         function<void()> response,
         function<void(exception_ptr)> exception,
         Ice::Identity id,
@@ -173,24 +163,18 @@ namespace
         const string& name,
         int nodeCount)
     {
-        return make_shared<AMDPatcherFeedbackAggregator>(
-            response,
-            exception,
-            id,
-            traceLevels,
-            type,
-            name,
-            nodeCount);
+        return make_shared<AMDPatcherFeedbackAggregator>(response, exception, id, traceLevels, type, name, nodeCount);
     }
-
 }
 
-AdminI::AdminI(const shared_ptr<Database>& database, const shared_ptr<RegistryI>& registry,
-    const shared_ptr<AdminSessionI>& session) :
-    _database(database),
-    _registry(registry),
-    _traceLevels(_database->getTraceLevels()),
-    _session(session)
+AdminI::AdminI(
+    const shared_ptr<Database>& database,
+    const shared_ptr<RegistryI>& registry,
+    const shared_ptr<AdminSessionI>& session)
+    : _database(database),
+      _registry(registry),
+      _traceLevels(_database->getTraceLevels()),
+      _session(session)
 {
 }
 
@@ -276,7 +260,7 @@ AdminI::patchApplicationAsync(
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes);
 
-    if(nodes.empty())
+    if (nodes.empty())
     {
         response();
         return;
@@ -287,20 +271,13 @@ AdminI::patchApplicationAsync(
     id.name = Ice::generateUUID();
 
     shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(
-            response,
-            exception,
-            id,
-            _traceLevels,
-            "application",
-            name,
-            static_cast<int>(nodes.size()));
+        newPatcherFeedback(response, exception, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
 
-    for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    for (vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
         try
         {
-            if(_traceLevels->patch > 0)
+            if (_traceLevels->patch > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
                 out << "started patching of application `" << name << "' on node `" << *p << "'";
@@ -312,15 +289,15 @@ AdminI::patchApplicationAsync(
             auto intAppDistrib = make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
             node->getSession()->patch(feedback, name, "", intAppDistrib, shutdown);
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             feedback->failed(*p, "node doesn't exist");
         }
-        catch(const NodeUnreachableException& e)
+        catch (const NodeUnreachableException& e)
         {
             feedback->failed(*p, "node is unreachable: " + e.reason);
         }
-        catch(const Ice::Exception& e)
+        catch (const Ice::Exception& e)
         {
             ostringstream os;
             os << e;
@@ -343,7 +320,7 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     if (path.empty())
     {
         throw DeploymentException("no default templates configured, you need to set "
-            "IceGrid.Registry.DefaultTemplates in the IceGrid registry configuration.");
+                                  "IceGrid.Registry.DefaultTemplates in the IceGrid registry configuration.");
     }
 
     ApplicationDescriptor desc;
@@ -362,7 +339,7 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
         warn << "default application descriptor:\nnode definitions are not allowed.";
         desc.nodes.clear();
     }
-    if(!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
+    if (!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
     {
         Ice::Warning warn(_traceLevels->logger);
         warn << "default application descriptor:\ndistribution is not allowed.";
@@ -426,7 +403,7 @@ AdminI::getServerAdmin(string id, const Current& current) const
 {
     ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
 
-    return current.adapter->createProxy({ id, _registry->getServerAdminCategory() });
+    return current.adapter->createProxy({id, _registry->getServerAdminCategory()});
 }
 
 void
@@ -435,7 +412,8 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
     ServerProxyWrapper proxy(_database, std::move(id));
     proxy.useActivationTimeout();
 
-    proxy.invokeAsync([](const auto& prx, auto... args) { prx->startAsync(args...); }, std::move(response), std::move(exception));
+    proxy.invokeAsync(
+        [](const auto& prx, auto... args) { prx->startAsync(args...); }, std::move(response), std::move(exception));
 }
 
 void
@@ -447,9 +425,10 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     //
     // Since the server might take a while to be deactivated, we use AMI.
     //
-    proxy.invokeAsync([](const auto& prx, auto... args) { prx->stopAsync(args...); },
-        response,
-                      [response, exception = std::move(exception)](exception_ptr ex) {
+    proxy.invokeAsync(
+        [](const auto& prx, auto... args) { prx->stopAsync(args...); }, response,
+        [response, exception = std::move(exception)](exception_ptr ex)
+        {
             try
             {
                 rethrow_exception(ex);
@@ -480,7 +459,7 @@ AdminI::patchServerAsync(
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes, id);
 
-    if(appDistrib.icepatch.empty() && nodes.empty())
+    if (appDistrib.icepatch.empty() && nodes.empty())
     {
         response();
         return;
@@ -493,19 +472,12 @@ AdminI::patchServerAsync(
     identity.name = Ice::generateUUID();
 
     shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(
-            response,
-            exception,
-            identity,
-            _traceLevels,
-            "server",
-            id,
-            static_cast<int>(nodes.size()));
+        newPatcherFeedback(response, exception, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));
 
     vector<string>::const_iterator p = nodes.begin();
     try
     {
-        if(_traceLevels->patch > 0)
+        if (_traceLevels->patch > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
             out << "started patching of server `" << id << "' on node `" << *p << "'";
@@ -518,15 +490,15 @@ AdminI::patchServerAsync(
             make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
         node->getSession()->patch(feedback, info.application, id, intAppDistrib, shutdown);
     }
-    catch(const NodeNotExistException&)
+    catch (const NodeNotExistException&)
     {
         feedback->failed(*p, "node doesn't exist");
     }
-    catch(const NodeUnreachableException& e)
+    catch (const NodeUnreachableException& e)
     {
         feedback->failed(*p, "node is unreachable: " + e.reason);
     }
-    catch(const Ice::Exception& e)
+    catch (const Ice::Exception& e)
     {
         ostringstream os;
         os << e;
@@ -597,8 +569,7 @@ AdminI::addObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current& current)
     catch (const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "failed to invoke ice_id() on proxy `" << proxy
-            << "':\n" << ex;
+        os << "failed to invoke ice_id() on proxy `" << proxy << "':\n" << ex;
         throw DeploymentException(os.str());
     }
 }
@@ -616,9 +587,9 @@ AdminI::updateObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current&)
     const Ice::Identity id = proxy->ice_getIdentity();
     if (id.category == _database->getInstanceName())
     {
-        throw DeploymentException("updating object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category +
-            "' are managed by IceGrid");
+        throw DeploymentException(
+            "updating object `" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
     }
     _database->updateObject(proxy);
 }
@@ -636,9 +607,9 @@ AdminI::addObjectWithType(Ice::ObjectPrxPtr proxy, string type, const ::Ice::Cur
     const Ice::Identity id = proxy->ice_getIdentity();
     if (id.category == _database->getInstanceName())
     {
-        throw DeploymentException("adding object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category +
-            "' are managed by IceGrid");
+        throw DeploymentException(
+            "adding object `" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
     }
 
     ObjectInfo info;
@@ -653,9 +624,9 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
     checkIsReadOnly();
     if (id.category == _database->getInstanceName())
     {
-        throw DeploymentException("removing object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category +
-            "' are managed by IceGrid");
+        throw DeploymentException(
+            "removing object `" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
     }
     _database->removeObject(id);
 }
@@ -692,7 +663,7 @@ AdminI::getNodeAdmin(string name, const Current& current) const
     //
     _database->getNode(name);
 
-    return current.adapter->createProxy({ name, _registry->getNodeAdminCategory() });
+    return current.adapter->createProxy({name, _registry->getNodeAdminCategory()});
 }
 
 bool
@@ -829,7 +800,7 @@ AdminI::getRegistryAdmin(string name, const Current& current) const
         _database->getReplica(name);
     }
 
-    return current.adapter->createProxy({ name, _registry->getReplicaAdminCategory() });
+    return current.adapter->createProxy({name, _registry->getReplicaAdminCategory()});
 }
 
 bool

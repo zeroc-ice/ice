@@ -13,24 +13,20 @@
 
 namespace IcePy
 {
+    extern PyTypeObject BatchRequestType;
 
-extern PyTypeObject BatchRequestType;
+    bool initBatchRequest(PyObject*);
 
-bool initBatchRequest(PyObject*);
+    class BatchRequestInterceptorWrapper final
+    {
+    public:
+        BatchRequestInterceptorWrapper(PyObject*);
 
-class BatchRequestInterceptorWrapper final
-{
-public:
+        void enqueue(const Ice::BatchRequest&, int, int);
 
-    BatchRequestInterceptorWrapper(PyObject*);
-
-    void enqueue(const Ice::BatchRequest&, int, int);
-
-private:
-
-    PyObjectHandle _interceptor;
-};
-
+    private:
+        PyObjectHandle _interceptor;
+    };
 }
 
 #endif

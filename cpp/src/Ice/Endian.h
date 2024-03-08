@@ -6,13 +6,13 @@
 #define ICE_ENDIAN_H
 
 #ifdef __cpp_lib_endian
-#   include <bit>
+#    include <bit>
 #else
 
 // Provide a minimal implementation of std::endian for C++17.
 namespace std
 {
-#ifdef _MSC_VER
+#    ifdef _MSC_VER
     // Always little-endian on Windows.
     enum class endian
     {
@@ -20,7 +20,7 @@ namespace std
         big = 1,
         native = little
     };
-#else
+#    else
     // Use macros predefined by gcc/clang to determine the endianness.
     enum class endian
     {
@@ -28,7 +28,7 @@ namespace std
         big = __ORDER_BIG_ENDIAN__,
         native = __BYTE_ORDER__
     };
-#endif
+#    endif
 }
 
 #endif // __cpp_lib_endian

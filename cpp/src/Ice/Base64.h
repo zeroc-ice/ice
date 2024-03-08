@@ -11,21 +11,17 @@
 
 namespace IceInternal
 {
+    class ICE_API Base64
+    {
+    public:
+        static std::string encode(const std::vector<std::byte>&);
+        static std::vector<std::byte> decode(const std::string&);
+        static bool isBase64(char);
 
-class ICE_API Base64
-{
-public:
-
-    static std::string encode(const std::vector<std::byte>&);
-    static std::vector<std::byte> decode(const std::string&);
-    static bool isBase64(char);
-
-private:
-
-    static char encode(std::byte);
-    static std::byte decode(char);
-};
-
+    private:
+        static char encode(std::byte);
+        static std::byte decode(char);
+    };
 }
 
 #endif

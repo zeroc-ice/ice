@@ -8,7 +8,7 @@
 #include <Configuration.h>
 
 #ifdef _MSC_VER
-#   pragma comment(lib, ICE_LIBNAME("testtransport"))
+#    pragma comment(lib, ICE_LIBNAME("testtransport"))
 #endif
 
 using namespace std;
@@ -16,15 +16,12 @@ using namespace Test;
 
 extern "C"
 {
-
-Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
-
+    Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 };
 
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

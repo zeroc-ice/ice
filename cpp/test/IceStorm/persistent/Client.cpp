@@ -14,7 +14,6 @@ using namespace Test;
 class Client final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -25,7 +24,7 @@ Client::run(int argc, char** argv)
     auto communicator = ich.communicator();
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -34,25 +33,25 @@ Client::run(int argc, char** argv)
 
     IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
-    if(argc != 2)
+    if (argc != 2)
     {
         throw invalid_argument("client create|check");
     }
 
     string action(argv[1]);
-    if(action == "create")
+    if (action == "create")
     {
         //
         // Create topics
         //
         cerr << "creating topics and links..." << flush;
         optional<TopicPrx> linkTo;
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             ostringstream topicName;
             topicName << "topic" << i;
             auto topic = manager->create(topicName.str());
-            if(linkTo)
+            if (linkTo)
             {
                 topic->link(linkTo, i + 1);
             }
@@ -64,7 +63,7 @@ Client::run(int argc, char** argv)
         // Create a subscriber for each topic
         //
         cerr << "create a susbscriber for each topic... ";
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             ostringstream topicName;
             topicName << "topic" << i;

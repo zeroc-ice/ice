@@ -7,9 +7,7 @@
 
 using namespace Test;
 
-TestI::TestI(const Ice::StringSeq& args) : _args(args)
-{
-}
+TestI::TestI(const Ice::StringSeq& args) : _args(args) {}
 
 std::string
 TestI::getProperty(std::string name, const Ice::Current& current)

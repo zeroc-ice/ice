@@ -15,10 +15,7 @@
 using namespace IceStorm;
 using namespace std;
 
-TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instance) :
-    _instance(std::move(instance))
-{
-}
+TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instance) : _instance(std::move(instance)) {}
 
 optional<TopicPrx>
 TransientTopicManagerImpl::create(string name, const Ice::Current&)
@@ -27,7 +24,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
 
     reap();
 
-    if(_topics.find(name) != _topics.end())
+    if (_topics.find(name) != _topics.end())
     {
         throw TopicExists(name);
     }
@@ -38,11 +35,10 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     // Called by constructor or with 'this' mutex locked.
     //
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topicMgr > 0)
+    if (traceLevels->topicMgr > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
-        out << "creating new topic \"" << name << "\". id: "
-            << _instance->communicator()->identityToString(id);
+        out << "creating new topic \"" << name << "\". id: " << _instance->communicator()->identityToString(id);
     }
 
     //
@@ -54,7 +50,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     // The identity is the name of the Topic.
     //
     TopicPrx prx(_instance->topicAdapter()->add(topicImpl, id));
-    _topics.insert({ name, topicImpl });
+    _topics.insert({name, topicImpl});
     return prx;
 }
 
@@ -66,7 +62,7 @@ TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
     reap();
 
     auto p = _topics.find(name);
-    if(p == _topics.end())
+    if (p == _topics.end())
     {
         throw NoSuchTopic(name);
     }
@@ -85,7 +81,7 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
     reap();
 
     TopicDict all;
-    for(const auto& topic : _topics)
+    for (const auto& topic : _topics)
     {
         //
         // Here we cannot just reconstruct the identity since the
@@ -113,11 +109,11 @@ TransientTopicManagerImpl::reap()
     for (const string& topic : _instance->topicReaper()->consumeReapedTopics())
     {
         auto i = _topics.find(topic);
-        if(i != _topics.end() && i->second->destroyed())
+        if (i != _topics.end() && i->second->destroyed())
         {
             auto id = i->second->id();
             auto traceLevels = _instance->traceLevels();
-            if(traceLevels->topicMgr > 0)
+            if (traceLevels->topicMgr > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
                 out << "Reaping " << i->first;
@@ -127,7 +123,7 @@ TransientTopicManagerImpl::reap()
             {
                 _instance->topicAdapter()->remove(id);
             }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDeactivatedException&)
             {
                 // Ignore
             }

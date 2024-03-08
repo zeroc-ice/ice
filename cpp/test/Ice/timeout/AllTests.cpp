@@ -15,32 +15,29 @@ using namespace Test;
 
 namespace
 {
-
-Ice::ConnectionPtr
-connect(const Ice::ObjectPrx& prx)
-{
-    //
-    // Establish connection with the given proxy (which might have a timeout
-    // set and might sporadically fail on connection establishment if it's
-    // too slow). The loop ensures that the connection is established by retrying
-    // in case we can a ConnectTimeoutException
-    //
-    int nRetry = 10;
-    while(--nRetry > 0)
+    Ice::ConnectionPtr connect(const Ice::ObjectPrx& prx)
     {
-        try
+        //
+        // Establish connection with the given proxy (which might have a timeout
+        // set and might sporadically fail on connection establishment if it's
+        // too slow). The loop ensures that the connection is established by retrying
+        // in case we can a ConnectTimeoutException
+        //
+        int nRetry = 10;
+        while (--nRetry > 0)
         {
-            prx->ice_getConnection(); // Establish connection
-            break;
+            try
+            {
+                prx->ice_getConnection(); // Establish connection
+                break;
+            }
+            catch (const Ice::ConnectTimeoutException&)
+            {
+                // Can sporadically occur with slow machines
+            }
         }
-        catch(const Ice::ConnectTimeoutException&)
-        {
-            // Can sporadically occur with slow machines
-        }
+        return prx->ice_getConnection();
     }
-    return prx->ice_getConnection();
-}
-
 }
 
 void
@@ -63,7 +60,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->op();
             test(false);
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
             // Expected.
         }
@@ -80,7 +77,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             to->op();
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
             test(false);
         }
@@ -103,7 +100,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sendData(seq);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             // Expected.
         }
@@ -121,7 +118,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             ByteSeq seq2(1000000);
             to->sendData(seq2);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             test(false);
         }
@@ -138,7 +135,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sleep(1000);
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
         timeout->ice_ping();
@@ -148,7 +145,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             to->sleep(100);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
             test(false);
         }
@@ -166,10 +163,10 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             f.get();
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -185,7 +182,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             f.get();
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -201,14 +198,14 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sleep(750);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             try
             {
                 con->getInfo();
                 test(false);
             }
-            catch(const Ice::TimeoutException&)
+            catch (const Ice::TimeoutException&)
             {
                 // Connection got closed as well.
             }
@@ -220,14 +217,14 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sleepAsync(750).get();
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             try
             {
                 con->getInfo();
                 test(false);
             }
-            catch(const Ice::TimeoutException&)
+            catch (const Ice::TimeoutException&)
             {
                 // Connection got closed as well.
             }
@@ -246,18 +243,18 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
-        while(true)
+        while (true)
         {
             try
             {
                 connection->getInfo();
                 this_thread::sleep_for(chrono::milliseconds(10));
             }
-            catch(const Ice::ConnectionManuallyClosedException& ex)
+            catch (const Ice::ConnectionManuallyClosedException& ex)
             {
                 // Expected.
                 test(ex.graceful);
@@ -288,7 +285,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sendData(seq);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             // Expected.
         }
@@ -306,7 +303,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sendData(seq);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             // Expected.
         }
@@ -328,7 +325,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->op();
             test(false);
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
             // Expected.
         }
@@ -345,7 +342,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->op();
             test(false);
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
             // Expected.
         }
@@ -363,7 +360,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             to->sendData(seq);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
             // Expected.
         }
@@ -402,7 +399,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             timeout->sleep(500);
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
 
@@ -411,7 +408,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             timeout->sleepAsync(500).get();
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
 
@@ -420,7 +417,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             timeout->ice_invocationTimeout(-2)->ice_ping();
             timeout->ice_invocationTimeout(-2)->ice_pingAsync().get();
         }
-        catch(const Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }
@@ -437,7 +434,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
             batchTimeout->ice_flushBatchRequestsAsync().get();
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
 
@@ -457,7 +454,7 @@ allTests(Test::TestHelper* helper)
     {
         allTestsWithController(helper, controller);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
         // from hanging on exit in case a connection which disables timeouts is still opened.

@@ -10,10 +10,8 @@
 
 namespace IceInternal
 {
-
-class ResponseHandler;
-using ResponseHandlerPtr = ::std::shared_ptr<ResponseHandler>;
-
+    class ResponseHandler;
+    using ResponseHandlerPtr = ::std::shared_ptr<ResponseHandler>;
 }
 
 #endif

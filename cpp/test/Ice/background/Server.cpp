@@ -12,7 +12,7 @@
 #include <Ice/Router.h>
 
 #ifdef _MSC_VER
-#   pragma comment(lib, ICE_LIBNAME("testtransport"))
+#    pragma comment(lib, ICE_LIBNAME("testtransport"))
 #endif
 
 using namespace std;
@@ -21,15 +21,12 @@ using namespace Ice;
 
 extern "C"
 {
-
-Plugin* createTestTransport(const CommunicatorPtr&, const std::string&, const StringSeq&);
-
+    Plugin* createTestTransport(const CommunicatorPtr&, const std::string&, const StringSeq&);
 };
 
 class LocatorI final : public Locator
 {
 public:
-
     void findAdapterByIdAsync(
         string,
         function<void(const optional<ObjectPrx>&)> response,
@@ -52,24 +49,17 @@ public:
         response(current.adapter->createDirectProxy(id));
     }
 
-    optional<LocatorRegistryPrx> getRegistry(const Current&) const
-    {
-        return nullopt;
-    }
+    optional<LocatorRegistryPrx> getRegistry(const Current&) const { return nullopt; }
 
-    LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller)
-    {
-    }
+    LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
 
 private:
-
     BackgroundControllerIPtr _controller;
 };
 
 class RouterI final : public Router
 {
 public:
-
     optional<ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
     {
         hasRoutingTable = true;
@@ -83,29 +73,22 @@ public:
         return nullopt;
     }
 
-    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final
-    {
-        return ObjectProxySeq();
-    }
+    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
 
-    RouterI(const BackgroundControllerIPtr& controller)
-    {
-        _controller = controller;
-    }
+    RouterI(const BackgroundControllerIPtr& controller) { _controller = controller; }
 
 private:
-
     BackgroundControllerIPtr _controller;
 };
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
-void Server::run(int argc, char** argv)
+void
+Server::run(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
     registerPluginFactory("Test", createTestTransport, false);

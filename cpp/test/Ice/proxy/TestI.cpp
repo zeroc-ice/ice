@@ -8,9 +8,7 @@
 using namespace std;
 using namespace Ice;
 
-MyDerivedClassI::MyDerivedClassI()
-{
-}
+MyDerivedClassI::MyDerivedClassI() {}
 
 optional<ObjectPrx>
 MyDerivedClassI::echo(optional<ObjectPrx> obj, const Current&)

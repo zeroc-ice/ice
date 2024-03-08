@@ -9,21 +9,17 @@
 
 extern "C"
 {
-ZEND_FUNCTION(IcePHP_defineOperation);
+    ZEND_FUNCTION(IcePHP_defineOperation);
 }
 
 namespace IcePHP
 {
-
-class Operation
-{
-public:
-
-    virtual zend_function* function() = 0;
-
-};
-using OperationPtr = std::shared_ptr<Operation>;
-
+    class Operation
+    {
+    public:
+        virtual zend_function* function() = 0;
+    };
+    using OperationPtr = std::shared_ptr<Operation>;
 }
 
 #endif

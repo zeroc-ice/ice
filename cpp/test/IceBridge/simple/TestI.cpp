@@ -11,33 +11,31 @@ using namespace Test;
 
 namespace
 {
-
-Ice::Identity callbackId = { "callback" , "" };
-
+    Ice::Identity callbackId = {"callback", ""};
 }
 
 void
-MyClassI::callCallbackAsync(function<void()> response,
-                            function<void(exception_ptr)> error,
-                            const Ice::Current& current)
+MyClassI::callCallbackAsync(function<void()> response, function<void(exception_ptr)> error, const Ice::Current& current)
 {
     checkConnection(current.con);
     CallbackPrx prx(current.con->createProxy(callbackId));
 
-    prx->pingAsync([response = std::move(response)](){ response(); },
-                   [error = std::move(error)](exception_ptr e){ error(e); });
+    prx->pingAsync(
+        [response = std::move(response)]() { response(); }, [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
 void
-MyClassI::getCallbackCountAsync(function<void(int)> response,
-                                function<void(exception_ptr)> error,
-                                const Ice::Current& current)
+MyClassI::getCallbackCountAsync(
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     CallbackPrx prx(current.con->createProxy(callbackId));
 
-    prx->getCountAsync([response = std::move(response)](int count){ response(count); },
-                       [error = std::move(error)](exception_ptr e){ error(e); });
+    prx->getCountAsync(
+        [response = std::move(response)](int count) { response(count); },
+        [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
 void
@@ -47,7 +45,7 @@ MyClassI::incCounter(int expected, const Ice::Current& current)
 
     {
         lock_guard<mutex> lg(_lock);
-        if(_counter + 1 != expected)
+        if (_counter + 1 != expected)
         {
             cout << _counter << " " << expected << endl;
         }
@@ -60,7 +58,7 @@ void
 MyClassI::waitCounter(int value, const Ice::Current&)
 {
     unique_lock<mutex> lock(_lock);
-    while(_counter != value)
+    while (_counter != value)
     {
         _condVar.wait(lock);
     }
@@ -84,7 +82,7 @@ void
 MyClassI::closeConnection(bool forceful, const Ice::Current& current)
 {
     checkConnection(current.con);
-    if(forceful)
+    if (forceful)
     {
         current.con->close(Ice::ConnectionClose::Forcefully);
     }
@@ -118,15 +116,17 @@ MyClassI::callDatagramCallback(const Ice::Current& current)
 }
 
 void
-MyClassI::getCallbackDatagramCountAsync(function<void(int)> response,
-                                        function<void(exception_ptr)> error,
-                                        const Ice::Current& current)
+MyClassI::getCallbackDatagramCountAsync(
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     CallbackPrx prx(current.con->createProxy(callbackId));
 
-    prx->getDatagramCountAsync([response = std::move(response)](int count){ response(count); },
-                               [error = std::move(error)](auto e){ error(e); });
+    prx->getDatagramCountAsync(
+        [response = std::move(response)](int count) { response(count); },
+        [error = std::move(error)](auto e) { error(e); });
 }
 
 int
@@ -164,7 +164,7 @@ MyClassI::incHeartbeatCount(const shared_ptr<Ice::Connection>& con)
 {
     lock_guard<mutex> lg(_lock);
     auto p = _connections.find(con);
-    if(p == _connections.end())
+    if (p == _connections.end())
     {
         return;
     }
@@ -175,10 +175,10 @@ void
 MyClassI::checkConnection(const shared_ptr<Ice::Connection>& con)
 {
     lock_guard<mutex> lg(_lock);
-    if(_connections.find(con) == _connections.end())
+    if (_connections.find(con) == _connections.end())
     {
         _connections.insert(make_pair(con, 0));
-        con->setCloseCallback([self = shared_from_this()](const auto& c){ self->removeConnection(c); });
-        con->setHeartbeatCallback([self = shared_from_this()](const auto& c){ self->incHeartbeatCount(c); });
+        con->setCloseCallback([self = shared_from_this()](const auto& c) { self->removeConnection(c); });
+        con->setHeartbeatCallback([self = shared_from_this()](const auto& c) { self->incHeartbeatCount(c); });
     }
 }

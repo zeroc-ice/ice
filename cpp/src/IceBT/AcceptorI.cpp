@@ -23,26 +23,16 @@ using namespace IceBT;
 
 namespace
 {
-
-class ProfileCallbackI : public ProfileCallback
-{
-public:
-
-    ProfileCallbackI(const AcceptorIPtr& acceptor) :
-        _acceptor(acceptor)
+    class ProfileCallbackI : public ProfileCallback
     {
-    }
+    public:
+        ProfileCallbackI(const AcceptorIPtr& acceptor) : _acceptor(acceptor) {}
 
-    virtual void newConnection(int fd)
-    {
-        _acceptor->newConnection(fd);
-    }
+        virtual void newConnection(int fd) { _acceptor->newConnection(fd); }
 
-private:
-
-    AcceptorIPtr _acceptor;
-};
-
+    private:
+        AcceptorIPtr _acceptor;
+    };
 }
 
 IceInternal::NativeInfoPtr
@@ -54,13 +44,13 @@ IceBT::AcceptorI::getNativeInfo()
 void
 IceBT::AcceptorI::close()
 {
-    if(!_path.empty())
+    if (!_path.empty())
     {
         try
         {
             _instance->engine()->unregisterProfile(_path);
         }
-        catch(...)
+        catch (...)
         {
         }
     }
@@ -80,11 +70,11 @@ IceBT::AcceptorI::listen()
         auto cb = make_shared<ProfileCallbackI>(shared_from_this());
         _path = _instance->engine()->registerProfile(_uuid, _name, _channel, cb);
     }
-    catch(const BluetoothException& ex)
+    catch (const BluetoothException& ex)
     {
         ostringstream os;
         os << "unable to register Bluetooth profile";
-        if(!ex.reason.empty())
+        if (!ex.reason.empty())
         {
             os << "\n" << ex.reason;
         }
@@ -101,7 +91,7 @@ IceBT::AcceptorI::accept()
     //
     // The plug-in may not be initialized.
     //
-    if(!_instance->initialized())
+    if (!_instance->initialized())
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceBT: plug-in is not initialized");
     }
@@ -145,11 +135,11 @@ IceBT::AcceptorI::toDetailedString() const
 {
     ostringstream os;
     os << "local address = " << toString();
-    if(!_name.empty())
+    if (!_name.empty())
     {
         os << "\nservice name = '" << _name << "'";
     }
-    if(!_uuid.empty())
+    if (!_uuid.empty())
     {
         os << "\nservice uuid = " << _uuid;
     }
@@ -173,11 +163,7 @@ IceBT::AcceptorI::newConnection(int fd)
 {
     lock_guard lock(_mutex);
 
-    _transceivers.push(make_shared<TransceiverI>(
-        _instance,
-        make_shared<StreamSocket>(_instance, fd),
-        nullptr,
-        _uuid));
+    _transceivers.push(make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd), nullptr, _uuid));
 
     //
     // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
@@ -186,18 +172,24 @@ IceBT::AcceptorI::newConnection(int fd)
     ready(IceInternal::SocketOperationRead, true);
 }
 
-IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& instance, const string& adapterName,
-                            const string& addr, const string& uuid, const string& name, int channel) :
-    _endpoint(endpoint),
-    _instance(instance),
-    _adapterName(adapterName),
-    _addr(addr),
-    _uuid(uuid),
-    _name(name),
-    _channel(channel)
+IceBT::AcceptorI::AcceptorI(
+    const EndpointIPtr& endpoint,
+    const InstancePtr& instance,
+    const string& adapterName,
+    const string& addr,
+    const string& uuid,
+    const string& name,
+    int channel)
+    : _endpoint(endpoint),
+      _instance(instance),
+      _adapterName(adapterName),
+      _addr(addr),
+      _uuid(uuid),
+      _name(name),
+      _channel(channel)
 {
     string s = IceUtilInternal::trim(_addr);
-    if(s.empty())
+    if (s.empty())
     {
         //
         // If no address was specified, we use the first available BT adapter.
@@ -208,20 +200,18 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
     s = IceUtilInternal::toUpper(s);
 
     DeviceAddress da;
-    if(!parseDeviceAddress(s, da))
+    if (!parseDeviceAddress(s, da))
     {
-        throw EndpointParseException(__FILE__, __LINE__, "invalid address value `" + s + "' in endpoint " +
-                                     endpoint->toString());
+        throw EndpointParseException(
+            __FILE__, __LINE__, "invalid address value `" + s + "' in endpoint " + endpoint->toString());
     }
-    if(!_instance->engine()->adapterExists(s))
+    if (!_instance->engine()->adapterExists(s))
     {
-        throw EndpointParseException(__FILE__, __LINE__, "no device found for `" + s + "' in endpoint " +
-                                     endpoint->toString());
+        throw EndpointParseException(
+            __FILE__, __LINE__, "no device found for `" + s + "' in endpoint " + endpoint->toString());
     }
 
     const_cast<string&>(_addr) = s;
 }
 
-IceBT::AcceptorI::~AcceptorI()
-{
-}
+IceBT::AcceptorI::~AcceptorI() {}

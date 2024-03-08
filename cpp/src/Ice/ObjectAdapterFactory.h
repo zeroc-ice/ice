@@ -13,38 +13,34 @@
 
 namespace IceInternal
 {
+    class ObjectAdapterFactory : public std::enable_shared_from_this<ObjectAdapterFactory>
+    {
+    public:
+        void shutdown();
+        void waitForShutdown();
+        bool isShutdown() const;
+        void destroy();
 
-class ObjectAdapterFactory : public std::enable_shared_from_this<ObjectAdapterFactory>
-{
-public:
+        void updateObservers(void (Ice::ObjectAdapterI::*)());
 
-    void shutdown();
-    void waitForShutdown();
-    bool isShutdown() const;
-    void destroy();
+        ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::optional<Ice::RouterPrx>&);
+        ::Ice::ObjectAdapterPtr findObjectAdapter(const ::IceInternal::ReferencePtr&);
+        void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
+        void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, ::Ice::CompressBatch) const;
 
-    void updateObservers(void (Ice::ObjectAdapterI::*)());
+        ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
+        virtual ~ObjectAdapterFactory();
 
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::optional<Ice::RouterPrx>&);
-    ::Ice::ObjectAdapterPtr findObjectAdapter(const ::IceInternal::ReferencePtr&);
-    void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, ::Ice::CompressBatch) const;
+    private:
+        friend class Instance;
 
-    ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
-    virtual ~ObjectAdapterFactory();
-
-private:
-
-    friend class Instance;
-
-    InstancePtr _instance;
-    ::Ice::CommunicatorPtr _communicator;
-    std::set<std::string> _adapterNamesInUse;
-    std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
-    mutable std::recursive_mutex _mutex;
-    std::condition_variable_any _conditionVariable;
-};
-
+        InstancePtr _instance;
+        ::Ice::CommunicatorPtr _communicator;
+        std::set<std::string> _adapterNamesInUse;
+        std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
+        mutable std::recursive_mutex _mutex;
+        std::condition_variable_any _conditionVariable;
+    };
 }
 
 #endif

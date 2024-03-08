@@ -11,7 +11,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -21,12 +20,12 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
     bool withTarget = false;
-    if(argc > 1)
+    if (argc > 1)
     {
         int i = 1;
-        while(i < argc)
+        while (i < argc)
         {
-            if(strcmp(argv[i], "-t") == 0)
+            if (strcmp(argv[i], "-t") == 0)
             {
                 withTarget = true;
                 break;
@@ -39,7 +38,7 @@ Client::run(int argc, char** argv)
     args = communicator->getProperties()->parseCommandLineOptions("", args);
     Ice::stringSeqToArgs(args, argc, argv);
 
-    if(!withTarget)
+    if (!withTarget)
     {
         void allTests(Test::TestHelper*);
         allTests(this);

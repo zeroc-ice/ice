@@ -6,17 +6,17 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#include "StreamTransceiver.h"
-#include "StreamEndpointI.h"
-#include "StreamConnector.h"
+#    include "StreamTransceiver.h"
+#    include "StreamEndpointI.h"
+#    include "StreamConnector.h"
 
-#include <Ice/Network.h>
-#include <Ice/UniqueRef.h>
-#include <Ice/Exception.h>
-#include <Ice/Properties.h>
-#include <Ice/NetworkProxy.h>
+#    include <Ice/Network.h>
+#    include <Ice/UniqueRef.h>
+#    include <Ice/Exception.h>
+#    include <Ice/Properties.h>
+#    include <Ice/NetworkProxy.h>
 
-#include <CoreFoundation/CoreFoundation.h>
+#    include <CoreFoundation/CoreFoundation.h>
 
 using namespace std;
 using namespace Ice;
@@ -45,7 +45,7 @@ IceObjC::StreamConnector::toString() const
 {
     string proxyHost = _instance->proxyHost();
     ostringstream os;
-    if(!proxyHost.empty())
+    if (!proxyHost.empty())
     {
         os << proxyHost << ":" << _instance->proxyPort();
     }
@@ -60,27 +60,27 @@ bool
 IceObjC::StreamConnector::operator==(const IceInternal::Connector& r) const
 {
     const StreamConnector* p = dynamic_cast<const StreamConnector*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(_timeout != p->_timeout)
+    if (_timeout != p->_timeout)
     {
         return false;
     }
 
-    if(_connectionId != p->_connectionId)
+    if (_connectionId != p->_connectionId)
     {
         return false;
     }
 
-    if(_host != p->_host)
+    if (_host != p->_host)
     {
         return false;
     }
 
-    if(_port != p->_port)
+    if (_port != p->_port)
     {
         return false;
     }
@@ -92,34 +92,34 @@ bool
 IceObjC::StreamConnector::operator<(const IceInternal::Connector& r) const
 {
     const StreamConnector* p = dynamic_cast<const StreamConnector*>(&r);
-    if(!p)
+    if (!p)
     {
         return type() < r.type();
     }
 
-    if(_timeout < p->_timeout)
+    if (_timeout < p->_timeout)
     {
         return true;
     }
-    else if(p->_timeout < _timeout)
+    else if (p->_timeout < _timeout)
     {
         return false;
     }
 
-    if(_connectionId < p->_connectionId)
+    if (_connectionId < p->_connectionId)
     {
         return true;
     }
-    else if(p->_connectionId < _connectionId)
+    else if (p->_connectionId < _connectionId)
     {
         return false;
     }
 
-    if(_host < p->_host)
+    if (_host < p->_host)
     {
         return true;
     }
-    else if(p->_host < _host)
+    else if (p->_host < _host)
     {
         return false;
     }
@@ -127,20 +127,19 @@ IceObjC::StreamConnector::operator<(const IceInternal::Connector& r) const
     return _port < p->_port;
 }
 
-IceObjC::StreamConnector::StreamConnector(const InstancePtr& instance,
-                                          const string& host,
-                                          int32_t port,
-                                          int32_t timeout,
-                                          const string& connectionId) :
-    _instance(instance),
-    _host(host.empty() ? string("127.0.0.1") : host),
-    _port(port),
-    _timeout(timeout),
-    _connectionId(connectionId)
+IceObjC::StreamConnector::StreamConnector(
+    const InstancePtr& instance,
+    const string& host,
+    int32_t port,
+    int32_t timeout,
+    const string& connectionId)
+    : _instance(instance),
+      _host(host.empty() ? string("127.0.0.1") : host),
+      _port(port),
+      _timeout(timeout),
+      _connectionId(connectionId)
 {
 }
 
-IceObjC::StreamConnector::~StreamConnector()
-{
-}
+IceObjC::StreamConnector::~StreamConnector() {}
 #endif

@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class ServantManager;
-using ServantManagerPtr = std::shared_ptr<ServantManager>;
-
+    class ServantManager;
+    using ServantManagerPtr = std::shared_ptr<ServantManager>;
 }
 
 #endif

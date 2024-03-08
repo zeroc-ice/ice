@@ -102,7 +102,7 @@ allTests(Test::TestHelper* helper)
             test(std::get<1>(result) == smap1);
         }
 
-        Test::CPtr c1 =  make_shared<Test::C>(s1);
+        Test::CPtr c1 = make_shared<Test::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
             test(Ice::targetEqualTo(std::get<0>(result), c1));
@@ -154,23 +154,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSAsync(s1,
-                                      [&p, &s1](Test::S s2, Test::S s3)
-                                      {
-                                          test(s2 == s1);
-                                          test(s3 == s1);
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opSAsync(
+                s1,
+                [&p, &s1](Test::S s2, Test::S s3)
+                {
+                    test(s2 == s1);
+                    test(s3 == s1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -182,23 +180,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSSeqAsync(sseq1,
-                                         [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
-                                         {
-                                             test(s2 == sseq1);
-                                             test(s3 == sseq1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSSeqAsync(
+                sseq1,
+                [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
+                {
+                    test(s2 == sseq1);
+                    test(s3 == sseq1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -210,23 +206,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSMapAsync(smap1,
-                                         [&p, &smap1](Test::SMap s2, Test::SMap s3)
-                                         {
-                                             test(s2 == smap1);
-                                             test(s3 == smap1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSMapAsync(
+                smap1,
+                [&p, &smap1](Test::SMap s2, Test::SMap s3)
+                {
+                    test(s2 == smap1);
+                    test(s3 == smap1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -237,23 +231,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCAsync(c1,
-                                      [&p, &c1](Test::CPtr c2, Test::CPtr c3)
-                                      {
-                                          test(Ice::targetEqualTo(c2, c1));
-                                          test(Ice::targetEqualTo(c3, c1));
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opCAsync(
+                c1,
+                [&p, &c1](Test::CPtr c2, Test::CPtr c3)
+                {
+                    test(Ice::targetEqualTo(c2, c1));
+                    test(Ice::targetEqualTo(c3, c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -265,23 +257,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCSeqAsync(cseq1,
-                                         [&p, c1](Test::CSeq c2, Test::CSeq c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2[0], c1));
-                                             test(Ice::targetEqualTo(c3[0], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCSeqAsync(
+                cseq1,
+                [&p, c1](Test::CSeq c2, Test::CSeq c3)
+                {
+                    test(Ice::targetEqualTo(c2[0], c1));
+                    test(Ice::targetEqualTo(c3[0], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -293,23 +283,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCMapAsync(cmap1,
-                                         [&p, c1](Test::CMap c2, Test::CMap c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2["a"], c1));
-                                             test(Ice::targetEqualTo(c3["a"], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCMapAsync(
+                cmap1,
+                [&p, c1](Test::CMap c2, Test::CMap c3)
+                {
+                    test(Ice::targetEqualTo(c2["a"], c1));
+                    test(Ice::targetEqualTo(c3["a"], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -319,22 +307,20 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opE1Async(Test::E1::v1,
-                                       [&p](Test::E1 v)
-                                       {
-                                           test(v == Test::E1::v1);
-                                           p.set_value();
-                                       },
-                                       [&p](exception_ptr e)
-                                       {
-                                           p.set_exception(e);
-                                       });
+            auto result = i->opE1Async(
+                Test::E1::v1,
+                [&p](Test::E1 v)
+                {
+                    test(v == Test::E1::v1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -346,22 +332,20 @@ allTests(Test::TestHelper* helper)
             s.s = "S1";
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opS1Async(s,
-                                       [&p](Test::S1 v)
-                                       {
-                                           test(v.s == "S1");
-                                           p.set_value();
-                                       },
-                                       [&p](exception_ptr e)
-                                       {
-                                           p.set_exception(e);
-                                       });
+            auto result = i->opS1Async(
+                s,
+                [&p](Test::S1 v)
+                {
+                    test(v.s == "S1");
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -371,22 +355,20 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opC1Async(make_shared<Test::C1>("C1"),
-                                       [&p](Test::C1Ptr v)
-                                       {
-                                           test(v->s == "C1");
-                                           p.set_value();
-                                       },
-                                       [&p](exception_ptr e)
-                                       {
-                                           p.set_exception(e);
-                                       });
+            auto result = i->opC1Async(
+                make_shared<Test::C1>("C1"),
+                [&p](Test::C1Ptr v)
+                {
+                    test(v->s == "C1");
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -504,23 +486,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSAsync(s1,
-                                      [&p, &s1](Test::Inner::Inner2::S s2, Test::Inner::Inner2::S s3)
-                                      {
-                                          test(s2 == s1);
-                                          test(s3 == s1);
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opSAsync(
+                s1,
+                [&p, &s1](Test::Inner::Inner2::S s2, Test::Inner::Inner2::S s3)
+                {
+                    test(s2 == s1);
+                    test(s3 == s1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -532,23 +512,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSSeqAsync(sseq1,
-                                         [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
-                                         {
-                                             test(s2 == sseq1);
-                                             test(s3 == sseq1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSSeqAsync(
+                sseq1,
+                [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
+                {
+                    test(s2 == sseq1);
+                    test(s3 == sseq1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -560,23 +538,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSMapAsync(smap1,
-                                         [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
-                                         {
-                                             test(s2 == smap1);
-                                             test(s3 == smap1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSMapAsync(
+                smap1,
+                [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
+                {
+                    test(s2 == smap1);
+                    test(s3 == smap1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -587,24 +563,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCAsync(c1,
-                                      [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2,
-                                                shared_ptr<Test::Inner::Inner2::C> c3)
-                                      {
-                                          test(Ice::targetEqualTo(c2, c1));
-                                          test(Ice::targetEqualTo(c3, c1));
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opCAsync(
+                c1,
+                [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
+                {
+                    test(Ice::targetEqualTo(c2, c1));
+                    test(Ice::targetEqualTo(c3, c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -616,23 +589,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCSeqAsync(cseq1,
-                                         [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2[0], c1));
-                                             test(Ice::targetEqualTo(c3[0], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCSeqAsync(
+                cseq1,
+                [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
+                {
+                    test(Ice::targetEqualTo(c2[0], c1));
+                    test(Ice::targetEqualTo(c3[0], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -644,23 +615,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCMapAsync(cmap1,
-                                         [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2["a"], c1));
-                                             test(Ice::targetEqualTo(c3["a"], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCMapAsync(
+                cmap1,
+                [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
+                {
+                    test(Ice::targetEqualTo(c2["a"], c1));
+                    test(Ice::targetEqualTo(c3["a"], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -778,23 +747,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSAsync(s1,
-                                      [&p, &s1](Test::Inner::Inner2::S s2, Test::Inner::Inner2::S s3)
-                                      {
-                                          test(s2 == s1);
-                                          test(s3 == s1);
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opSAsync(
+                s1,
+                [&p, &s1](Test::Inner::Inner2::S s2, Test::Inner::Inner2::S s3)
+                {
+                    test(s2 == s1);
+                    test(s3 == s1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -806,23 +773,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSSeqAsync(sseq1,
-                                         [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
-                                         {
-                                             test(s2 == sseq1);
-                                             test(s3 == sseq1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSSeqAsync(
+                sseq1,
+                [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
+                {
+                    test(s2 == sseq1);
+                    test(s3 == sseq1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -834,23 +799,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSMapAsync(smap1,
-                                         [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
-                                         {
-                                             test(s2 == smap1);
-                                             test(s3 == smap1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSMapAsync(
+                smap1,
+                [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
+                {
+                    test(s2 == smap1);
+                    test(s3 == smap1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -861,24 +824,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCAsync(c1,
-                                      [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2,
-                                                shared_ptr<Test::Inner::Inner2::C> c3)
-                                      {
-                                          test(Ice::targetEqualTo(c2, c1));
-                                          test(Ice::targetEqualTo(c3, c1));
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opCAsync(
+                c1,
+                [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
+                {
+                    test(Ice::targetEqualTo(c2, c1));
+                    test(Ice::targetEqualTo(c3, c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -890,23 +850,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCSeqAsync(cseq1,
-                                         [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2[0], c1));
-                                             test(Ice::targetEqualTo(c3[0], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCSeqAsync(
+                cseq1,
+                [&p, c1](Test::Inner::Inner2::CSeq c2, Test::Inner::Inner2::CSeq c3)
+                {
+                    test(Ice::targetEqualTo(c2[0], c1));
+                    test(Ice::targetEqualTo(c3[0], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -918,23 +876,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCMapAsync(cmap1,
-                                         [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2["a"], c1));
-                                             test(Ice::targetEqualTo(c3["a"], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCMapAsync(
+                cmap1,
+                [&p, c1](Test::Inner::Inner2::CMap c2, Test::Inner::Inner2::CMap c3)
+                {
+                    test(Ice::targetEqualTo(c2["a"], c1));
+                    test(Ice::targetEqualTo(c3["a"], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1052,23 +1008,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSAsync(s1,
-                                      [&p, &s1](Test::S s2, Test::S s3)
-                                      {
-                                          test(s2 == s1);
-                                          test(s3 == s1);
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opSAsync(
+                s1,
+                [&p, &s1](Test::S s2, Test::S s3)
+                {
+                    test(s2 == s1);
+                    test(s3 == s1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1080,23 +1034,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSSeqAsync(sseq1,
-                                         [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
-                                         {
-                                             test(s2 == sseq1);
-                                             test(s3 == sseq1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSSeqAsync(
+                sseq1,
+                [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
+                {
+                    test(s2 == sseq1);
+                    test(s3 == sseq1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1108,23 +1060,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opSMapAsync(smap1,
-                                         [&p, &smap1](Test::SMap s2, Test::SMap s3)
-                                         {
-                                             test(s2 == smap1);
-                                             test(s3 == smap1);
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opSMapAsync(
+                smap1,
+                [&p, &smap1](Test::SMap s2, Test::SMap s3)
+                {
+                    test(s2 == smap1);
+                    test(s3 == smap1);
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1135,24 +1085,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCAsync(c1,
-                                      [&p, &c1](shared_ptr<Test::C> c2,
-                                                shared_ptr<Test::C> c3)
-                                      {
-                                          test(Ice::targetEqualTo(c2, c1));
-                                          test(Ice::targetEqualTo(c3, c1));
-                                          p.set_value();
-                                      },
-                                      [&p](exception_ptr e)
-                                      {
-                                          p.set_exception(e);
-                                      });
+            auto result = i->opCAsync(
+                c1,
+                [&p, &c1](shared_ptr<Test::C> c2, shared_ptr<Test::C> c3)
+                {
+                    test(Ice::targetEqualTo(c2, c1));
+                    test(Ice::targetEqualTo(c3, c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1164,23 +1111,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCSeqAsync(cseq1,
-                                         [&p, c1](Test::CSeq c2, Test::CSeq c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2[0], c1));
-                                             test(Ice::targetEqualTo(c3[0], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCSeqAsync(
+                cseq1,
+                [&p, c1](Test::CSeq c2, Test::CSeq c3)
+                {
+                    test(Ice::targetEqualTo(c2[0], c1));
+                    test(Ice::targetEqualTo(c3[0], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);
@@ -1192,23 +1137,21 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opCMapAsync(cmap1,
-                                         [&p, c1](Test::CMap c2, Test::CMap c3)
-                                         {
-                                             test(Ice::targetEqualTo(c2["a"], c1));
-                                             test(Ice::targetEqualTo(c3["a"], c1));
-                                             p.set_value();
-                                         },
-                                         [&p](exception_ptr e)
-                                         {
-                                             p.set_exception(e);
-                                         });
+            auto result = i->opCMapAsync(
+                cmap1,
+                [&p, c1](Test::CMap c2, Test::CMap c3)
+                {
+                    test(Ice::targetEqualTo(c2["a"], c1));
+                    test(Ice::targetEqualTo(c3["a"], c1));
+                    p.set_value();
+                },
+                [&p](exception_ptr e) { p.set_exception(e); });
 
             try
             {
                 f.get();
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 cerr << ex.what() << endl;
                 test(false);

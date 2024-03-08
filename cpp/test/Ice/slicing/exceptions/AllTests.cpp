@@ -22,12 +22,12 @@ allTests(Test::TestHelper* helper)
             testPrx->baseAsBase();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "Base.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -42,12 +42,12 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "Base.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -61,12 +61,12 @@ allTests(Test::TestHelper* helper)
             testPrx->unknownDerivedAsBase();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownDerived.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -81,12 +81,12 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownDerived.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -100,13 +100,13 @@ allTests(Test::TestHelper* helper)
             testPrx->knownDerivedAsBase();
             test(false);
         }
-        catch(const KnownDerived& k)
+        catch (const KnownDerived& k)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
             test(k.ice_id() == "::Test::KnownDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -121,13 +121,13 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownDerived& k)
+        catch (const KnownDerived& k)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
             test(k.ice_id() == "::Test::KnownDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -141,13 +141,13 @@ allTests(Test::TestHelper* helper)
             testPrx->knownDerivedAsKnownDerived();
             test(false);
         }
-        catch(const KnownDerived& k)
+        catch (const KnownDerived& k)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
             test(k.ice_id() == "::Test::KnownDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -161,13 +161,13 @@ allTests(Test::TestHelper* helper)
         {
             result.get();
         }
-        catch(const KnownDerived& k)
+        catch (const KnownDerived& k)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
             test(k.ice_id() == "::Test::KnownDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -181,12 +181,12 @@ allTests(Test::TestHelper* helper)
             testPrx->unknownIntermediateAsBase();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownIntermediate.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -201,12 +201,12 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownIntermediate.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -220,13 +220,13 @@ allTests(Test::TestHelper* helper)
             testPrx->knownIntermediateAsBase();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -241,13 +241,13 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -261,14 +261,14 @@ allTests(Test::TestHelper* helper)
             testPrx->knownMostDerivedAsBase();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -283,14 +283,14 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -304,13 +304,13 @@ allTests(Test::TestHelper* helper)
             testPrx->knownIntermediateAsKnownIntermediate();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -325,13 +325,13 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -345,14 +345,14 @@ allTests(Test::TestHelper* helper)
             testPrx->knownMostDerivedAsKnownIntermediate();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -367,14 +367,14 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -388,14 +388,14 @@ allTests(Test::TestHelper* helper)
             testPrx->knownMostDerivedAsKnownMostDerived();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -410,14 +410,14 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownMostDerived& kmd)
+        catch (const KnownMostDerived& kmd)
         {
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
             test(kmd.ice_id() == "::Test::KnownMostDerived");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -431,13 +431,13 @@ allTests(Test::TestHelper* helper)
             testPrx->unknownMostDerived1AsBase();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -452,13 +452,13 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -472,13 +472,13 @@ allTests(Test::TestHelper* helper)
             testPrx->unknownMostDerived1AsKnownIntermediate();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -493,13 +493,13 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const KnownIntermediate& ki)
+        catch (const KnownIntermediate& ki)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
             test(ki.ice_id() == "::Test::KnownIntermediate");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -513,12 +513,12 @@ allTests(Test::TestHelper* helper)
             testPrx->unknownMostDerived2AsBase();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownMostDerived2.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -533,12 +533,12 @@ allTests(Test::TestHelper* helper)
             result.get();
             test(false);
         }
-        catch(const Base& b)
+        catch (const Base& b)
         {
             test(b.b == "UnknownMostDerived2.b");
             test(b.ice_id() == "::Test::Base");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }

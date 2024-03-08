@@ -10,7 +10,6 @@ using namespace std;
 class Client3 : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

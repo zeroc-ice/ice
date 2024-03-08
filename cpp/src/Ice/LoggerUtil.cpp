@@ -13,9 +13,7 @@ using namespace std;
 
 namespace IceUtilInternal
 {
-
-extern bool printStackTraces;
-
+    extern bool printStackTraces;
 }
 
 string
@@ -40,7 +38,7 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 Ice::LoggerOutputBase&
 Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
 {
-    if(IceUtilInternal::printStackTraces)
+    if (IceUtilInternal::printStackTraces)
     {
         out._stream() << ex.what() << '\n' << ex.ice_stackTrace();
     }
@@ -51,22 +49,15 @@ Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
     return out;
 }
 
-Ice::Trace::Trace(const LoggerPtr& logger, const string& category) :
-    _logger(logger),
-    _category(category)
-{
-}
+Ice::Trace::Trace(const LoggerPtr& logger, const string& category) : _logger(logger), _category(category) {}
 
-Ice::Trace::~Trace()
-{
-    flush();
-}
+Ice::Trace::~Trace() { flush(); }
 
 void
 Ice::Trace::flush()
 {
     string s = _stream().str();
-    if(!s.empty())
+    if (!s.empty())
     {
         _logger->trace(_category, s);
     }
@@ -75,12 +66,12 @@ Ice::Trace::flush()
 
 Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)
 {
-    if(communicator == 0)
+    if (communicator == 0)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
     }
 
-    if(logger == 0)
+    if (logger == 0)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Logger cannot be null");
     }

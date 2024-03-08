@@ -37,11 +37,11 @@ allTests(Test::TestHelper* helper)
     Ice::Identity identity;
     identity.category = "foo";
 
-    string names[] = { "foo", "bar", "x", "y", "abcdefg" };
+    string names[] = {"foo", "bar", "x", "y", "abcdefg"};
 
     int idx;
 
-    for(idx = 0; idx < 5; ++idx)
+    for (idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
         MyObjectPrx prx(oa->createProxy(identity));
@@ -56,7 +56,7 @@ allTests(Test::TestHelper* helper)
         prx->ice_ping();
         test(false);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         // Expected
     }
@@ -66,7 +66,7 @@ allTests(Test::TestHelper* helper)
         prx->getName();
         test(false);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         // Expected
     }
@@ -78,7 +78,7 @@ allTests(Test::TestHelper* helper)
         prx->ice_ping();
         test(false);
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         // Expected
     }
@@ -88,13 +88,13 @@ allTests(Test::TestHelper* helper)
         prx->getName();
         test(false);
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         // Expected
     }
 
     identity.category = "bar";
-    for(idx = 0; idx < 5; idx++)
+    for (idx = 0; idx < 5; idx++)
     {
         identity.name = names[idx];
         prx = MyObjectPrx(oa->createProxy(identity));
@@ -104,7 +104,7 @@ allTests(Test::TestHelper* helper)
             prx->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             // Expected
         }
@@ -114,7 +114,7 @@ allTests(Test::TestHelper* helper)
             prx->getName();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             // Expected
         }
@@ -127,7 +127,7 @@ allTests(Test::TestHelper* helper)
     {
         prx->ice_ping();
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         // Expected
     }
@@ -144,7 +144,7 @@ allTests(Test::TestHelper* helper)
     r = oa->findDefaultServant("");
     test(r == servant);
 
-    for(idx = 0; idx < 5; ++idx)
+    for (idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
         prx = MyObjectPrx(oa->createProxy(identity));

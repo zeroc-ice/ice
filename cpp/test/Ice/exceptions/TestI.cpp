@@ -9,9 +9,7 @@
 using namespace Test;
 using namespace std;
 
-ThrowerI::ThrowerI()
-{
-}
+ThrowerI::ThrowerI() {}
 
 void
 ThrowerI::shutdown(const Ice::Current& current)
@@ -42,7 +40,7 @@ ThrowerI::throwAasA(int32_t a, const Ice::Current&)
 void
 ThrowerI::throwAorDasAorD(int32_t a, const Ice::Current&)
 {
-    if(a > 0)
+    if (a > 0)
     {
         A ex;
         ex.aMem = a;

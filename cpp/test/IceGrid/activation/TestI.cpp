@@ -7,10 +7,7 @@
 
 using namespace Test;
 
-TestI::TestI() :
-    _failed(false)
-{
-}
+TestI::TestI() : _failed(false) {}
 
 void
 TestI::fail(const Ice::Current& current)

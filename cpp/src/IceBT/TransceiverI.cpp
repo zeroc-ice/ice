@@ -28,14 +28,14 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
 {
     lock_guard lock(_mutex);
 
-    if(_exception)
+    if (_exception)
     {
         //
         // Raise the stored exception from a failed connection attempt.
         //
         rethrow_exception(_exception);
     }
-    else if(_needConnect)
+    else if (_needConnect)
     {
         //
         // We need to initiate a connection attempt.
@@ -61,7 +61,7 @@ IceBT::TransceiverI::closing(bool initiator, exception_ptr)
 void
 IceBT::TransceiverI::close()
 {
-    if(_connection)
+    if (_connection)
     {
         _connection->close();
     }
@@ -71,7 +71,7 @@ IceBT::TransceiverI::close()
 IceInternal::SocketOperation
 IceBT::TransceiverI::write(IceInternal::Buffer& buf)
 {
-    if(_stream->fd() == INVALID_SOCKET)
+    if (_stream->fd() == INVALID_SOCKET)
     {
         //
         // This can happen if the connection failed. We return None here and let initialize() handle the rest.
@@ -85,7 +85,7 @@ IceBT::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 IceBT::TransceiverI::read(IceInternal::Buffer& buf)
 {
-    if(_stream->fd() == INVALID_SOCKET)
+    if (_stream->fd() == INVALID_SOCKET)
     {
         //
         // This can happen if we connected successfully but the selector has not updated our FD yet.
@@ -118,9 +118,9 @@ Ice::ConnectionInfoPtr
 IceBT::TransceiverI::getInfo() const
 {
     auto info = make_shared<IceBT::ConnectionInfo>();
-    fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
-                          info->remoteChannel);
-    if(_stream->fd() != INVALID_SOCKET)
+    fdToAddressAndChannel(
+        _stream->fd(), info->localAddress, info->localChannel, info->remoteAddress, info->remoteChannel);
+    if (_stream->fd() != INVALID_SOCKET)
     {
         info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
         info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
@@ -140,28 +140,29 @@ IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
 }
 
-IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const StreamSocketPtr& stream, const ConnectionPtr& conn,
-                                  const string& uuid) :
-    _instance(instance),
-    _stream(stream),
-    _connection(conn),
-    _uuid(uuid),
-    _needConnect(false)
+IceBT::TransceiverI::TransceiverI(
+    const InstancePtr& instance,
+    const StreamSocketPtr& stream,
+    const ConnectionPtr& conn,
+    const string& uuid)
+    : _instance(instance),
+      _stream(stream),
+      _connection(conn),
+      _uuid(uuid),
+      _needConnect(false)
 {
 }
 
-IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const string& addr, const string& uuid) :
-    _instance(instance),
-    _stream(new StreamSocket(instance, INVALID_SOCKET)),
-    _addr(addr),
-    _uuid(uuid),
-    _needConnect(true)
+IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const string& addr, const string& uuid)
+    : _instance(instance),
+      _stream(new StreamSocket(instance, INVALID_SOCKET)),
+      _addr(addr),
+      _uuid(uuid),
+      _needConnect(true)
 {
 }
 
-IceBT::TransceiverI::~TransceiverI()
-{
-}
+IceBT::TransceiverI::~TransceiverI() {}
 
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)

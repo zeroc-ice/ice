@@ -13,7 +13,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -26,16 +25,16 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     bool withDeploy = false;
 
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(strcmp(argv[i], "--with-deploy") == 0)
+        if (strcmp(argv[i], "--with-deploy") == 0)
         {
             withDeploy = true;
             break;
         }
     }
 
-    if(!withDeploy)
+    if (!withDeploy)
     {
         void allTests(Test::TestHelper*);
         allTests(this);

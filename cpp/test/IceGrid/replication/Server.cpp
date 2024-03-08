@@ -11,7 +11,6 @@ using namespace std;
 class Server final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -20,12 +19,13 @@ Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     auto adapter = communicatorHolder->createObjectAdapter("TestAdapter");
-    adapter->add(make_shared<TestI>(), Ice::stringToIdentity(communicatorHolder->getProperties()->getProperty("Identity")));
+    adapter->add(
+        make_shared<TestI>(), Ice::stringToIdentity(communicatorHolder->getProperties()->getProperty("Identity")));
     try
     {
         adapter->activate();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     communicatorHolder->waitForShutdown();

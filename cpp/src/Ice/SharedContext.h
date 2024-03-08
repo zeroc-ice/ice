@@ -11,37 +11,25 @@
 
 namespace Ice
 {
-typedef ::std::map< ::std::string, ::std::string> Context;
+    typedef ::std::map<::std::string, ::std::string> Context;
 }
 
 namespace IceInternal
 {
-
-class SharedContext
-{
-public:
-
-    SharedContext()
+    class SharedContext
     {
-    }
+    public:
+        SharedContext() {}
 
-    SharedContext(const Ice::Context& val) :
-        _val(val)
-    {
-    }
+        SharedContext(const Ice::Context& val) : _val(val) {}
 
-    inline const Ice::Context& getValue()
-    {
-        return _val;
-    }
+        inline const Ice::Context& getValue() { return _val; }
 
-private:
+    private:
+        Ice::Context _val;
+    };
 
-    Ice::Context _val;
-};
-
-using SharedContextPtr = std::shared_ptr<SharedContext>;
-
+    using SharedContextPtr = std::shared_ptr<SharedContext>;
 }
 
 #endif

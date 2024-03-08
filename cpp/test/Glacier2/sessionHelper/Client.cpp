@@ -24,242 +24,193 @@ void notifyClient();
 
 namespace
 {
+    Client* instance = nullptr;
 
-Client* instance = nullptr;
-
-class Dispatcher final
-{
-public:
-
-    void dispatch(std::function<void()> call, const shared_ptr<Ice::Connection>&)
+    class Dispatcher final
     {
-        bool wasEmpty = false;
+    public:
+        void dispatch(std::function<void()> call, const shared_ptr<Ice::Connection>&)
         {
-            lock_guard<mutex> lg(_mutex);
-            wasEmpty = _queue.empty();
-            _queue.push_back(std::move(call));
+            bool wasEmpty = false;
+            {
+                lock_guard<mutex> lg(_mutex);
+                wasEmpty = _queue.empty();
+                _queue.push_back(std::move(call));
+            }
+            if (wasEmpty)
+            {
+                _condVar.notify_one();
+            }
         }
-        if(wasEmpty)
+
+        void destroy()
         {
+            {
+                lock_guard<mutex> lg(_mutex);
+                _destroyed = true;
+            }
             _condVar.notify_one();
         }
-    }
 
-    void destroy()
-    {
+        void run()
         {
-            lock_guard<mutex> lg(_mutex);
-            _destroyed = true;
-        }
-        _condVar.notify_one();
-    }
-
-    void run()
-    {
-        for(;;)
-        {
-            auto item = nextItem();
-            if(!item)
+            for (;;)
             {
-                break;
+                auto item = nextItem();
+                if (!item)
+                {
+                    break;
+                }
+                item();
             }
-            item();
         }
-    }
 
-private:
-
-    std::function<void()> nextItem()
-    {
-        unique_lock<mutex> lock(_mutex);
-        while(_queue.empty())
+    private:
+        std::function<void()> nextItem()
         {
-            if(_destroyed)
+            unique_lock<mutex> lock(_mutex);
+            while (_queue.empty())
             {
-                return nullptr;
+                if (_destroyed)
+                {
+                    return nullptr;
+                }
+                _condVar.wait(lock);
             }
-            _condVar.wait(lock);
+            auto item = _queue.front();
+            _queue.pop_front();
+            return item;
         }
-        auto item = _queue.front();
-        _queue.pop_front();
-        return item;
-    }
 
-    list<std::function<void()>> _queue;
-    bool _destroyed = false;
-    mutex _mutex;
-    condition_variable _condVar;
-};
+        list<std::function<void()>> _queue;
+        bool _destroyed = false;
+        mutex _mutex;
+        condition_variable _condVar;
+    };
 
-class SuccessSessionCallback final : public Glacier2::SessionCallback
-{
-public:
-
-    void connected(const shared_ptr<Glacier2::SessionHelper>&) override
+    class SuccessSessionCallback final : public Glacier2::SessionCallback
     {
-        cout << "ok" << endl;
-        notifyClient();
-    }
-
-    void
-    disconnected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        cout << "ok" << endl;
-        notifyClient();
-    }
-
-    void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr) override
-    {
-        test(false);
-    }
-
-    void
-    createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
-    {
-        test(session->communicator());
-    }
-};
-
-class AfterShutdownSessionCallback final : public Glacier2::SessionCallback
-{
-public:
-
-    void
-    connected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    disconnected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
-    {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const Ice::ConnectFailedException&)
+    public:
+        void connected(const shared_ptr<Glacier2::SessionHelper>&) override
         {
             cout << "ok" << endl;
             notifyClient();
         }
-        catch(...)
-        {
-            test(false);
-        }
-    }
 
-    void
-    createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
-    {
-        test(session->communicator());
-    }
-};
-
-class FailSessionCallback final : public Glacier2::SessionCallback
-{
-public:
-
-    void
-    connected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    disconnected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
-    {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const Glacier2::PermissionDeniedException&)
+        void disconnected(const shared_ptr<Glacier2::SessionHelper>&) override
         {
             cout << "ok" << endl;
             notifyClient();
         }
-        catch(const Ice::LocalException&)
+
+        void connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr) override { test(false); }
+
+        void createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
         {
-            test(false);
+            test(session->communicator());
         }
-    }
+    };
 
-    void
-    createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
+    class AfterShutdownSessionCallback final : public Glacier2::SessionCallback
     {
-        test(session->communicator());
-    }
-};
+    public:
+        void connected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
 
-class InterruptConnectCallback final : public Glacier2::SessionCallback
-{
-public:
+        void disconnected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
 
-    void
-    connected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    disconnected(const shared_ptr<Glacier2::SessionHelper>&) override
-    {
-        test(false);
-    }
-
-    void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
-    {
-        try
+        void connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
         {
-            rethrow_exception(ex);
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::ConnectFailedException&)
+            {
+                cout << "ok" << endl;
+                notifyClient();
+            }
+            catch (...)
+            {
+                test(false);
+            }
         }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            cout << "ok" << endl;
-            notifyClient();
-        }
-        catch(...)
-        {
-            test(false);
-        }
-    }
 
-    void
-    createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
+        void createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
+        {
+            test(session->communicator());
+        }
+    };
+
+    class FailSessionCallback final : public Glacier2::SessionCallback
     {
-        test(session->communicator());
-    }
-};
+    public:
+        void connected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
+
+        void disconnected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
+
+        void connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
+        {
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Glacier2::PermissionDeniedException&)
+            {
+                cout << "ok" << endl;
+                notifyClient();
+            }
+            catch (const Ice::LocalException&)
+            {
+                test(false);
+            }
+        }
+
+        void createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
+        {
+            test(session->communicator());
+        }
+    };
+
+    class InterruptConnectCallback final : public Glacier2::SessionCallback
+    {
+    public:
+        void connected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
+
+        void disconnected(const shared_ptr<Glacier2::SessionHelper>&) override { test(false); }
+
+        void connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
+        {
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::CommunicatorDestroyedException&)
+            {
+                cout << "ok" << endl;
+                notifyClient();
+            }
+            catch (...)
+            {
+                test(false);
+            }
+        }
+
+        void createdCommunicator(const shared_ptr<Glacier2::SessionHelper>& session) override
+        {
+            test(session->communicator());
+        }
+    };
 
 } // Anonymous namespace end
 
 class Client final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 
-    void
-    notify()
-    {
-        _condVar.notify_one();
-    }
+    void notify() { _condVar.notify_one(); }
 
 private:
-
     shared_ptr<Glacier2::SessionHelper> _session;
     shared_ptr<Glacier2::SessionFactoryHelper> _factory;
     Ice::InitializationData _initData;
@@ -267,7 +218,8 @@ private:
     condition_variable _condVar;
 };
 
-void notifyClient()
+void
+notifyClient()
 {
     instance->notify();
 }
@@ -284,12 +236,10 @@ Client::run(int argc, char** argv)
     _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(50));
 
     Dispatcher dispatcher;
-    auto dfut = std::async(launch::async, [&dispatcher]{ dispatcher.run(); });
+    auto dfut = std::async(launch::async, [&dispatcher] { dispatcher.run(); });
 
     _initData.dispatcher = [&dispatcher](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
-                           {
-                               dispatcher.dispatch(call, conn);
-                           };
+    { dispatcher.dispatch(call, conn); };
     _factory = make_shared<Glacier2::SessionFactoryHelper>(_initData, make_shared<FailSessionCallback>());
 
     //
@@ -360,7 +310,7 @@ Client::run(int argc, char** argv)
         {
             test(!_session->categoryForClient().empty());
         }
-        catch(const Glacier2::SessionNotExistException&)
+        catch (const Glacier2::SessionNotExistException&)
         {
             test(false);
         }
@@ -369,8 +319,8 @@ Client::run(int argc, char** argv)
         test(!_session->session());
 
         cout << "testing stringToProxy for server object... " << flush;
-        auto base =
-            _session->communicator()->stringToProxy("callback:" + getTestEndpoint(_session->communicator()->getProperties()));
+        auto base = _session->communicator()->stringToProxy(
+            "callback:" + getTestEndpoint(_session->communicator()->getProperties()));
         cout << "ok" << endl;
 
         cout << "pinging server after session creation... " << flush;
@@ -405,7 +355,7 @@ Client::run(int argc, char** argv)
             test(!_session->categoryForClient().empty());
             test(false);
         }
-        catch(const Glacier2::SessionNotExistException&)
+        catch (const Glacier2::SessionNotExistException&)
         {
         }
         cout << "ok" << endl;
@@ -421,7 +371,7 @@ Client::run(int argc, char** argv)
             _session->communicator()->stringToProxy("dummy");
             test(false);
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
         }
         cout << "ok" << endl;
@@ -438,7 +388,7 @@ Client::run(int argc, char** argv)
             process->ice_ping();
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             cout << "ok" << endl;
         }
@@ -446,7 +396,7 @@ Client::run(int argc, char** argv)
 
     _factory->destroy();
 
-    _factory = make_shared<Glacier2::SessionFactoryHelper>( _initData, make_shared<AfterShutdownSessionCallback>());
+    _factory = make_shared<Glacier2::SessionFactoryHelper>(_initData, make_shared<AfterShutdownSessionCallback>());
 
     //
     // Wait a bit to ensure glaci2router has been shutdown.
@@ -477,7 +427,7 @@ Client::run(int argc, char** argv)
             _session->communicator()->stringToProxy("dummy");
             test(false);
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
         }
         cout << "ok" << endl;

@@ -12,7 +12,6 @@
 class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {
 public:
-
     std::optional<Test::RemoteObjectAdapterPrx> createObjectAdapter(int, int, int, const Ice::Current&) final;
     void shutdown(const Ice::Current&) final;
 };
@@ -20,7 +19,6 @@ public:
 class RemoteObjectAdapterI final : public Test::RemoteObjectAdapter
 {
 public:
-
     RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
 
     std::optional<Test::TestIntfPrx> getTestIntf(const Ice::Current&) final;
@@ -29,7 +27,6 @@ public:
     void deactivate(const Ice::Current&) final;
 
 private:
-
     const Ice::ObjectAdapterPtr _adapter;
     const std::optional<Test::TestIntfPrx> _testIntf;
 };
@@ -37,7 +34,6 @@ private:
 class TestI final : public Test::TestIntf
 {
 public:
-
     void sleep(int, const Ice::Current&) final;
     void sleepAndHold(int, const Ice::Current&) final;
     void interruptSleep(const Ice::Current&) final;
@@ -45,15 +41,10 @@ public:
     void waitForHeartbeatCount(int, const Ice::Current&) final;
 
 private:
-
     class HeartbeatCallbackI final : public std::enable_shared_from_this<HeartbeatCallbackI>
     {
     public:
-
-        HeartbeatCallbackI() :
-            _count(0)
-        {
-        }
+        HeartbeatCallbackI() : _count(0) {}
 
         void waitForCount(int count)
         {
@@ -69,7 +60,6 @@ private:
         }
 
     private:
-
         int _count;
         std::mutex _mutex;
         std::condition_variable _condition;

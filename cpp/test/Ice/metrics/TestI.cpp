@@ -61,9 +61,7 @@ MetricsI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const ObjectAdapterPtr& adapter) : _adapter(adapter)
-{
-}
+ControllerI::ControllerI(const ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
 void
 ControllerI::hold(const Current&)

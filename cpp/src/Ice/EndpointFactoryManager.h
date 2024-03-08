@@ -15,35 +15,29 @@
 
 namespace Ice
 {
-
-class InputStream;
-
+    class InputStream;
 }
 
 namespace IceInternal
 {
+    class EndpointFactoryManager
+    {
+    public:
+        EndpointFactoryManager(const InstancePtr&);
+        void initialize() const;
+        void add(const EndpointFactoryPtr&);
+        EndpointFactoryPtr get(std::int16_t) const;
+        EndpointIPtr create(const std::string&, bool) const;
+        EndpointIPtr read(Ice::InputStream*) const;
 
-class EndpointFactoryManager
-{
-public:
+    private:
+        void destroy();
+        friend class Instance;
 
-    EndpointFactoryManager(const InstancePtr&);
-    void initialize() const;
-    void add(const EndpointFactoryPtr&);
-    EndpointFactoryPtr get(std::int16_t) const;
-    EndpointIPtr create(const std::string&, bool) const;
-    EndpointIPtr read(Ice::InputStream*) const;
-
-private:
-
-    void destroy();
-    friend class Instance;
-
-    InstancePtr _instance;
-    std::vector<EndpointFactoryPtr> _factories;
-    mutable std::mutex _mutex;
-};
-
+        InstancePtr _instance;
+        std::vector<EndpointFactoryPtr> _factories;
+        mutable std::mutex _mutex;
+    };
 }
 
 #endif

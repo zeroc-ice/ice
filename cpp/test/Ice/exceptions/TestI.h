@@ -12,7 +12,6 @@ bool endsWith(const std::string&, const std::string&);
 class ThrowerI : public Test::Thrower
 {
 public:
-
     ThrowerI();
 
     virtual void shutdown(const Ice::Current&);

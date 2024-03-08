@@ -16,7 +16,6 @@ using BackgroundControllerIPtr = std::shared_ptr<BackgroundControllerI>;
 class BackgroundI final : public Test::Background
 {
 public:
-
     BackgroundI(const BackgroundControllerIPtr&);
 
     void op(const Ice::Current&) final;
@@ -24,14 +23,12 @@ public:
     void shutdown(const Ice::Current&) final;
 
 private:
-
     BackgroundControllerIPtr _controller;
 };
 
 class BackgroundControllerI final : public Test::BackgroundController
 {
 public:
-
     BackgroundControllerI(const Ice::ObjectAdapterPtr&, const ConfigurationPtr&);
 
     void pauseCall(std::string, const Ice::Current&) final;
@@ -53,7 +50,6 @@ public:
     void buffered(bool, const Ice::Current&) final;
 
 private:
-
     Ice::ObjectAdapterPtr _adapter;
     std::set<std::string> _pausedCalls;
     ConfigurationPtr _configuration;

@@ -23,40 +23,39 @@
 //
 namespace IceSSL
 {
-namespace RFC2253
-{
+    namespace RFC2253
+    {
+        typedef std::list<std::pair<std::string, std::string>> RDNSeq;
 
-typedef std::list< std::pair<std::string, std::string> > RDNSeq;
+        struct ICESSL_API RDNEntry
+        {
+            RDNSeq rdn;
+            bool negate;
+        };
+        typedef std::list<RDNEntry> RDNEntrySeq;
 
-struct ICESSL_API RDNEntry
-{
-    RDNSeq rdn;
-    bool negate;
-};
-typedef std::list<RDNEntry> RDNEntrySeq;
+        //
+        // This function separates DNs with the ';' character. A list of RDN
+        // pairs may optionally be prefixed with '!' to indicate a negation.
+        // The function returns a list of RDNEntry structures. Any failure in
+        // parsing results in a ParseException being thrown.
+        //
+        ICESSL_API RDNEntrySeq parse(const std::string&);
 
-//
-// This function separates DNs with the ';' character. A list of RDN
-// pairs may optionally be prefixed with '!' to indicate a negation.
-// The function returns a list of RDNEntry structures. Any failure in
-// parsing results in a ParseException being thrown.
-//
-ICESSL_API RDNEntrySeq parse(const std::string&);
+        //
+        // RDNs are separated with ',' and ';'.
+        //
+        // This function returns a list of RDN pairs. Any failure in parsing
+        // results in a ParseException being thrown.
+        //
+        ICESSL_API RDNSeq parseStrict(const std::string&);
 
-//
-// RDNs are separated with ',' and ';'.
-//
-// This function returns a list of RDN pairs. Any failure in parsing
-// results in a ParseException being thrown.
-//
-ICESSL_API RDNSeq parseStrict(const std::string&);
+        //
+        // Unescape the string.
+        //
+        ICESSL_API std::string unescape(const std::string&);
 
-//
-// Unescape the string.
-//
-ICESSL_API std::string unescape(const std::string&);
-
-}
+    }
 }
 
 #endif

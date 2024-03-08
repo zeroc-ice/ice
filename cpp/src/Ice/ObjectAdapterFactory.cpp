@@ -25,7 +25,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
         // Ignore shutdown requests if the object adapter factory has
         // already been shut down.
         //
-        if(!_instance)
+        if (!_instance)
         {
             return;
         }
@@ -39,7 +39,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
     }
 
     // Deactivate outside the thread synchronization, to avoid deadlocks.
-    for_each(adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
+    for_each(
+        adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
 }
 
 void
@@ -58,7 +59,9 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     }
 
     // Now we wait for deactivation of each object adapter.
-    for_each(adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->waitForDeactivate(); });
+    for_each(
+        adapters.begin(), adapters.end(),
+        [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->waitForDeactivate(); });
 }
 
 bool
@@ -102,11 +105,8 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
         adapters = _adapters;
     }
 
-    for_each(adapters.begin(), adapters.end(),
-             [fn](const shared_ptr<ObjectAdapterI>& adapter)
-             {
-                 (adapter.get() ->* fn)();
-             });
+    for_each(
+        adapters.begin(), adapters.end(), [fn](const shared_ptr<ObjectAdapterI>& adapter) { (adapter.get()->*fn)(); });
 }
 
 ObjectAdapterPtr
@@ -116,19 +116,19 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
     {
         lock_guard lock(_mutex);
 
-        if(!_instance)
+        if (!_instance)
         {
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        if(name.empty())
+        if (name.empty())
         {
             string uuid = Ice::generateUUID();
             adapter = make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), uuid, true);
         }
         else
         {
-            if(_adapterNamesInUse.find(name) != _adapterNamesInUse.end())
+            if (_adapterNamesInUse.find(name) != _adapterNamesInUse.end())
             {
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
@@ -148,23 +148,23 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         initialized = true;
 
         lock_guard lock(_mutex);
-        if(!_instance)
+        if (!_instance)
         {
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
         _adapters.push_back(adapter);
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
-        if(initialized)
+        if (initialized)
         {
             adapter->destroy();
         }
         throw;
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
-        if(!name.empty())
+        if (!name.empty())
         {
             lock_guard lock(_mutex);
             _adapterNamesInUse.erase(name);
@@ -182,7 +182,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
     {
         lock_guard lock(_mutex);
 
-        if(!_instance)
+        if (!_instance)
         {
             return nullptr;
         }
@@ -190,16 +190,16 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
         adapters = _adapters;
     }
 
-    for(list<shared_ptr<ObjectAdapterI>>::iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (list<shared_ptr<ObjectAdapterI>>::iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
         try
         {
-            if((*p)->isLocal(reference))
+            if ((*p)->isLocal(reference))
             {
                 return *p;
             }
         }
-        catch(const ObjectAdapterDeactivatedException&)
+        catch (const ObjectAdapterDeactivatedException&)
         {
             // Ignore.
         }
@@ -213,14 +213,14 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 {
     lock_guard lock(_mutex);
 
-    if(!_instance)
+    if (!_instance)
     {
         return;
     }
 
-    for(list<shared_ptr<ObjectAdapterI>>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    for (list<shared_ptr<ObjectAdapterI>>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-        if(*p == adapter)
+        if (*p == adapter)
         {
             _adapters.erase(p);
             break;
@@ -230,8 +230,9 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                                                           CompressBatch compressBatch) const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
+    const CommunicatorFlushBatchAsyncPtr& outAsync,
+    CompressBatch compressBatch) const
 {
     list<shared_ptr<ObjectAdapterI>> adapters;
     {
@@ -240,16 +241,17 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlu
         adapters = _adapters;
     }
 
-    for(list<shared_ptr<ObjectAdapterI>>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (list<shared_ptr<ObjectAdapterI>>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
         (*p)->flushAsyncBatchRequests(outAsync, compressBatch);
     }
 }
 
-IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
-                                                        const CommunicatorPtr& communicator) :
-    _instance(instance),
-    _communicator(communicator)
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(
+    const InstancePtr& instance,
+    const CommunicatorPtr& communicator)
+    : _instance(instance),
+      _communicator(communicator)
 {
 }
 

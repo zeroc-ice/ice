@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class DefaultsAndOverrides;
-using DefaultsAndOverridesPtr = std::shared_ptr<DefaultsAndOverrides>;
-
+    class DefaultsAndOverrides;
+    using DefaultsAndOverridesPtr = std::shared_ptr<DefaultsAndOverrides>;
 }
 
 #endif

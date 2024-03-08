@@ -437,7 +437,6 @@ Ice::InputStream::read(vector<bool>& v)
 
 namespace
 {
-
     template<size_t boolSize> struct ReadBoolHelper
     {
         static bool* read(pair<const bool*, const bool*>& v, int32_t sz, InputStream::Container::iterator& i)
@@ -462,7 +461,6 @@ namespace
             return 0;
         }
     };
-
 }
 
 void

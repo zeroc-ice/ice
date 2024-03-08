@@ -15,105 +15,100 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
-string
-getEscapedParamName(const OperationPtr& p, const string& name)
-{
-    ParamDeclList params = p->parameters();
-
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        if((*i)->name() == name)
-        {
-            return name + "_";
-        }
-    }
-    return name;
-}
+        ParamDeclList params = p->parameters();
 
+        for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        {
+            if ((*i)->name() == name)
+            {
+                return name + "_";
+            }
+        }
+        return name;
+    }
 }
 
 namespace Slice
 {
-namespace Ruby
-{
-
-//
-// CodeVisitor generates the Ruby mapping for a translation unit.
-//
-class CodeVisitor : public ParserVisitor
-{
-public:
-
-    CodeVisitor(IceUtilInternal::Output&);
-
-    virtual bool visitModuleStart(const ModulePtr&);
-    virtual void visitModuleEnd(const ModulePtr&);
-    virtual void visitClassDecl(const ClassDeclPtr&);
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
-
-private:
-
-    //
-    // Return a Ruby symbol for the given parser element.
-    //
-    string getSymbol(const ContainedPtr&);
-
-    //
-    // Emit Ruby code to assign the given symbol in the current module.
-    //
-    void registerName(const string&);
-
-    //
-    // Emit the array that describes a Slice type.
-    //
-    void writeType(const TypePtr&);
-
-    //
-    // Get an initializer value for a given type.
-    //
-    string getInitializer(const DataMemberPtr&);
-
-    //
-    // Add a value to a hash code.
-    //
-    void writeHash(const string&, const TypePtr&, int&);
-
-    //
-    // Write a constant value.
-    //
-    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
-
-    struct MemberInfo
+    namespace Ruby
     {
-        string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local variable.
-        string fixedName;
-        bool inherited = false;
-        DataMemberPtr dataMember;
-    };
-    typedef list<MemberInfo> MemberInfoList;
+        //
+        // CodeVisitor generates the Ruby mapping for a translation unit.
+        //
+        class CodeVisitor : public ParserVisitor
+        {
+        public:
+            CodeVisitor(IceUtilInternal::Output&);
 
-    //
-    // Write constructor parameters with default values.
-    //
-    void writeConstructorParams(const MemberInfoList&);
+            virtual bool visitModuleStart(const ModulePtr&);
+            virtual void visitModuleEnd(const ModulePtr&);
+            virtual void visitClassDecl(const ClassDeclPtr&);
+            virtual bool visitClassDefStart(const ClassDefPtr&);
+            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+            virtual bool visitExceptionStart(const ExceptionPtr&);
+            virtual bool visitStructStart(const StructPtr&);
+            virtual void visitSequence(const SequencePtr&);
+            virtual void visitDictionary(const DictionaryPtr&);
+            virtual void visitEnum(const EnumPtr&);
+            virtual void visitConst(const ConstPtr&);
 
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+        private:
+            //
+            // Return a Ruby symbol for the given parser element.
+            //
+            string getSymbol(const ContainedPtr&);
 
-    Output& _out;
-    set<string> _classHistory;
-};
+            //
+            // Emit Ruby code to assign the given symbol in the current module.
+            //
+            void registerName(const string&);
 
-}
+            //
+            // Emit the array that describes a Slice type.
+            //
+            void writeType(const TypePtr&);
+
+            //
+            // Get an initializer value for a given type.
+            //
+            string getInitializer(const DataMemberPtr&);
+
+            //
+            // Add a value to a hash code.
+            //
+            void writeHash(const string&, const TypePtr&, int&);
+
+            //
+            // Write a constant value.
+            //
+            void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+
+            struct MemberInfo
+            {
+                string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local
+                                  // variable.
+                string fixedName;
+                bool inherited = false;
+                DataMemberPtr dataMember;
+            };
+            typedef list<MemberInfo> MemberInfoList;
+
+            //
+            // Write constructor parameters with default values.
+            //
+            void writeConstructorParams(const MemberInfoList&);
+
+            void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
+            void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+
+            Output& _out;
+            set<string> _classHistory;
+        };
+
+    }
 }
 
 static string
@@ -129,36 +124,85 @@ lookupKwd(const string& name)
     // conflict with a Slice identifier, so names such as "inspect" and
     // "send" are included but "to_s" is not.
     //
-    static const string keywordList[] =
-    {
-        "BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "clone", "def", "display", "do", "dup",
-        "else", "elsif", "end", "ensure", "extend", "false", "for", "freeze", "hash", "if", "in", "initialize_copy",
-        "inspect", "instance_eval", "instance_variable_get", "instance_variable_set", "instance_variables", "method",
-        "method_missing", "methods", "module", "new", "next", "nil", "not", "object_id", "or", "private_methods",
-        "protected_methods", "public_methods", "redo", "rescue", "retry", "return", "self", "send",
-        "singleton_methods", "super", "taint", "then", "to_a", "to_s", "true", "undef", "unless", "untaint", "until",
-        "when", "while", "yield"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
+    static const string keywordList[] = {
+        "BEGIN",
+        "END",
+        "alias",
+        "and",
+        "begin",
+        "break",
+        "case",
+        "class",
+        "clone",
+        "def",
+        "display",
+        "do",
+        "dup",
+        "else",
+        "elsif",
+        "end",
+        "ensure",
+        "extend",
+        "false",
+        "for",
+        "freeze",
+        "hash",
+        "if",
+        "in",
+        "initialize_copy",
+        "inspect",
+        "instance_eval",
+        "instance_variable_get",
+        "instance_variable_set",
+        "instance_variables",
+        "method",
+        "method_missing",
+        "methods",
+        "module",
+        "new",
+        "next",
+        "nil",
+        "not",
+        "object_id",
+        "or",
+        "private_methods",
+        "protected_methods",
+        "public_methods",
+        "redo",
+        "rescue",
+        "retry",
+        "return",
+        "self",
+        "send",
+        "singleton_methods",
+        "super",
+        "taint",
+        "then",
+        "to_a",
+        "to_s",
+        "true",
+        "undef",
+        "unless",
+        "untaint",
+        "until",
+        "when",
+        "while",
+        "yield"};
+    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
     return found ? "_" + name : name;
 }
 
 //
 // CodeVisitor implementation.
 //
-Slice::Ruby::CodeVisitor::CodeVisitor(Output& out) :
-    _out(out)
-{
-}
+Slice::Ruby::CodeVisitor::CodeVisitor(Output& out) : _out(out) {}
 
 bool
 Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
     _out << sp << nl << "module ";
     // Ensure that Slice top-level modules are defined as top level modules in Ruby
-    if(dynamic_pointer_cast<Unit>(p->container()))
+    if (dynamic_pointer_cast<Unit>(p->container()))
     {
         _out << "::";
     }
@@ -181,7 +225,7 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     // Emit forward declarations.
     //
     string scoped = p->scoped();
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
@@ -200,7 +244,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     // Emit forward declarations.
     //
     string scoped = p->scoped();
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
@@ -231,7 +275,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
 
     _out << nl << "class " << name;
-    if(base)
+    if (base)
     {
         _out << " < " << getAbsolute(base, IdentToUpper);
     }
@@ -246,7 +290,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
-    if(!allMembers.empty())
+    if (!allMembers.empty())
     {
         _out << sp << nl << "def initialize(";
         writeConstructorParams(allMembers);
@@ -254,21 +298,21 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
 
         bool inheritsMembers = false;
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(q->inherited)
+            if (q->inherited)
             {
                 inheritsMembers = true;
                 break;
             }
         }
 
-        if(inheritsMembers)
+        if (inheritsMembers)
         {
             _out << nl << "super" << spar;
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                if(q->inherited)
+                if (q->inherited)
                 {
                     _out << q->lowerName;
                 }
@@ -276,9 +320,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << epar;
         }
 
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(!q->inherited)
+            if (!q->inherited)
             {
                 _out << nl << '@' << q->fixedName << " = " << q->lowerName;
             }
@@ -291,31 +335,31 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // read/write accessors for data members.
     //
-    if(!members.empty())
+    if (!members.empty())
     {
         bool prot = p->hasMetaData("protected");
         DataMemberList protectedMembers;
 
         _out << sp << nl << "attr_accessor ";
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
-            if(q != members.begin())
+            if (q != members.begin())
             {
                 _out << ", ";
             }
             _out << ":" << fixIdent((*q)->name(), IdentNormal);
-            if(prot || (*q)->hasMetaData("protected"))
+            if (prot || (*q)->hasMetaData("protected"))
             {
                 protectedMembers.push_back(*q);
             }
         }
 
-        if(!protectedMembers.empty())
+        if (!protectedMembers.empty())
         {
             _out << nl << "protected ";
-            for(DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+            for (DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
             {
-                if(q != protectedMembers.begin())
+                if (q != protectedMembers.begin())
                 {
                     _out << ", ";
                 }
@@ -342,11 +386,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    _out << sp << nl << "T_" << name << ".defineClass("
-         << name << ", "
-         << p->compactId() << ", "
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
          << "false, ";
-    if(!base)
+    if (!base)
     {
         _out << "nil";
     }
@@ -365,15 +407,15 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
     _out << "[";
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.inc();
         _out << nl;
     }
     {
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
-            if(q != members.begin())
+            if (q != members.begin())
             {
                 _out << ',' << nl;
             }
@@ -383,7 +425,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                  << ']';
         }
     }
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -421,15 +463,15 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << nl << "module " << name << "Prx_mixin";
     _out.inc();
-    for(InterfaceList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
+    for (InterfaceList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
     {
         InterfaceDefPtr def = *cli;
         _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
     }
-    for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+    for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
     {
         string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
-        if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
+        if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
         {
             fixedOpName.insert(0, "_");
         }
@@ -437,11 +479,11 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParamDeclList paramList = (*oli)->parameters();
         string inParams;
 
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
-            if(!(*q)->isOutParam())
+            if (!(*q)->isOutParam())
             {
-                if(!inParams.empty())
+                if (!inParams.empty())
                 {
                     inParams.append(", ");
                 }
@@ -450,7 +492,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         _out << sp << nl << "def " << fixedOpName << "(";
-        if(!inParams.empty())
+        if (!inParams.empty())
         {
             _out << inParams << ", ";
         }
@@ -502,9 +544,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ", [";
     {
         int interfaceCount = 0;
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            if(interfaceCount > 0)
+            if (interfaceCount > 0)
             {
                 _out << ", ";
             }
@@ -514,17 +556,17 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << "])";
 
-    if(!ops.empty())
+    if (!ops.empty())
     {
         _out << sp;
     }
-    for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+    for (OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
     {
         ParamDeclList params = (*s)->parameters();
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch((*s)->format())
+        switch ((*s)->format())
         {
             case DefaultFormat:
                 format = "nil";
@@ -539,7 +581,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('" << (*s)->name()
              << "', ";
-        switch((*s)->mode())
+        switch ((*s)->mode())
         {
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
@@ -552,7 +594,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 break;
         }
         _out << ", ";
-        switch((*s)->sendMode())
+        switch ((*s)->sendMode())
         {
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
@@ -566,11 +608,11 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
              << ", [";
-        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
-            if(!(*t)->isOutParam())
+            if (!(*t)->isOutParam())
             {
-                if(count > 0)
+                if (count > 0)
                 {
                     _out << ", ";
                 }
@@ -582,11 +624,11 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << "], [";
-        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
-            if((*t)->isOutParam())
+            if ((*t)->isOutParam())
             {
-                if(count > 0)
+                if (count > 0)
                 {
                     _out << ", ";
                 }
@@ -599,7 +641,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "], ";
         TypePtr returnType = (*s)->returnType();
-        if(returnType)
+        if (returnType)
         {
             //
             // The return type has the same format as an in/out parameter:
@@ -617,9 +659,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", [";
         ExceptionList exceptions = (*s)->throws();
-        for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+        for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
         {
-            if(u != exceptions.begin())
+            if (u != exceptions.begin())
             {
                 _out << ", ";
             }
@@ -628,11 +670,11 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << "])";
 
         string deprecateMetadata;
-        if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+        if ((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
         {
             string msg;
             string::size_type pos = deprecateMetadata.find(':');
-            if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+            if (pos != string::npos && pos < deprecateMetadata.size() - 1)
             {
                 msg = deprecateMetadata.substr(pos + 1);
             }
@@ -657,7 +699,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "class " << name << " < ";
     ExceptionPtr base = p->base();
     string baseName;
-    if(base)
+    if (base)
     {
         baseName = getAbsolute(base, IdentToUpper);
         _out << baseName;
@@ -677,37 +719,37 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     MemberInfoList allMembers;
     collectExceptionMembers(p, allMembers, false);
     bool inheritsMembers = false;
-    if(!allMembers.empty())
+    if (!allMembers.empty())
     {
         _out << '(';
         writeConstructorParams(allMembers);
         _out << ')';
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(q->inherited)
+            if (q->inherited)
             {
                 inheritsMembers = true;
             }
         }
     }
     _out.inc();
-    if(!allMembers.empty())
+    if (!allMembers.empty())
     {
-        if(inheritsMembers)
+        if (inheritsMembers)
         {
             _out << nl << "super" << spar;
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                if(q->inherited)
+                if (q->inherited)
                 {
                     _out << q->lowerName;
                 }
             }
             _out << epar;
         }
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(!q->inherited)
+            if (!q->inherited)
             {
                 _out << nl << '@' << q->fixedName << " = " << q->lowerName;
             }
@@ -728,12 +770,12 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // read/write accessors for data members.
     //
-    if(!members.empty())
+    if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+        for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
         {
-            if(dmli != members.begin())
+            if (dmli != members.begin())
             {
                 _out << ", ";
             }
@@ -748,16 +790,16 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Emit the type information.
     //
     _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", ";
-    if(!base)
+    if (!base)
     {
         _out << "nil";
     }
     else
     {
-         _out << getAbsolute(base, IdentToUpper, "T_");
+        _out << getAbsolute(base, IdentToUpper, "T_");
     }
     _out << ", [";
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.inc();
         _out << nl;
@@ -769,9 +811,9 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+    for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
     {
-        if(dmli != members.begin())
+        if (dmli != members.begin())
         {
             _out << ',' << nl;
         }
@@ -780,7 +822,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
              << ']';
     }
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -802,7 +844,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 
     {
         DataMemberList members = p->dataMembers();
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
             memberList.push_back(MemberInfo());
             memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
@@ -817,13 +859,13 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name;
     _out.inc();
     _out << nl << "include ::Ice::Inspect_mixin";
-    if(!memberList.empty())
+    if (!memberList.empty())
     {
         _out << nl << "def initialize(";
         writeConstructorParams(memberList);
         _out << ")";
         _out.inc();
-        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
             _out << nl << '@' << r->fixedName << " = " << r->lowerName;
         }
@@ -838,7 +880,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "_h = 0";
     int iter = 0;
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeHash("@" + r->fixedName, r->dataMember->type(), iter);
     }
@@ -854,7 +896,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return false if";
     _out.inc();
     _out << " !other.is_a? " << getAbsolute(p, IdentToUpper);
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         _out << " or" << nl << "@" << r->fixedName << " != other." << r->fixedName;
     }
@@ -877,12 +919,12 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // read/write accessors for data members.
     //
-    if(!memberList.empty())
+    if (!memberList.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
-            if(r != memberList.begin())
+            if (r != memberList.begin())
             {
                 _out << ", ";
             }
@@ -904,14 +946,14 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    if(memberList.size() > 1)
+    if (memberList.size() > 1)
     {
         _out.inc();
         _out << nl;
     }
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
-        if(r != memberList.begin())
+        if (r != memberList.begin())
         {
             _out << ',' << nl;
         }
@@ -919,7 +961,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         writeType(r->dataMember->type());
         _out << ']';
     }
-    if(memberList.size() > 1)
+    if (memberList.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -1051,18 +1093,18 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp;
     int i = 0;
-    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
+    for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
     {
         ostringstream idx;
         idx << i;
-        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = " << name << ".new(\"" << (*q)->name()
-             << "\", " << (*q)->value() << ')';
+        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = " << name << ".new(\"" << (*q)->name() << "\", "
+             << (*q)->value() << ')';
     }
 
     _out << sp << nl << "@@_enumerators = {";
-    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+    for (EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
     {
-        if(q != enums.begin())
+        if (q != enums.begin())
         {
             _out << ", ";
         }
@@ -1105,9 +1147,9 @@ void
 Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             {
@@ -1165,7 +1207,7 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
-    if(prx)
+    if (prx)
     {
         _out << getAbsolute(prx, IdentToUpper, "T_") << "Prx";
         return;
@@ -1181,9 +1223,9 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             {
@@ -1215,14 +1257,14 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
-    if(en)
+    if (en)
     {
         EnumeratorList enums = en->enumerators();
         return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(p);
-    if(st)
+    if (st)
     {
         return getAbsolute(st, IdentToUpper) + ".new";
     }
@@ -1237,11 +1279,13 @@ Slice::Ruby::CodeVisitor::writeHash(const string& name, const TypePtr&, int&)
 }
 
 void
-Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType,
-                                             const string& value)
+Slice::Ruby::CodeVisitor::writeConstantValue(
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value)
 {
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if(constant)
+    if (constant)
     {
         _out << fixIdent(constant->scoped(), IdentToUpper);
     }
@@ -1249,41 +1293,41 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
     {
         Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
         Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
-        if(b)
+        if (b)
         {
-            switch(b->kind())
+            switch (b->kind())
             {
-            case Slice::Builtin::KindBool:
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            {
-                _out << value;
-                break;
-            }
-            case Slice::Builtin::KindLong:
-            {
-                IceUtil::Int64 l;
-                IceUtilInternal::stringToInt64(value, l);
-                _out << value;
-                break;
-            }
-            case Slice::Builtin::KindString:
-            {
-                // RubyUCN available in Ruby 1.9 or greater
-                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
-                break;
-            }
+                case Slice::Builtin::KindBool:
+                case Slice::Builtin::KindByte:
+                case Slice::Builtin::KindShort:
+                case Slice::Builtin::KindInt:
+                case Slice::Builtin::KindFloat:
+                case Slice::Builtin::KindDouble:
+                {
+                    _out << value;
+                    break;
+                }
+                case Slice::Builtin::KindLong:
+                {
+                    IceUtil::Int64 l;
+                    IceUtilInternal::stringToInt64(value, l);
+                    _out << value;
+                    break;
+                }
+                case Slice::Builtin::KindString:
+                {
+                    // RubyUCN available in Ruby 1.9 or greater
+                    _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
+                    break;
+                }
 
-            case Slice::Builtin::KindValue:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
-                assert(false);
+                case Slice::Builtin::KindValue:
+                case Slice::Builtin::KindObject:
+                case Slice::Builtin::KindObjectProxy:
+                    assert(false);
             }
         }
-        else if(en)
+        else if (en)
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
@@ -1299,20 +1343,20 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
 void
 Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for(MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if(p != members.begin())
+        if (p != members.begin())
         {
             _out << ", ";
         }
         _out << p->lowerName << "=";
 
         const DataMemberPtr member = p->dataMember;
-        if(member->defaultValueType())
+        if (member->defaultValueType())
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
         }
-        else if(member->optional())
+        else if (member->optional())
         {
             _out << "::Ice::Unset";
         }
@@ -1334,7 +1378,7 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.lowerName = fixIdent((*q)->name(), IdentToLower);
@@ -1349,14 +1393,14 @@ void
 Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
 {
     ExceptionPtr base = p->base();
-    if(base)
+    if (base)
     {
         collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.lowerName = fixIdent((*q)->name(), IdentToLower);
@@ -1372,16 +1416,16 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
 {
     out << nl << "require 'Ice'";
 
-    if(!all)
+    if (!all)
     {
         vector<string> paths = includePaths;
-        for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        for (vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
         {
             *p = fullPath(*p);
         }
 
         StringList includes = un->includeFiles();
-        for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
         {
             string file = changeInclude(*q, paths);
             out << nl << "require '" << file << ".rb'";
@@ -1398,30 +1442,30 @@ string
 Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 {
     assert(!ident.empty());
-    if(ident[0] != ':')
+    if (ident[0] != ':')
     {
         string id = ident;
-        switch(style)
+        switch (style)
         {
-        case IdentNormal:
-            break;
-        case IdentToUpper:
-            // Special case BEGIN & END for class/module names.
-            if(id == "BEGIN" || id == "END")
-            {
-                return id + "_";
-            }
-            if(id[0] >= 'a' && id[0] <= 'z')
-            {
-                id[0] += 'A' - 'a';
-            }
-            break;
-        case IdentToLower:
-            if(id[0] >= 'A' && id[0] <= 'Z')
-            {
-                id[0] += 'a' - 'A';
-            }
-            break;
+            case IdentNormal:
+                break;
+            case IdentToUpper:
+                // Special case BEGIN & END for class/module names.
+                if (id == "BEGIN" || id == "END")
+                {
+                    return id + "_";
+                }
+                if (id[0] >= 'a' && id[0] <= 'z')
+                {
+                    id[0] += 'A' - 'a';
+                }
+                break;
+            case IdentToLower:
+                if (id[0] >= 'A' && id[0] <= 'Z')
+                {
+                    id[0] += 'a' - 'A';
+                }
+                break;
         }
         return lookupKwd(id);
     }
@@ -1431,7 +1475,7 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 
     ostringstream result;
 
-    for(vector<string>::size_type i = 0; i < ids.size() - 1; ++i)
+    for (vector<string>::size_type i = 0; i < ids.size() - 1; ++i)
     {
         //
         // We assume all intermediate names must be upper-case (i.e., they represent
@@ -1445,7 +1489,7 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
     //
     // Preserve trailing scope resolution operator if necessary.
     //
-    if(ident.rfind("::") == ident.size() - 2)
+    if (ident.rfind("::") == ident.size() - 2)
     {
         result << "::";
     }
@@ -1458,7 +1502,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 {
     string scope = fixIdent(cont->scope(), IdentToUpper);
 
-    if(prefix.empty())
+    if (prefix.empty())
     {
         return scope + fixIdent(cont->name(), style);
     }
@@ -1471,11 +1515,9 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 void
 Slice::Ruby::printHeader(IceUtilInternal::Output& out)
 {
-    static const char* header =
-"#\n"
-"# Copyright (c) ZeroC, Inc. All rights reserved.\n"
-"#\n"
-        ;
+    static const char* header = "#\n"
+                                "# Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "#\n";
 
     out << header;
     out << "#\n";

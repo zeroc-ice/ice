@@ -9,24 +9,20 @@
 
 namespace Ice
 {
-
-/// \cond INTERNAL
-class ConnectionI;
-using ConnectionIPtr = ::std::shared_ptr<ConnectionI>;
-/// \endcond
-
+    /// \cond INTERNAL
+    class ConnectionI;
+    using ConnectionIPtr = ::std::shared_ptr<ConnectionI>;
+    /// \endcond
 }
 
 namespace IceInternal
 {
-
-enum AsyncStatus
-{
-    AsyncStatusQueued = 0,
-    AsyncStatusSent = 1,
-    AsyncStatusInvokeSentCallback = 2
-};
-
+    enum AsyncStatus
+    {
+        AsyncStatusQueued = 0,
+        AsyncStatusSent = 1,
+        AsyncStatusInvokeSentCallback = 2
+    };
 }
 
 #endif

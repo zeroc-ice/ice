@@ -10,24 +10,22 @@
 
 namespace IceGrid
 {
+    //
+    // An Admin Router routes requests to an admin object
+    //
+    class AdminRouter : public Ice::BlobjectArrayAsync
+    {
+    protected:
+        AdminRouter(const std::shared_ptr<TraceLevels>&);
 
-//
-// An Admin Router routes requests to an admin object
-//
-class AdminRouter : public Ice::BlobjectArrayAsync
-{
-protected:
+        void invokeOnTarget(
+            const Ice::ObjectPrxPtr&,
+            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
+            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>&&,
+            std::function<void(std::exception_ptr)>&&,
+            const Ice::Current&);
 
-    AdminRouter(const std::shared_ptr<TraceLevels>&);
-
-    void invokeOnTarget(const Ice::ObjectPrxPtr&,
-                        const std::pair<const std::uint8_t*, const std::uint8_t*>&,
-                        std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>&&,
-                        std::function<void(std::exception_ptr)>&&,
-                        const Ice::Current&);
-
-    const std::shared_ptr<TraceLevels> _traceLevels;
-};
-
+        const std::shared_ptr<TraceLevels> _traceLevels;
+    };
 }
 #endif

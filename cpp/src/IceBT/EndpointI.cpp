@@ -21,36 +21,43 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance, const string& addr, const string& uuid, const string& name,
-                            int32_t channel, int32_t timeout, const string& connectionId, bool compress) :
-    _instance(instance),
-    _addr(addr),
-    _uuid(uuid),
-    _name(name),
-    _channel(channel),
-    _timeout(timeout),
-    _connectionId(connectionId),
-    _compress(compress),
-    _hashValue(0)
+IceBT::EndpointI::EndpointI(
+    const InstancePtr& instance,
+    const string& addr,
+    const string& uuid,
+    const string& name,
+    int32_t channel,
+    int32_t timeout,
+    const string& connectionId,
+    bool compress)
+    : _instance(instance),
+      _addr(addr),
+      _uuid(uuid),
+      _name(name),
+      _channel(channel),
+      _timeout(timeout),
+      _connectionId(connectionId),
+      _compress(compress),
+      _hashValue(0)
 {
     hashInit();
 }
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance) :
-    _instance(instance),
-    _channel(0),
-    _timeout(instance->defaultTimeout()),
-    _compress(false),
-    _hashValue(0)
+IceBT::EndpointI::EndpointI(const InstancePtr& instance)
+    : _instance(instance),
+      _channel(0),
+      _timeout(instance->defaultTimeout()),
+      _compress(false),
+      _hashValue(0)
 {
 }
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s) :
-    _instance(instance),
-    _channel(0),
-    _timeout(-1),
-    _compress(false),
-    _hashValue(0)
+IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s)
+    : _instance(instance),
+      _channel(0),
+      _timeout(-1),
+      _compress(false),
+      _hashValue(0)
 {
     //
     // _name and _channel are not marshaled.
@@ -95,7 +102,7 @@ IceBT::EndpointI::timeout() const
 IceInternal::EndpointIPtr
 IceBT::EndpointI::timeout(int32_t timeout) const
 {
-    if(timeout == _timeout)
+    if (timeout == _timeout)
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -114,7 +121,7 @@ IceBT::EndpointI::connectionId() const
 IceInternal::EndpointIPtr
 IceBT::EndpointI::connectionId(const string& connectionId) const
 {
-    if(connectionId == _connectionId)
+    if (connectionId == _connectionId)
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -133,7 +140,7 @@ IceBT::EndpointI::compress() const
 IceInternal::EndpointIPtr
 IceBT::EndpointI::compress(bool compress) const
 {
-    if(compress == _compress)
+    if (compress == _compress)
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -176,13 +183,7 @@ IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
     return make_shared<AcceptorI>(
-        const_cast<EndpointI*>(this)->shared_from_this(),
-        _instance,
-        adapterName,
-        _addr,
-        _uuid,
-        _name,
-        _channel);
+        const_cast<EndpointI*>(this)->shared_from_this(), _instance, adapterName, _addr, _uuid, _name, _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -190,14 +191,14 @@ IceBT::EndpointI::expandIfWildcard() const
 {
     vector<IceInternal::EndpointIPtr> endps;
 
-    if(_addr.empty())
+    if (_addr.empty())
     {
         //
         // getDefaultAdapterAddress will raise BluetoothException if no adapter is present.
         //
         string addr = _instance->engine()->getDefaultAdapterAddress();
-        endps.push_back(make_shared<EndpointI>(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId,
-                                               _compress));
+        endps.push_back(
+            make_shared<EndpointI>(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId, _compress));
     }
     else
     {
@@ -222,7 +223,7 @@ bool
 IceBT::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 {
     const EndpointI* btEndpointI = dynamic_cast<const EndpointI*>(endpoint.get());
-    if(!btEndpointI)
+    if (!btEndpointI)
     {
         return false;
     }
@@ -233,42 +234,42 @@ bool
 IceBT::EndpointI::operator==(const Ice::Endpoint& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(this == p)
+    if (this == p)
     {
         return true;
     }
 
-    if(_addr != p->_addr)
+    if (_addr != p->_addr)
     {
         return false;
     }
 
-    if(_uuid != p->_uuid)
+    if (_uuid != p->_uuid)
     {
         return false;
     }
 
-    if(_connectionId != p->_connectionId)
+    if (_connectionId != p->_connectionId)
     {
         return false;
     }
 
-    if(_channel != p->_channel)
+    if (_channel != p->_channel)
     {
         return false;
     }
 
-    if(_timeout != p->_timeout)
+    if (_timeout != p->_timeout)
     {
         return false;
     }
 
-    if(_compress != p->_compress)
+    if (_compress != p->_compress)
     {
         return false;
     }
@@ -280,80 +281,80 @@ bool
 IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
-        if(!e)
+        if (!e)
         {
             return false;
         }
         return type() < e->type();
     }
 
-    if(this == p)
+    if (this == p)
     {
         return false;
     }
 
-    if(type() < p->type())
+    if (type() < p->type())
     {
         return true;
     }
-    else if(p->type() < type())
+    else if (p->type() < type())
     {
         return false;
     }
 
-    if(_addr < p->_addr)
+    if (_addr < p->_addr)
     {
         return true;
     }
-    else if(p->_addr < _addr)
+    else if (p->_addr < _addr)
     {
         return false;
     }
 
-    if(_uuid < p->_uuid)
+    if (_uuid < p->_uuid)
     {
         return true;
     }
-    else if(p->_uuid < _uuid)
+    else if (p->_uuid < _uuid)
     {
         return false;
     }
 
-    if(_connectionId < p->_connectionId)
+    if (_connectionId < p->_connectionId)
     {
         return true;
     }
-    else if(p->_connectionId < _connectionId)
+    else if (p->_connectionId < _connectionId)
     {
         return false;
     }
 
-    if(_channel < p->_channel)
+    if (_channel < p->_channel)
     {
         return true;
     }
-    else if(p->_channel < _channel)
+    else if (p->_channel < _channel)
     {
         return false;
     }
 
-    if(_timeout < p->_timeout)
+    if (_timeout < p->_timeout)
     {
         return true;
     }
-    else if(p->_timeout < _timeout)
+    else if (p->_timeout < _timeout)
     {
         return false;
     }
 
-    if(!_compress && p->_compress)
+    if (!_compress && p->_compress)
     {
         return true;
     }
-    else if(p->_compress < _compress)
+    else if (p->_compress < _compress)
     {
         return false;
     }
@@ -379,42 +380,42 @@ IceBT::EndpointI::options() const
     //
     ostringstream s;
 
-    if(!_addr.empty())
+    if (!_addr.empty())
     {
         s << " -a ";
         bool addQuote = _addr.find(':') != string::npos;
-        if(addQuote)
+        if (addQuote)
         {
             s << "\"";
         }
         s << _addr;
-        if(addQuote)
+        if (addQuote)
         {
             s << "\"";
         }
     }
 
-    if(!_uuid.empty())
+    if (!_uuid.empty())
     {
         s << " -u ";
         bool addQuote = _uuid.find(':') != string::npos;
-        if(addQuote)
+        if (addQuote)
         {
             s << "\"";
         }
         s << _uuid;
-        if(addQuote)
+        if (addQuote)
         {
             s << "\"";
         }
     }
 
-    if(_channel > 0)
+    if (_channel > 0)
     {
         s << " -c " << _channel;
     }
 
-    if(_timeout == -1)
+    if (_timeout == -1)
     {
         s << " -t infinite";
     }
@@ -423,7 +424,7 @@ IceBT::EndpointI::options() const
         s << " -t " << _timeout;
     }
 
-    if(_compress)
+    if (_compress)
     {
         s << " -z";
     }
@@ -445,31 +446,31 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 {
     IceInternal::EndpointI::initWithOptions(args);
 
-    if(_addr.empty())
+    if (_addr.empty())
     {
         const_cast<string&>(_addr) = _instance->defaultHost();
     }
-    else if(_addr == "*")
+    else if (_addr == "*")
     {
-        if(oaEndpoint)
+        if (oaEndpoint)
         {
             const_cast<string&>(_addr) = string();
         }
         else
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "`-a *' not valid for proxy endpoint `" + toString() + "'");
+            throw EndpointParseException(
+                __FILE__, __LINE__, "`-a *' not valid for proxy endpoint `" + toString() + "'");
         }
     }
 
-    if(_name.empty())
+    if (_name.empty())
     {
         const_cast<string&>(_name) = "Ice Service";
     }
 
-    if(_uuid.empty())
+    if (_uuid.empty())
     {
-        if(oaEndpoint)
+        if (oaEndpoint)
         {
             //
             // Generate a UUID for object adapters that don't specify one.
@@ -482,12 +483,12 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
     }
 
-    if(_channel < 0)
+    if (_channel < 0)
     {
         const_cast<int32_t&>(_channel) = 0;
     }
 
-    if(!oaEndpoint && _channel != 0)
+    if (!oaEndpoint && _channel != 0)
     {
         throw EndpointParseException(__FILE__, __LINE__, "the -c option can only be used for object adapter endpoints");
     }
@@ -498,8 +499,8 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 IceBT::EndpointIPtr
 IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return make_shared<EndpointI>(_instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout,
-                           _connectionId, _compress);
+    return make_shared<EndpointI>(
+        _instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId, _compress);
 }
 
 void
@@ -518,81 +519,81 @@ bool
 IceBT::EndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
     string arg = IceUtilInternal::trim(argument);
-    if(option == "-a")
+    if (option == "-a")
     {
-        if(arg.empty())
+        if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -a option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -a option in endpoint " + endpoint);
         }
-        if(arg != "*" && !isValidDeviceAddress(arg))
+        if (arg != "*" && !isValidDeviceAddress(arg))
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid argument provided for -a option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid argument provided for -a option in endpoint " + endpoint);
         }
         const_cast<string&>(_addr) = arg;
     }
-    else if(option == "-u")
+    else if (option == "-u")
     {
-        if(arg.empty())
+        if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -u option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -u option in endpoint " + endpoint);
         }
         const_cast<string&>(_uuid) = arg;
     }
-    else if(option == "-c")
+    else if (option == "-c")
     {
-        if(arg.empty())
+        if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -c option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -c option in endpoint " + endpoint);
         }
 
         istringstream t(argument);
-        if(!(t >> const_cast<int32_t&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
+        if (!(t >> const_cast<int32_t&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid channel value `" + arg + "' in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid channel value `" + arg + "' in endpoint " + endpoint);
         }
     }
-    else if(option == "-t")
+    else if (option == "-t")
     {
-        if(arg.empty())
+        if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -t option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
         }
 
-        if(arg == "infinite")
+        if (arg == "infinite")
         {
             const_cast<int32_t&>(_timeout) = -1;
         }
         else
         {
             istringstream t(argument);
-            if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
+            if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
             {
-                throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + arg + "' in endpoint " +
-                                             endpoint);
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "invalid timeout value `" + arg + "' in endpoint " + endpoint);
             }
         }
     }
-    else if(option == "-z")
+    else if (option == "-z")
     {
-        if(!arg.empty())
+        if (!arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "unexpected argument `" + arg +
-                                         "' provided for -z option in " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "unexpected argument `" + arg + "' provided for -z option in " + endpoint);
         }
         const_cast<bool&>(_compress) = true;
     }
-    else if(option == "--name")
+    else if (option == "--name")
     {
-        if(arg.empty())
+        if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for --name option in endpoint " +
-                                         endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for --name option in endpoint " + endpoint);
         }
         const_cast<string&>(_name) = arg;
     }
@@ -603,13 +604,9 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     return true;
 }
 
-IceBT::EndpointInfoI::EndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
-{
-}
+IceBT::EndpointInfoI::EndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint) {}
 
-IceBT::EndpointInfoI::~EndpointInfoI()
-{
-}
+IceBT::EndpointInfoI::~EndpointInfoI() {}
 
 int16_t
 IceBT::EndpointInfoI::type() const noexcept
@@ -629,13 +626,9 @@ IceBT::EndpointInfoI::secure() const noexcept
     return _endpoint->secure();
 }
 
-IceBT::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance)
-{
-}
+IceBT::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance) {}
 
-IceBT::EndpointFactoryI::~EndpointFactoryI()
-{
-}
+IceBT::EndpointFactoryI::~EndpointFactoryI() {}
 
 int16_t
 IceBT::EndpointFactoryI::type() const
@@ -672,5 +665,6 @@ IceBT::EndpointFactoryI::destroy()
 IceInternal::EndpointFactoryPtr
 IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
-    return make_shared<EndpointFactoryI>(make_shared<Instance>(_instance->engine(), instance->type(), instance->protocol()));
+    return make_shared<EndpointFactoryI>(
+        make_shared<Instance>(_instance->engine(), instance->type(), instance->protocol()));
 }

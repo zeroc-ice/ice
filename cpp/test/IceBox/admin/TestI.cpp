@@ -8,9 +8,7 @@
 using namespace Test;
 using namespace std;
 
-TestFacetI::TestFacetI()
-{
-}
+TestFacetI::TestFacetI() {}
 
 Ice::PropertyDict
 TestFacetI::getChanges(const Ice::Current&)

@@ -39,7 +39,7 @@ main(int argc, char* argv[])
 
         status = run(Ice::argsToStringSeq(argc, argv));
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << ex.what() << endl;
         status = 1;
@@ -52,16 +52,14 @@ void
 usage(const string& name)
 {
     consoleErr << "Usage: " << name << " [options] [command...]\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "\n"
-        "Commands:\n"
-        "start SERVICE        Start a service.\n"
-        "stop SERVICE         Stop a service.\n"
-        "shutdown             Shutdown the server.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help           Show this message.\n"
+                  "-v, --version        Display the Ice version.\n"
+                  "\n"
+                  "Commands:\n"
+                  "start SERVICE        Start a service.\n"
+                  "stop SERVICE         Stop a service.\n"
+                  "shutdown             Shutdown the server.\n";
 }
 
 int
@@ -76,25 +74,25 @@ run(const Ice::StringSeq& args)
     {
         commands = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);
         return 1;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(args[0]);
         return 0;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
         return 0;
     }
 
-    if(commands.empty())
+    if (commands.empty())
     {
         usage(args[0]);
         return 1;
@@ -115,10 +113,10 @@ run(const Ice::StringSeq& args)
         managerIdentity.name = "ServiceManager";
 
         string managerProxy;
-        if(properties->getProperty("Ice.Default.Locator").empty())
+        if (properties->getProperty("Ice.Default.Locator").empty())
         {
             string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
-            if(managerEndpoints.empty())
+            if (managerEndpoints.empty())
             {
                 consoleErr << args[0] << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return 1;
@@ -129,7 +127,7 @@ run(const Ice::StringSeq& args)
         else
         {
             string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
-            if(managerAdapterId.empty())
+            if (managerAdapterId.empty())
             {
                 consoleErr << args[0] << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return 1;
@@ -142,21 +140,21 @@ run(const Ice::StringSeq& args)
     }
 
     IceBox::ServiceManagerPrxPtr manager = Ice::checkedCast<IceBox::ServiceManagerPrx>(base.value());
-    if(!manager)
+    if (!manager)
     {
         consoleErr << args[0] << ": `" << base.value() << "' is not an IceBox::ServiceManager" << endl;
         return 1;
     }
 
-    for(vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
+    for (vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {
-        if((*r) == "shutdown")
+        if ((*r) == "shutdown")
         {
             manager->shutdown();
         }
-        else if((*r) == "start")
+        else if ((*r) == "start")
         {
-            if(++r == commands.end())
+            if (++r == commands.end())
             {
                 consoleErr << args[0] << ": no service name specified." << endl;
                 return 1;
@@ -166,19 +164,19 @@ run(const Ice::StringSeq& args)
             {
                 manager->startService(*r);
             }
-            catch(const IceBox::NoSuchServiceException&)
+            catch (const IceBox::NoSuchServiceException&)
             {
                 consoleErr << args[0] << ": unknown service `" << *r << "'" << endl;
                 return 1;
             }
-            catch(const IceBox::AlreadyStartedException&)
+            catch (const IceBox::AlreadyStartedException&)
             {
                 consoleErr << args[0] << ": service already started." << endl;
             }
         }
-        else if((*r) == "stop")
+        else if ((*r) == "stop")
         {
-            if(++r == commands.end())
+            if (++r == commands.end())
             {
                 consoleErr << args[0] << ": no service name specified." << endl;
                 return 1;
@@ -188,12 +186,12 @@ run(const Ice::StringSeq& args)
             {
                 manager->stopService(*r);
             }
-            catch(const IceBox::NoSuchServiceException&)
+            catch (const IceBox::NoSuchServiceException&)
             {
                 consoleErr << args[0] << ": unknown service `" << *r << "'" << endl;
                 return 1;
             }
-            catch(const IceBox::AlreadyStoppedException&)
+            catch (const IceBox::AlreadyStoppedException&)
             {
                 consoleErr << args[0] << ": service already stopped." << endl;
             }

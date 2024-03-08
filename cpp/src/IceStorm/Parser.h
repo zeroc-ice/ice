@@ -24,7 +24,7 @@ YY_DECL;
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
 //
-#define YYMAXDEPTH  10000
+#define YYMAXDEPTH 10000
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 //
@@ -35,67 +35,63 @@ YY_DECL;
 
 namespace IceStorm
 {
+    class Parser
+    {
+    public:
+        Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrx, std::map<Ice::Identity, TopicManagerPrx>);
 
-class Parser
-{
-public:
+        void usage();
 
-    Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrx,
-           std::map<Ice::Identity, TopicManagerPrx>);
+        void create(const std::list<std::string>&);
+        void destroy(const std::list<std::string>&);
+        void link(const std::list<std::string>&);
+        void unlink(const std::list<std::string>&);
+        void links(const std::list<std::string>&);
+        void topics(const std::list<std::string>&);
+        void replica(const std::list<std::string>&);
+        void subscribers(const std::list<std::string>&);
+        void current(const std::list<std::string>&);
 
-    void usage();
+        void showBanner();
 
-    void create(const std::list<std::string>&);
-    void destroy(const std::list<std::string>&);
-    void link(const std::list<std::string>&);
-    void unlink(const std::list<std::string>&);
-    void links(const std::list<std::string>&);
-    void topics(const std::list<std::string>&);
-    void replica(const std::list<std::string>&);
-    void subscribers(const std::list<std::string>&);
-    void current(const std::list<std::string>&);
+        //
+        // With older flex version <= 2.5.35 YY_INPUT second
+        // paramenter is of type int&, in newer versions it
+        // changes to size_t&
+        //
+        void getInput(char*, int&, size_t);
+        void getInput(char*, size_t&, size_t);
 
-    void showBanner();
+        void continueLine();
+        const char* getPrompt();
 
-    //
-    // With older flex version <= 2.5.35 YY_INPUT second
-    // paramenter is of type int&, in newer versions it
-    // changes to size_t&
-    //
-    void getInput(char*, int&, size_t);
-    void getInput(char*, size_t&, size_t);
+        void error(const char*);
+        void error(const std::string&);
 
-    void continueLine();
-    const char* getPrompt();
+        void warning(const char*);
+        void warning(const std::string&);
 
-    void error(const char*);
-    void error(const std::string&);
+        void invalidCommand(const std::string&);
 
-    void warning(const char*);
-    void warning(const std::string&);
+        int parse(FILE*, bool);
+        int parse(const std::string&, bool);
 
-    void invalidCommand(const std::string&);
+    private:
+        TopicManagerPrx findManagerById(const std::string&, std::string&) const;
+        TopicManagerPrx findManagerByCategory(const std::string&) const;
+        std::optional<TopicPrx> findTopic(const std::string&) const;
 
-    int parse(FILE*, bool);
-    int parse(const std::string&, bool);
+        void exception(std::exception_ptr, bool = false);
 
-private:
+        const std::shared_ptr<Ice::Communicator> _communicator;
+        TopicManagerPrx _defaultManager;
+        const std::map<Ice::Identity, TopicManagerPrx> _managers;
+        std::string _commands;
+        bool _continue;
+        int _errors;
+    };
 
-    TopicManagerPrx findManagerById(const std::string&, std::string&) const;
-    TopicManagerPrx findManagerByCategory(const std::string&) const;
-    std::optional<TopicPrx> findTopic(const std::string&) const;
-
-    void exception(std::exception_ptr, bool = false);
-
-    const std::shared_ptr<Ice::Communicator> _communicator;
-    TopicManagerPrx _defaultManager;
-    const std::map<Ice::Identity, TopicManagerPrx> _managers;
-    std::string _commands;
-    bool _continue;
-    int _errors;
-};
-
-extern Parser* parser; // The current parser for bison/flex
+    extern Parser* parser; // The current parser for bison/flex
 
 } // End namespace IceStorm
 

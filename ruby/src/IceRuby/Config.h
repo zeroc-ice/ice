@@ -18,7 +18,7 @@
 // The warning ends up causing a build failure. We define the HAVE_ISFINITE macro here to
 // ensure ruby.h doesn't redefine it.
 #if defined(__clang__) && defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 4000)
-#define HAVE_ISFINITE 1
+#    define HAVE_ISFINITE 1
 #endif
 
 //
@@ -27,37 +27,37 @@
 #if defined(__clang__)
 // BUGFIX: Workaround clang 13 warnings during ruby macro expansion, it is important to put this before the push/pop
 // directives to keep the warnings ignored in the source files where macros are expanded.
-#   if __clang_major__ >= 13
-#       pragma clang diagnostic ignored "-Wcompound-token-split-by-macro"
-#   endif
-#   pragma clang diagnostic push
-#   pragma clang diagnostic ignored "-Wunused-parameter"
+#    if __clang_major__ >= 13
+#        pragma clang diagnostic ignored "-Wcompound-token-split-by-macro"
+#    endif
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wunused-parameter"
 //
 // BUGFIX: Workaround clang conversion warnings in ruby headers
 //
-#   pragma clang diagnostic ignored "-Wconversion"
+#    pragma clang diagnostic ignored "-Wconversion"
 
 // Silence warnings regarding missing deprecation attributes in ruby headers
-#   pragma clang diagnostic ignored "-Wdocumentation"
-#   pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
+#    pragma clang diagnostic ignored "-Wdocumentation"
+#    pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
 #elif defined(__GNUC__)
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
 // BUGFIX Workaround G++ 10 problem with ruby headers
 // see https://bugs.ruby-lang.org/issues/16930
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <ruby.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
-#  include <ruby/encoding.h>
+#    include <ruby/encoding.h>
 #endif
 
 #if defined(__clang__)
-#   pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #elif defined(__GNUC__)
-#   pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
 #endif
 
 //
@@ -65,16 +65,16 @@
 // functions like shutdown() and close() that wreak havoc.
 //
 #ifdef _WIN32
-#   undef shutdown
-#   undef close
-#   undef read
-#   undef write
-#   undef sleep
+#    undef shutdown
+#    undef close
+#    undef read
+#    undef write
+#    undef sleep
 #endif
 
 extern "C"
 {
-typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
+    typedef VALUE (*ICE_RUBY_ENTRY_POINT)(...);
 }
 
 #define CAST_METHOD(X) reinterpret_cast<ICE_RUBY_ENTRY_POINT>(X)
@@ -84,34 +84,34 @@ typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
 // to maintain compatibility with 1.8.
 //
 #ifndef RARRAY_PTR
-#   define RARRAY_PTR(v) RARRAY(v)->ptr
+#    define RARRAY_PTR(v) RARRAY(v)->ptr
 #endif
 
 #ifndef RARRAY_LEN
-#   define RARRAY_LEN(v) RARRAY(v)->len
+#    define RARRAY_LEN(v) RARRAY(v)->len
 #endif
 
 #ifndef RSTRING_PTR
-#   define RSTRING_PTR(v) RSTRING(v)->ptr
+#    define RSTRING_PTR(v) RSTRING(v)->ptr
 #endif
 
 #ifndef RSTRING_LEN
-#   define RSTRING_LEN(v) RSTRING(v)->len
+#    define RSTRING_LEN(v) RSTRING(v)->len
 #endif
 
 #ifndef RFLOAT_VALUE
-#   define RFLOAT_VALUE(v) RFLOAT(v)->value
+#    define RFLOAT_VALUE(v) RFLOAT(v)->value
 #endif
 
 //
 // The RARRAY_AREF and RARRAY_ASET macros were added in Ruby 2.1.
 //
 #ifndef RARRAY_AREF
-#   define RARRAY_AREF(a, i) (RARRAY_PTR(a)[i])
+#    define RARRAY_AREF(a, i) (RARRAY_PTR(a)[i])
 #endif
 
 #ifndef RARRAY_ASET
-#   define RARRAY_ASET(a, i, v) RARRAY_PTR(a)[i] = v
+#    define RARRAY_ASET(a, i, v) RARRAY_PTR(a)[i] = v
 #endif
 
 #endif

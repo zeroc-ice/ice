@@ -10,7 +10,7 @@
 // Work-around for GCC warning bug
 //
 #if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#    pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
 //
@@ -18,7 +18,7 @@
 // 4503: decorated name length exceeded, name was truncated
 //
 #if defined(_MSC_VER)
-#   pragma warning(disable: 4503)
+#    pragma warning(disable : 4503)
 #endif
 
 using namespace std;
@@ -27,1022 +27,981 @@ using namespace Ice;
 
 namespace
 {
-
-class CallbackBase
-{
-public:
-
-    CallbackBase() :
-        _called(false)
+    class CallbackBase
     {
-    }
+    public:
+        CallbackBase() : _called(false) {}
 
-    virtual ~CallbackBase()
-    {
-    }
+        virtual ~CallbackBase() {}
 
-    void check()
-    {
-        unique_lock lock(_mutex);
-        _condition.wait(lock, [this] { return _called; });
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        lock_guard lock(_mutex);
-        assert(!_called);
-        _called = true;
-        _condition.notify_one();
-    }
-
-private:
-
-    mutex _mutex;
-    condition_variable _condition;
-    bool _called;
-};
-
-class Callback : public CallbackBase
-{
-public:
-
-    Callback()
-    {
-    }
-
-    Callback(const CommunicatorPtr& communicator)
-        : _communicator(communicator)
-    {
-    }
-
-    void ping()
-    {
-        called();
-    }
-
-    void isA(bool result)
-    {
-        test(result);
-        called();
-    }
-
-    void id(const string& id)
-    {
-        test(id == MyDerivedClass::ice_staticId());
-        called();
-    }
-
-    void ids(const StringSeq& ids)
-    {
-        test(ids.size() == 3);
-        test(ids[0] == "::Ice::Object");
-        test(ids[1] == "::Test::MyClass");
-        test(ids[2] == "::Test::MyDerivedClass");
-        called();
-    }
-
-    void opVoid()
-    {
-        called();
-    }
-
-    void opContext(const Context&)
-    {
-        called();
-    }
-
-    void opByte(uint8_t r, uint8_t b)
-    {
-        test(b == uint8_t(0xf0));
-        test(r == uint8_t(0xff));
-        called();
-    }
-
-    void opBool(bool r, bool b)
-    {
-        test(b);
-        test(!r);
-        called();
-    }
-
-    void opShortIntLong(int64_t r, int16_t s, int32_t i, int64_t l)
-    {
-        test(s == 10);
-        test(i == 11);
-        test(l == 12);
-        test(r == 12);
-        called();
-    }
-
-    void opFloatDouble(double r, float f, double d)
-    {
-        test(f == float(3.14));
-        test(d == double(1.1E10));
-        test(r == double(1.1E10));
-        called();
-    }
-
-    void opString(const string& r, const string& s)
-    {
-        test(s == "world hello");
-        test(r == "hello world");
-        called();
-    }
-
-    void opMyEnum(MyEnum r, MyEnum e)
-    {
-        test(e == MyEnum::enum2);
-        test(r == MyEnum::enum3);
-        called();
-    }
-
-    void opMyClass(const MyClassPrx& r, const MyClassPrx& c1, const MyClassPrx& c2)
-    {
-        test(c1->ice_getIdentity() == stringToIdentity("test"));
-        test(c2->ice_getIdentity() == stringToIdentity("noSuchIdentity"));
-        test(r->ice_getIdentity() == stringToIdentity("test"));
-
-        //
-        // We can't do the callbacks below in connection serialization mode.
-        //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+        void check()
         {
-            r->opVoid();
-            c1->opVoid();
-            try
-            {
-                c2->opVoid();
-                test(false);
-            }
-            catch(const ObjectNotExistException&)
-            {
-            }
+            unique_lock lock(_mutex);
+            _condition.wait(lock, [this] { return _called; });
+            _called = false;
         }
-        called();
-    }
 
-    void opStruct(const Structure& rso, const Structure& so)
-    {
-        test(rso.p == nullopt);
-        test(rso.e == MyEnum::enum2);
-        test(rso.s.s == "def");
-        test(so.e == MyEnum::enum3);
-        test(so.s.s == "a new string");
-
-        //
-        // We can't do the callbacks below in connection serialization mode.
-        //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+    protected:
+        void called()
         {
-            so.p->opVoid();
+            lock_guard lock(_mutex);
+            assert(!_called);
+            _called = true;
+            _condition.notify_one();
         }
-        called();
-    }
 
-    void opByteS(const ByteS& rso, const ByteS& bso)
+    private:
+        mutex _mutex;
+        condition_variable _condition;
+        bool _called;
+    };
+
+    class Callback : public CallbackBase
     {
-        test(bso.size() == 4);
-        test(bso[0] == uint8_t(0x22));
-        test(bso[1] == uint8_t(0x12));
-        test(bso[2] == uint8_t(0x11));
-        test(bso[3] == uint8_t(0x01));
-        test(rso.size() == 8);
-        test(rso[0] == uint8_t(0x01));
-        test(rso[1] == uint8_t(0x11));
-        test(rso[2] == uint8_t(0x12));
-        test(rso[3] == uint8_t(0x22));
-        test(rso[4] == uint8_t(0xf1));
-        test(rso[5] == uint8_t(0xf2));
-        test(rso[6] == uint8_t(0xf3));
-        test(rso[7] == uint8_t(0xf4));
-        called();
-    }
+    public:
+        Callback() {}
 
-    void opBoolS(const BoolS& rso, const BoolS& bso)
-    {
-        test(bso.size() == 4);
-        test(bso[0]);
-        test(bso[1]);
-        test(!bso[2]);
-        test(!bso[3]);
-        test(rso.size() == 3);
-        test(!rso[0]);
-        test(rso[1]);
-        test(rso[2]);
-        called();
-    }
+        Callback(const CommunicatorPtr& communicator) : _communicator(communicator) {}
 
-    void opShortIntLongS(const LongS& rso, const ShortS& sso, const IntS& iso, const LongS& lso)
-    {
-        test(sso.size() == 3);
-        test(sso[0] == 1);
-        test(sso[1] == 2);
-        test(sso[2] == 3);
-        test(iso.size() == 4);
-        test(iso[0] == 8);
-        test(iso[1] == 7);
-        test(iso[2] == 6);
-        test(iso[3] == 5);
-        test(lso.size() == 6);
-        test(lso[0] == 10);
-        test(lso[1] == 30);
-        test(lso[2] == 20);
-        test(lso[3] == 10);
-        test(lso[4] == 30);
-        test(lso[5] == 20);
-        test(rso.size() == 3);
-        test(rso[0] == 10);
-        test(rso[1] == 30);
-        test(rso[2] == 20);
-        called();
-    }
+        void ping() { called(); }
 
-    void opFloatDoubleS(const DoubleS& rso, const FloatS& fso, const DoubleS& dso)
-    {
-        test(fso.size() == 2);
-        test(fso[0] == float(3.14));
-        test(fso[1] == float(1.11));
-        test(dso.size() == 3);
-        test(dso[0] == double(1.3E10));
-        test(dso[1] == double(1.2E10));
-        test(dso[2] == double(1.1E10));
-        test(rso.size() == 5);
-        test(rso[0] == double(1.1E10));
-        test(rso[1] == double(1.2E10));
-        test(rso[2] == double(1.3E10));
-        test(float(rso[3]) == float(3.14));
-        test(float(rso[4]) == float(1.11));
-        called();
-    }
-
-    void opStringS(const StringS& rso, const StringS& sso)
-    {
-        test(sso.size() == 4);
-        test(sso[0] == "abc");
-        test(sso[1] == "de");
-        test(sso[2] == "fghi");
-        test(sso[3] == "xyz");
-        test(rso.size() == 3);
-        test(rso[0] == "fghi");
-        test(rso[1] == "de");
-        test(rso[2] == "abc");
-        called();
-    }
-
-    void opByteSS(const ByteSS& rso, const ByteSS& bso)
-    {
-        test(bso.size() == 2);
-        test(bso[0].size() == 1);
-        test(bso[0][0] == uint8_t(0xff));
-        test(bso[1].size() == 3);
-        test(bso[1][0] == uint8_t(0x01));
-        test(bso[1][1] == uint8_t(0x11));
-        test(bso[1][2] == uint8_t(0x12));
-        test(rso.size() == 4);
-        test(rso[0].size() == 3);
-        test(rso[0][0] == uint8_t(0x01));
-        test(rso[0][1] == uint8_t(0x11));
-        test(rso[0][2] == uint8_t(0x12));
-        test(rso[1].size() == 1);
-        test(rso[1][0] == uint8_t(0xff));
-        test(rso[2].size() == 1);
-        test(rso[2][0] == uint8_t(0x0e));
-        test(rso[3].size() == 2);
-        test(rso[3][0] == uint8_t(0xf2));
-        test(rso[3][1] == uint8_t(0xf1));
-        called();
-    }
-
-    void opBoolSS(const BoolSS& rso, const BoolSS& bso)
-    {
-        test(bso.size() == 4);
-        test(bso[0].size() == 1);
-        test(bso[0][0]);
-        test(bso[1].size() == 1);
-        test(!bso[1][0]);
-        test(bso[2].size() == 2);
-        test(bso[2][0]);
-        test(bso[2][1]);
-        test(bso[3].size() == 3);
-        test(!bso[3][0]);
-        test(!bso[3][1]);
-        test(bso[3][2]);
-        test(rso.size() == 3);
-        test(rso[0].size() == 2);
-        test(rso[0][0]);
-        test(rso[0][1]);
-        test(rso[1].size() == 1);
-        test(!rso[1][0]);
-        test(rso[2].size() == 1);
-        test(rso[2][0]);
-        called();
-    }
-
-    void opShortIntLongSS(const LongSS& rso,
-                          const ShortSS& sso,
-                          const IntSS& iso,
-                          const LongSS& lso)
-    {
-        test(rso.size() == 1);
-        test(rso[0].size() == 2);
-        test(rso[0][0] == 496);
-        test(rso[0][1] == 1729);
-        test(sso.size() == 3);
-        test(sso[0].size() == 3);
-        test(sso[0][0] == 1);
-        test(sso[0][1] == 2);
-        test(sso[0][2] == 5);
-        test(sso[1].size() == 1);
-        test(sso[1][0] == 13);
-        test(sso[2].size() == 0);
-        test(iso.size() == 2);
-        test(iso[0].size() == 1);
-        test(iso[0][0] == 42);
-        test(iso[1].size() == 2);
-        test(iso[1][0] == 24);
-        test(iso[1][1] == 98);
-        test(lso.size() == 2);
-        test(lso[0].size() == 2);
-        test(lso[0][0] == 496);
-        test(lso[0][1] == 1729);
-        test(lso[1].size() == 2);
-        test(lso[1][0] == 496);
-        test(lso[1][1] == 1729);
-        called();
-    }
-
-    void opFloatDoubleSS(const DoubleSS& rso, const FloatSS& fso, const DoubleSS& dso)
-    {
-        test(fso.size() == 3);
-        test(fso[0].size() == 1);
-        test(fso[0][0] == float(3.14));
-        test(fso[1].size() == 1);
-        test(fso[1][0] == float(1.11));
-        test(fso[2].size() == 0);
-        test(dso.size() == 1);
-        test(dso[0].size() == 3);
-        test(dso[0][0] == double(1.1E10));
-        test(dso[0][1] == double(1.2E10));
-        test(dso[0][2] == double(1.3E10));
-        test(rso.size() == 2);
-        test(rso[0].size() == 3);
-        test(rso[0][0] == double(1.1E10));
-        test(rso[0][1] == double(1.2E10));
-        test(rso[0][2] == double(1.3E10));
-        test(rso[1].size() == 3);
-        test(rso[1][0] == double(1.1E10));
-        test(rso[1][1] == double(1.2E10));
-        test(rso[1][2] == double(1.3E10));
-        called();
-    }
-
-    void opStringSS(const StringSS& rso, const StringSS& sso)
-    {
-        test(sso.size() == 5);
-        test(sso[0].size() == 1);
-        test(sso[0][0] == "abc");
-        test(sso[1].size() == 2);
-        test(sso[1][0] == "de");
-        test(sso[1][1] == "fghi");
-        test(sso[2].size() == 0);
-        test(sso[3].size() == 0);
-        test(sso[4].size() == 1);
-        test(sso[4][0] == "xyz");
-        test(rso.size() == 3);
-        test(rso[0].size() == 1);
-        test(rso[0][0] == "xyz");
-        test(rso[1].size() == 0);
-        test(rso[2].size() == 0);
-        called();
-    }
-
-    void opByteBoolD(const ByteBoolD& ro, const ByteBoolD& _do)
-    {
-        ByteBoolD di1;
-        di1[10] = true;
-        di1[100] = false;
-        test(_do == di1);
-        test(ro.size() == 4);
-        test(ro.find(10) != ro.end());
-        test(ro.find(10)->second == true);
-        test(ro.find(11) != ro.end());
-        test(ro.find(11)->second == false);
-        test(ro.find(100) != ro.end());
-        test(ro.find(100)->second == false);
-        test(ro.find(101) != ro.end());
-        test(ro.find(101)->second == true);
-        called();
-    }
-
-    void opShortIntD(const ShortIntD& ro, const ShortIntD& _do)
-    {
-        ShortIntD di1;
-        di1[110] = -1;
-        di1[1100] = 123123;
-        test(_do == di1);
-        test(ro.size() == 4);
-        test(ro.find(110) != ro.end());
-        test(ro.find(110)->second == -1);
-        test(ro.find(111) != ro.end());
-        test(ro.find(111)->second == -100);
-        test(ro.find(1100) != ro.end());
-        test(ro.find(1100)->second == 123123);
-        test(ro.find(1101) != ro.end());
-        test(ro.find(1101)->second == 0);
-        called();
-    }
-
-    void opLongFloatD(const LongFloatD& ro, const LongFloatD& _do)
-    {
-        LongFloatD di1;
-        di1[999999110] = float(-1.1);
-        di1[999999111] = float(123123.2);
-        test(_do == di1);
-        test(ro.size() == 4);
-        test(ro.find(999999110) != ro.end());
-        test(ro.find(999999110)->second == float(-1.1));
-        test(ro.find(999999120) != ro.end());
-        test(ro.find(999999120)->second == float(-100.4));
-        test(ro.find(999999111) != ro.end());
-        test(ro.find(999999111)->second == float(123123.2));
-        test(ro.find(999999130) != ro.end());
-        test(ro.find(999999130)->second == float(0.5));
-        called();
-    }
-
-    void opStringStringD(const StringStringD& ro, const StringStringD& _do)
-    {
-        StringStringD di1;
-        di1["foo"] = "abc -1.1";
-        di1["bar"] = "abc 123123.2";
-        test(_do == di1);
-        test(ro.size() == 4);
-        test(ro.find("foo") != ro.end());
-        test(ro.find("foo")->second == "abc -1.1");
-        test(ro.find("FOO") != ro.end());
-        test(ro.find("FOO")->second == "abc -100.4");
-        test(ro.find("bar") != ro.end());
-        test(ro.find("bar")->second == "abc 123123.2");
-        test(ro.find("BAR") != ro.end());
-        test(ro.find("BAR")->second == "abc 0.5");
-        called();
-    }
-
-    void opStringMyEnumD(const StringMyEnumD& ro, const StringMyEnumD& _do)
-    {
-        StringMyEnumD di1;
-        di1["abc"] = MyEnum::enum1;
-        di1[""] = MyEnum::enum2;
-        test(_do == di1);
-        test(ro.size() == 4);
-        test(ro.find("abc") != ro.end());
-        test(ro.find("abc")->second == MyEnum::enum1);
-        test(ro.find("qwerty") != ro.end());
-        test(ro.find("qwerty")->second == MyEnum::enum3);
-        test(ro.find("") != ro.end());
-        test(ro.find("")->second == MyEnum::enum2);
-        test(ro.find("Hello!!") != ro.end());
-        test(ro.find("Hello!!")->second == MyEnum::enum2);
-        called();
-    }
-
-    void opMyStructMyEnumD(const MyStructMyEnumD& ro, const MyStructMyEnumD& _do)
-    {
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
-        MyStructMyEnumD di1;
-        di1[ms11] = MyEnum::enum1;
-        di1[ms12] = MyEnum::enum2;
-        test(_do == di1);
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
-        test(ro.size() == 4);
-        test(ro.find(ms11) != ro.end());
-        test(ro.find(ms11)->second == MyEnum::enum1);
-        test(ro.find(ms12) != ro.end());
-        test(ro.find(ms12)->second == MyEnum::enum2);
-        test(ro.find(ms22) != ro.end());
-        test(ro.find(ms22)->second == MyEnum::enum3);
-        test(ro.find(ms23) != ro.end());
-        test(ro.find(ms23)->second == MyEnum::enum2);
-        called();
-    }
-
-    void opByteBoolDS(const ByteBoolDS& ro, const ByteBoolDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find(10) != ro[0].end());
-        test(ro[0].find(10)->second == true);
-        test(ro[0].find(11) != ro[0].end());
-        test(ro[0].find(11)->second == false);
-        test(ro[0].find(101) != ro[0].end());
-        test(ro[0].find(101)->second == true);
-        test(ro[1].size() == 2);
-        test(ro[1].find(10) != ro[1].end());
-        test(ro[1].find(10)->second == true);
-        test(ro[1].find(100) != ro[1].end());
-        test(ro[1].find(100)->second == false);
-        test(_do.size() == 3);
-        test(_do[0].size() == 2);
-        test(_do[0].find(100) != _do[0].end());
-        test(_do[0].find(100)->second == false);
-        test(_do[0].find(101) != _do[0].end());
-        test(_do[0].find(101)->second == false);
-        test(_do[1].size() == 2);
-        test(_do[1].find(10) != _do[1].end());
-        test(_do[1].find(10)->second == true);
-        test(_do[1].find(100) != _do[1].end());
-        test(_do[1].find(100)->second == false);
-        test(_do[2].size() == 3);
-        test(_do[2].find(10) != _do[2].end());
-        test(_do[2].find(10)->second == true);
-        test(_do[2].find(11) != _do[2].end());
-        test(_do[2].find(11)->second == false);
-        test(_do[2].find(101) != _do[2].end());
-        test(_do[2].find(101)->second == true);
-        called();
-    }
-
-    void opShortIntDS(const ShortIntDS& ro, const ShortIntDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find(110) != ro[0].end());
-        test(ro[0].find(110)->second == -1);
-        test(ro[0].find(111) != ro[0].end());
-        test(ro[0].find(111)->second == -100);
-        test(ro[0].find(1101) != ro[0].end());
-        test(ro[0].find(1101)->second == 0);
-        test(ro[1].size() == 2);
-        test(ro[1].find(110)->second == -1);
-        test(ro[1].find(1100)->second == 123123);
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find(100) != _do[0].end());
-        test(_do[0].find(100)->second == -1001);
-        test(_do[1].size() == 2);
-        test(_do[1].find(110) != _do[1].end());
-        test(_do[1].find(110)->second == -1);
-        test(_do[1].find(1100) != _do[1].end());
-        test(_do[1].find(1100)->second == 123123);
-        test(_do[2].size() == 3);
-        test(_do[2].find(110) != _do[2].end());
-        test(_do[2].find(110)->second == -1);
-        test(_do[2].find(111) != _do[2].end());
-        test(_do[2].find(111)->second == -100);
-        test(_do[2].find(1101) != _do[2].end());
-        test(_do[2].find(1101)->second == 0);
-        called();
-    }
-
-    void opLongFloatDS(const LongFloatDS& ro, const LongFloatDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find(999999110) != ro[0].end());
-        test(ro[0].find(999999110)->second == float(-1.1));
-        test(ro[0].find(999999120) != ro[0].end());
-        test(ro[0].find(999999120)->second == float(-100.4));
-        test(ro[0].find(999999130) != ro[0].end());
-        test(ro[0].find(999999130)->second == float(0.5));
-        test(ro[1].size() == 2);
-        test(ro[1].find(999999110) != ro[1].end());
-        test(ro[1].find(999999110)->second == float(-1.1));
-        test(ro[1].find(999999111) != ro[1].end());
-        test(ro[1].find(999999111)->second == float(123123.2));
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find(999999140) != _do[0].end());
-        test(_do[0].find(999999140)->second == float(3.14));
-        test(_do[1].size() == 2);
-        test(_do[1].find(999999110) != _do[1].end());
-        test(_do[1].find(999999110)->second == float(-1.1));
-        test(_do[1].find(999999111) != _do[1].end());
-        test(_do[1].find(999999111)->second == float(123123.2));
-        test(_do[2].size() == 3);
-        test(_do[2].find(999999110) != _do[2].end());
-        test(_do[2].find(999999110)->second == float(-1.1));
-        test(_do[2].find(999999120) != _do[2].end());
-        test(_do[2].find(999999120)->second == float(-100.4));
-        test(_do[2].find(999999130) != _do[2].end());
-        test(_do[2].find(999999130)->second == float(0.5));
-        called();
-    }
-
-    void opStringStringDS(const StringStringDS& ro, const StringStringDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find("foo") != ro[0].end());
-        test(ro[0].find("foo")->second == "abc -1.1");
-        test(ro[0].find("FOO") != ro[0].end());
-        test(ro[0].find("FOO")->second == "abc -100.4");
-        test(ro[0].find("BAR") != ro[0].end());
-        test(ro[0].find("BAR")->second == "abc 0.5");
-        test(ro[1].size() == 2);
-        test(ro[1].find("foo") != ro[1].end());
-        test(ro[1].find("foo")->second == "abc -1.1");
-        test(ro[1].find("bar") != ro[1].end());
-        test(ro[1].find("bar")->second == "abc 123123.2");
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find("f00") != _do[0].end());
-        test(_do[0].find("f00")->second == "ABC -3.14");
-        test(_do[1].size() == 2);
-        test(_do[1].find("foo") != _do[1].end());
-        test(_do[1].find("foo")->second == "abc -1.1");
-        test(_do[1].find("bar") != _do[1].end());
-        test(_do[1].find("bar")->second == "abc 123123.2");
-        test(_do[2].size() == 3);
-        test(_do[2].find("foo") != _do[2].end());
-        test(_do[2].find("foo")->second == "abc -1.1");
-        test(_do[2].find("FOO") != _do[2].end());
-        test(_do[2].find("FOO")->second == "abc -100.4");
-        test(_do[2].find("BAR") != _do[2].end());
-        test(_do[2].find("BAR")->second == "abc 0.5");
-        called();
-    }
-
-    void opStringMyEnumDS(const StringMyEnumDS& ro, const StringMyEnumDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find("abc") != ro[0].end());
-        test(ro[0].find("abc")->second == MyEnum::enum1);
-        test(ro[0].find("qwerty") != ro[0].end());
-        test(ro[0].find("qwerty")->second == MyEnum::enum3);
-        test(ro[0].find("Hello!!") != ro[0].end());
-        test(ro[0].find("Hello!!")->second == MyEnum::enum2);
-        test(ro[1].size() == 2);
-        test(ro[1].find("abc") != ro[1].end());
-        test(ro[1].find("abc")->second == MyEnum::enum1);
-        test(ro[1].find("") != ro[1].end());
-        test(ro[1].find("")->second == MyEnum::enum2);
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find("Goodbye") != _do[0].end());
-        test(_do[0].find("Goodbye")->second == MyEnum::enum1);
-        test(_do[1].size() == 2);
-        test(_do[1].find("abc") != _do[1].end());
-        test(_do[1].find("abc")->second == MyEnum::enum1);
-        test(_do[1].find("") != _do[1].end());
-        test(_do[1].find("")->second == MyEnum::enum2);
-        test(_do[2].size() == 3);
-        test(_do[2].find("abc") != _do[2].end());
-        test(_do[2].find("abc")->second == MyEnum::enum1);
-        test(_do[2].find("qwerty") != _do[2].end());
-        test(_do[2].find("qwerty")->second == MyEnum::enum3);
-        test(_do[2].find("Hello!!") != _do[2].end());
-        test(_do[2].find("Hello!!")->second == MyEnum::enum2);
-        called();
-    }
-
-    void opMyEnumStringDS(const MyEnumStringDS& ro, const MyEnumStringDS& _do)
-    {
-        test(ro.size() == 2);
-        test(ro[0].size() == 2);
-        test(ro[0].find(MyEnum::enum2) != ro[0].end());
-        test(ro[0].find(MyEnum::enum2)->second == "Hello!!");
-        test(ro[0].find(MyEnum::enum3) != ro[0].end());
-        test(ro[0].find(MyEnum::enum3)->second == "qwerty");
-        test(ro[1].size() == 1);
-        test(ro[1].find(MyEnum::enum1) != ro[1].end());
-        test(ro[1].find(MyEnum::enum1)->second == "abc");
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find(MyEnum::enum1) != _do[0].end());
-        test(_do[0].find(MyEnum::enum1)->second == "Goodbye");
-        test(_do[1].size() == 1);
-        test(_do[1].find(MyEnum::enum1) != _do[1].end());
-        test(_do[1].find(MyEnum::enum1)->second == "abc");
-        test(_do[2].size() == 2);
-        test(_do[2].find(MyEnum::enum2) != _do[2].end());
-        test(_do[2].find(MyEnum::enum2)->second == "Hello!!");
-        test(_do[2].find(MyEnum::enum3) != _do[2].end());
-        test(_do[2].find(MyEnum::enum3)->second == "qwerty");
-        called();
-    }
-
-    void opMyStructMyEnumDS(const MyStructMyEnumDS& ro, const MyStructMyEnumDS& _do)
-    {
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
-
-        test(ro.size() == 2);
-        test(ro[0].size() == 3);
-        test(ro[0].find(ms11) != ro[0].end());
-        test(ro[0].find(ms11)->second == MyEnum::enum1);
-        test(ro[0].find(ms22) != ro[0].end());
-        test(ro[0].find(ms22)->second == MyEnum::enum3);
-        test(ro[0].find(ms23) != ro[0].end());
-        test(ro[0].find(ms23)->second == MyEnum::enum2);
-        test(ro[1].size() == 2);
-        test(ro[1].find(ms11) != ro[1].end());
-        test(ro[1].find(ms11)->second == MyEnum::enum1);
-        test(ro[1].find(ms12) != ro[1].end());
-        test(ro[1].find(ms12)->second == MyEnum::enum2);
-        test(_do.size() == 3);
-        test(_do[0].size() == 1);
-        test(_do[0].find(ms23) != _do[0].end());
-        test(_do[0].find(ms23)->second == MyEnum::enum3);
-        test(_do[1].size() == 2);
-        test(_do[1].find(ms11) != _do[1].end());
-        test(_do[1].find(ms11)->second == MyEnum::enum1);
-        test(_do[1].find(ms12) != _do[1].end());
-        test(_do[1].find(ms12)->second == MyEnum::enum2);
-        test(_do[2].size() == 3);
-        test(_do[2].find(ms11) != _do[2].end());
-        test(_do[2].find(ms11)->second == MyEnum::enum1);
-        test(_do[2].find(ms22) != _do[2].end());
-        test(_do[2].find(ms22)->second == MyEnum::enum3);
-        test(_do[2].find(ms23) != _do[2].end());
-        test(_do[2].find(ms23)->second == MyEnum::enum2);
-        called();
-    }
-
-    void opByteByteSD(const ByteByteSD& ro, const ByteByteSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(uint8_t(0xf1)) != _do.end());
-        test(_do.find(uint8_t(0xf1))->second.size() == 2);
-        test(_do.find(uint8_t(0xf1))->second[0] == 0xf2);
-        test(_do.find(uint8_t(0xf1))->second[1] == 0xf3);
-        test(ro.size() == 3);
-        test(ro.find(uint8_t(0x01)) != ro.end());
-        test(ro.find(uint8_t(0x01))->second.size() == 2);
-        test(ro.find(uint8_t(0x01))->second[0] == uint8_t(0x01));
-        test(ro.find(uint8_t(0x01))->second[1] == uint8_t(0x11));
-        test(ro.find(uint8_t(0x22)) != ro.end());
-        test(ro.find(uint8_t(0x22))->second.size() == 1);
-        test(ro.find(uint8_t(0x22))->second[0] == uint8_t(0x12));
-        test(ro.find(uint8_t(0xf1)) != ro.end());
-        test(ro.find(uint8_t(0xf1))->second.size() == 2);
-        test(ro.find(uint8_t(0xf1))->second[0] == uint8_t(0xf2));
-        test(ro.find(uint8_t(0xf1))->second[1] == uint8_t(0xf3));
-        called();
-    }
-
-    void opBoolBoolSD(const BoolBoolSD& ro, const BoolBoolSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(false) != _do.end());
-        test(_do.find(false)->second.size() == 2);
-        test(_do.find(false)->second[0] == true);
-        test(_do.find(false)->second[1] == false);
-        test(ro.size() == 2);
-        test(ro.find(false) != ro.end());
-        test(ro.find(false)->second.size() == 2);
-        test(ro.find(false)->second[0] == true);
-        test(ro.find(false)->second[1] == false);
-        test(ro.find(true) != ro.end());
-        test(ro.find(true)->second.size()  == 3);
-        test(ro.find(true)->second[0] == false);
-        test(ro.find(true)->second[1] == true);
-        test(ro.find(true)->second[2] == true);
-        called();
-    }
-
-    void opShortShortSD(const ShortShortSD& ro, const ShortShortSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(4) != _do.end());
-        test(_do.find(4)->second.size() == 2);
-        test(_do.find(4)->second[0] == 6);
-        test(_do.find(4)->second[1] == 7);
-        test(ro.size() == 3);
-        test(ro.find(1) != ro.end());
-        test(ro.find(1)->second.size() == 3);
-        test(ro.find(1)->second[0] == 1);
-        test(ro.find(1)->second[1] == 2);
-        test(ro.find(1)->second[2] == 3);
-        test(ro.find(2) != ro.end());
-        test(ro.find(2)->second.size() == 2);
-        test(ro.find(2)->second[0] == 4);
-        test(ro.find(2)->second[1] == 5);
-        test(ro.find(4) != ro.end());
-        test(ro.find(4)->second.size() == 2);
-        test(ro.find(4)->second[0] == 6);
-        test(ro.find(4)->second[1] == 7);
-        called();
-    }
-
-    void opIntIntSD(const IntIntSD& ro, const IntIntSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(400) != _do.end());
-        test(_do.find(400)->second.size() == 2);
-        test(_do.find(400)->second[0] == 600);
-        test(_do.find(400)->second[1] == 700);
-        test(ro.size() == 3);
-        test(ro.find(100) != ro.end());
-        test(ro.find(100)->second.size() == 3);
-        test(ro.find(100)->second[0] == 100);
-        test(ro.find(100)->second[1] == 200);
-        test(ro.find(100)->second[2] == 300);
-        test(ro.find(200) != ro.end());
-        test(ro.find(200)->second.size() == 2);
-        test(ro.find(200)->second[0] == 400);
-        test(ro.find(200)->second[1] == 500);
-        test(ro.find(400) != ro.end());
-        test(ro.find(400)->second.size() == 2);
-        test(ro.find(400)->second[0] == 600);
-        test(ro.find(400)->second[1] == 700);
-        called();
-    }
-
-    void opLongLongSD(const LongLongSD& ro, const LongLongSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(999999992) != _do.end());
-        test(_do.find(999999992)->second.size() == 2);
-        test(_do.find(999999992)->second[0] == 999999110);
-        test(_do.find(999999992)->second[1] == 999999120);
-        test(ro.size() == 3);
-        test(ro.find(999999990) != ro.end());
-        test(ro.find(999999990)->second.size() == 3);
-        test(ro.find(999999990)->second[0] == 999999110);
-        test(ro.find(999999990)->second[1] == 999999111);
-        test(ro.find(999999990)->second[2] == 999999110);
-        test(ro.find(999999991) != ro.end());
-        test(ro.find(999999991)->second.size() == 2);
-        test(ro.find(999999991)->second[0] == 999999120);
-        test(ro.find(999999991)->second[1] == 999999130);
-        test(ro.find(999999992) != ro.end());
-        test(ro.find(999999992)->second.size() == 2);
-        test(ro.find(999999992)->second[0] == 999999110);
-        test(ro.find(999999992)->second[1] == 999999120);
-        called();
-    }
-
-    void opStringFloatSD(const StringFloatSD& ro, const StringFloatSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find("aBc") != _do.end());
-        test(_do.find("aBc")->second.size() == 2);
-        test(_do.find("aBc")->second[0] == float(-3.14));
-        test(_do.find("aBc")->second[1] == float(3.14));
-        test(ro.size() == 3);
-        test(ro.find("abc") != ro.end());
-        test(ro.find("abc")->second.size() == 3);
-        test(ro.find("abc")->second[0] == float(-1.1));
-        test(ro.find("abc")->second[1] == float(123123.2));
-        test(ro.find("abc")->second[2] == float(100.0));
-        test(ro.find("ABC") != ro.end());
-        test(ro.find("ABC")->second.size() == 2);
-        test(ro.find("ABC")->second[0] == float(42.24));
-        test(ro.find("ABC")->second[1] == float(-1.61));
-        test(ro.find("aBc") != ro.end());
-        test(ro.find("aBc")->second.size() == 2);
-        test(ro.find("aBc")->second[0] == float(-3.14));
-        test(ro.find("aBc")->second[1] == float(3.14));
-        called();
-    }
-
-    void opStringDoubleSD(const StringDoubleSD& ro, const StringDoubleSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find("") != _do.end());
-        test(_do.find("")->second.size() == 2);
-        test(_do.find("")->second[0] == double(1.6E10));
-        test(_do.find("")->second[1] == double(1.7E10));
-        test(ro.size() == 3);
-        test(ro.find("Hello!!") != ro.end());
-        test(ro.find("Hello!!")->second.size() == 3);
-        test(ro.find("Hello!!")->second[0] == double(1.1E10));
-        test(ro.find("Hello!!")->second[1] == double(1.2E10));
-        test(ro.find("Hello!!")->second[2] == double(1.3E10));
-        test(ro.find("Goodbye") != ro.end());
-        test(ro.find("Goodbye")->second.size() == 2);
-        test(ro.find("Goodbye")->second[0] == double(1.4E10));
-        test(ro.find("Goodbye")->second[1] == double(1.5E10));
-        test(ro.find("") != ro.end());
-        test(ro.find("")->second.size() == 2);
-        test(ro.find("")->second[0] == double(1.6E10));
-        test(ro.find("")->second[1] == double(1.7E10));
-        called();
-    }
-
-    void opStringStringSD(const StringStringSD& ro, const StringStringSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find("ghi") != _do.end());
-        test(_do.find("ghi")->second.size() == 2);
-        test(_do.find("ghi")->second[0] == "and");
-        test(_do.find("ghi")->second[1] == "xor");
-        test(ro.size() == 3);
-        test(ro.find("abc") != ro.end());
-        test(ro.find("abc")->second.size() == 3);
-        test(ro.find("abc")->second[0] == "abc");
-        test(ro.find("abc")->second[1] == "de");
-        test(ro.find("abc")->second[2] == "fghi");
-        test(ro.find("def") != ro.end());
-        test(ro.find("def")->second.size() == 2);
-        test(ro.find("def")->second[0] == "xyz");
-        test(ro.find("def")->second[1] == "or");
-        test(ro.find("ghi") != ro.end());
-        test(ro.find("ghi")->second.size() == 2);
-        test(ro.find("ghi")->second[0] == "and");
-        test(ro.find("ghi")->second[1] == "xor");
-        called();
-    }
-
-    void opMyEnumMyEnumSD(const MyEnumMyEnumSD& ro, const MyEnumMyEnumSD& _do)
-    {
-        test(_do.size() == 1);
-        test(_do.find(MyEnum::enum1) != _do.end());
-        test(_do.find(MyEnum::enum1)->second.size() == 2);
-        test(_do.find(MyEnum::enum1)->second[0] == MyEnum::enum3);
-        test(_do.find(MyEnum::enum1)->second[1] == MyEnum::enum3);
-        test(ro.size() == 3);
-        test(ro.find(MyEnum::enum3) != ro.end());
-        test(ro.find(MyEnum::enum3)->second.size() == 3);
-        test(ro.find(MyEnum::enum3)->second[0] == MyEnum::enum1);
-        test(ro.find(MyEnum::enum3)->second[1] == MyEnum::enum1);
-        test(ro.find(MyEnum::enum3)->second[2] == MyEnum::enum2);
-        test(ro.find(MyEnum::enum2) != ro.end());
-        test(ro.find(MyEnum::enum2)->second.size() == 2);
-        test(ro.find(MyEnum::enum2)->second[0] == MyEnum::enum1);
-        test(ro.find(MyEnum::enum2)->second[1] == MyEnum::enum2);
-        test(ro.find(MyEnum::enum1) != ro.end());
-        test(ro.find(MyEnum::enum1)->second.size() == 2);
-        test(ro.find(MyEnum::enum1)->second[0] == MyEnum::enum3);
-        test(ro.find(MyEnum::enum1)->second[1] == MyEnum::enum3);
-        called();
-    }
-
-    void opIntS(const IntS& r)
-    {
-        for(int j = 0; j < static_cast<int>(r.size()); ++j)
+        void isA(bool result)
         {
-            test(r[static_cast<size_t>(j)] == -j);
-        }
-        called();
-    }
-
-    void opDoubleMarshaling()
-    {
-        called();
-    }
-
-    void opIdempotent()
-    {
-        called();
-    }
-
-    void opNonmutating()
-    {
-        called();
-    }
-
-    void opDerived()
-    {
-        called();
-    }
-
-    void exCB(const Exception& ex)
-    {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch (const OperationNotExistException&)
-        {
+            test(result);
             called();
         }
-        catch(const Exception&)
+
+        void id(const string& id)
         {
-            test(false);
+            test(id == MyDerivedClass::ice_staticId());
+            called();
         }
-    }
 
-private:
+        void ids(const StringSeq& ids)
+        {
+            test(ids.size() == 3);
+            test(ids[0] == "::Ice::Object");
+            test(ids[1] == "::Test::MyClass");
+            test(ids[2] == "::Test::MyDerivedClass");
+            called();
+        }
 
-    CommunicatorPtr _communicator;
-};
-using CallbackPtr = shared_ptr<Callback>;
+        void opVoid() { called(); }
 
+        void opContext(const Context&) { called(); }
+
+        void opByte(uint8_t r, uint8_t b)
+        {
+            test(b == uint8_t(0xf0));
+            test(r == uint8_t(0xff));
+            called();
+        }
+
+        void opBool(bool r, bool b)
+        {
+            test(b);
+            test(!r);
+            called();
+        }
+
+        void opShortIntLong(int64_t r, int16_t s, int32_t i, int64_t l)
+        {
+            test(s == 10);
+            test(i == 11);
+            test(l == 12);
+            test(r == 12);
+            called();
+        }
+
+        void opFloatDouble(double r, float f, double d)
+        {
+            test(f == float(3.14));
+            test(d == double(1.1E10));
+            test(r == double(1.1E10));
+            called();
+        }
+
+        void opString(const string& r, const string& s)
+        {
+            test(s == "world hello");
+            test(r == "hello world");
+            called();
+        }
+
+        void opMyEnum(MyEnum r, MyEnum e)
+        {
+            test(e == MyEnum::enum2);
+            test(r == MyEnum::enum3);
+            called();
+        }
+
+        void opMyClass(const MyClassPrx& r, const MyClassPrx& c1, const MyClassPrx& c2)
+        {
+            test(c1->ice_getIdentity() == stringToIdentity("test"));
+            test(c2->ice_getIdentity() == stringToIdentity("noSuchIdentity"));
+            test(r->ice_getIdentity() == stringToIdentity("test"));
+
+            //
+            // We can't do the callbacks below in connection serialization mode.
+            //
+            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+            {
+                r->opVoid();
+                c1->opVoid();
+                try
+                {
+                    c2->opVoid();
+                    test(false);
+                }
+                catch (const ObjectNotExistException&)
+                {
+                }
+            }
+            called();
+        }
+
+        void opStruct(const Structure& rso, const Structure& so)
+        {
+            test(rso.p == nullopt);
+            test(rso.e == MyEnum::enum2);
+            test(rso.s.s == "def");
+            test(so.e == MyEnum::enum3);
+            test(so.s.s == "a new string");
+
+            //
+            // We can't do the callbacks below in connection serialization mode.
+            //
+            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+            {
+                so.p->opVoid();
+            }
+            called();
+        }
+
+        void opByteS(const ByteS& rso, const ByteS& bso)
+        {
+            test(bso.size() == 4);
+            test(bso[0] == uint8_t(0x22));
+            test(bso[1] == uint8_t(0x12));
+            test(bso[2] == uint8_t(0x11));
+            test(bso[3] == uint8_t(0x01));
+            test(rso.size() == 8);
+            test(rso[0] == uint8_t(0x01));
+            test(rso[1] == uint8_t(0x11));
+            test(rso[2] == uint8_t(0x12));
+            test(rso[3] == uint8_t(0x22));
+            test(rso[4] == uint8_t(0xf1));
+            test(rso[5] == uint8_t(0xf2));
+            test(rso[6] == uint8_t(0xf3));
+            test(rso[7] == uint8_t(0xf4));
+            called();
+        }
+
+        void opBoolS(const BoolS& rso, const BoolS& bso)
+        {
+            test(bso.size() == 4);
+            test(bso[0]);
+            test(bso[1]);
+            test(!bso[2]);
+            test(!bso[3]);
+            test(rso.size() == 3);
+            test(!rso[0]);
+            test(rso[1]);
+            test(rso[2]);
+            called();
+        }
+
+        void opShortIntLongS(const LongS& rso, const ShortS& sso, const IntS& iso, const LongS& lso)
+        {
+            test(sso.size() == 3);
+            test(sso[0] == 1);
+            test(sso[1] == 2);
+            test(sso[2] == 3);
+            test(iso.size() == 4);
+            test(iso[0] == 8);
+            test(iso[1] == 7);
+            test(iso[2] == 6);
+            test(iso[3] == 5);
+            test(lso.size() == 6);
+            test(lso[0] == 10);
+            test(lso[1] == 30);
+            test(lso[2] == 20);
+            test(lso[3] == 10);
+            test(lso[4] == 30);
+            test(lso[5] == 20);
+            test(rso.size() == 3);
+            test(rso[0] == 10);
+            test(rso[1] == 30);
+            test(rso[2] == 20);
+            called();
+        }
+
+        void opFloatDoubleS(const DoubleS& rso, const FloatS& fso, const DoubleS& dso)
+        {
+            test(fso.size() == 2);
+            test(fso[0] == float(3.14));
+            test(fso[1] == float(1.11));
+            test(dso.size() == 3);
+            test(dso[0] == double(1.3E10));
+            test(dso[1] == double(1.2E10));
+            test(dso[2] == double(1.1E10));
+            test(rso.size() == 5);
+            test(rso[0] == double(1.1E10));
+            test(rso[1] == double(1.2E10));
+            test(rso[2] == double(1.3E10));
+            test(float(rso[3]) == float(3.14));
+            test(float(rso[4]) == float(1.11));
+            called();
+        }
+
+        void opStringS(const StringS& rso, const StringS& sso)
+        {
+            test(sso.size() == 4);
+            test(sso[0] == "abc");
+            test(sso[1] == "de");
+            test(sso[2] == "fghi");
+            test(sso[3] == "xyz");
+            test(rso.size() == 3);
+            test(rso[0] == "fghi");
+            test(rso[1] == "de");
+            test(rso[2] == "abc");
+            called();
+        }
+
+        void opByteSS(const ByteSS& rso, const ByteSS& bso)
+        {
+            test(bso.size() == 2);
+            test(bso[0].size() == 1);
+            test(bso[0][0] == uint8_t(0xff));
+            test(bso[1].size() == 3);
+            test(bso[1][0] == uint8_t(0x01));
+            test(bso[1][1] == uint8_t(0x11));
+            test(bso[1][2] == uint8_t(0x12));
+            test(rso.size() == 4);
+            test(rso[0].size() == 3);
+            test(rso[0][0] == uint8_t(0x01));
+            test(rso[0][1] == uint8_t(0x11));
+            test(rso[0][2] == uint8_t(0x12));
+            test(rso[1].size() == 1);
+            test(rso[1][0] == uint8_t(0xff));
+            test(rso[2].size() == 1);
+            test(rso[2][0] == uint8_t(0x0e));
+            test(rso[3].size() == 2);
+            test(rso[3][0] == uint8_t(0xf2));
+            test(rso[3][1] == uint8_t(0xf1));
+            called();
+        }
+
+        void opBoolSS(const BoolSS& rso, const BoolSS& bso)
+        {
+            test(bso.size() == 4);
+            test(bso[0].size() == 1);
+            test(bso[0][0]);
+            test(bso[1].size() == 1);
+            test(!bso[1][0]);
+            test(bso[2].size() == 2);
+            test(bso[2][0]);
+            test(bso[2][1]);
+            test(bso[3].size() == 3);
+            test(!bso[3][0]);
+            test(!bso[3][1]);
+            test(bso[3][2]);
+            test(rso.size() == 3);
+            test(rso[0].size() == 2);
+            test(rso[0][0]);
+            test(rso[0][1]);
+            test(rso[1].size() == 1);
+            test(!rso[1][0]);
+            test(rso[2].size() == 1);
+            test(rso[2][0]);
+            called();
+        }
+
+        void opShortIntLongSS(const LongSS& rso, const ShortSS& sso, const IntSS& iso, const LongSS& lso)
+        {
+            test(rso.size() == 1);
+            test(rso[0].size() == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.size() == 3);
+            test(sso[0].size() == 3);
+            test(sso[0][0] == 1);
+            test(sso[0][1] == 2);
+            test(sso[0][2] == 5);
+            test(sso[1].size() == 1);
+            test(sso[1][0] == 13);
+            test(sso[2].size() == 0);
+            test(iso.size() == 2);
+            test(iso[0].size() == 1);
+            test(iso[0][0] == 42);
+            test(iso[1].size() == 2);
+            test(iso[1][0] == 24);
+            test(iso[1][1] == 98);
+            test(lso.size() == 2);
+            test(lso[0].size() == 2);
+            test(lso[0][0] == 496);
+            test(lso[0][1] == 1729);
+            test(lso[1].size() == 2);
+            test(lso[1][0] == 496);
+            test(lso[1][1] == 1729);
+            called();
+        }
+
+        void opFloatDoubleSS(const DoubleSS& rso, const FloatSS& fso, const DoubleSS& dso)
+        {
+            test(fso.size() == 3);
+            test(fso[0].size() == 1);
+            test(fso[0][0] == float(3.14));
+            test(fso[1].size() == 1);
+            test(fso[1][0] == float(1.11));
+            test(fso[2].size() == 0);
+            test(dso.size() == 1);
+            test(dso[0].size() == 3);
+            test(dso[0][0] == double(1.1E10));
+            test(dso[0][1] == double(1.2E10));
+            test(dso[0][2] == double(1.3E10));
+            test(rso.size() == 2);
+            test(rso[0].size() == 3);
+            test(rso[0][0] == double(1.1E10));
+            test(rso[0][1] == double(1.2E10));
+            test(rso[0][2] == double(1.3E10));
+            test(rso[1].size() == 3);
+            test(rso[1][0] == double(1.1E10));
+            test(rso[1][1] == double(1.2E10));
+            test(rso[1][2] == double(1.3E10));
+            called();
+        }
+
+        void opStringSS(const StringSS& rso, const StringSS& sso)
+        {
+            test(sso.size() == 5);
+            test(sso[0].size() == 1);
+            test(sso[0][0] == "abc");
+            test(sso[1].size() == 2);
+            test(sso[1][0] == "de");
+            test(sso[1][1] == "fghi");
+            test(sso[2].size() == 0);
+            test(sso[3].size() == 0);
+            test(sso[4].size() == 1);
+            test(sso[4][0] == "xyz");
+            test(rso.size() == 3);
+            test(rso[0].size() == 1);
+            test(rso[0][0] == "xyz");
+            test(rso[1].size() == 0);
+            test(rso[2].size() == 0);
+            called();
+        }
+
+        void opByteBoolD(const ByteBoolD& ro, const ByteBoolD& _do)
+        {
+            ByteBoolD di1;
+            di1[10] = true;
+            di1[100] = false;
+            test(_do == di1);
+            test(ro.size() == 4);
+            test(ro.find(10) != ro.end());
+            test(ro.find(10)->second == true);
+            test(ro.find(11) != ro.end());
+            test(ro.find(11)->second == false);
+            test(ro.find(100) != ro.end());
+            test(ro.find(100)->second == false);
+            test(ro.find(101) != ro.end());
+            test(ro.find(101)->second == true);
+            called();
+        }
+
+        void opShortIntD(const ShortIntD& ro, const ShortIntD& _do)
+        {
+            ShortIntD di1;
+            di1[110] = -1;
+            di1[1100] = 123123;
+            test(_do == di1);
+            test(ro.size() == 4);
+            test(ro.find(110) != ro.end());
+            test(ro.find(110)->second == -1);
+            test(ro.find(111) != ro.end());
+            test(ro.find(111)->second == -100);
+            test(ro.find(1100) != ro.end());
+            test(ro.find(1100)->second == 123123);
+            test(ro.find(1101) != ro.end());
+            test(ro.find(1101)->second == 0);
+            called();
+        }
+
+        void opLongFloatD(const LongFloatD& ro, const LongFloatD& _do)
+        {
+            LongFloatD di1;
+            di1[999999110] = float(-1.1);
+            di1[999999111] = float(123123.2);
+            test(_do == di1);
+            test(ro.size() == 4);
+            test(ro.find(999999110) != ro.end());
+            test(ro.find(999999110)->second == float(-1.1));
+            test(ro.find(999999120) != ro.end());
+            test(ro.find(999999120)->second == float(-100.4));
+            test(ro.find(999999111) != ro.end());
+            test(ro.find(999999111)->second == float(123123.2));
+            test(ro.find(999999130) != ro.end());
+            test(ro.find(999999130)->second == float(0.5));
+            called();
+        }
+
+        void opStringStringD(const StringStringD& ro, const StringStringD& _do)
+        {
+            StringStringD di1;
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            test(_do == di1);
+            test(ro.size() == 4);
+            test(ro.find("foo") != ro.end());
+            test(ro.find("foo")->second == "abc -1.1");
+            test(ro.find("FOO") != ro.end());
+            test(ro.find("FOO")->second == "abc -100.4");
+            test(ro.find("bar") != ro.end());
+            test(ro.find("bar")->second == "abc 123123.2");
+            test(ro.find("BAR") != ro.end());
+            test(ro.find("BAR")->second == "abc 0.5");
+            called();
+        }
+
+        void opStringMyEnumD(const StringMyEnumD& ro, const StringMyEnumD& _do)
+        {
+            StringMyEnumD di1;
+            di1["abc"] = MyEnum::enum1;
+            di1[""] = MyEnum::enum2;
+            test(_do == di1);
+            test(ro.size() == 4);
+            test(ro.find("abc") != ro.end());
+            test(ro.find("abc")->second == MyEnum::enum1);
+            test(ro.find("qwerty") != ro.end());
+            test(ro.find("qwerty")->second == MyEnum::enum3);
+            test(ro.find("") != ro.end());
+            test(ro.find("")->second == MyEnum::enum2);
+            test(ro.find("Hello!!") != ro.end());
+            test(ro.find("Hello!!")->second == MyEnum::enum2);
+            called();
+        }
+
+        void opMyStructMyEnumD(const MyStructMyEnumD& ro, const MyStructMyEnumD& _do)
+        {
+            MyStruct ms11 = {1, 1};
+            MyStruct ms12 = {1, 2};
+            MyStructMyEnumD di1;
+            di1[ms11] = MyEnum::enum1;
+            di1[ms12] = MyEnum::enum2;
+            test(_do == di1);
+            MyStruct ms22 = {2, 2};
+            MyStruct ms23 = {2, 3};
+            test(ro.size() == 4);
+            test(ro.find(ms11) != ro.end());
+            test(ro.find(ms11)->second == MyEnum::enum1);
+            test(ro.find(ms12) != ro.end());
+            test(ro.find(ms12)->second == MyEnum::enum2);
+            test(ro.find(ms22) != ro.end());
+            test(ro.find(ms22)->second == MyEnum::enum3);
+            test(ro.find(ms23) != ro.end());
+            test(ro.find(ms23)->second == MyEnum::enum2);
+            called();
+        }
+
+        void opByteBoolDS(const ByteBoolDS& ro, const ByteBoolDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find(10) != ro[0].end());
+            test(ro[0].find(10)->second == true);
+            test(ro[0].find(11) != ro[0].end());
+            test(ro[0].find(11)->second == false);
+            test(ro[0].find(101) != ro[0].end());
+            test(ro[0].find(101)->second == true);
+            test(ro[1].size() == 2);
+            test(ro[1].find(10) != ro[1].end());
+            test(ro[1].find(10)->second == true);
+            test(ro[1].find(100) != ro[1].end());
+            test(ro[1].find(100)->second == false);
+            test(_do.size() == 3);
+            test(_do[0].size() == 2);
+            test(_do[0].find(100) != _do[0].end());
+            test(_do[0].find(100)->second == false);
+            test(_do[0].find(101) != _do[0].end());
+            test(_do[0].find(101)->second == false);
+            test(_do[1].size() == 2);
+            test(_do[1].find(10) != _do[1].end());
+            test(_do[1].find(10)->second == true);
+            test(_do[1].find(100) != _do[1].end());
+            test(_do[1].find(100)->second == false);
+            test(_do[2].size() == 3);
+            test(_do[2].find(10) != _do[2].end());
+            test(_do[2].find(10)->second == true);
+            test(_do[2].find(11) != _do[2].end());
+            test(_do[2].find(11)->second == false);
+            test(_do[2].find(101) != _do[2].end());
+            test(_do[2].find(101)->second == true);
+            called();
+        }
+
+        void opShortIntDS(const ShortIntDS& ro, const ShortIntDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find(110) != ro[0].end());
+            test(ro[0].find(110)->second == -1);
+            test(ro[0].find(111) != ro[0].end());
+            test(ro[0].find(111)->second == -100);
+            test(ro[0].find(1101) != ro[0].end());
+            test(ro[0].find(1101)->second == 0);
+            test(ro[1].size() == 2);
+            test(ro[1].find(110)->second == -1);
+            test(ro[1].find(1100)->second == 123123);
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find(100) != _do[0].end());
+            test(_do[0].find(100)->second == -1001);
+            test(_do[1].size() == 2);
+            test(_do[1].find(110) != _do[1].end());
+            test(_do[1].find(110)->second == -1);
+            test(_do[1].find(1100) != _do[1].end());
+            test(_do[1].find(1100)->second == 123123);
+            test(_do[2].size() == 3);
+            test(_do[2].find(110) != _do[2].end());
+            test(_do[2].find(110)->second == -1);
+            test(_do[2].find(111) != _do[2].end());
+            test(_do[2].find(111)->second == -100);
+            test(_do[2].find(1101) != _do[2].end());
+            test(_do[2].find(1101)->second == 0);
+            called();
+        }
+
+        void opLongFloatDS(const LongFloatDS& ro, const LongFloatDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find(999999110) != ro[0].end());
+            test(ro[0].find(999999110)->second == float(-1.1));
+            test(ro[0].find(999999120) != ro[0].end());
+            test(ro[0].find(999999120)->second == float(-100.4));
+            test(ro[0].find(999999130) != ro[0].end());
+            test(ro[0].find(999999130)->second == float(0.5));
+            test(ro[1].size() == 2);
+            test(ro[1].find(999999110) != ro[1].end());
+            test(ro[1].find(999999110)->second == float(-1.1));
+            test(ro[1].find(999999111) != ro[1].end());
+            test(ro[1].find(999999111)->second == float(123123.2));
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find(999999140) != _do[0].end());
+            test(_do[0].find(999999140)->second == float(3.14));
+            test(_do[1].size() == 2);
+            test(_do[1].find(999999110) != _do[1].end());
+            test(_do[1].find(999999110)->second == float(-1.1));
+            test(_do[1].find(999999111) != _do[1].end());
+            test(_do[1].find(999999111)->second == float(123123.2));
+            test(_do[2].size() == 3);
+            test(_do[2].find(999999110) != _do[2].end());
+            test(_do[2].find(999999110)->second == float(-1.1));
+            test(_do[2].find(999999120) != _do[2].end());
+            test(_do[2].find(999999120)->second == float(-100.4));
+            test(_do[2].find(999999130) != _do[2].end());
+            test(_do[2].find(999999130)->second == float(0.5));
+            called();
+        }
+
+        void opStringStringDS(const StringStringDS& ro, const StringStringDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find("foo") != ro[0].end());
+            test(ro[0].find("foo")->second == "abc -1.1");
+            test(ro[0].find("FOO") != ro[0].end());
+            test(ro[0].find("FOO")->second == "abc -100.4");
+            test(ro[0].find("BAR") != ro[0].end());
+            test(ro[0].find("BAR")->second == "abc 0.5");
+            test(ro[1].size() == 2);
+            test(ro[1].find("foo") != ro[1].end());
+            test(ro[1].find("foo")->second == "abc -1.1");
+            test(ro[1].find("bar") != ro[1].end());
+            test(ro[1].find("bar")->second == "abc 123123.2");
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find("f00") != _do[0].end());
+            test(_do[0].find("f00")->second == "ABC -3.14");
+            test(_do[1].size() == 2);
+            test(_do[1].find("foo") != _do[1].end());
+            test(_do[1].find("foo")->second == "abc -1.1");
+            test(_do[1].find("bar") != _do[1].end());
+            test(_do[1].find("bar")->second == "abc 123123.2");
+            test(_do[2].size() == 3);
+            test(_do[2].find("foo") != _do[2].end());
+            test(_do[2].find("foo")->second == "abc -1.1");
+            test(_do[2].find("FOO") != _do[2].end());
+            test(_do[2].find("FOO")->second == "abc -100.4");
+            test(_do[2].find("BAR") != _do[2].end());
+            test(_do[2].find("BAR")->second == "abc 0.5");
+            called();
+        }
+
+        void opStringMyEnumDS(const StringMyEnumDS& ro, const StringMyEnumDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find("abc") != ro[0].end());
+            test(ro[0].find("abc")->second == MyEnum::enum1);
+            test(ro[0].find("qwerty") != ro[0].end());
+            test(ro[0].find("qwerty")->second == MyEnum::enum3);
+            test(ro[0].find("Hello!!") != ro[0].end());
+            test(ro[0].find("Hello!!")->second == MyEnum::enum2);
+            test(ro[1].size() == 2);
+            test(ro[1].find("abc") != ro[1].end());
+            test(ro[1].find("abc")->second == MyEnum::enum1);
+            test(ro[1].find("") != ro[1].end());
+            test(ro[1].find("")->second == MyEnum::enum2);
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find("Goodbye") != _do[0].end());
+            test(_do[0].find("Goodbye")->second == MyEnum::enum1);
+            test(_do[1].size() == 2);
+            test(_do[1].find("abc") != _do[1].end());
+            test(_do[1].find("abc")->second == MyEnum::enum1);
+            test(_do[1].find("") != _do[1].end());
+            test(_do[1].find("")->second == MyEnum::enum2);
+            test(_do[2].size() == 3);
+            test(_do[2].find("abc") != _do[2].end());
+            test(_do[2].find("abc")->second == MyEnum::enum1);
+            test(_do[2].find("qwerty") != _do[2].end());
+            test(_do[2].find("qwerty")->second == MyEnum::enum3);
+            test(_do[2].find("Hello!!") != _do[2].end());
+            test(_do[2].find("Hello!!")->second == MyEnum::enum2);
+            called();
+        }
+
+        void opMyEnumStringDS(const MyEnumStringDS& ro, const MyEnumStringDS& _do)
+        {
+            test(ro.size() == 2);
+            test(ro[0].size() == 2);
+            test(ro[0].find(MyEnum::enum2) != ro[0].end());
+            test(ro[0].find(MyEnum::enum2)->second == "Hello!!");
+            test(ro[0].find(MyEnum::enum3) != ro[0].end());
+            test(ro[0].find(MyEnum::enum3)->second == "qwerty");
+            test(ro[1].size() == 1);
+            test(ro[1].find(MyEnum::enum1) != ro[1].end());
+            test(ro[1].find(MyEnum::enum1)->second == "abc");
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find(MyEnum::enum1) != _do[0].end());
+            test(_do[0].find(MyEnum::enum1)->second == "Goodbye");
+            test(_do[1].size() == 1);
+            test(_do[1].find(MyEnum::enum1) != _do[1].end());
+            test(_do[1].find(MyEnum::enum1)->second == "abc");
+            test(_do[2].size() == 2);
+            test(_do[2].find(MyEnum::enum2) != _do[2].end());
+            test(_do[2].find(MyEnum::enum2)->second == "Hello!!");
+            test(_do[2].find(MyEnum::enum3) != _do[2].end());
+            test(_do[2].find(MyEnum::enum3)->second == "qwerty");
+            called();
+        }
+
+        void opMyStructMyEnumDS(const MyStructMyEnumDS& ro, const MyStructMyEnumDS& _do)
+        {
+            MyStruct ms11 = {1, 1};
+            MyStruct ms12 = {1, 2};
+            MyStruct ms22 = {2, 2};
+            MyStruct ms23 = {2, 3};
+
+            test(ro.size() == 2);
+            test(ro[0].size() == 3);
+            test(ro[0].find(ms11) != ro[0].end());
+            test(ro[0].find(ms11)->second == MyEnum::enum1);
+            test(ro[0].find(ms22) != ro[0].end());
+            test(ro[0].find(ms22)->second == MyEnum::enum3);
+            test(ro[0].find(ms23) != ro[0].end());
+            test(ro[0].find(ms23)->second == MyEnum::enum2);
+            test(ro[1].size() == 2);
+            test(ro[1].find(ms11) != ro[1].end());
+            test(ro[1].find(ms11)->second == MyEnum::enum1);
+            test(ro[1].find(ms12) != ro[1].end());
+            test(ro[1].find(ms12)->second == MyEnum::enum2);
+            test(_do.size() == 3);
+            test(_do[0].size() == 1);
+            test(_do[0].find(ms23) != _do[0].end());
+            test(_do[0].find(ms23)->second == MyEnum::enum3);
+            test(_do[1].size() == 2);
+            test(_do[1].find(ms11) != _do[1].end());
+            test(_do[1].find(ms11)->second == MyEnum::enum1);
+            test(_do[1].find(ms12) != _do[1].end());
+            test(_do[1].find(ms12)->second == MyEnum::enum2);
+            test(_do[2].size() == 3);
+            test(_do[2].find(ms11) != _do[2].end());
+            test(_do[2].find(ms11)->second == MyEnum::enum1);
+            test(_do[2].find(ms22) != _do[2].end());
+            test(_do[2].find(ms22)->second == MyEnum::enum3);
+            test(_do[2].find(ms23) != _do[2].end());
+            test(_do[2].find(ms23)->second == MyEnum::enum2);
+            called();
+        }
+
+        void opByteByteSD(const ByteByteSD& ro, const ByteByteSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(uint8_t(0xf1)) != _do.end());
+            test(_do.find(uint8_t(0xf1))->second.size() == 2);
+            test(_do.find(uint8_t(0xf1))->second[0] == 0xf2);
+            test(_do.find(uint8_t(0xf1))->second[1] == 0xf3);
+            test(ro.size() == 3);
+            test(ro.find(uint8_t(0x01)) != ro.end());
+            test(ro.find(uint8_t(0x01))->second.size() == 2);
+            test(ro.find(uint8_t(0x01))->second[0] == uint8_t(0x01));
+            test(ro.find(uint8_t(0x01))->second[1] == uint8_t(0x11));
+            test(ro.find(uint8_t(0x22)) != ro.end());
+            test(ro.find(uint8_t(0x22))->second.size() == 1);
+            test(ro.find(uint8_t(0x22))->second[0] == uint8_t(0x12));
+            test(ro.find(uint8_t(0xf1)) != ro.end());
+            test(ro.find(uint8_t(0xf1))->second.size() == 2);
+            test(ro.find(uint8_t(0xf1))->second[0] == uint8_t(0xf2));
+            test(ro.find(uint8_t(0xf1))->second[1] == uint8_t(0xf3));
+            called();
+        }
+
+        void opBoolBoolSD(const BoolBoolSD& ro, const BoolBoolSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(false) != _do.end());
+            test(_do.find(false)->second.size() == 2);
+            test(_do.find(false)->second[0] == true);
+            test(_do.find(false)->second[1] == false);
+            test(ro.size() == 2);
+            test(ro.find(false) != ro.end());
+            test(ro.find(false)->second.size() == 2);
+            test(ro.find(false)->second[0] == true);
+            test(ro.find(false)->second[1] == false);
+            test(ro.find(true) != ro.end());
+            test(ro.find(true)->second.size() == 3);
+            test(ro.find(true)->second[0] == false);
+            test(ro.find(true)->second[1] == true);
+            test(ro.find(true)->second[2] == true);
+            called();
+        }
+
+        void opShortShortSD(const ShortShortSD& ro, const ShortShortSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(4) != _do.end());
+            test(_do.find(4)->second.size() == 2);
+            test(_do.find(4)->second[0] == 6);
+            test(_do.find(4)->second[1] == 7);
+            test(ro.size() == 3);
+            test(ro.find(1) != ro.end());
+            test(ro.find(1)->second.size() == 3);
+            test(ro.find(1)->second[0] == 1);
+            test(ro.find(1)->second[1] == 2);
+            test(ro.find(1)->second[2] == 3);
+            test(ro.find(2) != ro.end());
+            test(ro.find(2)->second.size() == 2);
+            test(ro.find(2)->second[0] == 4);
+            test(ro.find(2)->second[1] == 5);
+            test(ro.find(4) != ro.end());
+            test(ro.find(4)->second.size() == 2);
+            test(ro.find(4)->second[0] == 6);
+            test(ro.find(4)->second[1] == 7);
+            called();
+        }
+
+        void opIntIntSD(const IntIntSD& ro, const IntIntSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(400) != _do.end());
+            test(_do.find(400)->second.size() == 2);
+            test(_do.find(400)->second[0] == 600);
+            test(_do.find(400)->second[1] == 700);
+            test(ro.size() == 3);
+            test(ro.find(100) != ro.end());
+            test(ro.find(100)->second.size() == 3);
+            test(ro.find(100)->second[0] == 100);
+            test(ro.find(100)->second[1] == 200);
+            test(ro.find(100)->second[2] == 300);
+            test(ro.find(200) != ro.end());
+            test(ro.find(200)->second.size() == 2);
+            test(ro.find(200)->second[0] == 400);
+            test(ro.find(200)->second[1] == 500);
+            test(ro.find(400) != ro.end());
+            test(ro.find(400)->second.size() == 2);
+            test(ro.find(400)->second[0] == 600);
+            test(ro.find(400)->second[1] == 700);
+            called();
+        }
+
+        void opLongLongSD(const LongLongSD& ro, const LongLongSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(999999992) != _do.end());
+            test(_do.find(999999992)->second.size() == 2);
+            test(_do.find(999999992)->second[0] == 999999110);
+            test(_do.find(999999992)->second[1] == 999999120);
+            test(ro.size() == 3);
+            test(ro.find(999999990) != ro.end());
+            test(ro.find(999999990)->second.size() == 3);
+            test(ro.find(999999990)->second[0] == 999999110);
+            test(ro.find(999999990)->second[1] == 999999111);
+            test(ro.find(999999990)->second[2] == 999999110);
+            test(ro.find(999999991) != ro.end());
+            test(ro.find(999999991)->second.size() == 2);
+            test(ro.find(999999991)->second[0] == 999999120);
+            test(ro.find(999999991)->second[1] == 999999130);
+            test(ro.find(999999992) != ro.end());
+            test(ro.find(999999992)->second.size() == 2);
+            test(ro.find(999999992)->second[0] == 999999110);
+            test(ro.find(999999992)->second[1] == 999999120);
+            called();
+        }
+
+        void opStringFloatSD(const StringFloatSD& ro, const StringFloatSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find("aBc") != _do.end());
+            test(_do.find("aBc")->second.size() == 2);
+            test(_do.find("aBc")->second[0] == float(-3.14));
+            test(_do.find("aBc")->second[1] == float(3.14));
+            test(ro.size() == 3);
+            test(ro.find("abc") != ro.end());
+            test(ro.find("abc")->second.size() == 3);
+            test(ro.find("abc")->second[0] == float(-1.1));
+            test(ro.find("abc")->second[1] == float(123123.2));
+            test(ro.find("abc")->second[2] == float(100.0));
+            test(ro.find("ABC") != ro.end());
+            test(ro.find("ABC")->second.size() == 2);
+            test(ro.find("ABC")->second[0] == float(42.24));
+            test(ro.find("ABC")->second[1] == float(-1.61));
+            test(ro.find("aBc") != ro.end());
+            test(ro.find("aBc")->second.size() == 2);
+            test(ro.find("aBc")->second[0] == float(-3.14));
+            test(ro.find("aBc")->second[1] == float(3.14));
+            called();
+        }
+
+        void opStringDoubleSD(const StringDoubleSD& ro, const StringDoubleSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find("") != _do.end());
+            test(_do.find("")->second.size() == 2);
+            test(_do.find("")->second[0] == double(1.6E10));
+            test(_do.find("")->second[1] == double(1.7E10));
+            test(ro.size() == 3);
+            test(ro.find("Hello!!") != ro.end());
+            test(ro.find("Hello!!")->second.size() == 3);
+            test(ro.find("Hello!!")->second[0] == double(1.1E10));
+            test(ro.find("Hello!!")->second[1] == double(1.2E10));
+            test(ro.find("Hello!!")->second[2] == double(1.3E10));
+            test(ro.find("Goodbye") != ro.end());
+            test(ro.find("Goodbye")->second.size() == 2);
+            test(ro.find("Goodbye")->second[0] == double(1.4E10));
+            test(ro.find("Goodbye")->second[1] == double(1.5E10));
+            test(ro.find("") != ro.end());
+            test(ro.find("")->second.size() == 2);
+            test(ro.find("")->second[0] == double(1.6E10));
+            test(ro.find("")->second[1] == double(1.7E10));
+            called();
+        }
+
+        void opStringStringSD(const StringStringSD& ro, const StringStringSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find("ghi") != _do.end());
+            test(_do.find("ghi")->second.size() == 2);
+            test(_do.find("ghi")->second[0] == "and");
+            test(_do.find("ghi")->second[1] == "xor");
+            test(ro.size() == 3);
+            test(ro.find("abc") != ro.end());
+            test(ro.find("abc")->second.size() == 3);
+            test(ro.find("abc")->second[0] == "abc");
+            test(ro.find("abc")->second[1] == "de");
+            test(ro.find("abc")->second[2] == "fghi");
+            test(ro.find("def") != ro.end());
+            test(ro.find("def")->second.size() == 2);
+            test(ro.find("def")->second[0] == "xyz");
+            test(ro.find("def")->second[1] == "or");
+            test(ro.find("ghi") != ro.end());
+            test(ro.find("ghi")->second.size() == 2);
+            test(ro.find("ghi")->second[0] == "and");
+            test(ro.find("ghi")->second[1] == "xor");
+            called();
+        }
+
+        void opMyEnumMyEnumSD(const MyEnumMyEnumSD& ro, const MyEnumMyEnumSD& _do)
+        {
+            test(_do.size() == 1);
+            test(_do.find(MyEnum::enum1) != _do.end());
+            test(_do.find(MyEnum::enum1)->second.size() == 2);
+            test(_do.find(MyEnum::enum1)->second[0] == MyEnum::enum3);
+            test(_do.find(MyEnum::enum1)->second[1] == MyEnum::enum3);
+            test(ro.size() == 3);
+            test(ro.find(MyEnum::enum3) != ro.end());
+            test(ro.find(MyEnum::enum3)->second.size() == 3);
+            test(ro.find(MyEnum::enum3)->second[0] == MyEnum::enum1);
+            test(ro.find(MyEnum::enum3)->second[1] == MyEnum::enum1);
+            test(ro.find(MyEnum::enum3)->second[2] == MyEnum::enum2);
+            test(ro.find(MyEnum::enum2) != ro.end());
+            test(ro.find(MyEnum::enum2)->second.size() == 2);
+            test(ro.find(MyEnum::enum2)->second[0] == MyEnum::enum1);
+            test(ro.find(MyEnum::enum2)->second[1] == MyEnum::enum2);
+            test(ro.find(MyEnum::enum1) != ro.end());
+            test(ro.find(MyEnum::enum1)->second.size() == 2);
+            test(ro.find(MyEnum::enum1)->second[0] == MyEnum::enum3);
+            test(ro.find(MyEnum::enum1)->second[1] == MyEnum::enum3);
+            called();
+        }
+
+        void opIntS(const IntS& r)
+        {
+            for (int j = 0; j < static_cast<int>(r.size()); ++j)
+            {
+                test(r[static_cast<size_t>(j)] == -j);
+            }
+            called();
+        }
+
+        void opDoubleMarshaling() { called(); }
+
+        void opIdempotent() { called(); }
+
+        void opNonmutating() { called(); }
+
+        void opDerived() { called(); }
+
+        void exCB(const Exception& ex)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch (const OperationNotExistException&)
+            {
+                called();
+            }
+            catch (const Exception&)
+            {
+                test(false);
+            }
+        }
+
+    private:
+        CommunicatorPtr _communicator;
+    };
+    using CallbackPtr = shared_ptr<Callback>;
 }
 
 function<void(exception_ptr)>
 makeExceptionClosure(CallbackPtr& cb)
 {
     return [&](exception_ptr e)
+    {
+        try
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Exception& ex)
-            {
-                cb->exCB(ex);
-            }
-        };
+            rethrow_exception(e);
+        }
+        catch (const Exception& ex)
+        {
+            cb->exCB(ex);
+        }
+    };
 }
 
 void
@@ -1050,123 +1009,78 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 {
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->ice_pingAsync(
-            [&]()
-            {
-                cb->ping();
-            },
-            makeExceptionClosure(cb));
+        p->ice_pingAsync([&]() { cb->ping(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
         p->ice_isAAsync(
-            MyClass::ice_staticId(),
-            [&](bool v)
-            {
-                cb->isA(v);
-            },
+            MyClass::ice_staticId(), [&](bool v) { cb->isA(v); }, makeExceptionClosure(cb));
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = make_shared<Callback>();
+        p->ice_idAsync([&](string id) { cb->id(std::move(id)); }, makeExceptionClosure(cb));
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = make_shared<Callback>();
+        p->ice_idsAsync([&](vector<string> ids) { cb->ids(std::move(ids)); }, makeExceptionClosure(cb));
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = make_shared<Callback>();
+        p->opVoidAsync([&]() { cb->opVoid(); }, makeExceptionClosure(cb));
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = make_shared<Callback>();
+        p->opByteAsync(
+            uint8_t(0xff), uint8_t(0x0f), [&](uint8_t b1, uint8_t b2) { cb->opByte(b1, b2); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->ice_idAsync(
-            [&](string id)
-            {
-                cb->id(std::move(id));
-            },
+        p->opBoolAsync(
+            true, false, [&](bool b1, bool b2) { cb->opBool(b1, b2); }, makeExceptionClosure(cb));
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = make_shared<Callback>();
+        p->opShortIntLongAsync(
+            10, 11, 12, [&](int64_t l1, short s1P, int i1, int64_t l2) { cb->opShortIntLong(l1, s1P, i1, l2); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->ice_idsAsync(
-            [&](vector<string> ids)
-            {
-                cb->ids(std::move(ids));
-            },
+        p->opFloatDoubleAsync(
+            3.14f, 1.1E10, [&](double d1, float f1, double d2) { cb->opFloatDouble(d1, f1, d2); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->opVoidAsync(
-            [&]()
-            {
-                cb->opVoid();
-            },
+        p->opStringAsync(
+            "hello", "world", [&](string s1P, string s2P) { cb->opString(std::move(s1P), std::move(s2P)); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteAsync(uint8_t(0xff), uint8_t(0x0f),
-            [&](uint8_t b1, uint8_t b2)
-            {
-                cb->opByte(b1, b2);
-            },
-            makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opBoolAsync(true, false,
-            [&](bool b1, bool b2)
-            {
-                cb->opBool(b1, b2);
-            },
-            makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opShortIntLongAsync(10, 11, 12,
-            [&](int64_t l1, short s1P, int i1, int64_t l2)
-            {
-                cb->opShortIntLong(l1, s1P, i1, l2);
-            },
-            makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opFloatDoubleAsync(3.14f, 1.1E10,
-            [&](double d1, float f1, double d2)
-            {
-                cb->opFloatDouble(d1, f1, d2);
-            },
-            makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opStringAsync("hello", "world",
-            [&](string s1P, string s2P)
-            {
-                cb->opString(std::move(s1P), std::move(s2P));
-            },
-            makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opMyEnumAsync(MyEnum::enum2,
-                         [&](MyEnum e1, MyEnum e2)
-            {
-                cb->opMyEnum(e1, e2);
-            },
-            makeExceptionClosure(cb));
+        p->opMyEnumAsync(
+            MyEnum::enum2, [&](MyEnum e1, MyEnum e2) { cb->opMyEnum(e1, e2); }, makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1175,9 +1089,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opMyClassAsync(
             p,
             [&](optional<MyClassPrx> c1, optional<MyClassPrx> c2, optional<MyClassPrx> c3)
-            {
-                cb->opMyClass(std::move(*c1), std::move(*c2), std::move(*c3));
-            },
+            { cb->opMyClass(std::move(*c1), std::move(*c2), std::move(*c3)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1193,11 +1105,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         si2.s.s = "def";
 
         CallbackPtr cb = make_shared<Callback>(communicator);
-        p->opStructAsync(si1, si2,
-            [&](Structure si3, Structure si4)
-            {
-                cb->opStruct(std::move(si3), std::move(si4));
-            },
+        p->opStructAsync(
+            si1, si2, [&](Structure si3, Structure si4) { cb->opStruct(std::move(si3), std::move(si4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1217,11 +1126,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         bsi2.push_back(uint8_t(0xf4));
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteSAsync(bsi1, bsi2,
-            [&](ByteS bsi3, ByteS bsi4)
-            {
-                cb->opByteS(std::move(bsi3), std::move(bsi4));
-            },
+        p->opByteSAsync(
+            bsi1, bsi2, [&](ByteS bsi3, ByteS bsi4) { cb->opByteS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1237,11 +1143,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         bsi2.push_back(false);
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opBoolSAsync(bsi1, bsi2,
-            [&](BoolS bsi3, BoolS bsi4)
-            {
-                cb->opBoolS(std::move(bsi3), std::move(bsi4));
-            },
+        p->opBoolSAsync(
+            bsi1, bsi2, [&](BoolS bsi3, BoolS bsi4) { cb->opBoolS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1265,11 +1168,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         lsi.push_back(20);
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opShortIntLongSAsync(ssi, isi, lsi,
+        p->opShortIntLongSAsync(
+            ssi, isi, lsi,
             [&](LongS lsi1, ShortS ssi1, IntS isi1, LongS lsi2)
-            {
-                cb->opShortIntLongS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2));
-            },
+            { cb->opShortIntLongS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1286,11 +1188,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi.push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opFloatDoubleSAsync(fsi, dsi,
+        p->opFloatDoubleSAsync(
+            fsi, dsi,
             [&](DoubleS dsi1, FloatS fsi1, DoubleS dsi2)
-            {
-                cb->opFloatDoubleS(std::move(dsi1), std::move(fsi1), std::move(dsi2));
-            },
+            { cb->opFloatDoubleS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1306,11 +1207,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         ssi2.push_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringSAsync(ssi1, ssi2,
-            [&](StringS ssi3, StringS ssi4)
-            {
-                cb->opStringS(std::move(ssi3), std::move(ssi4));
-            },
+        p->opStringSAsync(
+            ssi1, ssi2, [&](StringS ssi3, StringS ssi4) { cb->opStringS(std::move(ssi3), std::move(ssi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1331,11 +1229,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         bsi2[1].push_back(uint8_t(0xf1));
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteSSAsync(bsi1, bsi2,
-            [&](ByteSS bsi3, ByteSS bsi4)
-            {
-                cb->opByteSS(std::move(bsi3), std::move(bsi4));
-            },
+        p->opByteSSAsync(
+            bsi1, bsi2, [&](ByteSS bsi3, ByteSS bsi4) { cb->opByteSS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1356,11 +1251,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         bsi2[0].push_back(true);
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opBoolSSAsync(bsi1, bsi2,
-            [&](BoolSS bsi3, BoolSS bsi4)
-            {
-                cb->opBoolSS(std::move(bsi3), std::move(bsi4));
-            },
+        p->opBoolSSAsync(
+            bsi1, bsi2, [&](BoolSS bsi3, BoolSS bsi4) { cb->opBoolSS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1383,11 +1275,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         lsi[0].push_back(1729);
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opShortIntLongSSAsync(ssi, isi, lsi,
+        p->opShortIntLongSSAsync(
+            ssi, isi, lsi,
             [&](LongSS lsi1, ShortSS ssi1, IntSS isi1, LongSS lsi2)
-            {
-                cb->opShortIntLongSS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2));
-            },
+            { cb->opShortIntLongSS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1406,11 +1297,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi[0].push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opFloatDoubleSSAsync(fsi, dsi,
+        p->opFloatDoubleSSAsync(
+            fsi, dsi,
             [&](DoubleSS dsi1, FloatSS fsi1, DoubleSS dsi2)
-            {
-                cb->opFloatDoubleSS(std::move(dsi1), std::move(fsi1), std::move(dsi2));
-            },
+            { cb->opFloatDoubleSS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1428,11 +1318,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         ssi2[2].push_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringSSAsync(ssi1, ssi2,
-            [&](StringSS ssi3, StringSS ssi4)
-            {
-                cb->opStringSS(std::move(ssi3), std::move(ssi4));
-            },
+        p->opStringSSAsync(
+            ssi1, ssi2, [&](StringSS ssi3, StringSS ssi4) { cb->opStringSS(std::move(ssi3), std::move(ssi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1447,11 +1334,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         di2[101] = true;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteBoolDAsync(di1, di2,
-            [&](ByteBoolD di3, ByteBoolD di4)
-            {
-                cb->opByteBoolD(std::move(di3), std::move(di4));
-            },
+        p->opByteBoolDAsync(
+            di1, di2, [&](ByteBoolD di3, ByteBoolD di4) { cb->opByteBoolD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1466,11 +1350,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         di2[1101] = 0;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opShortIntDAsync(di1, di2,
-            [&](ShortIntD di3, ShortIntD di4)
-            {
-                cb->opShortIntD(std::move(di3), std::move(di4));
-            },
+        p->opShortIntDAsync(
+            di1, di2, [&](ShortIntD di3, ShortIntD di4) { cb->opShortIntD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1485,11 +1366,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         di2[999999130] = float(0.5);
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opLongFloatDAsync(di1, di2,
-            [&](LongFloatD di3, LongFloatD di4)
-            {
-                cb->opLongFloatD(std::move(di3), std::move(di4));
-            },
+        p->opLongFloatDAsync(
+            di1, di2, [&](LongFloatD di3, LongFloatD di4) { cb->opLongFloatD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1504,11 +1382,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         di2["BAR"] = "abc 0.5";
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringStringDAsync(di1, di2,
-            [&](StringStringD di3, StringStringD di4)
-            {
-                cb->opStringStringD(std::move(di3), std::move(di4));
-            },
+        p->opStringStringDAsync(
+            di1, di2,
+            [&](StringStringD di3, StringStringD di4) { cb->opStringStringD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1523,35 +1399,31 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         di2["Hello!!"] = MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringMyEnumDAsync(di1, di2,
-            [&](StringMyEnumD di3, StringMyEnumD di4)
-            {
-                cb->opStringMyEnumD(std::move(di3), std::move(di4));
-            },
+        p->opStringMyEnumDAsync(
+            di1, di2,
+            [&](StringMyEnumD di3, StringMyEnumD di4) { cb->opStringMyEnumD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
+        MyStruct ms11 = {1, 1};
+        MyStruct ms12 = {1, 2};
         MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
+        MyStruct ms22 = {2, 2};
+        MyStruct ms23 = {2, 3};
         MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
         di2[ms23] = MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opMyStructMyEnumDAsync(di1, di2,
-            [&](MyStructMyEnumD di3, MyStructMyEnumD di4)
-            {
-                cb->opMyStructMyEnumD(std::move(di3), std::move(di4));
-            },
+        p->opMyStructMyEnumDAsync(
+            di1, di2,
+            [&](MyStructMyEnumD di3, MyStructMyEnumD di4) { cb->opMyStructMyEnumD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1578,11 +1450,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteBoolDSAsync(dsi1, dsi2,
-            [&](ByteBoolDS dsi3, ByteBoolDS dsi4)
-            {
-                cb->opByteBoolDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opByteBoolDSAsync(
+            dsi1, dsi2, [&](ByteBoolDS dsi3, ByteBoolDS dsi4) { cb->opByteBoolDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1608,11 +1477,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opShortIntDSAsync(dsi1, dsi2,
-            [&](ShortIntDS dsi3, ShortIntDS dsi4)
-            {
-                cb->opShortIntDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opShortIntDSAsync(
+            dsi1, dsi2, [&](ShortIntDS dsi3, ShortIntDS dsi4) { cb->opShortIntDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1638,11 +1504,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opLongFloatDSAsync(dsi1, dsi2,
-            [&](LongFloatDS dsi3, LongFloatDS dsi4)
-            {
-                cb->opLongFloatDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opLongFloatDSAsync(
+            dsi1, dsi2,
+            [&](LongFloatDS dsi3, LongFloatDS dsi4) { cb->opLongFloatDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1668,11 +1532,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringStringDSAsync(dsi1, dsi2,
-            [&](StringStringDS dsi3, StringStringDS dsi4)
-            {
-                cb->opStringStringDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opStringStringDSAsync(
+            dsi1, dsi2,
+            [&](StringStringDS dsi3, StringStringDS dsi4) { cb->opStringStringDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1698,11 +1560,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringMyEnumDSAsync(dsi1, dsi2,
-            [&](StringMyEnumDS dsi3, StringMyEnumDS dsi4)
-            {
-                cb->opStringMyEnumDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opStringMyEnumDSAsync(
+            dsi1, dsi2,
+            [&](StringMyEnumDS dsi3, StringMyEnumDS dsi4) { cb->opStringMyEnumDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1726,11 +1586,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opMyEnumStringDSAsync(dsi1, dsi2,
-            [&](MyEnumStringDS dsi3, MyEnumStringDS dsi4)
-            {
-                cb->opMyEnumStringDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opMyEnumStringDSAsync(
+            dsi1, dsi2,
+            [&](MyEnumStringDS dsi3, MyEnumStringDS dsi4) { cb->opMyEnumStringDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1741,14 +1599,14 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         MyStructMyEnumDS dsi2;
         dsi2.resize(1);
 
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
+        MyStruct ms11 = {1, 1};
+        MyStruct ms12 = {1, 2};
         MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
+        MyStruct ms22 = {2, 2};
+        MyStruct ms23 = {2, 3};
         MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
@@ -1762,11 +1620,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         dsi2[0] = di3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opMyStructMyEnumDSAsync(dsi1, dsi2,
-                                   [&](MyStructMyEnumDS dsi3, MyStructMyEnumDS dsi4)
-            {
-                cb->opMyStructMyEnumDS(std::move(dsi3), std::move(dsi4));
-            },
+        p->opMyStructMyEnumDSAsync(
+            dsi1, dsi2,
+            [&](MyStructMyEnumDS dsi3, MyStructMyEnumDS dsi4)
+            { cb->opMyStructMyEnumDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1790,11 +1647,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[uint8_t(0xf1)] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteByteSDAsync(sdi1, sdi2,
-            [&](ByteByteSD sdi3, ByteByteSD sdi4)
-            {
-                cb->opByteByteSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opByteByteSDAsync(
+            sdi1, sdi2, [&](ByteByteSD sdi3, ByteByteSD sdi4) { cb->opByteByteSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1817,11 +1671,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[false] = si1;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opBoolBoolSDAsync(sdi1, sdi2,
-            [&](BoolBoolSD sdi3, BoolBoolSD sdi4)
-            {
-                cb->opBoolBoolSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opBoolBoolSDAsync(
+            sdi1, sdi2, [&](BoolBoolSD sdi3, BoolBoolSD sdi4) { cb->opBoolBoolSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1847,11 +1698,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[4] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opShortShortSDAsync(sdi1, sdi2,
-            [&](ShortShortSD sdi3, ShortShortSD sdi4)
-            {
-                cb->opShortShortSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opShortShortSDAsync(
+            sdi1, sdi2,
+            [&](ShortShortSD sdi3, ShortShortSD sdi4) { cb->opShortShortSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1877,11 +1726,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[400] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opIntIntSDAsync(sdi1, sdi2,
-            [&](IntIntSD sdi3, IntIntSD sdi4)
-            {
-                cb->opIntIntSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opIntIntSDAsync(
+            sdi1, sdi2, [&](IntIntSD sdi3, IntIntSD sdi4) { cb->opIntIntSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1907,11 +1753,8 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[999999992] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opLongLongSDAsync(sdi1, sdi2,
-            [&](LongLongSD sdi3, LongLongSD sdi4)
-            {
-                cb->opLongLongSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opLongLongSDAsync(
+            sdi1, sdi2, [&](LongLongSD sdi3, LongLongSD sdi4) { cb->opLongLongSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1937,11 +1780,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2["aBc"] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringFloatSDAsync(sdi1, sdi2,
-            [&](StringFloatSD sdi3, StringFloatSD sdi4)
-            {
-                cb->opStringFloatSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opStringFloatSDAsync(
+            sdi1, sdi2,
+            [&](StringFloatSD sdi3, StringFloatSD sdi4) { cb->opStringFloatSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1967,11 +1808,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[""] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringDoubleSDAsync(sdi1, sdi2,
-            [&](StringDoubleSD sdi3, StringDoubleSD sdi4)
-            {
-                cb->opStringDoubleSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opStringDoubleSDAsync(
+            sdi1, sdi2,
+            [&](StringDoubleSD sdi3, StringDoubleSD sdi4) { cb->opStringDoubleSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1999,11 +1838,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2["ghi"] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opStringStringSDAsync(sdi1, sdi2,
-            [&](StringStringSD sdi3, StringStringSD sdi4)
-            {
-                cb->opStringStringSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opStringStringSDAsync(
+            sdi1, sdi2,
+            [&](StringStringSD sdi3, StringStringSD sdi4) { cb->opStringStringSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -2029,32 +1866,26 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         sdi2[MyEnum::enum1] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
-        p->opMyEnumMyEnumSDAsync(sdi1, sdi2,
-            [&](MyEnumMyEnumSD sdi3, MyEnumMyEnumSD sdi4)
-            {
-                cb->opMyEnumMyEnumSD(std::move(sdi3), std::move(sdi4));
-            },
+        p->opMyEnumMyEnumSDAsync(
+            sdi1, sdi2,
+            [&](MyEnumMyEnumSD sdi3, MyEnumMyEnumSD sdi4) { cb->opMyEnumMyEnumSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
 
     {
-        const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+        const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
             IntS s;
-            for(int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < lengths[l]; ++i)
             {
                 s.push_back(i);
             }
             CallbackPtr cb = make_shared<Callback>();
-            p->opIntSAsync(s,
-                [&](IntS s1P)
-                {
-                    cb->opIntS(s1P);
-                },
-                makeExceptionClosure(cb));
+            p->opIntSAsync(
+                s, [&](IntS s1P) { cb->opIntS(s1P); }, makeExceptionClosure(cb));
             cb->check();
         }
     }
@@ -2074,10 +1905,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c != ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr)
-                    {
-                        test(false);
-                    });
+                    [](exception_ptr) { test(false); });
                 prom.get_future().get();
             }
             {
@@ -2089,10 +1917,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c == ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr)
-                    {
-                        test(false);
-                    }, nullptr, ctx);
+                    [](exception_ptr) { test(false); }, nullptr, ctx);
                 prom.get_future().get();
             }
             {
@@ -2105,10 +1930,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c == ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr)
-                    {
-                        test(false);
-                    });
+                    [](exception_ptr) { test(false); });
                 prom.get_future().get();
             }
             {
@@ -2120,22 +1942,19 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c == ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr)
-                    {
-                        test(false);
-                    }, nullptr, ctx);
+                    [](exception_ptr) { test(false); }, nullptr, ctx);
                 prom.get_future().get();
             }
         }
 
-        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        if (p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
             // Test implicit context propagation
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
@@ -2160,10 +1979,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                             test(c == ctx);
                             prom.set_value();
                         },
-                        [](exception_ptr)
-                        {
-                            test(false);
-                        });
+                        [](exception_ptr) { test(false); });
                     prom.get_future().get();
                 }
 
@@ -2184,7 +2000,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                             {
                                 rethrow_exception(ex);
                             }
-                            catch(const Exception& e)
+                            catch (const Exception& e)
                             {
                                 cerr << e << endl;
                             }
@@ -2212,10 +2028,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                             test(c == prxContext);
                             prom.set_value();
                         },
-                        [](exception_ptr)
-                        {
-                            test(false);
-                        });
+                        [](exception_ptr) { test(false); });
                     prom.get_future().get();
                 }
 
@@ -2228,10 +2041,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                             test(c == combined);
                             prom.set_value();
                         },
-                        [](exception_ptr)
-                        {
-                            test(false);
-                        });
+                        [](exception_ptr) { test(false); });
                     prom.get_future().get();
                 }
 
@@ -2245,46 +2055,27 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         double d = 1278312346.0 / 13.0;
         DoubleS ds(5, d);
         CallbackPtr cb = make_shared<Callback>();
-        p->opDoubleMarshalingAsync(d, ds,
-            [&]()
-            {
-                cb->opDoubleMarshaling();
-            },
-            makeExceptionClosure(cb));
+        p->opDoubleMarshalingAsync(
+            d, ds, [&]() { cb->opDoubleMarshaling(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->opIdempotentAsync(
-            [&]()
-            {
-                cb->opIdempotent();
-            },
-            makeExceptionClosure(cb));
+        p->opIdempotentAsync([&]() { cb->opIdempotent(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->opNonmutatingAsync(
-            [&]()
-            {
-                cb->opNonmutating();
-            },
-            makeExceptionClosure(cb));
+        p->opNonmutatingAsync([&]() { cb->opNonmutating(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
     {
         MyDerivedClassPrx derived(p);
         CallbackPtr cb = make_shared<Callback>();
-        derived->opDerivedAsync(
-            [&]()
-            {
-                cb->opDerived();
-            },
-            makeExceptionClosure(cb));
+        derived->opDerivedAsync([&]() { cb->opDerived(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -2296,11 +2087,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->ping();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(const exception& ex)
+        catch (const exception& ex)
         {
             cerr << ex.what() << endl;
             test(false);
@@ -2315,11 +2106,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->isA(f.get());
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2333,11 +2124,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->id(f.get());
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2351,11 +2142,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->ids(f.get());
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2370,11 +2161,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opVoid();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2389,11 +2180,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByte(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2408,11 +2199,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBool(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2427,11 +2218,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntLong(get<0>(r), get<1>(r), get<2>(r), get<3>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2446,11 +2237,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDouble(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2465,11 +2256,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opString(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2484,11 +2275,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnum(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2503,11 +2294,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyClass(*get<0>(r), *get<1>(r), *get<2>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2531,11 +2322,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStruct(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2563,11 +2354,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2591,11 +2382,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBoolS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2627,11 +2418,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntLongS(get<0>(r), get<1>(r), get<2>(r), get<3>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2656,11 +2447,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDoubleS(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2684,11 +2475,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2717,11 +2508,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteSS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2748,11 +2539,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDoubleSS(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2778,11 +2569,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringSS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2805,11 +2596,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteBoolD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2832,11 +2623,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2859,11 +2650,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongFloatD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2886,11 +2677,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2913,11 +2704,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringMyEnumD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2925,14 +2716,14 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
+        MyStruct ms11 = {1, 1};
+        MyStruct ms12 = {1, 2};
         MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
+        MyStruct ms22 = {2, 2};
+        MyStruct ms23 = {2, 3};
         MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
@@ -2945,11 +2736,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyStructMyEnumD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2984,11 +2775,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteBoolDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3022,11 +2813,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3060,11 +2851,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongFloatDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3098,11 +2889,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3136,11 +2927,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringMyEnumDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3172,11 +2963,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnumStringDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3189,14 +2980,14 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         MyStructMyEnumDS dsi2;
         dsi2.resize(1);
 
-        MyStruct ms11 = { 1, 1 };
-        MyStruct ms12 = { 1, 2 };
+        MyStruct ms11 = {1, 1};
+        MyStruct ms12 = {1, 2};
         MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        MyStruct ms22 = { 2, 2 };
-        MyStruct ms23 = { 2, 3 };
+        MyStruct ms22 = {2, 2};
+        MyStruct ms23 = {2, 3};
         MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
@@ -3216,11 +3007,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyStructMyEnumDS(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3252,11 +3043,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteByteSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3287,11 +3078,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBoolBoolSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3325,11 +3116,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortShortSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3363,11 +3154,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opIntIntSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3401,11 +3192,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongLongSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3439,11 +3230,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringFloatSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3477,11 +3268,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringDoubleSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3517,16 +3308,15 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
         cb->check();
-
     }
 
     {
@@ -3556,11 +3346,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnumMyEnumSD(get<0>(r), get<1>(r));
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3568,12 +3358,12 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     }
 
     {
-        const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+        const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
             IntS s;
-            for(int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < lengths[l]; ++i)
             {
                 s.push_back(i);
             }
@@ -3583,11 +3373,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             {
                 cb->opIntS(f.get());
             }
-            catch(const Exception& ex)
+            catch (const Exception& ex)
             {
                 cb->exCB(ex);
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -3605,11 +3395,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opDoubleMarshaling();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3624,11 +3414,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opIdempotent();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3643,11 +3433,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opNonmutating();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -3663,11 +3453,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opDerived();
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             cb->exCB(ex);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }

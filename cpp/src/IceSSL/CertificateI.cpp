@@ -21,8 +21,7 @@ using namespace IceSSL;
 //
 // Map a certificate OID to its alias
 //
-const CertificateOID IceSSL::certificateOIDS[] =
-{
+const CertificateOID IceSSL::certificateOIDS[] = {
     {"2.5.4.3", "CN"},
     {"2.5.4.4", "SN"},
     {"2.5.4.5", "DeviceSerialNumber"},
@@ -38,13 +37,12 @@ const CertificateOID IceSSL::certificateOIDS[] =
     {"1.2.840.113549.1.9.8", "unstructuredAddress"},
     {"1.2.840.113549.1.9.2", "unstructuredName"},
     {"1.2.840.113549.1.9.1", "emailAddress"},
-    {"0.9.2342.19200300.100.1.25", "DC"}
-};
+    {"0.9.2342.19200300.100.1.25", "DC"}};
 const int IceSSL::certificateOIDSSize = sizeof(IceSSL::certificateOIDS) / sizeof(CertificateOID);
 
-CertificateReadException::CertificateReadException(const char* file, int line, const string& r) :
-    IceUtil::ExceptionHelper<CertificateReadException>(file, line),
-    reason(r)
+CertificateReadException::CertificateReadException(const char* file, int line, const string& r)
+    : IceUtil::ExceptionHelper<CertificateReadException>(file, line),
+      reason(r)
 {
 }
 
@@ -54,9 +52,9 @@ CertificateReadException::ice_id() const
     return "::IceSSL::CertificateReadException";
 }
 
-CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
-    IceUtil::ExceptionHelper<CertificateEncodingException>(file, line),
-    reason(r)
+CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r)
+    : IceUtil::ExceptionHelper<CertificateEncodingException>(file, line),
+      reason(r)
 {
 }
 
@@ -66,9 +64,9 @@ CertificateEncodingException::ice_id() const
     return "::IceSSL::CertificateEncodingException";
 }
 
-ParseException::ParseException(const char* file, int line, const string& r) :
-    IceUtil::ExceptionHelper<ParseException>(file, line),
-    reason(r)
+ParseException::ParseException(const char* file, int line, const string& r)
+    : IceUtil::ExceptionHelper<ParseException>(file, line),
+      reason(r)
 {
 }
 
@@ -78,51 +76,41 @@ ParseException::ice_id() const
     return "::IceSSL::ParseException";
 }
 
-DistinguishedName::DistinguishedName(const string& dn) : _rdns(RFC2253::parseStrict(dn))
-{
-    unescape();
-}
+DistinguishedName::DistinguishedName(const string& dn) : _rdns(RFC2253::parseStrict(dn)) { unescape(); }
 
-DistinguishedName::DistinguishedName(const list<pair<string, string> >& rdns) : _rdns(rdns)
-{
-    unescape();
-}
+DistinguishedName::DistinguishedName(const list<pair<string, string>>& rdns) : _rdns(rdns) { unescape(); }
 
 namespace IceSSL
 {
+    bool operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
+    {
+        return lhs._unescaped == rhs._unescaped;
+    }
 
-bool
-operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
-{
-    return lhs._unescaped == rhs._unescaped;
-}
-
-bool
-operator<(const DistinguishedName& lhs, const DistinguishedName& rhs)
-{
-    return lhs._unescaped < rhs._unescaped;
-}
-
+    bool operator<(const DistinguishedName& lhs, const DistinguishedName& rhs)
+    {
+        return lhs._unescaped < rhs._unescaped;
+    }
 }
 
 bool
 DistinguishedName::match(const DistinguishedName& other) const
 {
-    for(list< pair<string, string> >::const_iterator p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
+    for (list<pair<string, string>>::const_iterator p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
     {
         bool found = false;
-        for(list< pair<string, string> >::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
+        for (list<pair<string, string>>::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
         {
-            if(p->first == q->first)
+            if (p->first == q->first)
             {
                 found = true;
-                if(p->second != q->second)
+                if (p->second != q->second)
                 {
                     return false;
                 }
             }
         }
-        if(!found)
+        if (!found)
         {
             return false;
         }
@@ -145,9 +133,9 @@ DistinguishedName::toString() const
 {
     ostringstream os;
     bool first = true;
-    for(list< pair<string, string> >::const_iterator p = _rdns.begin(); p != _rdns.end(); ++p)
+    for (list<pair<string, string>>::const_iterator p = _rdns.begin(); p != _rdns.end(); ++p)
     {
-        if(!first)
+        if (!first)
         {
             os << ",";
         }
@@ -160,7 +148,7 @@ DistinguishedName::toString() const
 void
 DistinguishedName::unescape()
 {
-    for(list< pair<string, string> >::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
+    for (list<pair<string, string>>::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
     {
         pair<string, string> rdn = *q;
         rdn.second = RFC2253::unescape(rdn.second);
@@ -186,9 +174,9 @@ CertificateI::getX509Extension(const string& oid) const
 {
     loadX509Extensions(); // Lazzy initialize the extensions
     X509ExtensionPtr ext;
-    for(vector<X509ExtensionPtr>::const_iterator i = _extensions.begin(); i != _extensions.end(); ++i)
+    for (vector<X509ExtensionPtr>::const_iterator i = _extensions.begin(); i != _extensions.end(); ++i)
     {
-        if((*i)->getOID() == oid)
+        if ((*i)->getOID() == oid)
         {
             ext = *i;
             break;
@@ -230,7 +218,7 @@ unsigned int
 Certificate::getKeyUsage() const
 {
     const CertificateExtendedInfo* impl = dynamic_cast<const CertificateExtendedInfo*>(this);
-    if(impl)
+    if (impl)
     {
         return impl->getKeyUsage();
     }
@@ -241,7 +229,7 @@ unsigned int
 Certificate::getExtendedKeyUsage() const
 {
     const CertificateExtendedInfo* impl = dynamic_cast<const CertificateExtendedInfo*>(this);
-    if(impl)
+    if (impl)
     {
         return impl->getExtendedKeyUsage();
     }

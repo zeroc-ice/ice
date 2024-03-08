@@ -13,7 +13,7 @@ using namespace IceInternal;
 
 namespace Ice
 {
-const Current emptyCurrent = Current();
+    const Current emptyCurrent = Current();
 }
 
 bool
@@ -32,7 +32,7 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    static const vector<string> allTypeIds = { "::Ice::Object" };
+    static const vector<string> allTypeIds = {"::Ice::Object"};
     return allTypeIds;
 }
 
@@ -78,7 +78,7 @@ Ice::Object::_iceD_ice_ids(Incoming& incoming)
     incoming.readEmptyParams();
     vector<string> ret = ice_ids(incoming.current());
     OutputStream* ostr = incoming.startWriteParams();
-    if(ret.empty())
+    if (ret.empty())
     {
         ostr->write(ret);
     }
@@ -104,24 +104,18 @@ Ice::Object::_iceD_ice_id(Incoming& incoming)
 bool
 Ice::Object::_iceDispatch(Incoming& incoming)
 {
-    static constexpr string_view allOperations[] =
-    {
-        "ice_id",
-        "ice_ids",
-        "ice_isA",
-        "ice_ping"
-    };
+    static constexpr string_view allOperations[] = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
 
     const Current& current = incoming.current();
 
     pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
 
-    if(r.first == r.second)
+    if (r.first == r.second)
     {
         throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - allOperations)
+    switch (r.first - allOperations)
     {
         case 0:
         {
@@ -149,37 +143,34 @@ Ice::Object::_iceDispatch(Incoming& incoming)
 
 namespace
 {
-
-string
-operationModeToString(OperationMode mode)
-{
-    switch(mode)
+    string operationModeToString(OperationMode mode)
     {
-    case OperationMode::Normal:
-        return "::Ice::Normal";
+        switch (mode)
+        {
+            case OperationMode::Normal:
+                return "::Ice::Normal";
 
-    case OperationMode::Nonmutating:
-        return "::Ice::Nonmutating";
+            case OperationMode::Nonmutating:
+                return "::Ice::Nonmutating";
 
-    case OperationMode::Idempotent:
-        return "::Ice::Idempotent";
+            case OperationMode::Idempotent:
+                return "::Ice::Idempotent";
+        }
+        //
+        // This could not happen with C++11 strong type enums
+        //
+        assert(false);
+        return "";
     }
-    //
-    // This could not happen with C++11 strong type enums
-    //
-    assert(false);
-    return "";
-}
-
 }
 
 void
 Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
-    if(expected != received)
+    if (expected != received)
     {
         assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
-        if(expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
+        if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
@@ -188,10 +179,8 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         else
         {
             std::ostringstream reason;
-            reason << "unexpected operation mode. expected = "
-                   << operationModeToString(expected)
-                   << " received = "
-                   << operationModeToString(received);
+            reason << "unexpected operation mode. expected = " << operationModeToString(expected)
+                   << " received = " << operationModeToString(received);
             throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
         }
     }
@@ -206,7 +195,7 @@ Ice::Blobject::_iceDispatch(Incoming& incoming)
     incoming.readParamEncaps(inEncaps, sz);
     vector<uint8_t> outEncaps;
     bool ok = ice_invoke(vector<uint8_t>(inEncaps, inEncaps + sz), outEncaps, current);
-    if(outEncaps.empty())
+    if (outEncaps.empty())
     {
         incoming.writeParamEncaps(0, 0, ok);
     }
@@ -227,7 +216,7 @@ Ice::BlobjectArray::_iceDispatch(Incoming& incoming)
     inEncaps.second = inEncaps.first + sz;
     vector<uint8_t> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
-    if(outEncaps.empty())
+    if (outEncaps.empty())
     {
         incoming.writeParamEncaps(0, 0, ok);
     }
@@ -247,20 +236,21 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& incoming)
     auto incomingPtr = make_shared<Incoming>(std::move(incoming));
     try
     {
-        ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
-                        [incomingPtr](bool ok, const vector<uint8_t>& outEncaps)
-                        {
-                            if(outEncaps.empty())
-                            {
-                                incomingPtr->writeParamEncaps(0, 0, ok);
-                            }
-                            else
-                            {
-                                incomingPtr->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
-                            }
-                            incomingPtr->completed();
-                        },
-                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+        ice_invokeAsync(
+            vector<uint8_t>(inEncaps, inEncaps + sz),
+            [incomingPtr](bool ok, const vector<uint8_t>& outEncaps)
+            {
+                if (outEncaps.empty())
+                {
+                    incomingPtr->writeParamEncaps(0, 0, ok);
+                }
+                else
+                {
+                    incomingPtr->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+                }
+                incomingPtr->completed();
+            },
+            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
     }
     catch (...)
     {
@@ -279,13 +269,14 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& incoming)
     auto incomingPtr = make_shared<Incoming>(std::move(incoming));
     try
     {
-        ice_invokeAsync(inEncaps,
-                        [incomingPtr](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
-                        {
-                            incomingPtr->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
-                            incomingPtr->completed();
-                        },
-                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+        ice_invokeAsync(
+            inEncaps,
+            [incomingPtr](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
+            {
+                incomingPtr->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
+                incomingPtr->completed();
+            },
+            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
     }
     catch (...)
     {

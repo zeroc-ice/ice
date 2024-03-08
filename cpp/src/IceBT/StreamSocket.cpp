@@ -14,21 +14,18 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, SOCKET fd) :
-    IceInternal::NativeInfo(fd),
-    _instance(instance)
+IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, SOCKET fd)
+    : IceInternal::NativeInfo(fd),
+      _instance(instance)
 {
-    if(fd != INVALID_SOCKET)
+    if (fd != INVALID_SOCKET)
     {
         init(fd);
     }
     _desc = fdToString(fd);
 }
 
-IceBT::StreamSocket::~StreamSocket()
-{
-    assert(_fd == INVALID_SOCKET);
-}
+IceBT::StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
 
 size_t
 IceBT::StreamSocket::getSendPacketSize(size_t length)
@@ -47,7 +44,7 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
 {
     assert(fd != INVALID_SOCKET);
 
-    if(rcvSize > 0)
+    if (rcvSize > 0)
     {
         //
         // Try to set the buffer size. The kernel will silently adjust
@@ -56,14 +53,14 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
         //
         IceInternal::setRecvBufferSize(fd, rcvSize);
         int size = IceInternal::getRecvBufferSize(fd);
-        if(size > 0 && size < rcvSize)
+        if (size > 0 && size < rcvSize)
         {
             //
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
             //
             IceInternal::BufSizeWarnInfo winfo = _instance->getBufSizeWarn(BTEndpointType);
-            if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
+            if (!winfo.rcvWarn || rcvSize != winfo.rcvSize)
             {
                 Ice::Warning out(_instance->logger());
                 out << "BT receive buffer size: requested size of " << rcvSize << " adjusted to " << size;
@@ -72,7 +69,7 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
         }
     }
 
-    if(sndSize > 0)
+    if (sndSize > 0)
     {
         //
         // Try to set the buffer size. The kernel will silently adjust
@@ -81,12 +78,12 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
         //
         IceInternal::setSendBufferSize(fd, sndSize);
         int size = IceInternal::getSendBufferSize(fd);
-        if(size > 0 && size < sndSize)
+        if (size > 0 && size < sndSize)
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
             IceInternal::BufSizeWarnInfo winfo = _instance->getBufSizeWarn(BTEndpointType);
-            if(!winfo.sndWarn || sndSize != winfo.sndSize)
+            if (!winfo.sndWarn || sndSize != winfo.sndSize)
             {
                 Ice::Warning out(_instance->logger());
                 out << "BT send buffer size: requested size of " << sndSize << " adjusted to " << size;
@@ -118,32 +115,32 @@ IceBT::StreamSocket::read(char* buf, size_t length)
     size_t packetSize = length;
     ssize_t read = 0;
 
-    while(length > 0)
+    while (length > 0)
     {
         ssize_t ret = ::recv(_fd, buf, packetSize, 0);
-        if(ret == 0)
+        if (ret == 0)
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(ret == SOCKET_ERROR)
+        else if (ret == SOCKET_ERROR)
         {
-            if(IceInternal::interrupted())
+            if (IceInternal::interrupted())
             {
                 continue;
             }
 
-            if(IceInternal::noBuffers() && packetSize > 1024)
+            if (IceInternal::noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
                 continue;
             }
 
-            if(IceInternal::wouldBlock())
+            if (IceInternal::wouldBlock())
             {
                 return read;
             }
 
-            if(IceInternal::connectionLost())
+            if (IceInternal::connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
@@ -157,7 +154,7 @@ IceBT::StreamSocket::read(char* buf, size_t length)
         read += ret;
         length -= ret;
 
-        if(packetSize > length)
+        if (packetSize > length)
         {
             packetSize = length;
         }
@@ -173,32 +170,32 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
     size_t packetSize = length;
 
     ssize_t sent = 0;
-    while(length > 0)
+    while (length > 0)
     {
         ssize_t ret = ::send(_fd, buf, packetSize, 0);
-        if(ret == 0)
+        if (ret == 0)
         {
             throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(ret == SOCKET_ERROR)
+        else if (ret == SOCKET_ERROR)
         {
-            if(IceInternal::interrupted())
+            if (IceInternal::interrupted())
             {
                 continue;
             }
 
-            if(IceInternal::noBuffers() && packetSize > 1024)
+            if (IceInternal::noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
                 continue;
             }
 
-            if(IceInternal::wouldBlock())
+            if (IceInternal::wouldBlock())
             {
                 return sent;
             }
 
-            if(IceInternal::connectionLost())
+            if (IceInternal::connectionLost())
             {
                 throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
@@ -212,7 +209,7 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
         sent += ret;
         length -= ret;
 
-        if(packetSize > length)
+        if (packetSize > length)
         {
             packetSize = length;
         }
@@ -223,14 +220,14 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
 void
 IceBT::StreamSocket::close()
 {
-    if(_fd != INVALID_SOCKET)
+    if (_fd != INVALID_SOCKET)
     {
         try
         {
             IceInternal::closeSocket(_fd);
             _fd = INVALID_SOCKET;
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             _fd = INVALID_SOCKET;
             throw;

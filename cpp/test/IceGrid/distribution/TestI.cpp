@@ -9,10 +9,7 @@
 
 using namespace std;
 
-TestI::TestI(const Ice::PropertiesPtr& properties) :
-    _properties(properties)
-{
-}
+TestI::TestI(const Ice::PropertiesPtr& properties) : _properties(properties) {}
 
 string
 TestI::getServerFile(string path, const Ice::Current&)
@@ -20,7 +17,7 @@ TestI::getServerFile(string path, const Ice::Current&)
     string file = _properties->getProperty("ServerDistrib") + "/" + path;
     ifstream is(file.c_str());
     string content;
-    if(is.good())
+    if (is.good())
     {
         is >> content;
     }
@@ -33,7 +30,7 @@ TestI::getApplicationFile(string path, const Ice::Current&)
     string file = _properties->getProperty("ApplicationDistrib") + "/" + path;
     ifstream is(file.c_str());
     string content;
-    if(is.good())
+    if (is.good())
     {
         is >> content;
     }

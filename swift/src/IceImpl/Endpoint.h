@@ -6,20 +6,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEIMPL_API @interface ICEEndpoint: ICELocalObject
--(NSString*) toString;
--(id) getInfo;
--(bool) isEqual:(ICEEndpoint* _Nullable)endpoint;
+ICEIMPL_API @interface ICEEndpoint : ICELocalObject
+- (NSString*)toString;
+- (id)getInfo;
+- (bool)isEqual:(ICEEndpoint* _Nullable)endpoint;
 @end
 
-ICEIMPL_API @interface ICEEndpointInfo: ICELocalObject
--(int16_t) getType;
--(BOOL) getDatagram;
--(BOOL) getSecure;
+ICEIMPL_API @interface ICEEndpointInfo : ICELocalObject
+- (int16_t)getType;
+- (BOOL)getDatagram;
+- (BOOL)getSecure;
 @end
 
 ICEIMPL_API @protocol ICEEndpointInfoFactory
-+(id) createTCPEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createTCPEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
                    compress:(BOOL)compress
@@ -27,7 +27,7 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
                        port:(int32_t)port
               sourceAddress:(NSString*)sourceAddress;
 
-+(id) createUDPEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createUDPEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
                    compress:(BOOL)compress
@@ -37,13 +37,13 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
              mcastInterface:(NSString*)mcastInterface
                    mcastTtl:(int32_t)mcastTtl;
 
-+(id) createWSEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createWSEndpointInfo:(ICEEndpointInfo*)handle
                 underlying:(id)underlying
                    timeout:(int32_t)timeout
                   compress:(BOOL)compress
                   resource:(NSString*)resource;
 
-+(id) createOpaqueEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createOpaqueEndpointInfo:(ICEEndpointInfo*)handle
                     underlying:(id)underlying
                        timeout:(int32_t)timeout
                       compress:(BOOL)compress
@@ -51,14 +51,14 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
                  encodingMinor:(UInt8)encodingMinor
                       rawBytes:(NSData*)rawBytes;
 
-+(id) createSSLEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createSSLEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
                    compress:(BOOL)compress;
 
 #if TARGET_OS_IPHONE
 
-+(id) createIAPEndpointInfo:(ICEEndpointInfo*)handle
++ (id)createIAPEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
                    compress:(BOOL)compress
@@ -73,13 +73,15 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
 
 #ifdef __cplusplus
 
-@interface ICEEndpoint()
-@property (nonatomic, readonly) std::shared_ptr<Ice::Endpoint> endpoint;
-+(nullable ICEEndpointInfo*) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
+@interface
+ICEEndpoint ()
+@property(nonatomic, readonly) std::shared_ptr<Ice::Endpoint> endpoint;
++ (nullable ICEEndpointInfo*)createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
 @end
 
-@interface ICEEndpointInfo()
-@property (nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
+@interface
+ICEEndpointInfo ()
+@property(nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
 @end
 
 #endif

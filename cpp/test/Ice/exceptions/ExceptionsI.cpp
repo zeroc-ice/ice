@@ -3,9 +3,9 @@
 //
 
 #ifdef ICE_AMD_TEST
-#   include <TestAMD.h>
+#    include <TestAMD.h>
 #else
-#   include <Test.h>
+#    include <Test.h>
 #endif
 
 using namespace std;
@@ -14,7 +14,7 @@ void
 Test::F::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if(!data.empty())
+    if (!data.empty())
     {
         out << " data:'F'";
     }

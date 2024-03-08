@@ -31,9 +31,9 @@
 #include "CheckIdentity.h"
 
 #ifdef _WIN32
-#   include <sys/timeb.h>
+#    include <sys/timeb.h>
 #else
-#   include <sys/time.h>
+#    include <sys/time.h>
 #endif
 
 #include <iterator>
@@ -44,20 +44,15 @@ using namespace IceInternal;
 
 namespace
 {
-
-inline void checkServant(const shared_ptr<Object>& servant)
-{
-    if(!servant)
+    inline void checkServant(const shared_ptr<Object>& servant)
     {
-        throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
+        if (!servant)
+        {
+            throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
+        }
     }
-}
 
-inline EndpointIPtr toEndpointI(const EndpointPtr& endp)
-{
-    return dynamic_pointer_cast<EndpointI>(endp);
-}
-
+    inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
 }
 
 string
@@ -90,13 +85,11 @@ Ice::ObjectAdapterI::activate()
         // If we've previously been initialized we just need to activate the
         // incoming connection factories and we're done.
         //
-        if(_state != StateUninitialized)
+        if (_state != StateUninitialized)
         {
-            for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                [](const IncomingConnectionFactoryPtr& factory)
-                {
-                    factory->activate();
-                });
+            for_each(
+                _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
             return;
         }
 
@@ -110,7 +103,7 @@ Ice::ObjectAdapterI::activate()
         _state = StateActivating;
 
         locatorInfo = _locatorInfo;
-        if(!_noConfig)
+        if (!_noConfig)
         {
             PropertiesPtr properties = _instance->initializationData().properties;
             printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
@@ -123,7 +116,7 @@ Ice::ObjectAdapterI::activate()
         dummy.name = "dummy";
         updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         //
         // If we couldn't update the locator registry, we let the
@@ -139,7 +132,7 @@ Ice::ObjectAdapterI::activate()
         throw;
     }
 
-    if(printAdapterReady)
+    if (printAdapterReady)
     {
         consoleOut << _name << " ready" << endl;
     }
@@ -147,11 +140,9 @@ Ice::ObjectAdapterI::activate()
     {
         lock_guard lock(_mutex);
         assert(_state == StateActivating);
-        for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                 [](const IncomingConnectionFactoryPtr& factory)
-                 {
-                     factory->activate();
-                 });
+        for_each(
+            _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+            [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
         _state = StateActive;
         _conditionVariable.notify_all();
     }
@@ -164,11 +155,9 @@ Ice::ObjectAdapterI::hold()
 
     checkForDeactivation();
     _state = StateHeld;
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory)
-             {
-                 factory->hold();
-             });
+    for_each(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->hold(); });
 }
 
 void
@@ -183,11 +172,9 @@ Ice::ObjectAdapterI::waitForHold()
         incomingConnectionFactories = _incomingConnectionFactories;
     }
 
-    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory)
-             {
-                 factory->waitUntilHolding();
-             });
+    for_each(
+        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilHolding(); });
 }
 
 void
@@ -202,7 +189,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
         //
         _conditionVariable.wait(lock, [this] { return _state != StateActivating && _state != StateDeactivating; });
 
-        if(_state >= StateDeactivated)
+        if (_state >= StateDeactivated)
         {
             return;
         }
@@ -216,7 +203,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
 
     try
     {
-        if(_routerInfo)
+        if (_routerInfo)
         {
             //
             // Remove entry from the router manager.
@@ -231,7 +218,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
 
         updateLocatorRegistry(_locatorInfo, nullopt);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         //
         // We can't throw exceptions in deactivate so we ignore
@@ -239,11 +226,9 @@ Ice::ObjectAdapterI::deactivate() noexcept
         //
     }
 
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory)
-             {
-                 factory->destroy();
-             });
+    for_each(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->destroy(); });
 
     _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
@@ -268,7 +253,7 @@ Ice::ObjectAdapterI::waitForDeactivate() noexcept
         // the return of all direct method calls using this adapter.
         //
         _conditionVariable.wait(lock, [this] { return _state >= StateDeactivated && _directCount == 0; });
-        if(_state > StateDeactivated)
+        if (_state > StateDeactivated)
         {
             return;
         }
@@ -276,11 +261,9 @@ Ice::ObjectAdapterI::waitForDeactivate() noexcept
     }
 
     // Now we wait until all incoming connection factories are finished.
-    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory)
-             {
-                 factory->waitUntilFinished();
-             });
+    for_each(
+        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilFinished(); });
 }
 
 bool
@@ -310,7 +293,7 @@ Ice::ObjectAdapterI::destroy() noexcept
         // completed.
         //
         _conditionVariable.wait(lock, [this] { return _state != StateDestroying; });
-        if(_state == StateDestroyed)
+        if (_state == StateDestroyed)
         {
             return;
         }
@@ -326,13 +309,13 @@ Ice::ObjectAdapterI::destroy() noexcept
     //
     // Destroy the thread pool.
     //
-    if(_threadPool)
+    if (_threadPool)
     {
         _threadPool->destroy();
         _threadPool->joinWithAllThreads();
     }
 
-    if(_objectAdapterFactory)
+    if (_objectAdapterFactory)
     {
         _objectAdapterFactory->removeObjectAdapter(shared_from_this());
     }
@@ -580,12 +563,9 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
     lock_guard lock(_mutex);
 
     EndpointSeq endpoints;
-    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-              back_inserter(endpoints),
-              [](const IncomingConnectionFactoryPtr& factory)
-              {
-                  return factory->endpoint();
-              });
+    transform(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
+        [](const IncomingConnectionFactoryPtr& factory) { return factory->endpoint(); });
     return endpoints;
 }
 
@@ -611,7 +591,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         dummy.name = "dummy";
         updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         lock_guard lock(_mutex);
 
@@ -639,7 +619,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
         lock_guard lock(_mutex);
         checkForDeactivation();
 
-        if(_routerInfo)
+        if (_routerInfo)
         {
             const string s("can't set published endpoints on object adapter associated with a router");
             throw invalid_argument(s);
@@ -658,7 +638,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
         dummy.name = "dummy";
         updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         lock_guard lock(_mutex);
 
@@ -690,7 +670,7 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
     // it can be called for AMI invocations if the proxy has no delegate set yet.
     //
 
-    if(ref->isWellKnown())
+    if (ref->isWellKnown())
     {
         //
         // Check the active servant map to see if the well-known
@@ -698,7 +678,7 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
         //
         return _servantManager->hasServant(ref->getIdentity());
     }
-    else if(ref->isIndirect())
+    else if (ref->isIndirect())
     {
         //
         // Proxy is local if the reference adapter id matches this
@@ -717,21 +697,21 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
         // Proxies which have at least one endpoint in common with the
         // endpoints used by this object adapter are considered local.
         //
-        for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-            for(vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin();
-                q != _incomingConnectionFactories.end(); ++q)
+            for (vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin();
+                 q != _incomingConnectionFactories.end(); ++q)
             {
-                if((*q)->isLocal(*p))
+                if ((*q)->isLocal(*p))
                 {
                     return true;
                 }
             }
 
-            for(vector<EndpointIPtr>::const_iterator r = _publishedEndpoints.begin();
-                r != _publishedEndpoints.end(); ++r)
+            for (vector<EndpointIPtr>::const_iterator r = _publishedEndpoints.begin(); r != _publishedEndpoints.end();
+                 ++r)
             {
-                if((*p)->equivalent(*r))
+                if ((*p)->equivalent(*r))
                 {
                     return true;
                 }
@@ -751,7 +731,7 @@ Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPt
         f = _incomingConnectionFactories;
     }
 
-    for(vector<IncomingConnectionFactoryPtr>::const_iterator p = f.begin(); p != f.end(); ++p)
+    for (vector<IncomingConnectionFactoryPtr>::const_iterator p = f.begin(); p != f.end(); ++p)
     {
         (*p)->flushAsyncBatchRequests(outAsync, compress);
     }
@@ -765,11 +745,8 @@ Ice::ObjectAdapterI::updateConnectionObservers()
         lock_guard lock(_mutex);
         f = _incomingConnectionFactories;
     }
-    for_each(f.begin(), f.end(),
-             [](const IncomingConnectionFactoryPtr& factory)
-             {
-                 factory->updateConnectionObservers();
-             });
+    for_each(
+        f.begin(), f.end(), [](const IncomingConnectionFactoryPtr& factory) { factory->updateConnectionObservers(); });
 }
 
 void
@@ -780,7 +757,7 @@ Ice::ObjectAdapterI::updateThreadObservers()
         lock_guard lock(_mutex);
         threadPool = _threadPool;
     }
-    if(threadPool)
+    if (threadPool)
     {
         threadPool->updateObservers();
     }
@@ -807,7 +784,7 @@ Ice::ObjectAdapterI::decDirectCount()
     assert(_instance); // Must not be called after destroy().
 
     assert(_directCount > 0);
-    if(--_directCount == 0)
+    if (--_directCount == 0)
     {
         _conditionVariable.notify_all();
     }
@@ -824,7 +801,7 @@ Ice::ObjectAdapterI::getThreadPool() const
 
     assert(_instance); // Must not be called after destroy().
 
-    if(_threadPool)
+    if (_threadPool)
     {
         return _threadPool;
     }
@@ -865,25 +842,28 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 // function because when it was part of the constructor C++Builder 2010 apps would
 // crash if an exception was thrown from any calls within the constructor.
 //
-Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-                                    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-                                    bool noConfig) :
-    _state(StateUninitialized),
-    _instance(instance),
-    _communicator(communicator),
-    _objectAdapterFactory(objectAdapterFactory),
-    _servantManager(new ServantManager(instance, name)),
-    _name(name),
-    _directCount(0),
-    _noConfig(noConfig),
-    _messageSizeMax(0)
+Ice::ObjectAdapterI::ObjectAdapterI(
+    const InstancePtr& instance,
+    const CommunicatorPtr& communicator,
+    const ObjectAdapterFactoryPtr& objectAdapterFactory,
+    const string& name,
+    bool noConfig)
+    : _state(StateUninitialized),
+      _instance(instance),
+      _communicator(communicator),
+      _objectAdapterFactory(objectAdapterFactory),
+      _servantManager(new ServantManager(instance, name)),
+      _name(name),
+      _directCount(0),
+      _noConfig(noConfig),
+      _messageSizeMax(0)
 {
 }
 
 void
 Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 {
-    if(_noConfig)
+    if (_noConfig)
     {
         _reference = _instance->referenceFactory()->create("dummy -t", "");
         const_cast<ACMConfig&>(_acm) = _instance->serverACM();
@@ -897,11 +877,11 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
     //
     // Warn about unknown object adapter properties.
     //
-    if(unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+    if (unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
     {
         Warning out(_instance->initializationData().logger);
         out << "found unknown properties for object adapter `" << _name << "':";
-        for(unsigned int i = 0; i < unknownProps.size(); ++i)
+        for (unsigned int i = 0; i < unknownProps.size(); ++i)
         {
             out << "\n    " << unknownProps[i];
         }
@@ -912,7 +892,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         //
         // Make sure named adapter has some configuration
         //
-        if(router == nullopt && noProps)
+        if (router == nullopt && noProps)
         {
             throw InitializationException(__FILE__, __LINE__, "object adapter `" + _name + "' requires configuration");
         }
@@ -929,10 +909,10 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         {
             _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
         }
-        catch(const ProxyParseException&)
+        catch (const ProxyParseException&)
         {
-            throw InitializationException(__FILE__, __LINE__, "invalid proxy options `" + proxyOptions +
-                                          "' for object adapter `" + _name + "'");
+            throw InitializationException(
+                __FILE__, __LINE__, "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
         }
 
         const_cast<ACMConfig&>(_acm) =
@@ -941,7 +921,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         {
             const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
             int32_t num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
-            if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
             }
@@ -959,7 +939,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
         // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
         //
-        if(threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
+        if (threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
         {
             _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
@@ -968,7 +948,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         {
             router = _communicator->propertyToProxy<RouterPrx>(_name + ".Router");
         }
-        if(router)
+        if (router)
         {
             _routerInfo = _instance->routerManager()->get(router.value());
             assert(_routerInfo);
@@ -976,11 +956,11 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             //
             // Make sure this router is not already registered with another adapter.
             //
-            if(_routerInfo->getAdapter())
+            if (_routerInfo->getAdapter())
             {
-                throw AlreadyRegisteredException(__FILE__, __LINE__,
-                                                 "object adapter with router",
-                                                 _communicator->identityToString(router->ice_getIdentity()));
+                throw AlreadyRegisteredException(
+                    __FILE__, __LINE__, "object adapter with router",
+                    _communicator->identityToString(router->ice_getIdentity()));
             }
 
             //
@@ -1003,11 +983,11 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             // fill in the real port number.
             //
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
-            for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 EndpointIPtr publishedEndpoint;
                 vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
-                for(vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
+                for (vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
                 {
                     auto factory =
                         make_shared<IncomingConnectionFactory>(_instance, *q, publishedEndpoint, shared_from_this());
@@ -1015,10 +995,10 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
                     _incomingConnectionFactories.push_back(factory);
                 }
             }
-            if(endpoints.empty())
+            if (endpoints.empty())
             {
                 TraceLevelsPtr tl = _instance->traceLevels();
-                if(tl->network >= 2)
+                if (tl->network >= 2)
                 {
                     Trace out(_instance->initializationData().logger, tl->networkCat);
                     out << "created adapter `" << _name << "' without endpoints";
@@ -1031,7 +1011,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         //
         _publishedEndpoints = computePublishedEndpoints();
 
-        if(!properties->getProperty(_name + ".Locator").empty())
+        if (!properties->getProperty(_name + ".Locator").empty())
         {
             setLocator(_communicator->propertyToProxy<LocatorPrx>(_name + ".Locator"));
         }
@@ -1040,7 +1020,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             setLocator(_instance->referenceFactory()->getDefaultLocator());
         }
     }
-    catch(...)
+    catch (...)
     {
         destroy();
         throw;
@@ -1049,19 +1029,19 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    if(_state < StateDeactivated)
+    if (_state < StateDeactivated)
     {
         Warning out(_instance->initializationData().logger);
         out << "object adapter `" << getName() << "' has not been deactivated";
     }
-    else if(_state != StateDestroyed)
+    else if (_state != StateDestroyed)
     {
         Warning out(_instance->initializationData().logger);
         out << "object adapter `" << getName() << "' has not been destroyed";
     }
     else
     {
-        //assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
+        // assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
         assert(!_threadPool);
         assert(_incomingConnectionFactories.empty());
         assert(_directCount == 0);
@@ -1071,11 +1051,11 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 {
-    if(_id.empty())
+    if (_id.empty())
     {
         return newDirectProxy(ident, facet);
     }
-    else if(_replicaGroupId.empty())
+    else if (_replicaGroupId.empty())
     {
         return newIndirectProxy(ident, facet, _id);
     }
@@ -1104,7 +1084,7 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
 void
 Ice::ObjectAdapterI::checkForDeactivation() const
 {
-    if(_state >= StateDeactivating)
+    if (_state >= StateDeactivating)
     {
         throw ObjectAdapterDeactivatedException(__FILE__, __LINE__, getName());
     }
@@ -1117,14 +1097,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
     string::size_type end = 0;
 
     vector<EndpointIPtr> endpoints;
-    while(end < endpts.length())
+    while (end < endpts.length())
     {
         const string delim = " \t\n\r";
 
         beg = endpts.find_first_not_of(delim, end);
-        if(beg == string::npos)
+        if (beg == string::npos)
         {
-            if(!endpoints.empty())
+            if (!endpoints.empty())
             {
                 throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
             }
@@ -1132,10 +1112,10 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
         }
 
         end = beg;
-        while(true)
+        while (true)
         {
             end = endpts.find(':', end);
-            if(end == string::npos)
+            if (end == string::npos)
             {
                 end = endpts.length();
                 break;
@@ -1144,21 +1124,21 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
             {
                 bool quoted = false;
                 string::size_type quote = beg;
-                while(true)
+                while (true)
                 {
                     quote = endpts.find('\"', quote);
-                    if(quote == string::npos || end < quote)
+                    if (quote == string::npos || end < quote)
                     {
                         break;
                     }
                     else
                     {
                         quote = endpts.find('\"', ++quote);
-                        if(quote == string::npos)
+                        if (quote == string::npos)
                         {
                             break;
                         }
-                        else if(end < quote)
+                        else if (end < quote)
                         {
                             quoted = true;
                             break;
@@ -1166,7 +1146,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
                         ++quote;
                     }
                 }
-                if(!quoted)
+                if (!quoted)
                 {
                     break;
                 }
@@ -1174,14 +1154,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
             }
         }
 
-        if(end == beg)
+        if (end == beg)
         {
             throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
         }
 
         string s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
-        if(endp == 0)
+        if (endp == 0)
         {
             throw EndpointParseException(__FILE__, __LINE__, "invalid object adapter endpoint `" + s + "'");
         }
@@ -1197,15 +1177,15 @@ std::vector<EndpointIPtr>
 ObjectAdapterI::computePublishedEndpoints()
 {
     vector<EndpointIPtr> endpoints;
-    if(_routerInfo)
+    if (_routerInfo)
     {
         //
         // Get the router's server proxy endpoints and use them as the published endpoints.
         //
         vector<EndpointIPtr> endps = _routerInfo->getServerEndpoints();
-        for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
         {
-            if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
+            if (::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
             {
                 endpoints.push_back(*p);
             }
@@ -1219,24 +1199,24 @@ ObjectAdapterI::computePublishedEndpoints()
         //
         string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
         endpoints = parseEndpoints(endpts, false);
-        if(endpoints.empty())
+        if (endpoints.empty())
         {
             //
             // If the PublishedEndpoints property isn't set, we compute the published endpoints
             // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
             // to include actual addresses in the published endpoints.
             //
-            for(unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            for (unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
             {
                 vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expandIfWildcard();
-                for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
+                for (vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
                 {
                     //
                     // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
                     // expands to multiple addresses. In this case, multiple incoming connection
                     // factories can point to the same published endpoint.
                     //
-                    if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
+                    if (::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
                     {
                         endpoints.push_back(*p);
                     }
@@ -1245,13 +1225,13 @@ ObjectAdapterI::computePublishedEndpoints()
         }
     }
 
-    if(_instance->traceLevels()->network >= 1 && !endpoints.empty())
+    if (_instance->traceLevels()->network >= 1 && !endpoints.empty())
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
         out << "published endpoints for object adapter `" << getName() << "':\n";
-        for(unsigned int i = 0; i < endpoints.size(); ++i)
+        for (unsigned int i = 0; i < endpoints.size(); ++i)
         {
-            if(i > 0)
+            if (i > 0)
             {
                 out << ":";
             }
@@ -1265,20 +1245,20 @@ ObjectAdapterI::computePublishedEndpoints()
 void
 ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo, const optional<ObjectPrx>& proxy)
 {
-    if(_id.empty() || !locatorInfo)
+    if (_id.empty() || !locatorInfo)
     {
         return; // Nothing to update.
     }
 
     optional<LocatorRegistryPrx> locatorRegistry = locatorInfo->getLocatorRegistry();
-    if(!locatorRegistry)
+    if (!locatorRegistry)
     {
         return;
     }
 
     try
     {
-        if(_replicaGroupId.empty())
+        if (_replicaGroupId.empty())
         {
             locatorRegistry->setAdapterDirectProxy(_id, proxy);
         }
@@ -1287,9 +1267,9 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
         }
     }
-    catch(const AdapterNotFoundException&)
+    catch (const AdapterNotFoundException&)
     {
-        if(_instance->traceLevels()->location >= 1)
+        if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
             out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
@@ -1298,9 +1278,9 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 
         throw NotRegisteredException(__FILE__, __LINE__, "object adapter", _id);
     }
-    catch(const InvalidReplicaGroupIdException&)
+    catch (const InvalidReplicaGroupIdException&)
     {
-        if(_instance->traceLevels()->location >= 1)
+        if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
             out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
@@ -1309,9 +1289,9 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 
         throw NotRegisteredException(__FILE__, __LINE__, "replica group", _replicaGroupId);
     }
-    catch(const AdapterAlreadyActiveException&)
+    catch (const AdapterAlreadyActiveException&)
     {
-        if(_instance->traceLevels()->location >= 1)
+        if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
             out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
@@ -1320,17 +1300,17 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 
         throw ObjectAdapterIdInUseException(__FILE__, __LINE__, _id);
     }
-    catch(const ObjectAdapterDeactivatedException&)
+    catch (const ObjectAdapterDeactivatedException&)
     {
         // Expected if collocated call and OA is deactivated, ignore.
     }
-    catch(const CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
         // Ignore.
     }
-    catch(const LocalException& ex)
+    catch (const LocalException& ex)
     {
-        if(_instance->traceLevels()->location >= 1)
+        if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
             out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" << ex;
@@ -1338,20 +1318,18 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
     }
 
-    if(_instance->traceLevels()->location >= 1)
+    if (_instance->traceLevels()->location >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
         out << "updated object adapter `" + _id + "' endpoints with the locator registry\n";
         out << "endpoints = ";
-        if(proxy)
+        if (proxy)
         {
             EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
             ostringstream o;
-            transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
-                      [](const EndpointPtr& endpoint)
-                      {
-                          return endpoint->toString();
-                      });
+            transform(
+                endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
+                [](const EndpointPtr& endpoint) { return endpoint->toString(); });
             out << o.str();
         }
     }
@@ -1360,8 +1338,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 bool
 Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
-    static const string suffixes[] =
-    {
+    static const string suffixes[] = {
         "ACM",
         "ACM.Close",
         "ACM.Heartbeat",
@@ -1399,18 +1376,17 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
         "ThreadPool.Serialize",
-        "ThreadPool.ThreadPriority"
-    };
+        "ThreadPool.ThreadPriority"};
 
     //
     // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
     //
     bool addUnknown = true;
     string prefix = _name + ".";
-    for(const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
     {
         string icePrefix = string(*i) + ".";
-        if(prefix.find(icePrefix) == 0)
+        if (prefix.find(icePrefix) == 0)
         {
             addUnknown = false;
             break;
@@ -1419,13 +1395,13 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 
     bool noProps = true;
     PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
-    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
-        for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+        for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + suffixes[i];
-            if(p->first == prop)
+            if (p->first == prop)
             {
                 noProps = false;
                 valid = true;
@@ -1433,7 +1409,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
             }
         }
 
-        if(!valid && addUnknown)
+        if (!valid && addUnknown)
         {
             unknownProps.push_back(p->first);
         }

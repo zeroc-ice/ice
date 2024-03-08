@@ -11,7 +11,6 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -29,16 +28,16 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     int port = 0;
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(argv[i][0] == '-')
+        if (argv[i][0] == '-')
         {
             ostringstream os;
             os << ": unknown option `" << argv[i] << "'";
             throw invalid_argument(os.str());
         }
 
-        if(port > 0)
+        if (port > 0)
         {
             throw runtime_error("only one port can be specified");
         }
@@ -46,7 +45,7 @@ Server::run(int argc, char** argv)
         port = atoi(argv[i]);
     }
 
-    if(port <= 0)
+    if (port <= 0)
     {
         throw runtime_error("no port specified");
     }

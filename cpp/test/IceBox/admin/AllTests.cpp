@@ -56,9 +56,9 @@ allTests(Test::TestHelper* helper)
         Ice::PropertyDict setProps;
         setProps["Prop1"] = "10"; // Changed
         setProps["Prop2"] = "20"; // Changed
-        setProps["Prop3"] = ""; // Removed
-        setProps["Prop4"] = "4"; // Added
-        setProps["Prop5"] = "5"; // Added
+        setProps["Prop3"] = "";   // Removed
+        setProps["Prop4"] = "4";  // Added
+        setProps["Prop5"] = "5";  // Added
         pa->setProperties(setProps);
         test(pa->getProperty("Prop1") == "10");
         test(pa->getProperty("Prop2") == "20");

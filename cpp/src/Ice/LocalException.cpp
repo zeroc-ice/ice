@@ -3,7 +3,7 @@
 //
 
 #ifndef ICE_API_EXPORTS
-#   define ICE_API_EXPORTS
+#    define ICE_API_EXPORTS
 #endif
 #include <Ice/LocalException.h>
 #include <IceUtil/PushDisableWarnings.h>
@@ -12,16 +12,14 @@
 #include <IceUtil/PopDisableWarnings.h>
 
 #if defined(_MSC_VER)
-#   pragma warning(disable:4458) // declaration of ... hides class member
+#    pragma warning(disable : 4458) // declaration of ... hides class member
 #elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-Ice::InitializationException::~InitializationException()
-{
-}
+Ice::InitializationException::~InitializationException() {}
 
 std::string_view
 Ice::InitializationException::ice_staticId()
@@ -30,9 +28,7 @@ Ice::InitializationException::ice_staticId()
     return typeId;
 }
 
-Ice::PluginInitializationException::~PluginInitializationException()
-{
-}
+Ice::PluginInitializationException::~PluginInitializationException() {}
 
 std::string_view
 Ice::PluginInitializationException::ice_staticId()
@@ -41,9 +37,7 @@ Ice::PluginInitializationException::ice_staticId()
     return typeId;
 }
 
-Ice::CollocationOptimizationException::~CollocationOptimizationException()
-{
-}
+Ice::CollocationOptimizationException::~CollocationOptimizationException() {}
 
 std::string_view
 Ice::CollocationOptimizationException::ice_staticId()
@@ -52,9 +46,7 @@ Ice::CollocationOptimizationException::ice_staticId()
     return typeId;
 }
 
-Ice::AlreadyRegisteredException::~AlreadyRegisteredException()
-{
-}
+Ice::AlreadyRegisteredException::~AlreadyRegisteredException() {}
 
 std::string_view
 Ice::AlreadyRegisteredException::ice_staticId()
@@ -63,9 +55,7 @@ Ice::AlreadyRegisteredException::ice_staticId()
     return typeId;
 }
 
-Ice::NotRegisteredException::~NotRegisteredException()
-{
-}
+Ice::NotRegisteredException::~NotRegisteredException() {}
 
 std::string_view
 Ice::NotRegisteredException::ice_staticId()
@@ -74,9 +64,7 @@ Ice::NotRegisteredException::ice_staticId()
     return typeId;
 }
 
-Ice::TwowayOnlyException::~TwowayOnlyException()
-{
-}
+Ice::TwowayOnlyException::~TwowayOnlyException() {}
 
 std::string_view
 Ice::TwowayOnlyException::ice_staticId()
@@ -85,9 +73,7 @@ Ice::TwowayOnlyException::ice_staticId()
     return typeId;
 }
 
-Ice::CloneNotImplementedException::~CloneNotImplementedException()
-{
-}
+Ice::CloneNotImplementedException::~CloneNotImplementedException() {}
 
 std::string_view
 Ice::CloneNotImplementedException::ice_staticId()
@@ -96,9 +82,7 @@ Ice::CloneNotImplementedException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownException::~UnknownException()
-{
-}
+Ice::UnknownException::~UnknownException() {}
 
 std::string_view
 Ice::UnknownException::ice_staticId()
@@ -107,9 +91,7 @@ Ice::UnknownException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownLocalException::~UnknownLocalException()
-{
-}
+Ice::UnknownLocalException::~UnknownLocalException() {}
 
 std::string_view
 Ice::UnknownLocalException::ice_staticId()
@@ -118,9 +100,7 @@ Ice::UnknownLocalException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownUserException::~UnknownUserException()
-{
-}
+Ice::UnknownUserException::~UnknownUserException() {}
 
 std::string_view
 Ice::UnknownUserException::ice_staticId()
@@ -129,9 +109,7 @@ Ice::UnknownUserException::ice_staticId()
     return typeId;
 }
 
-Ice::VersionMismatchException::~VersionMismatchException()
-{
-}
+Ice::VersionMismatchException::~VersionMismatchException() {}
 
 std::string_view
 Ice::VersionMismatchException::ice_staticId()
@@ -140,9 +118,7 @@ Ice::VersionMismatchException::ice_staticId()
     return typeId;
 }
 
-Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException()
-{
-}
+Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException() {}
 
 std::string_view
 Ice::CommunicatorDestroyedException::ice_staticId()
@@ -151,9 +127,7 @@ Ice::CommunicatorDestroyedException::ice_staticId()
     return typeId;
 }
 
-Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException()
-{
-}
+Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException() {}
 
 std::string_view
 Ice::ObjectAdapterDeactivatedException::ice_staticId()
@@ -162,9 +136,7 @@ Ice::ObjectAdapterDeactivatedException::ice_staticId()
     return typeId;
 }
 
-Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException()
-{
-}
+Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException() {}
 
 std::string_view
 Ice::ObjectAdapterIdInUseException::ice_staticId()
@@ -173,9 +145,7 @@ Ice::ObjectAdapterIdInUseException::ice_staticId()
     return typeId;
 }
 
-Ice::NoEndpointException::~NoEndpointException()
-{
-}
+Ice::NoEndpointException::~NoEndpointException() {}
 
 std::string_view
 Ice::NoEndpointException::ice_staticId()
@@ -184,9 +154,7 @@ Ice::NoEndpointException::ice_staticId()
     return typeId;
 }
 
-Ice::EndpointParseException::~EndpointParseException()
-{
-}
+Ice::EndpointParseException::~EndpointParseException() {}
 
 std::string_view
 Ice::EndpointParseException::ice_staticId()
@@ -195,9 +163,7 @@ Ice::EndpointParseException::ice_staticId()
     return typeId;
 }
 
-Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException()
-{
-}
+Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException() {}
 
 std::string_view
 Ice::EndpointSelectionTypeParseException::ice_staticId()
@@ -206,9 +172,7 @@ Ice::EndpointSelectionTypeParseException::ice_staticId()
     return typeId;
 }
 
-Ice::VersionParseException::~VersionParseException()
-{
-}
+Ice::VersionParseException::~VersionParseException() {}
 
 std::string_view
 Ice::VersionParseException::ice_staticId()
@@ -217,9 +181,7 @@ Ice::VersionParseException::ice_staticId()
     return typeId;
 }
 
-Ice::IdentityParseException::~IdentityParseException()
-{
-}
+Ice::IdentityParseException::~IdentityParseException() {}
 
 std::string_view
 Ice::IdentityParseException::ice_staticId()
@@ -228,9 +190,7 @@ Ice::IdentityParseException::ice_staticId()
     return typeId;
 }
 
-Ice::ProxyParseException::~ProxyParseException()
-{
-}
+Ice::ProxyParseException::~ProxyParseException() {}
 
 std::string_view
 Ice::ProxyParseException::ice_staticId()
@@ -239,9 +199,7 @@ Ice::ProxyParseException::ice_staticId()
     return typeId;
 }
 
-Ice::IllegalIdentityException::~IllegalIdentityException()
-{
-}
+Ice::IllegalIdentityException::~IllegalIdentityException() {}
 
 std::string_view
 Ice::IllegalIdentityException::ice_staticId()
@@ -250,9 +208,7 @@ Ice::IllegalIdentityException::ice_staticId()
     return typeId;
 }
 
-Ice::IllegalServantException::~IllegalServantException()
-{
-}
+Ice::IllegalServantException::~IllegalServantException() {}
 
 std::string_view
 Ice::IllegalServantException::ice_staticId()
@@ -261,9 +217,7 @@ Ice::IllegalServantException::ice_staticId()
     return typeId;
 }
 
-Ice::RequestFailedException::~RequestFailedException()
-{
-}
+Ice::RequestFailedException::~RequestFailedException() {}
 
 std::string_view
 Ice::RequestFailedException::ice_staticId()
@@ -272,9 +226,7 @@ Ice::RequestFailedException::ice_staticId()
     return typeId;
 }
 
-Ice::ObjectNotExistException::~ObjectNotExistException()
-{
-}
+Ice::ObjectNotExistException::~ObjectNotExistException() {}
 
 std::string_view
 Ice::ObjectNotExistException::ice_staticId()
@@ -283,9 +235,7 @@ Ice::ObjectNotExistException::ice_staticId()
     return typeId;
 }
 
-Ice::FacetNotExistException::~FacetNotExistException()
-{
-}
+Ice::FacetNotExistException::~FacetNotExistException() {}
 
 std::string_view
 Ice::FacetNotExistException::ice_staticId()
@@ -294,9 +244,7 @@ Ice::FacetNotExistException::ice_staticId()
     return typeId;
 }
 
-Ice::OperationNotExistException::~OperationNotExistException()
-{
-}
+Ice::OperationNotExistException::~OperationNotExistException() {}
 
 std::string_view
 Ice::OperationNotExistException::ice_staticId()
@@ -305,9 +253,7 @@ Ice::OperationNotExistException::ice_staticId()
     return typeId;
 }
 
-Ice::SyscallException::~SyscallException()
-{
-}
+Ice::SyscallException::~SyscallException() {}
 
 std::string_view
 Ice::SyscallException::ice_staticId()
@@ -316,9 +262,7 @@ Ice::SyscallException::ice_staticId()
     return typeId;
 }
 
-Ice::SocketException::~SocketException()
-{
-}
+Ice::SocketException::~SocketException() {}
 
 std::string_view
 Ice::SocketException::ice_staticId()
@@ -327,9 +271,7 @@ Ice::SocketException::ice_staticId()
     return typeId;
 }
 
-Ice::CFNetworkException::~CFNetworkException()
-{
-}
+Ice::CFNetworkException::~CFNetworkException() {}
 
 std::string_view
 Ice::CFNetworkException::ice_staticId()
@@ -338,9 +280,7 @@ Ice::CFNetworkException::ice_staticId()
     return typeId;
 }
 
-Ice::FileException::~FileException()
-{
-}
+Ice::FileException::~FileException() {}
 
 std::string_view
 Ice::FileException::ice_staticId()
@@ -349,9 +289,7 @@ Ice::FileException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectFailedException::~ConnectFailedException()
-{
-}
+Ice::ConnectFailedException::~ConnectFailedException() {}
 
 std::string_view
 Ice::ConnectFailedException::ice_staticId()
@@ -360,9 +298,7 @@ Ice::ConnectFailedException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectionRefusedException::~ConnectionRefusedException()
-{
-}
+Ice::ConnectionRefusedException::~ConnectionRefusedException() {}
 
 std::string_view
 Ice::ConnectionRefusedException::ice_staticId()
@@ -371,9 +307,7 @@ Ice::ConnectionRefusedException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectionLostException::~ConnectionLostException()
-{
-}
+Ice::ConnectionLostException::~ConnectionLostException() {}
 
 std::string_view
 Ice::ConnectionLostException::ice_staticId()
@@ -382,9 +316,7 @@ Ice::ConnectionLostException::ice_staticId()
     return typeId;
 }
 
-Ice::DNSException::~DNSException()
-{
-}
+Ice::DNSException::~DNSException() {}
 
 std::string_view
 Ice::DNSException::ice_staticId()
@@ -393,9 +325,7 @@ Ice::DNSException::ice_staticId()
     return typeId;
 }
 
-Ice::OperationInterruptedException::~OperationInterruptedException()
-{
-}
+Ice::OperationInterruptedException::~OperationInterruptedException() {}
 
 std::string_view
 Ice::OperationInterruptedException::ice_staticId()
@@ -404,9 +334,7 @@ Ice::OperationInterruptedException::ice_staticId()
     return typeId;
 }
 
-Ice::TimeoutException::~TimeoutException()
-{
-}
+Ice::TimeoutException::~TimeoutException() {}
 
 std::string_view
 Ice::TimeoutException::ice_staticId()
@@ -415,9 +343,7 @@ Ice::TimeoutException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectTimeoutException::~ConnectTimeoutException()
-{
-}
+Ice::ConnectTimeoutException::~ConnectTimeoutException() {}
 
 std::string_view
 Ice::ConnectTimeoutException::ice_staticId()
@@ -426,9 +352,7 @@ Ice::ConnectTimeoutException::ice_staticId()
     return typeId;
 }
 
-Ice::CloseTimeoutException::~CloseTimeoutException()
-{
-}
+Ice::CloseTimeoutException::~CloseTimeoutException() {}
 
 std::string_view
 Ice::CloseTimeoutException::ice_staticId()
@@ -437,9 +361,7 @@ Ice::CloseTimeoutException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectionTimeoutException::~ConnectionTimeoutException()
-{
-}
+Ice::ConnectionTimeoutException::~ConnectionTimeoutException() {}
 
 std::string_view
 Ice::ConnectionTimeoutException::ice_staticId()
@@ -448,9 +370,7 @@ Ice::ConnectionTimeoutException::ice_staticId()
     return typeId;
 }
 
-Ice::InvocationTimeoutException::~InvocationTimeoutException()
-{
-}
+Ice::InvocationTimeoutException::~InvocationTimeoutException() {}
 
 std::string_view
 Ice::InvocationTimeoutException::ice_staticId()
@@ -459,9 +379,7 @@ Ice::InvocationTimeoutException::ice_staticId()
     return typeId;
 }
 
-Ice::InvocationCanceledException::~InvocationCanceledException()
-{
-}
+Ice::InvocationCanceledException::~InvocationCanceledException() {}
 
 std::string_view
 Ice::InvocationCanceledException::ice_staticId()
@@ -470,9 +388,7 @@ Ice::InvocationCanceledException::ice_staticId()
     return typeId;
 }
 
-Ice::ProtocolException::~ProtocolException()
-{
-}
+Ice::ProtocolException::~ProtocolException() {}
 
 std::string_view
 Ice::ProtocolException::ice_staticId()
@@ -481,9 +397,7 @@ Ice::ProtocolException::ice_staticId()
     return typeId;
 }
 
-Ice::BadMagicException::~BadMagicException()
-{
-}
+Ice::BadMagicException::~BadMagicException() {}
 
 std::string_view
 Ice::BadMagicException::ice_staticId()
@@ -492,9 +406,7 @@ Ice::BadMagicException::ice_staticId()
     return typeId;
 }
 
-Ice::UnsupportedProtocolException::~UnsupportedProtocolException()
-{
-}
+Ice::UnsupportedProtocolException::~UnsupportedProtocolException() {}
 
 std::string_view
 Ice::UnsupportedProtocolException::ice_staticId()
@@ -503,9 +415,7 @@ Ice::UnsupportedProtocolException::ice_staticId()
     return typeId;
 }
 
-Ice::UnsupportedEncodingException::~UnsupportedEncodingException()
-{
-}
+Ice::UnsupportedEncodingException::~UnsupportedEncodingException() {}
 
 std::string_view
 Ice::UnsupportedEncodingException::ice_staticId()
@@ -514,9 +424,7 @@ Ice::UnsupportedEncodingException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownMessageException::~UnknownMessageException()
-{
-}
+Ice::UnknownMessageException::~UnknownMessageException() {}
 
 std::string_view
 Ice::UnknownMessageException::ice_staticId()
@@ -525,9 +433,7 @@ Ice::UnknownMessageException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException()
-{
-}
+Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException() {}
 
 std::string_view
 Ice::ConnectionNotValidatedException::ice_staticId()
@@ -536,9 +442,7 @@ Ice::ConnectionNotValidatedException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownRequestIdException::~UnknownRequestIdException()
-{
-}
+Ice::UnknownRequestIdException::~UnknownRequestIdException() {}
 
 std::string_view
 Ice::UnknownRequestIdException::ice_staticId()
@@ -547,9 +451,7 @@ Ice::UnknownRequestIdException::ice_staticId()
     return typeId;
 }
 
-Ice::UnknownReplyStatusException::~UnknownReplyStatusException()
-{
-}
+Ice::UnknownReplyStatusException::~UnknownReplyStatusException() {}
 
 std::string_view
 Ice::UnknownReplyStatusException::ice_staticId()
@@ -558,9 +460,7 @@ Ice::UnknownReplyStatusException::ice_staticId()
     return typeId;
 }
 
-Ice::CloseConnectionException::~CloseConnectionException()
-{
-}
+Ice::CloseConnectionException::~CloseConnectionException() {}
 
 std::string_view
 Ice::CloseConnectionException::ice_staticId()
@@ -569,9 +469,7 @@ Ice::CloseConnectionException::ice_staticId()
     return typeId;
 }
 
-Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException()
-{
-}
+Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException() {}
 
 std::string_view
 Ice::ConnectionManuallyClosedException::ice_staticId()
@@ -580,9 +478,7 @@ Ice::ConnectionManuallyClosedException::ice_staticId()
     return typeId;
 }
 
-Ice::IllegalMessageSizeException::~IllegalMessageSizeException()
-{
-}
+Ice::IllegalMessageSizeException::~IllegalMessageSizeException() {}
 
 std::string_view
 Ice::IllegalMessageSizeException::ice_staticId()
@@ -591,9 +487,7 @@ Ice::IllegalMessageSizeException::ice_staticId()
     return typeId;
 }
 
-Ice::CompressionException::~CompressionException()
-{
-}
+Ice::CompressionException::~CompressionException() {}
 
 std::string_view
 Ice::CompressionException::ice_staticId()
@@ -602,9 +496,7 @@ Ice::CompressionException::ice_staticId()
     return typeId;
 }
 
-Ice::DatagramLimitException::~DatagramLimitException()
-{
-}
+Ice::DatagramLimitException::~DatagramLimitException() {}
 
 std::string_view
 Ice::DatagramLimitException::ice_staticId()
@@ -613,9 +505,7 @@ Ice::DatagramLimitException::ice_staticId()
     return typeId;
 }
 
-Ice::MarshalException::~MarshalException()
-{
-}
+Ice::MarshalException::~MarshalException() {}
 
 std::string_view
 Ice::MarshalException::ice_staticId()
@@ -624,9 +514,7 @@ Ice::MarshalException::ice_staticId()
     return typeId;
 }
 
-Ice::ProxyUnmarshalException::~ProxyUnmarshalException()
-{
-}
+Ice::ProxyUnmarshalException::~ProxyUnmarshalException() {}
 
 std::string_view
 Ice::ProxyUnmarshalException::ice_staticId()
@@ -635,9 +523,7 @@ Ice::ProxyUnmarshalException::ice_staticId()
     return typeId;
 }
 
-Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException()
-{
-}
+Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException() {}
 
 std::string_view
 Ice::UnmarshalOutOfBoundsException::ice_staticId()
@@ -646,9 +532,7 @@ Ice::UnmarshalOutOfBoundsException::ice_staticId()
     return typeId;
 }
 
-Ice::NoValueFactoryException::~NoValueFactoryException()
-{
-}
+Ice::NoValueFactoryException::~NoValueFactoryException() {}
 
 std::string_view
 Ice::NoValueFactoryException::ice_staticId()
@@ -657,9 +541,7 @@ Ice::NoValueFactoryException::ice_staticId()
     return typeId;
 }
 
-Ice::UnexpectedObjectException::~UnexpectedObjectException()
-{
-}
+Ice::UnexpectedObjectException::~UnexpectedObjectException() {}
 
 std::string_view
 Ice::UnexpectedObjectException::ice_staticId()
@@ -668,9 +550,7 @@ Ice::UnexpectedObjectException::ice_staticId()
     return typeId;
 }
 
-Ice::MemoryLimitException::~MemoryLimitException()
-{
-}
+Ice::MemoryLimitException::~MemoryLimitException() {}
 
 std::string_view
 Ice::MemoryLimitException::ice_staticId()
@@ -679,9 +559,7 @@ Ice::MemoryLimitException::ice_staticId()
     return typeId;
 }
 
-Ice::StringConversionException::~StringConversionException()
-{
-}
+Ice::StringConversionException::~StringConversionException() {}
 
 std::string_view
 Ice::StringConversionException::ice_staticId()
@@ -690,9 +568,7 @@ Ice::StringConversionException::ice_staticId()
     return typeId;
 }
 
-Ice::EncapsulationException::~EncapsulationException()
-{
-}
+Ice::EncapsulationException::~EncapsulationException() {}
 
 std::string_view
 Ice::EncapsulationException::ice_staticId()
@@ -701,9 +577,7 @@ Ice::EncapsulationException::ice_staticId()
     return typeId;
 }
 
-Ice::FeatureNotSupportedException::~FeatureNotSupportedException()
-{
-}
+Ice::FeatureNotSupportedException::~FeatureNotSupportedException() {}
 
 std::string_view
 Ice::FeatureNotSupportedException::ice_staticId()
@@ -712,9 +586,7 @@ Ice::FeatureNotSupportedException::ice_staticId()
     return typeId;
 }
 
-Ice::SecurityException::~SecurityException()
-{
-}
+Ice::SecurityException::~SecurityException() {}
 
 std::string_view
 Ice::SecurityException::ice_staticId()
@@ -723,9 +595,7 @@ Ice::SecurityException::ice_staticId()
     return typeId;
 }
 
-Ice::FixedProxyException::~FixedProxyException()
-{
-}
+Ice::FixedProxyException::~FixedProxyException() {}
 
 std::string_view
 Ice::FixedProxyException::ice_staticId()
@@ -734,9 +604,7 @@ Ice::FixedProxyException::ice_staticId()
     return typeId;
 }
 
-Ice::ResponseSentException::~ResponseSentException()
-{
-}
+Ice::ResponseSentException::~ResponseSentException() {}
 
 std::string_view
 Ice::ResponseSentException::ice_staticId()

@@ -9,146 +9,123 @@
 
 namespace IceInternal
 {
-
-class ICE_API Buffer : private IceUtil::noncopyable
-{
-public:
-
-    Buffer() : i(b.begin()) { }
-    Buffer(const std::uint8_t* beg, const std::uint8_t* end) : b(beg, end), i(b.begin()) { }
-    Buffer(const std::vector<std::uint8_t>& v) : b(v), i(b.begin()) { }
-    Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) { }
-
-    void swapBuffer(Buffer&);
-
-    class ICE_API Container : private IceUtil::noncopyable
+    class ICE_API Buffer : private IceUtil::noncopyable
     {
     public:
+        Buffer() : i(b.begin()) {}
+        Buffer(const std::uint8_t* beg, const std::uint8_t* end) : b(beg, end), i(b.begin()) {}
+        Buffer(const std::vector<std::uint8_t>& v) : b(v), i(b.begin()) {}
+        Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) {}
 
-        //
-        // Standard vector-like operations.
-        //
+        void swapBuffer(Buffer&);
 
-        typedef std::uint8_t value_type;
-        typedef std::uint8_t* iterator;
-        typedef const std::uint8_t* const_iterator;
-        typedef std::uint8_t& reference;
-        typedef const std::uint8_t& const_reference;
-        typedef std::uint8_t* pointer;
-        typedef size_t size_type;
-
-        Container();
-        Container(const_iterator, const_iterator);
-        Container(const std::vector<value_type>&);
-        Container(Container&, bool);
-
-        ~Container();
-
-        iterator begin()
+        class ICE_API Container : private IceUtil::noncopyable
         {
-            return _buf;
-        }
+        public:
+            //
+            // Standard vector-like operations.
+            //
 
-        const_iterator begin() const
-        {
-            return _buf;
-        }
+            typedef std::uint8_t value_type;
+            typedef std::uint8_t* iterator;
+            typedef const std::uint8_t* const_iterator;
+            typedef std::uint8_t& reference;
+            typedef const std::uint8_t& const_reference;
+            typedef std::uint8_t* pointer;
+            typedef size_t size_type;
 
-        iterator end()
-        {
-            return _buf + _size;
-        }
+            Container();
+            Container(const_iterator, const_iterator);
+            Container(const std::vector<value_type>&);
+            Container(Container&, bool);
 
-        const_iterator end() const
-        {
-            return _buf + _size;
-        }
+            ~Container();
 
-        size_type size() const
-        {
-            return _size;
-        }
+            iterator begin() { return _buf; }
 
-        bool empty() const
-        {
-            return !_size;
-        }
+            const_iterator begin() const { return _buf; }
 
-        void swap(Container&);
+            iterator end() { return _buf + _size; }
 
-        void clear();
+            const_iterator end() const { return _buf + _size; }
 
-        void resize(size_type n) // Inlined for performance reasons.
-        {
-            if(n == 0)
+            size_type size() const { return _size; }
+
+            bool empty() const { return !_size; }
+
+            void swap(Container&);
+
+            void clear();
+
+            void resize(size_type n) // Inlined for performance reasons.
             {
-                clear();
-            }
-            else if(n > _capacity)
-            {
-                reserve(n);
-            }
-            _size = n;
-        }
-
-        void reset()
-        {
-            if(_size > 0 && _size * 2 < _capacity)
-            {
-                //
-                // If the current buffer size is smaller than the
-                // buffer capacity, we shrink the buffer memory to the
-                // current size. This is to avoid holding onto too much
-                // memory if it's not needed anymore.
-                //
-                if(++_shrinkCounter > 2)
+                if (n == 0)
                 {
-                    reserve(_size);
+                    clear();
+                }
+                else if (n > _capacity)
+                {
+                    reserve(n);
+                }
+                _size = n;
+            }
+
+            void reset()
+            {
+                if (_size > 0 && _size * 2 < _capacity)
+                {
+                    //
+                    // If the current buffer size is smaller than the
+                    // buffer capacity, we shrink the buffer memory to the
+                    // current size. This is to avoid holding onto too much
+                    // memory if it's not needed anymore.
+                    //
+                    if (++_shrinkCounter > 2)
+                    {
+                        reserve(_size);
+                        _shrinkCounter = 0;
+                    }
+                }
+                else
+                {
                     _shrinkCounter = 0;
                 }
+                _size = 0;
             }
-            else
+
+            void push_back(value_type v)
             {
-                _shrinkCounter = 0;
+                resize(_size + 1);
+                _buf[_size - 1] = v;
             }
-            _size = 0;
-        }
 
-        void push_back(value_type v)
-        {
-            resize(_size + 1);
-            _buf[_size - 1] = v;
-        }
+            reference operator[](size_type n)
+            {
+                assert(n < _size);
+                return _buf[n];
+            }
 
-        reference operator[](size_type n)
-        {
-            assert(n < _size);
-            return _buf[n];
-        }
+            const_reference operator[](size_type n) const
+            {
+                assert(n < _size);
+                return _buf[n];
+            }
 
-        const_reference operator[](size_type n) const
-        {
-            assert(n < _size);
-            return _buf[n];
-        }
+        private:
+            Container(const Container&);
+            void operator=(const Container&);
+            void reserve(size_type);
 
-    private:
+            pointer _buf;
+            size_type _size;
+            size_type _capacity;
+            int _shrinkCounter;
+            bool _owned;
+        };
 
-        Container(const Container&);
-        void operator=(const Container&);
-        void reserve(size_type);
-
-        pointer _buf;
-        size_type _size;
-        size_type _capacity;
-        int _shrinkCounter;
-        bool _owned;
+        Container b;
+        Container::iterator i;
     };
-
-    Container b;
-    Container::iterator i;
-};
-
 }
 
 #endif

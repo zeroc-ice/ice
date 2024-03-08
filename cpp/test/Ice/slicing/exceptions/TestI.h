@@ -10,7 +10,6 @@
 class TestI final : public Test::TestIntf
 {
 public:
-
     TestI();
 
     void baseAsBase(const Ice::Current&) final;

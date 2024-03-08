@@ -10,36 +10,32 @@
 
 namespace IceInternal
 {
-
-//
-// Class for handling Ice::Communicator::flushBatchRequests
-// This class needs to be in a public header as it's used by several other classes.
-//
-class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
-{
-public:
-
-    virtual ~CommunicatorFlushBatchAsync();
-
-    CommunicatorFlushBatchAsync(const InstancePtr&);
-
-    void flushConnection(const Ice::ConnectionIPtr&, Ice::CompressBatch);
-    void invoke(std::string_view, Ice::CompressBatch);
-
-    std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
+    //
+    // Class for handling Ice::Communicator::flushBatchRequests
+    // This class needs to be in a public header as it's used by several other classes.
+    //
+    class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
     {
-        return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
-    }
+    public:
+        virtual ~CommunicatorFlushBatchAsync();
 
-private:
+        CommunicatorFlushBatchAsync(const InstancePtr&);
 
-    void check(bool);
+        void flushConnection(const Ice::ConnectionIPtr&, Ice::CompressBatch);
+        void invoke(std::string_view, Ice::CompressBatch);
 
-    int _useCount;
-};
+        std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
+        {
+            return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
+        }
 
-using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
+    private:
+        void check(bool);
 
+        int _useCount;
+    };
+
+    using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 }
 
 #endif

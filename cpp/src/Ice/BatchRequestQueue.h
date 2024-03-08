@@ -15,39 +15,36 @@
 
 namespace IceInternal
 {
+    class BatchRequestQueue
+    {
+    public:
+        BatchRequestQueue(const InstancePtr&, bool);
 
-class BatchRequestQueue
-{
-public:
+        void prepareBatchRequest(Ice::OutputStream*);
+        void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrx&, std::string_view);
+        void abortBatchRequest(Ice::OutputStream*);
 
-    BatchRequestQueue(const InstancePtr&, bool);
+        int swap(Ice::OutputStream*, bool&);
 
-    void prepareBatchRequest(Ice::OutputStream*);
-    void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrx&, std::string_view);
-    void abortBatchRequest(Ice::OutputStream*);
+        void destroy(std::exception_ptr);
+        bool isEmpty();
 
-    int swap(Ice::OutputStream*, bool&);
+        void enqueueBatchRequest(const Ice::ObjectPrx&);
 
-    void destroy(std::exception_ptr);
-    bool isEmpty();
+    private:
+        std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
+        Ice::OutputStream _batchStream;
+        bool _batchStreamInUse;
+        bool _batchStreamCanFlush;
+        bool _batchCompress;
+        int _batchRequestNum;
+        size_t _batchMarker;
+        std::exception_ptr _exception;
+        size_t _maxSize;
 
-    void enqueueBatchRequest(const Ice::ObjectPrx&);
-
-private:
-
-    std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
-    Ice::OutputStream _batchStream;
-    bool _batchStreamInUse;
-    bool _batchStreamCanFlush;
-    bool _batchCompress;
-    int _batchRequestNum;
-    size_t _batchMarker;
-    std::exception_ptr _exception;
-    size_t _maxSize;
-
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-};
+        std::mutex _mutex;
+        std::condition_variable _conditionVariable;
+    };
 
 };
 

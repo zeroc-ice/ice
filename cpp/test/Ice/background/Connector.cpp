@@ -3,7 +3,7 @@
 //
 
 #ifndef TEST_API_EXPORTS
-#   define TEST_API_EXPORTS
+#    define TEST_API_EXPORTS
 #endif
 
 #include <Connector.h>
@@ -35,7 +35,7 @@ bool
 Connector::operator==(const IceInternal::Connector& r) const
 {
     const Connector* p = dynamic_cast<const Connector*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
@@ -47,7 +47,7 @@ bool
 Connector::operator<(const IceInternal::Connector& r) const
 {
     const Connector* p = dynamic_cast<const Connector*>(&r);
-    if(!p)
+    if (!p)
     {
         return type() < r.type();
     }
@@ -55,8 +55,8 @@ Connector::operator<(const IceInternal::Connector& r) const
     return *_connector < *p->_connector;
 }
 
-Connector::Connector(const IceInternal::ConnectorPtr& connector) :
-    _connector(connector),
-    _configuration(Configuration::getInstance())
+Connector::Connector(const IceInternal::ConnectorPtr& connector)
+    : _connector(connector),
+      _configuration(Configuration::getInstance())
 {
 }

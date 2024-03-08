@@ -11,7 +11,6 @@
 class Connector : public IceInternal::Connector
 {
 public:
-
     IceInternal::TransceiverPtr connect();
 
     std::int16_t type() const;
@@ -23,7 +22,6 @@ public:
     Connector(const IceInternal::ConnectorPtr& connector);
 
 private:
-
     const IceInternal::ConnectorPtr _connector;
     const ConfigurationPtr _configuration;
 };

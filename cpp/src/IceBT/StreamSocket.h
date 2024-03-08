@@ -13,40 +13,36 @@
 
 namespace IceBT
 {
+    class StreamSocket : public IceInternal::NativeInfo
+    {
+    public:
+        StreamSocket(const InstancePtr&, SOCKET);
+        virtual ~StreamSocket();
 
-class StreamSocket : public IceInternal::NativeInfo
-{
-public:
+        size_t getSendPacketSize(size_t);
+        size_t getRecvPacketSize(size_t);
 
-    StreamSocket(const InstancePtr&, SOCKET);
-    virtual ~StreamSocket();
+        void setBufferSize(SOCKET, int rcvSize, int sndSize);
 
-    size_t getSendPacketSize(size_t);
-    size_t getRecvPacketSize(size_t);
+        IceInternal::SocketOperation read(IceInternal::Buffer&);
+        IceInternal::SocketOperation write(IceInternal::Buffer&);
 
-    void setBufferSize(SOCKET, int rcvSize, int sndSize);
+        ssize_t read(char*, size_t);
+        ssize_t write(const char*, size_t);
 
-    IceInternal::SocketOperation read(IceInternal::Buffer&);
-    IceInternal::SocketOperation write(IceInternal::Buffer&);
+        void close();
+        const std::string& toString() const;
 
-    ssize_t read(char*, size_t);
-    ssize_t write(const char*, size_t);
+        void setFd(SOCKET);
 
-    void close();
-    const std::string& toString() const;
+    private:
+        void init(SOCKET);
 
-    void setFd(SOCKET);
-
-private:
-
-    void init(SOCKET);
-
-    const InstancePtr _instance;
-    SocketAddress _addr;
-    std::string _desc;
-};
-using StreamSocketPtr = std::shared_ptr<StreamSocket>;
-
+        const InstancePtr _instance;
+        SocketAddress _addr;
+        std::string _desc;
+    };
+    using StreamSocketPtr = std::shared_ptr<StreamSocket>;
 }
 
 #endif

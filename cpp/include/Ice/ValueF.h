@@ -9,10 +9,8 @@
 
 namespace Ice
 {
-
-class Value;
-using ValuePtr = std::shared_ptr<Value>;
-
+    class Value;
+    using ValuePtr = std::shared_ptr<Value>;
 }
 
 #endif

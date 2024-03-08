@@ -12,11 +12,11 @@
 //
 
 #if !defined(ICE_BUILDING_ICE_STORM_LIB) && defined(ICESTORM_API_EXPORTS)
-#   define ICE_BUILDING_ICE_STORM_LIB
+#    define ICE_BUILDING_ICE_STORM_LIB
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_STORM_LIB)
-#   pragma comment(lib, ICE_LIBNAME("IceStorm"))
+#    pragma comment(lib, ICE_LIBNAME("IceStorm"))
 #endif
 
 #endif

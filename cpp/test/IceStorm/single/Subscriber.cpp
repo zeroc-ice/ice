@@ -15,62 +15,55 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
+    SingleI(const string& name) : _name(name), _count(0), _last(0) {}
 
-    SingleI(const string& name) :
-        _name(name),
-        _count(0),
-        _last(0)
+    void event(int i, const Current& current) override
     {
-    }
-
-    void
-    event(int i, const Current& current) override
-    {
-        if((_name == "default" || _name == "oneway" || _name == "batch" || _name == "datagram" ||
-            _name == "batch datagram") && current.requestId != 0)
+        if ((_name == "default" || _name == "oneway" || _name == "batch" || _name == "datagram" ||
+             _name == "batch datagram") &&
+            current.requestId != 0)
         {
             cerr << endl << "expected oneway request";
             test(false);
         }
-        else if((_name == "twoway" || _name == "twoway ordered") && current.requestId == 0)
+        else if ((_name == "twoway" || _name == "twoway ordered") && current.requestId == 0)
         {
             cerr << endl << "expected twoway request";
         }
-        if(_name == "twoway ordered" && i != _last)
+        if (_name == "twoway ordered" && i != _last)
         {
             cerr << endl << "received unordered event for `" << _name << "': " << i << " " << _last;
             test(false);
         }
-        if((_name == "datagram" || _name == "batch datagram") && current.con->type() != "udp")
+        if ((_name == "datagram" || _name == "batch datagram") && current.con->type() != "udp")
         {
             cerr << endl << "expected datagram to be received over udp";
             test(false);
         }
         lock_guard<mutex> lg(_mutex);
-        if(_name == "per-request load balancing")
+        if (_name == "per-request load balancing")
         {
             _connections.insert(current.con);
         }
         ++_last;
-        if(++_count == 1000)
+        if (++_count == 1000)
         {
             _condVar.notify_one();
         }
     }
 
-    void
-    waitForEvents()
+    void waitForEvents()
     {
         unique_lock<mutex> lock(_mutex);
         cout << "testing " << _name << " ... " << flush;
         bool datagram = _name == "datagram" || _name == "batch datagram";
-        while(_count < 1000)
+        while (_count < 1000)
         {
-            if(_condVar.wait_for(lock, 30s) == cv_status::timeout)
+            if (_condVar.wait_for(lock, 30s) == cv_status::timeout)
             {
-                if(datagram && _count > 0)
+                if (datagram && _count > 0)
                 {
-                    if(_count < 100)
+                    if (_count < 100)
                     {
                         cout << "[" << _count << "/1000: This may be an error!!]";
                     }
@@ -86,7 +79,7 @@ public:
                 }
             }
         }
-        if(_name == "per-request load balancing")
+        if (_name == "per-request load balancing")
         {
             test(_connections.size() == 2);
         }
@@ -94,7 +87,6 @@ public:
     }
 
 private:
-
     const string _name;
     int _count;
     int _last;
@@ -106,7 +98,6 @@ private:
 class Subscriber final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -116,7 +107,7 @@ Subscriber::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -125,7 +116,7 @@ Subscriber::run(int argc, char** argv)
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -138,14 +129,14 @@ Subscriber::run(int argc, char** argv)
     //
     // Test topic name that is too long
     //
-    if(string(argv[1]) != "transient")
+    if (string(argv[1]) != "transient")
     {
         try
         {
             manager->create(string(512, 'A'));
             test(false);
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
     }
@@ -155,7 +146,7 @@ Subscriber::run(int argc, char** argv)
     //
     // Test subscriber identity that is too long
     //
-    if(string(argv[1]) != "transient")
+    if (string(argv[1]) != "transient")
     {
         try
         {
@@ -163,7 +154,7 @@ Subscriber::run(int argc, char** argv)
             topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
             test(false);
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
     }
@@ -245,12 +236,12 @@ Subscriber::run(int argc, char** argv)
 
     vector<Ice::Identity> ids = topic->getSubscribers();
     test(ids.size() == subscriberIdentities.size());
-    for(const auto& p: ids)
+    for (const auto& p : ids)
     {
         test(find(subscriberIdentities.begin(), subscriberIdentities.end(), p) != subscriberIdentities.end());
     }
 
-    for(const auto& p: subscribers)
+    for (const auto& p : subscribers)
     {
         p->waitForEvents();
     }

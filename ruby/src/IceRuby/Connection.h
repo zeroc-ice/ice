@@ -10,15 +10,13 @@
 
 namespace IceRuby
 {
+    void initConnection(VALUE);
 
-void initConnection(VALUE);
+    VALUE createConnection(const Ice::ConnectionPtr&);
+    VALUE createConnectionInfo(const Ice::ConnectionInfoPtr&);
 
-VALUE createConnection(const Ice::ConnectionPtr&);
-VALUE createConnectionInfo(const Ice::ConnectionInfoPtr&);
-
-Ice::ConnectionPtr getConnection(VALUE);
-bool checkConnection(VALUE);
-
+    Ice::ConnectionPtr getConnection(VALUE);
+    bool checkConnection(VALUE);
 }
 
 #endif

@@ -12,7 +12,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -29,9 +28,7 @@ Client::run(int argc, char** argv)
 
     auto dispatcher = Dispatcher::create();
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
-        {
-            dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
-        };
+    { dispatcher->dispatch(make_shared<DispatcherCall>(call), conn); };
     // The communicator must be destroyed before the dispatcher is terminated.
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);

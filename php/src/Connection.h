@@ -9,15 +9,14 @@
 
 namespace IcePHP
 {
+    extern zend_class_entry* connectionClassEntry;
 
-extern zend_class_entry* connectionClassEntry;
+    bool connectionInit(void);
 
-bool connectionInit(void);
+    bool createConnection(zval*, const Ice::ConnectionPtr&);
+    bool fetchConnection(zval*, Ice::ConnectionPtr&);
 
-bool createConnection(zval*, const Ice::ConnectionPtr&);
-bool fetchConnection(zval*, Ice::ConnectionPtr&);
-
-bool createConnectionInfo(zval*, const Ice::ConnectionInfoPtr&);
+    bool createConnectionInfo(zval*, const Ice::ConnectionInfoPtr&);
 
 } // End of namespace IcePHP
 

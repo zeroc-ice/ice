@@ -23,39 +23,33 @@ using namespace IceUtilInternal;
 
 namespace
 {
+    mutex globalMutex;
+    bool interrupted = false;
 
-mutex globalMutex;
-bool interrupted = false;
+    void interruptedCallback(int /*signal*/)
+    {
+        lock_guard lock(globalMutex);
+        interrupted = true;
+    }
 
-void
-interruptedCallback(int /*signal*/)
-{
-    lock_guard lock(globalMutex);
-    interrupted = true;
-}
-
-void
-usage(const string& n)
-{
-    consoleErr << "Usage: " << n << " [options] slice-files...\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help               Show this message.\n"
-        "-v, --version            Display the Ice version.\n"
-        "-DNAME                   Define NAME as 1.\n"
-        "-DNAME=DEF               Define NAME as DEF.\n"
-        "-UNAME                   Remove any definition for NAME.\n"
-        "-IDIR                    Put DIR in the include file search path.\n"
-        "-E                       Print preprocessor output on stdout.\n"
-        "--output-dir DIR         Create files in the directory DIR.\n"
-        "-d, --debug              Print debug messages.\n"
-        "--depend                 Generate Makefile dependencies.\n"
-        "--depend-xml             Generate dependencies in XML format.\n"
-        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-        "--all                    Generate code for Slice definitions in included files.\n"
-        ;
-}
-
+    void usage(const string& n)
+    {
+        consoleErr << "Usage: " << n << " [options] slice-files...\n";
+        consoleErr << "Options:\n"
+                      "-h, --help               Show this message.\n"
+                      "-v, --version            Display the Ice version.\n"
+                      "-DNAME                   Define NAME as 1.\n"
+                      "-DNAME=DEF               Define NAME as DEF.\n"
+                      "-UNAME                   Remove any definition for NAME.\n"
+                      "-IDIR                    Put DIR in the include file search path.\n"
+                      "-E                       Print preprocessor output on stdout.\n"
+                      "--output-dir DIR         Create files in the directory DIR.\n"
+                      "-d, --debug              Print debug messages.\n"
+                      "--depend                 Generate Makefile dependencies.\n"
+                      "--depend-xml             Generate dependencies in XML format.\n"
+                      "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+                      "--all                    Generate code for Slice definitions in included files.\n";
+    }
 }
 
 int
@@ -80,20 +74,20 @@ Slice::Ruby::compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
@@ -101,19 +95,19 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -132,14 +126,14 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     bool all = opts.isSet("all");
 
-    if(args.empty())
+    if (args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if(depend && dependxml)
+    if (depend && dependxml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
         usage(argv[0]);
@@ -152,28 +146,28 @@ Slice::Ruby::compile(const vector<string>& argv)
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
-    if(dependxml)
+    if (dependxml)
     {
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.
         //
         vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        if (p != i)
         {
             continue;
         }
 
-        if(depend || dependxml)
+        if (depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 return EXIT_FAILURE;
             }
@@ -182,18 +176,18 @@ Slice::Ruby::compile(const vector<string>& argv)
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
-            if(parseStatus == EXIT_FAILURE)
+            if (parseStatus == EXIT_FAILURE)
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::Ruby : Preprocessor::SliceXML, includePaths,
-                                                  "-D__SLICE2RB__"))
+            if (!icecpp->printMakefileDependencies(
+                    os, depend ? Preprocessor::Ruby : Preprocessor::SliceXML, includePaths, "-D__SLICE2RB__"))
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->close())
+            if (!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
@@ -203,22 +197,22 @@ Slice::Ruby::compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 return EXIT_FAILURE;
             }
 
-            if(preprocess)
+            if (preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
+                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
                 {
-                    if(fputs(buf, stdout) == EOF)
+                    if (fputs(buf, stdout) == EOF)
                     {
                         return EXIT_FAILURE;
                     }
                 }
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -228,13 +222,13 @@ Slice::Ruby::compile(const vector<string>& argv)
                 UnitPtr u = Unit::createUnit(all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                if(parseStatus == EXIT_FAILURE)
+                if (parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
                 }
@@ -242,13 +236,13 @@ Slice::Ruby::compile(const vector<string>& argv)
                 {
                     string base = icecpp->getBaseName();
                     string::size_type pos = base.find_last_of("/\\");
-                    if(pos != string::npos)
+                    if (pos != string::npos)
                     {
                         base.erase(0, pos + 1);
                     }
 
                     string file = base + ".rb";
-                    if(!output.empty())
+                    if (!output.empty())
                     {
                         file = output + '/' + file;
                     }
@@ -257,7 +251,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                     {
                         IceUtilInternal::Output out;
                         out.open(file.c_str());
-                        if(!out)
+                        if (!out)
                         {
                             ostringstream oss;
                             oss << "cannot open`" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -278,7 +272,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
                         out.close();
                     }
-                    catch(const Slice::FileException& ex)
+                    catch (const Slice::FileException& ex)
                     {
                         // If a file could not be created, then cleanup
                         // any created files.
@@ -295,7 +289,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
         {
             lock_guard lock(globalMutex);
-            if(interrupted)
+            if (interrupted)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
@@ -303,12 +297,12 @@ Slice::Ruby::compile(const vector<string>& argv)
         }
     }
 
-    if(dependxml)
+    if (dependxml)
     {
         os << "</dependencies>\n";
     }
 
-    if(depend || dependxml)
+    if (depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
     }

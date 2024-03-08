@@ -6,26 +6,26 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#include <Ice/TcpAcceptor.h>
-#include <Ice/TcpTransceiver.h>
-#include <Ice/TcpEndpointI.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/StreamSocket.h>
-#include <IceUtil/StringUtil.h>
+#    include <Ice/TcpAcceptor.h>
+#    include <Ice/TcpTransceiver.h>
+#    include <Ice/TcpEndpointI.h>
+#    include <Ice/ProtocolInstance.h>
+#    include <Ice/LoggerUtil.h>
+#    include <Ice/LocalException.h>
+#    include <Ice/Properties.h>
+#    include <Ice/StreamSocket.h>
+#    include <IceUtil/StringUtil.h>
 
-#if defined(ICE_USE_IOCP)
-#  include <Mswsock.h>
-#endif
+#    if defined(ICE_USE_IOCP)
+#        include <Mswsock.h>
+#    endif
 
 //
 // Use the system default for the listen() backlog or 511 if not defined.
 //
-#ifndef SOMAXCONN
-#  define SOMAXCONN 511
-#endif
+#    ifndef SOMAXCONN
+#        define SOMAXCONN 511
+#    endif
 
 using namespace std;
 using namespace Ice;
@@ -40,14 +40,14 @@ IceInternal::TcpAcceptor::getNativeInfo()
 void
 IceInternal::TcpAcceptor::close()
 {
-#if defined(ICE_USE_IOCP)
-    if(_acceptFd != INVALID_SOCKET)
+#    if defined(ICE_USE_IOCP)
+    if (_acceptFd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
     }
-#endif
-    if(_fd != INVALID_SOCKET)
+#    endif
+    if (_fd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_fd);
         _fd = INVALID_SOCKET;
@@ -62,7 +62,7 @@ IceInternal::TcpAcceptor::listen()
         const_cast<Address&>(_addr) = doBind(_fd, _addr);
         doListen(_fd, _backlog);
     }
-    catch(...)
+    catch (...)
     {
         _fd = INVALID_SOCKET;
         throw;
@@ -71,7 +71,7 @@ IceInternal::TcpAcceptor::listen()
     return _endpoint;
 }
 
-#if defined(ICE_USE_IOCP)
+#    if defined(ICE_USE_IOCP)
 
 AsyncInfo*
 IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
@@ -82,18 +82,12 @@ IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
 void
 IceInternal::TcpAcceptor::startAccept()
 {
-    LPFN_ACCEPTEX AcceptEx = nullptr; // a pointer to the 'AcceptEx()' function
+    LPFN_ACCEPTEX AcceptEx = nullptr;   // a pointer to the 'AcceptEx()' function
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
-    if(WSAIoctl(_fd,
-                SIO_GET_EXTENSION_FUNCTION_POINTER,
-                &GuidAcceptEx,
-                sizeof(GuidAcceptEx),
-                &AcceptEx,
-                sizeof(AcceptEx),
-                &dwBytes,
-                nullptr,
-                nullptr) == SOCKET_ERROR)
+    if (WSAIoctl(
+            _fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidAcceptEx, sizeof(GuidAcceptEx), &AcceptEx, sizeof(AcceptEx),
+            &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
@@ -102,9 +96,9 @@ IceInternal::TcpAcceptor::startAccept()
     _acceptFd = createSocket(false, _addr);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
     _info.error = ERROR_SUCCESS;
-    if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
+    if (!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
     {
-        if(!wouldBlock())
+        if (!wouldBlock())
         {
             throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
@@ -114,7 +108,7 @@ IceInternal::TcpAcceptor::startAccept()
 void
 IceInternal::TcpAcceptor::finishAccept()
 {
-    if(_info.error != ERROR_SUCCESS || _fd == INVALID_SOCKET)
+    if (_info.error != ERROR_SUCCESS || _fd == INVALID_SOCKET)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
@@ -125,12 +119,12 @@ IceInternal::TcpAcceptor::finishAccept()
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
 {
-    if(_acceptFd == INVALID_SOCKET)
+    if (_acceptFd == INVALID_SOCKET)
     {
         throw SocketException(__FILE__, __LINE__, _acceptError);
     }
-    if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
-       SOCKET_ERROR)
+    if (setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
+        SOCKET_ERROR)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
@@ -141,7 +135,7 @@ IceInternal::TcpAcceptor::accept()
     _acceptFd = INVALID_SOCKET;
     return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, fd));
 }
-#else
+#    else
 
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
@@ -149,7 +143,7 @@ IceInternal::TcpAcceptor::accept()
     return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, doAccept(_fd)));
 }
 
-#endif
+#    endif
 
 string
 IceInternal::TcpAcceptor::protocol() const
@@ -169,7 +163,7 @@ IceInternal::TcpAcceptor::toDetailedString() const
     ostringstream os;
     os << "local address = " << toString();
     vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-    if(!intfs.empty())
+    if (!intfs.empty())
     {
         os << "\nlocal interfaces = ";
         os << IceUtilInternal::joinString(intfs, ", ");
@@ -183,28 +177,31 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
-                                      const ProtocolInstancePtr& instance,
-                                      const string& host,
-                                      int port) :
-    _endpoint(endpoint),
-    _instance(instance),
-    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
-#ifdef ICE_USE_IOCP
-    , _acceptFd(INVALID_SOCKET), _info(SocketOperationRead)
-#endif
+IceInternal::TcpAcceptor::TcpAcceptor(
+    const TcpEndpointIPtr& endpoint,
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port)
+    : _endpoint(endpoint),
+      _instance(instance),
+      _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
+#    ifdef ICE_USE_IOCP
+      ,
+      _acceptFd(INVALID_SOCKET),
+      _info(SocketOperationRead)
+#    endif
 {
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
     _fd = createServerSocket(false, _addr, instance->protocolSupport());
 
-#ifdef ICE_USE_IOCP
+#    ifdef ICE_USE_IOCP
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
-#endif
+#    endif
 
     setBlock(_fd, false);
     setTcpBufSize(_fd, _instance);
 
-#ifndef _WIN32
+#    ifndef _WIN32
     //
     // Enable SO_REUSEADDR on Unix platforms to allow re-using the
     // socket even if it's in the TIME_WAIT state. On Windows,
@@ -218,15 +215,15 @@ IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
     // versions (XP SP2, Windows Server 2003).
     //
     setReuseAddress(_fd, true);
-#endif
+#    endif
 }
 
 IceInternal::TcpAcceptor::~TcpAcceptor()
 {
     assert(_fd == INVALID_SOCKET);
-#ifdef ICE_USE_IOCP
+#    ifdef ICE_USE_IOCP
     assert(_acceptFd == INVALID_SOCKET);
-#endif
+#    endif
 }
 
 #endif

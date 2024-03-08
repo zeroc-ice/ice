@@ -11,7 +11,8 @@ using namespace std;
 using namespace IceUtil;
 
 IceUtilInternal::APIException::APIException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<APIException>(file, line), reason(r)
+    : IceUtil::ExceptionHelper<APIException>(file, line),
+      reason(r)
 {
 }
 
@@ -25,7 +26,7 @@ void
 IceUtilInternal::APIException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ": " << reason;
     }
@@ -39,7 +40,8 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& e
 }
 
 IceUtilInternal::BadOptException::BadOptException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<BadOptException>(file, line), reason(r)
+    : IceUtil::ExceptionHelper<BadOptException>(file, line),
+      reason(r)
 {
 }
 
@@ -53,7 +55,7 @@ void
 IceUtilInternal::BadOptException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ": " << reason;
     }
@@ -66,36 +68,33 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::BadOptException
     return out;
 }
 
-IceUtilInternal::Options::Options()
-    : parseCalled(false)
-{
-}
+IceUtilInternal::Options::Options() : parseCalled(false) {}
 
 void
 IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, bool needArg, const string& dflt)
 {
-    if(shortOpt.empty() && longOpt.empty())
+    if (shortOpt.empty() && longOpt.empty())
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "short and long option cannot both be empty");
     }
 
-    if(!shortOpt.empty())
+    if (!shortOpt.empty())
     {
-        if(shortOpt.size() != 1)
+        if (shortOpt.size() != 1)
         {
             string err = "`";
             err += shortOpt;
             err += "': a short option cannot specify more than one option";
             throw IllegalArgumentException(__FILE__, __LINE__, err);
         }
-        if(shortOpt.find_first_of(" \t\n\r\f\v") != string::npos)
+        if (shortOpt.find_first_of(" \t\n\r\f\v") != string::npos)
         {
             string err = "`";
             err += shortOpt;
             err += "': a short option cannot be whitespace";
             throw IllegalArgumentException(__FILE__, __LINE__, err);
         }
-        if(shortOpt[0] == '-')
+        if (shortOpt[0] == '-')
         {
             string err = "`";
             err += shortOpt;
@@ -104,16 +103,16 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
         }
     }
 
-    if(!longOpt.empty())
+    if (!longOpt.empty())
     {
-        if(longOpt.find_first_of(" \t\n\r\f\v") != string::npos)
+        if (longOpt.find_first_of(" \t\n\r\f\v") != string::npos)
         {
             string err = "`";
             err += longOpt;
             err += "': a long option cannot contain whitespace";
             throw IllegalArgumentException(__FILE__, __LINE__, err);
         }
-        if(longOpt[0] == '-')
+        if (longOpt[0] == '-')
         {
             string err = "`";
             err += longOpt;
@@ -122,17 +121,17 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
         }
     }
 
-    if(!needArg && !dflt.empty())
+    if (!needArg && !dflt.empty())
     {
-        throw IllegalArgumentException(__FILE__, __LINE__,
-                                       "a default value can be specified only for options requiring an argument");
+        throw IllegalArgumentException(
+            __FILE__, __LINE__, "a default value can be specified only for options requiring an argument");
     }
 }
 
 void
 IceUtilInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
 {
-    if(parseCalled)
+    if (parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot add options after parse() was called");
     }
@@ -158,7 +157,7 @@ IceUtilInternal::Options::split(const string& line)
     // Strip leading and trailing whitespace.
     //
     string::size_type start = line.find_first_not_of(IFS);
-    if(start == string::npos)
+    if (start == string::npos)
     {
         return StringVector();
     }
@@ -169,19 +168,25 @@ IceUtilInternal::Options::split(const string& line)
 
     StringVector vec;
 
-    enum ParseState { Normal, DoubleQuote, SingleQuote, ANSIQuote };
+    enum ParseState
+    {
+        Normal,
+        DoubleQuote,
+        SingleQuote,
+        ANSIQuote
+    };
     ParseState state = Normal;
 
     string arg;
 
-    for(string::size_type i = 0; i < l.size(); ++i)
+    for (string::size_type i = 0; i < l.size(); ++i)
     {
         char c = l[i];
-        switch(state)
+        switch (state)
         {
             case Normal:
             {
-                switch(c)
+                switch (c)
                 {
                     case '\\':
                     {
@@ -197,9 +202,9 @@ IceUtilInternal::Options::split(const string& line)
                         // necessary so we don't drop backslashes from Windows
                         // path names.)
                         //
-                        if(i < l.size() - 1 && l[++i] != '\n')
+                        if (i < l.size() - 1 && l[++i] != '\n')
                         {
-                            switch(l[i])
+                            switch (l[i])
                             {
                                 case ' ':
                                 case '$':
@@ -231,7 +236,7 @@ IceUtilInternal::Options::split(const string& line)
                     }
                     case '$':
                     {
-                        if(i < l.size() - 1 && l[i + 1] == '\'')
+                        if (i < l.size() - 1 && l[i + 1] == '\'')
                         {
                             state = ANSIQuote; // Bash uses $'<text>' to allow ANSI escape sequences within <text>.
                             ++i;
@@ -244,7 +249,7 @@ IceUtilInternal::Options::split(const string& line)
                     }
                     default:
                     {
-                        if(IFS.find(l[i]) != string::npos)
+                        if (IFS.find(l[i]) != string::npos)
                         {
                             vec.push_back(arg);
                             arg.clear();
@@ -252,7 +257,7 @@ IceUtilInternal::Options::split(const string& line)
                             //
                             // Move to start of next argument.
                             //
-                            while(++i < l.size() && IFS.find(l[i]) != string::npos)
+                            while (++i < l.size() && IFS.find(l[i]) != string::npos)
                             {
                                 ;
                             }
@@ -275,9 +280,9 @@ IceUtilInternal::Options::split(const string& line)
                 // or newline. If not followed by one of these characters,
                 // both the backslash and the character are preserved.
                 //
-                if(c == '\\' && i < l.size() - 1)
+                if (c == '\\' && i < l.size() - 1)
                 {
-                    switch(c = l[++i])
+                    switch (c = l[++i])
                     {
                         case '"':
                         case '\\':
@@ -294,7 +299,7 @@ IceUtilInternal::Options::split(const string& line)
                         }
                     }
                 }
-                else if(c == '"') // End of double-quote mode.
+                else if (c == '"') // End of double-quote mode.
                 {
                     state = Normal;
                 }
@@ -306,7 +311,7 @@ IceUtilInternal::Options::split(const string& line)
             }
             case SingleQuote:
             {
-                if(c == '\'') // End of single-quote mode.
+                if (c == '\'') // End of single-quote mode.
                 {
                     state = Normal;
                 }
@@ -318,15 +323,15 @@ IceUtilInternal::Options::split(const string& line)
             }
             case ANSIQuote:
             {
-                switch(c)
+                switch (c)
                 {
                     case '\\':
                     {
-                        if(i == l.size() - 1)
+                        if (i == l.size() - 1)
                         {
                             break;
                         }
-                        switch(c = l[++i])
+                        switch (c = l[++i])
                         {
                             //
                             // Single-letter escape sequences.
@@ -397,9 +402,9 @@ IceUtilInternal::Options::split(const string& line)
                                 static const string octalDigits = "01234567";
                                 unsigned short us = 0;
                                 string::size_type j;
-                                for(j = i;
-                                    j < i + 3 && j < l.size() && octalDigits.find_first_of(c = l[j]) != string::npos;
-                                    ++j)
+                                for (j = i;
+                                     j < i + 3 && j < l.size() && octalDigits.find_first_of(c = l[j]) != string::npos;
+                                     ++j)
                                 {
                                     us = us * 8 + static_cast<unsigned short>(c - '0');
                                 }
@@ -413,7 +418,7 @@ IceUtilInternal::Options::split(const string& line)
                             //
                             case 'x':
                             {
-                                if(i < l.size() - 1 && !isxdigit(static_cast<unsigned char>(l[i + 1])))
+                                if (i < l.size() - 1 && !isxdigit(static_cast<unsigned char>(l[i + 1])))
                                 {
                                     arg.push_back('\\');
                                     arg.push_back('x');
@@ -422,15 +427,15 @@ IceUtilInternal::Options::split(const string& line)
 
                                 Int64 ull = 0;
                                 string::size_type j;
-                                for(j = i + 1; j < i + 3 && j < l.size() &&
-                                    isxdigit(static_cast<unsigned char>(c = l[j])); ++j)
+                                for (j = i + 1;
+                                     j < i + 3 && j < l.size() && isxdigit(static_cast<unsigned char>(c = l[j])); ++j)
                                 {
                                     ull *= 16;
-                                    if(isdigit(static_cast<unsigned char>(c)))
+                                    if (isdigit(static_cast<unsigned char>(c)))
                                     {
                                         ull += c - '0';
                                     }
-                                    else if(islower(static_cast<unsigned char>(c)))
+                                    else if (islower(static_cast<unsigned char>(c)))
                                     {
                                         ull += c - 'a' + 10;
                                     }
@@ -450,7 +455,7 @@ IceUtilInternal::Options::split(const string& line)
                             case 'c':
                             {
                                 c = l[++i];
-                                if(IceUtilInternal::isAlpha(c) || c == '@' || (c >= '[' && c <= '_'))
+                                if (IceUtilInternal::isAlpha(c) || c == '@' || (c >= '[' && c <= '_'))
                                 {
                                     arg.push_back(static_cast<char>(toupper(static_cast<unsigned char>(c)) - '@'));
                                 }
@@ -505,7 +510,7 @@ IceUtilInternal::Options::split(const string& line)
         }
     }
 
-    switch(state)
+    switch (state)
     {
         case Normal:
         {
@@ -548,7 +553,7 @@ IceUtilInternal::Options::split(const string& line)
 IceUtilInternal::Options::StringVector
 IceUtilInternal::Options::parse(const StringVector& args)
 {
-    if(parseCalled)
+    if (parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot call parse() more than once on the same Option instance");
     }
@@ -559,9 +564,9 @@ IceUtilInternal::Options::parse(const StringVector& args)
     StringVector result;
 
     string::size_type i;
-    for(i = 1; i < args.size(); ++i)
+    for (i = 1; i < args.size(); ++i)
     {
-        if(args[i] == "-" || args[i] == "--")
+        if (args[i] == "-" || args[i] == "--")
         {
             ++i;
             break; // "-" and "--" indicate end of options.
@@ -571,7 +576,7 @@ IceUtilInternal::Options::parse(const StringVector& args)
         ValidOpts::iterator pos;
         bool argDone = false;
 
-        if(args[i].compare(0, 2, "--") == 0)
+        if (args[i].compare(0, 2, "--") == 0)
         {
             //
             // Long option. If the option has an argument, it can either be separated by '='
@@ -579,7 +584,7 @@ IceUtilInternal::Options::parse(const StringVector& args)
             // as "--name=value".
             //
             string::size_type p = args[i].find('=', 2);
-            if(p != string::npos)
+            if (p != string::npos)
             {
                 opt = args[i].substr(2, p - 2);
             }
@@ -590,10 +595,10 @@ IceUtilInternal::Options::parse(const StringVector& args)
 
             pos = checkOpt(opt, LongOpt);
 
-            if(pos->second->repeat == NoRepeat)
+            if (pos->second->repeat == NoRepeat)
             {
                 set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
-                if(seenPos != seenNonRepeatableOpts.end())
+                if (seenPos != seenNonRepeatableOpts.end())
                 {
                     string err = "`--";
                     err += opt + ":' option cannot be repeated";
@@ -601,22 +606,22 @@ IceUtilInternal::Options::parse(const StringVector& args)
                 }
                 seenNonRepeatableOpts.insert(seenPos, opt);
                 string synonym = getSynonym(opt);
-                if(!synonym.empty())
+                if (!synonym.empty())
                 {
                     seenNonRepeatableOpts.insert(synonym);
                 }
             }
 
-            if(p != string::npos)
+            if (p != string::npos)
             {
-                if(pos->second->arg == NoArg)
+                if (pos->second->arg == NoArg)
                 {
                     string err = "`";
                     err += opt;
                     err += "': option does not take an argument";
                     throw BadOptException(__FILE__, __LINE__, err);
                 }
-                else if(pos->second->arg == NeedArg && p == args[i].size() - 1)
+                else if (pos->second->arg == NeedArg && p == args[i].size() - 1)
                 {
                     string err = "`";
                     err += opt;
@@ -627,21 +632,21 @@ IceUtilInternal::Options::parse(const StringVector& args)
                 argDone = true;
             }
         }
-        else if(!args[i].empty() && args[i][0] == '-')
+        else if (!args[i].empty() && args[i][0] == '-')
         {
             //
             // int16_t option.
             //
-            for(string::size_type p = 1; p < args[i].size(); ++p)
+            for (string::size_type p = 1; p < args[i].size(); ++p)
             {
                 opt.clear();
                 opt.push_back(args[i][p]);
                 pos = checkOpt(opt, ShortOpt);
 
-                if(pos->second->repeat == NoRepeat)
+                if (pos->second->repeat == NoRepeat)
                 {
                     set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
-                    if(seenPos != seenNonRepeatableOpts.end())
+                    if (seenPos != seenNonRepeatableOpts.end())
                     {
                         string err = "`-";
                         err += opt + ":' option cannot be repeated";
@@ -649,15 +654,15 @@ IceUtilInternal::Options::parse(const StringVector& args)
                     }
                     seenNonRepeatableOpts.insert(seenPos, opt);
                     string synonym = getSynonym(opt);
-                    if(!synonym.empty())
+                    if (!synonym.empty())
                     {
                         seenNonRepeatableOpts.insert(synonym);
                     }
                 }
 
-                if(pos->second->arg == NeedArg)
+                if (pos->second->arg == NeedArg)
                 {
-                    if(p != args[i].size() - 1)
+                    if (p != args[i].size() - 1)
                     {
                         string optArg = args[i].substr(p + 1);
                         setOpt(opt, "", optArg, pos->second->repeat);
@@ -681,14 +686,14 @@ IceUtilInternal::Options::parse(const StringVector& args)
             argDone = true;
         }
 
-        if(!argDone)
+        if (!argDone)
         {
-            if(pos->second->arg == NeedArg) // Need an argument that is separated by whitespace.
+            if (pos->second->arg == NeedArg) // Need an argument that is separated by whitespace.
             {
-                if(i == args.size() - 1)
+                if (i == args.size() - 1)
                 {
                     string err = "`-";
-                    if(opt.size() != 1)
+                    if (opt.size() != 1)
                     {
                         err += "-";
                     }
@@ -707,7 +712,7 @@ IceUtilInternal::Options::parse(const StringVector& args)
 
     _synonyms.clear(); // Don't need the contents anymore.
 
-    while(i < args.size())
+    while (i < args.size())
     {
         result.push_back(args[i++]);
     }
@@ -724,7 +729,7 @@ IceUtilInternal::Options::StringVector
 IceUtilInternal::Options::parse(int argc, const char* const argv[])
 {
     StringVector vec;
-    for(int i = 0; i < argc; ++i)
+    for (int i = 0; i < argc; ++i)
     {
         vec.push_back(argv[i]);
     }
@@ -734,7 +739,7 @@ IceUtilInternal::Options::parse(int argc, const char* const argv[])
 bool
 IceUtilInternal::Options::isSet(const string& opt) const
 {
-    if(!parseCalled)
+    if (!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
@@ -746,17 +751,17 @@ IceUtilInternal::Options::isSet(const string& opt) const
 string
 IceUtilInternal::Options::optArg(const string& opt) const
 {
-    if(!parseCalled)
+    if (!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
 
-    if(pos->second->repeat == Repeat)
+    if (pos->second->repeat == Repeat)
     {
         string err = "`-";
-        if(pos->second->length == LongOpt)
+        if (pos->second->length == LongOpt)
         {
             err.push_back('-');
         }
@@ -766,7 +771,7 @@ IceUtilInternal::Options::optArg(const string& opt) const
     }
 
     Opts::const_iterator p = _opts.find(opt);
-    if(p == _opts.end())
+    if (p == _opts.end())
     {
         return "";
     }
@@ -776,17 +781,17 @@ IceUtilInternal::Options::optArg(const string& opt) const
 IceUtilInternal::Options::StringVector
 IceUtilInternal::Options::argVec(const string& opt) const
 {
-    if(!parseCalled)
+    if (!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
 
-    if(pos->second->repeat == NoRepeat)
+    if (pos->second->repeat == NoRepeat)
     {
         string err = "`-";
-        if(pos->second->length == LongOpt)
+        if (pos->second->length == LongOpt)
         {
             err.push_back('-');
         }
@@ -799,17 +804,21 @@ IceUtilInternal::Options::argVec(const string& opt) const
 }
 
 void
-IceUtilInternal::Options::addValidOpt(const string& shortOpt, const string& longOpt,
-                              ArgType at, const string& dflt, RepeatType rt)
+IceUtilInternal::Options::addValidOpt(
+    const string& shortOpt,
+    const string& longOpt,
+    ArgType at,
+    const string& dflt,
+    RepeatType rt)
 {
-    if(!shortOpt.empty() && _validOpts.find(shortOpt) != _validOpts.end())
+    if (!shortOpt.empty() && _validOpts.find(shortOpt) != _validOpts.end())
     {
         string err = "`";
         err += shortOpt;
         err += "': duplicate option";
         throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
-    if(!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
+    if (!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
     {
         string err = "`";
         err += longOpt;
@@ -822,12 +831,12 @@ IceUtilInternal::Options::addValidOpt(const string& shortOpt, const string& long
     odp->repeat = rt;
     odp->hasDefault = !dflt.empty();
 
-    if(!shortOpt.empty())
+    if (!shortOpt.empty())
     {
         odp->length = ShortOpt;
         _validOpts[shortOpt] = odp;
     }
-    if(!longOpt.empty())
+    if (!longOpt.empty())
     {
         odp->length = LongOpt;
         _validOpts[longOpt] = odp;
@@ -835,7 +844,7 @@ IceUtilInternal::Options::addValidOpt(const string& shortOpt, const string& long
 
     updateSynonyms(shortOpt, longOpt);
 
-    if(at == NeedArg && !dflt.empty())
+    if (at == NeedArg && !dflt.empty())
     {
         setOpt(shortOpt, longOpt, dflt, rt);
     }
@@ -845,10 +854,10 @@ IceUtilInternal::Options::ValidOpts::iterator
 IceUtilInternal::Options::checkOpt(const string& opt, LengthType lt)
 {
     ValidOpts::iterator pos = _validOpts.find(opt);
-    if(pos == _validOpts.end())
+    if (pos == _validOpts.end())
     {
         string err = "invalid option: `-";
-        if(lt == LongOpt)
+        if (lt == LongOpt)
         {
             err.push_back('-');
         }
@@ -867,7 +876,7 @@ IceUtilInternal::Options::setOpt(const string& opt1, const string& opt2, const s
     //
     assert(!(opt1.empty() && opt2.empty()));
 
-    if(rt == NoRepeat)
+    if (rt == NoRepeat)
     {
         setNonRepeatingOpt(opt1, val);
         setNonRepeatingOpt(opt2, val);
@@ -882,7 +891,7 @@ IceUtilInternal::Options::setOpt(const string& opt1, const string& opt2, const s
 void
 IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& val)
 {
-    if(opt.empty())
+    if (opt.empty())
     {
         return;
     }
@@ -898,7 +907,7 @@ IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& va
     _opts[opt] = ovp;
 
     const string synonym = getSynonym(opt);
-    if(!synonym.empty())
+    if (!synonym.empty())
     {
         _opts[synonym] = ovp;
     }
@@ -907,7 +916,7 @@ IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& va
 void
 IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
 {
-    if(opt.empty())
+    if (opt.empty())
     {
         return;
     }
@@ -919,13 +928,13 @@ IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
     const string synonym = getSynonym(opt);
     ROpts::iterator spos = _ropts.find(synonym);
 
-    if(pos != _ropts.end())
+    if (pos != _ropts.end())
     {
         assert(_validOpts.find(opt) != _validOpts.end());
         assert(vpos->second->repeat == Repeat);
 
         _ropts[opt] = pos->second;
-        if(vpos->second->hasDefault && pos->second->vals.size() == 1)
+        if (vpos->second->hasDefault && pos->second->vals.size() == 1)
         {
             pos->second->vals[0] = val;
             vpos->second->hasDefault = false;
@@ -935,13 +944,13 @@ IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
             pos->second->vals.push_back(val);
         }
     }
-    else if(spos != _ropts.end())
+    else if (spos != _ropts.end())
     {
         assert(_validOpts.find(synonym) != _validOpts.end());
         assert(_validOpts.find(synonym)->second->repeat == Repeat);
 
         _ropts[synonym] = spos->second;
-        if(vpos->second->hasDefault && spos->second->vals.size() == 1)
+        if (vpos->second->hasDefault && spos->second->vals.size() == 1)
         {
             spos->second->vals[0] = val;
             vpos->second->hasDefault = false;
@@ -956,7 +965,7 @@ IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
         OVecPtr ovp = make_shared<OptionValueVector>();
         ovp->vals.push_back(val);
         _ropts[opt] = ovp;
-        if(!synonym.empty())
+        if (!synonym.empty())
         {
             _ropts[synonym] = ovp;
         }
@@ -967,7 +976,7 @@ IceUtilInternal::Options::ValidOpts::const_iterator
 IceUtilInternal::Options::checkOptIsValid(const string& opt) const
 {
     ValidOpts::const_iterator pos = _validOpts.find(opt);
-    if(pos == _validOpts.end())
+    if (pos == _validOpts.end())
     {
         string err = "`";
         err += opt;
@@ -981,10 +990,10 @@ IceUtilInternal::Options::ValidOpts::const_iterator
 IceUtilInternal::Options::checkOptHasArg(const string& opt) const
 {
     ValidOpts::const_iterator pos = checkOptIsValid(opt);
-    if(pos->second->arg == NoArg)
+    if (pos->second->arg == NoArg)
     {
         string err = "`-";
-        if(pos->second->length == LongOpt)
+        if (pos->second->length == LongOpt)
         {
             err.push_back('-');
         }
@@ -998,7 +1007,7 @@ IceUtilInternal::Options::checkOptHasArg(const string& opt) const
 void
 IceUtilInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std::string& longOpt)
 {
-    if(!shortOpt.empty() && !longOpt.empty())
+    if (!shortOpt.empty() && !longOpt.empty())
     {
         _synonyms[shortOpt] = longOpt;
         _synonyms[longOpt] = shortOpt;

@@ -12,32 +12,33 @@
 
 namespace IceInternal
 {
+    class UdpConnector final : public Connector
+    {
+    public:
+        UdpConnector(
+            const ProtocolInstancePtr&,
+            const Address&,
+            const Address&,
+            const std::string&,
+            int,
+            const std::string&);
 
-class UdpConnector final : public Connector
-{
-public:
+        ~UdpConnector();
+        TransceiverPtr connect() final;
 
-    UdpConnector(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int,
-                 const std::string&);
+        std::int16_t type() const final;
+        std::string toString() const final;
 
-    ~UdpConnector();
-    TransceiverPtr connect() final;
+        bool operator==(const Connector&) const final;
+        bool operator<(const Connector&) const final;
 
-    std::int16_t type() const final;
-    std::string toString() const final;
-
-    bool operator==(const Connector&) const final;
-    bool operator<(const Connector&) const final;
-
-private:
-
-    const ProtocolInstancePtr _instance;
-    const Address _addr;
-    const Address _sourceAddr;
-    const std::string _mcastInterface;
-    const int _mcastTtl;
-    const std::string _connectionId;
-};
-
+    private:
+        const ProtocolInstancePtr _instance;
+        const Address _addr;
+        const Address _sourceAddr;
+        const std::string _mcastInterface;
+        const int _mcastTtl;
+        const std::string _connectionId;
+    };
 }
 #endif

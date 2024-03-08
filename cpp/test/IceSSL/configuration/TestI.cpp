@@ -11,10 +11,7 @@
 using namespace std;
 using namespace Ice;
 
-ServerI::ServerI(const CommunicatorPtr& communicator) :
-    _communicator(communicator)
-{
-}
+ServerI::ServerI(const CommunicatorPtr& communicator) : _communicator(communicator) {}
 
 void
 ServerI::noCert(const Ice::Current& c)
@@ -24,7 +21,7 @@ ServerI::noCert(const Ice::Current& c)
         IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(c.con->getInfo());
         test(info->certs.size() == 0);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -42,7 +39,7 @@ ServerI::checkCert(string subjectDN, string issuerDN, const Ice::Current& c)
         test(info->certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN));
         test(info->certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -56,7 +53,7 @@ ServerI::checkCipher(string cipher, const Ice::Current& c)
         IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(c.con->getInfo());
         test(info->cipher.compare(0, cipher.size(), cipher) == 0);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -68,16 +65,14 @@ ServerI::destroy()
     _communicator->destroy();
 }
 
-ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDir)
-{
-}
+ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDir) {}
 
 optional<Test::ServerPrx>
 ServerFactoryI::createServer(Test::Properties props, const Current&)
 {
     InitializationData initData;
     initData.properties = createProperties();
-    for(Test::Properties::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (Test::Properties::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         initData.properties->setProperty(p->first, p->second);
     }
@@ -97,7 +92,7 @@ void
 ServerFactoryI::destroyServer(optional<Test::ServerPrx> srv, const Ice::Current&)
 {
     map<Identity, ServerIPtr>::iterator p = _servers.find(srv->ice_getIdentity());
-    if(p != _servers.end())
+    if (p != _servers.end())
     {
         p->second->destroy();
         _servers.erase(p);

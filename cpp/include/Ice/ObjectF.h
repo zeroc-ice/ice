@@ -9,10 +9,8 @@
 
 namespace Ice
 {
-
-class Object;
-using ObjectPtr = std::shared_ptr<Object>;
-
+    class Object;
+    using ObjectPtr = std::shared_ptr<Object>;
 }
 
 #endif

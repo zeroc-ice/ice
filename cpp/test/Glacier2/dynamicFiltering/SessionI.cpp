@@ -8,24 +8,20 @@
 using namespace std;
 using namespace Test;
 
-SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller):
-    _controller(controller)
-{
-}
+SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller) : _controller(controller) {}
 
 optional<Glacier2::SessionPrx>
 SessionManagerI::create(string, optional<Glacier2::SessionControlPrx> sessionControl, const Ice::Current& current)
 {
-    auto newSession = Glacier2::SessionPrx(
-        current.adapter->addWithUUID(make_shared<SessionI>(sessionControl, _controller)));
+    auto newSession =
+        Glacier2::SessionPrx(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl, _controller)));
     _controller->addSession(SessionTuple(newSession, std::move(sessionControl)));
     return newSession;
 }
 
-SessionI::SessionI(optional<Glacier2::SessionControlPrx> sessionControl,
-                   shared_ptr<TestControllerI> controller) :
-    _sessionControl(std::move(sessionControl)),
-    _controller(std::move(controller))
+SessionI::SessionI(optional<Glacier2::SessionControlPrx> sessionControl, shared_ptr<TestControllerI> controller)
+    : _sessionControl(std::move(sessionControl)),
+      _controller(std::move(controller))
 {
     assert(_sessionControl);
 }

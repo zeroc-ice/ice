@@ -21,279 +21,266 @@ using namespace Ice;
 using namespace IceSSL;
 
 #ifndef CERT_CHAIN_DISABLE_AIA
-#   define CERT_CHAIN_DISABLE_AIA 0x00002000
+#    define CERT_CHAIN_DISABLE_AIA 0x00002000
 #endif
 
 namespace
 {
-
-string
-protocolName(DWORD protocol)
-{
-    switch(protocol)
+    string protocolName(DWORD protocol)
     {
-        case SP_PROT_SSL2_CLIENT:
-        case SP_PROT_SSL2_SERVER:
-            return "SSL 2.0";
-        case SP_PROT_SSL3_CLIENT:
-        case SP_PROT_SSL3_SERVER:
-            return "SSL 3.0";
-        case SP_PROT_TLS1_CLIENT:
-        case SP_PROT_TLS1_SERVER:
-            return "TLS 1.0";
-        case SP_PROT_TLS1_1_CLIENT:
-        case SP_PROT_TLS1_1_SERVER:
-            return "TLS 1.1";
-        case SP_PROT_TLS1_2_CLIENT:
-        case SP_PROT_TLS1_2_SERVER:
-            return "TLS 1.2";
-        default:
-            return "Unknown";
-    }
-}
-
-TrustError
-trustStatusToTrustError(DWORD status)
-{
-    if (status & CERT_TRUST_NO_ERROR)
-    {
-        return IceSSL::TrustError::NoError;
-    }
-    if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) ||
-        (status & CERT_TRUST_IS_CYCLIC) ||
-        (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID) ||
-        (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID) ||
-        (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE))
-    {
-        return IceSSL::TrustError::UntrustedRoot;
-    }
-    if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
-    {
-        return IceSSL::TrustError::NotTrusted;
-    }
-    if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
-    {
-        return IceSSL::TrustError::PartialChain;
-    }
-    if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
-    {
-        return IceSSL::TrustError::InvalidBasicConstraints;
-    }
-    if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
-    {
-        return IceSSL::TrustError::InvalidSignature;
-    }
-    if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
-    {
-        return IceSSL::TrustError::InvalidPurpose;
-    }
-    if (status & CERT_TRUST_IS_REVOKED)
-    {
-        return IceSSL::TrustError::Revoked;
-    }
-    if (status & CERT_TRUST_INVALID_EXTENSION)
-    {
-        return IceSSL::TrustError::InvalidExtension;
-    }
-    if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
-    {
-        return IceSSL::TrustError::InvalidPolicyConstraints;
-    }
-    if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
-    {
-        return IceSSL::TrustError::InvalidNameConstraints;
-    }
-    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
-    {
-        return IceSSL::TrustError::HasNonSupportedNameConstraint;
-    }
-    if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
-    {
-        return IceSSL::TrustError::HasNonDefinedNameConstraint;
-    }
-    if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
-    {
-        return IceSSL::TrustError::HasNonPermittedNameConstraint;
-    }
-    if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
-    {
-        return IceSSL::TrustError::HasExcludedNameConstraint;
-    }
-    if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
-    {
-        return IceSSL::TrustError::InvalidPolicyConstraints;
-    }
-    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
-    {
-        return IceSSL::TrustError::HasNonSupportedCriticalExtension;
-    }
-    if (status & CERT_TRUST_IS_OFFLINE_REVOCATION ||
-        status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-    {
-        return IceSSL::TrustError::RevocationStatusUnknown;
-    }
-    if (status & CERT_TRUST_IS_NOT_TIME_VALID)
-    {
-        return IceSSL::TrustError::InvalidTime;
-    }
-    return IceSSL::TrustError::UnknownTrustFailure;
-}
-
-string
-trustStatusToString(DWORD status)
-{
-    if(status & CERT_TRUST_NO_ERROR)
-    {
-        return "CERT_TRUST_NO_ERROR";
-    }
-
-    if(status & CERT_TRUST_IS_NOT_TIME_VALID)
-    {
-        return "CERT_TRUST_IS_NOT_TIME_VALID";
-    }
-
-    if(status & CERT_TRUST_IS_REVOKED)
-    {
-        return "CERT_TRUST_IS_REVOKED";
-    }
-
-    if(status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
-    {
-        return "CERT_TRUST_IS_NOT_SIGNATURE_VALID";
-    }
-
-    if(status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
-    {
-        return "CERT_TRUST_IS_NOT_VALID_FOR_USAGE";
-    }
-
-    if(status & CERT_TRUST_IS_UNTRUSTED_ROOT)
-    {
-        return "CERT_TRUST_IS_UNTRUSTED_ROOT";
-    }
-
-    if(status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-    {
-        return "CERT_TRUST_REVOCATION_STATUS_UNKNOWN";
-    }
-
-    if(status & CERT_TRUST_IS_CYCLIC)
-    {
-        return "CERT_TRUST_IS_CYCLIC";
-    }
-
-    if(status & CERT_TRUST_INVALID_EXTENSION)
-    {
-        return "CERT_TRUST_INVALID_EXTENSION";
-    }
-
-    if(status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
-    {
-        return "CERT_TRUST_INVALID_POLICY_CONSTRAINTS";
-    }
-
-    if(status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
-    {
-        return "CERT_TRUST_INVALID_BASIC_CONSTRAINTS";
-    }
-
-    if(status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
-    {
-        return "CERT_TRUST_INVALID_NAME_CONSTRAINTS";
-    }
-
-    if(status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
-    {
-        return "CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT";
-    }
-
-    if(status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
-    {
-        return "CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT";
-    }
-
-    if(status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
-    {
-        return "CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT";
-    }
-
-    if(status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
-    {
-        return "CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT";
-    }
-
-    if(status & CERT_TRUST_IS_OFFLINE_REVOCATION)
-    {
-        return "CERT_TRUST_IS_OFFLINE_REVOCATION";
-    }
-
-    if(status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
-    {
-        return "CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY";
-    }
-
-    if(status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
-    {
-        return "CERT_TRUST_IS_EXPLICIT_DISTRUST";
-    }
-
-    if(status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
-    {
-        return "CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT";
-    }
-
-    //
-    // New in Windows 8
-    //
-    //if(status & CERT_TRUST_HAS_WEAK_SIGNATURE)
-    //{
-    //    return "CERT_TRUST_HAS_WEAK_SIGNATURE";
-    //}
-
-    if(status & CERT_TRUST_IS_PARTIAL_CHAIN)
-    {
-        return "CERT_TRUST_IS_PARTIAL_CHAIN";
-    }
-
-    if(status & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
-    {
-        return "CERT_TRUST_CTL_IS_NOT_TIME_VALID";
-    }
-
-    if(status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
-    {
-        return "CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID";
-    }
-
-    if(status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
-    {
-        return "CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE";
-    }
-
-    ostringstream os;
-    os << "UNKNOWN TRUST FAILURE: " << status;
-    return os.str();
-}
-
-SecBuffer*
-getSecBufferWithType(const SecBufferDesc& desc, ULONG bufferType)
-{
-    for(ULONG i = 0; i < desc.cBuffers; ++i)
-    {
-        if(desc.pBuffers[i].BufferType == bufferType)
+        switch (protocol)
         {
-            return &desc.pBuffers[i];
+            case SP_PROT_SSL2_CLIENT:
+            case SP_PROT_SSL2_SERVER:
+                return "SSL 2.0";
+            case SP_PROT_SSL3_CLIENT:
+            case SP_PROT_SSL3_SERVER:
+                return "SSL 3.0";
+            case SP_PROT_TLS1_CLIENT:
+            case SP_PROT_TLS1_SERVER:
+                return "TLS 1.0";
+            case SP_PROT_TLS1_1_CLIENT:
+            case SP_PROT_TLS1_1_SERVER:
+                return "TLS 1.1";
+            case SP_PROT_TLS1_2_CLIENT:
+            case SP_PROT_TLS1_2_SERVER:
+                return "TLS 1.2";
+            default:
+                return "Unknown";
         }
     }
-    return 0;
-}
 
-string
-secStatusToString(SECURITY_STATUS status)
-{
-    return IceUtilInternal::errorToString(status);
-}
+    TrustError trustStatusToTrustError(DWORD status)
+    {
+        if (status & CERT_TRUST_NO_ERROR)
+        {
+            return IceSSL::TrustError::NoError;
+        }
+        if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) || (status & CERT_TRUST_IS_CYCLIC) ||
+            (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID) || (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID) ||
+            (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE))
+        {
+            return IceSSL::TrustError::UntrustedRoot;
+        }
+        if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+        {
+            return IceSSL::TrustError::NotTrusted;
+        }
+        if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
+        {
+            return IceSSL::TrustError::PartialChain;
+        }
+        if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+        {
+            return IceSSL::TrustError::InvalidBasicConstraints;
+        }
+        if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+        {
+            return IceSSL::TrustError::InvalidSignature;
+        }
+        if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+        {
+            return IceSSL::TrustError::InvalidPurpose;
+        }
+        if (status & CERT_TRUST_IS_REVOKED)
+        {
+            return IceSSL::TrustError::Revoked;
+        }
+        if (status & CERT_TRUST_INVALID_EXTENSION)
+        {
+            return IceSSL::TrustError::InvalidExtension;
+        }
+        if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+        {
+            return IceSSL::TrustError::InvalidPolicyConstraints;
+        }
+        if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
+        {
+            return IceSSL::TrustError::InvalidNameConstraints;
+        }
+        if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+        {
+            return IceSSL::TrustError::HasNonSupportedNameConstraint;
+        }
+        if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+        {
+            return IceSSL::TrustError::HasNonDefinedNameConstraint;
+        }
+        if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+        {
+            return IceSSL::TrustError::HasNonPermittedNameConstraint;
+        }
+        if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+        {
+            return IceSSL::TrustError::HasExcludedNameConstraint;
+        }
+        if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+        {
+            return IceSSL::TrustError::InvalidPolicyConstraints;
+        }
+        if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+        {
+            return IceSSL::TrustError::HasNonSupportedCriticalExtension;
+        }
+        if (status & CERT_TRUST_IS_OFFLINE_REVOCATION || status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+        {
+            return IceSSL::TrustError::RevocationStatusUnknown;
+        }
+        if (status & CERT_TRUST_IS_NOT_TIME_VALID)
+        {
+            return IceSSL::TrustError::InvalidTime;
+        }
+        return IceSSL::TrustError::UnknownTrustFailure;
+    }
 
+    string trustStatusToString(DWORD status)
+    {
+        if (status & CERT_TRUST_NO_ERROR)
+        {
+            return "CERT_TRUST_NO_ERROR";
+        }
+
+        if (status & CERT_TRUST_IS_NOT_TIME_VALID)
+        {
+            return "CERT_TRUST_IS_NOT_TIME_VALID";
+        }
+
+        if (status & CERT_TRUST_IS_REVOKED)
+        {
+            return "CERT_TRUST_IS_REVOKED";
+        }
+
+        if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+        {
+            return "CERT_TRUST_IS_NOT_SIGNATURE_VALID";
+        }
+
+        if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+        {
+            return "CERT_TRUST_IS_NOT_VALID_FOR_USAGE";
+        }
+
+        if (status & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        {
+            return "CERT_TRUST_IS_UNTRUSTED_ROOT";
+        }
+
+        if (status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+        {
+            return "CERT_TRUST_REVOCATION_STATUS_UNKNOWN";
+        }
+
+        if (status & CERT_TRUST_IS_CYCLIC)
+        {
+            return "CERT_TRUST_IS_CYCLIC";
+        }
+
+        if (status & CERT_TRUST_INVALID_EXTENSION)
+        {
+            return "CERT_TRUST_INVALID_EXTENSION";
+        }
+
+        if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+        {
+            return "CERT_TRUST_INVALID_POLICY_CONSTRAINTS";
+        }
+
+        if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+        {
+            return "CERT_TRUST_INVALID_BASIC_CONSTRAINTS";
+        }
+
+        if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
+        {
+            return "CERT_TRUST_INVALID_NAME_CONSTRAINTS";
+        }
+
+        if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+        {
+            return "CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT";
+        }
+
+        if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+        {
+            return "CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT";
+        }
+
+        if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+        {
+            return "CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT";
+        }
+
+        if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+        {
+            return "CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT";
+        }
+
+        if (status & CERT_TRUST_IS_OFFLINE_REVOCATION)
+        {
+            return "CERT_TRUST_IS_OFFLINE_REVOCATION";
+        }
+
+        if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+        {
+            return "CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY";
+        }
+
+        if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+        {
+            return "CERT_TRUST_IS_EXPLICIT_DISTRUST";
+        }
+
+        if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+        {
+            return "CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT";
+        }
+
+        //
+        // New in Windows 8
+        //
+        // if(status & CERT_TRUST_HAS_WEAK_SIGNATURE)
+        //{
+        //    return "CERT_TRUST_HAS_WEAK_SIGNATURE";
+        //}
+
+        if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
+        {
+            return "CERT_TRUST_IS_PARTIAL_CHAIN";
+        }
+
+        if (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
+        {
+            return "CERT_TRUST_CTL_IS_NOT_TIME_VALID";
+        }
+
+        if (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
+        {
+            return "CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID";
+        }
+
+        if (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
+        {
+            return "CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE";
+        }
+
+        ostringstream os;
+        os << "UNKNOWN TRUST FAILURE: " << status;
+        return os.str();
+    }
+
+    SecBuffer* getSecBufferWithType(const SecBufferDesc& desc, ULONG bufferType)
+    {
+        for (ULONG i = 0; i < desc.cBuffers; ++i)
+        {
+            if (desc.pBuffers[i].BufferType == bufferType)
+            {
+                return &desc.pBuffers[i];
+            }
+        }
+        return 0;
+    }
+
+    string secStatusToString(SECURITY_STATUS status) { return IceUtilInternal::errorToString(status); }
 }
 
 IceInternal::NativeInfoPtr
@@ -306,11 +293,11 @@ IceInternal::SocketOperation
 SChannel::TransceiverI::sslHandshake()
 {
     DWORD flags = ASC_REQ_SEQUENCE_DETECT | ASC_REQ_REPLAY_DETECT | ASC_REQ_CONFIDENTIALITY | ASC_REQ_ALLOCATE_MEMORY |
-        ASC_REQ_STREAM;
-    if(_incoming)
+                  ASC_REQ_STREAM;
+    if (_incoming)
     {
         flags |= ASC_REQ_EXTENDED_ERROR;
-        if(_engine->getVerifyPeer() > 0)
+        if (_engine->getVerifyPeer() > 0)
         {
             flags |= ASC_REQ_MUTUAL_AUTH;
         }
@@ -321,7 +308,7 @@ SChannel::TransceiverI::sslHandshake()
     }
 
     SECURITY_STATUS err = SEC_E_OK;
-    if(_state == StateHandshakeNotStarted)
+    if (_state == StateHandshakeNotStarted)
     {
         _ctxFlags = 0;
         _readBuffer.b.resize(2048);
@@ -329,14 +316,15 @@ SChannel::TransceiverI::sslHandshake()
         _credentials = _engine->newCredentialsHandle(_incoming);
         _credentialsInitialized = true;
 
-        if(!_incoming)
+        if (!_incoming)
         {
-            SecBuffer outBuffer = { 0, SECBUFFER_TOKEN, 0 };
-            SecBufferDesc outBufferDesc = { SECBUFFER_VERSION, 1, &outBuffer };
+            SecBuffer outBuffer = {0, SECBUFFER_TOKEN, 0};
+            SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 1, &outBuffer};
 
-            err = InitializeSecurityContext(&_credentials, 0, const_cast<char *>(_host.c_str()), flags, 0, 0, 0, 0,
-                                            &_ssl, &outBufferDesc, &_ctxFlags, 0);
-            if(err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
+            err = InitializeSecurityContext(
+                &_credentials, 0, const_cast<char*>(_host.c_str()), flags, 0, 0, 0, 0, &_ssl, &outBufferDesc,
+                &_ctxFlags, 0);
+            if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + secStatusToString(err));
             }
@@ -358,47 +346,45 @@ SChannel::TransceiverI::sslHandshake()
         }
     }
 
-    while(true)
+    while (true)
     {
-        if(_state == StateHandshakeReadContinue)
+        if (_state == StateHandshakeReadContinue)
         {
             // If read buffer is empty, try to read some data.
-            if(_readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
+            if (_readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
             {
                 return IceInternal::SocketOperationRead;
             }
 
             SecBuffer inBuffers[2] = {
-                { static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_TOKEN, _readBuffer.b.begin() },
-                { 0, SECBUFFER_EMPTY, 0 }
-            };
-            SecBufferDesc inBufferDesc = { SECBUFFER_VERSION, 2, inBuffers };
+                {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_TOKEN, _readBuffer.b.begin()},
+                {0, SECBUFFER_EMPTY, 0}};
+            SecBufferDesc inBufferDesc = {SECBUFFER_VERSION, 2, inBuffers};
 
-            SecBuffer outBuffers[2] = {
-                { 0, SECBUFFER_TOKEN, 0 },
-                { 0, SECBUFFER_ALERT, 0 }
-            };
-            SecBufferDesc outBufferDesc = { SECBUFFER_VERSION, 2, outBuffers };
+            SecBuffer outBuffers[2] = {{0, SECBUFFER_TOKEN, 0}, {0, SECBUFFER_ALERT, 0}};
+            SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 2, outBuffers};
 
-            if(_incoming)
+            if (_incoming)
             {
-                err = AcceptSecurityContext(&_credentials, (_sslInitialized ? &_ssl : 0), &inBufferDesc, flags, 0,
-                                            &_ssl, &outBufferDesc, &_ctxFlags, 0);
-                if(err == SEC_I_CONTINUE_NEEDED || err == SEC_E_OK)
+                err = AcceptSecurityContext(
+                    &_credentials, (_sslInitialized ? &_ssl : 0), &inBufferDesc, flags, 0, &_ssl, &outBufferDesc,
+                    &_ctxFlags, 0);
+                if (err == SEC_I_CONTINUE_NEEDED || err == SEC_E_OK)
                 {
                     _sslInitialized = true;
                 }
             }
             else
             {
-                err = InitializeSecurityContext(&_credentials, &_ssl, const_cast<char*>(_host.c_str()), flags, 0, 0,
-                                                &inBufferDesc, 0, 0, &outBufferDesc, &_ctxFlags, 0);
+                err = InitializeSecurityContext(
+                    &_credentials, &_ssl, const_cast<char*>(_host.c_str()), flags, 0, 0, &inBufferDesc, 0, 0,
+                    &outBufferDesc, &_ctxFlags, 0);
             }
 
             //
             // If the message is incomplete we need to read more data.
             //
-            if(err == SEC_E_INCOMPLETE_MESSAGE)
+            if (err == SEC_E_INCOMPLETE_MESSAGE)
             {
                 SecBuffer* missing = getSecBufferWithType(inBufferDesc, SECBUFFER_MISSING);
                 size_t pos = _readBuffer.i - _readBuffer.b.begin();
@@ -406,7 +392,7 @@ SChannel::TransceiverI::sslHandshake()
                 _readBuffer.i = _readBuffer.b.begin() + pos;
                 return IceInternal::SocketOperationRead;
             }
-            else if(err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
+            else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
                 throw SecurityException(__FILE__, __LINE__, "SSL handshake failure:\n" + secStatusToString(err));
             }
@@ -416,7 +402,7 @@ SChannel::TransceiverI::sslHandshake()
             //
             SecBuffer* token = getSecBufferWithType(outBufferDesc, SECBUFFER_TOKEN);
             assert(token);
-            if(token->cbBuffer)
+            if (token->cbBuffer)
             {
                 _writeBuffer.b.resize(static_cast<size_t>(token->cbBuffer));
                 _writeBuffer.i = _writeBuffer.b.begin();
@@ -428,7 +414,7 @@ SChannel::TransceiverI::sslHandshake()
             // Check for remaining data in the input buffer.
             //
             SecBuffer* extra = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
-            if(extra)
+            if (extra)
             {
                 // Shift the extra data to the start of the input buffer
                 memmove(_readBuffer.b.begin(), _readBuffer.i - extra->cbBuffer, extra->cbBuffer);
@@ -439,9 +425,9 @@ SChannel::TransceiverI::sslHandshake()
                 _readBuffer.i = _readBuffer.b.begin();
             }
 
-            if(token->cbBuffer)
+            if (token->cbBuffer)
             {
-                if(err == SEC_E_OK)
+                if (err == SEC_E_OK)
                 {
                     _state = StateHandshakeWriteNoContinue; // Write and don't continue.
                 }
@@ -450,7 +436,7 @@ SChannel::TransceiverI::sslHandshake()
                     _state = StateHandshakeWriteContinue; // Continue writing if we have a token.
                 }
             }
-            else if(err == SEC_E_OK)
+            else if (err == SEC_E_OK)
             {
                 break; // We're done.
             }
@@ -458,16 +444,16 @@ SChannel::TransceiverI::sslHandshake()
             // Otherwise continue either reading credentials
         }
 
-        if(_state == StateHandshakeWriteContinue || _state == StateHandshakeWriteNoContinue)
+        if (_state == StateHandshakeWriteContinue || _state == StateHandshakeWriteNoContinue)
         {
             //
             // Write any pending data.
             //
-            if(!writeRaw(_writeBuffer))
+            if (!writeRaw(_writeBuffer))
             {
                 return IceInternal::SocketOperationWrite;
             }
-            if(_state == StateHandshakeWriteNoContinue)
+            if (_state == StateHandshakeWriteNoContinue)
             {
                 break; // Token is written and we weren't told to continue, so we're done!
             }
@@ -482,68 +468,68 @@ SChannel::TransceiverI::sslHandshake()
     // if the last write can't complete without blocking above. In such a case, the context flags are checked here
     // only once the sslHandshake is called again after the write completes.
     //
-    if(flags != _ctxFlags)
+    if (flags != _ctxFlags)
     {
-        if(_incoming)
+        if (_incoming)
         {
-            if(!(_ctxFlags & ASC_REQ_SEQUENCE_DETECT))
+            if (!(_ctxFlags & ASC_REQ_SEQUENCE_DETECT))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup sequence detect");
             }
 
-            if(!(_ctxFlags & ASC_REQ_REPLAY_DETECT))
+            if (!(_ctxFlags & ASC_REQ_REPLAY_DETECT))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup replay detect");
             }
 
-            if(!(_ctxFlags & ASC_REQ_CONFIDENTIALITY))
+            if (!(_ctxFlags & ASC_REQ_CONFIDENTIALITY))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup confidentiality");
             }
 
-            if(!(_ctxFlags & ASC_REQ_EXTENDED_ERROR))
+            if (!(_ctxFlags & ASC_REQ_EXTENDED_ERROR))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup extended error");
             }
 
-            if(!(_ctxFlags & ASC_REQ_ALLOCATE_MEMORY))
+            if (!(_ctxFlags & ASC_REQ_ALLOCATE_MEMORY))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup memory allocation");
             }
 
-            if(!(_ctxFlags & ASC_REQ_STREAM))
+            if (!(_ctxFlags & ASC_REQ_STREAM))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup stream");
             }
         }
         else
         {
-            if(!(_ctxFlags & ISC_REQ_SEQUENCE_DETECT))
+            if (!(_ctxFlags & ISC_REQ_SEQUENCE_DETECT))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup sequence detect");
             }
 
-            if(!(_ctxFlags & ISC_REQ_REPLAY_DETECT))
+            if (!(_ctxFlags & ISC_REQ_REPLAY_DETECT))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup replay detect");
             }
 
-            if(!(_ctxFlags & ISC_REQ_CONFIDENTIALITY))
+            if (!(_ctxFlags & ISC_REQ_CONFIDENTIALITY))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup confidentiality");
             }
 
-            if(!(_ctxFlags & ISC_REQ_EXTENDED_ERROR))
+            if (!(_ctxFlags & ISC_REQ_EXTENDED_ERROR))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup extended error");
             }
 
-            if(!(_ctxFlags & ISC_REQ_ALLOCATE_MEMORY))
+            if (!(_ctxFlags & ISC_REQ_ALLOCATE_MEMORY))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup memory allocation");
             }
 
-            if(!(_ctxFlags & ISC_REQ_STREAM))
+            if (!(_ctxFlags & ISC_REQ_STREAM))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup stream");
             }
@@ -551,14 +537,14 @@ SChannel::TransceiverI::sslHandshake()
     }
 
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_STREAM_SIZES, &_sizes);
-    if(err != SEC_E_OK)
+    if (err != SEC_E_OK)
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: failure to query stream sizes attributes:\n" +
-                                secStatusToString(err));
+        throw SecurityException(
+            __FILE__, __LINE__, "IceSSL: failure to query stream sizes attributes:\n" + secStatusToString(err));
     }
 
     size_t pos = _readBuffer.i - _readBuffer.b.begin();
-    if(pos <= (_sizes.cbHeader + _sizes.cbMaximumMessage + _sizes.cbTrailer))
+    if (pos <= (_sizes.cbHeader + _sizes.cbMaximumMessage + _sizes.cbTrailer))
     {
         _readBuffer.b.resize(_sizes.cbHeader + _sizes.cbMaximumMessage + _sizes.cbTrailer);
         _readBuffer.i = _readBuffer.b.begin() + pos;
@@ -584,21 +570,21 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
     // First check if there is data in the unprocessed buffer.
     //
     size_t length = std::min(static_cast<size_t>(buffer.b.end() - buffer.i), _readUnprocessed.b.size());
-    if(length > 0)
+    if (length > 0)
     {
         memcpy(buffer.i, _readUnprocessed.b.begin(), length);
         memmove(_readUnprocessed.b.begin(), _readUnprocessed.b.begin() + length, _readUnprocessed.b.size() - length);
         _readUnprocessed.b.resize(_readUnprocessed.b.size() - length);
     }
 
-    while(true)
+    while (true)
     {
         //
         // If we have filled the buffer or if nothing left to read from
         // the read buffer, we're done.
         //
         uint8_t* i = buffer.i + length;
-        if(i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
+        if (i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
         {
             break;
         }
@@ -607,15 +593,14 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         // Try to decrypt the buffered data.
         //
         SecBuffer inBuffers[4] = {
-            { static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_DATA, _readBuffer.b.begin() },
-            { 0, SECBUFFER_EMPTY, 0 },
-            { 0, SECBUFFER_EMPTY, 0 },
-            { 0, SECBUFFER_EMPTY, 0 }
-        };
-        SecBufferDesc inBufferDesc = { SECBUFFER_VERSION, 4, inBuffers };
+            {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_DATA, _readBuffer.b.begin()},
+            {0, SECBUFFER_EMPTY, 0},
+            {0, SECBUFFER_EMPTY, 0},
+            {0, SECBUFFER_EMPTY, 0}};
+        SecBufferDesc inBufferDesc = {SECBUFFER_VERSION, 4, inBuffers};
 
         SECURITY_STATUS err = DecryptMessage(&_ssl, &inBufferDesc, 0, 0);
-        if(err == SEC_E_INCOMPLETE_MESSAGE)
+        if (err == SEC_E_INCOMPLETE_MESSAGE)
         {
             //
             // There isn't enough data to decrypt the message. The input
@@ -626,7 +611,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             assert(_readBuffer.i != _readBuffer.b.end());
             return length;
         }
-        else if(err == SEC_I_CONTEXT_EXPIRED || err == SEC_I_RENEGOTIATE)
+        else if (err == SEC_I_CONTEXT_EXPIRED || err == SEC_I_RENEGOTIATE)
         {
             //
             // The message sender has finished using the connection and
@@ -634,27 +619,28 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             //
             throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
-        else if(err != SEC_E_OK)
+        else if (err != SEC_E_OK)
         {
-            throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error during read:\n" +
-                                    secStatusToString(err));
+            throw ProtocolException(
+                __FILE__, __LINE__, "IceSSL: protocol error during read:\n" + secStatusToString(err));
         }
 
         SecBuffer* dataBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_DATA);
         assert(dataBuffer);
         DWORD remaining = min(static_cast<DWORD>(buffer.b.end() - i), dataBuffer->cbBuffer);
         length += remaining;
-        if(remaining)
+        if (remaining)
         {
             memcpy(i, dataBuffer->pvBuffer, remaining);
 
             //
             // Copy remaining decrypted data to unprocessed buffer
             //
-            if(dataBuffer->cbBuffer > remaining)
+            if (dataBuffer->cbBuffer > remaining)
             {
                 _readUnprocessed.b.resize(dataBuffer->cbBuffer - remaining);
-                memcpy(_readUnprocessed.b.begin(), reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
+                memcpy(
+                    _readUnprocessed.b.begin(), reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
                     dataBuffer->cbBuffer - remaining);
             }
         }
@@ -663,7 +649,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         // Move any remaining encrypted data to the begining of the input buffer
         //
         SecBuffer* extraBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
-        if(extraBuffer && extraBuffer->cbBuffer > 0)
+        if (extraBuffer && extraBuffer->cbBuffer > 0)
         {
             memmove(_readBuffer.b.begin(), _readBuffer.i - extraBuffer->cbBuffer, extraBuffer->cbBuffer);
             _readBuffer.i = _readBuffer.b.begin() + extraBuffer->cbBuffer;
@@ -696,21 +682,20 @@ SChannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
     _writeBuffer.i = _writeBuffer.b.begin();
 
     SecBuffer buffers[4] = {
-        { _sizes.cbHeader, SECBUFFER_STREAM_HEADER, _writeBuffer.i },
-        { length, SECBUFFER_DATA, _writeBuffer.i + _sizes.cbHeader },
-        { _sizes.cbTrailer, SECBUFFER_STREAM_TRAILER, _writeBuffer.i + _sizes.cbHeader + length },
-        { 0, SECBUFFER_EMPTY, 0 }
-    };
-    SecBufferDesc buffersDesc = { SECBUFFER_VERSION, 4, buffers };
+        {_sizes.cbHeader, SECBUFFER_STREAM_HEADER, _writeBuffer.i},
+        {length, SECBUFFER_DATA, _writeBuffer.i + _sizes.cbHeader},
+        {_sizes.cbTrailer, SECBUFFER_STREAM_TRAILER, _writeBuffer.i + _sizes.cbHeader + length},
+        {0, SECBUFFER_EMPTY, 0}};
+    SecBufferDesc buffersDesc = {SECBUFFER_VERSION, 4, buffers};
 
     // Data is encrypted in place, copy the data to be encrypted to the data buffer.
     memcpy(buffers[1].pvBuffer, buffer.i, length);
 
     SECURITY_STATUS err = EncryptMessage(&_ssl, 0, &buffersDesc, 0);
-    if(err != SEC_E_OK)
+    if (err != SEC_E_OK)
     {
-        throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" +
-                                secStatusToString(err));
+        throw ProtocolException(
+            __FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" + secStatusToString(err));
     }
 
     // EncryptMessage resizes the buffers, so resize the write buffer as well to reflect this.
@@ -723,10 +708,10 @@ SChannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
 IceInternal::SocketOperation
 SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         IceInternal::SocketOperation op = _delegate->initialize(readBuffer, writeBuffer);
-        if(op != IceInternal::SocketOperationNone)
+        if (op != IceInternal::SocketOperationNone)
         {
             return op;
         }
@@ -734,7 +719,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
 
     IceInternal::SocketOperation op = sslHandshake();
-    if(op != IceInternal::SocketOperationNone)
+    if (op != IceInternal::SocketOperationNone)
     {
         return op;
     }
@@ -744,13 +729,13 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     //
     PCCERT_CONTEXT cert = 0;
     SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-    if(err && err != SEC_E_NO_CREDENTIALS)
+    if (err && err != SEC_E_NO_CREDENTIALS)
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:\n" +
-                                secStatusToString(err));
+        throw SecurityException(
+            __FILE__, __LINE__, "IceSSL: certificate verification failure:\n" + secStatusToString(err));
     }
 
-    if(!cert && ((!_incoming && _engine->getVerifyPeer() > 0) || (_incoming && _engine->getVerifyPeer() == 2)))
+    if (!cert && ((!_incoming && _engine->getVerifyPeer() > 0) || (_incoming && _engine->getVerifyPeer() == 2)))
     {
         //
         // Clients require server certificate if VerifyPeer > 0 and servers require client
@@ -758,7 +743,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         //
         throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required");
     }
-    else if(cert) // Verify the remote certificate
+    else if (cert) // Verify the remote certificate
     {
         CERT_CHAIN_PARA chainP;
         memset(&chainP, 0, sizeof(chainP));
@@ -768,20 +753,21 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         PCCERT_CHAIN_CONTEXT certChain;
         DWORD dwFlags = 0;
         int revocationCheck = _engine->getRevocationCheck();
-        if(revocationCheck > 0)
+        if (revocationCheck > 0)
         {
-            if(_engine->getRevocationCheckCacheOnly())
+            if (_engine->getRevocationCheckCacheOnly())
             {
                 // Disable network I/O for revocation checks.
                 dwFlags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY | CERT_CHAIN_DISABLE_AIA;
             }
 
-            dwFlags |= (revocationCheck == 1 ?
-                        CERT_CHAIN_REVOCATION_CHECK_END_CERT :
-                        CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT);
+            dwFlags |=
+                (revocationCheck == 1 ? CERT_CHAIN_REVOCATION_CHECK_END_CERT
+                                      : CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT);
         }
 
-        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
+        if (!CertGetCertificateChain(
+                _engine->chainEngine(), cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
@@ -789,7 +775,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         }
         else
         {
-            if(certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
+            if (certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
             {
                 trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
                 _trustError = trustStatusToTrustError(certChain->TrustStatus.dwErrorStatus);
@@ -801,19 +787,21 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             }
 
             CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
-            for(DWORD i = 0; i < simpleChain->cElement; ++i)
+            for (DWORD i = 0; i < simpleChain->cElement; ++i)
             {
                 PCCERT_CONTEXT c = simpleChain->rgpElement[i]->pCertContext;
                 PCERT_SIGNED_CONTENT_INFO cc;
 
                 DWORD length = 0;
-                if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, X509_CERT, c->pbCertEncoded,
-                                        c->cbCertEncoded, CRYPT_DECODE_ALLOC_FLAG, 0, &cc, &length))
+                if (!CryptDecodeObjectEx(
+                        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, X509_CERT, c->pbCertEncoded, c->cbCertEncoded,
+                        CRYPT_DECODE_ALLOC_FLAG, 0, &cc, &length))
                 {
                     CertFreeCertificateChain(certChain);
                     CertFreeCertificateContext(cert);
-                    throw SecurityException(__FILE__, __LINE__, "IceSSL: error decoding peer certificate chain:\n" +
-                                            IceUtilInternal::lastErrorToString());
+                    throw SecurityException(
+                        __FILE__, __LINE__,
+                        "IceSSL: error decoding peer certificate chain:\n" + IceUtilInternal::lastErrorToString());
                 }
                 _certs.push_back(SChannel::Certificate::create(cc));
             }
@@ -822,20 +810,21 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             CertFreeCertificateContext(cert);
         }
 
-        if(!trustError.empty())
+        if (!trustError.empty())
         {
-            if(_engine->getVerifyPeer() == 0)
+            if (_engine->getVerifyPeer() == 0)
             {
-                if(_instance->traceLevel() >= 1)
+                if (_instance->traceLevel() >= 1)
                 {
-                    _instance->logger()->trace(_instance->traceCategory(),
-                                               "IceSSL: ignoring certificate verification failure:\n" + trustError);
+                    _instance->logger()->trace(
+                        _instance->traceCategory(),
+                        "IceSSL: ignoring certificate verification failure:\n" + trustError);
                 }
             }
             else
             {
                 string msg = "IceSSL: certificate verification failure:\n" + trustError;
-                if(_instance->traceLevel() >= 1)
+                if (_instance->traceLevel() >= 1)
                 {
                     _instance->logger()->trace(_instance->traceCategory(), msg);
                 }
@@ -846,7 +835,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 
     SecPkgContext_ConnectionInfo connInfo;
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo);
-    if(err == SEC_E_OK)
+    if (err == SEC_E_OK)
     {
         _cipher = _engine->getCipherName(connInfo.aiCipher);
     }
@@ -860,13 +849,13 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     {
         _engine->verifyPeerCertName(_host, info);
     }
-    catch(const Ice::SecurityException&)
+    catch (const Ice::SecurityException&)
     {
         _trustError = IceSSL::TrustError::HostNameMismatch;
         _verified = false;
         dynamic_pointer_cast<ExtendedConnectionInfo>(info)->errorCode = IceSSL::TrustError::HostNameMismatch;
         info->verified = false;
-        if(_engine->getVerifyPeer() > 0)
+        if (_engine->getVerifyPeer() > 0)
         {
             throw;
         }
@@ -874,12 +863,12 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     _engine->verifyPeer(_host, info, toString());
     _state = StateHandshakeComplete;
 
-    if(_instance->engine()->securityTraceLevel() >= 1)
+    if (_instance->engine()->securityTraceLevel() >= 1)
     {
         string sslCipherName;
         string sslKeyExchangeAlgorithm;
         string sslProtocolName;
-        if(QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
+        if (QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
         {
             sslCipherName = _engine->getCipherName(connInfo.aiCipher);
             sslKeyExchangeAlgorithm = _engine->getCipherName(connInfo.aiExch);
@@ -889,20 +878,19 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
-        if(sslCipherName.empty())
+        if (sslCipherName.empty())
         {
             out << "unknown cipher\n";
         }
         else
         {
-            out << "cipher = " << sslCipherName
-                << "\nkey exchange = " << sslKeyExchangeAlgorithm
+            out << "cipher = " << sslCipherName << "\nkey exchange = " << sslKeyExchangeAlgorithm
                 << "\nprotocol = " << sslProtocolName << "\n";
         }
         out << toString();
     }
-    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
-                                      !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+    _delegate->getNativeInfo()->ready(
+        IceInternal::SocketOperationRead, !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -917,13 +905,13 @@ SChannel::TransceiverI::closing(bool initiator, exception_ptr)
 void
 SChannel::TransceiverI::close()
 {
-    if(_sslInitialized)
+    if (_sslInitialized)
     {
         DeleteSecurityContext(&_ssl);
         _sslInitialized = false;
     }
 
-    if(_credentialsInitialized)
+    if (_credentialsInitialized)
     {
         FreeCredentialsHandle(&_credentials);
         _credentialsInitialized = false;
@@ -942,26 +930,26 @@ SChannel::TransceiverI::close()
 IceInternal::SocketOperation
 SChannel::TransceiverI::write(IceInternal::Buffer& buf)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         return _delegate->write(buf);
     }
 
-    if(buf.i == buf.b.end())
+    if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
     }
     assert(_state == StateHandshakeComplete);
 
-    while(buf.i != buf.b.end())
+    while (buf.i != buf.b.end())
     {
-        if(_bufferedW == 0)
+        if (_bufferedW == 0)
         {
             assert(_writeBuffer.i == _writeBuffer.b.end());
             _bufferedW = encryptMessage(buf);
         }
 
-        if(!writeRaw(_writeBuffer))
+        if (!writeRaw(_writeBuffer))
         {
             return IceInternal::SocketOperationWrite;
         }
@@ -977,29 +965,29 @@ SChannel::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 SChannel::TransceiverI::read(IceInternal::Buffer& buf)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         return _delegate->read(buf);
     }
 
-    if(buf.i == buf.b.end())
+    if (buf.i == buf.b.end())
     {
         return IceInternal::SocketOperationNone;
     }
     assert(_state == StateHandshakeComplete);
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
-    while(buf.i != buf.b.end())
+    while (buf.i != buf.b.end())
     {
-        if(_readUnprocessed.b.empty() && _readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
+        if (_readUnprocessed.b.empty() && _readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
         {
             return IceInternal::SocketOperationRead;
         }
 
         size_t decrypted = decryptMessage(buf);
-        if(decrypted == 0)
+        if (decrypted == 0)
         {
-            if(!readRaw(_readBuffer))
+            if (!readRaw(_readBuffer))
             {
                 return IceInternal::SocketOperationRead;
             }
@@ -1008,8 +996,8 @@ SChannel::TransceiverI::read(IceInternal::Buffer& buf)
 
         buf.i += decrypted;
     }
-    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
-                                      !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+    _delegate->getNativeInfo()->ready(
+        IceInternal::SocketOperationRead, !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -1018,12 +1006,12 @@ SChannel::TransceiverI::read(IceInternal::Buffer& buf)
 bool
 SChannel::TransceiverI::startWrite(IceInternal::Buffer& buffer)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         return _delegate->startWrite(buffer);
     }
 
-    if(_state == StateHandshakeComplete && _bufferedW == 0)
+    if (_state == StateHandshakeComplete && _bufferedW == 0)
     {
         assert(_writeBuffer.i == _writeBuffer.b.end());
         _bufferedW = encryptMessage(buffer);
@@ -1035,19 +1023,19 @@ SChannel::TransceiverI::startWrite(IceInternal::Buffer& buffer)
 void
 SChannel::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         _delegate->finishWrite(buf);
         return;
     }
 
     _delegate->finishWrite(_writeBuffer);
-    if(_writeBuffer.i != _writeBuffer.b.end())
+    if (_writeBuffer.i != _writeBuffer.b.end())
     {
         return; // We're not finished yet with writing the write buffer.
     }
 
-    if(_state == StateHandshakeComplete)
+    if (_state == StateHandshakeComplete)
     {
         buf.i += _bufferedW;
         _bufferedW = 0;
@@ -1057,7 +1045,7 @@ SChannel::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 void
 SChannel::TransceiverI::startRead(IceInternal::Buffer& buffer)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         _delegate->startRead(buffer);
         return;
@@ -1068,21 +1056,22 @@ SChannel::TransceiverI::startRead(IceInternal::Buffer& buffer)
 void
 SChannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
-    if(_state == StateNotInitialized)
+    if (_state == StateNotInitialized)
     {
         _delegate->finishRead(buf);
         return;
     }
 
     _delegate->finishRead(_readBuffer);
-    if(_state == StateHandshakeComplete)
+    if (_state == StateHandshakeComplete)
     {
         size_t decrypted = decryptMessage(buf);
-        if(decrypted > 0)
+        if (decrypted > 0)
         {
             buf.i += decrypted;
-            _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
-                                              !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+            _delegate->getNativeInfo()->ready(
+                IceInternal::SocketOperationRead,
+                !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
         }
         else
         {
@@ -1136,27 +1125,26 @@ SChannel::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _delegate->setBufferSize(rcvSize, sndSize);
 }
 
-SChannel::TransceiverI::TransceiverI(const InstancePtr& instance,
-                                   const IceInternal::TransceiverPtr& delegate,
-                                   const string& hostOrAdapterName,
-                                   bool incoming) :
-    _instance(instance),
-    _engine(dynamic_pointer_cast<SChannel::SSLEngine>(instance->engine())),
-    _host(incoming ? "" : hostOrAdapterName),
-    _adapterName(incoming ? hostOrAdapterName : ""),
-    _incoming(incoming),
-    _delegate(delegate),
-    _state(StateNotInitialized),
-    _bufferedW(0),
-    _sslInitialized(false),
-    _credentialsInitialized(false),
-    _verified(false)
+SChannel::TransceiverI::TransceiverI(
+    const InstancePtr& instance,
+    const IceInternal::TransceiverPtr& delegate,
+    const string& hostOrAdapterName,
+    bool incoming)
+    : _instance(instance),
+      _engine(dynamic_pointer_cast<SChannel::SSLEngine>(instance->engine())),
+      _host(incoming ? "" : hostOrAdapterName),
+      _adapterName(incoming ? hostOrAdapterName : ""),
+      _incoming(incoming),
+      _delegate(delegate),
+      _state(StateNotInitialized),
+      _bufferedW(0),
+      _sslInitialized(false),
+      _credentialsInitialized(false),
+      _verified(false)
 {
 }
 
-SChannel::TransceiverI::~TransceiverI()
-{
-}
+SChannel::TransceiverI::~TransceiverI() {}
 
 bool
 SChannel::TransceiverI::writeRaw(IceInternal::Buffer& buf)

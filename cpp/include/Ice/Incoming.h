@@ -22,109 +22,100 @@ namespace Ice
 
 namespace IceInternal
 {
-
-class ICE_API Incoming final
-{
-public:
-
-    Incoming(Instance*, ResponseHandlerPtr, Ice::ConnectionPtr, Ice::ObjectAdapterPtr, bool, std::uint8_t, std::int32_t);
-    Incoming(Incoming&&);
-    Incoming(const Incoming&) = delete;
-    Incoming& operator=(const Incoming&) = delete;
-
-    Ice::OutputStream* startWriteParams();
-    void endWriteParams();
-    void writeEmptyParams();
-    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
-    void setMarshaledResult(Ice::MarshaledResult&&);
-
-    void response(bool amd);
-    void exception(std::exception_ptr, bool amd);
-
-    void setFormat(Ice::FormatType format)
+    class ICE_API Incoming final
     {
-        _format = format;
-    }
+    public:
+        Incoming(
+            Instance*,
+            ResponseHandlerPtr,
+            Ice::ConnectionPtr,
+            Ice::ObjectAdapterPtr,
+            bool,
+            std::uint8_t,
+            std::int32_t);
+        Incoming(Incoming&&);
+        Incoming(const Incoming&) = delete;
+        Incoming& operator=(const Incoming&) = delete;
 
-    void invoke(const ServantManagerPtr&, Ice::InputStream*);
+        Ice::OutputStream* startWriteParams();
+        void endWriteParams();
+        void writeEmptyParams();
+        void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
+        void setMarshaledResult(Ice::MarshaledResult&&);
 
-    // Inlined for speed optimization.
-    void skipReadParams()
-    {
-        _current.encoding = _is->skipEncapsulation();
-    }
-    Ice::InputStream* startReadParams()
-    {
-        //
-        // Remember the encoding used by the input parameters, we'll
-        // encode the response parameters with the same encoding.
-        //
-        _current.encoding = _is->startEncapsulation();
-        return _is;
-    }
-    void endReadParams() const
-    {
-        _is->endEncapsulation();
-    }
-    void readEmptyParams()
-    {
-        _current.encoding = _is->skipEmptyEncapsulation();
-    }
-    void readParamEncaps(const std::uint8_t*& v, std::int32_t& sz)
-    {
-        _current.encoding = _is->readEncapsulation(v, sz);
-    }
+        void response(bool amd);
+        void exception(std::exception_ptr, bool amd);
 
-    const Ice::Current& current() const { return _current; }
+        void setFormat(Ice::FormatType format) { _format = format; }
 
-    // Async dispatch writes an empty response and completes successfully.
-    void response();
+        void invoke(const ServantManagerPtr&, Ice::InputStream*);
 
-    // Async dispatch writes a marshaled result and completes successfully.
-    void response(Ice::MarshaledResult&& marshaledResult);
+        // Inlined for speed optimization.
+        void skipReadParams() { _current.encoding = _is->skipEncapsulation(); }
+        Ice::InputStream* startReadParams()
+        {
+            //
+            // Remember the encoding used by the input parameters, we'll
+            // encode the response parameters with the same encoding.
+            //
+            _current.encoding = _is->startEncapsulation();
+            return _is;
+        }
+        void endReadParams() const { _is->endEncapsulation(); }
+        void readEmptyParams() { _current.encoding = _is->skipEmptyEncapsulation(); }
+        void readParamEncaps(const std::uint8_t*& v, std::int32_t& sz)
+        {
+            _current.encoding = _is->readEncapsulation(v, sz);
+        }
 
-    // Async dispatch completes successfully. Call this function after writing the response.
-    void completed();
+        const Ice::Current& current() const { return _current; }
 
-    // Async dispatch completes with an exception. This can throw, for example, if the application already called
-    // response(), completed() or failed().
-    void completed(std::exception_ptr ex);
+        // Async dispatch writes an empty response and completes successfully.
+        void response();
 
-    // Handle an exception that was thrown by an async dispatch. Use this function from the dispatch thread.
-    void failed(std::exception_ptr) noexcept;
+        // Async dispatch writes a marshaled result and completes successfully.
+        void response(Ice::MarshaledResult&& marshaledResult);
 
-private:
+        // Async dispatch completes successfully. Call this function after writing the response.
+        void completed();
 
-    void setResponseSent();
+        // Async dispatch completes with an exception. This can throw, for example, if the application already called
+        // response(), completed() or failed().
+        void completed(std::exception_ptr ex);
 
-    void warning(const Ice::Exception&) const;
-    void warning(std::exception_ptr) const;
+        // Handle an exception that was thrown by an async dispatch. Use this function from the dispatch thread.
+        void failed(std::exception_ptr) noexcept;
 
-    bool servantLocatorFinished(bool amd);
+    private:
+        void setResponseSent();
 
-    void handleException(std::exception_ptr, bool amd);
+        void warning(const Ice::Exception&) const;
+        void warning(std::exception_ptr) const;
 
-    Ice::Current _current;
-    std::shared_ptr<Ice::Object> _servant;
-    std::shared_ptr<Ice::ServantLocator> _locator;
-    std::shared_ptr<void> _cookie;
-    DispatchObserver _observer;
-    bool _isTwoWay;
-    std::uint8_t _compress;
-    Ice::FormatType _format;
-    Ice::OutputStream _os;
+        bool servantLocatorFinished(bool amd);
 
-    ResponseHandlerPtr _responseHandler;
+        void handleException(std::exception_ptr, bool amd);
 
-    // _is points to an object allocated on the stack of the dispatch thread.
-    Ice::InputStream* _is;
+        Ice::Current _current;
+        std::shared_ptr<Ice::Object> _servant;
+        std::shared_ptr<Ice::ServantLocator> _locator;
+        std::shared_ptr<void> _cookie;
+        DispatchObserver _observer;
+        bool _isTwoWay;
+        std::uint8_t _compress;
+        Ice::FormatType _format;
+        Ice::OutputStream _os;
 
-    // This flag is set when the user calls an async response or exception callback. A second call is incorrect and
-    // results in ResponseSentException.
-    // We don't need an atomic flag since it's purely to detect logic errors in the application code.
-    bool _responseSent = false;
-};
+        ResponseHandlerPtr _responseHandler;
 
+        // _is points to an object allocated on the stack of the dispatch thread.
+        Ice::InputStream* _is;
+
+        // This flag is set when the user calls an async response or exception callback. A second call is incorrect and
+        // results in ResponseSentException.
+        // We don't need an atomic flag since it's purely to detect logic errors in the application code.
+        bool _responseSent = false;
+    };
 }
 
 #endif

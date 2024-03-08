@@ -7,31 +7,27 @@
 
 #ifdef ICE_USE_SYSTEMD
 
-#include <Ice/Logger.h>
+#    include <Ice/Logger.h>
 
 namespace Ice
 {
+    class SystemdJournalI : public Logger
+    {
+    public:
+        SystemdJournalI(const std::string&);
 
-class SystemdJournalI : public Logger
-{
-public:
+        virtual void print(const std::string&);
+        virtual void trace(const std::string&, const std::string&);
+        virtual void warning(const std::string&);
+        virtual void error(const std::string&);
+        virtual std::string getPrefix();
+        virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-    SystemdJournalI(const std::string&);
+    private:
+        void write(int, const std::string&) const;
 
-    virtual void print(const std::string&);
-    virtual void trace(const std::string&, const std::string&);
-    virtual void warning(const std::string&);
-    virtual void error(const std::string&);
-    virtual std::string getPrefix();
-    virtual LoggerPtr cloneWithPrefix(const std::string&);
-
-private:
-
-    void write(int, const std::string&) const;
-
-    const std::string _prefix;
-};
-
+        const std::string _prefix;
+    };
 }
 
 #endif

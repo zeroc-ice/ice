@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class ConnectRequestHandler;
-using ConnectRequestHandlerPtr = ::std::shared_ptr<ConnectRequestHandler>;
-
+    class ConnectRequestHandler;
+    using ConnectRequestHandlerPtr = ::std::shared_ptr<ConnectRequestHandler>;
 }
 
 #endif

@@ -14,12 +14,10 @@
 
 namespace IceRuby
 {
-
-void initProxy(VALUE);
-VALUE createProxy(Ice::ObjectPrx, VALUE = Qnil);
-Ice::ObjectPrx getProxy(VALUE);
-bool checkProxy(VALUE);
-
+    void initProxy(VALUE);
+    VALUE createProxy(Ice::ObjectPrx, VALUE = Qnil);
+    Ice::ObjectPrx getProxy(VALUE);
+    bool checkProxy(VALUE);
 }
 
 #endif

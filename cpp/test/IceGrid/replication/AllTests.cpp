@@ -17,233 +17,219 @@ using namespace IceGrid;
 
 namespace
 {
+    const auto sleepTime = 100ms;
+    const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
 
-const auto sleepTime = 100ms;
-const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
-
-void
-waitForServerState(const optional<AdminPrx>& admin, const string& server, bool up)
-{
-    int nRetry = 0;
-    while(nRetry < maxRetry)
+    void waitForServerState(const optional<AdminPrx>& admin, const string& server, bool up)
     {
-        if(admin->getServerState(server) == (up ? ServerState::Active : ServerState::Inactive))
+        int nRetry = 0;
+        while (nRetry < maxRetry)
         {
-            return;
-        }
-
-        this_thread::sleep_for(sleepTime);
-        ++nRetry;
-    }
-    test(false);
-}
-
-void
-waitForReplicaState(const optional<AdminPrx>& admin, const string& replica, bool up)
-{
-    int nRetry = 0;
-    while(nRetry < maxRetry)
-    {
-        try
-        {
-            if(admin->pingRegistry(replica) == up)
+            if (admin->getServerState(server) == (up ? ServerState::Active : ServerState::Inactive))
             {
                 return;
             }
-        }
-        catch(const RegistryNotExistException&)
-        {
-            if(!up)
-            {
-                return;
-            }
-        }
 
-        this_thread::sleep_for(sleepTime);
-        ++nRetry;
-    }
-
-    try
-    {
-        if(admin->pingRegistry(replica) != up)
-        {
-            cerr << "replica state change timed out:" << endl;
-            cerr << "replica: " << replica << endl;
-            cerr << "state: " << up << endl;
-        }
-    }
-    catch(const RegistryNotExistException&)
-    {
-        if(up)
-        {
-            cerr << "replica state change timed out:" << endl;
-            cerr << "replica: " << replica << endl;
-            cerr << "state: " << up << endl;
-        }
-    }
-
-}
-
-void
-waitForNodeState(const optional<AdminPrx>& admin, const string& node, bool up)
-{
-    int nRetry = 0;
-    while(nRetry < maxRetry)
-    {
-        try
-        {
-            if(admin->pingNode(node) == up) // Wait for the node to be removed.
-            {
-                return;
-            }
-        }
-        catch(const NodeNotExistException&)
-        {
-            if(!up)
-            {
-                return;
-            }
-        }
-
-        this_thread::sleep_for(sleepTime);
-        ++nRetry;
-    }
-    try
-    {
-        if(admin->pingNode(node) != up)
-        {
-            cerr << "node state change timed out:" << endl;
-            cerr << "node: " << node << endl;
-            cerr << "state: " << up << endl;
-        }
-    }
-    catch(const NodeNotExistException&)
-    {
-        if(up)
-        {
-            cerr << "node state change timed out:" << endl;
-            cerr << "node: " << node << endl;
-            cerr << "state: " << up << endl;
-        }
-    }
-}
-
-void
-instantiateServer(const optional<AdminPrx>& admin, string templ, const map<string, string>& params)
-{
-    ServerInstanceDescriptor desc;
-    desc._cpp_template = std::move(templ);
-    desc.parameterValues = params;
-    NodeUpdateDescriptor nodeUpdate;
-    nodeUpdate.name = "localnode";
-    nodeUpdate.serverInstances.push_back(desc);
-    ApplicationUpdateDescriptor update;
-    update.name = "Test";
-    update.nodes.push_back(nodeUpdate);
-    try
-    {
-        admin->updateApplication(update);
-    }
-    catch(const DeploymentException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        cerr << ex << endl;
-        test(false);
-    }
-}
-
-void
-removeServer(const optional<AdminPrx>& admin, const string& id)
-{
-    try
-    {
-        admin->stopServer(id);
-    }
-    catch(const ServerStopException&)
-    {
-    }
-    catch(const NodeUnreachableException&)
-    {
-    }
-    catch(const Ice::UserException& ex)
-    {
-        cerr << ex << endl;
-        test(false);
-    }
-
-    NodeUpdateDescriptor nodeUpdate;
-    nodeUpdate.name = "localnode";
-    nodeUpdate.removeServers.push_back(id);
-    ApplicationUpdateDescriptor update;
-    update.name = "Test";
-    update.nodes.push_back(nodeUpdate);
-    try
-    {
-        admin->updateApplication(update);
-    }
-    catch(const DeploymentException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-}
-
-bool
-waitAndPing(const Ice::ObjectPrx& obj)
-{
-    int nRetry = 0;
-    while(nRetry < maxRetry)
-    {
-        try
-        {
-            obj->ice_ping();
-            return true;
-        }
-        catch(const Ice::LocalException&)
-        {
             this_thread::sleep_for(sleepTime);
             ++nRetry;
         }
+        test(false);
     }
-    return false;
-}
 
-optional<AdminPrx>
-createAdminSession(const Ice::LocatorPrx& locator, string replica)
-{
-    test(waitAndPing(locator));
-
-    string registryStr("RepTestIceGrid/Registry");
-    if(!replica.empty() && replica != "Master")
+    void waitForReplicaState(const optional<AdminPrx>& admin, const string& replica, bool up)
     {
-        registryStr += "-" + replica;
+        int nRetry = 0;
+        while (nRetry < maxRetry)
+        {
+            try
+            {
+                if (admin->pingRegistry(replica) == up)
+                {
+                    return;
+                }
+            }
+            catch (const RegistryNotExistException&)
+            {
+                if (!up)
+                {
+                    return;
+                }
+            }
+
+            this_thread::sleep_for(sleepTime);
+            ++nRetry;
+        }
+
+        try
+        {
+            if (admin->pingRegistry(replica) != up)
+            {
+                cerr << "replica state change timed out:" << endl;
+                cerr << "replica: " << replica << endl;
+                cerr << "state: " << up << endl;
+            }
+        }
+        catch (const RegistryNotExistException&)
+        {
+            if (up)
+            {
+                cerr << "replica state change timed out:" << endl;
+                cerr << "replica: " << replica << endl;
+                cerr << "state: " << up << endl;
+            }
+        }
     }
 
-    auto registry = RegistryPrx(
-        locator->ice_getCommunicator(),
-        registryStr)->ice_locator(locator);
+    void waitForNodeState(const optional<AdminPrx>& admin, const string& node, bool up)
+    {
+        int nRetry = 0;
+        while (nRetry < maxRetry)
+        {
+            try
+            {
+                if (admin->pingNode(node) == up) // Wait for the node to be removed.
+                {
+                    return;
+                }
+            }
+            catch (const NodeNotExistException&)
+            {
+                if (!up)
+                {
+                    return;
+                }
+            }
 
-    optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
-    test(session);
-    return session->getAdmin();
-}
+            this_thread::sleep_for(sleepTime);
+            ++nRetry;
+        }
+        try
+        {
+            if (admin->pingNode(node) != up)
+            {
+                cerr << "node state change timed out:" << endl;
+                cerr << "node: " << node << endl;
+                cerr << "state: " << up << endl;
+            }
+        }
+        catch (const NodeNotExistException&)
+        {
+            if (up)
+            {
+                cerr << "node state change timed out:" << endl;
+                cerr << "node: " << node << endl;
+                cerr << "state: " << up << endl;
+            }
+        }
+    }
 
-bool
-isObjectInfoEqual(const ObjectInfo& info1, const ObjectInfo& info2)
-{
-    return (info1.type == info2.type) && (info1.proxy == info2.proxy);
-}
+    void instantiateServer(const optional<AdminPrx>& admin, string templ, const map<string, string>& params)
+    {
+        ServerInstanceDescriptor desc;
+        desc._cpp_template = std::move(templ);
+        desc.parameterValues = params;
+        NodeUpdateDescriptor nodeUpdate;
+        nodeUpdate.name = "localnode";
+        nodeUpdate.serverInstances.push_back(desc);
+        ApplicationUpdateDescriptor update;
+        update.name = "Test";
+        update.nodes.push_back(nodeUpdate);
+        try
+        {
+            admin->updateApplication(update);
+        }
+        catch (const DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+    }
 
-bool
-isAdapterInfoEqual(const AdapterInfo& adpt1, const AdapterInfo& adpt2)
-{
-    return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && (adpt1.proxy == adpt2.proxy);
-}
+    void removeServer(const optional<AdminPrx>& admin, const string& id)
+    {
+        try
+        {
+            admin->stopServer(id);
+        }
+        catch (const ServerStopException&)
+        {
+        }
+        catch (const NodeUnreachableException&)
+        {
+        }
+        catch (const Ice::UserException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
+        NodeUpdateDescriptor nodeUpdate;
+        nodeUpdate.name = "localnode";
+        nodeUpdate.removeServers.push_back(id);
+        ApplicationUpdateDescriptor update;
+        update.name = "Test";
+        update.nodes.push_back(nodeUpdate);
+        try
+        {
+            admin->updateApplication(update);
+        }
+        catch (const DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
+        }
+    }
+
+    bool waitAndPing(const Ice::ObjectPrx& obj)
+    {
+        int nRetry = 0;
+        while (nRetry < maxRetry)
+        {
+            try
+            {
+                obj->ice_ping();
+                return true;
+            }
+            catch (const Ice::LocalException&)
+            {
+                this_thread::sleep_for(sleepTime);
+                ++nRetry;
+            }
+        }
+        return false;
+    }
+
+    optional<AdminPrx> createAdminSession(const Ice::LocatorPrx& locator, string replica)
+    {
+        test(waitAndPing(locator));
+
+        string registryStr("RepTestIceGrid/Registry");
+        if (!replica.empty() && replica != "Master")
+        {
+            registryStr += "-" + replica;
+        }
+
+        auto registry = RegistryPrx(locator->ice_getCommunicator(), registryStr)->ice_locator(locator);
+
+        optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+        test(session);
+        return session->getAdmin();
+    }
+
+    bool isObjectInfoEqual(const ObjectInfo& info1, const ObjectInfo& info2)
+    {
+        return (info1.type == info2.type) && (info1.proxy == info2.proxy);
+    }
+
+    bool isAdapterInfoEqual(const AdapterInfo& adpt1, const AdapterInfo& adpt2)
+    {
+        return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && (adpt1.proxy == adpt2.proxy);
+    }
 }
 
 void
@@ -251,14 +237,11 @@ allTests(Test::TestHelper* helper)
 {
     auto communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator,
-        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto adminSession = registry->createAdminSession("foo", "bar");
 
-    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                              nullopt,
-                                              Ice::ACMHeartbeat::HeartbeatAlways);
+    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     auto admin = adminSession->getAdmin();
     test(admin);
@@ -334,7 +317,8 @@ allTests(Test::TestHelper* helper)
         info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         int nRetry = 0;
-        while(!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")), info) && nRetry < maxRetry)
+        while (!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")), info) &&
+               nRetry < maxRetry)
         {
             this_thread::sleep_for(sleepTime);
             ++nRetry;
@@ -349,7 +333,8 @@ allTests(Test::TestHelper* helper)
         info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info) && nRetry < maxRetry)
+        while (!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info) &&
+               nRetry < maxRetry)
         {
             this_thread::sleep_for(sleepTime);
             ++nRetry;
@@ -368,7 +353,8 @@ allTests(Test::TestHelper* helper)
         info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")), info) && nRetry < maxRetry)
+        while (!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")), info) &&
+               nRetry < maxRetry)
         {
             this_thread::sleep_for(sleepTime);
             ++nRetry;
@@ -382,7 +368,8 @@ allTests(Test::TestHelper* helper)
 
         info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
         nRetry = 0;
-        while(!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info) && nRetry < maxRetry)
+        while (!isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info) &&
+               nRetry < maxRetry)
         {
             this_thread::sleep_for(sleepTime);
             ++nRetry;
@@ -400,7 +387,7 @@ allTests(Test::TestHelper* helper)
 
         query = QueryPrx(communicator, "RepTestIceGrid/Query:" + endpoints[1]->toString());
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
-        for(vector<Ice::ObjectPrx>::size_type i = 0; i < objs1.size(); i++)
+        for (vector<Ice::ObjectPrx>::size_type i = 0; i < objs1.size(); i++)
         {
             test(objs1[i] == objs2[i]);
         }
@@ -415,13 +402,12 @@ allTests(Test::TestHelper* helper)
         // session above!)
         //
         auto masterRegistry = RegistryPrx(communicator, "RepTestIceGrid/Registry")->ice_locator(replicatedLocator);
-        auto slave1Registry = RegistryPrx(
-            communicator,
-            "RepTestIceGrid/Registry-Slave1")->ice_locator(replicatedLocator);
+        auto slave1Registry =
+            RegistryPrx(communicator, "RepTestIceGrid/Registry-Slave1")->ice_locator(replicatedLocator);
 
         auto session = masterRegistry->createSession("dummy", "dummy");
         session->destroy();
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
         {
             session = masterRegistry->createSessionFromSecureConnection();
             session->destroy();
@@ -432,7 +418,7 @@ allTests(Test::TestHelper* helper)
             {
                 masterRegistry->createSessionFromSecureConnection();
             }
-            catch(const PermissionDeniedException&)
+            catch (const PermissionDeniedException&)
             {
             }
         }
@@ -441,27 +427,25 @@ allTests(Test::TestHelper* helper)
         {
             slave1Registry->createSession("dummy", "");
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
         try
         {
             slave1Registry->createSessionFromSecureConnection();
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
 
         //
         // Test registry user-account mapper.
         //
-        auto masterMapper = UserAccountMapperPrx(
-            communicator,
-            "RepTestIceGrid/RegistryUserAccountMapper")->ice_locator(replicatedLocator);
+        auto masterMapper = UserAccountMapperPrx(communicator, "RepTestIceGrid/RegistryUserAccountMapper")
+                                ->ice_locator(replicatedLocator);
 
-        auto slave1Mapper = UserAccountMapperPrx(
-            communicator,
-            "RepTestIceGrid/RegistryUserAccountMapper-Slave1")->ice_locator(replicatedLocator);
+        auto slave1Mapper = UserAccountMapperPrx(communicator, "RepTestIceGrid/RegistryUserAccountMapper-Slave1")
+                                ->ice_locator(replicatedLocator);
 
         test(masterMapper->getUserAccount("Dummy User Account1") == "dummy1");
         test(masterMapper->getUserAccount("Dummy User Account2") == "dummy2");
@@ -472,7 +456,7 @@ allTests(Test::TestHelper* helper)
             masterMapper->getUserAccount("unknown");
             test(false);
         }
-        catch(const UserAccountNotFoundException&)
+        catch (const UserAccountNotFoundException&)
         {
         }
         try
@@ -480,7 +464,7 @@ allTests(Test::TestHelper* helper)
             slave1Mapper->getUserAccount("unknown");
             test(false);
         }
-        catch(const UserAccountNotFoundException&)
+        catch (const UserAccountNotFoundException&)
         {
         }
 
@@ -495,22 +479,28 @@ allTests(Test::TestHelper* helper)
             ObjectPrx(communicator, "RepTestIceGrid/SessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
         }
         try
         {
-            ObjectPrx(communicator, "RepTestIceGrid/SSLSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
+            ObjectPrx(communicator, "RepTestIceGrid/SSLSessionManager-Slave1")
+                ->ice_locator(replicatedLocator)
+                ->ice_ping();
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
         }
 
         ObjectPrx(communicator, "RepTestIceGrid/AdminSessionManager")->ice_locator(replicatedLocator)->ice_ping();
         ObjectPrx(communicator, "RepTestIceGrid/AdminSSLSessionManager")->ice_locator(replicatedLocator)->ice_ping();
-        ObjectPrx(communicator, "RepTestIceGrid/AdminSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
-        ObjectPrx(communicator, "RepTestIceGrid/AdminSSLSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
+        ObjectPrx(communicator, "RepTestIceGrid/AdminSessionManager-Slave1")
+            ->ice_locator(replicatedLocator)
+            ->ice_ping();
+        ObjectPrx(communicator, "RepTestIceGrid/AdminSSLSessionManager-Slave1")
+            ->ice_locator(replicatedLocator)
+            ->ice_ping();
     }
     cout << "ok" << endl;
 
@@ -553,7 +543,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->addApplication(app);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -566,7 +556,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->addObjectWithType(obj.proxy, obj.type);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database
         }
@@ -600,7 +590,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->syncApplication(app);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -626,7 +616,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->updateApplication(appUpdate);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -641,7 +631,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->updateObject(obj.proxy);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database
         }
@@ -673,7 +663,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->removeApplication("TestApp");
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -684,7 +674,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->removeAdapter("TestAdpt");
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -693,7 +683,7 @@ allTests(Test::TestHelper* helper)
         {
             slave1Admin->removeObject(obj.proxy->ice_getIdentity());
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Slave can't modify the database.
         }
@@ -706,7 +696,7 @@ allTests(Test::TestHelper* helper)
             masterAdmin->getApplicationInfo("TestApp");
             test(false);
         }
-        catch(const ApplicationNotExistException&)
+        catch (const ApplicationNotExistException&)
         {
         }
         try
@@ -714,7 +704,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->getApplicationInfo("TestApp");
             test(false);
         }
-        catch(const ApplicationNotExistException&)
+        catch (const ApplicationNotExistException&)
         {
         }
         try
@@ -722,7 +712,7 @@ allTests(Test::TestHelper* helper)
             slave2Admin->getApplicationInfo("TestApp");
             test(false);
         }
-        catch(const ApplicationNotExistException&)
+        catch (const ApplicationNotExistException&)
         {
         }
         try
@@ -730,7 +720,7 @@ allTests(Test::TestHelper* helper)
             masterAdmin->getAdapterInfo("TestAdpt");
             test(false);
         }
-        catch(const AdapterNotExistException&)
+        catch (const AdapterNotExistException&)
         {
         }
         try
@@ -738,7 +728,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->getAdapterInfo("TestAdpt");
             test(false);
         }
-        catch(const AdapterNotExistException&)
+        catch (const AdapterNotExistException&)
         {
         }
         try
@@ -746,7 +736,7 @@ allTests(Test::TestHelper* helper)
             slave2Admin->getAdapterInfo("TestAdpt");
             test(false);
         }
-        catch(const AdapterNotExistException&)
+        catch (const AdapterNotExistException&)
         {
         }
         try
@@ -754,7 +744,7 @@ allTests(Test::TestHelper* helper)
             masterAdmin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }
-        catch(const ObjectNotRegisteredException&)
+        catch (const ObjectNotRegisteredException&)
         {
         }
         try
@@ -762,7 +752,7 @@ allTests(Test::TestHelper* helper)
             slave1Admin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }
-        catch(const ObjectNotRegisteredException&)
+        catch (const ObjectNotRegisteredException&)
         {
         }
         try
@@ -770,7 +760,7 @@ allTests(Test::TestHelper* helper)
             slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }
-        catch(const ObjectNotRegisteredException&)
+        catch (const ObjectNotRegisteredException&)
         {
         }
 
@@ -796,7 +786,7 @@ allTests(Test::TestHelper* helper)
         {
             masterAdmin->addApplication(app);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -838,13 +828,13 @@ allTests(Test::TestHelper* helper)
             // re-establish the connection so we ping it twice. The
             // second should succeed.
             //
-            if(!slave1Admin->pingNode("Node1"))
+            if (!slave1Admin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
@@ -859,13 +849,13 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            if(!slave2Admin->pingNode("Node1"))
+            if (!slave2Admin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(slave2Admin->pingNode("Node1")); // Node should be re-connected even if the master is down.
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
@@ -878,13 +868,13 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            if(!masterAdmin->pingNode("Node1"))
+            if (!masterAdmin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(masterAdmin->pingNode("Node1")); // Node should be re-connected.
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
@@ -894,39 +884,39 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            if(!slave1Admin->pingNode("Node1"))
+            if (!slave1Admin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
 
         try
         {
-            if(!masterAdmin->pingNode("Node1"))
+            if (!masterAdmin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(masterAdmin->pingNode("Node1"));
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
 
         try
         {
-            if(!slave2Admin->pingNode("Node1"))
+            if (!slave2Admin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(slave2Admin->pingNode("Node1"));
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
@@ -937,13 +927,13 @@ allTests(Test::TestHelper* helper)
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
         try
         {
-            if(!slave2Admin->pingNode("Node1"))
+            if (!slave2Admin->pingNode("Node1"))
             {
                 this_thread::sleep_for(200ms);
             }
             test(slave2Admin->pingNode("Node1"));
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
             test(false);
         }
@@ -965,7 +955,7 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
+        PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
         server->activation = "on-demand";
         AdapterDescriptor adapter;
@@ -995,7 +985,7 @@ allTests(Test::TestHelper* helper)
             ObjectPrx(communicator, "test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
 
@@ -1003,7 +993,7 @@ allTests(Test::TestHelper* helper)
             cerr << "properties-override = " << appInfo.descriptor.variables["properties-override"] << endl;
 
             auto propertySeq = admin->getServerInfo("Node1").descriptor->propertySet.properties;
-            for(const auto& p : propertySeq)
+            for (const auto& p : propertySeq)
             {
                 cerr << p.name << " = " << p.value << endl;
             }
@@ -1034,7 +1024,7 @@ allTests(Test::TestHelper* helper)
             ObjectPrx(communicator, "test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
             ObjectPrx(communicator, "test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1052,7 +1042,7 @@ allTests(Test::TestHelper* helper)
             slave2Admin->startServer("Server");
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
         try
@@ -1060,7 +1050,7 @@ allTests(Test::TestHelper* helper)
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -1076,7 +1066,7 @@ allTests(Test::TestHelper* helper)
         {
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1119,7 +1109,7 @@ allTests(Test::TestHelper* helper)
         {
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1132,7 +1122,7 @@ allTests(Test::TestHelper* helper)
         {
             ObjectPrx(communicator, "test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -1140,7 +1130,7 @@ allTests(Test::TestHelper* helper)
         {
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1178,7 +1168,7 @@ allTests(Test::TestHelper* helper)
             ObjectPrx(communicator, "test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
             ObjectPrx(communicator, "test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1202,7 +1192,7 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
+        PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
         server->activation = "on-demand";
         AdapterDescriptor adapter;
@@ -1339,7 +1329,7 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
+        PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
         server->activation = "on-demand";
         AdapterDescriptor adapter;
@@ -1363,10 +1353,14 @@ allTests(Test::TestHelper* helper)
 
         masterAdmin->addApplication(app);
 
-        ObjectPrx(communicator, "test -e 1.0")->ice_locator(
-            masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
-        ObjectPrx(communicator, "test -e 1.0")->ice_locator(
-            slave1Locator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        ObjectPrx(communicator, "test -e 1.0")
+            ->ice_locator(masterLocator->ice_encodingVersion(Ice::Encoding_1_0))
+            ->ice_locatorCacheTimeout(0)
+            ->ice_ping();
+        ObjectPrx(communicator, "test -e 1.0")
+            ->ice_locator(slave1Locator->ice_encodingVersion(Ice::Encoding_1_0))
+            ->ice_locatorCacheTimeout(0)
+            ->ice_ping();
         ObjectPrx(communicator, "test -e 1.0")->ice_locator(slave3Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         masterAdmin->stopServer("Server");
 
@@ -1396,7 +1390,7 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"});
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
@@ -1423,17 +1417,23 @@ allTests(Test::TestHelper* helper)
         {
             masterAdmin->addApplication(app);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
         }
 
-        ObjectPrx(communicator, "test -e 1.0@TestReplicaGroup")->ice_locator(
-             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
-        ObjectPrx(communicator, "test -e 1.0@TestAdapter.Server1")->ice_locator(
-             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
-        ObjectPrx(communicator, "test -e 1.0@TestAdapter.Server2")->ice_locator(
-             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        ObjectPrx(communicator, "test -e 1.0@TestReplicaGroup")
+            ->ice_locator(masterLocator->ice_encodingVersion(Ice::Encoding_1_0))
+            ->ice_locatorCacheTimeout(0)
+            ->ice_ping();
+        ObjectPrx(communicator, "test -e 1.0@TestAdapter.Server1")
+            ->ice_locator(masterLocator->ice_encodingVersion(Ice::Encoding_1_0))
+            ->ice_locatorCacheTimeout(0)
+            ->ice_ping();
+        ObjectPrx(communicator, "test -e 1.0@TestAdapter.Server2")
+            ->ice_locator(masterLocator->ice_encodingVersion(Ice::Encoding_1_0))
+            ->ice_locatorCacheTimeout(0)
+            ->ice_ping();
 
         auto query = QueryPrx(communicator, "RepTestIceGrid/Query")->ice_locator(masterLocator);
         test(query->findAllReplicas(ObjectPrx(communicator, "test")).size() == 2);
@@ -1443,12 +1443,12 @@ allTests(Test::TestHelper* helper)
         try
         {
             // Wait for Node2 to be stopped by getting the TestAdapter.Server2 endpoints
-            while(true)
+            while (true)
             {
                 masterAdmin->ice_invocationTimeout(100)->getAdapterInfo("TestAdapter.Server2");
             }
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
         }
 
@@ -1459,7 +1459,7 @@ allTests(Test::TestHelper* helper)
             admin->sendSignal("Node2", "SIGCONT");
             test(false);
         }
-        catch(const Ice::InvocationTimeoutException&)
+        catch (const Ice::InvocationTimeoutException&)
         {
             admin->sendSignal("Node2", "SIGCONT");
         }
@@ -1468,7 +1468,6 @@ allTests(Test::TestHelper* helper)
         test(masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup").size() == 2);
 
         masterAdmin->removeApplication("TestApp");
-
     }
     cout << "ok" << endl;
 #endif

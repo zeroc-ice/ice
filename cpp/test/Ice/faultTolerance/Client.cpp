@@ -11,7 +11,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -23,9 +22,9 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
 
     vector<int> ports;
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(argv[i][0] == '-')
+        if (argv[i][0] == '-')
         {
             ostringstream os;
             os << "unknown option `" << argv[i] << "'";
@@ -34,7 +33,7 @@ Client::run(int argc, char** argv)
         ports.push_back(atoi(argv[i]));
     }
 
-    if(ports.empty())
+    if (ports.empty())
     {
         throw runtime_error("no ports specified");
     }

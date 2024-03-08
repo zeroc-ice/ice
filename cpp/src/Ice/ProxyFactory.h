@@ -12,34 +12,28 @@
 
 namespace Ice
 {
-
-class OutputStream;
-class InputStream;
-
+    class OutputStream;
+    class InputStream;
 }
 
 namespace IceInternal
 {
+    class ProxyFactory
+    {
+    public:
+        ProxyFactory(const InstancePtr&);
 
-class ProxyFactory
-{
-public:
+        std::optional<Ice::ObjectPrx> stringToProxy(const std::string&) const;
+        std::string proxyToString(const std::optional<Ice::ObjectPrx>&) const;
 
-    ProxyFactory(const InstancePtr&);
+        std::optional<Ice::ObjectPrx> propertyToProxy(const std::string&) const;
+        Ice::PropertyDict proxyToProperty(const std::optional<Ice::ObjectPrx>&, const std::string&) const;
 
-    std::optional<Ice::ObjectPrx> stringToProxy(const std::string&) const;
-    std::string proxyToString(const std::optional<Ice::ObjectPrx>&) const;
+    private:
+        InstancePtr _instance;
+    };
 
-    std::optional<Ice::ObjectPrx> propertyToProxy(const std::string&) const;
-    Ice::PropertyDict proxyToProperty(const std::optional<Ice::ObjectPrx>&, const std::string&) const;
-
-private:
-
-    InstancePtr _instance;
-};
-
-using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
-
+    using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
 }
 
 #endif

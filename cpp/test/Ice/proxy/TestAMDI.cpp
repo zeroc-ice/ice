@@ -8,9 +8,7 @@
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI()
-{
-}
+MyDerivedClassI::MyDerivedClassI() {}
 
 void
 MyDerivedClassI::echoAsync(
@@ -23,10 +21,7 @@ MyDerivedClassI::echoAsync(
 }
 
 void
-MyDerivedClassI::shutdownAsync(
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
+MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();

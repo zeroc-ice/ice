@@ -6,9 +6,7 @@
 
 #include "SynchronizationException.h"
 
-IceGrid::SynchronizationException::~SynchronizationException()
-{
-}
+IceGrid::SynchronizationException::~SynchronizationException() {}
 
 std::string_view
 IceGrid::SynchronizationException::ice_staticId()

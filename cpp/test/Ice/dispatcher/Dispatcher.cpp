@@ -10,7 +10,8 @@ using namespace std;
 shared_ptr<Dispatcher> instance;
 std::thread dispatcherThread;
 
-shared_ptr<Dispatcher> Dispatcher::create()
+shared_ptr<Dispatcher>
+Dispatcher::create()
 {
     auto dispatcher = shared_ptr<Dispatcher>(new Dispatcher());
     dispatcherThread = std::thread([dispatcher] { dispatcher->run(); });
@@ -18,10 +19,7 @@ shared_ptr<Dispatcher> Dispatcher::create()
     return dispatcher;
 }
 
-Dispatcher::Dispatcher()
-{
-    _terminated = false;
-}
+Dispatcher::Dispatcher() { _terminated = false; }
 
 void
 Dispatcher::terminate()
@@ -50,7 +48,7 @@ Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ic
 {
     lock_guard lock(_mutex);
     _calls.push_back(call);
-    if(_calls.size() == 1)
+    if (_calls.size() == 1)
     {
         _conditionVariable.notify_one();
     }
@@ -59,32 +57,32 @@ Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ic
 void
 Dispatcher::run()
 {
-    while(true)
+    while (true)
     {
         shared_ptr<DispatcherCall> call;
         {
             unique_lock lock(_mutex);
             _conditionVariable.wait(lock, [this] { return _terminated || !_calls.empty(); });
 
-            if(!_calls.empty())
+            if (!_calls.empty())
             {
                 call = _calls.front();
                 _calls.pop_front();
             }
-            else if(_terminated)
+            else if (_terminated)
             {
                 // Terminate only once all calls are dispatched.
                 return;
             }
         }
 
-        if(call)
+        if (call)
         {
             try
             {
                 call->run();
             }
-            catch(...)
+            catch (...)
             {
                 // Exceptions should never propagate here.
                 test(false);

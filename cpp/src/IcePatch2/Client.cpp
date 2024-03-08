@@ -10,10 +10,10 @@
 #include <IcePatch2/ClientUtil.h>
 
 #ifdef _WIN32
-#   include <conio.h>
+#    include <conio.h>
 #else
-#   include <fcntl.h>
-#   include <termios.h>
+#    include <fcntl.h>
+#    include <termios.h>
 #endif
 
 using namespace std;
@@ -23,9 +23,7 @@ using namespace IcePatch2;
 class TextPatcherFeedback final : public IcePatch2::PatcherFeedback
 {
 public:
-
-    TextPatcherFeedback() :
-        _pressAnyKeyMessage(false)
+    TextPatcherFeedback() : _pressAnyKeyMessage(false)
     {
 #ifndef _WIN32
         tcgetattr(0, &_savedTerm);
@@ -51,18 +49,17 @@ public:
             consoleOut << "Do a thorough patch? (yes/no)" << endl;
             cin >> answer;
             answer = IceUtilInternal::toLower(answer);
-            if(answer == "no")
+            if (answer == "no")
             {
                 return false;
             }
-        }
-        while(answer != "yes");
+        } while (answer != "yes");
         return true;
     }
 
     bool checksumStart() final
     {
-        if(!_pressAnyKeyMessage)
+        if (!_pressAnyKeyMessage)
         {
             consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
@@ -77,14 +74,11 @@ public:
         return !keyPressed();
     }
 
-    bool checksumEnd() final
-    {
-        return !keyPressed();
-    }
+    bool checksumEnd() final { return !keyPressed(); }
 
     bool fileListStart() final
     {
-        if(!_pressAnyKeyMessage)
+        if (!_pressAnyKeyMessage)
         {
             consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
@@ -97,7 +91,7 @@ public:
 
     bool fileListProgress(int32_t percent) final
     {
-        for(unsigned int i = 0; i < _lastProgress.size(); ++i)
+        for (unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
             consoleOut << '\b';
         }
@@ -116,7 +110,7 @@ public:
 
     bool patchStart(const string& path, int64_t size, int64_t totalProgress, int64_t totalSize) final
     {
-        if(!_pressAnyKeyMessage)
+        if (!_pressAnyKeyMessage)
         {
             consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
@@ -131,7 +125,7 @@ public:
 
     bool patchProgress(int64_t progress, int64_t size, int64_t totalProgress, int64_t totalSize) final
     {
-        for(unsigned int i = 0; i < _lastProgress.size(); ++i)
+        for (unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
             consoleOut << '\b';
         }
@@ -149,19 +143,17 @@ public:
     }
 
 private:
-
 #ifdef _WIN32
 
-    bool
-    keyPressed()
+    bool keyPressed()
     {
         bool pressed = false;
-        while(_kbhit())
+        while (_kbhit())
         {
             pressed = true;
             _getch();
         }
-        if(pressed)
+        if (pressed)
         {
             pressed = confirmAbort();
         }
@@ -170,10 +162,9 @@ private:
 
 #else
 
-    bool
-    keyPressed()
+    bool keyPressed()
     {
-        if(_block)
+        if (_block)
         {
             termios term;
             memcpy(&term, &_savedTerm, sizeof(termios));
@@ -191,11 +182,11 @@ private:
 
         bool pressed = false;
         char c;
-        while(read(0, &c, 1) > 0)
+        while (read(0, &c, 1) > 0)
         {
             pressed = true;
         }
-        if(pressed)
+        if (pressed)
         {
             pressed = confirmAbort();
         }
@@ -208,11 +199,10 @@ private:
 
 #endif
 
-    bool
-    confirmAbort()
+    bool confirmAbort()
     {
 #ifndef _WIN32
-        if(!_block)
+        if (!_block)
         {
             tcsetattr(0, TCSANOW, &_savedTerm);
             fcntl(0, F_SETFL, _savedFlags);
@@ -225,12 +215,11 @@ private:
             consoleOut << "\nConfirm abort? (Y/N)" << endl;
             cin >> answer;
             answer = IceUtilInternal::toLower(answer);
-            if(answer == "n")
+            if (answer == "n")
             {
                 return false;
             }
-        }
-        while(answer != "y");
+        } while (answer != "y");
         return true;
     }
 
@@ -267,7 +256,7 @@ main(int argc, char* argv[])
 
         status = run(Ice::argsToStringSeq(argc, argv));
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << ex.what() << endl;
         status = 1;
@@ -279,11 +268,10 @@ main(int argc, char* argv[])
 void
 usage(const string& appName)
 {
-    string options =
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "-t, --thorough       Recalculate all checksums.";
+    string options = "Options:\n"
+                     "-h, --help           Show this message.\n"
+                     "-v, --version        Display the Ice version.\n"
+                     "-t, --thorough       Recalculate all checksums.";
 
     consoleErr << "Usage: " << appName << " [options] [DIR]" << endl;
     consoleErr << options << endl;
@@ -304,35 +292,35 @@ run(const Ice::StringSeq& args)
     {
         props = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);
         return 1;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(args[0]);
         return 0;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
         return 0;
     }
-    if(opts.isSet("thorough"))
+    if (opts.isSet("thorough"))
     {
         properties->setProperty("IcePatch2Client.Thorough", "1");
     }
 
-    if(props.size() > 1)
+    if (props.size() > 1)
     {
         consoleErr << args[0] << ": too many arguments" << endl;
         usage(args[0]);
         return 1;
     }
-    if(props.size() == 1)
+    if (props.size() == 1)
     {
         properties->setProperty("IcePatch2Client.Directory", IcePatch2Internal::simplify(props[0]));
     }
@@ -361,23 +349,23 @@ run(const Ice::StringSeq& args)
 
         aborted = !patcher->prepare();
 
-        if(!aborted)
+        if (!aborted)
         {
             aborted = !patcher->patch("");
         }
 
-        if(!aborted)
+        if (!aborted)
         {
             patcher->finish();
         }
     }
-    catch(const exception& ex)
+    catch (const exception& ex)
     {
         consoleErr << args[0] << ": " << ex.what() << endl;
         return 1;
     }
 
-    if(aborted)
+    if (aborted)
     {
         consoleOut << "\n[Aborted]" << endl;
         return 1;

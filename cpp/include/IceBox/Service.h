@@ -25,124 +25,117 @@
 #include <IceBox/Config.h>
 
 #ifndef ICEBOX_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICEBOX_API /**/
-#   elif defined(ICEBOX_API_EXPORTS)
-#       define ICEBOX_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICEBOX_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICEBOX_API /**/
+#    elif defined(ICEBOX_API_EXPORTS)
+#        define ICEBOX_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICEBOX_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 namespace IceBox
 {
-
-class Service;
-
+    class Service;
 }
 
 namespace IceBox
 {
-
-/**
- * This exception is a general failure notification. It is thrown for errors such as a service encountering an error
- * during initialization, or the service manager being unable to load a service executable.
- * \headerfile IceBox/IceBox.h
- */
-class ICE_CLASS(ICEBOX_API) FailureException : public ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>
-{
-public:
-
-    ICE_MEMBER(ICEBOX_API) virtual ~FailureException();
-
-    FailureException(const FailureException&) = default;
-
     /**
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
+     * This exception is a general failure notification. It is thrown for errors such as a service encountering an error
+     * during initialization, or the service manager being unable to load a service executable.
+     * \headerfile IceBox/IceBox.h
      */
-    FailureException(const char* file, int line) : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line)
+    class ICE_CLASS(ICEBOX_API) FailureException
+        : public ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>
     {
-    }
+    public:
+        ICE_MEMBER(ICEBOX_API) virtual ~FailureException();
 
-    /**
-     * One-shot constructor to initialize all data members.
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
-     * @param reason The reason for the failure.
-     */
-    FailureException(const char* file, int line, const ::std::string& reason) : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line),
-        reason(reason)
-    {
-    }
+        FailureException(const FailureException&) = default;
 
-    /**
-     * Obtains a tuple containing all of the exception's data members.
-     * @return The data members in a tuple.
-     */
-    std::tuple<const ::std::string&> ice_tuple() const
-    {
-        return std::tie(reason);
-    }
+        /**
+         * The file and line number are required for all local exceptions.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         */
+        FailureException(const char* file, int line)
+            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line)
+        {
+        }
 
-    /**
-     * Obtains the Slice type ID of this exception.
-     * @return The fully-scoped type ID.
-     */
-    ICE_MEMBER(ICEBOX_API) static ::std::string_view ice_staticId();
-    /**
-     * Prints this exception to the given stream.
-     * @param stream The target stream.
-     */
-    ICE_MEMBER(ICEBOX_API) virtual void ice_print(::std::ostream& stream) const override;
+        /**
+         * One-shot constructor to initialize all data members.
+         * The file and line number are required for all local exceptions.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param reason The reason for the failure.
+         */
+        FailureException(const char* file, int line, const ::std::string& reason)
+            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line),
+              reason(reason)
+        {
+        }
 
-    /**
-     * The reason for the failure.
-     */
-    ::std::string reason;
-};
+        /**
+         * Obtains a tuple containing all of the exception's data members.
+         * @return The data members in a tuple.
+         */
+        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
 
+        /**
+         * Obtains the Slice type ID of this exception.
+         * @return The fully-scoped type ID.
+         */
+        ICE_MEMBER(ICEBOX_API) static ::std::string_view ice_staticId();
+        /**
+         * Prints this exception to the given stream.
+         * @param stream The target stream.
+         */
+        ICE_MEMBER(ICEBOX_API) virtual void ice_print(::std::ostream& stream) const override;
+
+        /**
+         * The reason for the failure.
+         */
+        ::std::string reason;
+    };
 }
 
 namespace IceBox
 {
-
-/**
- * An application service managed by a {@link ServiceManager}.
- * \headerfile IceBox/IceBox.h
- */
-class ICE_CLASS(ICEBOX_API) Service
-{
-public:
-
-    ICE_MEMBER(ICEBOX_API) virtual ~Service();
-
     /**
-     * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service. This
-     * communicator may also be used by other services, depending on the service configuration.
-     * <p class="Note">The {@link ServiceManager} owns this communicator, and is responsible for destroying it.
-     * @param name The service's name, as determined by the configuration.
-     * @param communicator A communicator for use by the service.
-     * @param args The service arguments that were not converted into properties.
-     * @throws IceBox::FailureException Raised if {@link #start} failed.
+     * An application service managed by a {@link ServiceManager}.
+     * \headerfile IceBox/IceBox.h
      */
-    virtual void start(const ::std::string& name, const ::std::shared_ptr<::Ice::Communicator>& communicator, const ::Ice::StringSeq& args) = 0;
+    class ICE_CLASS(ICEBOX_API) Service
+    {
+    public:
+        ICE_MEMBER(ICEBOX_API) virtual ~Service();
 
-    /**
-     * Stop the service.
-     */
-    virtual void stop() = 0;
-};
+        /**
+         * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service.
+         * This communicator may also be used by other services, depending on the service configuration. <p
+         * class="Note">The {@link ServiceManager} owns this communicator, and is responsible for destroying it.
+         * @param name The service's name, as determined by the configuration.
+         * @param communicator A communicator for use by the service.
+         * @param args The service arguments that were not converted into properties.
+         * @throws IceBox::FailureException Raised if {@link #start} failed.
+         */
+        virtual void start(
+            const ::std::string& name,
+            const ::std::shared_ptr<::Ice::Communicator>& communicator,
+            const ::Ice::StringSeq& args) = 0;
 
+        /**
+         * Stop the service.
+         */
+        virtual void stop() = 0;
+    };
 }
 
 /// \cond INTERNAL
 namespace IceBox
 {
-
-using ServicePtr = ::std::shared_ptr<Service>;
-
+    using ServicePtr = ::std::shared_ptr<Service>;
 }
 /// \endcond
 

@@ -11,10 +11,10 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry, const InitializationData& initData) :
-    _registry(registry),
-    _initData(initData),
-    _nextPort(1)
+ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry, const InitializationData& initData)
+    : _registry(registry),
+      _initData(initData),
+      _nextPort(1)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
     _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
@@ -48,24 +48,22 @@ ServerManagerI::startServer(const Current&)
     // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
     //
     int nRetry = 10;
-    while(--nRetry > 0)
+    while (--nRetry > 0)
     {
         ObjectAdapterPtr adapter;
         ObjectAdapterPtr adapter2;
         try
         {
             PropertiesPtr props = _initData.properties;
-            serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
-                                                             TestHelper::getTestEndpoint(props, _nextPort++));
-            serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
-                                                             TestHelper::getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty(
+                "TestAdapter.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty(
+                "TestAdapter2.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
 
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-            LocatorPrx locator(
-                serverCommunicator,
-                "locator:" + TestHelper::getTestEndpoint(props));
+            LocatorPrx locator(serverCommunicator, "locator:" + TestHelper::getTestEndpoint(props));
             adapter->setLocator(locator);
             adapter2->setLocator(locator);
 
@@ -78,20 +76,20 @@ ServerManagerI::startServer(const Current&)
             adapter2->activate();
             break;
         }
-        catch(const SocketException&)
+        catch (const SocketException&)
         {
-            if(nRetry == 0)
+            if (nRetry == 0)
             {
                 throw;
             }
 
             // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
             // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-            if(adapter)
+            if (adapter)
             {
                 adapter->destroy();
             }
-            if(adapter2)
+            if (adapter2)
             {
                 adapter2->destroy();
             }
@@ -109,10 +107,13 @@ ServerManagerI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-TestI::TestI(const ObjectAdapterPtr& adapter,
-             const ObjectAdapterPtr& adapter2,
-             const ServerLocatorRegistryPtr& registry) :
-    _adapter1(adapter), _adapter2(adapter2), _registry(registry)
+TestI::TestI(
+    const ObjectAdapterPtr& adapter,
+    const ObjectAdapterPtr& adapter2,
+    const ServerLocatorRegistryPtr& registry)
+    : _adapter1(adapter),
+      _adapter2(adapter2),
+      _registry(registry)
 {
     _registry->addObject(_adapter1->add(make_shared<HelloI>(), stringToIdentity("hello")));
 }
@@ -143,7 +144,7 @@ TestI::migrateHello(const Current&)
     {
         _registry->addObject(_adapter2->add(_adapter1->remove(id), id));
     }
-    catch(const NotRegisteredException&)
+    catch (const NotRegisteredException&)
     {
         _registry->addObject(_adapter1->add(_adapter2->remove(id), id));
     }

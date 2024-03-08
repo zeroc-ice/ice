@@ -17,28 +17,22 @@ using namespace IcePatch2Internal;
 
 namespace IcePatch2
 {
+    class PatcherService : public Service
+    {
+    public:
+        PatcherService();
 
-class PatcherService : public Service
-{
-public:
+    protected:
+        virtual bool start(int, char*[], int&);
+        virtual bool stop();
 
-    PatcherService();
-
-protected:
-
-    virtual bool start(int, char*[], int&);
-    virtual bool stop();
-
-private:
-
-    void usage(const std::string&);
-};
+    private:
+        void usage(const std::string&);
+    };
 
 };
 
-IcePatch2::PatcherService::PatcherService()
-{
-}
+IcePatch2::PatcherService::PatcherService() {}
 
 bool
 IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
@@ -54,39 +48,39 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
     {
         args = opts.parse(argc, const_cast<const char**>(argv));
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);
         return false;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         status = EXIT_SUCCESS;
         return false;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         print(ICE_STRING_VERSION);
         status = EXIT_SUCCESS;
         return false;
     }
 
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         error("too many arguments");
         usage(argv[0]);
         return false;
     }
-    if(args.size() == 1)
+    if (args.size() == 1)
     {
         properties->setProperty("IcePatch2.Directory", simplify(args[0]));
     }
 
     string dataDir = properties->getPropertyWithDefault("IcePatch2.Directory", ".");
-    if(dataDir.empty())
+    if (dataDir.empty())
     {
         error("no data directory specified");
         usage(argv[0]);
@@ -97,10 +91,10 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
 
     try
     {
-        if(!IceUtilInternal::isAbsolutePath(dataDir))
+        if (!IceUtilInternal::isAbsolutePath(dataDir))
         {
             string cwd;
-            if(IceUtilInternal::getcwd(cwd) != 0)
+            if (IceUtilInternal::getcwd(cwd) != 0)
             {
                 throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
             }
@@ -110,7 +104,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
 
         loadFileInfoSeq(dataDir, infoSeq);
     }
-    catch(const exception& ex)
+    catch (const exception& ex)
     {
         error(ex.what());
         return false;
@@ -118,7 +112,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
 
     const string endpointsProperty = "IcePatch2.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
-    if(endpoints.empty())
+    if (endpoints.empty())
     {
         error("property `" + endpointsProperty + "' is not set");
         return false;
@@ -147,19 +141,17 @@ IcePatch2::PatcherService::stop()
 void
 IcePatch2::PatcherService::usage(const string& appName)
 {
-    string options =
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.";
+    string options = "Options:\n"
+                     "-h, --help           Show this message.\n"
+                     "-v, --version        Display the Ice version.";
 #ifndef _WIN32
-    options.append(
-        "\n"
-        "\n"
-        "--daemon             Run as a daemon.\n"
-        "--pidfile FILE       Write process ID into FILE.\n"
-        "--noclose            Do not close open file descriptors."
+    options.append("\n"
+                   "\n"
+                   "--daemon             Run as a daemon.\n"
+                   "--pidfile FILE       Write process ID into FILE.\n"
+                   "--noclose            Do not close open file descriptors."
 
-        // --nochdir is intentionally not shown here. (See the comment in main().)
+                   // --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
     print("Usage: " + appName + " [options] [DIR]\n" + options);
@@ -192,7 +184,7 @@ main(int argc, char* argv[])
     StringSeq args;
     args.push_back(argv[0]);
     args.push_back("--nochdir");
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         args.push_back(argv[i]);
     }

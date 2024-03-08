@@ -18,7 +18,7 @@ allTests(Test::TestHelper* helper)
     TestIntfPrx service3(com, "test:" + helper->getTestEndpoint(2));
     TestIntfPrx service4(com, "test:" + helper->getTestEndpoint(3));
 
-    if(service1->getProperty("IceBox.InheritProperties") == "")
+    if (service1->getProperty("IceBox.InheritProperties") == "")
     {
         cout << "testing service properties... " << flush;
 

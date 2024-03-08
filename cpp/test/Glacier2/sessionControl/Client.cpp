@@ -15,7 +15,6 @@ using namespace Test;
 class SessionControlClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -49,7 +48,7 @@ SessionControlClient::run(int argc, char** argv)
     {
         session->destroyFromClient();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -58,7 +57,7 @@ SessionControlClient::run(int argc, char** argv)
         session->ice_ping();
         test(false);
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
     }
     cout << "ok" << endl;
@@ -69,7 +68,7 @@ SessionControlClient::run(int argc, char** argv)
         router->createSession("rejectme", "abc123");
         test(false);
     }
-    catch(const Glacier2::CannotCreateSessionException&)
+    catch (const Glacier2::CannotCreateSessionException&)
     {
     }
     try
@@ -77,7 +76,7 @@ SessionControlClient::run(int argc, char** argv)
         router->createSession("localexception", "abc123");
         test(false);
     }
-    catch(const Glacier2::CannotCreateSessionException&)
+    catch (const Glacier2::CannotCreateSessionException&)
     {
     }
     cout << "ok" << endl;
@@ -93,7 +92,7 @@ SessionControlClient::run(int argc, char** argv)
         process->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }

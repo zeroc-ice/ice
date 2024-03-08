@@ -17,83 +17,78 @@
 
 namespace IceSSL
 {
+    class ICESSL_API SSLEngine
+    {
+    public:
+        SSLEngine(const Ice::CommunicatorPtr&);
 
-class ICESSL_API SSLEngine
-{
-public:
+        Ice::CommunicatorPtr communicator() const { return _communicator; }
+        Ice::LoggerPtr getLogger() const { return _logger; };
 
-    SSLEngine(const Ice::CommunicatorPtr&);
+        void setCertificateVerifier(const CertificateVerifierPtr&);
+        void setPasswordPrompt(const PasswordPromptPtr&);
+        std::string password(bool);
 
-    Ice::CommunicatorPtr communicator() const { return _communicator; }
-    Ice::LoggerPtr getLogger() const { return _logger; };
+        //
+        // Setup the engine.
+        //
+        virtual void initialize() = 0;
 
-    void setCertificateVerifier(const CertificateVerifierPtr&);
-    void setPasswordPrompt(const PasswordPromptPtr&);
-    std::string password(bool);
+        virtual bool initialized() const;
 
-    //
-    // Setup the engine.
-    //
-    virtual void initialize() = 0;
+        //
+        // Destroy the engine.
+        //
+        virtual void destroy() = 0;
 
-    virtual bool initialized() const;
+        //
+        // Create a transceiver using the engine specific implementation
+        //
+        virtual IceInternal::TransceiverPtr
+        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) = 0;
 
-    //
-    // Destroy the engine.
-    //
-    virtual void destroy() = 0;
+        //
+        // Verify peer certificate
+        //
+        virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
+        void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
 
-    //
-    // Create a transceiver using the engine specific implementation
-    //
-    virtual IceInternal::TransceiverPtr
-    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) = 0;
+        CertificateVerifierPtr getCertificateVerifier() const;
+        PasswordPromptPtr getPasswordPrompt() const;
 
-    //
-    // Verify peer certificate
-    //
-    virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
-    void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
+        std::string getPassword() const;
+        void setPassword(const std::string& password);
 
-    CertificateVerifierPtr getCertificateVerifier() const;
-    PasswordPromptPtr getPasswordPrompt() const;
+        bool getCheckCertName() const;
+        bool getServerNameIndication() const;
+        int getVerifyPeer() const;
+        int securityTraceLevel() const;
+        bool getRevocationCheckCacheOnly() const;
+        int getRevocationCheck() const;
+        std::string securityTraceCategory() const;
 
-    std::string getPassword() const;
-    void setPassword(const std::string& password);
+    protected:
+        bool _initialized;
+        mutable std::mutex _mutex;
 
-    bool getCheckCertName() const;
-    bool getServerNameIndication() const;
-    int getVerifyPeer() const;
-    int securityTraceLevel() const;
-    bool getRevocationCheckCacheOnly() const;
-    int getRevocationCheck() const;
-    std::string securityTraceCategory() const;
+    private:
+        const Ice::CommunicatorPtr _communicator;
+        const Ice::LoggerPtr _logger;
+        const TrustManagerPtr _trustManager;
 
-protected:
+        std::string _password;
+        CertificateVerifierPtr _verifier;
+        PasswordPromptPtr _prompt;
 
-    bool _initialized;
-    mutable std::mutex _mutex;
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
-    const Ice::LoggerPtr _logger;
-    const TrustManagerPtr _trustManager;
-
-    std::string _password;
-    CertificateVerifierPtr _verifier;
-    PasswordPromptPtr _prompt;
-
-    bool _checkCertName;
-    bool _serverNameIndication;
-    int _verifyDepthMax;
-    int _verifyPeer;
-    int _securityTraceLevel;
-    std::string _securityTraceCategory;
-    const bool _revocationCheckCacheOnly;
-    const int _revocationCheck;
-};
-
+        bool _checkCertName;
+        bool _serverNameIndication;
+        int _verifyDepthMax;
+        int _verifyPeer;
+        int _securityTraceLevel;
+        std::string _securityTraceCategory;
+        const bool _revocationCheckCacheOnly;
+        const int _revocationCheck;
+    };
 }
 
 #endif

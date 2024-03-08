@@ -9,65 +9,63 @@
 
 namespace IceStorm
 {
+    // Forward declarations.
+    class Instance;
+    class Subscriber;
 
-// Forward declarations.
-class Instance;
-class Subscriber;
+    class TransientTopicImpl : public TopicInternal
+    {
+    public:
+        static std::shared_ptr<TransientTopicImpl>
+        create(const std::shared_ptr<Instance>&, const std::string&, const Ice::Identity&);
 
-class TransientTopicImpl : public TopicInternal
-{
-public:
+        std::string getName(const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx>
+        subscribeAndGetPublisher(QoS, std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
+        void unsubscribe(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
+        std::optional<TopicLinkPrx> getLinkProxy(const Ice::Current&) override;
+        void link(std::optional<TopicPrx>, int, const Ice::Current&) override;
+        void unlink(std::optional<TopicPrx>, const Ice::Current&) override;
+        LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
+        Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
+        void destroy(const Ice::Current&) override;
+        void reap(Ice::IdentitySeq, const Ice::Current&) override;
 
-    static std::shared_ptr<TransientTopicImpl> create(const std::shared_ptr<Instance>&, const std::string&,
-                                                      const Ice::Identity&);
+        // Internal methods
+        bool destroyed() const;
+        Ice::Identity id() const;
+        void publish(bool, const EventDataSeq&);
 
-    std::string getName(const Ice::Current&) const override;
-    std::optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
-    std::optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
-    std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
-    void unsubscribe(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
-    std::optional<TopicLinkPrx> getLinkProxy(const Ice::Current&) override;
-    void link(std::optional<TopicPrx>, int, const Ice::Current&) override;
-    void unlink(std::optional<TopicPrx>, const Ice::Current&) override;
-    LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
-    Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
-    void destroy(const Ice::Current&) override;
-    void reap(Ice::IdentitySeq, const Ice::Current&) override;
+        void shutdown();
 
-    // Internal methods
-    bool destroyed() const;
-    Ice::Identity id() const;
-    void publish(bool, const EventDataSeq&);
+    private:
+        TransientTopicImpl(std::shared_ptr<Instance>, const std::string&, const Ice::Identity&);
 
-    void shutdown();
+        //
+        // Immutable members.
+        //
+        const std::shared_ptr<Instance> _instance;
+        const std::string _name; // The topic name
+        const Ice::Identity _id; // The topic identity
 
-private:
+        std::optional<Ice::ObjectPrx> _publisherPrx;
+        std::optional<TopicLinkPrx> _linkPrx;
 
-    TransientTopicImpl(std::shared_ptr<Instance>, const std::string&, const Ice::Identity&);
+        //
+        // We keep a vector of subscribers since the optimized behaviour
+        // should be publishing events, not searching through the list of
+        // subscribers for a particular subscriber. I tested
+        // vector/list/map and although there was little difference vector
+        // was the fastest of the three.
+        //
+        std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
-    //
-    // Immutable members.
-    //
-    const std::shared_ptr<Instance> _instance;
-    const std::string _name; // The topic name
-    const Ice::Identity _id; // The topic identity
+        bool _destroyed; // Has this Topic been destroyed?
 
-    std::optional<Ice::ObjectPrx> _publisherPrx;
-    std::optional<TopicLinkPrx> _linkPrx;
-
-    //
-    // We keep a vector of subscribers since the optimized behaviour
-    // should be publishing events, not searching through the list of
-    // subscribers for a particular subscriber. I tested
-    // vector/list/map and although there was little difference vector
-    // was the fastest of the three.
-    //
-    std::vector<std::shared_ptr<Subscriber>> _subscribers;
-
-    bool _destroyed; // Has this Topic been destroyed?
-
-    mutable std::mutex _mutex;
-};
+        mutable std::mutex _mutex;
+    };
 
 } // End namespace IceStorm
 

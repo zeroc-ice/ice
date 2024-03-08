@@ -10,12 +10,10 @@
 
 namespace Ice
 {
+    class ObjectPrx;
 
-class ObjectPrx;
-
-// TODO: remove
-using ObjectPrxPtr = std::optional<ObjectPrx>;
-
+    // TODO: remove
+    using ObjectPrxPtr = std::optional<ObjectPrx>;
 }
 
 #endif

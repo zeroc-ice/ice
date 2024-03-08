@@ -19,716 +19,699 @@
 
 namespace IcePy
 {
+    class Buffer;
+    using BufferPtr = std::shared_ptr<Buffer>;
 
-class Buffer;
-using BufferPtr = std::shared_ptr<Buffer>;
+    class ExceptionInfo;
+    using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
+    using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
-class ExceptionInfo;
-using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
-using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
+    class ClassInfo;
+    using ClassInfoPtr = std::shared_ptr<ClassInfo>;
+    using ClassInfoList = std::vector<ClassInfoPtr>;
 
-class ClassInfo;
-using ClassInfoPtr = std::shared_ptr<ClassInfo>;
-using ClassInfoList = std::vector<ClassInfoPtr>;
-
-class ValueInfo;
-using ValueInfoPtr = std::shared_ptr<ValueInfo>;
-
-//
-// This class is raised as an exception when object marshaling needs to be aborted.
-//
-class AbortMarshaling
-{
-};
-
-using ObjectMap = std::map<PyObject*, std::shared_ptr<Ice::Value>>;
-
-class ValueReader;
-using ValueReaderPtr = std::shared_ptr<ValueReader>;
-
-//
-// The delayed nature of class unmarshaling in the Ice protocol requires us to
-// handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
-// is supplied to each type's unmarshal() member function. For all types except
-// classes, the callback is invoked with the unmarshaled value before unmarshal()
-// returns. For class instances, however, the callback may not be invoked until
-// the stream's finished() function is called.
-//
-class UnmarshalCallback
-{
-public:
-
-    virtual ~UnmarshalCallback();
+    class ValueInfo;
+    using ValueInfoPtr = std::shared_ptr<ValueInfo>;
 
     //
-    // The unmarshaled() member function receives the unmarshaled value. The
-    // last two arguments are the values passed to unmarshal() for use by
-    // UnmarshalCallback implementations.
+    // This class is raised as an exception when object marshaling needs to be aborted.
     //
-    virtual void unmarshaled(PyObject*, PyObject*, void*) = 0;
-};
-using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
-
-//
-// ReadValueCallback retains all of the information necessary to store an unmarshaled
-// Slice value as a Python object.
-//
-class ReadValueCallback
-{
-public:
-
-    ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
-    ~ReadValueCallback();
-
-    void invoke(const ::std::shared_ptr<Ice::Value>&);
-
-private:
-
-    ValueInfoPtr _info;
-    UnmarshalCallbackPtr _cb;
-    PyObject* _target;
-    void* _closure;
-};
-using ReadValueCallbackPtr = std::shared_ptr<ReadValueCallback>;
-
-//
-// This class assists during unmarshaling of Slice classes and exceptions.
-// We attach an instance to a stream.
-//
-class StreamUtil
-{
-public:
-
-    StreamUtil();
-    ~StreamUtil();
-
-    //
-    // Keep a reference to a ReadValueCallback for patching purposes.
-    //
-    void add(const ReadValueCallbackPtr&);
-
-    //
-    // Keep track of object instances that have preserved slices.
-    //
-    void add(const ValueReaderPtr&);
-
-    //
-    // Updated the sliced data information for all stored object instances.
-    //
-    void updateSlicedData();
-
-    static void setSlicedDataMember(PyObject*, const Ice::SlicedDataPtr&);
-    static Ice::SlicedDataPtr getSlicedDataMember(PyObject*, ObjectMap*);
-
-private:
-
-    std::vector<ReadValueCallbackPtr> _callbacks;
-    std::set<ValueReaderPtr> _readers;
-    static PyObject* _slicedDataType;
-    static PyObject* _sliceInfoType;
-};
-
-struct PrintObjectHistory
-{
-    int index;
-    std::map<PyObject*, int> objects;
-};
-
-//
-// Base class for type information.
-//
-class TypeInfo : public UnmarshalCallback
-{
-public:
-
-    TypeInfo();
-    virtual std::string getId() const = 0;
-
-    virtual bool validate(PyObject*) = 0;
-
-    virtual bool variableLength() const = 0;
-    virtual int wireSize() const = 0;
-    virtual Ice::OptionalFormat optionalFormat() const = 0;
-
-    virtual bool usesClasses() const; // Default implementation returns false.
-
-    virtual void unmarshaled(PyObject*, PyObject*, void*); // Default implementation is assert(false).
-
-    virtual void destroy();
-    //
-    // The marshal and unmarshal functions can raise Ice exceptions, and may raise
-    // AbortMarshaling if an error occurs.
-    //
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0) = 0;
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0) = 0;
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
-};
-using TypeInfoPtr = std::shared_ptr<TypeInfo>;
-
-//
-// Primitive type information.
-//
-class PrimitiveInfo : public TypeInfo
-{
-public:
-
-    enum Kind
+    class AbortMarshaling
     {
-        KindBool,
-        KindByte,
-        KindShort,
-        KindInt,
-        KindLong,
-        KindFloat,
-        KindDouble,
-        KindString
     };
 
-    PrimitiveInfo(Kind);
-
-    virtual std::string getId() const;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    const Kind kind;
-};
-using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
-
-//
-// Enum information.
-//
-using EnumeratorMap = std::map<std::int32_t, PyObjectHandle>;
-
-class EnumInfo final : public TypeInfo
-{
-public:
-
-    EnumInfo(std::string, PyObject*, PyObject*);
-
-    std::string getId() const final;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
-    std::int32_t valueForEnumerator(PyObject*) const;
-    PyObject* enumeratorForValue(std::int32_t) const;
-
-    const std::string id;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    const std::int32_t maxValue;
-    const EnumeratorMap enumerators;
-};
-using EnumInfoPtr = std::shared_ptr<EnumInfo>;
-
-class DataMember : public UnmarshalCallback
-{
-public:
-
-    virtual void unmarshaled(PyObject*, PyObject*, void*);
-
-    std::string name;
-    std::vector<std::string> metaData;
-    TypeInfoPtr type;
-    bool optional;
-    int tag;
-};
-using DataMemberPtr = std::shared_ptr<DataMember>;
-using DataMemberList = std::vector<DataMemberPtr>;
-
-//
-// Struct information.
-//
-class StructInfo : public TypeInfo
-{
-public:
-
-    StructInfo(std::string, PyObject*, PyObject*);
-
-    virtual std::string getId() const;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual bool usesClasses() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
-    static PyObject* instantiate(PyObject*);
-
-    const std::string id;
-    const DataMemberList members;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-
-private:
-
-    bool _variableLength;
-    int _wireSize;
-    PyObjectHandle _nullMarshalValue;
-};
-using StructInfoPtr = std::shared_ptr<StructInfo>;
-
-//
-// Sequence information.
-//
-class SequenceInfo : public TypeInfo
-{
-public:
-
-    SequenceInfo(std::string, PyObject*, PyObject*);
-
-    virtual std::string getId() const;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual bool usesClasses() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
-    enum BuiltinType
-    {
-        BuiltinTypeBool = 0,
-        BuiltinTypeByte = 1,
-        BuiltinTypeShort = 2,
-        BuiltinTypeInt = 3,
-        BuiltinTypeLong = 4,
-        BuiltinTypeFloat = 5,
-        BuiltinTypeDouble = 6
-    };
-
-private:
-
-    struct SequenceMapping : public UnmarshalCallback
-    {
-        enum Type { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST, SEQ_ARRAY, SEQ_NUMPYARRAY, SEQ_MEMORYVIEW };
-
-        SequenceMapping(Type);
-        SequenceMapping(const Ice::StringSeq&);
-
-        void init(const Ice::StringSeq&);
-
-        static bool getType(const Ice::StringSeq&, Type&);
-
-        virtual void unmarshaled(PyObject*, PyObject*, void*);
-
-        PyObject* createContainer(int) const;
-        void setItem(PyObject*, int, PyObject*) const;
-
-        Type type;
-        PyObject* factory;
-    };
-    using SequenceMappingPtr = std::shared_ptr<SequenceMapping>;
-
-    PyObject* getSequence(const PrimitiveInfoPtr&, PyObject*);
-    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, Ice::OutputStream*);
-    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
-                                    PyObject*, void*, const SequenceMappingPtr&);
-
-    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
-
-public:
-
-    const std::string id;
-    const SequenceMappingPtr mapping;
-    const TypeInfoPtr elementType;
-};
-using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
-
-//
-// Custom information.
-//
-class CustomInfo : public TypeInfo
-{
-public:
-
-    CustomInfo(std::string, PyObject*);
-
-    virtual std::string getId() const;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual bool usesClasses() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    const std::string id;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-};
-using CustomInfoPtr = std::shared_ptr<CustomInfo>;
-
-//
-// Dictionary information.
-//
-class DictionaryInfo : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
-{
-public:
-
-    DictionaryInfo(std::string, PyObject*, PyObject*);
-
-    virtual std::string getId() const;
-
-    virtual bool validate(PyObject*);
-
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
-
-    virtual bool usesClasses() const;
-
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
-    virtual void unmarshaled(PyObject*, PyObject*, void*);
-
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
-    class KeyCallback : public UnmarshalCallback
+    using ObjectMap = std::map<PyObject*, std::shared_ptr<Ice::Value>>;
+
+    class ValueReader;
+    using ValueReaderPtr = std::shared_ptr<ValueReader>;
+
+    //
+    // The delayed nature of class unmarshaling in the Ice protocol requires us to
+    // handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
+    // is supplied to each type's unmarshal() member function. For all types except
+    // classes, the callback is invoked with the unmarshaled value before unmarshal()
+    // returns. For class instances, however, the callback may not be invoked until
+    // the stream's finished() function is called.
+    //
+    class UnmarshalCallback
     {
     public:
+        virtual ~UnmarshalCallback();
 
+        //
+        // The unmarshaled() member function receives the unmarshaled value. The
+        // last two arguments are the values passed to unmarshal() for use by
+        // UnmarshalCallback implementations.
+        //
+        virtual void unmarshaled(PyObject*, PyObject*, void*) = 0;
+    };
+    using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
+
+    //
+    // ReadValueCallback retains all of the information necessary to store an unmarshaled
+    // Slice value as a Python object.
+    //
+    class ReadValueCallback
+    {
+    public:
+        ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+        ~ReadValueCallback();
+
+        void invoke(const ::std::shared_ptr<Ice::Value>&);
+
+    private:
+        ValueInfoPtr _info;
+        UnmarshalCallbackPtr _cb;
+        PyObject* _target;
+        void* _closure;
+    };
+    using ReadValueCallbackPtr = std::shared_ptr<ReadValueCallback>;
+
+    //
+    // This class assists during unmarshaling of Slice classes and exceptions.
+    // We attach an instance to a stream.
+    //
+    class StreamUtil
+    {
+    public:
+        StreamUtil();
+        ~StreamUtil();
+
+        //
+        // Keep a reference to a ReadValueCallback for patching purposes.
+        //
+        void add(const ReadValueCallbackPtr&);
+
+        //
+        // Keep track of object instances that have preserved slices.
+        //
+        void add(const ValueReaderPtr&);
+
+        //
+        // Updated the sliced data information for all stored object instances.
+        //
+        void updateSlicedData();
+
+        static void setSlicedDataMember(PyObject*, const Ice::SlicedDataPtr&);
+        static Ice::SlicedDataPtr getSlicedDataMember(PyObject*, ObjectMap*);
+
+    private:
+        std::vector<ReadValueCallbackPtr> _callbacks;
+        std::set<ValueReaderPtr> _readers;
+        static PyObject* _slicedDataType;
+        static PyObject* _sliceInfoType;
+    };
+
+    struct PrintObjectHistory
+    {
+        int index;
+        std::map<PyObject*, int> objects;
+    };
+
+    //
+    // Base class for type information.
+    //
+    class TypeInfo : public UnmarshalCallback
+    {
+    public:
+        TypeInfo();
+        virtual std::string getId() const = 0;
+
+        virtual bool validate(PyObject*) = 0;
+
+        virtual bool variableLength() const = 0;
+        virtual int wireSize() const = 0;
+        virtual Ice::OptionalFormat optionalFormat() const = 0;
+
+        virtual bool usesClasses() const; // Default implementation returns false.
+
+        virtual void unmarshaled(PyObject*, PyObject*, void*); // Default implementation is assert(false).
+
+        virtual void destroy();
+        //
+        // The marshal and unmarshal functions can raise Ice exceptions, and may raise
+        // AbortMarshaling if an error occurs.
+        //
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0) = 0;
+        virtual void unmarshal(
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = 0) = 0;
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
+    };
+    using TypeInfoPtr = std::shared_ptr<TypeInfo>;
+
+    //
+    // Primitive type information.
+    //
+    class PrimitiveInfo : public TypeInfo
+    {
+    public:
+        enum Kind
+        {
+            KindBool,
+            KindByte,
+            KindShort,
+            KindInt,
+            KindLong,
+            KindFloat,
+            KindDouble,
+            KindString
+        };
+
+        PrimitiveInfo(Kind);
+
+        virtual std::string getId() const;
+
+        virtual bool validate(PyObject*);
+
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
+
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        const Kind kind;
+    };
+    using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
+
+    //
+    // Enum information.
+    //
+    using EnumeratorMap = std::map<std::int32_t, PyObjectHandle>;
+
+    class EnumInfo final : public TypeInfo
+    {
+    public:
+        EnumInfo(std::string, PyObject*, PyObject*);
+
+        std::string getId() const final;
+
+        virtual bool validate(PyObject*);
+
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
+
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        virtual void destroy();
+
+        std::int32_t valueForEnumerator(PyObject*) const;
+        PyObject* enumeratorForValue(std::int32_t) const;
+
+        const std::string id;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+        const std::int32_t maxValue;
+        const EnumeratorMap enumerators;
+    };
+    using EnumInfoPtr = std::shared_ptr<EnumInfo>;
+
+    class DataMember : public UnmarshalCallback
+    {
+    public:
         virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-        PyObjectHandle key;
+        std::string name;
+        std::vector<std::string> metaData;
+        TypeInfoPtr type;
+        bool optional;
+        int tag;
     };
-    using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
+    using DataMemberPtr = std::shared_ptr<DataMember>;
+    using DataMemberList = std::vector<DataMemberPtr>;
 
-    std::string id;
-    TypeInfoPtr keyType;
-    TypeInfoPtr valueType;
+    //
+    // Struct information.
+    //
+    class StructInfo : public TypeInfo
+    {
+    public:
+        StructInfo(std::string, PyObject*, PyObject*);
 
-private:
+        virtual std::string getId() const;
 
-    bool _variableLength;
-    int _wireSize;
-};
-using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
-using TypeInfoList = std::vector<TypeInfoPtr>;
+        virtual bool validate(PyObject*);
+
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
+
+        virtual bool usesClasses() const;
+
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        virtual void destroy();
+
+        static PyObject* instantiate(PyObject*);
+
+        const std::string id;
+        const DataMemberList members;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+
+    private:
+        bool _variableLength;
+        int _wireSize;
+        PyObjectHandle _nullMarshalValue;
+    };
+    using StructInfoPtr = std::shared_ptr<StructInfo>;
+
+    //
+    // Sequence information.
+    //
+    class SequenceInfo : public TypeInfo
+    {
+    public:
+        SequenceInfo(std::string, PyObject*, PyObject*);
+
+        virtual std::string getId() const;
+
+        virtual bool validate(PyObject*);
+
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
+
+        virtual bool usesClasses() const;
+
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        virtual void destroy();
+
+        enum BuiltinType
+        {
+            BuiltinTypeBool = 0,
+            BuiltinTypeByte = 1,
+            BuiltinTypeShort = 2,
+            BuiltinTypeInt = 3,
+            BuiltinTypeLong = 4,
+            BuiltinTypeFloat = 5,
+            BuiltinTypeDouble = 6
+        };
+
+    private:
+        struct SequenceMapping : public UnmarshalCallback
+        {
+            enum Type
+            {
+                SEQ_DEFAULT,
+                SEQ_TUPLE,
+                SEQ_LIST,
+                SEQ_ARRAY,
+                SEQ_NUMPYARRAY,
+                SEQ_MEMORYVIEW
+            };
 
-class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
-{
-public:
+            SequenceMapping(Type);
+            SequenceMapping(const Ice::StringSeq&);
 
-    ClassInfo(std::string);
-    void init();
+            void init(const Ice::StringSeq&);
 
-    void define(PyObject*, PyObject*, PyObject*);
+            static bool getType(const Ice::StringSeq&, Type&);
 
-    virtual std::string getId() const;
+            virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-    virtual bool validate(PyObject*);
+            PyObject* createContainer(int) const;
+            void setItem(PyObject*, int, PyObject*) const;
+
+            Type type;
+            PyObject* factory;
+        };
+        using SequenceMappingPtr = std::shared_ptr<SequenceMapping>;
+
+        PyObject* getSequence(const PrimitiveInfoPtr&, PyObject*);
+        void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, Ice::OutputStream*);
+        void unmarshalPrimitiveSequence(
+            const PrimitiveInfoPtr&,
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            const SequenceMappingPtr&);
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+        PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
 
-    virtual bool usesClasses() const;
+    public:
+        const std::string id;
+        const SequenceMappingPtr mapping;
+        const TypeInfoPtr elementType;
+    };
+    using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
+    //
+    // Custom information.
+    //
+    class CustomInfo : public TypeInfo
+    {
+    public:
+        CustomInfo(std::string, PyObject*);
 
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+        virtual std::string getId() const;
 
-    virtual void destroy();
+        virtual bool validate(PyObject*);
 
-    const std::string id;
-    const ClassInfoPtr base;
-    const ClassInfoList interfaces;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    PyObject* typeObj; // Borrowed reference - the "_t_XXX" variable owns the reference.
-    const bool defined;
-};
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
 
-//
-// Value type information
-//
+        virtual bool usesClasses() const;
 
-class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<ValueInfo>
-{
-public:
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
 
-    ValueInfo(std::string);
-    void init();
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    void define(PyObject*, int, bool, PyObject*, PyObject*);
+        const std::string id;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+    };
+    using CustomInfoPtr = std::shared_ptr<CustomInfo>;
 
-    virtual std::string getId() const;
+    //
+    // Dictionary information.
+    //
+    class DictionaryInfo : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
+    {
+    public:
+        DictionaryInfo(std::string, PyObject*, PyObject*);
 
-    virtual bool validate(PyObject*);
+        virtual std::string getId() const;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+        virtual bool validate(PyObject*);
 
-    virtual bool usesClasses() const;
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
+        virtual bool usesClasses() const;
 
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+        virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-    virtual void destroy();
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+        virtual void destroy();
 
-    const std::string id;
-    const std::int32_t compactId;
-    const bool interface;
-    const ValueInfoPtr base;
-    const DataMemberList members;
-    const DataMemberList optionalMembers;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    PyObject* typeObj; // Borrowed reference - the "_t_XXX" variable owns the reference.
-    const bool defined;
-};
+        class KeyCallback : public UnmarshalCallback
+        {
+        public:
+            virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-//
-// Proxy information.
-//
-class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
-{
-public:
+            PyObjectHandle key;
+        };
+        using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
 
-    ProxyInfo(std::string);
-    void init();
+        std::string id;
+        TypeInfoPtr keyType;
+        TypeInfoPtr valueType;
 
-    void define(PyObject*);
+    private:
+        bool _variableLength;
+        int _wireSize;
+    };
+    using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
+    using TypeInfoList = std::vector<TypeInfoPtr>;
 
-    virtual std::string getId() const;
+    class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
+    {
+    public:
+        ClassInfo(std::string);
+        void init();
 
-    virtual bool validate(PyObject*);
+        void define(PyObject*, PyObject*, PyObject*);
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+        virtual std::string getId() const;
 
-    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
-                           const Ice::StringSeq* = 0);
+        virtual bool validate(PyObject*);
 
-    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
 
-    const std::string id;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    PyObject* typeObj; // Borrowed reference - the "_t_XXX" variable owns the reference.
-};
-using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
+        virtual bool usesClasses() const;
 
-//
-// Exception information.
-//
-class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
-{
-public:
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
 
-    void marshal(PyObject*, Ice::OutputStream*, ObjectMap*);
-    PyObject* unmarshal(Ice::InputStream*);
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    void print(PyObject*, IceUtilInternal::Output&);
-    void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+        virtual void destroy();
 
-    std::string id;
-    ExceptionInfoPtr base;
-    DataMemberList members;
-    DataMemberList optionalMembers;
-    bool usesClasses;
-    PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+        const std::string id;
+        const ClassInfoPtr base;
+        const ClassInfoList interfaces;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+        PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
+        const bool defined;
+    };
 
-private:
+    //
+    // Value type information
+    //
+
+    class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<ValueInfo>
+    {
+    public:
+        ValueInfo(std::string);
+        void init();
 
-    void writeMembers(PyObject*, Ice::OutputStream*, const DataMemberList&, ObjectMap*) const;
-};
+        void define(PyObject*, int, bool, PyObject*, PyObject*);
 
-//
-// ValueWriter wraps a Python object for marshaling.
-//
-class ValueWriter : public Ice::Value
-{
-public:
+        virtual std::string getId() const;
 
-    ValueWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
-    ~ValueWriter();
+        virtual bool validate(PyObject*);
 
-    virtual void ice_preMarshal();
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
+
+        virtual bool usesClasses() const;
 
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
+
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        virtual void destroy();
+
+        void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        const std::string id;
+        const std::int32_t compactId;
+        const bool interface;
+        const ValueInfoPtr base;
+        const DataMemberList members;
+        const DataMemberList optionalMembers;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+        PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
+        const bool defined;
+    };
 
-private:
+    //
+    // Proxy information.
+    //
+    class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
+    {
+    public:
+        ProxyInfo(std::string);
+        void init();
+
+        void define(PyObject*);
+
+        virtual std::string getId() const;
+
+        virtual bool validate(PyObject*);
 
-    void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
+        virtual bool variableLength() const;
+        virtual int wireSize() const;
+        virtual Ice::OptionalFormat optionalFormat() const;
 
-    PyObject* _object;
-    ObjectMap* _map;
-    ValueInfoPtr _info;
-    ValueInfoPtr _formal;
-};
+        virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0);
 
-//
-// ValueReader unmarshals the state of an Ice object.
-//
-class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
-{
-public:
+        virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    ValueReader(PyObject*, const ValueInfoPtr&);
-    ~ValueReader();
+        const std::string id;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+        PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
+    };
+    using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 
-    virtual void ice_postUnmarshal();
+    //
+    // Exception information.
+    //
+    class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
+    {
+    public:
+        void marshal(PyObject*, Ice::OutputStream*, ObjectMap*);
+        PyObject* unmarshal(Ice::InputStream*);
+
+        void print(PyObject*, IceUtilInternal::Output&);
+        void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+        std::string id;
+        ExceptionInfoPtr base;
+        DataMemberList members;
+        DataMemberList optionalMembers;
+        bool usesClasses;
+        PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
+
+    private:
+        void writeMembers(PyObject*, Ice::OutputStream*, const DataMemberList&, ObjectMap*) const;
+    };
 
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
+    //
+    // ValueWriter wraps a Python object for marshaling.
+    //
+    class ValueWriter : public Ice::Value
+    {
+    public:
+        ValueWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
+        ~ValueWriter();
 
-    virtual ValueInfoPtr getInfo() const;
+        virtual void ice_preMarshal();
 
-    PyObject* getObject() const; // Borrowed reference.
+        virtual void _iceWrite(Ice::OutputStream*) const;
+        virtual void _iceRead(Ice::InputStream*);
 
-    Ice::SlicedDataPtr getSlicedData() const;
+    private:
+        void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
 
-private:
+        PyObject* _object;
+        ObjectMap* _map;
+        ValueInfoPtr _info;
+        ValueInfoPtr _formal;
+    };
 
-    PyObject* _object;
-    ValueInfoPtr _info;
-    Ice::SlicedDataPtr _slicedData;
-};
+    //
+    // ValueReader unmarshals the state of an Ice object.
+    //
+    class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
+    {
+    public:
+        ValueReader(PyObject*, const ValueInfoPtr&);
+        ~ValueReader();
 
-//
-// ExceptionWriter wraps a Python user exception for marshaling.
-//
-class ExceptionWriter : public Ice::UserException
-{
-public:
+        virtual void ice_postUnmarshal();
 
-    ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0);
-    ~ExceptionWriter();
+        virtual void _iceWrite(Ice::OutputStream*) const;
+        virtual void _iceRead(Ice::InputStream*);
 
-    ExceptionWriter(const ExceptionWriter&) = default;
+        virtual ValueInfoPtr getInfo() const;
 
-    virtual std::string ice_id() const;
-    virtual Ice::UserException* ice_cloneImpl() const;
-    virtual void ice_throw() const;
+        PyObject* getObject() const; // Borrowed reference.
 
-    virtual void _write(Ice::OutputStream*) const;
-    virtual void _read(Ice::InputStream*);
+        Ice::SlicedDataPtr getSlicedData() const;
 
-    virtual bool _usesClasses() const;
+    private:
+        PyObject* _object;
+        ValueInfoPtr _info;
+        Ice::SlicedDataPtr _slicedData;
+    };
 
-protected:
+    //
+    // ExceptionWriter wraps a Python user exception for marshaling.
+    //
+    class ExceptionWriter : public Ice::UserException
+    {
+    public:
+        ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0);
+        ~ExceptionWriter();
 
-    virtual void _writeImpl(Ice::OutputStream*) const {}
-    virtual void _readImpl(Ice::InputStream*) {}
+        ExceptionWriter(const ExceptionWriter&) = default;
 
-private:
+        virtual std::string ice_id() const;
+        virtual Ice::UserException* ice_cloneImpl() const;
+        virtual void ice_throw() const;
 
-    PyObjectHandle _ex;
-    ExceptionInfoPtr _info;
-    ObjectMap _objects;
-};
+        virtual void _write(Ice::OutputStream*) const;
+        virtual void _read(Ice::InputStream*);
 
-//
-// ExceptionReader creates a Python user exception and unmarshals it.
-//
-class ExceptionReader : public Ice::UserException
-{
-public:
+        virtual bool _usesClasses() const;
 
-    ExceptionReader(const ExceptionInfoPtr&);
-    ~ExceptionReader();
+    protected:
+        virtual void _writeImpl(Ice::OutputStream*) const {}
+        virtual void _readImpl(Ice::InputStream*) {}
 
-    ExceptionReader(const ExceptionReader&) = default;
+    private:
+        PyObjectHandle _ex;
+        ExceptionInfoPtr _info;
+        ObjectMap _objects;
+    };
 
-    virtual std::string ice_id() const;
-    virtual Ice::UserException* ice_cloneImpl() const;
-    virtual void ice_throw() const;
+    //
+    // ExceptionReader creates a Python user exception and unmarshals it.
+    //
+    class ExceptionReader : public Ice::UserException
+    {
+    public:
+        ExceptionReader(const ExceptionInfoPtr&);
+        ~ExceptionReader();
 
-    virtual void _write(Ice::OutputStream*) const;
-    virtual void _read(Ice::InputStream*);
+        ExceptionReader(const ExceptionReader&) = default;
 
-    virtual bool _usesClasses() const;
+        virtual std::string ice_id() const;
+        virtual Ice::UserException* ice_cloneImpl() const;
+        virtual void ice_throw() const;
 
-    PyObject* getException() const; // Borrowed reference.
+        virtual void _write(Ice::OutputStream*) const;
+        virtual void _read(Ice::InputStream*);
 
-protected:
+        virtual bool _usesClasses() const;
 
-    virtual void _writeImpl(Ice::OutputStream*) const {}
-    virtual void _readImpl(Ice::InputStream*) {}
+        PyObject* getException() const; // Borrowed reference.
 
-private:
+    protected:
+        virtual void _writeImpl(Ice::OutputStream*) const {}
+        virtual void _readImpl(Ice::InputStream*) {}
 
-    ExceptionInfoPtr _info;
-    PyObjectHandle _ex;
-};
+    private:
+        ExceptionInfoPtr _info;
+        PyObjectHandle _ex;
+    };
 
-std::string resolveCompactId(std::int32_t id);
+    std::string resolveCompactId(std::int32_t id);
 
-ClassInfoPtr lookupClassInfo(std::string_view);
-ValueInfoPtr lookupValueInfo(std::string_view);
-ExceptionInfoPtr lookupExceptionInfo(std::string_view);
+    ClassInfoPtr lookupClassInfo(std::string_view);
+    ValueInfoPtr lookupValueInfo(std::string_view);
+    ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 
-extern PyObject* Unset;
+    extern PyObject* Unset;
 
-bool initTypes(PyObject*);
+    bool initTypes(PyObject*);
 
-PyObject* createType(const TypeInfoPtr&);
-TypeInfoPtr getType(PyObject*);
+    PyObject* createType(const TypeInfoPtr&);
+    TypeInfoPtr getType(PyObject*);
 
-PyObject* createException(const ExceptionInfoPtr&);
-ExceptionInfoPtr getException(PyObject*);
+    PyObject* createException(const ExceptionInfoPtr&);
+    ExceptionInfoPtr getException(PyObject*);
 
-PyObject* createBuffer(const BufferPtr&);
-
+    PyObject* createBuffer(const BufferPtr&);
 }
 
 extern "C" PyObject* IcePy_defineEnum(PyObject*, PyObject*);

@@ -34,384 +34,271 @@ using namespace IceGrid;
 
 namespace
 {
+    const char* _commandsHelp[][3] = {
+        {"application", "add",
+         "application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+         "                          Add application described in DESC. If specified\n"
+         "                          the optional targets TARGET will be deployed.\n"},
+        {"application", "remove", "application remove NAME   Remove application NAME.\n"},
+        {"application", "describe", "application describe NAME Describe application NAME.\n"},
+        {"application", "diff",
+         "application diff [-s | --servers] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+         "                          Print the differences betwen the application\n"
+         "                          described in DESC and the current deployment.\n"
+         "                          If -s or --servers is specified, print the\n"
+         "                          the list of servers affected by the differences.\n"},
+        {"application", "update",
+         "application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+         "                          Update the application described in DESC. If -n or\n"
+         "                          --no-restart is specified, the update will fail if\n"
+         "                          it is necessary to stop some servers.\n"},
+        {"application", "patch",
+         "application patch [-f | --force] NAME\n"
+         "                          Patch the given application data. If -f or --force is\n"
+         "                          specified, the servers depending on the data to patch\n"
+         "                          will be stopped if necessary.\n"},
+        {"application", "list", "application list          List all deployed applications.\n"},
+        {"server template", "instantiate",
+         "server template instantiate APPLICATION NODE TEMPLATE [NAME=VALUE ...]\n"
+         "                          Instantiate a server template.\n"},
+        {"server template", "describe",
+         "server template describe APPLICATION TEMPLATE\n"
+         "                          Describe application server template TEMPLATE.\n"},
+        {"service template", "describe",
+         "service template describe APPLICATION TEMPLATE\n"
+         "                          Describe application service template TEMPLATE.\n"},
+        {"node", "list", "node list                 List all registered nodes.\n"},
+        {"node", "describe", "node describe NAME        Show information about node NAME.\n"},
+        {"node", "ping", "node ping NAME            Ping node NAME.\n"},
+        {"node", "load", "node load NAME            Print the load of the node NAME.\n"},
+        {"node", "sockets",
+         "node sockets [NAME]       Print the number of CPU sockets of the\n"
+         "                          node NAME or all the nodes if NAME is omitted.\n"},
+        {"node", "show",
+         "node show [OPTIONS] NAME [log | stderr | stdout]\n"
+         "                          Show node NAME Ice log, stderr or stdout.\n"
+         "                          Options:\n"
+         "                           -f | --follow: Wait for new data to be available\n"
+         "                           -t N | --tail N: Print the last N log messages or lines\n"
+         "                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"},
+        {"node", "shutdown", "node shutdown NAME        Shutdown node NAME.\n"},
+        {"registry", "list", "registry list             List all registered registries.\n"},
+        {"registry", "describe", "registry describe NAME    Show information about registry NAME.\n"},
+        {"registry", "ping", "registry ping NAME        Ping registry NAME.\n"},
+        {"registry", "show",
+         "registry show [OPTIONS] NAME [log | stderr | stdout ]\n"
+         "                          Show registry NAME Ice log, stderr or stdout.\n"
+         "                          Options:\n"
+         "                           -f | --follow: Wait for new log or data to be available\n"
+         "                           -t N | --tail N: Print the last N log messages or lines\n"
+         "                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"},
+        {"registry", "shutdown", "registry shutdown NAME    Shutdown registry NAME.\n"},
+        {"server", "list", "server list               List all registered servers.\n"},
+        {"server", "remove", "server remove ID          Remove server ID.\n"},
+        {"server", "describe", "server describe ID        Describe server ID.\n"},
+        {"server", "properties", "server properties ID      Get the run-time properties of server ID.\n"},
+        {"server", "property", "server property ID NAME   Get the run-time property NAME of server ID.\n"},
+        {"server", "state", "server state ID           Get the state of server ID.\n"},
+        {"server", "pid", "server pid ID             Get the process id of server ID.\n"},
+        {"server", "start", "server start ID           Start server ID.\n"},
+        {"server", "stop", "server stop ID            Stop server ID.\n"},
+        {"server", "patch", "server patch ID           Patch server ID.\n"},
+        {"server", "signal", "server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"},
+        {"server", "stdout", "server stdout ID MESSAGE  Write MESSAGE on server ID's stdout.\n"},
+        {"server", "stderr", "server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n"},
+        {"server", "show",
+         "server show [OPTIONS] ID [log | stderr | stdout | LOGFILE ]\n"
+         "                          Show server ID Ice log, stderr, stdout or log file LOGFILE.\n"
+         "                          Options:\n"
+         "                           -f | --follow: Wait for new data to be available\n"
+         "                           -t N | --tail N: Print the last N log messages or lines\n"
+         "                           -h N | --head N: Print the first N lines (not available for Ice log)\n"},
+        {"server", "enable", "server enable ID          Enable server ID.\n"},
+        {"server", "disable",
+         "server disable ID         Disable server ID (a disabled server can't be\n"
+         "                          started on demand or administratively).\n"},
 
-const char* _commandsHelp[][3] = {
-{ "application", "add",
-"application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-"                          Add application described in DESC. If specified\n"
-"                          the optional targets TARGET will be deployed.\n"
-},
-{ "application", "remove",
-"application remove NAME   Remove application NAME.\n"
-},
-{ "application", "describe",
-"application describe NAME Describe application NAME.\n"
-},
-{ "application", "diff",
-"application diff [-s | --servers] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-"                          Print the differences betwen the application\n"
-"                          described in DESC and the current deployment.\n"
-"                          If -s or --servers is specified, print the\n"
-"                          the list of servers affected by the differences.\n"
-},
-{ "application", "update",
-"application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-"                          Update the application described in DESC. If -n or\n"
-"                          --no-restart is specified, the update will fail if\n"
-"                          it is necessary to stop some servers.\n"
-},
-{ "application", "patch",
-"application patch [-f | --force] NAME\n"
-"                          Patch the given application data. If -f or --force is\n"
-"                          specified, the servers depending on the data to patch\n"
-"                          will be stopped if necessary.\n"
-},
-{ "application", "list",
-"application list          List all deployed applications.\n"
-},
-{ "server template", "instantiate",
-"server template instantiate APPLICATION NODE TEMPLATE [NAME=VALUE ...]\n"
-"                          Instantiate a server template.\n"
-},
-{ "server template", "describe",
-"server template describe APPLICATION TEMPLATE\n"
-"                          Describe application server template TEMPLATE.\n"
-},
-{ "service template", "describe",
-"service template describe APPLICATION TEMPLATE\n"
-"                          Describe application service template TEMPLATE.\n"
-},
-{ "node", "list",
-"node list                 List all registered nodes.\n"
-},
-{ "node", "describe",
-"node describe NAME        Show information about node NAME.\n"
-},
-{ "node", "ping",
-"node ping NAME            Ping node NAME.\n"
-},
-{ "node", "load",
-"node load NAME            Print the load of the node NAME.\n"
-},
-{ "node", "sockets",
-"node sockets [NAME]       Print the number of CPU sockets of the\n"
-"                          node NAME or all the nodes if NAME is omitted.\n"
-},
-{ "node", "show",
-"node show [OPTIONS] NAME [log | stderr | stdout]\n"
-"                          Show node NAME Ice log, stderr or stdout.\n"
-"                          Options:\n"
-"                           -f | --follow: Wait for new data to be available\n"
-"                           -t N | --tail N: Print the last N log messages or lines\n"
-"                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"
-},
-{ "node", "shutdown",
-"node shutdown NAME        Shutdown node NAME.\n"
-},
-{ "registry", "list",
-"registry list             List all registered registries.\n"
-},
-{ "registry", "describe",
-"registry describe NAME    Show information about registry NAME.\n"
-},
-{ "registry", "ping",
-"registry ping NAME        Ping registry NAME.\n"
-},
-{ "registry", "show",
-"registry show [OPTIONS] NAME [log | stderr | stdout ]\n"
-"                          Show registry NAME Ice log, stderr or stdout.\n"
-"                          Options:\n"
-"                           -f | --follow: Wait for new log or data to be available\n"
-"                           -t N | --tail N: Print the last N log messages or lines\n"
-"                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"
-},
-{ "registry", "shutdown",
-"registry shutdown NAME    Shutdown registry NAME.\n"
-},
-{ "server", "list",
-"server list               List all registered servers.\n"
-},
-{ "server", "remove",
-"server remove ID          Remove server ID.\n"
-},
-{ "server", "describe",
-"server describe ID        Describe server ID.\n"
-},
-{ "server", "properties",
-"server properties ID      Get the run-time properties of server ID.\n"
-},
-{ "server", "property",
-"server property ID NAME   Get the run-time property NAME of server ID.\n"
-},
-{ "server", "state",
-"server state ID           Get the state of server ID.\n"
-},
-{ "server", "pid",
-"server pid ID             Get the process id of server ID.\n"
-},
-{ "server", "start",
-"server start ID           Start server ID.\n"
-},
-{ "server", "stop",
-"server stop ID            Stop server ID.\n"
-},
-{ "server", "patch",
-"server patch ID           Patch server ID.\n"
-},
-{ "server", "signal",
-"server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
-},
-{ "server", "stdout",
-"server stdout ID MESSAGE  Write MESSAGE on server ID's stdout.\n"
-},
-{ "server", "stderr",
-"server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n"
-},
-{ "server", "show",
-"server show [OPTIONS] ID [log | stderr | stdout | LOGFILE ]\n"
-"                          Show server ID Ice log, stderr, stdout or log file LOGFILE.\n"
-"                          Options:\n"
-"                           -f | --follow: Wait for new data to be available\n"
-"                           -t N | --tail N: Print the last N log messages or lines\n"
-"                           -h N | --head N: Print the first N lines (not available for Ice log)\n"
-},
-{ "server", "enable",
-"server enable ID          Enable server ID.\n"
-},
-{ "server", "disable",
-"server disable ID         Disable server ID (a disabled server can't be\n"
-"                          started on demand or administratively).\n"
-},
+        {"service", "start", "service start ID NAME     Starts service NAME in IceBox server ID.\n"},
+        {"service", "stop", "service stop ID NAME      Stops service NAME in IceBox server ID.\n"},
+        {"service", "describe", "service describe ID NAME  Describes service NAME in IceBox server ID.\n"},
+        {"service", "properties",
+         "service properties ID NAME\n"
+         "                          Get the run-time properties of service NAME in\n"
+         "                          IceBox server ID.\n"},
+        {"service", "property",
+         "service property ID NAME PROPERTY\n"
+         "                          Get the run-time property PROPERTY of service NAME\n"
+         "                          from IceBox server ID.\n"},
+        {"service", "list", "service list ID           List the services in IceBox server ID.\n"},
 
-{ "service", "start",
-"service start ID NAME     Starts service NAME in IceBox server ID.\n"
-},
-{ "service", "stop",
-"service stop ID NAME      Stops service NAME in IceBox server ID.\n"
-},
-{ "service", "describe",
-"service describe ID NAME  Describes service NAME in IceBox server ID.\n"
-},
-{ "service", "properties",
-"service properties ID NAME\n"
-"                          Get the run-time properties of service NAME in\n"
-"                          IceBox server ID.\n"
-},
-{ "service", "property",
-"service property ID NAME PROPERTY\n"
-"                          Get the run-time property PROPERTY of service NAME\n"
-"                          from IceBox server ID.\n"
-},
-{ "service", "list",
-"service list ID           List the services in IceBox server ID.\n"
-},
+        {"adapter", "list", "adapter list              List all registered adapters.\n"},
+        {"adapter", "endpoints", "adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n"},
+        {"adapter", "remove", "adapter remove ID         Remove adapter or replica group ID.\n"},
+        {"object", "add",
+         "object add PROXY [TYPE]   Add an object to the object registry,\n"
+         "                          optionally specifying its type.\n"},
+        {"object", "remove", "object remove IDENTITY    Remove an object from the object registry.\n"},
+        {"object", "find", "object find TYPE          Find all objects with the type TYPE.\n"},
+        {"object", "describe",
+         "object describe EXPR      Describe all registered objects whose stringified\n"
+         "                          identities match the expression EXPR. A trailing\n"
+         "                          wildcard is supported in EXPR, for example\n"
+         "                          \"object describe Ice*\".\n"},
+        {"object", "list",
+         "object list EXPR          List all registered objects whose stringified\n"
+         "                          identities match the expression EXPR. A trailing\n"
+         "                          wildcard is supported in EXPR, for example\n"
+         "                          \"object list Ice*\".\n"},
+        {0, 0, 0}};
 
-{ "adapter", "list",
-"adapter list              List all registered adapters.\n"
-},
-{ "adapter", "endpoints",
-"adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n"
-},
-{ "adapter", "remove",
-"adapter remove ID         Remove adapter or replica group ID.\n"
-},
-{ "object", "add",
-"object add PROXY [TYPE]   Add an object to the object registry,\n"
-"                          optionally specifying its type.\n"
-},
-{ "object", "remove",
-"object remove IDENTITY    Remove an object from the object registry.\n"
-},
-{ "object", "find",
-"object find TYPE          Find all objects with the type TYPE.\n"
-},
-{ "object", "describe",
-"object describe EXPR      Describe all registered objects whose stringified\n"
-"                          identities match the expression EXPR. A trailing\n"
-"                          wildcard is supported in EXPR, for example\n"
-"                          \"object describe Ice*\".\n"
-},
-{ "object", "list",
-"object list EXPR          List all registered objects whose stringified\n"
-"                          identities match the expression EXPR. A trailing\n"
-"                          wildcard is supported in EXPR, for example\n"
-"                          \"object list Ice*\".\n"
-},
-{ 0, 0, 0 }
-};
-
-int loggerCallbackCount = 0;
+    int loggerCallbackCount = 0;
 
 #ifdef _WIN32
-shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
+    shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
 #endif
 
-void outputNewline()
-{
-    consoleOut << endl;
-}
+    void outputNewline() { consoleOut << endl; }
 
-void flushOutput()
-{
-    consoleOut << flush;
-}
+    void flushOutput() { consoleOut << flush; }
 
-void outputString(const string& s)
-{
-    consoleOut << s;
-}
+    void outputString(const string& s) { consoleOut << s; }
 
-void writeMessage(const string& message, bool indent)
-{
-    string s = message;
-
-    if(indent)
+    void writeMessage(const string& message, bool indent)
     {
-        string::size_type idx = 0;
-        while((idx = s.find("\n", idx)) != string::npos)
+        string s = message;
+
+        if (indent)
         {
-            s.insert(idx + 1, "   ");
-            ++idx;
-        }
-    }
-
-    outputString(s);
-    outputNewline();
-    flushOutput();
-}
-
-void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
-{
-    string prefix = p;
-
-    if(!prefix.empty())
-    {
-        prefix += ": ";
-    }
-
-    string timestamp = IceInternal::timePointToDateTimeString(
-        chrono::system_clock::time_point(chrono::microseconds(logMessage.timestamp)));
-
-    switch(logMessage.type)
-    {
-        case Ice::LogMessageType::PrintMessage:
-        {
-            writeMessage(timestamp + " " + logMessage.message, false);
-            break;
-        }
-        case Ice::LogMessageType::TraceMessage:
-        {
-            string s = "-- " + timestamp + " " + prefix;
-            if(!logMessage.traceCategory.empty())
+            string::size_type idx = 0;
+            while ((idx = s.find("\n", idx)) != string::npos)
             {
-                s += logMessage.traceCategory + ": ";
+                s.insert(idx + 1, "   ");
+                ++idx;
             }
-            s += logMessage.message;
-            writeMessage(s, true);
-            break;
         }
-        case Ice::LogMessageType::WarningMessage:
+
+        outputString(s);
+        outputNewline();
+        flushOutput();
+    }
+
+    void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
+    {
+        string prefix = p;
+
+        if (!prefix.empty())
         {
-            writeMessage("!- " + timestamp + " " + prefix + "warning: " + logMessage.message, true);
-            break;
+            prefix += ": ";
         }
-        case Ice::LogMessageType::ErrorMessage:
+
+        string timestamp = IceInternal::timePointToDateTimeString(
+            chrono::system_clock::time_point(chrono::microseconds(logMessage.timestamp)));
+
+        switch (logMessage.type)
         {
-            writeMessage("!! " + timestamp + " " + prefix + "error: " + logMessage.message, true);
-            break;
-        }
-        default:
-        {
-            assert(0);
+            case Ice::LogMessageType::PrintMessage:
+            {
+                writeMessage(timestamp + " " + logMessage.message, false);
+                break;
+            }
+            case Ice::LogMessageType::TraceMessage:
+            {
+                string s = "-- " + timestamp + " " + prefix;
+                if (!logMessage.traceCategory.empty())
+                {
+                    s += logMessage.traceCategory + ": ";
+                }
+                s += logMessage.message;
+                writeMessage(s, true);
+                break;
+            }
+            case Ice::LogMessageType::WarningMessage:
+            {
+                writeMessage("!- " + timestamp + " " + prefix + "warning: " + logMessage.message, true);
+                break;
+            }
+            case Ice::LogMessageType::ErrorMessage:
+            {
+                writeMessage("!! " + timestamp + " " + prefix + "error: " + logMessage.message, true);
+                break;
+            }
+            default:
+            {
+                assert(0);
+            }
         }
     }
-}
 
-class RemoteLoggerI final : public Ice::RemoteLogger
-{
-public:
-
-    RemoteLoggerI();
-
-    void init(string, Ice::LogMessageSeq, const Ice::Current&) override;
-    void log(Ice::LogMessage, const Ice::Current&) override;
-
-    void destroy();
-
-private:
-
-    mutex _mutex;
-    condition_variable _condVar;
-    bool _initDone;
-    bool _destroyed;
-    string _prefix;
-};
-
-RemoteLoggerI::RemoteLoggerI() :
-    _initDone(false),
-    _destroyed(false)
-{
-}
-
-void
-RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
-{
-    lock_guard lock(_mutex);
-    if(!_destroyed)
+    class RemoteLoggerI final : public Ice::RemoteLogger
     {
-        _prefix = prefix;
+    public:
+        RemoteLoggerI();
 
-        for(const auto& message : logMessages)
+        void init(string, Ice::LogMessageSeq, const Ice::Current&) override;
+        void log(Ice::LogMessage, const Ice::Current&) override;
+
+        void destroy();
+
+    private:
+        mutex _mutex;
+        condition_variable _condVar;
+        bool _initDone;
+        bool _destroyed;
+        string _prefix;
+    };
+
+    RemoteLoggerI::RemoteLoggerI() : _initDone(false), _destroyed(false) {}
+
+    void RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
+    {
+        lock_guard lock(_mutex);
+        if (!_destroyed)
         {
-            printLogMessage(_prefix, message);
-        }
+            _prefix = prefix;
 
-        _initDone = true;
+            for (const auto& message : logMessages)
+            {
+                printLogMessage(_prefix, message);
+            }
+
+            _initDone = true;
+            _condVar.notify_all();
+        }
+    }
+
+    void RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
+    {
+        unique_lock lock(_mutex);
+
+        _condVar.wait(lock, [this] { return _initDone || _destroyed; });
+
+        if (!_destroyed)
+        {
+            printLogMessage(_prefix, logMessage);
+        }
+    }
+
+    void RemoteLoggerI::destroy()
+    {
+        lock_guard lock(_mutex);
+        _destroyed = true;
         _condVar.notify_all();
     }
 }
 
-void
-RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
-{
-    unique_lock lock(_mutex);
-
-    _condVar.wait(lock, [this] { return _initDone || _destroyed; } );
-
-    if(!_destroyed)
-    {
-        printLogMessage(_prefix, logMessage);
-    }
-}
-
-void
-RemoteLoggerI::destroy()
-{
-    lock_guard lock(_mutex);
-    _destroyed = true;
-    _condVar.notify_all();
-}
-
-}
-
 namespace IceGrid
 {
-
-Parser* parser;
-
+    Parser* parser;
 }
 
-Parser::Parser(shared_ptr<Communicator> communicator,
-               AdminSessionPrxPtr session,
-               AdminPrxPtr admin,
-               bool interactive) :
-    _communicator(std::move(communicator)),
-    _session(std::move(session)),
-    _admin(std::move(admin)),
-    _interrupted(false),
-    _interactive(interactive)
+Parser::Parser(shared_ptr<Communicator> communicator, AdminSessionPrxPtr session, AdminPrxPtr admin, bool interactive)
+    : _communicator(std::move(communicator)),
+      _session(std::move(session)),
+      _admin(std::move(admin)),
+      _interrupted(false),
+      _interactive(interactive)
 {
-    for(int i = 0; _commandsHelp[i][0]; i++)
+    for (int i = 0; _commandsHelp[i][0]; i++)
     {
         const string category = _commandsHelp[i][0];
         const string cmd = _commandsHelp[i][1];
@@ -421,7 +308,7 @@ Parser::Parser(shared_ptr<Communicator> communicator,
     }
 
 #ifdef _WIN32
-    if(!windowsConsoleConverter)
+    if (!windowsConsoleConverter)
     {
         windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
     }
@@ -431,11 +318,11 @@ Parser::Parser(shared_ptr<Communicator> communicator,
 void
 Parser::usage(const string& category, const string& command)
 {
-    if(_helpCommands.find(category) == _helpCommands.end())
+    if (_helpCommands.find(category) == _helpCommands.end())
     {
         invalidCommand("unknown command `" + category + "'");
     }
-    else if(_helpCommands[category].find(command) == _helpCommands[category].end())
+    else if (_helpCommands[category].find(command) == _helpCommands[category].end())
     {
         invalidCommand("unknown command `" + category + " " + command + "'");
     }
@@ -448,11 +335,11 @@ Parser::usage(const string& category, const string& command)
 void
 Parser::usage(const string& category, const list<string>& args)
 {
-    if(args.empty())
+    if (args.empty())
     {
         usage(category);
     }
-    else if(args.size() > 1)
+    else if (args.size() > 1)
     {
         invalidCommand("`help' requires at most 1 argument");
     }
@@ -465,24 +352,23 @@ Parser::usage(const string& category, const list<string>& args)
 void
 Parser::usage()
 {
-     consoleOut <<
-         "help                        Print this message.\n"
-         "exit, quit                  Exit this program.\n"
-         "CATEGORY help               Print the help section of the given CATEGORY.\n"
-         "COMMAND help                Print the help of the given COMMAND.\n"
-         "\n"
-         "List of help categories:\n"
-         "\n"
-         "  application: commands to manage applications\n"
-         "  node: commands to manage nodes\n"
-         "  registry: commands to manage registries\n"
-         "  server: commands to manage servers\n"
-         "  service: commands to manage services\n"
-         "  adapter: commands to manage adapters\n"
-         "  object: commands to manage objects\n"
-         "  server template: commands to manage server templates\n"
-         "  service template: commands to manage service templates\n"
-         "\n";
+    consoleOut << "help                        Print this message.\n"
+                  "exit, quit                  Exit this program.\n"
+                  "CATEGORY help               Print the help section of the given CATEGORY.\n"
+                  "COMMAND help                Print the help of the given COMMAND.\n"
+                  "\n"
+                  "List of help categories:\n"
+                  "\n"
+                  "  application: commands to manage applications\n"
+                  "  node: commands to manage nodes\n"
+                  "  registry: commands to manage registries\n"
+                  "  server: commands to manage servers\n"
+                  "  service: commands to manage services\n"
+                  "  adapter: commands to manage adapters\n"
+                  "  object: commands to manage objects\n"
+                  "  server template: commands to manage server templates\n"
+                  "  service template: commands to manage service templates\n"
+                  "\n";
 }
 
 void
@@ -510,10 +396,10 @@ Parser::resetInterrupt()
 void
 Parser::checkInterrupted()
 {
-    if(!_interactive)
+    if (!_interactive)
     {
         lock_guard lock(_mutex);
-        if(_interrupted)
+        if (_interrupted)
         {
             throw runtime_error("interrupted with Ctrl-C");
         }
@@ -531,19 +417,19 @@ Parser::addApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(const auto& arg : copyArgs)
+        for (const auto& arg : copyArgs)
         {
             args.push_back(arg);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() < 1)
+    if (args.size() < 1)
     {
         invalidCommand("application add", "requires at least one argument");
         return;
@@ -557,10 +443,10 @@ Parser::addApplication(const list<string>& origArgs)
         vector<string>::const_iterator p = args.begin();
         string desc = *p++;
 
-        for(; p != args.end(); ++p)
+        for (; p != args.end(); ++p)
         {
             string::size_type pos = p->find('=');
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 vars[p->substr(0, pos)] = p->substr(pos + 1);
             }
@@ -576,7 +462,7 @@ Parser::addApplication(const list<string>& origArgs)
         ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
         _admin->addApplication(app);
 
-        if(!opts.isSet("no-patch"))
+        if (!opts.isSet("no-patch"))
         {
             //
             // Patch the application.
@@ -585,13 +471,13 @@ Parser::addApplication(const list<string>& origArgs)
             {
                 _admin->patchApplication(app.name, true);
             }
-            catch(const PatchException& ex)
+            catch (const PatchException& ex)
             {
                 warning(patchFailed(ex.reasons));
             }
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -600,7 +486,7 @@ Parser::addApplication(const list<string>& origArgs)
 void
 Parser::removeApplication(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("application remove", "requires exactly one argument");
         return;
@@ -614,7 +500,7 @@ Parser::removeApplication(const list<string>& args)
 
         _admin->removeApplication(name);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -623,7 +509,7 @@ Parser::removeApplication(const list<string>& args)
 void
 Parser::describeApplication(const list<string>& args)
 {
-    if(args.size() < 1)
+    if (args.size() < 1)
     {
         invalidCommand("application describe", "requires at least one argument");
         return;
@@ -642,7 +528,7 @@ Parser::describeApplication(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -659,21 +545,21 @@ Parser::diffApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(const auto& arg : copyArgs)
+        for (const auto& arg : copyArgs)
         {
             args.push_back(arg);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() < 1)
+    if (args.size() < 1)
     {
-        invalidCommand("application diff" , "requires at least one argument");
+        invalidCommand("application diff", "requires at least one argument");
         return;
     }
 
@@ -685,10 +571,10 @@ Parser::diffApplication(const list<string>& origArgs)
         vector<string>::const_iterator arg = args.begin();
         string desc = *arg++;
 
-        for(; arg != args.end(); ++arg)
+        for (; arg != args.end(); ++arg)
         {
             string::size_type pos = arg->find('=');
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 vars[arg->substr(0, pos)] = arg->substr(pos + 1);
             }
@@ -706,32 +592,32 @@ Parser::diffApplication(const list<string>& origArgs)
 
         ostringstream os;
         Output out(os);
-        if(opts.isSet("servers"))
+        if (opts.isSet("servers"))
         {
             map<string, ServerInfo> oldServers = oldAppHelper.getServerInfos(origApp.uuid, origApp.revision);
             map<string, ServerInfo> newServers = newAppHelper.getServerInfos(origApp.uuid, origApp.revision);
 
             vector<string> messages;
             map<string, ServerInfo>::const_iterator p;
-            for(p = oldServers.begin(); p != oldServers.end(); ++p)
+            for (p = oldServers.begin(); p != oldServers.end(); ++p)
             {
                 map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
-                if(q == newServers.end())
+                if (q == newServers.end())
                 {
                     messages.push_back("server `" + p->first + "': removed");
                 }
             }
 
-            for(p = newServers.begin(); p != newServers.end(); ++p)
+            for (p = newServers.begin(); p != newServers.end(); ++p)
             {
                 map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
-                if(q == oldServers.end())
+                if (q == oldServers.end())
                 {
                     messages.push_back("server `" + p->first + "': added");
                 }
-                else if(isServerUpdated(p->second, q->second))
+                else if (isServerUpdated(p->second, q->second))
                 {
-                    if(isServerUpdated(p->second, q->second, true)) // Ignore properties
+                    if (isServerUpdated(p->second, q->second, true)) // Ignore properties
                     {
                         messages.push_back("server `" + p->first + "': updated (restart required)");
                     }
@@ -745,7 +631,7 @@ Parser::diffApplication(const list<string>& origArgs)
             out << "application `" << origApp.descriptor.name << "'";
             out << sb;
             sort(messages.begin(), messages.end());
-            for(vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
+            for (vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
             {
                 out << nl << *r;
             }
@@ -758,7 +644,7 @@ Parser::diffApplication(const list<string>& origArgs)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -775,19 +661,19 @@ Parser::updateApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() < 1)
+    if (args.size() < 1)
     {
         invalidCommand("application update", "requires at least one argument");
         return;
@@ -801,10 +687,10 @@ Parser::updateApplication(const list<string>& origArgs)
         vector<string>::const_iterator p = args.begin();
         string xml = *p++;
 
-        for(; p != args.end(); ++p)
+        for (; p != args.end(); ++p)
         {
             string::size_type pos = p->find('=');
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 vars[p->substr(0, pos)] = p->substr(pos + 1);
             }
@@ -815,7 +701,7 @@ Parser::updateApplication(const list<string>& origArgs)
         }
 
         ApplicationDescriptor desc = DescriptorParser::parseDescriptor(xml, targets, vars, _communicator, _admin);
-        if(opts.isSet("no-restart"))
+        if (opts.isSet("no-restart"))
         {
             _admin->syncApplicationWithoutRestart(desc);
         }
@@ -824,11 +710,11 @@ Parser::updateApplication(const list<string>& origArgs)
             _admin->syncApplication(desc);
         }
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
         error("registry doesn't support updates without restart");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -845,19 +731,19 @@ Parser::patchApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("application patch", "requires exactly one argument");
         return;
@@ -869,7 +755,7 @@ Parser::patchApplication(const list<string>& origArgs)
         string name = *p++;
         _admin->patchApplication(name, opts.isSet("force"));
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -878,7 +764,7 @@ Parser::patchApplication(const list<string>& origArgs)
 void
 Parser::listAllApplications(const list<string>& args)
 {
-    if(!args.empty())
+    if (!args.empty())
     {
         invalidCommand("application list", "doesn't require any argument");
         return;
@@ -888,10 +774,10 @@ Parser::listAllApplications(const list<string>& args)
     {
         Ice::StringSeq names = _admin->getAllApplicationNames();
         ostringstream os;
-        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        copy(names.begin(), names.end(), ostream_iterator<string>(os, "\n"));
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -900,7 +786,7 @@ Parser::listAllApplications(const list<string>& args)
 void
 Parser::describeServerTemplate(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("server template describe", "requires exactly two arguments");
         return;
@@ -918,7 +804,7 @@ Parser::describeServerTemplate(const list<string>& args)
         ostringstream os;
         Output out(os);
         TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
-        if(q != application.descriptor.serverTemplates.end())
+        if (q != application.descriptor.serverTemplates.end())
         {
             out << "server template `" << templ << "'";
             out << sb;
@@ -928,7 +814,7 @@ Parser::describeServerTemplate(const list<string>& args)
 
             auto server = dynamic_pointer_cast<ServerDescriptor>(q->second.descriptor);
             auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(server);
-            if(iceBox)
+            if (iceBox)
             {
                 IceBoxHelper(iceBox).print(_communicator, out);
             }
@@ -945,7 +831,7 @@ Parser::describeServerTemplate(const list<string>& args)
         }
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -954,7 +840,7 @@ Parser::describeServerTemplate(const list<string>& args)
 void
 Parser::instantiateServerTemplate(const list<string>& args)
 {
-    if(args.size() < 3)
+    if (args.size() < 3)
     {
         invalidCommand("server template instantiate", "requires at least three arguments");
         return;
@@ -968,10 +854,10 @@ Parser::instantiateServerTemplate(const list<string>& args)
         string application = *p++;
         string node = *p++;
         string templ = *p++;
-        for(; p != args.end(); ++p)
+        for (; p != args.end(); ++p)
         {
             string::size_type pos = p->find('=');
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 vars[p->substr(0, pos)] = p->substr(pos + 1);
             }
@@ -982,7 +868,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
         desc.parameterValues = vars;
         _admin->instantiateServer(application, node, desc);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -991,7 +877,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
 void
 Parser::describeServiceTemplate(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("service template describe", "requires exactly two arguments");
         return;
@@ -1009,7 +895,7 @@ Parser::describeServiceTemplate(const list<string>& args)
         ostringstream os;
         Output out(os);
         TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
-        if(q != application.descriptor.serviceTemplates.end())
+        if (q != application.descriptor.serviceTemplates.end())
         {
             out << "service template `" << templ << "'";
             out << sb;
@@ -1028,7 +914,7 @@ Parser::describeServiceTemplate(const list<string>& args)
         }
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1037,7 +923,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 void
 Parser::describeNode(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("node describe", "requires exactly one argument");
         return;
@@ -1060,7 +946,7 @@ Parser::describeNode(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1069,7 +955,7 @@ Parser::describeNode(const list<string>& args)
 void
 Parser::pingNode(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("node ping", "requires exactly one argument");
         return;
@@ -1077,7 +963,7 @@ Parser::pingNode(const list<string>& args)
 
     try
     {
-        if(_admin->pingNode(args.front()))
+        if (_admin->pingNode(args.front()))
         {
             consoleOut << "node is up" << endl;
         }
@@ -1086,7 +972,7 @@ Parser::pingNode(const list<string>& args)
             consoleOut << "node is down" << endl;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1095,7 +981,7 @@ Parser::pingNode(const list<string>& args)
 void
 Parser::printLoadNode(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("node load", "requires exactly one argument");
         return;
@@ -1106,7 +992,7 @@ Parser::printLoadNode(const list<string>& args)
         LoadInfo load = _admin->getNodeLoad(args.front());
         consoleOut << "load average (1/5/15): " << load.avg1 << " / " << load.avg5 << " / " << load.avg15 << endl;
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1115,7 +1001,7 @@ Parser::printLoadNode(const list<string>& args)
 void
 Parser::printNodeProcessorSockets(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         invalidCommand("node sockets", "requires no more than one argument");
         return;
@@ -1123,13 +1009,13 @@ Parser::printNodeProcessorSockets(const list<string>& args)
 
     try
     {
-        if(args.size() == 1)
+        if (args.size() == 1)
         {
             try
             {
                 consoleOut << _admin->getNodeProcessorSocketCount(args.front()) << endl;
             }
-            catch(const Ice::OperationNotExistException&)
+            catch (const Ice::OperationNotExistException&)
             {
                 consoleOut << "not supported" << endl;
             }
@@ -1137,8 +1023,8 @@ Parser::printNodeProcessorSockets(const list<string>& args)
         else
         {
             Ice::StringSeq names = _admin->getAllNodeNames();
-            map<string, pair< vector<string>, int> > processorSocketCounts;
-            for(Ice::StringSeq::const_iterator p = names.begin(); p != names.end(); p++)
+            map<string, pair<vector<string>, int>> processorSocketCounts;
+            for (Ice::StringSeq::const_iterator p = names.begin(); p != names.end(); p++)
             {
                 try
                 {
@@ -1148,16 +1034,16 @@ Parser::printNodeProcessorSockets(const list<string>& args)
                     {
                         processorSocketCounts[info.hostname].second = _admin->getNodeProcessorSocketCount(*p);
                     }
-                    catch(const Ice::OperationNotExistException&)
+                    catch (const Ice::OperationNotExistException&)
                     {
                         // Not supported.
                         processorSocketCounts[info.hostname].second = 0;
                     }
                 }
-                catch(const NodeNotExistException&)
+                catch (const NodeNotExistException&)
                 {
                 }
-                catch(const NodeUnreachableException&)
+                catch (const NodeUnreachableException&)
                 {
                 }
             }
@@ -1166,10 +1052,10 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             os.flags(ios::left);
             os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
             os << setw(79) << "=====================================================================" << endl;
-            for(map<string, pair< vector<string>, int> >::const_iterator q = processorSocketCounts.begin();
-                q != processorSocketCounts.end(); ++q)
+            for (map<string, pair<vector<string>, int>>::const_iterator q = processorSocketCounts.begin();
+                 q != processorSocketCounts.end(); ++q)
             {
-                os << setw(20) << setiosflags(ios::left) <<q->first;
+                os << setw(20) << setiosflags(ios::left) << q->first;
                 os << "| " << setw(18) << setiosflags(ios::left) << q->second.second;
                 os << "| " << setw(37) << setiosflags(ios::left) << toString(q->second.first);
                 os << endl;
@@ -1177,7 +1063,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             consoleOut << os.str() << flush;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1186,7 +1072,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
 void
 Parser::shutdownNode(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("node shutdown", "requires exactly one argument");
         return;
@@ -1196,7 +1082,7 @@ Parser::shutdownNode(const list<string>& args)
     {
         _admin->shutdownNode(args.front());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1205,7 +1091,7 @@ Parser::shutdownNode(const list<string>& args)
 void
 Parser::listAllNodes(const list<string>& args)
 {
-    if(!args.empty())
+    if (!args.empty())
     {
         invalidCommand("node list", "doesn't require any argument");
         return;
@@ -1215,10 +1101,10 @@ Parser::listAllNodes(const list<string>& args)
     {
         ostringstream os;
         Ice::StringSeq names = _admin->getAllNodeNames();
-        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        copy(names.begin(), names.end(), ostream_iterator<string>(os, "\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1227,7 +1113,7 @@ Parser::listAllNodes(const list<string>& args)
 void
 Parser::describeRegistry(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("registry describe", "requires exactly one argument");
         return;
@@ -1245,7 +1131,7 @@ Parser::describeRegistry(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1254,7 +1140,7 @@ Parser::describeRegistry(const list<string>& args)
 void
 Parser::pingRegistry(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("registry ping", "requires exactly one argument");
         return;
@@ -1262,7 +1148,7 @@ Parser::pingRegistry(const list<string>& args)
 
     try
     {
-        if(_admin->pingRegistry(args.front()))
+        if (_admin->pingRegistry(args.front()))
         {
             consoleOut << "registry is up" << endl;
         }
@@ -1271,7 +1157,7 @@ Parser::pingRegistry(const list<string>& args)
             consoleOut << "registry is down" << endl;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1280,7 +1166,7 @@ Parser::pingRegistry(const list<string>& args)
 void
 Parser::shutdownRegistry(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         invalidCommand("registry shutdown", "requires at most one argument");
         return;
@@ -1288,7 +1174,7 @@ Parser::shutdownRegistry(const list<string>& args)
 
     try
     {
-        if(args.empty())
+        if (args.empty())
         {
             _admin->shutdown();
         }
@@ -1297,7 +1183,7 @@ Parser::shutdownRegistry(const list<string>& args)
             _admin->shutdownRegistry(args.front());
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1306,7 +1192,7 @@ Parser::shutdownRegistry(const list<string>& args)
 void
 Parser::listAllRegistries(const list<string>& args)
 {
-    if(!args.empty())
+    if (!args.empty())
     {
         invalidCommand("registry list", "doesn't require any argument");
         return;
@@ -1316,10 +1202,10 @@ Parser::listAllRegistries(const list<string>& args)
     {
         ostringstream os;
         Ice::StringSeq names = _admin->getAllRegistryNames();
-        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        copy(names.begin(), names.end(), ostream_iterator<string>(os, "\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1328,7 +1214,7 @@ Parser::listAllRegistries(const list<string>& args)
 void
 Parser::removeServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server remove", "requires exactly one argument");
         return;
@@ -1345,7 +1231,7 @@ Parser::removeServer(const list<string>& args)
         update.nodes.push_back(nodeUpdate);
         _admin->updateApplication(update);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1354,7 +1240,7 @@ Parser::removeServer(const list<string>& args)
 void
 Parser::startServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server start", "requires exactly one argument");
         return;
@@ -1364,11 +1250,11 @@ Parser::startServer(const list<string>& args)
     {
         _admin->startServer(args.front());
     }
-    catch(const ServerStartException& ex)
+    catch (const ServerStartException& ex)
     {
         error("the server didn't start successfully:\n" + ex.reason);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1377,7 +1263,7 @@ Parser::startServer(const list<string>& args)
 void
 Parser::stopServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server stop", "requires exactly one argument");
         return;
@@ -1387,11 +1273,11 @@ Parser::stopServer(const list<string>& args)
     {
         _admin->stopServer(args.front());
     }
-    catch(const ServerStopException& ex)
+    catch (const ServerStopException& ex)
     {
         error("the server didn't stop successfully:\n" + ex.reason);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1408,19 +1294,19 @@ Parser::patchServer(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server patch", "requires exactly one argument");
         return;
@@ -1430,7 +1316,7 @@ Parser::patchServer(const list<string>& origArgs)
     {
         _admin->patchServer(args.front(), opts.isSet("force"));
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1439,7 +1325,7 @@ Parser::patchServer(const list<string>& origArgs)
 void
 Parser::signalServer(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("server signal", "requires exactly two arguments");
         return;
@@ -1451,7 +1337,7 @@ Parser::signalServer(const list<string>& args)
         string server = *p++;
         _admin->sendSignal(server, *p);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1460,7 +1346,7 @@ Parser::signalServer(const list<string>& args)
 void
 Parser::writeMessage(const list<string>& args, int fd)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("server stdout or server stderr", "requires exactly two arguments");
         return;
@@ -1474,17 +1360,17 @@ Parser::writeMessage(const list<string>& args, int fd)
         auto serverAdmin = _admin->getServerAdmin(server);
         ProcessPrx process{serverAdmin->ice_facet("Process")};
 
-        process->writeMessage(*p,  fd);
+        process->writeMessage(*p, fd);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         error("couldn't reach the server's Admin object");
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         error("the server's Admin object does not provide a 'Process' facet");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1493,7 +1379,7 @@ Parser::writeMessage(const list<string>& args, int fd)
 void
 Parser::describeServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server describe", "requires exactly one argument");
         return;
@@ -1505,7 +1391,7 @@ Parser::describeServer(const list<string>& args)
         ostringstream os;
         Output out(os);
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-        if(iceBox)
+        if (iceBox)
         {
             IceBoxHelper(iceBox).print(_communicator, out, info);
         }
@@ -1516,7 +1402,7 @@ Parser::describeServer(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1525,7 +1411,7 @@ Parser::describeServer(const list<string>& args)
 void
 Parser::stateServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server state", "requires exactly one argument");
         return;
@@ -1535,50 +1421,50 @@ Parser::stateServer(const list<string>& args)
     {
         ServerState state = _admin->getServerState(args.front());
         string enabled = _admin->isServerEnabled(args.front()) ? "enabled" : "disabled";
-        switch(state)
+        switch (state)
         {
-        case ServerState::Inactive:
-        {
-            consoleOut << "inactive (" << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::Activating:
-        {
-            consoleOut << "activating (" << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::Active:
-        {
-            int pid = _admin->getServerPid(args.front());
-            consoleOut << "active (pid = " << pid << ", " << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::ActivationTimedOut:
-        {
-            int pid = _admin->getServerPid(args.front());
-            consoleOut << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::Deactivating:
-        {
-            consoleOut << "deactivating (" << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::Destroying:
-        {
-            consoleOut << "destroying (" << enabled << ")" << endl;
-            break;
-        }
-        case ServerState::Destroyed:
-        {
-            consoleOut << "destroyed (" << enabled << ")" << endl;
-            break;
-        }
-        default:
-            assert(false);
+            case ServerState::Inactive:
+            {
+                consoleOut << "inactive (" << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::Activating:
+            {
+                consoleOut << "activating (" << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::Active:
+            {
+                int pid = _admin->getServerPid(args.front());
+                consoleOut << "active (pid = " << pid << ", " << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::ActivationTimedOut:
+            {
+                int pid = _admin->getServerPid(args.front());
+                consoleOut << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::Deactivating:
+            {
+                consoleOut << "deactivating (" << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::Destroying:
+            {
+                consoleOut << "destroying (" << enabled << ")" << endl;
+                break;
+            }
+            case ServerState::Destroyed:
+            {
+                consoleOut << "destroyed (" << enabled << ")" << endl;
+                break;
+            }
+            default:
+                assert(false);
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1587,7 +1473,7 @@ Parser::stateServer(const list<string>& args)
 void
 Parser::pidServer(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("server pid", "requires exactly one argument");
         return;
@@ -1596,7 +1482,7 @@ Parser::pidServer(const list<string>& args)
     try
     {
         int pid = _admin->getServerPid(args.front());
-        if(pid > 0)
+        if (pid > 0)
         {
             consoleOut << pid << endl;
         }
@@ -1605,7 +1491,7 @@ Parser::pidServer(const list<string>& args)
             error("server is not running");
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1614,12 +1500,12 @@ Parser::pidServer(const list<string>& args)
 void
 Parser::propertiesServer(const list<string>& args, bool single)
 {
-    if(single && args.size() != 2)
+    if (single && args.size() != 2)
     {
         invalidCommand("server property", "requires exactly two arguments");
         return;
     }
-    else if(!single && args.size() != 1)
+    else if (!single && args.size() != 1)
     {
         invalidCommand("server properties", "requires exactly one argument");
         return;
@@ -1630,28 +1516,28 @@ Parser::propertiesServer(const list<string>& args, bool single)
         auto serverAdmin = _admin->getServerAdmin(args.front());
         Ice::PropertiesAdminPrx propAdmin{serverAdmin->ice_facet("Properties")};
 
-        if(single)
+        if (single)
         {
             string val = propAdmin->getProperty(*(++args.begin()));
             consoleOut << val << endl;
         }
         else
         {
-            for(const auto& prop : propAdmin->getPropertiesForPrefix(""))
+            for (const auto& prop : propAdmin->getPropertiesForPrefix(""))
             {
                 consoleOut << prop.first << "=" << prop.second << endl;
             }
         }
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         error("couldn't reach the server's Admin object");
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         error("the server's Admin object does not provide a 'Properties' facet");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1660,9 +1546,9 @@ Parser::propertiesServer(const list<string>& args, bool single)
 void
 Parser::enableServer(const list<string>& args, bool enable)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
-        if(enable)
+        if (enable)
         {
             invalidCommand("server enable", "requires exactly one argument");
         }
@@ -1677,7 +1563,7 @@ Parser::enableServer(const list<string>& args, bool enable)
     {
         _admin->enableServer(args.front(), enable);
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1686,7 +1572,7 @@ Parser::enableServer(const list<string>& args, bool enable)
 void
 Parser::listAllServers(const list<string>& args)
 {
-    if(!args.empty())
+    if (!args.empty())
     {
         invalidCommand("server list", "doesn't require any argument");
         return;
@@ -1696,10 +1582,10 @@ Parser::listAllServers(const list<string>& args)
     {
         ostringstream os;
         Ice::StringSeq ids = _admin->getAllServerIds();
-        copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
+        copy(ids.begin(), ids.end(), ostream_iterator<string>(os, "\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1708,7 +1594,7 @@ Parser::listAllServers(const list<string>& args)
 void
 Parser::startService(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("service start", "requires exactly two arguments");
         return;
@@ -1722,23 +1608,23 @@ Parser::startService(const list<string>& args)
         IceBox::ServiceManagerPrx manager{admin->ice_facet("IceBox.ServiceManager")};
         manager->startService(service);
     }
-    catch(const IceBox::AlreadyStartedException&)
+    catch (const IceBox::AlreadyStartedException&)
     {
         error("the service `" + service + "' is already started");
     }
-    catch(const IceBox::NoSuchServiceException&)
+    catch (const IceBox::NoSuchServiceException&)
     {
         error("couldn't find service `" + service + "'");
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         error("couldn't reach the server's Admin object");
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1747,7 +1633,7 @@ Parser::startService(const list<string>& args)
 void
 Parser::stopService(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("service stop", "requires exactly two arguments");
         return;
@@ -1761,23 +1647,23 @@ Parser::stopService(const list<string>& args)
         IceBox::ServiceManagerPrx manager{admin->ice_facet("IceBox.ServiceManager")};
         manager->stopService(service);
     }
-    catch(const IceBox::AlreadyStoppedException&)
+    catch (const IceBox::AlreadyStoppedException&)
     {
         error("the service `" + service + "' is already stopped");
     }
-    catch(const IceBox::NoSuchServiceException&)
+    catch (const IceBox::NoSuchServiceException&)
     {
         error("couldn't find service `" + service + "'");
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         error("couldn't reach the server's Admin object");
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1786,7 +1672,7 @@ Parser::stopService(const list<string>& args)
 void
 Parser::describeService(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand("service describe", "requires exactly two arguments");
         return;
@@ -1798,7 +1684,7 @@ Parser::describeService(const list<string>& args)
     {
         ServerInfo info = _admin->getServerInfo(server);
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-        if(!iceBox)
+        if (!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
             return;
@@ -1807,9 +1693,9 @@ Parser::describeService(const list<string>& args)
         ostringstream os;
         Output out(os);
         bool found = false;
-        for(const auto& s : iceBox->services)
+        for (const auto& s : iceBox->services)
         {
-            if(s.descriptor && s.descriptor->name == service)
+            if (s.descriptor && s.descriptor->name == service)
             {
                 ServiceHelper(s.descriptor).print(_communicator, out);
                 out << nl;
@@ -1819,13 +1705,13 @@ Parser::describeService(const list<string>& args)
         }
         outputString(os.str());
 
-        if(!found)
+        if (!found)
         {
             error("couldn't find service `" + service + "'");
             return;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1834,12 +1720,12 @@ Parser::describeService(const list<string>& args)
 void
 Parser::propertiesService(const list<string>& args, bool single)
 {
-    if(single && args.size() != 3)
+    if (single && args.size() != 3)
     {
         invalidCommand("service property", "requires exactly three arguments");
         return;
     }
-    else if(!single && args.size() != 2)
+    else if (!single && args.size() != 2)
     {
         invalidCommand("service properties", "requires exactly two argument");
         return;
@@ -1857,7 +1743,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         //
         ServerInfo info = _admin->getServerInfo(server);
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-        if(!iceBox)
+        if (!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
             return;
@@ -1865,15 +1751,15 @@ Parser::propertiesService(const list<string>& args, bool single)
 
         bool found = false;
 
-        for(const auto& s : iceBox->services)
+        for (const auto& s : iceBox->services)
         {
-            if(s.descriptor && s.descriptor->name == service)
+            if (s.descriptor && s.descriptor->name == service)
             {
                 found = true;
                 break;
             }
         }
-        if(!found)
+        if (!found)
         {
             error("couldn't find service `" + service + "'");
             return;
@@ -1881,7 +1767,7 @@ Parser::propertiesService(const list<string>& args, bool single)
 
         auto admin = _admin->getServerAdmin(server);
         Ice::PropertiesAdminPrxPtr propAdmin;
-        if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
+        if (getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
             propAdmin = Ice::PropertiesAdminPrx{admin->ice_facet("IceBox.SharedCommunicator.Properties")};
         }
@@ -1890,7 +1776,7 @@ Parser::propertiesService(const list<string>& args, bool single)
             propAdmin = Ice::PropertiesAdminPrx{admin->ice_facet("IceBox.Service." + service + ".Properties")};
         }
 
-        if(single)
+        if (single)
         {
             string val = propAdmin->getProperty(property);
             consoleOut << val << endl;
@@ -1898,21 +1784,21 @@ Parser::propertiesService(const list<string>& args, bool single)
         else
         {
             Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
-            for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+            for (Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
             {
                 consoleOut << p->first << "=" << p->second << endl;
             }
         }
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         error("couldn't reach the server's Admin object");
     }
-    catch(const Ice::FacetNotExistException&)
+    catch (const Ice::FacetNotExistException&)
     {
         error("the server's Admin object does not provide an 'IceBox.Service." + service + ".Properties' facet");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1921,7 +1807,7 @@ Parser::propertiesService(const list<string>& args, bool single)
 void
 Parser::listServices(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("service list", "requires exactly one argument");
         return;
@@ -1932,20 +1818,20 @@ Parser::listServices(const list<string>& args)
     {
         ServerInfo info = _admin->getServerInfo(server);
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
-        if(!iceBox)
+        if (!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
             return;
         }
-        for(const auto& s : iceBox->services)
+        for (const auto& s : iceBox->services)
         {
-            if(s.descriptor)
+            if (s.descriptor)
             {
                 consoleOut << s.descriptor->name << endl;
             }
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -1954,7 +1840,7 @@ Parser::listServices(const list<string>& args)
 void
 Parser::endpointsAdapter(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("adapter endpoints", "requires exactly one argument");
         return;
@@ -1964,7 +1850,7 @@ Parser::endpointsAdapter(const list<string>& args)
     {
         string adapterId = args.front();
         AdapterInfoSeq adpts = _admin->getAdapterInfo(adapterId);
-        if(adpts.size() == 1 && adpts.begin()->id == adapterId)
+        if (adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
             auto proxy = adpts.begin()->proxy;
             if (proxy)
@@ -1978,7 +1864,7 @@ Parser::endpointsAdapter(const list<string>& args)
         }
         else
         {
-            for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+            for (AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
             {
                 consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
                 auto proxy = p->proxy;
@@ -1993,7 +1879,7 @@ Parser::endpointsAdapter(const list<string>& args)
             }
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2002,7 +1888,7 @@ Parser::endpointsAdapter(const list<string>& args)
 void
 Parser::removeAdapter(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("adapter remove", "requires exactly one argument");
         return;
@@ -2012,7 +1898,7 @@ Parser::removeAdapter(const list<string>& args)
     {
         _admin->removeAdapter(*args.begin());
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2021,7 +1907,7 @@ Parser::removeAdapter(const list<string>& args)
 void
 Parser::listAllAdapters(const list<string>& args)
 {
-    if(!args.empty())
+    if (!args.empty())
     {
         invalidCommand("adapter list", "doesn't require any argument");
         return;
@@ -2031,10 +1917,10 @@ Parser::listAllAdapters(const list<string>& args)
     {
         ostringstream os;
         Ice::StringSeq ids = _admin->getAllAdapterIds();
-        copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
+        copy(ids.begin(), ids.end(), ostream_iterator<string>(os, "\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2043,7 +1929,7 @@ Parser::listAllAdapters(const list<string>& args)
 void
 Parser::addObject(const list<string>& args)
 {
-    if(args.size() != 1 && args.size() != 2)
+    if (args.size() != 1 && args.size() != 2)
     {
         invalidCommand("object add", "requires one or two arguments");
         return;
@@ -2055,7 +1941,7 @@ Parser::addObject(const list<string>& args)
 
         string proxy = *p++;
 
-        if(p != args.end())
+        if (p != args.end())
         {
             string type = *p++;
             _admin->addObjectWithType(_communicator->stringToProxy(proxy), type);
@@ -2065,7 +1951,7 @@ Parser::addObject(const list<string>& args)
             _admin->addObject(_communicator->stringToProxy(proxy));
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2074,7 +1960,7 @@ Parser::addObject(const list<string>& args)
 void
 Parser::removeObject(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("object remove", "requires exactly one argument");
         return;
@@ -2084,7 +1970,7 @@ Parser::removeObject(const list<string>& args)
     {
         _admin->removeObject(Ice::stringToIdentity((*(args.begin()))));
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2093,7 +1979,7 @@ Parser::removeObject(const list<string>& args)
 void
 Parser::findObject(const list<string>& args)
 {
-    if(args.size() != 1)
+    if (args.size() != 1)
     {
         invalidCommand("object find", "requires exactly one argument");
         return;
@@ -2102,12 +1988,12 @@ Parser::findObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
-        for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << p->proxy << endl;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2116,7 +2002,7 @@ Parser::findObject(const list<string>& args)
 void
 Parser::describeObject(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         invalidCommand("object describe", "requires at most one argument");
         return;
@@ -2125,10 +2011,10 @@ Parser::describeObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects;
-        if(args.size() == 1)
+        if (args.size() == 1)
         {
             string arg = *(args.begin());
-            if(arg.find('*') == string::npos)
+            if (arg.find('*') == string::npos)
             {
                 ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
                 consoleOut << "proxy = `" << info.proxy << "'" << endl;
@@ -2145,13 +2031,12 @@ Parser::describeObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << "proxy = `" << p->proxy << "' type = `" << p->type << "'" << endl;
         }
-
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2160,7 +2045,7 @@ Parser::describeObject(const list<string>& args)
 void
 Parser::listObject(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         invalidCommand("object list", "requires at most one argument");
         return;
@@ -2169,7 +2054,7 @@ Parser::listObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects;
-        if(args.size() == 1)
+        if (args.size() == 1)
         {
             objects = _admin->getAllObjectInfos(*(args.begin()));
         }
@@ -2178,12 +2063,12 @@ Parser::listObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
@@ -2203,19 +2088,19 @@ Parser::show(const string& reader, const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
         args = opts.parse(args);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
     }
 
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         invalidCommand(reader + " show", "requires two arguments");
         return;
@@ -2232,21 +2117,21 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
         bool head = opts.isSet("head");
         bool tail = opts.isSet("tail");
-        if(head && tail)
+        if (head && tail)
         {
             invalidCommand("can't specify both -h | --head and -t | --tail options");
             return;
         }
-        if(head && reader == "log")
+        if (head && reader == "log")
         {
             invalidCommand("can't specify -h | --head option with log");
             return;
         }
 
         int lineCount = 20;
-        if(head || tail)
+        if (head || tail)
         {
-            if(head)
+            if (head)
             {
                 istringstream is(opts.optArg("head"));
                 is >> lineCount;
@@ -2256,7 +2141,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
                 istringstream is(opts.optArg("tail"));
                 is >> lineCount;
             }
-            if(lineCount <= 0)
+            if (lineCount <= 0)
             {
                 invalidCommand("invalid argument for -h | --head or -t | --tail option");
                 return;
@@ -2265,13 +2150,13 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
         bool follow = opts.isSet("follow");
 
-        if(head && follow)
+        if (head && follow)
         {
             invalidCommand("can't use -f | --follow option with -h | --head option");
             return;
         }
 
-        if(filename == "log")
+        if (filename == "log")
         {
             showLog(id, reader, tail, follow, lineCount);
         }
@@ -2280,30 +2165,35 @@ Parser::show(const string& reader, const list<string>& origArgs)
             showFile(id, reader, filename, head, tail, follow, lineCount);
         }
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         exception(current_exception());
     }
 }
 
 void
-Parser::showFile(const string& id, const string& reader, const string& filename,
-                 bool head, bool tail, bool follow, int lineCount)
+Parser::showFile(
+    const string& id,
+    const string& reader,
+    const string& filename,
+    bool head,
+    bool tail,
+    bool follow,
+    int lineCount)
 {
-
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
     FileIteratorPrxPtr it;
 
     try
     {
-        if(reader == "node")
+        if (reader == "node")
         {
-            if(filename == "stderr")
+            if (filename == "stderr")
             {
                 it = _session->openNodeStdErr(id, tail ? lineCount : -1);
             }
-            else if(filename == "stdout")
+            else if (filename == "stdout")
             {
                 it = _session->openNodeStdOut(id, tail ? lineCount : -1);
             }
@@ -2313,13 +2203,13 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                 return;
             }
         }
-        else if(reader == "registry")
+        else if (reader == "registry")
         {
-            if(filename == "stderr")
+            if (filename == "stderr")
             {
                 it = _session->openRegistryStdErr(id, tail ? lineCount : -1);
             }
-            else if(filename == "stdout")
+            else if (filename == "stdout")
             {
                 it = _session->openRegistryStdOut(id, tail ? lineCount : -1);
             }
@@ -2329,13 +2219,13 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                 return;
             }
         }
-        else if(reader == "server")
+        else if (reader == "server")
         {
-            if(filename == "stderr")
+            if (filename == "stderr")
             {
                 it = _session->openServerStdErr(id, tail ? lineCount : -1);
             }
-            else if(filename == "stdout")
+            else if (filename == "stdout")
             {
                 it = _session->openServerStdOut(id, tail ? lineCount : -1);
             }
@@ -2347,16 +2237,16 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
         resetInterrupt();
         Ice::StringSeq lines;
-        if(head)
+        if (head)
         {
             assert(!follow);
 
             int i = 0;
             bool eof = false;
-            while(!interrupted() && !eof && i < lineCount)
+            while (!interrupted() && !eof && i < lineCount)
             {
                 eof = it->read(maxBytes, lines);
-                for(const auto& line : lines)
+                for (const auto& line : lines)
                 {
                     outputNewline();
                     outputString(line);
@@ -2367,10 +2257,10 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
         else
         {
             bool eof = false;
-            while(!interrupted() && !eof)
+            while (!interrupted() && !eof)
             {
                 eof = it->read(maxBytes, lines);
-                for(const auto& line : lines)
+                for (const auto& line : lines)
                 {
                     outputNewline();
                     outputString(line);
@@ -2379,15 +2269,15 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
             }
         }
 
-        if(follow)
+        if (follow)
         {
-            while(!interrupted())
+            while (!interrupted())
             {
                 bool eof = it->read(maxBytes, lines);
-                for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+                for (Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
                 {
                     outputString(*p);
-                    if((p + 1) != lines.end())
+                    if ((p + 1) != lines.end())
                     {
                         outputNewline();
                     }
@@ -2397,10 +2287,10 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
                     }
                 }
 
-                if(eof)
+                if (eof)
                 {
                     unique_lock lock(_mutex);
-                    if(_interrupted)
+                    if (_interrupted)
                     {
                         break;
                     }
@@ -2409,7 +2299,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
             }
         }
 
-        if(lines.empty() || !lines.back().empty())
+        if (lines.empty() || !lines.back().empty())
         {
             outputNewline();
             flushOutput();
@@ -2417,15 +2307,15 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
         it->destroy();
     }
-    catch(...)
+    catch (...)
     {
-        if(it != nullopt)
+        if (it != nullopt)
         {
             try
             {
                 it->destroy();
             }
-            catch(...)
+            catch (...)
             {
             }
         }
@@ -2440,20 +2330,20 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
     Ice::ObjectPrxPtr admin;
 
-    if(reader == "server")
+    if (reader == "server")
     {
         admin = _admin->getServerAdmin(id);
     }
-    else if(reader == "node")
+    else if (reader == "node")
     {
         admin = _admin->getNodeAdmin(id);
     }
-    else if(reader == "registry")
+    else if (reader == "registry")
     {
         admin = _admin->getRegistryAdmin(id);
     }
 
-    if(admin == nullopt)
+    if (admin == nullopt)
     {
         error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
         return;
@@ -2465,21 +2355,21 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
     {
         loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin, "Logger");
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
     }
 
-    if(loggerAdmin == nullopt)
+    if (loggerAdmin == nullopt)
     {
         error("cannot retrieve Logger admin facet for " + reader + " `" + id + "'");
         return;
     }
 
-    if(follow)
+    if (follow)
     {
         auto adminCallbackTemplate = _session->getAdminCallbackTemplate();
 
-        if(adminCallbackTemplate == nullopt)
+        if (adminCallbackTemplate == nullopt)
         {
             error("cannot retriever Callback template from IceGrid registry");
             return;
@@ -2488,9 +2378,9 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         const Ice::EndpointSeq endpoints = adminCallbackTemplate->ice_getEndpoints();
         string publishedEndpoints;
 
-        for(const auto& endpoint : endpoints)
+        for (const auto& endpoint : endpoints)
         {
-            if(publishedEndpoints.empty())
+            if (publishedEndpoints.empty())
             {
                 publishedEndpoints = endpoint->toString();
             }
@@ -2508,8 +2398,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         ostringstream os;
         os << "RemoteLogger-" << loggerCallbackCount++;
-        Ice::Identity ident = { os.str(),
-                                adminCallbackTemplate->ice_getIdentity().category };
+        Ice::Identity ident = {os.str(), adminCallbackTemplate->ice_getIdentity().category};
 
         auto servant = make_shared<RemoteLoggerI>();
         Ice::RemoteLoggerPrx prx{adapter->add(servant, ident)};
@@ -2530,7 +2419,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         {
             loggerAdmin->detachRemoteLogger(prx);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             // ignored
         }
@@ -2538,10 +2427,10 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
     else
     {
         string prefix;
-        const Ice::LogMessageSeq logMessages = loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(),
-                                                                   tail ? lineCount : -1, prefix);
+        const Ice::LogMessageSeq logMessages =
+            loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1, prefix);
 
-        for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        for (Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
         {
             printLogMessage(prefix, *p);
         }
@@ -2582,9 +2471,9 @@ Parser::getInput(char* buf, int& result, size_t maxSize)
 void
 Parser::getInput(char* buf, size_t& result, size_t maxSize)
 {
-    if(!_commands.empty())
+    if (!_commands.empty())
     {
-        if(_commands == ";")
+        if (_commands == ";")
         {
             result = 0;
         }
@@ -2593,7 +2482,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             result = min(maxSize, _commands.length());
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
-            if(_commands.empty())
+            if (_commands.empty())
             {
                 _commands = ";";
             }
@@ -2606,19 +2495,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         {
             const char* prompt = parser->getPrompt();
             char* line = readline(const_cast<char*>(prompt));
-            if(!line)
+            if (!line)
             {
                 result = 0;
             }
             else
             {
-                if(*line)
+                if (*line)
                 {
                     add_history(line);
                 }
 
                 result = strlen(line) + 1;
-                if(result > maxSize)
+                if (result > maxSize)
                 {
                     free(line);
                     error("input line too long");
@@ -2637,12 +2526,12 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
 #endif
             consoleOut << parser->getPrompt() << flush;
             string line;
-            while(true)
+            while (true)
             {
                 int c = getc(yyin);
-                if(c == EOF)
+                if (c == EOF)
                 {
-                    if(line.size())
+                    if (line.size())
                     {
                         line += '\n';
                     }
@@ -2650,19 +2539,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
 
                 line += static_cast<char>(c);
-                if(c == '\n')
+                if (c == '\n')
                 {
                     break;
                 }
             }
 #ifdef _WIN32
-            if(windowsConsoleConverter)
+            if (windowsConsoleConverter)
             {
                 line = nativeToUTF8(line, windowsConsoleConverter);
             }
 #endif
             result = line.length();
-            if(result > maxSize)
+            if (result > maxSize)
             {
                 error("input line too long");
                 buf[0] = EOF;
@@ -2689,7 +2578,7 @@ Parser::getPrompt()
 {
     assert(_commands.empty());
 
-    if(_continue)
+    if (_continue)
     {
         _continue = false;
         return "(cont) ";
@@ -2721,24 +2610,24 @@ Parser::invalidCommand(const string& command, const string& msg)
 void
 Parser::invalidCommand(const list<string>& s)
 {
-    if(s.empty())
+    if (s.empty())
     {
         return;
     }
 
     string cat = *s.begin();
-    if(_helpCommands.find(cat) == _helpCommands.end())
+    if (_helpCommands.find(cat) == _helpCommands.end())
     {
         consoleErr << "unknown `" << cat << "' command (see `help' for more info)" << endl;
     }
-    else if(s.size() == 1)
+    else if (s.size() == 1)
     {
         consoleErr << "invalid `" << cat << "' command (see `" << cat << " help' for more info)" << endl;
     }
     else
     {
         string cmd = *(++s.begin());
-        if(_helpCommands[cat].find(cmd) == _helpCommands[cat].end())
+        if (_helpCommands[cat].find(cmd) == _helpCommands[cat].end())
         {
             cmd = cat + " " + cmd;
             consoleErr << "unknown `" << cmd << "' command (see `" << cat << " help' for more info)" << endl;
@@ -2754,7 +2643,7 @@ Parser::invalidCommand(const list<string>& s)
 string
 Parser::patchFailed(const Ice::StringSeq& reasons)
 {
-    if(reasons.size() == 1)
+    if (reasons.size() == 1)
     {
         ostringstream s;
         s << "the patch failed:\n" << reasons[0];
@@ -2766,22 +2655,22 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
         IceUtilInternal::Output out(os);
         out.setIndent(2);
         out << "the patch failed on some nodes:\n";
-        for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
+        for (Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
         {
             string reason = *p;
             string::size_type beg = 0;
             string::size_type end = reason.find_first_of("\n");
-            if(end == string::npos)
+            if (end == string::npos)
             {
                 end = reason.size();
             }
             out << "- " << reason.substr(beg, end - beg);
             out.inc();
-            while(end < reason.size())
+            while (end < reason.size())
             {
                 beg = end + 1;
                 end = reason.find_first_of("\n", beg);
-                if(end == string::npos)
+                if (end == string::npos)
                 {
                     end = reason.size();
                 }
@@ -2789,7 +2678,7 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
                 out << reason.substr(beg, end - beg);
             }
             out.dec();
-            if(p + 1 != reasons.end())
+            if (p + 1 != reasons.end())
             {
                 out.newline();
             }
@@ -2839,7 +2728,7 @@ Parser::parse(FILE* file, bool debug)
     _continue = false;
 
     int status = yyparse();
-    if(_errors)
+    if (_errors)
     {
         status = EXIT_FAILURE;
     }
@@ -2864,7 +2753,7 @@ Parser::parse(const std::string& commands, bool debug)
     _continue = false;
 
     int status = yyparse();
-    if(_errors)
+    if (_errors)
     {
         status = EXIT_FAILURE;
     }
@@ -2880,83 +2769,83 @@ Parser::exception(std::exception_ptr pex)
     {
         rethrow_exception(pex);
     }
-    catch(const ApplicationNotExistException& ex)
+    catch (const ApplicationNotExistException& ex)
     {
         error("couldn't find application `" + ex.name + "'");
     }
-    catch(const NodeNotExistException& ex)
+    catch (const NodeNotExistException& ex)
     {
         error("couldn't find node `" + ex.name + "'");
     }
-    catch(const RegistryNotExistException& ex)
+    catch (const RegistryNotExistException& ex)
     {
         error("couldn't find registry `" + ex.name + "'");
     }
-    catch(const ServerNotExistException& ex)
+    catch (const ServerNotExistException& ex)
     {
         error("couldn't find server `" + ex.id + "'");
     }
-    catch(const AdapterNotExistException& ex)
+    catch (const AdapterNotExistException& ex)
     {
         error("couldn't find adapter `" + ex.id + "'");
     }
-    catch(const ObjectNotRegisteredException& ex)
+    catch (const ObjectNotRegisteredException& ex)
     {
         error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
     }
-    catch(const ObjectExistsException& ex)
+    catch (const ObjectExistsException& ex)
     {
         error("object `" + _communicator->identityToString(ex.id) + "' already exists");
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         ostringstream s;
         s << ex << ":\n" << ex.reason;
         error(s.str());
     }
-    catch(const PatchException& ex)
+    catch (const PatchException& ex)
     {
         error(patchFailed(ex.reasons));
     }
-    catch(const BadSignalException& ex)
+    catch (const BadSignalException& ex)
     {
         ostringstream s;
         s << ex.reason;
         error(s.str());
     }
-    catch(const NodeUnreachableException& ex)
+    catch (const NodeUnreachableException& ex)
     {
         error("node `" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
-    catch(const RegistryUnreachableException& ex)
+    catch (const RegistryUnreachableException& ex)
     {
         error("registry `" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
-    catch(const ServerUnreachableException& ex)
+    catch (const ServerUnreachableException& ex)
     {
         error("server `" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
-    catch(const AccessDeniedException& ex)
+    catch (const AccessDeniedException& ex)
     {
         error("couldn't update the registry, the session from `" + ex.lockUserId + "' is updating the registry");
     }
-    catch(const FileNotAvailableException& ex)
+    catch (const FileNotAvailableException& ex)
     {
         error("couldn't access file:\n" + ex.reason);
     }
-    catch(const IceXML::ParserException& ex)
+    catch (const IceXML::ParserException& ex)
     {
         ostringstream s;
         s << ex;
         error(s.str());
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         ostringstream s;
         s << "couldn't reach the IceGrid registry:\n" << ex;
         error(s.str());
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         ostringstream s;
         s << ex;

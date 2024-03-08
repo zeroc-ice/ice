@@ -10,7 +10,6 @@
 class MyByteSeq
 {
 public:
-
     typedef std::uint8_t* iterator;
     typedef std::uint8_t* const_iterator;
 
@@ -29,7 +28,6 @@ public:
     bool operator==(const MyByteSeq&) const;
 
 private:
-
     size_t _size;
     std::uint8_t* _data;
 };

@@ -5,11 +5,11 @@
 #import <UIKit/UIKit.h>
 
 @protocol ControllerView
--(void) print:(NSString*)msg;
--(void) println:(NSString*)msg;
+- (void)print:(NSString*)msg;
+- (void)println:(NSString*)msg;
 @end
 
-@interface ControllerView : UIViewController<ControllerView, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface ControllerView : UIViewController <ControllerView, UIPickerViewDataSource, UIPickerViewDelegate>
 {
 @private
     IBOutlet UIPickerView* interfaceIPv4;

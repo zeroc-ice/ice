@@ -11,39 +11,35 @@
 
 namespace Glacier2
 {
+    class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
+    {
+    public:
+        Blobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const Ice::Context&);
 
-class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
-{
-public:
+        void destroy();
 
-    Blobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const Ice::Context&);
+        virtual void updateObserver(const std::shared_ptr<Instrumentation::SessionObserver>&);
 
-    void destroy();
+        void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
 
-    virtual void updateObserver(const std::shared_ptr<Instrumentation::SessionObserver>&);
+    protected:
+        void invoke(
+            Ice::ObjectPrx&,
+            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
+            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
 
-    void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
+        const std::shared_ptr<Instance> _instance;
+        const std::shared_ptr<Ice::Connection> _reverseConnection;
 
-protected:
-
-    void invoke(Ice::ObjectPrx&,
-                const std::pair<const std::uint8_t*, const std::uint8_t*>&,
-                std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
-                std::function<void(std::exception_ptr)>,
-                const Ice::Current&);
-
-    const std::shared_ptr<Instance> _instance;
-    const std::shared_ptr<Ice::Connection> _reverseConnection;
-
-private:
-
-    const bool _forwardContext;
-    const int _requestTraceLevel;
-    const int _overrideTraceLevel;
-    const std::shared_ptr<RequestQueue> _requestQueue;
-    const Ice::Context _context;
-};
-
+    private:
+        const bool _forwardContext;
+        const int _requestTraceLevel;
+        const int _overrideTraceLevel;
+        const std::shared_ptr<RequestQueue> _requestQueue;
+        const Ice::Context _context;
+    };
 }
 
 #endif

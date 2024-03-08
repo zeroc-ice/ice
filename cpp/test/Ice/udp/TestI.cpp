@@ -17,7 +17,7 @@ TestIntfI::ping(optional<PingReplyPrx> reply, const Current&)
     {
         reply->reply();
     }
-    catch(const Exception&)
+    catch (const Exception&)
     {
         assert(false);
     }
@@ -30,7 +30,7 @@ TestIntfI::sendByteSeq(ByteSeq, optional<PingReplyPrx> reply, const Current&)
     {
         reply->reply();
     }
-    catch(const Exception&)
+    catch (const Exception&)
     {
         assert(false);
     }
@@ -51,7 +51,7 @@ TestIntfI::pingBiDir(Identity id, const Current& current)
             seq.resize(32 * 1024);
             TestIntfPrx(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
         }
-        catch(const DatagramLimitException&)
+        catch (const DatagramLimitException&)
         {
             // Expected.
         }
@@ -61,7 +61,7 @@ TestIntfI::pingBiDir(Identity id, const Current& current)
         //
         PingReplyPrx(current.con->createProxy(id))->replyAsync();
     }
-    catch(const Exception& ex)
+    catch (const Exception& ex)
     {
         cerr << ex << endl;
         assert(false);

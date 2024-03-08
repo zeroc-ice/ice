@@ -23,7 +23,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_isA("dummy");
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
     }
@@ -34,7 +34,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_id();
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
     }
@@ -45,7 +45,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_ids();
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
     }
@@ -70,9 +70,8 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->opByte(uint8_t(0xff), uint8_t(0x0f), b);
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
     }
-
 }

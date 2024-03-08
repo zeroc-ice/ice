@@ -17,180 +17,158 @@
 
 namespace IceDiscovery
 {
+    class LookupI;
 
-class LookupI;
-
-class Request : public IceUtil::TimerTask
-{
-public:
-
-    Request(const LookupIPtr&, int);
-
-    virtual bool retry();
-    void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx> >&);
-    bool exception();
-    std::string getRequestId() const;
-
-    virtual void finished(const std::optional<Ice::ObjectPrx>&) = 0;
-
-protected:
-
-    virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) = 0;
-
-    LookupIPtr _lookup;
-    const std::string _requestId;
-    int _retryCount;
-    size_t _lookupCount;
-    size_t _failureCount;
-};
-using RequestPtr = std::shared_ptr<Request>;
-
-template<class T, class CB> class RequestT : public Request
-{
-public:
-
-    RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id)
+    class Request : public IceUtil::TimerTask
     {
-    }
+    public:
+        Request(const LookupIPtr&, int);
 
-    T getId() const
-    {
-        return _id;
-    }
+        virtual bool retry();
+        void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx>>&);
+        bool exception();
+        std::string getRequestId() const;
 
-    bool addCallback(const CB& cb)
-    {
-        _callbacks.push_back(cb);
-        return _callbacks.size() == 1;
-    }
+        virtual void finished(const std::optional<Ice::ObjectPrx>&) = 0;
 
-    void finished(const std::optional<Ice::ObjectPrx>& proxy) override
+    protected:
+        virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) = 0;
+
+        LookupIPtr _lookup;
+        const std::string _requestId;
+        int _retryCount;
+        size_t _lookupCount;
+        size_t _failureCount;
+    };
+    using RequestPtr = std::shared_ptr<Request>;
+
+    template<class T, class CB> class RequestT : public Request
     {
-        for(typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
+    public:
+        RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id) {}
+
+        T getId() const { return _id; }
+
+        bool addCallback(const CB& cb)
         {
-            p->first(proxy);
+            _callbacks.push_back(cb);
+            return _callbacks.size() == 1;
         }
-        _callbacks.clear();
-    }
 
-protected:
+        void finished(const std::optional<Ice::ObjectPrx>& proxy) override
+        {
+            for (typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
+            {
+                p->first(proxy);
+            }
+            _callbacks.clear();
+        }
 
-    const T _id;
-    std::vector<CB> _callbacks;
-};
+    protected:
+        const T _id;
+        std::vector<CB> _callbacks;
+    };
 
-typedef std::pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>,
-                  std::function<void(std::exception_ptr)>> ObjectCB;
-typedef std::pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>,
-                  std::function<void(std::exception_ptr)>> AdapterCB;
+    typedef std::
+        pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>, std::function<void(std::exception_ptr)>>
+            ObjectCB;
+    typedef std::
+        pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>, std::function<void(std::exception_ptr)>>
+            AdapterCB;
 
-class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
-{
-public:
-
-    ObjectRequest(const LookupIPtr&, const Ice::Identity&, int);
-
-    void response(const Ice::ObjectPrx&);
-
-private:
-
-    virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&);
-    virtual void runTimerTask();
-};
-using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
-
-class AdapterRequest final : public RequestT<std::string, AdapterCB>, public std::enable_shared_from_this<AdapterRequest>
-{
-public:
-
-    AdapterRequest(const LookupIPtr&, const std::string&, int);
-
-    bool response(const Ice::ObjectPrx&, bool);
-
-    bool retry() final;
-    void finished(const std::optional<Ice::ObjectPrx>&) final;
-
-private:
-
-    void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) final;
-    void runTimerTask() final;
-
-    //
-    // We use a set because the same IceDiscovery plugin might return multiple times
-    // the same proxy if it's accessible through multiple network interfaces and if we
-    // also sent the request to multiple interfaces.
-    //
-    std::set<Ice::ObjectPrx> _proxies;
-    std::chrono::steady_clock::time_point _start;
-    std::chrono::nanoseconds _latency;
-};
-using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
-
-class LookupI final : public Lookup, public std::enable_shared_from_this<LookupI>
-{
-public:
-
-    LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
-
-    void destroy();
-
-    void setLookupReply(const LookupReplyPrx&);
-
-    void findObjectById(std::string, Ice::Identity, std::optional<LookupReplyPrx>, const Ice::Current&) final;
-    void findAdapterById(std::string, std::string, std::optional<LookupReplyPrx>, const Ice::Current&) final;
-    void findObject(const ObjectCB&, const Ice::Identity&);
-    void findAdapter(const AdapterCB&, const std::string&);
-
-    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrx&);
-    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
-
-    void adapterRequestTimedOut(const AdapterRequestPtr&);
-    void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);
-    void objectRequestTimedOut(const ObjectRequestPtr&);
-    void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
-
-    const IceUtil::TimerPtr& timer()
+    class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
     {
-        return _timer;
-    }
+    public:
+        ObjectRequest(const LookupIPtr&, const Ice::Identity&, int);
 
-    int latencyMultiplier()
+        void response(const Ice::ObjectPrx&);
+
+    private:
+        virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&);
+        virtual void runTimerTask();
+    };
+    using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
+
+    class AdapterRequest final : public RequestT<std::string, AdapterCB>,
+                                 public std::enable_shared_from_this<AdapterRequest>
     {
-        return _latencyMultiplier;
-    }
+    public:
+        AdapterRequest(const LookupIPtr&, const std::string&, int);
 
-private:
+        bool response(const Ice::ObjectPrx&, bool);
 
-    LocatorRegistryIPtr _registry;
-    LookupPrx _lookup;
-    std::vector<std::pair<LookupPrx, LookupReplyPrx>> _lookups;
-    const std::chrono::milliseconds _timeout;
-    const int _retryCount;
-    const int _latencyMultiplier;
-    const std::string _domainId;
+        bool retry() final;
+        void finished(const std::optional<Ice::ObjectPrx>&) final;
 
-    IceUtil::TimerPtr _timer;
-    bool _warnOnce;
+    private:
+        void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) final;
+        void runTimerTask() final;
 
-    std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
-    std::map<std::string, AdapterRequestPtr> _adapterRequests;
-    std::mutex _mutex;
-};
+        //
+        // We use a set because the same IceDiscovery plugin might return multiple times
+        // the same proxy if it's accessible through multiple network interfaces and if we
+        // also sent the request to multiple interfaces.
+        //
+        std::set<Ice::ObjectPrx> _proxies;
+        std::chrono::steady_clock::time_point _start;
+        std::chrono::nanoseconds _latency;
+    };
+    using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
-class LookupReplyI final : public LookupReply
-{
-public:
+    class LookupI final : public Lookup, public std::enable_shared_from_this<LookupI>
+    {
+    public:
+        LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
 
-    LookupReplyI(const LookupIPtr&);
+        void destroy();
 
-    void foundObjectById(Ice::Identity, std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
-    void foundAdapterById(std::string, std::optional<Ice::ObjectPrx>, bool, const Ice::Current&) final;
+        void setLookupReply(const LookupReplyPrx&);
 
-private:
+        void findObjectById(std::string, Ice::Identity, std::optional<LookupReplyPrx>, const Ice::Current&) final;
+        void findAdapterById(std::string, std::string, std::optional<LookupReplyPrx>, const Ice::Current&) final;
+        void findObject(const ObjectCB&, const Ice::Identity&);
+        void findAdapter(const AdapterCB&, const std::string&);
 
-    const LookupIPtr _lookup;
-};
+        void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrx&);
+        void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
 
+        void adapterRequestTimedOut(const AdapterRequestPtr&);
+        void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);
+        void objectRequestTimedOut(const ObjectRequestPtr&);
+        void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
+
+        const IceUtil::TimerPtr& timer() { return _timer; }
+
+        int latencyMultiplier() { return _latencyMultiplier; }
+
+    private:
+        LocatorRegistryIPtr _registry;
+        LookupPrx _lookup;
+        std::vector<std::pair<LookupPrx, LookupReplyPrx>> _lookups;
+        const std::chrono::milliseconds _timeout;
+        const int _retryCount;
+        const int _latencyMultiplier;
+        const std::string _domainId;
+
+        IceUtil::TimerPtr _timer;
+        bool _warnOnce;
+
+        std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
+        std::map<std::string, AdapterRequestPtr> _adapterRequests;
+        std::mutex _mutex;
+    };
+
+    class LookupReplyI final : public LookupReply
+    {
+    public:
+        LookupReplyI(const LookupIPtr&);
+
+        void foundObjectById(Ice::Identity, std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
+        void foundAdapterById(std::string, std::optional<Ice::ObjectPrx>, bool, const Ice::Current&) final;
+
+    private:
+        const LookupIPtr _lookup;
+    };
 }
 
 #endif

@@ -209,7 +209,7 @@ TestIntfI::opVarDict(CustomMap<string, int32_t> data, CustomMap<string, int32_t>
     copy = data;
 
     CustomMap<int64_t, int64_t> result;
-    for(int64_t i = 0; i <1000; ++i)
+    for (int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i * i;
     }

@@ -10,99 +10,99 @@
 
 namespace IceGrid
 {
+    class NodeCache;
+    class NodeSessionI;
+    class ReplicaCache;
+    class ServerEntry;
+    class SessionI;
 
-class NodeCache;
-class NodeSessionI;
-class ReplicaCache;
-class ServerEntry;
-class SessionI;
+    using ServerEntrySeq = std::vector<std::shared_ptr<ServerEntry>>;
 
-using ServerEntrySeq = std::vector<std::shared_ptr<ServerEntry>>;
+    class NodeEntry final
+    {
+    public:
+        NodeEntry(NodeCache&, const std::string&);
 
-class NodeEntry final
-{
-public:
+        void addDescriptor(const std::string&, const NodeDescriptor&);
+        void removeDescriptor(const std::string&);
 
-    NodeEntry(NodeCache&, const std::string&);
+        void addServer(const std::shared_ptr<ServerEntry>&);
+        void removeServer(const std::shared_ptr<ServerEntry>&);
+        void setSession(const std::shared_ptr<NodeSessionI>&);
 
-    void addDescriptor(const std::string&, const NodeDescriptor&);
-    void removeDescriptor(const std::string&);
+        NodePrxPtr getProxy() const;
+        std::shared_ptr<InternalNodeInfo> getInfo() const;
+        ServerEntrySeq getServers() const;
+        LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
+        std::shared_ptr<NodeSessionI> getSession() const;
 
-    void addServer(const std::shared_ptr<ServerEntry>&);
-    void removeServer(const std::shared_ptr<ServerEntry>&);
-    void setSession(const std::shared_ptr<NodeSessionI>&);
+        Ice::ObjectPrxPtr getAdminProxy() const;
 
-    NodePrxPtr getProxy() const;
-    std::shared_ptr<InternalNodeInfo> getInfo() const;
-    ServerEntrySeq getServers() const;
-    LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
-    std::shared_ptr<NodeSessionI> getSession() const;
+        bool canRemove();
 
-    Ice::ObjectPrxPtr getAdminProxy() const;
+        void loadServer(
+            const std::shared_ptr<ServerEntry>&,
+            const ServerInfo&,
+            const std::shared_ptr<SessionI>&,
+            std::chrono::seconds,
+            bool);
+        void destroyServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, std::chrono::seconds, bool);
 
-    bool canRemove();
+        ServerInfo getServerInfo(const ServerInfo&, const std::shared_ptr<SessionI>&);
+        std::shared_ptr<InternalServerDescriptor>
+        getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
-    void loadServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, const std::shared_ptr<SessionI>&,
-                    std::chrono::seconds, bool);
-    void destroyServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, std::chrono::seconds, bool);
+        void checkSession(std::unique_lock<std::mutex>&) const;
+        void setProxy(const NodePrxPtr&);
+        void finishedRegistration();
+        void finishedRegistration(std::exception_ptr);
 
-    ServerInfo getServerInfo(const ServerInfo&, const std::shared_ptr<SessionI>&);
-    std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
+    private:
+        std::shared_ptr<NodeEntry> selfRemovingPtr() const;
 
-    void checkSession(std::unique_lock<std::mutex>&) const;
-    void setProxy(const NodePrxPtr&);
-    void finishedRegistration();
-    void finishedRegistration(std::exception_ptr);
+        std::shared_ptr<ServerDescriptor> getServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
+        std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&) const;
 
-private:
+        NodeCache& _cache;
+        const std::string _name;
+        std::shared_ptr<NodeSessionI> _session;
+        std::map<std::string, std::shared_ptr<ServerEntry>> _servers;
+        std::map<std::string, NodeDescriptor> _descriptors;
 
-    std::shared_ptr<NodeEntry> selfRemovingPtr() const;
+        mutable bool _registering;
+        mutable NodePrxPtr _proxy;
 
-    std::shared_ptr<ServerDescriptor> getServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
-    std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&) const;
+        mutable std::mutex _mutex;
+        mutable std::condition_variable _condVar;
 
-    NodeCache& _cache;
-    const std::string _name;
-    std::shared_ptr<NodeSessionI> _session;
-    std::map<std::string, std::shared_ptr<ServerEntry>> _servers;
-    std::map<std::string, NodeDescriptor> _descriptors;
+        // A self removing shared_ptr of 'this' which removes itself from the NodeCache upon destruction
+        std::weak_ptr<NodeEntry> _selfRemovingPtr;
 
-    mutable bool _registering;
-    mutable NodePrxPtr _proxy;
+        // The number of self removing shared_ptr deleters left to run.
+        // Always accessed with the cache mutex locked
+        int _selfRemovingRefCount;
 
-    mutable std::mutex _mutex;
-    mutable std::condition_variable _condVar;
+        friend NodeCache;
+    };
 
-    // A self removing shared_ptr of 'this' which removes itself from the NodeCache upon destruction
-    std::weak_ptr<NodeEntry> _selfRemovingPtr;
+    class NodeCache : public CacheByString<NodeEntry>
+    {
+    public:
+        using ValueType = NodeEntry*;
 
-    // The number of self removing shared_ptr deleters left to run.
-    // Always accessed with the cache mutex locked
-    int _selfRemovingRefCount;
+        NodeCache(const std::shared_ptr<Ice::Communicator>&, ReplicaCache&, const std::string&);
 
-    friend NodeCache;
-};
+        std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
 
-class NodeCache : public CacheByString<NodeEntry>
-{
-public:
+        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const std::string& getReplicaName() const { return _replicaName; }
+        ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
-    using ValueType = NodeEntry*;
-
-    NodeCache(const std::shared_ptr<Ice::Communicator>&, ReplicaCache&, const std::string&);
-
-    std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
-
-    const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
-    const std::string& getReplicaName() const { return _replicaName; }
-    ReplicaCache& getReplicaCache() const { return _replicaCache; }
-
-private:
-
-    const std::shared_ptr<Ice::Communicator> _communicator;
-    const std::string _replicaName;
-    ReplicaCache& _replicaCache;
-};
+    private:
+        const std::shared_ptr<Ice::Communicator> _communicator;
+        const std::string _replicaName;
+        ReplicaCache& _replicaCache;
+    };
 
 };
 

@@ -12,58 +12,61 @@
 
 namespace IceInternal
 {
+    class ReferenceFactory : public std::enable_shared_from_this<ReferenceFactory>
+    {
+    public:
+        ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
 
-class ReferenceFactory : public std::enable_shared_from_this<ReferenceFactory>
-{
-public:
+        //
+        // Create a direct reference.
+        //
+        ReferencePtr
+        create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, const ::std::vector<EndpointIPtr>&);
 
-    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
+        //
+        // Create an indirect reference.
+        //
+        ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, const std::string&);
 
-    //
-    // Create a direct reference.
-    //
-    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&,
-                        const ::std::vector<EndpointIPtr>&);
+        //
+        // Create a fixed reference.
+        //
+        ReferencePtr create(const ::Ice::Identity&, const Ice::ConnectionIPtr&);
 
-    //
-    // Create an indirect reference.
-    //
-    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, const std::string&);
+        //
+        // Create a reference from a string.
+        //
+        ReferencePtr create(const ::std::string& proxyString, const std::string& prefix);
 
-    //
-    // Create a fixed reference.
-    //
-    ReferencePtr create(const ::Ice::Identity&, const Ice::ConnectionIPtr&);
+        //
+        // Create a reference by unmarshaling it from a stream.
+        //
+        ReferencePtr create(const ::Ice::Identity&, Ice::InputStream*);
 
-    //
-    // Create a reference from a string.
-    //
-    ReferencePtr create(const ::std::string& proxyString, const std::string& prefix);
+        ReferenceFactoryPtr setDefaultRouter(const std::optional<Ice::RouterPrx>&);
+        std::optional<Ice::RouterPrx> getDefaultRouter() const;
 
-    //
-    // Create a reference by unmarshaling it from a stream.
-    //
-    ReferencePtr create(const ::Ice::Identity&, Ice::InputStream*);
+        ReferenceFactoryPtr setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
+        std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
-    ReferenceFactoryPtr setDefaultRouter(const std::optional<Ice::RouterPrx>&);
-    std::optional<Ice::RouterPrx> getDefaultRouter() const;
+    private:
+        void checkForUnknownProperties(const std::string&);
+        RoutableReferencePtr create(
+            const ::Ice::Identity&,
+            const ::std::string&,
+            Reference::Mode,
+            bool,
+            const Ice::ProtocolVersion&,
+            const Ice::EncodingVersion&,
+            const std::vector<EndpointIPtr>&,
+            const std::string&,
+            const std::string&);
 
-    ReferenceFactoryPtr setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
-    std::optional<Ice::LocatorPrx> getDefaultLocator() const;
-
-private:
-
-    void checkForUnknownProperties(const std::string&);
-    RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool,
-                                const Ice::ProtocolVersion&, const Ice::EncodingVersion&,
-                                const std::vector<EndpointIPtr>&, const std::string&, const std::string&);
-
-    const InstancePtr _instance;
-    const ::Ice::CommunicatorPtr _communicator;
-    std::optional<Ice::RouterPrx> _defaultRouter;
-    std::optional<Ice::LocatorPrx> _defaultLocator;
-};
-
+        const InstancePtr _instance;
+        const ::Ice::CommunicatorPtr _communicator;
+        std::optional<Ice::RouterPrx> _defaultRouter;
+        std::optional<Ice::LocatorPrx> _defaultLocator;
+    };
 }
 
 #endif

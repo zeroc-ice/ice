@@ -20,195 +20,184 @@ using namespace IceStormInternal;
 
 namespace
 {
-
-void
-logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
-{
-    Ice::Error error(com->getLogger());
-    error << "LMDB error: " << ex;
-}
-
-class TopicManagerI final : public TopicManagerInternal
-{
-public:
-
-    TopicManagerI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl) :
-        _instance(std::move(instance)), _impl(std::move(impl))
+    void logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
     {
+        Ice::Error error(com->getLogger());
+        error << "LMDB error: " << ex;
     }
 
-    optional<TopicPrx> create(string id, const Ice::Current&) final
+    class TopicManagerI final : public TopicManagerInternal
     {
-        while (true)
+    public:
+        TopicManagerI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl)
+            : _instance(std::move(instance)),
+              _impl(std::move(impl))
         {
-            int64_t generation;
-            auto master = getMaster(generation, __FILE__, __LINE__);
-            if(master)
+        }
+
+        optional<TopicPrx> create(string id, const Ice::Current&) final
+        {
+            while (true)
             {
-                try
+                int64_t generation;
+                auto master = getMaster(generation, __FILE__, __LINE__);
+                if (master)
                 {
-                    return master->create(std::move(id));
+                    try
+                    {
+                        return master->create(std::move(id));
+                    }
+                    catch (const Ice::ConnectFailedException&)
+                    {
+                        _instance->node()->recovery(generation);
+                        continue;
+                    }
+                    catch (const Ice::TimeoutException&)
+                    {
+                        _instance->node()->recovery(generation);
+                        continue;
+                    }
                 }
-                catch(const Ice::ConnectFailedException&)
+                else
                 {
-                    _instance->node()->recovery(generation);
-                    continue;
-                }
-                catch(const Ice::TimeoutException&)
-                {
-                    _instance->node()->recovery(generation);
-                    continue;
+                    FinishUpdateHelper unlock(_instance->node());
+                    return _impl->create(std::move(id));
                 }
             }
-            else
+        }
+
+        optional<TopicPrx> retrieve(string id, const Ice::Current&) final
+        {
+            // Use cached reads.
+            CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
+            return _impl->retrieve(std::move(id));
+        }
+
+        TopicDict retrieveAll(const Ice::Current&) final
+        {
+            // Use cached reads.
+            CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
+            return _impl->retrieveAll();
+        }
+
+        optional<NodePrx> getReplicaNode(const Ice::Current&) const final
+        {
+            // This doesn't require the replication to be running.
+            return _instance->nodeProxy();
+        }
+
+    private:
+        optional<TopicManagerPrx> getMaster(int64_t& generation, const char* file, int line) const
+        {
+            auto node = _instance->node();
+            return optional<TopicManagerPrx>(node ? node->startUpdate(generation, file, line) : nullopt);
+        }
+
+        const shared_ptr<PersistentInstance> _instance;
+        const shared_ptr<TopicManagerImpl> _impl;
+    };
+
+    class ReplicaObserverI final : public ReplicaObserver
+    {
+    public:
+        ReplicaObserverI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl)
+            : _instance(std::move(instance)),
+              _impl(std::move(impl))
+        {
+        }
+
+        void init(LogUpdate llu, TopicContentSeq content, const Ice::Current&) final
+        {
+            auto node = _instance->node();
+            if (node)
             {
-                FinishUpdateHelper unlock(_instance->node());
-                return _impl->create(std::move(id));
+                node->checkObserverInit(llu.generation);
+            }
+            _impl->observerInit(std::move(llu), std::move(content));
+        }
+
+        void createTopic(LogUpdate llu, string name, const Ice::Current&) final
+        {
+            try
+            {
+                ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
+                _impl->observerCreateTopic(llu, std::move(name));
+            }
+            catch (const ObserverInconsistencyException& e)
+            {
+                Ice::Warning warn(_instance->traceLevels()->logger);
+                warn << "ReplicaObserverI::create: ObserverInconsistencyException: " << e.reason;
+                _instance->node()->recovery(llu.generation);
+                throw;
             }
         }
-    }
 
-    optional<TopicPrx> retrieve(string id, const Ice::Current&) final
-    {
-        // Use cached reads.
-        CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
-        return _impl->retrieve(std::move(id));
-    }
-
-    TopicDict retrieveAll(const Ice::Current&) final
-    {
-        // Use cached reads.
-        CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
-        return _impl->retrieveAll();
-    }
-
-    optional<NodePrx> getReplicaNode(const Ice::Current&) const final
-    {
-        // This doesn't require the replication to be running.
-        return _instance->nodeProxy();
-    }
-
-private:
-
-    optional<TopicManagerPrx> getMaster(int64_t& generation, const char* file, int line) const
-    {
-        auto node = _instance->node();
-        return optional<TopicManagerPrx>(node ? node->startUpdate(generation, file, line) : nullopt);
-    }
-
-    const shared_ptr<PersistentInstance> _instance;
-    const shared_ptr<TopicManagerImpl> _impl;
-};
-
-class ReplicaObserverI final : public ReplicaObserver
-{
-public:
-
-    ReplicaObserverI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl) :
-        _instance(std::move(instance)),
-        _impl(std::move(impl))
-    {
-    }
-
-    void init(LogUpdate llu, TopicContentSeq content, const Ice::Current&) final
-    {
-        auto node = _instance->node();
-        if(node)
+        void destroyTopic(LogUpdate llu, string name, const Ice::Current&) final
         {
-            node->checkObserverInit(llu.generation);
+            try
+            {
+                ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
+                _impl->observerDestroyTopic(llu, std::move(name));
+            }
+            catch (const ObserverInconsistencyException& e)
+            {
+                Ice::Warning warn(_instance->traceLevels()->logger);
+                warn << "ReplicaObserverI::destroy: ObserverInconsistencyException: " << e.reason;
+                _instance->node()->recovery(llu.generation);
+                throw;
+            }
         }
-        _impl->observerInit(std::move(llu), std::move(content));
-    }
 
-    void createTopic(LogUpdate llu, string name, const Ice::Current&) final
+        void addSubscriber(LogUpdate llu, string name, SubscriberRecord rec, const Ice::Current&) final
+        {
+            try
+            {
+                ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
+                _impl->observerAddSubscriber(llu, std::move(name), std::move(rec));
+            }
+            catch (const ObserverInconsistencyException& e)
+            {
+                Ice::Warning warn(_instance->traceLevels()->logger);
+                warn << "ReplicaObserverI::add: ObserverInconsistencyException: " << e.reason;
+                _instance->node()->recovery(llu.generation);
+                throw;
+            }
+        }
+
+        void removeSubscriber(LogUpdate llu, string name, Ice::IdentitySeq id, const Ice::Current&) final
+        {
+            try
+            {
+                ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
+                _impl->observerRemoveSubscriber(llu, std::move(name), std::move(id));
+            }
+            catch (const ObserverInconsistencyException& e)
+            {
+                Ice::Warning warn(_instance->traceLevels()->logger);
+                warn << "ReplicaObserverI::remove: ObserverInconsistencyException: " << e.reason;
+                _instance->node()->recovery(llu.generation);
+                throw;
+            }
+        }
+
+    private:
+        const shared_ptr<PersistentInstance> _instance;
+        const shared_ptr<TopicManagerImpl> _impl;
+    };
+
+    class TopicManagerSyncI final : public TopicManagerSync
     {
-        try
+    public:
+        TopicManagerSyncI(shared_ptr<TopicManagerImpl> impl) : _impl(std::move(impl)) {}
+
+        void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&) final
         {
-            ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerCreateTopic(llu, std::move(name));
+            _impl->getContent(llu, content);
         }
-        catch(const ObserverInconsistencyException& e)
-        {
-            Ice::Warning warn(_instance->traceLevels()->logger);
-            warn << "ReplicaObserverI::create: ObserverInconsistencyException: " << e.reason;
-            _instance->node()->recovery(llu.generation);
-            throw;
-        }
-    }
 
-    void destroyTopic(LogUpdate llu, string name, const Ice::Current&) final
-    {
-        try
-        {
-            ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerDestroyTopic(llu, std::move(name));
-        }
-        catch(const ObserverInconsistencyException& e)
-        {
-            Ice::Warning warn(_instance->traceLevels()->logger);
-            warn << "ReplicaObserverI::destroy: ObserverInconsistencyException: " << e.reason;
-            _instance->node()->recovery(llu.generation);
-            throw;
-        }
-    }
-
-    void addSubscriber(LogUpdate llu, string name, SubscriberRecord rec, const Ice::Current&) final
-    {
-        try
-        {
-            ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerAddSubscriber(llu, std::move(name), std::move(rec));
-        }
-        catch(const ObserverInconsistencyException& e)
-        {
-            Ice::Warning warn(_instance->traceLevels()->logger);
-            warn << "ReplicaObserverI::add: ObserverInconsistencyException: " << e.reason;
-            _instance->node()->recovery(llu.generation);
-            throw;
-        }
-    }
-
-    void removeSubscriber(LogUpdate llu, string name, Ice::IdentitySeq id, const Ice::Current&) final
-    {
-        try
-        {
-            ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerRemoveSubscriber(llu, std::move(name), std::move(id));
-        }
-        catch(const ObserverInconsistencyException& e)
-        {
-            Ice::Warning warn(_instance->traceLevels()->logger);
-            warn << "ReplicaObserverI::remove: ObserverInconsistencyException: " << e.reason;
-            _instance->node()->recovery(llu.generation);
-            throw;
-        }
-    }
-
-private:
-
-    const shared_ptr<PersistentInstance> _instance;
-    const shared_ptr<TopicManagerImpl> _impl;
-};
-
-class TopicManagerSyncI final : public TopicManagerSync
-{
-public:
-
-    TopicManagerSyncI(shared_ptr<TopicManagerImpl> impl) :
-        _impl(std::move(impl))
-    {
-    }
-
-    void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&) final
-    {
-        _impl->getContent(llu, content);
-    }
-
-private:
-
-    const shared_ptr<TopicManagerImpl> _impl;
-};
-
+    private:
+        const shared_ptr<TopicManagerImpl> _impl;
+    };
 }
 
 shared_ptr<TopicManagerImpl>
@@ -216,7 +205,7 @@ TopicManagerImpl::create(const std::shared_ptr<PersistentInstance>& instance)
 {
     shared_ptr<TopicManagerImpl> manager(new TopicManagerImpl(instance));
 
-    if(instance->observer())
+    if (instance->observer())
     {
         instance->observer()->setObserverUpdater(manager);
     }
@@ -225,7 +214,7 @@ TopicManagerImpl::create(const std::shared_ptr<PersistentInstance>& instance)
 
     // If there is no node adapter we don't need to start the
     // observer, nor sync since we're not replicating.
-    if(instance->nodeAdapter())
+    if (instance->nodeAdapter())
     {
         auto observerImpl = make_shared<ReplicaObserverI>(instance, manager);
         manager->_observer = instance->nodeAdapter()->addWithUUID(observerImpl);
@@ -236,10 +225,10 @@ TopicManagerImpl::create(const std::shared_ptr<PersistentInstance>& instance)
     return manager;
 }
 
-TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
-    _instance(std::move(instance)),
-    _lluMap(_instance->lluMap()),
-    _subscriberMap(_instance->subscriberMap())
+TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance)
+    : _instance(std::move(instance)),
+      _lluMap(_instance->lluMap()),
+      _subscriberMap(_instance->subscriberMap())
 {
     try
     {
@@ -254,7 +243,7 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
         SubscriberRecord v;
 
         SubscriberMapRWCursor cursor(_subscriberMap, txn);
-        if(cursor.get(k, v, MDB_FIRST))
+        if (cursor.get(k, v, MDB_FIRST))
         {
             bool moreTopics = false;
             do
@@ -266,19 +255,19 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
                 Ice::Identity topic = k.topic;
 
                 SubscriberRecordSeq content;
-                while((moreTopics = cursor.get(k, v, MDB_NEXT)) == true && k.topic == topic)
+                while ((moreTopics = cursor.get(k, v, MDB_NEXT)) == true && k.topic == topic)
                 {
                     content.push_back(v);
                 }
 
                 string name = identityToTopicName(topic);
                 installTopic(name, topic, false, content);
-            } while(moreTopics);
+            } while (moreTopics);
         }
 
         txn.commit();
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         shutdown();
         throw;
@@ -291,7 +280,7 @@ TopicManagerImpl::create(const string& name)
     lock_guard lock(_mutex);
 
     reap();
-    if(_topics.find(name) != _topics.end())
+    if (_topics.find(name) != _topics.end())
     {
         throw TopicExists(name);
     }
@@ -316,7 +305,7 @@ TopicManagerImpl::create(const string& name)
 
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -334,7 +323,7 @@ TopicManagerImpl::retrieve(const string& name)
     reap();
 
     auto p = _topics.find(name);
-    if(p == _topics.end())
+    if (p == _topics.end())
     {
         throw NoSuchTopic(name);
     }
@@ -350,9 +339,9 @@ TopicManagerImpl::retrieveAll()
     reap();
 
     TopicDict all;
-    for(auto p = _topics.begin(); p != _topics.end(); ++p)
+    for (auto p = _topics.begin(); p != _topics.end(); ++p)
     {
-        all.insert({ p->first, p->second->proxy() });
+        all.insert({p->first, p->second->proxy()});
     }
 
     return all;
@@ -364,21 +353,21 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     lock_guard lock(_mutex);
 
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topicMgr > 0)
+    if (traceLevels->topicMgr > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
         out << "init";
-        for(const auto& c : content)
+        for (const auto& c : content)
         {
             out << " topic: " << _instance->communicator()->identityToString(c.id) << " subscribers: ";
-            for(auto q = c.records.cbegin(); q != c.records.cend(); ++q)
+            for (auto q = c.records.cbegin(); q != c.records.cend(); ++q)
             {
-                if(q != c.records.begin())
+                if (q != c.records.begin())
                 {
                     out << ",";
                 }
                 out << _instance->communicator()->identityToString(q->id);
-                if(traceLevels->topicMgr > 1)
+                if (traceLevels->topicMgr > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
                 }
@@ -396,29 +385,29 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
         _subscriberMap.clear(txn);
 
-        for(TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
-        for(const auto& c : content)
-        {
-            SubscriberRecordKey srkey;
-            srkey.topic = c.id;
-            SubscriberRecord rec;
-            rec.link = false;
-            rec.cost = 0;
-
-            _subscriberMap.put(txn, srkey, rec);
-
-            for(const auto& record : c.records)
+        for (TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
+            for (const auto& c : content)
             {
-                SubscriberRecordKey key;
-                key.topic = c.id;
-                key.id = record.id;
+                SubscriberRecordKey srkey;
+                srkey.topic = c.id;
+                SubscriberRecord rec;
+                rec.link = false;
+                rec.cost = 0;
 
-                _subscriberMap.put(txn, key, record);
+                _subscriberMap.put(txn, srkey, rec);
+
+                for (const auto& record : c.records)
+                {
+                    SubscriberRecordKey key;
+                    key.topic = c.id;
+                    key.id = record.id;
+
+                    _subscriberMap.put(txn, key, record);
+                }
             }
-        }
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -430,18 +419,18 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     // exist, or updates those that do.
 
     auto p = _topics.begin();
-    while(p != _topics.end())
+    while (p != _topics.end())
     {
         TopicContentSeq::const_iterator q;
-        for(q = content.begin(); q != content.end(); ++q)
+        for (q = content.begin(); q != content.end(); ++q)
         {
-            if(q->id == p->second->id())
+            if (q->id == p->second->id())
             {
                 break;
             }
         }
 
-        if(q == content.end())
+        if (q == content.end())
         {
             // Note that this destroy should not remove anything from
             // the database since we've already synced up the db
@@ -460,11 +449,11 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
     // Now run through the contents updating the topics that do exist,
     // and creating those that do not.
-    for(auto q = content.cbegin(); q != content.cend(); ++q)
+    for (auto q = content.cbegin(); q != content.cend(); ++q)
     {
         string name = identityToTopicName(q->id);
         auto r = _topics.find(name);
-        if(r == _topics.end())
+        if (r == _topics.end())
         {
             installTopic(name, q->id, true, q->records);
         }
@@ -493,7 +482,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
         rec.link = false;
         rec.cost = 0;
 
-        if(_subscriberMap.find(txn, key))
+        if (_subscriberMap.find(txn, key))
         {
             throw ObserverInconsistencyException("topic exists: " + name);
         }
@@ -503,7 +492,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
 
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -518,7 +507,7 @@ TopicManagerImpl::observerDestroyTopic(const LogUpdate& llu, const string& name)
     lock_guard lock(_mutex);
 
     auto q = _topics.find(name);
-    if(q == _topics.end())
+    if (q == _topics.end())
     {
         throw ObserverInconsistencyException("no topic: " + name);
     }
@@ -535,7 +524,7 @@ TopicManagerImpl::observerAddSubscriber(const LogUpdate& llu, const string& name
         lock_guard lock(_mutex);
 
         auto q = _topics.find(name);
-        if(q == _topics.end())
+        if (q == _topics.end())
         {
             throw ObserverInconsistencyException("no topic: " + name);
         }
@@ -553,7 +542,7 @@ TopicManagerImpl::observerRemoveSubscriber(const LogUpdate& llu, const string& n
         lock_guard lock(_mutex);
 
         auto q = _topics.find(name);
-        if(q == _topics.end())
+        if (q == _topics.end())
         {
             throw ObserverInconsistencyException("no topic: " + name);
         }
@@ -574,7 +563,7 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
     try
     {
         content.clear();
-        for(const auto& topic : _topics)
+        for (const auto& topic : _topics)
         {
             TopicContent rec = topic.second->getContent();
             content.push_back(rec);
@@ -583,7 +572,7 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
         IceDB::ReadOnlyTxn txn(_instance->dbEnv());
         _lluMap.get(txn, lluDbKey, llu);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -599,7 +588,7 @@ TopicManagerImpl::getLastLogUpdate() const
         IceDB::ReadOnlyTxn txn(_instance->dbEnv());
         _lluMap.get(txn, lluDbKey, llu);
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -646,7 +635,7 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
 
         IceDB::ReadWriteTxn txn(_instance->dbEnv());
 
-        for(const auto& topic : _topics)
+        for (const auto& topic : _topics)
         {
             TopicContent rec = topic.second->getContent();
             content.push_back(rec);
@@ -656,7 +645,7 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
 
         txn.commit();
     }
-    catch(const IceDB::LMDBException& ex)
+    catch (const IceDB::LMDBException& ex)
     {
         logError(_instance->communicator(), ex);
         throw; // will become UnknownException in caller
@@ -685,10 +674,10 @@ TopicManagerImpl::reap()
     // Always called with mutex locked.
     //
     vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
-    for(const auto& topic : reaped)
+    for (const auto& topic : reaped)
     {
         auto q = _topics.find(topic);
-        if(q != _topics.end() && q->second->destroyed())
+        if (q != _topics.end() && q->second->destroyed())
         {
             _topics.erase(q);
         }
@@ -700,7 +689,7 @@ TopicManagerImpl::shutdown()
 {
     lock_guard lock(_mutex);
 
-    for(const auto& topic : _topics)
+    for (const auto& topic : _topics)
     {
         topic.second->shutdown();
     }
@@ -720,7 +709,7 @@ TopicManagerImpl::updateTopicObservers()
 {
     lock_guard lock(_mutex);
 
-    for(const auto& topic : _topics)
+    for (const auto& topic : _topics)
     {
         topic.second->updateObserver();
     }
@@ -731,7 +720,7 @@ TopicManagerImpl::updateSubscriberObservers()
 {
     lock_guard lock(_mutex);
 
-    for(const auto& topic : _topics)
+    for (const auto& topic : _topics)
     {
         topic.second->updateSubscriberObservers();
     }
@@ -748,21 +737,20 @@ TopicManagerImpl::installTopic(
     // Called by constructor or with 'this' mutex locked.
     //
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topicMgr > 0)
+    if (traceLevels->topicMgr > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
-        if(create)
+        if (create)
         {
-            out << "creating new topic \"" << name << "\". id: "
-                << _instance->communicator()->identityToString(id)
+            out << "creating new topic \"" << name << "\". id: " << _instance->communicator()->identityToString(id)
                 << " subscribers: ";
-            for(auto q = subscribers.cbegin(); q != subscribers.cend(); ++q)
+            for (auto q = subscribers.cbegin(); q != subscribers.cend(); ++q)
             {
-                if(q != subscribers.begin())
+                if (q != subscribers.begin())
                 {
                     out << ",";
                 }
-                if(traceLevels->topicMgr > 1)
+                if (traceLevels->topicMgr > 1)
                 {
                     out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
@@ -771,16 +759,15 @@ TopicManagerImpl::installTopic(
         }
         else
         {
-            out << "loading topic \"" << name << "\" from database. id: "
-                << _instance->communicator()->identityToString(id)
-                << " subscribers: ";
-            for(auto q = subscribers.cbegin(); q != subscribers.cend(); ++q)
+            out << "loading topic \"" << name
+                << "\" from database. id: " << _instance->communicator()->identityToString(id) << " subscribers: ";
+            for (auto q = subscribers.cbegin(); q != subscribers.cend(); ++q)
             {
-                if(q != subscribers.begin())
+                if (q != subscribers.begin())
                 {
                     out << ",";
                 }
-                if(traceLevels->topicMgr > 1)
+                if (traceLevels->topicMgr > 1)
                 {
                     out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
@@ -793,7 +780,7 @@ TopicManagerImpl::installTopic(
     auto topicImpl = TopicImpl::create(_instance, name, id, subscribers);
 
     // The identity is the name of the Topic.
-    _topics.insert({ name, topicImpl });
+    _topics.insert({name, topicImpl});
     _instance->topicAdapter()->add(topicImpl->getServant(), id);
     return topicImpl->proxy();
 }

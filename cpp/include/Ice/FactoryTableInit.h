@@ -10,67 +10,52 @@
 
 namespace IceInternal
 {
-
-class ICE_API FactoryTableInit
-{
-public:
-
-    FactoryTableInit();
-    ~FactoryTableInit();
-};
-
-static FactoryTableInit factoryTableInitializer;    // Dummy variable to force initialization of factoryTable
-
-extern ICE_API FactoryTable* factoryTable;
-
-class ICE_API CompactIdInit
-{
-public:
-
-    CompactIdInit(std::string_view, int);
-    ~CompactIdInit();
-
-private:
-
-    const int _compactId;
-};
-
-template<class E>
-class DefaultUserExceptionFactoryInit
-{
-public:
-
-    DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
+    class ICE_API FactoryTableInit
     {
-        factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
-    }
+    public:
+        FactoryTableInit();
+        ~FactoryTableInit();
+    };
 
-    ~DefaultUserExceptionFactoryInit()
+    static FactoryTableInit factoryTableInitializer; // Dummy variable to force initialization of factoryTable
+
+    extern ICE_API FactoryTable* factoryTable;
+
+    class ICE_API CompactIdInit
     {
-        factoryTable->removeExceptionFactory(typeId);
-    }
+    public:
+        CompactIdInit(std::string_view, int);
+        ~CompactIdInit();
 
-    const ::std::string typeId;
-};
+    private:
+        const int _compactId;
+    };
 
-template<class O>
-class DefaultValueFactoryInit
-{
-public:
-
-    DefaultValueFactoryInit(std::string_view tId) : typeId(tId)
+    template<class E> class DefaultUserExceptionFactoryInit
     {
-        factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
-    }
+    public:
+        DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
+        {
+            factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
+        }
 
-    ~DefaultValueFactoryInit()
+        ~DefaultUserExceptionFactoryInit() { factoryTable->removeExceptionFactory(typeId); }
+
+        const ::std::string typeId;
+    };
+
+    template<class O> class DefaultValueFactoryInit
     {
-        factoryTable->removeValueFactory(typeId);
-    }
+    public:
+        DefaultValueFactoryInit(std::string_view tId) : typeId(tId)
+        {
+            factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
+        }
 
-    const ::std::string typeId;
-};
+        ~DefaultValueFactoryInit() { factoryTable->removeValueFactory(typeId); }
 
+        const ::std::string typeId;
+    };
 }
 
 #endif

@@ -10,7 +10,6 @@
 class TestIntfI final : public Test::TestIntf
 {
 public:
-
     Test::ByteEnum opByte(Test::ByteEnum, Test::ByteEnum&, const Ice::Current&) final;
 
     Test::ShortEnum opShort(Test::ShortEnum, Test::ShortEnum&, const Ice::Current&) final;

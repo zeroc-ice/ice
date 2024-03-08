@@ -23,19 +23,19 @@
 //
 
 #ifdef major
-#undef major
+#    undef major
 #endif
 
 #ifdef minor
-#undef minor
+#    undef minor
 #endif
 
 #ifdef min
-#undef min
+#    undef min
 #endif
 
 #ifdef max
-#undef max
+#    undef max
 #endif
 
 #endif

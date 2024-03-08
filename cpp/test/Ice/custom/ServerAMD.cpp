@@ -13,7 +13,6 @@ using namespace std;
 class ServerAMD : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

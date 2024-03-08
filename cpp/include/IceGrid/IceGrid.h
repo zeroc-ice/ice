@@ -16,13 +16,11 @@
 
 namespace IceGrid
 {
-
-/**
- * Obtains the plug-in facade for the IceGrid registry.
- * @return The plug-in facade.
- */
-ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
-
+    /**
+     * Obtains the plug-in facade for the IceGrid registry.
+     * @return The plug-in facade.
+     */
+    ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
 }
 
 #endif

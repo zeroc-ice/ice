@@ -26,7 +26,7 @@ YY_DECL;
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
 //
-#define YYMAXDEPTH  10000 // 10000 should suffice. Bison default is 10000 as maximum.
+#define YYMAXDEPTH 10000       // 10000 should suffice. Bison default is 10000 as maximum.
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 //
@@ -37,130 +37,126 @@ YY_DECL;
 
 namespace IceGrid
 {
+    class Parser
+    {
+    public:
+        Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrxPtr, AdminPrxPtr, bool);
 
-class Parser
-{
-public:
+        void usage();
+        void usage(const std::string&, const std::string& = std::string());
+        void usage(const std::string&, const std::list<std::string>&);
 
-    Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrxPtr, AdminPrxPtr, bool);
+        void interrupt();
+        bool interrupted() const;
+        void resetInterrupt();
+        void checkInterrupted();
 
-    void usage();
-    void usage(const std::string&, const std::string& = std::string());
-    void usage(const std::string&, const std::list<std::string>&);
+        void addApplication(const std::list<std::string>&);
+        void removeApplication(const std::list<std::string>&);
+        void describeApplication(const std::list<std::string>&);
+        void diffApplication(const std::list<std::string>&);
+        void updateApplication(const std::list<std::string>&);
+        void patchApplication(const std::list<std::string>&);
+        void listAllApplications(const std::list<std::string>&);
 
-    void interrupt();
-    bool interrupted() const;
-    void resetInterrupt();
-    void checkInterrupted();
+        void describeServerTemplate(const std::list<std::string>&);
+        void describeServiceTemplate(const std::list<std::string>&);
+        void instantiateServerTemplate(const std::list<std::string>&);
 
-    void addApplication(const std::list<std::string>&);
-    void removeApplication(const std::list<std::string>&);
-    void describeApplication(const std::list<std::string>&);
-    void diffApplication(const std::list<std::string>&);
-    void updateApplication(const std::list<std::string>&);
-    void patchApplication(const std::list<std::string>&);
-    void listAllApplications(const std::list<std::string>&);
+        void describeNode(const std::list<std::string>&);
+        void pingNode(const std::list<std::string>&);
+        void printLoadNode(const std::list<std::string>&);
+        void printNodeProcessorSockets(const std::list<std::string>&);
+        void shutdownNode(const std::list<std::string>&);
+        void listAllNodes(const std::list<std::string>&);
 
-    void describeServerTemplate(const std::list<std::string>&);
-    void describeServiceTemplate(const std::list<std::string>&);
-    void instantiateServerTemplate(const std::list<std::string>&);
+        void describeRegistry(const std::list<std::string>&);
+        void pingRegistry(const std::list<std::string>&);
+        void shutdownRegistry(const std::list<std::string>&);
+        void listAllRegistries(const std::list<std::string>&);
 
-    void describeNode(const std::list<std::string>&);
-    void pingNode(const std::list<std::string>&);
-    void printLoadNode(const std::list<std::string>&);
-    void printNodeProcessorSockets(const std::list<std::string>&);
-    void shutdownNode(const std::list<std::string>&);
-    void listAllNodes(const std::list<std::string>&);
+        void removeServer(const std::list<std::string>&);
+        void startServer(const std::list<std::string>&);
+        void stopServer(const std::list<std::string>&);
+        void patchServer(const std::list<std::string>&);
+        void signalServer(const std::list<std::string>&);
+        void writeMessage(const std::list<std::string>&, int fd);
+        void describeServer(const std::list<std::string>&);
+        void stateServer(const std::list<std::string>&);
+        void enableServer(const std::list<std::string>&, bool);
+        void pidServer(const std::list<std::string>&);
+        void propertiesServer(const std::list<std::string>&, bool);
+        void listAllServers(const std::list<std::string>&);
 
-    void describeRegistry(const std::list<std::string>&);
-    void pingRegistry(const std::list<std::string>&);
-    void shutdownRegistry(const std::list<std::string>&);
-    void listAllRegistries(const std::list<std::string>&);
+        void startService(const std::list<std::string>&);
+        void stopService(const std::list<std::string>&);
+        void propertiesService(const std::list<std::string>&, bool);
+        void describeService(const std::list<std::string>&);
+        void listServices(const std::list<std::string>&);
 
-    void removeServer(const std::list<std::string>&);
-    void startServer(const std::list<std::string>&);
-    void stopServer(const std::list<std::string>&);
-    void patchServer(const std::list<std::string>&);
-    void signalServer(const std::list<std::string>&);
-    void writeMessage(const std::list<std::string>&, int fd);
-    void describeServer(const std::list<std::string>&);
-    void stateServer(const std::list<std::string>&);
-    void enableServer(const std::list<std::string>&, bool);
-    void pidServer(const std::list<std::string>&);
-    void propertiesServer(const std::list<std::string>&, bool);
-    void listAllServers(const std::list<std::string>&);
+        void endpointsAdapter(const std::list<std::string>&);
+        void removeAdapter(const std::list<std::string>&);
+        void listAllAdapters(const std::list<std::string>&);
 
-    void startService(const std::list<std::string>&);
-    void stopService(const std::list<std::string>&);
-    void propertiesService(const std::list<std::string>&, bool);
-    void describeService(const std::list<std::string>&);
-    void listServices(const std::list<std::string>&);
+        void addObject(const std::list<std::string>&);
+        void removeObject(const std::list<std::string>&);
+        void findObject(const std::list<std::string>&);
+        void describeObject(const std::list<std::string>&);
+        void listObject(const std::list<std::string>&);
 
-    void endpointsAdapter(const std::list<std::string>&);
-    void removeAdapter(const std::list<std::string>&);
-    void listAllAdapters(const std::list<std::string>&);
+        void show(const std::string&, const std::list<std::string>&);
 
-    void addObject(const std::list<std::string>&);
-    void removeObject(const std::list<std::string>&);
-    void findObject(const std::list<std::string>&);
-    void describeObject(const std::list<std::string>&);
-    void listObject(const std::list<std::string>&);
+        void showBanner();
+        void showCopying();
+        void showWarranty();
 
-    void show(const std::string&, const std::list<std::string>&);
+        //
+        // With older flex version <= 2.5.35 YY_INPUT second
+        // paramenter is of type int&, in newer versions it
+        // changes to size_t&
+        //
+        void getInput(char*, int&, size_t);
+        void getInput(char*, size_t&, size_t);
+        void continueLine();
+        const char* getPrompt();
 
-    void showBanner();
-    void showCopying();
-    void showWarranty();
+        void invalidCommand(const char*);
+        void invalidCommand(const std::string&);
+        void invalidCommand(const std::string&, const std::string&);
 
-    //
-    // With older flex version <= 2.5.35 YY_INPUT second
-    // paramenter is of type int&, in newer versions it
-    // changes to size_t&
-    //
-    void getInput(char*, int&, size_t);
-    void getInput(char*, size_t&, size_t);
-    void continueLine();
-    const char* getPrompt();
+        void invalidCommand(const std::list<std::string>&);
 
-    void invalidCommand(const char*);
-    void invalidCommand(const std::string&);
-    void invalidCommand(const std::string&, const std::string&);
+        std::string patchFailed(const Ice::StringSeq&);
+        void error(const char*);
+        void error(const std::string&);
 
-    void invalidCommand(const std::list<std::string>&);
+        void warning(const char*);
+        void warning(const std::string&);
 
-    std::string patchFailed(const Ice::StringSeq&);
-    void error(const char*);
-    void error(const std::string&);
+        int parse(FILE*, bool);
+        int parse(const std::string&, bool);
 
-    void warning(const char*);
-    void warning(const std::string&);
+    private:
+        void exception(std::exception_ptr);
 
-    int parse(FILE*, bool);
-    int parse(const std::string&, bool);
+        void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
+        void showLog(const std::string&, const std::string&, bool, bool, int);
 
-private:
+        mutable std::mutex _mutex;
+        std::condition_variable _condVar;
 
-    void exception(std::exception_ptr);
+        std::string _commands;
+        std::shared_ptr<Ice::Communicator> _communicator;
+        AdminSessionPrxPtr _session;
+        AdminPrxPtr _admin;
+        bool _continue;
+        bool _interrupted;
+        int _errors;
+        bool _interactive;
+        std::map<std::string, std::map<std::string, std::string>> _helpCommands;
+    };
 
-    void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
-    void showLog(const std::string&, const std::string&, bool, bool, int);
-
-    mutable std::mutex _mutex;
-    std::condition_variable _condVar;
-
-    std::string _commands;
-    std::shared_ptr<Ice::Communicator> _communicator;
-    AdminSessionPrxPtr _session;
-    AdminPrxPtr _admin;
-    bool _continue;
-    bool _interrupted;
-    int _errors;
-    bool _interactive;
-    std::map< std::string, std::map<std::string, std::string> > _helpCommands;
-};
-
-extern Parser* parser; // The current parser for bison/flex
-
+    extern Parser* parser; // The current parser for bison/flex
 }
 
 #endif

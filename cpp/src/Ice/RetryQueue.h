@@ -14,56 +14,50 @@
 
 namespace IceInternal
 {
+    class OutgoingAsyncBase;
+    class ProxyOutgoingAsyncBase;
 
-class OutgoingAsyncBase;
-class ProxyOutgoingAsyncBase;
+    using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
+    using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
-using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
-using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
+    class RetryTask : public IceUtil::TimerTask,
+                      public CancellationHandler,
+                      public std::enable_shared_from_this<RetryTask>
+    {
+    public:
+        RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
 
-class RetryTask : public IceUtil::TimerTask,
-                  public CancellationHandler,
-                  public std::enable_shared_from_this<RetryTask>
-{
-public:
+        virtual void runTimerTask();
 
-    RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
+        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void runTimerTask();
+        void destroy();
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
+    private:
+        const InstancePtr _instance;
+        const RetryQueuePtr _queue;
+        const ProxyOutgoingAsyncBasePtr _outAsync;
+    };
+    using RetryTaskPtr = std::shared_ptr<RetryTask>;
 
-    void destroy();
+    class RetryQueue : public std::enable_shared_from_this<RetryQueue>
+    {
+    public:
+        RetryQueue(const InstancePtr&);
 
-private:
+        void add(const ProxyOutgoingAsyncBasePtr&, int);
+        void destroy();
 
-    const InstancePtr _instance;
-    const RetryQueuePtr _queue;
-    const ProxyOutgoingAsyncBasePtr _outAsync;
-};
-using RetryTaskPtr = std::shared_ptr<RetryTask>;
+    private:
+        void remove(const RetryTaskPtr&);
+        bool cancel(const RetryTaskPtr&);
+        friend class RetryTask;
 
-class RetryQueue : public std::enable_shared_from_this<RetryQueue>
-{
-public:
-
-    RetryQueue(const InstancePtr&);
-
-    void add(const ProxyOutgoingAsyncBasePtr&, int);
-    void destroy();
-
-private:
-
-    void remove(const RetryTaskPtr&);
-    bool cancel(const RetryTaskPtr&);
-    friend class RetryTask;
-
-    InstancePtr _instance;
-    std::set<RetryTaskPtr> _requests;
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-};
-
+        InstancePtr _instance;
+        std::set<RetryTaskPtr> _requests;
+        std::mutex _mutex;
+        std::condition_variable _conditionVariable;
+    };
 }
 
 #endif

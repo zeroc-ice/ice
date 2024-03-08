@@ -9,11 +9,11 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RoutingTable::RoutingTable(shared_ptr<Communicator> communicator, shared_ptr<ProxyVerifier> verifier) :
-    _communicator(std::move(communicator)),
-    _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
-    _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000)),
-    _verifier(std::move(verifier))
+Glacier2::RoutingTable::RoutingTable(shared_ptr<Communicator> communicator, shared_ptr<ProxyVerifier> verifier)
+    : _communicator(std::move(communicator)),
+      _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
+      _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000)),
+      _verifier(std::move(verifier))
 {
 }
 
@@ -21,7 +21,7 @@ void
 Glacier2::RoutingTable::destroy()
 {
     lock_guard<mutex> lock(_mutex);
-    if(_observer)
+    if (_observer)
     {
         _observer->routingTableSize(-static_cast<int>(_map.size()));
     }
@@ -29,9 +29,10 @@ Glacier2::RoutingTable::destroy()
 }
 
 shared_ptr<Glacier2::Instrumentation::SessionObserver>
-Glacier2::RoutingTable::updateObserver(const shared_ptr<Glacier2::Instrumentation::RouterObserver>& obsv,
-                                       const string& userId,
-                                       const shared_ptr<Ice::Connection>& connection)
+Glacier2::RoutingTable::updateObserver(
+    const shared_ptr<Glacier2::Instrumentation::RouterObserver>& obsv,
+    const string& userId,
+    const shared_ptr<Ice::Connection>& connection)
 {
     lock_guard<mutex> lock(_mutex);
     _observer.attach(obsv->getSessionObserver(userId, connection, static_cast<int>(_map.size()), _observer.get()));
@@ -53,12 +54,12 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     vector<ObjectPrx> proxies;
     for (const auto& prx : unfiltered)
     {
-        if(!prx) // We ignore null proxies.
+        if (!prx) // We ignore null proxies.
         {
             continue;
         }
 
-        if(!_verifier->verify(*prx))
+        if (!_verifier->verify(*prx))
         {
             current.con->close(ConnectionClose::Forcefully);
             throw ObjectNotExistException(__FILE__, __LINE__);
@@ -73,21 +74,21 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     {
         EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 
-        if(p == _map.end())
+        if (p == _map.end())
         {
-            if(_traceLevel == 1 || _traceLevel >= 3)
+            if (_traceLevel == 1 || _traceLevel >= 3)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "adding proxy to routing table:\n" << proxy;
             }
 
-            p = _map.insert(_map.begin(), make_pair(proxy->ice_getIdentity(), EvictorEntry { proxy, _queue.end() }));
+            p = _map.insert(_map.begin(), make_pair(proxy->ice_getIdentity(), EvictorEntry{proxy, _queue.end()}));
             EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
             p->second.pos = q;
         }
         else
         {
-            if(_traceLevel == 1 || _traceLevel >= 3)
+            if (_traceLevel == 1 || _traceLevel >= 3)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "proxy already in routing table:\n" << proxy;
@@ -99,11 +100,11 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             entry.pos = q;
         }
 
-        while(static_cast<int>(_map.size()) > _maxSize)
+        while (static_cast<int>(_map.size()) > _maxSize)
         {
             p = _queue.front();
 
-            if(_traceLevel >= 2)
+            if (_traceLevel >= 2)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "evicting proxy from routing table:\n" << p->second.proxy;
@@ -116,7 +117,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
         }
     }
 
-    if(_observer)
+    if (_observer)
     {
         _observer->routingTableSize(static_cast<int>(_map.size()) - static_cast<int>(sz));
     }
@@ -131,7 +132,7 @@ Glacier2::RoutingTable::get(const Identity& ident)
 
     EvictorMap::iterator p = _map.find(ident);
 
-    if(p == _map.end())
+    if (p == _map.end())
     {
         return nullopt;
     }
