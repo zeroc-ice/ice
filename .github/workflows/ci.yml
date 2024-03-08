@@ -6,7 +6,7 @@ on:
     branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["main"]
+    # branches: ["main"]
 
 # See https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
