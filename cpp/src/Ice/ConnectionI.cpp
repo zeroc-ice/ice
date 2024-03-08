@@ -46,7 +46,7 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class DispatchCall final : public DispatchWorkItem
+    class DispatchCall final : public ExecutorWorkItem
     {
     public:
         DispatchCall(
@@ -61,7 +61,7 @@ namespace
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
             InputStream& stream)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
@@ -98,11 +98,11 @@ namespace
         InputStream _stream;
     };
 
-    class FinishCall final : public DispatchWorkItem
+    class FinishCall final : public ExecutorWorkItem
     {
     public:
         FinishCall(const Ice::ConnectionIPtr& connection, bool close)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _close(close)
         {
@@ -903,7 +903,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->dispatch([self, callback = std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
         }
     }
     else
@@ -1645,9 +1645,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
+    _threadPool->executeFromThisThread(make_shared<DispatchCall>(
         shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
         servantManager, adapter, outAsync, heartbeatCallback, current.stream));
 #else
@@ -1659,7 +1659,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
+        _threadPool->executeFromThisThread(make_shared<DispatchCall>(
             shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
             servantManager, adapter, outAsync, heartbeatCallback, current.stream));
     }
@@ -1820,9 +1820,9 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
     current.ioCompleted();
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+    _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
 #else
     if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
@@ -1830,7 +1830,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+        _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
     }
 #endif
 }

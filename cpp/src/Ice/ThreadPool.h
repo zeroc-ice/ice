@@ -32,11 +32,12 @@ namespace IceInternal
     };
     using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
-    class DispatchWorkItem : public ThreadPoolWorkItem, public std::enable_shared_from_this<DispatchWorkItem>
+    // A work item that is executed by the executor, if configured.
+    class ExecutorWorkItem : public ThreadPoolWorkItem, public std::enable_shared_from_this<ExecutorWorkItem>
     {
     public:
-        DispatchWorkItem();
-        DispatchWorkItem(const Ice::ConnectionPtr& connection);
+        ExecutorWorkItem();
+        ExecutorWorkItem(const Ice::ConnectionPtr& connection);
 
         const Ice::ConnectionPtr& getConnection() { return _connection; }
 
@@ -47,7 +48,7 @@ namespace IceInternal
 
         const Ice::ConnectionPtr _connection;
     };
-    using DispatchWorkItemPtr = std::shared_ptr<DispatchWorkItem>;
+    using ExecutorWorkItemPtr = std::shared_ptr<ExecutorWorkItem>;
 
     class ThreadPool : public std::enable_shared_from_this<ThreadPool>
     {
@@ -93,9 +94,9 @@ namespace IceInternal
         bool finish(const EventHandlerPtr&, bool);
         void ready(const EventHandlerPtr&, SocketOperation, bool);
 
-        void dispatchFromThisThread(const DispatchWorkItemPtr&);
-        void dispatch(const DispatchWorkItemPtr&);
-        void dispatch(std::function<void()>);
+        void executeFromThisThread(const ExecutorWorkItemPtr&);
+        void execute(const ExecutorWorkItemPtr&);
+        void execute(std::function<void()>);
 
         void joinWithAllThreads();
 
@@ -181,9 +182,9 @@ namespace IceInternal
         bool ioReady() { return (_handler->_registered & operation) != 0; }
 #endif
 
-        void dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
+        void executeFromThisThread(const ExecutorWorkItemPtr& workItem)
         {
-            _threadPool->dispatchFromThisThread(workItem);
+            _threadPool->executeFromThisThread(workItem);
         }
 
     private:
