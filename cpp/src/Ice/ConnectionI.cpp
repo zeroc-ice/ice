@@ -2083,7 +2083,7 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _hasExecutor(_instance->initializationData().executor), // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor),  // Cached for better performance.
       _logger(_instance->initializationData().logger),         // Cached for better performance.
       _traceLevels(_instance->traceLevels()),                  // Cached for better performance.
       _timer(_instance->timer()),                              // Cached for better performance.

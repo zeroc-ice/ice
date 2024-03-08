@@ -236,7 +236,7 @@ Client::run(int argc, char** argv)
     _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(50));
 
     Executor executor;
-    auto dfut = std::async(launch::async, [&executor] { executor.run(); });
+    auto executorFuture = std::async(launch::async, [&executor] { executor.run(); });
 
     _initData.executor = [&executor](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
     { executor.execute(call, conn); };
@@ -441,7 +441,7 @@ Client::run(int argc, char** argv)
 
     // Wait for std::async thread to complete:
     executor.destroy();
-    dfut.get();
+    executorFuture.get();
 }
 
 DEFINE_TEST(Client)
