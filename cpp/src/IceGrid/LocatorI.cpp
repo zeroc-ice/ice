@@ -21,13 +21,11 @@ namespace
     {
     public:
         AdapterRequest(
-            function<void(const Ice::ObjectPrxPtr&)> response,
-            function<void(exception_ptr)> exception,
+            function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
             const Ice::EncodingVersion& encoding,
             const LocatorAdapterInfo& adapter)
             : _response(std::move(response)),
-              _exception(std::move(exception)),
               _locator(locator),
               _encoding(encoding),
               _adapter(adapter),
@@ -38,18 +36,14 @@ namespace
 
         void execute() override { _locator->getDirectProxy(_adapter, shared_from_this()); }
 
-        void activating(const string&) override
+        void activating(const string&) final
         {
             // Nothing to do.
         }
 
-        void response(const std::string& id, const Ice::ObjectPrxPtr& proxy) override
+        void response(const std::string& id, const Ice::ObjectPrx& proxy) final
         {
-            assert(proxy);
-
-            //
             // Ensure the server supports the request encoding.
-            //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
@@ -62,7 +56,7 @@ namespace
             _response(proxy->ice_identity(Ice::stringToIdentity("dummy")));
         }
 
-        void exception(const std::string&, exception_ptr ex) override
+        void exception(const std::string&, exception_ptr ex) final
         {
             if (_traceLevels->locator > 0)
             {
@@ -73,8 +67,7 @@ namespace
         }
 
     private:
-        const function<void(const Ice::ObjectPrxPtr&)> _response;
-        const function<void(exception_ptr)> _exception;
+        const function<void(const optional<Ice::ObjectPrx>&)> _response;
         const shared_ptr<LocatorI> _locator;
         const Ice::EncodingVersion _encoding;
         const LocatorAdapterInfo _adapter;
@@ -85,16 +78,14 @@ namespace
     {
     public:
         ReplicaGroupRequest(
-            function<void(const Ice::ObjectPrxPtr&)> response,
-            function<void(exception_ptr)> exception,
+            function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
             const string& id,
             const Ice::EncodingVersion& encoding,
             const LocatorAdapterInfoSeq& adapters,
             int count,
-            Ice::ObjectPrxPtr firstProxy)
+            optional<Ice::ObjectPrx> firstProxy)
             : _response(std::move(response)),
-              _exception(std::move(exception)),
               _locator(locator),
               _id(id),
               _encoding(encoding),
@@ -110,9 +101,7 @@ namespace
                 _count = 0;
             }
 
-            //
             // If the first adapter proxy is provided, store it in _proxies.
-            //
             if (firstProxy)
             {
                 assert(!_adapters.empty());
@@ -123,9 +112,7 @@ namespace
 
         void execute() override
         {
-            //
             // Otherwise, request as many adapters as required.
-            //
             LocatorAdapterInfoSeq adapters;
             {
                 lock_guard lock(_mutex);
@@ -141,10 +128,7 @@ namespace
                     ++_lastAdapter;
                 }
 
-                //
-                // If there's no adapters to request, we're done, send the
-                // response.
-                //
+                // If there's no adapters to request, we're done, send the response.
                 if (_proxies.size() == _count)
                 {
                     sendResponse();
@@ -180,7 +164,7 @@ namespace
             } while (_locator->getDirectProxy(adapter, shared_from_this()));
         }
 
-        void exception(const string&, exception_ptr exptr) override
+        void exception(const string&, exception_ptr exptr) final
         {
             LocatorAdapterInfo adapter;
             {
@@ -224,11 +208,9 @@ namespace
             }
         }
 
-        void response(const string& id, const Ice::ObjectPrxPtr& proxy) override
+        void response(const string& id, const Ice::ObjectPrx& proxy) final
         {
-            //
             // Ensure the server supports the request encoding.
-            //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
@@ -239,18 +221,14 @@ namespace
             }
 
             lock_guard lock(_mutex);
-            assert(proxy);
             if (_proxies.size() == _count) // Nothing to do if we already sent the response.
             {
                 return;
             }
 
-            _proxies[id] = proxy->ice_identity(Ice::stringToIdentity("dummy"));
+            _proxies.insert({id, proxy->ice_identity(Ice::stringToIdentity("dummy"))});
 
-            //
-            // If we received all the required proxies, it's time to send the
-            // answer back to the client.
-            //
+            // If we received all the required proxies, it's time to send the answer back to the client.
             if (_proxies.size() == _count)
             {
                 sendResponse();
@@ -266,10 +244,8 @@ namespace
             }
             else if (_proxies.empty())
             {
-                //
-                // If there's no proxies, it's either because we couldn't contact the adapters or
-                // because the replica group has no members.
-                //
+                // If there's no proxies, it's either because we couldn't contact the adapters or because the replica
+                // group has no members.
                 assert(_exptr || _adapters.empty());
                 if (_traceLevels->locator > 0)
                 {
@@ -293,13 +269,11 @@ namespace
                     }
                 }
 
-                auto proxy = _locator->getCommunicator()->stringToProxy("dummy:default");
-                _response(proxy->ice_endpoints(endpoints));
+                _response(ObjectPrx(_locator->getCommunicator(), "dummy:default")->ice_endpoints(endpoints));
             }
         }
 
-        const function<void(const Ice::ObjectPrxPtr&)> _response;
-        const function<void(exception_ptr)> _exception;
+        const function<void(const optional<Ice::ObjectPrx>&)> _response;
         const shared_ptr<LocatorI> _locator;
         const std::string _id;
         const Ice::EncodingVersion _encoding;
@@ -307,7 +281,7 @@ namespace
         const shared_ptr<TraceLevels> _traceLevels;
         unsigned int _count;
         LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-        std::map<std::string, Ice::ObjectPrxPtr> _proxies;
+        std::map<std::string, Ice::ObjectPrx> _proxies;
         exception_ptr _exptr;
         std::mutex _mutex;
     };
@@ -316,7 +290,7 @@ namespace
     {
     public:
         RoundRobinRequest(
-            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(const optional<Ice::ObjectPrx>&)> response,
             function<void(exception_ptr)> exception,
             const shared_ptr<LocatorI>& locator,
             const shared_ptr<Database> database,
@@ -340,7 +314,7 @@ namespace
             assert(_adapters.empty() || _count > 0);
         }
 
-        void execute() override
+        void execute() final
         {
             if (_adapters.empty())
             {
@@ -377,11 +351,9 @@ namespace
             } while (adapter.proxy && _locator->getDirectProxy(adapter, shared_from_this()));
         }
 
-        void response(const std::string& id, const Ice::ObjectPrxPtr& proxy) override
+        void response(const std::string& id, const Ice::ObjectPrx& proxy) override
         {
-            //
             // Ensure the server supports the request encoding.
-            //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
@@ -392,7 +364,6 @@ namespace
             }
 
             lock_guard lock(_mutex);
-            assert(proxy);
             if (_adapters.empty() || id != _adapters[0].id)
             {
                 return;
@@ -400,9 +371,9 @@ namespace
 
             if (_count > 1)
             {
-                auto p = proxy->ice_identity(Ice::stringToIdentity("dummy"));
-                shared_ptr<LocatorI::Request> request = make_shared<ReplicaGroupRequest>(
-                    _response, _exception, _locator, _id, _encoding, _adapters, _count, p);
+                auto request = make_shared<ReplicaGroupRequest>(
+                    _response, _locator, _id, _encoding, _adapters, _count,
+                    proxy->ice_identity(Ice::stringToIdentity("dummy")));
                 request->execute();
             }
             else
@@ -590,7 +561,7 @@ namespace
             }
         }
 
-        const function<void(const Ice::ObjectPrxPtr&)> _response;
+        const function<void(const optional<Ice::ObjectPrx>&)> _response;
         const function<void(exception_ptr)> _exception;
         const shared_ptr<LocatorI> _locator;
         const shared_ptr<Database> _database;
@@ -613,7 +584,7 @@ namespace
     public:
         FindAdapterByIdCallback(
             const shared_ptr<LocatorI>& locator,
-            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(const optional<Ice::ObjectPrx>&)> response,
             function<void(exception_ptr)> exception,
             const string& id,
             const Ice::Current& current)
@@ -660,7 +631,7 @@ namespace
 
     private:
         const shared_ptr<LocatorI> _locator;
-        const function<void(const Ice::ObjectPrxPtr&)> _response;
+        const function<void(const optional<Ice::ObjectPrx>&)> _response;
         const function<void(exception_ptr)> _exception;
         const string _id;
         const Ice::Current _current;
@@ -753,13 +724,12 @@ LocatorI::findAdapterByIdAsync(
         }
         else if (replicaGroup)
         {
-            request = make_shared<ReplicaGroupRequest>(
-                response, exception, self, id, current.encoding, adapters, count, nullopt);
+            request = make_shared<ReplicaGroupRequest>(response, self, id, current.encoding, adapters, count, nullopt);
         }
         else
         {
             assert(adapters.size() == 1);
-            request = make_shared<AdapterRequest>(response, exception, self, current.encoding, adapters[0]);
+            request = make_shared<AdapterRequest>(response, self, current.encoding, adapters[0]);
         }
         request->execute();
         return;
