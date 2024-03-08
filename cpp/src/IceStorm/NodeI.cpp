@@ -800,7 +800,7 @@ NodeI::ready(
     int64_t generation,
     const Ice::Current& current)
 {
-    Ice::checkNotNull(coordinator, current);
+    checkNotNull(coordinator, __FILE__, __LINE__, current);
     lock_guard lock(_mutex);
     if (!_destroy && _state == NodeState::NodeStateReorganization && _group == gn)
     {

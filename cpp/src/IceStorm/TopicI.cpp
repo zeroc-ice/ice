@@ -116,7 +116,7 @@ namespace
         optional<Ice::ObjectPrx>
         subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current& current) override
         {
-            Ice::checkNotNull(obj, current);
+            checkNotNull(obj, __FILE__, __LINE__, current);
             while (true)
             {
                 int64_t generation = -1;
@@ -149,7 +149,7 @@ namespace
 
         void unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current& current) override
         {
-            Ice::checkNotNull(subscriber, current);
+            checkNotNull(subscriber, __FILE__, __LINE__, current);
             while (true)
             {
                 int64_t generation = -1;

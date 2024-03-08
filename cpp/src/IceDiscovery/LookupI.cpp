@@ -480,13 +480,13 @@ LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup) {}
 void
 LookupReplyI::foundObjectById(Identity id, optional<ObjectPrx> proxy, const Current& current)
 {
-    Ice::checkNotNull(proxy, current);
+    checkNotNull(proxy, __FILE__, __LINE__, current);
     _lookup->foundObject(id, current.id.name, *proxy);
 }
 
 void
 LookupReplyI::foundAdapterById(string adapterId, optional<ObjectPrx> proxy, bool isReplicaGroup, const Current& current)
 {
-    Ice::checkNotNull(proxy, current);
+    checkNotNull(proxy, __FILE__, __LINE__, current);
     _lookup->foundAdapter(adapterId, current.id.name, *proxy, isReplicaGroup);
 }
