@@ -135,11 +135,11 @@ Incoming::setMarshaledResult(Ice::MarshaledResult&& result)
 }
 
 void
-Incoming::response(bool amd)
+Incoming::sendResponse()
 {
     try
     {
-        if (_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished())
         {
             return;
         }
@@ -166,15 +166,15 @@ Incoming::response(bool amd)
 }
 
 void
-Incoming::exception(std::exception_ptr exc, bool amd)
+Incoming::sendException(std::exception_ptr exc)
 {
     try
     {
-        if (_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished())
         {
             return;
         }
-        handleException(exc, amd);
+        handleException(exc);
     }
     catch (const LocalException&)
     {
@@ -270,7 +270,7 @@ Incoming::warning(std::exception_ptr ex) const
 }
 
 bool
-Incoming::servantLocatorFinished(bool amd)
+Incoming::servantLocatorFinished()
 {
     assert(_locator && _servant);
     try
@@ -280,13 +280,13 @@ Incoming::servantLocatorFinished(bool amd)
     }
     catch (...)
     {
-        handleException(current_exception(), amd);
+        handleException(current_exception());
     }
     return false;
 }
 
 void
-Incoming::handleException(std::exception_ptr exc, bool /*amd*/)
+Incoming::handleException(std::exception_ptr exc)
 {
     assert(_responseHandler);
 
@@ -585,7 +585,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
                 catch (...)
                 {
                     skipReadParams(); // Required for batch requests.
-                    handleException(current_exception(), false);
+                    handleException(current_exception());
                     return;
                 }
             }
@@ -608,7 +608,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         catch (...)
         {
             skipReadParams(); // Required for batch requests
-            handleException(current_exception(), false);
+            handleException(current_exception());
             return;
         }
     }
@@ -619,14 +619,14 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         if (_servant->_iceDispatch(*this))
         {
             // If the request was dispatched synchronously, send the response.
-            response(false); // amd: false
+            sendResponse();
         }
     }
     catch (...)
     {
         // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
         // object.
-        exception(current_exception(), false); // amd: false
+        sendException(current_exception());
     }
 }
 
@@ -634,14 +634,14 @@ void
 Incoming::completed()
 {
     setResponseSent();
-    response(true); // amd: true
+    sendResponse();
 }
 
 void
 Incoming::completed(exception_ptr ex)
 {
     setResponseSent();
-    exception(ex, true); // amd: true
+    sendException(ex);
 }
 
 void
