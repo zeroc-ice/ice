@@ -148,7 +148,7 @@ Incoming::response(bool amd)
         if (_isTwoWay)
         {
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -158,7 +158,7 @@ Incoming::response(bool amd)
     catch (const LocalException&)
     {
         _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
+            _current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 
     _observer.detach();
@@ -179,7 +179,7 @@ Incoming::exception(std::exception_ptr exc, bool amd)
     catch (const LocalException&)
     {
         _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
+            _current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 }
 
@@ -286,7 +286,7 @@ Incoming::servantLocatorFinished(bool amd)
 }
 
 void
-Incoming::handleException(std::exception_ptr exc, bool amd)
+Incoming::handleException(std::exception_ptr exc, bool /*amd*/)
 {
     assert(_responseHandler);
 
@@ -364,7 +364,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(rfe.operation, false);
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -387,7 +387,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(uex);
             _os.endEncapsulation();
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -460,7 +460,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             }
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -491,7 +491,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(str.str(), false);
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {

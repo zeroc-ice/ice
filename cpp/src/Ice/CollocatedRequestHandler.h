@@ -35,9 +35,9 @@ namespace IceInternal
 
         virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
+        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
         virtual void sendNoResponse();
-        virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
+        virtual void invokeException(std::int32_t, std::exception_ptr, int);
 
         virtual Ice::ConnectionIPtr getConnection();
         virtual Ice::ConnectionIPtr waitForConnection();
@@ -54,7 +54,7 @@ namespace IceInternal
         }
 
     private:
-        void handleException(std::int32_t, std::exception_ptr, bool);
+        void handleException(std::int32_t, std::exception_ptr);
 
         const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _dispatcher;
