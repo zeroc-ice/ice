@@ -23,14 +23,13 @@ namespace
 {
     bool isConstexprType(const TypePtr& type)
     {
-        BuiltinPtr bp =    dynamic_pointer_cast<Builtin >(type);
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         if (bp)
         {
-            switch (bp->kind()  )
+            switch (bp->kind())
             {
                 case Builtin::KindByte:
                 case Builtin::KindBool:
-
                 case Builtin::KindShort:
                 case Builtin::KindInt:
                 case Builtin::KindLong:
