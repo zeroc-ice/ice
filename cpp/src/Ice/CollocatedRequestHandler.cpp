@@ -222,6 +222,9 @@ CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint
 
     if (outAsync)
     {
+        // We invoke the response using a thread-pool thread. If the invocation is a lambda async invocation, we want
+        // the callbacks to execute in a thread-pool thread - never in the application thread that sent the response
+        // via AMD.
         outAsync->invokeResponseAsync();
     }
 
@@ -361,6 +364,9 @@ CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
 
     if (outAsync)
     {
+        // We invoke the exception using a thread-pool thread. If the invocation is a lambda async invocation, we want
+        // the callbacks to execute in a thread-pool thread - never in the application thread that sent the exception
+        // via AMD.
        outAsync->invokeExceptionAsync();
     }
 }
