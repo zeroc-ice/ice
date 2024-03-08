@@ -1651,7 +1651,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
         servantManager, adapter, outAsync, heartbeatCallback, current.stream));
 #else
-    if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
         dispatch(
             connectionStartCompleted, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync,
@@ -1824,7 +1824,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 #ifdef ICE_SWIFT
     _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
 #else
-    if (!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
         finish(close);
     }
@@ -2089,7 +2089,7 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _dispatcher(_instance->initializationData().dispatcher), // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor), // Cached for better performance.
       _logger(_instance->initializationData().logger),         // Cached for better performance.
       _traceLevels(_instance->traceLevels()),                  // Cached for better performance.
       _timer(_instance->timer()),                              // Cached for better performance.

@@ -247,7 +247,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
           prefixToDispatchQueueLabel(prefix).c_str(),
           DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
-      _dispatcher(_instance->initializationData().dispatcher),
+      _executor(_instance->initializationData().executor),
 #endif
       _destroyed(false),
       _prefix(prefix),
@@ -532,11 +532,11 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
       workItem->run();
     });
 #else
-    if (_dispatcher)
+    if (_executor)
     {
         try
         {
-            _dispatcher([workItem]() { workItem->run(); }, workItem->getConnection());
+            _executor([workItem]() { workItem->run(); }, workItem->getConnection());
         }
         catch (const std::exception& ex)
         {

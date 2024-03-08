@@ -5,7 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <TestI.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 
 using namespace std;
 
@@ -20,9 +20,9 @@ Collocated::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    auto dispatcher = Dispatcher::create();
-    initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
-    { dispatcher->dispatch(make_shared<DispatcherCall>(call), conn); };
+    auto executor = Executor::create();
+    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    { executor->execute(make_shared<ExecutorCall>(call), conn); };
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -43,7 +43,7 @@ Collocated::run(int argc, char** argv)
     void allTests(Test::TestHelper*);
     allTests(this);
 
-    dispatcher->terminate();
+    executor->terminate();
 }
 
 DEFINE_TEST(Collocated)
