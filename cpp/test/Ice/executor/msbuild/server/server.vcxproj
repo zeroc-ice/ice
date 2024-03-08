@@ -91,7 +91,7 @@
     <SliceCompile Include="..\..\Test.ice"/>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Dispatcher.cpp"/>
+    <ClCompile Include="..\..\Executor.cpp"/>
     <ClCompile Include="..\..\Server.cpp"/>
     <ClCompile Include="..\..\TestI.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">
@@ -120,7 +120,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Dispatcher.h"/>
+    <ClInclude Include="..\..\Executor.h"/>
     <ClInclude Include="..\..\TestI.h"/>
     <ClInclude Include="Win32\Debug\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

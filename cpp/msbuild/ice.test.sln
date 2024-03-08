@@ -93,23 +93,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\defau
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dispatcher", "dispatcher", "{D7563BE6-592A-4459-8632-F933F1419EB8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "executor", "executor", "{D7563BE6-592A-4459-8632-F933F1419EB8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "background", "background", "{59E2D67C-A642-4728-BD71-0E2AC3B2E364}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "custom", "custom", "{93EB9A90-D79D-4F90-A008-EB72D68759D0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\dispatcher\msbuild\client\client.vcxproj", "{BA3042D4-7E5B-461D-A31E-345753A8A726}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\executor\msbuild\client\client.vcxproj", "{BA3042D4-7E5B-461D-A31E-345753A8A726}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "collocated", "..\test\Ice\dispatcher\msbuild\collocated\collocated.vcxproj", "{FBAC9C87-6A77-4663-9653-F0DFEFB00935}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "collocated", "..\test\Ice\executor\msbuild\collocated\collocated.vcxproj", "{FBAC9C87-6A77-4663-9653-F0DFEFB00935}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "..\test\Ice\dispatcher\msbuild\server\server.vcxproj", "{3E471DF3-EB57-4FC3-AF20-2CF548DBF5C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "..\test\Ice\executor\msbuild\server\server.vcxproj", "{3E471DF3-EB57-4FC3-AF20-2CF548DBF5C1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 	EndProjectSection

@@ -94,7 +94,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\AllTests.cpp"/>
     <ClCompile Include="..\..\Client.cpp"/>
-    <ClCompile Include="..\..\Dispatcher.cpp"/>
+    <ClCompile Include="..\..\Executor.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -121,7 +121,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Dispatcher.h"/>
+    <ClInclude Include="..\..\Executor.h"/>
     <ClInclude Include="Win32\Debug\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

@@ -10,7 +10,7 @@
     <ClCompile Include="..\..\TestI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Dispatcher.cpp">
+    <ClCompile Include="..\..\Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Test.cpp">
@@ -78,7 +78,7 @@
     <ClInclude Include="..\..\TestI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Dispatcher.h">
+    <ClInclude Include="..\..\Executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">
