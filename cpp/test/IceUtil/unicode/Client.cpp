@@ -214,7 +214,8 @@ main(int argc, char* argv[])
         cout << "testing IceUtilInternal::toUTF16, toUTF32 and fromUTF32... ";
 
         vector<uint8_t> u8 = vector<uint8_t>(
-            reinterpret_cast<const uint8_t*>(ns.data()), reinterpret_cast<const uint8_t*>(ns.data() + ns.length()));
+            reinterpret_cast<const uint8_t*>(ns.data()),
+            reinterpret_cast<const uint8_t*>(ns.data() + ns.length()));
 
         vector<unsigned short> u16 = IceUtilInternal::toUTF16(u8);
         test(u16.size() == 4);

@@ -139,9 +139,13 @@ extern "C"
 }
 
 static PyMethodDef EndpointMethods[] = {
-    {STRCAST("toString"), reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS,
+    {STRCAST("toString"),
+     reinterpret_cast<PyCFunction>(endpointToString),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("toString() -> string"))},
-    {STRCAST("getInfo"), reinterpret_cast<PyCFunction>(endpointGetInfo), METH_NOARGS,
+    {STRCAST("getInfo"),
+     reinterpret_cast<PyCFunction>(endpointGetInfo),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("getInfo() -> Ice.EndpointInfo"))},
     {0, 0} /* sentinel */
 };

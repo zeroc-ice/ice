@@ -26,7 +26,9 @@ IceGrid::AdminRouter::invokeOnTarget(
     }
 
     target->ice_invokeAsync(
-        current.operation, current.mode, inParams,
+        current.operation,
+        current.mode,
+        inParams,
         [response, operation = current.operation, traceLevels = _traceLevels, target](bool ok, auto bytes)
         {
             if (traceLevels->admin > 0)
@@ -67,5 +69,6 @@ IceGrid::AdminRouter::invokeOnTarget(
 
             exception(exptr);
         },
-        nullptr, current.ctx);
+        nullptr,
+        current.ctx);
 }

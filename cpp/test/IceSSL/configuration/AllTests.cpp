@@ -111,7 +111,12 @@ public:
             do
             {
                 if ((next = CertFindCertificateInStore(
-                         p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0, next)) != 0)
+                         p12,
+                         X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                         0,
+                         CERT_FIND_ANY,
+                         0,
+                         next)) != 0)
                 {
                     if (CertAddCertificateContextToStore(_store, next, CERT_STORE_ADD_ALWAYS, &newCert))
                     {
@@ -142,12 +147,18 @@ public:
                     CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
                     HCRYPTPROV cryptProv = 0;
                     if (CryptAcquireContextW(
-                            &cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                            keyProvInfo->dwProvType, 0))
+                            &cryptProv,
+                            keyProvInfo->pwszContainerName,
+                            keyProvInfo->pwszProvName,
+                            keyProvInfo->dwProvType,
+                            0))
                     {
                         CryptAcquireContextW(
-                            &cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                            keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
+                            &cryptProv,
+                            keyProvInfo->pwszContainerName,
+                            keyProvInfo->pwszProvName,
+                            keyProvInfo->dwProvType,
+                            CRYPT_DELETEKEYSET);
                     }
                 }
             }
@@ -1180,12 +1191,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] = {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
             "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31", 0};
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
+            0};
 
         const char* subjects[] = {
             "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
             "7F:4D:BF:80:65:E0:EE:A4:18:D5:6A:87:33:63:B3:76:7D:42:82:06",
-            "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48", 0};
+            "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48",
+            0};
 
         for (int i = 0; certificates[i] != 0; ++i)
         {
@@ -2600,8 +2613,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
-            "IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            "IceSSL.TrustOnly",
+            "C=US, ST=Florida, O=ZeroC\\, Inc.,"
+            "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -2625,8 +2639,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
-            "IceSSL.TrustOnly", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            "IceSSL.TrustOnly",
+            "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
+            "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -2648,8 +2663,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
-            "IceSSL.TrustOnly", "C=US, ST=Florida, O=\"ZeroC, Inc.\","
-                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            "IceSSL.TrustOnly",
+            "C=US, ST=Florida, O=\"ZeroC, Inc.\","
+            "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -3081,8 +3097,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
-            "IceSSL.TrustOnly.Client", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                       "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            "IceSSL.TrustOnly.Client",
+            "C=US, ST=Florida, O=ZeroC\\, Inc.,"
+            "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -3109,8 +3126,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
-            "IceSSL.TrustOnly.Client", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                       "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+            "IceSSL.TrustOnly.Client",
+            "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
+            "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -3202,8 +3220,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         // Should have no effect.
         initData.properties->setProperty(
-            "IceSSL.TrustOnly.Server", "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
-                                       "emailAddress=info@zeroc.com,CN=Client");
+            "IceSSL.TrustOnly.Server",
+            "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
+            "emailAddress=info@zeroc.com,CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -3541,8 +3560,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] = {
             //            "SUBJECT:Client",
-            "LABEL:'Client'", "SUBJECTKEYID:'7F 4D BF 80 65 E0 EE A4 18 D5 6A 87 33 63 B3 76 7D 42 82 06'", "SERIAL:02",
-            "SERIAL:02 LABEL:Client", 0};
+            "LABEL:'Client'",
+            "SUBJECTKEYID:'7F 4D BF 80 65 E0 EE A4 18 D5 6A 87 33 63 B3 76 7D 42 82 06'",
+            "SERIAL:02",
+            "SERIAL:02 LABEL:Client",
+            0};
 
         const char* serverFindCertProperties[] = {
 #    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -3553,8 +3575,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
-            0
-        };
+            0};
 
         const char* failFindCertProperties[] = {
             "nolabel",
@@ -3568,8 +3589,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
-            0
-        };
+            0};
 
         const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
         ImportCerts import(defaultDir, certificates);

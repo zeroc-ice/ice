@@ -283,7 +283,11 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         {
             out
                 << (typeToString(
-                        ret, TypeModeIn, package, op->getMetaData(), true,
+                        ret,
+                        TypeModeIn,
+                        package,
+                        op->getMetaData(),
+                        true,
                         !generateMandatoryOnly && op->returnIsOptional()) +
                     " " + retval);
             needMandatoryOnly = !generateMandatoryOnly && op->returnIsOptional();
@@ -292,7 +296,11 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         {
             out
                 << (typeToString(
-                        (*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true,
+                        (*p)->type(),
+                        TypeModeIn,
+                        package,
+                        (*p)->getMetaData(),
+                        true,
                         !generateMandatoryOnly && (*p)->optional()) +
                     " " + fixKwd((*p)->name()));
             if (!generateMandatoryOnly)
@@ -379,7 +387,16 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     {
         const string paramName = fixKwd((*pli)->name());
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalNone, false, 0, "this." + paramName, true, iter, "",
+            out,
+            package,
+            (*pli)->type(),
+            OptionalNone,
+            false,
+            0,
+            "this." + paramName,
+            true,
+            iter,
+            "",
             (*pli)->getMetaData());
     }
 
@@ -398,21 +415,49 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         if (checkReturnType && op->returnTag() < (*pli)->tag())
         {
             writeMarshalUnmarshalCode(
-                out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter, "",
+                out,
+                package,
+                ret,
+                OptionalReturnParam,
+                true,
+                op->returnTag(),
+                retval,
+                true,
+                iter,
+                "",
                 op->getMetaData());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd((*pli)->name());
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), "this." + paramName, true, iter, "",
+            out,
+            package,
+            (*pli)->type(),
+            OptionalOutParam,
+            true,
+            (*pli)->tag(),
+            "this." + paramName,
+            true,
+            iter,
+            "",
             (*pli)->getMetaData());
     }
 
     if (checkReturnType)
     {
         writeMarshalUnmarshalCode(
-            out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter, "", op->getMetaData());
+            out,
+            package,
+            ret,
+            OptionalReturnParam,
+            true,
+            op->returnTag(),
+            retval,
+            true,
+            iter,
+            "",
+            op->getMetaData());
     }
 
     out << eb;
@@ -426,15 +471,36 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         const string paramName = fixKwd((*pli)->name());
         const string patchParams = getPatcher((*pli)->type(), package, "this." + paramName);
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalNone, false, 0, "this." + paramName, false, iter, "",
-            (*pli)->getMetaData(), patchParams);
+            out,
+            package,
+            (*pli)->type(),
+            OptionalNone,
+            false,
+            0,
+            "this." + paramName,
+            false,
+            iter,
+            "",
+            (*pli)->getMetaData(),
+            patchParams);
     }
 
     if (ret && !op->returnIsOptional())
     {
         const string patchParams = getPatcher(ret, package, retval);
         writeMarshalUnmarshalCode(
-            out, package, ret, OptionalNone, false, 0, retval, false, iter, "", op->getMetaData(), patchParams);
+            out,
+            package,
+            ret,
+            OptionalNone,
+            false,
+            0,
+            retval,
+            false,
+            iter,
+            "",
+            op->getMetaData(),
+            patchParams);
     }
 
     //
@@ -448,23 +514,53 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         {
             const string patchParams = getPatcher(ret, package, retval);
             writeMarshalUnmarshalCode(
-                out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false, iter, "",
-                op->getMetaData(), patchParams);
+                out,
+                package,
+                ret,
+                OptionalReturnParam,
+                true,
+                op->returnTag(),
+                retval,
+                false,
+                iter,
+                "",
+                op->getMetaData(),
+                patchParams);
             checkReturnType = false;
         }
 
         const string paramName = fixKwd((*pli)->name());
         const string patchParams = getPatcher((*pli)->type(), package, paramName);
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), "this." + paramName, false, iter, "",
-            (*pli)->getMetaData(), patchParams);
+            out,
+            package,
+            (*pli)->type(),
+            OptionalOutParam,
+            true,
+            (*pli)->tag(),
+            "this." + paramName,
+            false,
+            iter,
+            "",
+            (*pli)->getMetaData(),
+            patchParams);
     }
 
     if (checkReturnType)
     {
         const string patchParams = getPatcher(ret, package, retval);
         writeMarshalUnmarshalCode(
-            out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false, iter, "", op->getMetaData(),
+            out,
+            package,
+            ret,
+            OptionalReturnParam,
+            true,
+            op->returnTag(),
+            retval,
+            false,
+            iter,
+            "",
+            op->getMetaData(),
             patchParams);
     }
 
@@ -552,14 +648,33 @@ Slice::JavaVisitor::writeMarshaledResultType(
     {
         const string paramName = fixKwd((*pli)->name());
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true, iter, "_ostr",
+            out,
+            package,
+            (*pli)->type(),
+            OptionalNone,
+            false,
+            0,
+            paramName,
+            true,
+            iter,
+            "_ostr",
             (*pli)->getMetaData());
     }
 
     if (ret && !op->returnIsOptional())
     {
         writeMarshalUnmarshalCode(
-            out, package, ret, OptionalNone, false, 0, retval, true, iter, "_ostr", op->getMetaData());
+            out,
+            package,
+            ret,
+            OptionalNone,
+            false,
+            0,
+            retval,
+            true,
+            iter,
+            "_ostr",
+            op->getMetaData());
     }
 
     //
@@ -572,21 +687,48 @@ Slice::JavaVisitor::writeMarshaledResultType(
         if (checkReturnType && op->returnTag() < (*pli)->tag())
         {
             writeMarshalUnmarshalCode(
-                out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter, "_ostr",
+                out,
+                package,
+                ret,
+                OptionalReturnParam,
+                true,
+                op->returnTag(),
+                retval,
+                true,
+                iter,
+                "_ostr",
                 op->getMetaData());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd((*pli)->name());
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName, true, iter, "_ostr",
+            out,
+            package,
+            (*pli)->type(),
+            OptionalOutParam,
+            true,
+            (*pli)->tag(),
+            paramName,
+            true,
+            iter,
+            "_ostr",
             (*pli)->getMetaData());
     }
 
     if (checkReturnType)
     {
         writeMarshalUnmarshalCode(
-            out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter, "_ostr",
+            out,
+            package,
+            ret,
+            OptionalReturnParam,
+            true,
+            op->returnTag(),
+            retval,
+            true,
+            iter,
+            "_ostr",
             op->getMetaData());
     }
 
@@ -785,7 +927,12 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
     for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
         const string typeString = typeToString(
-            (*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true, optionalMapping && (*q)->optional());
+            (*q)->type(),
+            TypeModeIn,
+            package,
+            (*q)->getMetaData(),
+            true,
+            optionalMapping && (*q)->optional());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + (*q)->name() : fixKwd((*q)->name())));
     }
 
@@ -835,7 +982,17 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     {
         string paramName = "iceP_" + (*pli)->name();
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true, iter, "", (*pli)->getMetaData());
+            out,
+            package,
+            (*pli)->type(),
+            OptionalNone,
+            false,
+            0,
+            paramName,
+            true,
+            iter,
+            "",
+            (*pli)->getMetaData());
     }
 
     //
@@ -844,8 +1001,17 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     for (ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
     {
         writeMarshalUnmarshalCode(
-            out, package, (*pli)->type(), OptionalInParam, optionalMapping, (*pli)->tag(), "iceP_" + (*pli)->name(),
-            true, iter, "", (*pli)->getMetaData());
+            out,
+            package,
+            (*pli)->type(),
+            OptionalInParam,
+            optionalMapping,
+            (*pli)->tag(),
+            "iceP_" + (*pli)->name(),
+            true,
+            iter,
+            "",
+            (*pli)->getMetaData());
     }
 
     if (op->sendsClasses(false))
@@ -912,13 +1078,34 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         if (optional)
         {
             writeMarshalUnmarshalCode(
-                out, package, type, ret ? OptionalReturnParam : OptionalOutParam, true, tag, name, false, iter, "",
-                metaData, patchParams);
+                out,
+                package,
+                type,
+                ret ? OptionalReturnParam : OptionalOutParam,
+                true,
+                tag,
+                name,
+                false,
+                iter,
+                "",
+                metaData,
+                patchParams);
         }
         else
         {
             writeMarshalUnmarshalCode(
-                out, package, type, OptionalNone, false, 0, name, false, iter, "", metaData, patchParams);
+                out,
+                package,
+                type,
+                OptionalNone,
+                false,
+                0,
+                name,
+                false,
+                iter,
+                "",
+                metaData,
+                patchParams);
         }
 
         if (op->returnsClasses(false))
@@ -1029,8 +1216,17 @@ Slice::JavaVisitor::writeMarshalDataMember(
         out << nl << "if(_" << member->name() << ")";
         out << sb;
         writeMarshalUnmarshalCode(
-            out, package, member->type(), OptionalInParam, false, member->tag(), fixKwd(member->name()), true, iter,
-            "ostr_", member->getMetaData());
+            out,
+            package,
+            member->type(),
+            OptionalInParam,
+            false,
+            member->tag(),
+            fixKwd(member->name()),
+            true,
+            iter,
+            "ostr_",
+            member->getMetaData());
         out << eb;
     }
     else
@@ -1043,7 +1239,16 @@ Slice::JavaVisitor::writeMarshalDataMember(
         }
 
         writeMarshalUnmarshalCode(
-            out, package, member->type(), OptionalNone, false, 0, memberName, true, iter, stream,
+            out,
+            package,
+            member->type(),
+            OptionalNone,
+            false,
+            0,
+            memberName,
+            true,
+            iter,
+            stream,
             member->getMetaData());
     }
 }
@@ -1065,8 +1270,18 @@ Slice::JavaVisitor::writeUnmarshalDataMember(
             << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(
-            out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false, iter, "istr_",
-            member->getMetaData(), patchParams);
+            out,
+            package,
+            member->type(),
+            OptionalMember,
+            false,
+            0,
+            fixKwd(member->name()),
+            false,
+            iter,
+            "istr_",
+            member->getMetaData(),
+            patchParams);
         out << eb;
     }
     else
@@ -1079,8 +1294,18 @@ Slice::JavaVisitor::writeUnmarshalDataMember(
         }
 
         writeMarshalUnmarshalCode(
-            out, package, member->type(), OptionalNone, false, 0, memberName, false, iter, stream,
-            member->getMetaData(), patchParams);
+            out,
+            package,
+            member->type(),
+            OptionalNone,
+            false,
+            0,
+            memberName,
+            false,
+            iter,
+            stream,
+            member->getMetaData(),
+            patchParams);
     }
 }
 
@@ -1255,8 +1480,18 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                     isValue((*pli)->type()) ? ("icePP_" + (*pli)->name()) : "iceP_" + (*pli)->name();
                 const string patchParams = getPatcher((*pli)->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(
-                    out, package, (*pli)->type(), OptionalNone, false, 0, paramName, false, iter, "",
-                    (*pli)->getMetaData(), patchParams);
+                    out,
+                    package,
+                    (*pli)->type(),
+                    OptionalNone,
+                    false,
+                    0,
+                    paramName,
+                    false,
+                    iter,
+                    "",
+                    (*pli)->getMetaData(),
+                    patchParams);
             }
             for (ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
             {
@@ -1264,8 +1499,18 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                     isValue((*pli)->type()) ? ("icePP_" + (*pli)->name()) : "iceP_" + (*pli)->name();
                 const string patchParams = getPatcher((*pli)->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(
-                    out, package, (*pli)->type(), OptionalInParam, true, (*pli)->tag(), paramName, false, iter, "",
-                    (*pli)->getMetaData(), patchParams);
+                    out,
+                    package,
+                    (*pli)->type(),
+                    OptionalInParam,
+                    true,
+                    (*pli)->tag(),
+                    paramName,
+                    false,
+                    iter,
+                    "",
+                    (*pli)->getMetaData(),
+                    patchParams);
             }
             if (op->sendsClasses(false))
             {
@@ -1353,7 +1598,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     {
         StringList allOpNames;
         transform(
-            allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
+            allOps.begin(),
+            allOps.end(),
+            back_inserter(allOpNames),
+            [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -1962,8 +2210,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     for (ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
     {
         const string name = (*i)->name();
-        out << nl << " * @param "
-            << "iceP_" << name << " -";
+        out << nl << " * @param " << "iceP_" << name << " -";
     }
     out << nl << " * @param context -";
     out << nl << " * @param sync -";
@@ -4251,10 +4498,11 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Contacts the remote server to verify that the object implements this type.\n"
-             "Raises a local exception if a communication error occurs.\n"
-             "@param obj The untyped proxy.\n"
-             "@return A proxy for this type, or null if the object does not support this type.");
+        out,
+        "Contacts the remote server to verify that the object implements this type.\n"
+        "Raises a local exception if a communication error occurs.\n"
+        "@param obj The untyped proxy.\n"
+        "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj)";
     out << sb;
@@ -4264,11 +4512,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Contacts the remote server to verify that the object implements this type.\n"
-             "Raises a local exception if a communication error occurs.\n"
-             "@param obj The untyped proxy.\n"
-             "@param context The Context map to send with the invocation.\n"
-             "@return A proxy for this type, or null if the object does not support this type.");
+        out,
+        "Contacts the remote server to verify that the object implements this type.\n"
+        "Raises a local exception if a communication error occurs.\n"
+        "@param obj The untyped proxy.\n"
+        "@param context The Context map to send with the invocation.\n"
+        "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, " << contextParam << ')';
     out << sb;
@@ -4278,11 +4527,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Contacts the remote server to verify that a facet of the object implements this type.\n"
-             "Raises a local exception if a communication error occurs.\n"
-             "@param obj The untyped proxy.\n"
-             "@param facet The name of the desired facet.\n"
-             "@return A proxy for this type, or null if the object does not support this type.");
+        out,
+        "Contacts the remote server to verify that a facet of the object implements this type.\n"
+        "Raises a local exception if a communication error occurs.\n"
+        "@param obj The untyped proxy.\n"
+        "@param facet The name of the desired facet.\n"
+        "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet)";
     out << sb;
@@ -4292,12 +4542,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Contacts the remote server to verify that a facet of the object implements this type.\n"
-             "Raises a local exception if a communication error occurs.\n"
-             "@param obj The untyped proxy.\n"
-             "@param facet The name of the desired facet.\n"
-             "@param context The Context map to send with the invocation.\n"
-             "@return A proxy for this type, or null if the object does not support this type.");
+        out,
+        "Contacts the remote server to verify that a facet of the object implements this type.\n"
+        "Raises a local exception if a communication error occurs.\n"
+        "@param obj The untyped proxy.\n"
+        "@param facet The name of the desired facet.\n"
+        "@param context The Context map to send with the invocation.\n"
+        "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet, " << contextParam << ')';
     out << sb;
@@ -4308,9 +4559,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Downcasts the given proxy to this type without contacting the remote server.\n"
-             "@param obj The untyped proxy.\n"
-             "@return A proxy for this type.");
+        out,
+        "Downcasts the given proxy to this type without contacting the remote server.\n"
+        "@param obj The untyped proxy.\n"
+        "@return A proxy for this type.");
     out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj)";
     out << sb;
@@ -4320,10 +4572,11 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Downcasts the given proxy to this type without contacting the remote server.\n"
-             "@param obj The untyped proxy.\n"
-             "@param facet The name of the desired facet.\n"
-             "@return A proxy for this type.");
+        out,
+        "Downcasts the given proxy to this type without contacting the remote server.\n"
+        "@param obj The untyped proxy.\n"
+        "@param facet The name of the desired facet.\n"
+        "@return A proxy for this type.");
     out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet)";
     out << sb;
@@ -4333,9 +4586,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
-             "@param newContext The context for the new proxy.\n"
-             "@return A proxy with the specified per-proxy context.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
+        "@param newContext The context for the new proxy.\n"
+        "@return A proxy with the specified per-proxy context.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
     out << sb;
@@ -4344,9 +4598,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
-             "@param newAdapterId The adapter ID for the new proxy.\n"
-             "@return A proxy with the specified adapter ID.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
+        "@param newAdapterId The adapter ID for the new proxy.\n"
+        "@return A proxy with the specified adapter ID.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_adapterId(String newAdapterId)";
     out << sb;
@@ -4355,9 +4610,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
-             "@param newEndpoints The endpoints for the new proxy.\n"
-             "@return A proxy with the specified endpoints.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
+        "@param newEndpoints The endpoints for the new proxy.\n"
+        "@return A proxy with the specified endpoints.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_endpoints(" << getUnqualified("com.zeroc.Ice.Endpoint", package)
         << "[] newEndpoints)";
@@ -4367,9 +4623,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
-             "@param newTimeout The new locator cache timeout (in seconds).\n"
-             "@return A proxy with the specified locator cache timeout.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
+        "@param newTimeout The new locator cache timeout (in seconds).\n"
+        "@return A proxy with the specified locator cache timeout.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
     out << sb;
@@ -4378,9 +4635,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
-             "@param newTimeout The new invocation timeout (in seconds).\n"
-             "@return A proxy with the specified invocation timeout.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
+        "@param newTimeout The new invocation timeout (in seconds).\n"
+        "@return A proxy with the specified invocation timeout.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
     out << sb;
@@ -4401,9 +4659,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
-             "@param newType The new endpoint selection policy.\n"
-             "@return A proxy with the specified endpoint selection policy.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
+        "@param newType The new endpoint selection policy.\n"
+        "@return A proxy with the specified endpoint selection policy.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_endpointSelection("
         << getUnqualified("com.zeroc.Ice.EndpointSelectionType", package) << " newType)";
@@ -4413,11 +4672,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
-             "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
-             "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
-             "insecure endpoints.\n"
-             "@return A proxy with the specified selection policy.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
+        "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
+        "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
+        "insecure endpoints.\n"
+        "@return A proxy with the specified selection policy.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_secure(boolean b)";
     out << sb;
@@ -4426,9 +4686,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
-             "@param e The encoding version to use to marshal request parameters.\n"
-             "@return A proxy with the specified encoding version.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
+        "@param e The encoding version to use to marshal request parameters.\n"
+        "@return A proxy with the specified encoding version.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_encodingVersion("
         << getUnqualified("com.zeroc.Ice.EncodingVersion", package) << " e)";
@@ -4452,9 +4713,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the router.\n"
-             "@param router The router for the new proxy.\n"
-             "@return A proxy with the specified router.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the router.\n"
+        "@param router The router for the new proxy.\n"
+        "@return A proxy with the specified router.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_router(" << getUnqualified("com.zeroc.Ice.RouterPrx", package)
         << " router)";
@@ -4464,9 +4726,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for the locator.\n"
-             "@param locator The locator for the new proxy.\n"
-             "@return A proxy with the specified locator.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for the locator.\n"
+        "@param locator The locator for the new proxy.\n"
+        "@return A proxy with the specified locator.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_locator(" << getUnqualified("com.zeroc.Ice.LocatorPrx", package)
         << " locator)";
@@ -4488,8 +4751,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
-             "@return A proxy that uses twoway invocations.");
+        out,
+        "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
+        "@return A proxy that uses twoway invocations.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_twoway()";
     out << sb;
@@ -4498,8 +4762,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
-             "@return A proxy that uses oneway invocations.");
+        out,
+        "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
+        "@return A proxy that uses oneway invocations.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_oneway()";
     out << sb;
@@ -4508,8 +4773,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
-             "@return A proxy that uses batch oneway invocations.");
+        out,
+        "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
+        "@return A proxy that uses batch oneway invocations.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_batchOneway()";
     out << sb;
@@ -4518,8 +4784,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
-             "@return A proxy that uses datagram invocations.");
+        out,
+        "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
+        "@return A proxy that uses datagram invocations.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_datagram()";
     out << sb;
@@ -4528,8 +4795,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
-             "@return A proxy that uses batch datagram invocations.");
+        out,
+        "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
+        "@return A proxy that uses batch datagram invocations.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_batchDatagram()";
     out << sb;
@@ -4550,9 +4818,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
-             "@param t The connection timeout for the proxy in milliseconds.\n"
-             "@return A proxy with the specified timeout.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
+        "@param t The connection timeout for the proxy in milliseconds.\n"
+        "@return A proxy with the specified timeout.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_timeout(int t)";
     out << sb;
@@ -4561,9 +4830,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
-             "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
-             "@return A proxy with the specified connection ID.");
+        out,
+        "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
+        "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
+        "@return A proxy with the specified connection ID.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_connectionId(String connectionId)";
     out << sb;
@@ -4572,10 +4842,11 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(
-        out, "Returns a proxy that is identical to this proxy, except it's a fixed proxy bound\n"
-             "the given connection."
-             "@param connection The fixed proxy connection.\n"
-             "@return A fixed proxy bound to the given connection.");
+        out,
+        "Returns a proxy that is identical to this proxy, except it's a fixed proxy bound\n"
+        "the given connection."
+        "@param connection The fixed proxy connection.\n"
+        "@return A fixed proxy bound to the given connection.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
     out << sb;
@@ -4824,8 +5095,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << sp;
     writeHiddenProxyDocComment(out, p);
     out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar
-        << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context"
-        << "boolean sync" << epar;
+        << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context" << "boolean sync" << epar;
     out << sb;
     out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
         << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
@@ -4914,8 +5184,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << sp;
         writeHiddenProxyDocComment(out, p);
         out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar
-            << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context"
-            << "boolean sync" << epar;
+            << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context" << "boolean sync"
+            << epar;
         out << sb;
         out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
             << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "

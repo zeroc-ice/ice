@@ -157,8 +157,7 @@ Incoming::sendResponse()
     }
     catch (const LocalException&)
     {
-        _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1); // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 
     _observer.detach();
@@ -178,8 +177,7 @@ Incoming::sendException(std::exception_ptr exc)
     }
     catch (const LocalException&)
     {
-        _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1); // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 }
 

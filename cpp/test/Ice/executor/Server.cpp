@@ -5,7 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 #include <TestHelper.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 
 using namespace std;
 
@@ -26,10 +26,10 @@ Server::run(int argc, char** argv)
     //
     initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
-    auto dispatcher = Dispatcher::create();
-    initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
-    { dispatcher->dispatch(make_shared<DispatcherCall>(call), conn); };
-    // The communicator must be destroyed before the dispatcher is terminated.
+    auto executor = Executor::create();
+    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    { executor->execute(make_shared<ExecutorCall>(call), conn); };
+    // The communicator must be destroyed before the executor is terminated.
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
@@ -52,7 +52,7 @@ Server::run(int argc, char** argv)
 
         communicator->waitForShutdown();
     }
-    dispatcher->terminate();
+    executor->terminate();
 }
 
 DEFINE_TEST(Server)

@@ -603,7 +603,12 @@ Activator::activate(
 
     Process* pp = &it->second;
     if (!RegisterWaitForSingleObject(
-            &pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE, WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
+            &pp->waithnd,
+            pp->hnd,
+            activatorWaitCallback,
+            pp,
+            INFINITE,
+            WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
     {
         TerminateProcess(pp->hnd, 0);
 
@@ -750,7 +755,11 @@ Activator::activate(
             ostringstream os;
             os << gid;
             reportChildError(
-                getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str(), _traceLevels);
+                getSystemErrno(),
+                errorFds[1],
+                "cannot set process group id",
+                os.str().c_str(),
+                _traceLevels);
         }
 
         //
@@ -768,7 +777,10 @@ Activator::activate(
                 }
             }
             reportChildError(
-                getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
+                getSystemErrno(),
+                errorFds[1],
+                "cannot set process supplementary groups",
+                os.str().c_str(),
                 _traceLevels);
         }
 
@@ -777,7 +789,11 @@ Activator::activate(
             ostringstream os;
             os << uid;
             reportChildError(
-                getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str(), _traceLevels);
+                getSystemErrno(),
+                errorFds[1],
+                "cannot set process user id",
+                os.str().c_str(),
+                _traceLevels);
         }
 
         //

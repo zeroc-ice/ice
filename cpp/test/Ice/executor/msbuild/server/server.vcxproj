@@ -21,7 +21,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FBAC9C87-6A77-4663-9653-F0DFEFB00935}</ProjectGuid>
+    <ProjectGuid>{3E471DF3-EB57-4FC3-AF20-2CF548DBF5C1}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup>
@@ -91,9 +91,8 @@
     <SliceCompile Include="..\..\Test.ice"/>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\AllTests.cpp"/>
-    <ClCompile Include="..\..\Collocated.cpp"/>
-    <ClCompile Include="..\..\Dispatcher.cpp"/>
+    <ClCompile Include="..\..\Executor.cpp"/>
+    <ClCompile Include="..\..\Server.cpp"/>
     <ClCompile Include="..\..\TestI.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -121,7 +120,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Dispatcher.h"/>
+    <ClInclude Include="..\..\Executor.h"/>
     <ClInclude Include="..\..\TestI.h"/>
     <ClInclude Include="Win32\Debug\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

@@ -1332,14 +1332,18 @@ IcePy::StructInfo::marshal(
         if (!attr.get())
         {
             PyErr_Format(
-                PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                PyExc_AttributeError,
+                STRCAST("no member `%s' found in %s value"),
+                memberName,
                 const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         if (!member->type->validate(attr.get()))
         {
             PyErr_Format(
-                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
+                PyExc_ValueError,
+                STRCAST("invalid value for %s member `%s'"),
+                const_cast<char*>(id.c_str()),
                 memberName);
             throw AbortMarshaling();
         }
@@ -1583,7 +1587,9 @@ IcePy::SequenceInfo::marshal(
             if (!elementType->validate(item))
             {
                 PyErr_Format(
-                    PyExc_ValueError, STRCAST("invalid value for element %d of `%s'"), static_cast<int>(i),
+                    PyExc_ValueError,
+                    STRCAST("invalid value for element %d of `%s'"),
+                    static_cast<int>(i),
                     const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
@@ -1783,8 +1789,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (pybuf.format != 0 && pybuf.format[0] == '<')
                 {
                     PyErr_Format(
-                        PyExc_ValueError, "sequence buffer byte order doesn't match the platform native byte-order "
-                                          "`big-endian'");
+                        PyExc_ValueError,
+                        "sequence buffer byte order doesn't match the platform native byte-order "
+                        "`big-endian'");
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
@@ -1792,8 +1799,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (pybuf.format != 0 && (pybuf.format[0] == '>' || pybuf.format[0] == '!'))
                 {
                     PyErr_Format(
-                        PyExc_ValueError, "sequence buffer byte order doesn't match the platform native byte-order "
-                                          "`little-endian'");
+                        PyExc_ValueError,
+                        "sequence buffer byte order doesn't match the platform native byte-order "
+                        "`little-endian'");
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
@@ -1801,7 +1809,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (pybuf.itemsize != itemsize[pi->kind])
                 {
                     PyErr_Format(
-                        PyExc_ValueError, "sequence item size doesn't match the size of the sequence type `%s'",
+                        PyExc_ValueError,
+                        "sequence item size doesn't match the size of the sequence type `%s'",
                         itemtype[pi->kind]);
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
@@ -1887,7 +1896,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (isTrue < 0)
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<bool>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -1923,7 +1933,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     if (PyErr_Occurred() || val < 0 || val > 255)
                     {
                         PyErr_Format(
-                            PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"),
+                            PyExc_ValueError,
+                            STRCAST("invalid value for element %d of sequence<byte>"),
                             static_cast<int>(i));
                         throw AbortMarshaling();
                     }
@@ -1951,7 +1962,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<short>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -1978,7 +1990,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<int>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -2005,7 +2018,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (PyErr_Occurred())
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<long>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<long>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -2031,7 +2045,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (PyErr_Occurred())
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<float>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -2058,7 +2073,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (PyErr_Occurred())
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<double>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -2084,7 +2100,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 if (item != Py_None && !checkString(item))
                 {
                     PyErr_Format(
-                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
+                        PyExc_ValueError,
+                        STRCAST("invalid value for element %d of sequence<string>"),
                         static_cast<int>(i));
                     throw AbortMarshaling();
                 }
@@ -3607,7 +3624,9 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             else
             {
                 PyErr_Format(
-                    PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                    PyExc_AttributeError,
+                    STRCAST("no member `%s' found in %s value"),
+                    memberName,
                     const_cast<char*>(_info->id.c_str()));
                 throw AbortMarshaling();
             }
@@ -3621,7 +3640,9 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
         if (!member->type->validate(val.get()))
         {
             PyErr_Format(
-                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(_info->id.c_str()),
+                PyExc_ValueError,
+                STRCAST("invalid value for %s member `%s'"),
+                const_cast<char*>(_info->id.c_str()),
                 memberName);
             throw AbortMarshaling();
         }
@@ -3852,7 +3873,9 @@ IcePy::ExceptionInfo::writeMembers(
             else
             {
                 PyErr_Format(
-                    PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                    PyExc_AttributeError,
+                    STRCAST("no member `%s' found in %s value"),
+                    memberName,
                     const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
@@ -3866,7 +3889,9 @@ IcePy::ExceptionInfo::writeMembers(
         if (!member->type->validate(val.get()))
         {
             PyErr_Format(
-                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
+                PyExc_ValueError,
+                STRCAST("invalid value for %s member `%s'"),
+                const_cast<char*>(id.c_str()),
                 memberName);
             throw AbortMarshaling();
         }

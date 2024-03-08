@@ -58,7 +58,10 @@ Selector::initialize(EventHandler* handler)
     if (socket != INVALID_SOCKET)
     {
         if (CreateIoCompletionPort(
-                reinterpret_cast<HANDLE>(socket), _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == nullptr)
+                reinterpret_cast<HANDLE>(socket),
+                _handle,
+                reinterpret_cast<ULONG_PTR>(handler),
+                0) == nullptr)
         {
             throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
         }
@@ -734,7 +737,11 @@ Selector::updateSelector()
 {
 #    if defined(ICE_USE_KQUEUE)
     int rs = kevent(
-        _queueFd, &_changes[0], static_cast<int>(_changes.size()), &_changes[0], static_cast<int>(_changes.size()),
+        _queueFd,
+        &_changes[0],
+        static_cast<int>(_changes.size()),
+        &_changes[0],
+        static_cast<int>(_changes.size()),
         &zeroTimeout);
     if (rs < 0)
     {
@@ -924,14 +931,25 @@ Selector::updateSelectorForEventHandler(
     {
         struct kevent ev;
         EV_SET(
-            &ev, fd, EVFILT_READ, EV_ADD | (handler->_disabled & SocketOperationRead ? EV_DISABLE : 0), 0, 0, handler);
+            &ev,
+            fd,
+            EVFILT_READ,
+            EV_ADD | (handler->_disabled & SocketOperationRead ? EV_DISABLE : 0),
+            0,
+            0,
+            handler);
         _changes.push_back(ev);
     }
     if (add & SocketOperationWrite)
     {
         struct kevent ev;
         EV_SET(
-            &ev, fd, EVFILT_WRITE, EV_ADD | (handler->_disabled & SocketOperationWrite ? EV_DISABLE : 0), 0, 0,
+            &ev,
+            fd,
+            EVFILT_WRITE,
+            EV_ADD | (handler->_disabled & SocketOperationWrite ? EV_DISABLE : 0),
+            0,
+            0,
             handler);
         _changes.push_back(ev);
     }
@@ -966,7 +984,8 @@ namespace
         else if (callbackType == kCFSocketConnectCallBack)
         {
             reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(
-                SocketOperationConnect, d ? *reinterpret_cast<const SInt32*>(d) : 0);
+                SocketOperationConnect,
+                d ? *reinterpret_cast<const SInt32*>(d) : 0);
         }
     }
 
@@ -1005,13 +1024,17 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
         SOCKET fd = handler->getNativeInfo()->fd();
         CFSocketContext ctx = {0, this, 0, 0, 0};
         _socket.reset(CFSocketCreateWithNative(
-            kCFAllocatorDefault, fd, kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack,
-            eventHandlerSocketCallback, &ctx));
+            kCFAllocatorDefault,
+            fd,
+            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack,
+            eventHandlerSocketCallback,
+            &ctx));
 
         // Disable automatic re-enabling of callbacks and closing of the native socket.
         CFSocketSetSocketFlags(_socket.get(), 0);
         CFSocketDisableCallBacks(
-            _socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+            _socket.get(),
+            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         _source.reset(CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket.get(), 0));
     }
 }
@@ -1027,7 +1050,8 @@ EventHandlerWrapper::updateRunLoop()
     if (_socket)
     {
         CFSocketDisableCallBacks(
-            _socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+            _socket.get(),
+            kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         if (op)
         {
             CFSocketEnableCallBacks(_socket.get(), toCFCallbacks(op));

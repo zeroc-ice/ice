@@ -1,0 +1,33 @@
+name: Clang Format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang Format
+        run: |
+          # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
+          wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
+          chmod +x /tmp/llvm.sh
+          sudo /tmp/llvm.sh 18
+          sudo apt-get install -y clang-format-18
+          rm /tmp/llvm.sh
+
+      - name: Clang format version
+        run: clang-format-18 --version
+
+      - name: Run Clang Format
+        run: |
+          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
+          find cpp -name "*.m" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run

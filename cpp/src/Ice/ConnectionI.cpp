@@ -46,7 +46,7 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class DispatchCall final : public DispatchWorkItem
+    class DispatchCall final : public ExecutorWorkItem
     {
     public:
         DispatchCall(
@@ -61,7 +61,7 @@ namespace
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
             InputStream& stream)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
@@ -80,8 +80,16 @@ namespace
         void run() final
         {
             _connection->dispatch(
-                _connectionStartCompleted, _sentCBs, _compress, _requestId, _invokeNum, _servantManager, _adapter,
-                _outAsync, _heartbeatCallback, _stream);
+                _connectionStartCompleted,
+                _sentCBs,
+                _compress,
+                _requestId,
+                _invokeNum,
+                _servantManager,
+                _adapter,
+                _outAsync,
+                _heartbeatCallback,
+                _stream);
         }
 
     private:
@@ -98,11 +106,11 @@ namespace
         InputStream _stream;
     };
 
-    class FinishCall final : public DispatchWorkItem
+    class FinishCall final : public ExecutorWorkItem
     {
     public:
         FinishCall(const Ice::ConnectionIPtr& connection, bool close)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _close(close)
         {
@@ -590,7 +598,10 @@ Ice::ConnectionI::updateObserver()
     assert(_instance->initializationData().observer);
 
     ConnectionObserverPtr o = _instance->initializationData().observer->getConnectionObserver(
-        initConnectionInfo(), _endpoint, toConnectionState(_state), _observer.get());
+        initConnectionInfo(),
+        _endpoint,
+        toConnectionState(_state),
+        _observer.get());
     _observer.attach(o);
 }
 
@@ -903,7 +914,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->dispatch([self, callback = std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
         }
     }
     else
@@ -1470,7 +1481,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
                         throw BadMagicException(
-                            __FILE__, __LINE__, "",
+                            __FILE__,
+                            __LINE__,
+                            "",
                             Ice::ByteSeq(
                                 reinterpret_cast<const uint8_t*>(&m[0]),
                                 reinterpret_cast<const uint8_t*>(&m[0]) + sizeof(magic)));
@@ -1568,8 +1581,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 {
                     newOp = static_cast<SocketOperation>(
                         newOp | parseMessage(
-                                    current.stream, invokeNum, requestId, compress, servantManager, adapter, outAsync,
-                                    heartbeatCallback, dispatchCount));
+                                    current.stream,
+                                    invokeNum,
+                                    requestId,
+                                    compress,
+                                    servantManager,
+                                    adapter,
+                                    outAsync,
+                                    heartbeatCallback,
+                                    dispatchCount));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1639,23 +1659,49 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
-        shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
-        servantManager, adapter, outAsync, heartbeatCallback, current.stream));
+    _threadPool->executeFromThisThread(make_shared<DispatchCall>(
+        shared_from_this(),
+        std::move(connectionStartCompleted),
+        sentCBs,
+        compress,
+        requestId,
+        invokeNum,
+        servantManager,
+        adapter,
+        outAsync,
+        heartbeatCallback,
+        current.stream));
 #else
-    if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
         dispatch(
-            connectionStartCompleted, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync,
-            heartbeatCallback, current.stream);
+            connectionStartCompleted,
+            sentCBs,
+            compress,
+            requestId,
+            invokeNum,
+            servantManager,
+            adapter,
+            outAsync,
+            heartbeatCallback,
+            current.stream);
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
-            shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
-            servantManager, adapter, outAsync, heartbeatCallback, current.stream));
+        _threadPool->executeFromThisThread(make_shared<DispatchCall>(
+            shared_from_this(),
+            std::move(connectionStartCompleted),
+            sentCBs,
+            compress,
+            requestId,
+            invokeNum,
+            servantManager,
+            adapter,
+            outAsync,
+            heartbeatCallback,
+            current.stream));
     }
 #endif
 }
@@ -1814,17 +1860,17 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
     current.ioCompleted();
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+    _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
 #else
-    if (!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
         finish(close);
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+        _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
     }
 #endif
 }
@@ -2083,10 +2129,10 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _dispatcher(_instance->initializationData().dispatcher), // Cached for better performance.
-      _logger(_instance->initializationData().logger),         // Cached for better performance.
-      _traceLevels(_instance->traceLevels()),                  // Cached for better performance.
-      _timer(_instance->timer()),                              // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor), // Cached for better performance.
+      _logger(_instance->initializationData().logger),        // Cached for better performance.
+      _traceLevels(_instance->traceLevels()),                 // Cached for better performance.
+      _timer(_instance->timer()),                             // Cached for better performance.
       _writeTimeout(new TimeoutCallback(this)),
       _writeTimeoutScheduled(false),
       _readTimeout(new TimeoutCallback(this)),
@@ -2390,8 +2436,9 @@ Ice::ConnectionI::setState(State state)
         ConnectionState newState = toConnectionState(state);
         if (oldState != newState)
         {
-            _observer.attach(_instance->initializationData().observer->getConnectionObserver(
-                initConnectionInfo(), _endpoint, newState, _observer.get()));
+            _observer.attach(
+                _instance->initializationData()
+                    .observer->getConnectionObserver(initConnectionInfo(), _endpoint, newState, _observer.get()));
         }
         if (_observer && state == StateClosed && _exception)
         {
@@ -2629,7 +2676,9 @@ Ice::ConnectionI::validate(SocketOperation operation)
             if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
             {
                 throw BadMagicException(
-                    __FILE__, __LINE__, "",
+                    __FILE__,
+                    __LINE__,
+                    "",
                     Ice::ByteSeq(
                         reinterpret_cast<const uint8_t*>(&m[0]),
                         reinterpret_cast<const uint8_t*>(&m[0]) + sizeof(magic)));
@@ -3044,8 +3093,13 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     unsigned int compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
     int bzError = BZ2_bzBuffToBuffCompress(
-        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t), &compressedLen,
-        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize, uncompressedLen, _compressionLevel, 0, 0);
+        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
+        &compressedLen,
+        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
+        uncompressedLen,
+        _compressionLevel,
+        0,
+        0);
     if (bzError != BZ_OK)
     {
         throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
@@ -3109,8 +3163,12 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
     unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(int32_t));
     int bzError = BZ2_bzBuffToBuffDecompress(
-        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize, &uncompressedLen,
-        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t), compressedLen, 0, 0);
+        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
+        &uncompressedLen,
+        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
+        compressedLen,
+        0,
+        0);
     if (bzError != BZ_OK)
     {
         throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
@@ -3201,7 +3259,9 @@ Ice::ConnectionI::parseMessage(
                 if (_state >= StateClosing)
                 {
                     trace(
-                        "received request during closing\n(ignored by server, client will retry)", stream, _logger,
+                        "received request during closing\n(ignored by server, client will retry)",
+                        stream,
+                        _logger,
                         _traceLevels);
                 }
                 else
@@ -3221,8 +3281,10 @@ Ice::ConnectionI::parseMessage(
                 if (_state >= StateClosing)
                 {
                     trace(
-                        "received batch request during closing\n(ignored by server, client will retry)", stream,
-                        _logger, _traceLevels);
+                        "received batch request during closing\n(ignored by server, client will retry)",
+                        stream,
+                        _logger,
+                        _traceLevels);
                 }
                 else
                 {
@@ -3375,7 +3437,13 @@ Ice::ConnectionI::invokeAll(
             assert(!response || invokeNum == 1);
 
             Incoming incoming(
-                _instance.get(), shared_from_this(), shared_from_this(), adapter, response, compress, requestId);
+                _instance.get(),
+                shared_from_this(),
+                shared_from_this(),
+                adapter,
+                response,
+                compress,
+                requestId);
 
             //
             // Dispatch the incoming request.

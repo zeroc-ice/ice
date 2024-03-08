@@ -261,7 +261,12 @@ NodeI::loadServerAsync(
     const Ice::Current& current)
 {
     loadServer(
-        std::move(descriptor), std::move(replicaName), false, std::move(response), std::move(exception), current);
+        std::move(descriptor),
+        std::move(replicaName),
+        false,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
@@ -286,8 +291,14 @@ NodeI::destroyServerAsync(
     const Ice::Current& current)
 {
     destroyServer(
-        std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), false, std::move(response),
-        std::move(exception), current);
+        std::move(serverId),
+        std::move(uuid),
+        std::move(revision),
+        std::move(replicaName),
+        false,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
@@ -301,8 +312,14 @@ NodeI::destroyServerWithoutRestartAsync(
     const Ice::Current& current)
 {
     destroyServer(
-        std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), true, std::move(response),
-        std::move(exception), current);
+        std::move(serverId),
+        std::move(uuid),
+        std::move(revision),
+        std::move(replicaName),
+        true,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
@@ -747,7 +764,8 @@ NodeI::addObserver(const NodeSessionPrxPtr& session, const NodeObserverPrxPtr& o
 
     NodeDynamicInfo info = {_platform.getNodeInfo(), std::move(serverInfos), std::move(adapterInfos)};
     queueUpdate(
-        observer, [observer, info = std::move(info)](auto&& response, auto&& exception)
+        observer,
+        [observer, info = std::move(info)](auto&& response, auto&& exception)
         { observer->nodeUpAsync(info, std::move(response), std::move(exception)); });
 }
 

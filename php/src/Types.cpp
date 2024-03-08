@@ -2862,7 +2862,9 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
     for (const auto& member : members)
     {
         zval* val = zend_hash_str_find(
-            Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(), static_cast<int>(member->name.size()));
+            Z_OBJPROP_P(const_cast<zval*>(&_object)),
+            member->name.c_str(),
+            static_cast<int>(member->name.size()));
 
         if (!val)
         {
@@ -3465,7 +3467,15 @@ ZEND_FUNCTION(IcePHP_defineClass)
     zval* members;
 
     if (zend_parse_parameters(
-            ZEND_NUM_ARGS(), const_cast<char*>("sslbo!a!"), &id, &idLen, &name, &nameLen, &compactId, &interface, &base,
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sslbo!a!"),
+            &id,
+            &idLen,
+            &name,
+            &nameLen,
+            &compactId,
+            &interface,
+            &base,
             &members) == FAILURE)
     {
         return;
@@ -3547,7 +3557,14 @@ ZEND_FUNCTION(IcePHP_defineException)
     zval* members;
 
     if (zend_parse_parameters(
-            ZEND_NUM_ARGS(), const_cast<char*>("sso!a!"), &id, &idLen, &name, &nameLen, &base, &members) == FAILURE)
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("sso!a!"),
+            &id,
+            &idLen,
+            &name,
+            &nameLen,
+            &base,
+            &members) == FAILURE)
     {
         return;
     }

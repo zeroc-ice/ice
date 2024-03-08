@@ -266,7 +266,8 @@ Ice::Properties::setProperty(string_view key, string_view value)
                 }
 
                 if (!found && IceUtilInternal::match(
-                                  IceUtilInternal::toUpper(currentKey), IceUtilInternal::toUpper(prop.pattern)))
+                                  IceUtilInternal::toUpper(currentKey),
+                                  IceUtilInternal::toUpper(prop.pattern)))
                 {
                     found = true;
                     mismatchCase = true;
@@ -378,7 +379,8 @@ Ice::Properties::load(string_view file)
         if ((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
             throw InitializationException(
-                __FILE__, __LINE__,
+                __FILE__,
+                __LINE__,
                 "could not open Windows registry key `" + string{file} + "':\n" + IceUtilInternal::errorToString(err));
         }
 
@@ -388,12 +390,23 @@ Ice::Properties::load(string_view file)
         try
         {
             err = RegQueryInfoKey(
-                iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &numValues, &maxNameSize, &maxDataSize,
-                nullptr, nullptr);
+                iceKey,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                &numValues,
+                &maxNameSize,
+                &maxDataSize,
+                nullptr,
+                nullptr);
             if (err != ERROR_SUCCESS)
             {
                 throw InitializationException(
-                    __FILE__, __LINE__,
+                    __FILE__,
+                    __LINE__,
                     "could not open Windows registry key `" + string{file} + "':\n" +
                         IceUtilInternal::errorToString(err));
             }
@@ -442,12 +455,16 @@ Ice::Properties::load(string_view file)
                 {
                     vector<wchar_t> expandedValue(1024);
                     DWORD sz = ExpandEnvironmentStringsW(
-                        valueW.c_str(), &expandedValue[0], static_cast<DWORD>(expandedValue.size()));
+                        valueW.c_str(),
+                        &expandedValue[0],
+                        static_cast<DWORD>(expandedValue.size()));
                     if (sz >= expandedValue.size())
                     {
                         expandedValue.resize(sz + 1);
                         if (ExpandEnvironmentStringsW(
-                                valueW.c_str(), &expandedValue[0], static_cast<DWORD>(expandedValue.size())) == 0)
+                                valueW.c_str(),
+                                &expandedValue[0],
+                                static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
                             os << "could not expand variable in property `" << name

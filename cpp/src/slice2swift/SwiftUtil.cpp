@@ -102,7 +102,10 @@ namespace
             "while",
             "willSet"};
         bool found = binary_search(
-            &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
+            &keywordList[0],
+            &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+            name,
+            Slice::CICompare());
         if (found)
         {
             return "`" + name + "`";
@@ -1106,8 +1109,14 @@ SwiftGenerator::typeToString(
     int typeCtx)
 {
     static const char* builtinTable[] = {
-        "Swift.UInt8",   "Swift.Bool",  "Swift.Int16",  "Swift.Int32",
-        "Swift.Int64",   "Swift.Float", "Swift.Double", "Swift.String",
+        "Swift.UInt8",
+        "Swift.Bool",
+        "Swift.Int16",
+        "Swift.Int32",
+        "Swift.Int64",
+        "Swift.Float",
+        "Swift.Double",
+        "Swift.String",
         "Ice.Disp",      // Object
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
@@ -1166,8 +1175,14 @@ string
 SwiftGenerator::getAbsolute(const TypePtr& type)
 {
     static const char* builtinTable[] = {
-        "Swift.UInt8",   "Swift.Bool",  "Swift.Int16",  "Swift.Int32",
-        "Swift.Int64",   "Swift.Float", "Swift.Double", "Swift.String",
+        "Swift.UInt8",
+        "Swift.Bool",
+        "Swift.Int16",
+        "Swift.Int32",
+        "Swift.Int64",
+        "Swift.Float",
+        "Swift.Double",
+        "Swift.String",
         "Ice.Disp",      // Object
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
@@ -1580,7 +1595,12 @@ SwiftGenerator::writeMembers(
             if (alias.empty())
             {
                 writeConstantValue(
-                    out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
+                    out,
+                    type,
+                    member->defaultValueType(),
+                    defaultValue,
+                    p->getMetaData(),
+                    swiftModule,
                     member->optional());
             }
             else
@@ -1733,8 +1753,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                 out << nl << "typealias " << alias << " = " << memberType;
             }
             args += (alias.empty() ? memberType : alias) + ".self";
-            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
-                << "}";
+            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 " << "}";
         }
         return;
     }
@@ -2927,14 +2946,18 @@ SwiftGenerator::MetaDataVisitor::validate(
                     if (!returnType)
                     {
                         dc->warning(
-                            InvalidMetaData, file, line,
+                            InvalidMetaData,
+                            file,
+                            line,
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
                         newMetaData.remove(s);
                     }
                     else if (!isNullableType(returnType))
                     {
                         dc->warning(
-                            InvalidMetaData, file, line,
+                            InvalidMetaData,
+                            file,
+                            line,
                             "ignoring invalid metadata `" + s + "' for operation with non nullable return type");
                         newMetaData.remove(s);
                     }
@@ -2947,7 +2970,10 @@ SwiftGenerator::MetaDataVisitor::validate(
                 if (!isNullableType(dynamic_pointer_cast<Type>(cont)))
                 {
                     dc->warning(
-                        InvalidMetaData, file, line, "ignoring invalid metadata `swift:nonnull' for non nullable type");
+                        InvalidMetaData,
+                        file,
+                        line,
+                        "ignoring invalid metadata `swift:nonnull' for non nullable type");
                     newMetaData.remove(s);
                 }
                 continue;
@@ -2964,7 +2990,9 @@ SwiftGenerator::MetaDataVisitor::validate(
                 if (!isNullableType(seq->type()))
                 {
                     dc->warning(
-                        InvalidMetaData, file, line,
+                        InvalidMetaData,
+                        file,
+                        line,
                         "ignoring invalid metadata `" + s + "' for sequence of non nullable type");
                     newMetaData.remove(s);
                 }

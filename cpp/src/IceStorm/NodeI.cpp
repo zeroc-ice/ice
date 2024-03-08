@@ -162,7 +162,8 @@ NodeI::start()
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
     _timer->schedule(
-        _checkTask, chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+        _checkTask,
+        chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 
@@ -800,7 +801,7 @@ NodeI::ready(
     int64_t generation,
     const Ice::Current& current)
 {
-    Ice::checkNotNull(coordinator, current);
+    checkNotNull(coordinator, __FILE__, __LINE__, current);
     lock_guard lock(_mutex);
     if (!_destroy && _state == NodeState::NodeStateReorganization && _group == gn)
     {

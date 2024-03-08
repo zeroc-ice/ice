@@ -293,7 +293,9 @@ namespace
         if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
         {
             throw IllegalArgumentException(
-                __FILE__, __LINE__, "A universal character name cannot designate a surrogate");
+                __FILE__,
+                __LINE__,
+                "A universal character name cannot designate a surrogate");
         }
 
         if (codePoint <= 0x7F)
@@ -447,7 +449,9 @@ namespace
                     if (size > 0)
                     {
                         throw IllegalArgumentException(
-                            __FILE__, __LINE__, "Invalid universal character name: too few hex digits");
+                            __FILE__,
+                            __LINE__,
+                            "Invalid universal character name: too few hex digits");
                     }
 
                     appendUTF8(codePoint, result);
@@ -811,8 +815,12 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
         DWORD stored = FormatMessageW(
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
                 (source != nullptr ? FORMAT_MESSAGE_FROM_HMODULE : 0),
-            source, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            reinterpret_cast<LPWSTR>(&msg), 0, nullptr);
+            source,
+            error,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+            reinterpret_cast<LPWSTR>(&msg),
+            0,
+            nullptr);
 
         if (stored > 0)
         {

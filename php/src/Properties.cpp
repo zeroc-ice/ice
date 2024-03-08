@@ -558,7 +558,11 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* defaultsObj = 0;
 
     if (zend_parse_parameters(
-            ZEND_NUM_ARGS(), const_cast<char*>("|a!O!"), &arglist, &defaultsObj, propertiesClassEntry) == FAILURE)
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("|a!O!"),
+            &arglist,
+            &defaultsObj,
+            propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -656,7 +660,9 @@ static zend_function_entry _classMethods[] = {
                                             ZEND_ACC_PUBLIC)
                                             ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
                                                 ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){
-                                                    0, 0, 0}};
+                                                    0,
+                                                    0,
+                                                    0}};
 
 bool
 IcePHP::propertiesInit(void)

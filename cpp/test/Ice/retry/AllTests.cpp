@@ -105,7 +105,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->opAsync(
-        false, [cb1]() { cb1->response(); },
+        false,
+        [cb1]() { cb1->response(); },
         [cb1](exception_ptr err)
         {
             try
@@ -125,7 +126,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
     retry2->opAsync(
-        true, [cb2]() { cb2->response(); },
+        true,
+        [cb2]() { cb2->response(); },
         [cb2](exception_ptr err)
         {
             try
@@ -145,7 +147,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
     retry1->opAsync(
-        false, [cb1]() { cb1->response(); },
+        false,
+        [cb1]() { cb1->response(); },
         [cb1](exception_ptr err)
         {
             try

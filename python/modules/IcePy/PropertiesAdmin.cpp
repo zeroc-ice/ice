@@ -119,9 +119,13 @@ extern "C"
 }
 
 static PyMethodDef NativePropertiesAdminMethods[] = {
-    {STRCAST("addUpdateCallback"), reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB), METH_VARARGS,
+    {STRCAST("addUpdateCallback"),
+     reinterpret_cast<PyCFunction>(nativePropertiesAdminAddUpdateCB),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("addUpdateCallback(callback) -> None"))},
-    {STRCAST("removeUpdateCallback"), reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB), METH_VARARGS,
+    {STRCAST("removeUpdateCallback"),
+     reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("removeUpdateCallback(callback) -> None"))},
     {0, 0} /* sentinel */
 };

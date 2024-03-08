@@ -188,7 +188,9 @@ namespace
                 if (!revocationPolicy)
                 {
                     throw SecurityException(
-                        __FILE__, __LINE__, "IceSSL: handshake failure: error creating revocation policy");
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: handshake failure: error creating revocation policy");
                 }
                 CFArrayAppendValue(policies.get(), revocationPolicy.get());
             }
@@ -292,13 +294,17 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         if ((err = SSLSetIOFuncs(_ssl.get(), socketRead, socketWrite)))
         {
             throw SecurityException(
-                __FILE__, __LINE__, "IceSSL: setting IO functions failed\n" + sslErrorToString(err));
+                __FILE__,
+                __LINE__,
+                "IceSSL: setting IO functions failed\n" + sslErrorToString(err));
         }
 
         if ((err = SSLSetConnection(_ssl.get(), reinterpret_cast<SSLConnectionRef>(this))))
         {
             throw SecurityException(
-                __FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" + sslErrorToString(err));
+                __FILE__,
+                __LINE__,
+                "IceSSL: setting SSL connection failed\n" + sslErrorToString(err));
         }
 
         //
@@ -309,7 +315,9 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             if ((err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
             {
                 throw SecurityException(
-                    __FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'\n" + sslErrorToString(err));
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: setting SNI host failed `" + _host + "'\n" + sslErrorToString(err));
             }
         }
     }
@@ -655,7 +663,8 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
     try
     {
         IceInternal::Buffer buf(
-            reinterpret_cast<const uint8_t*>(data), reinterpret_cast<const uint8_t*>(data) + *length);
+            reinterpret_cast<const uint8_t*>(data),
+            reinterpret_cast<const uint8_t*>(data) + *length);
         IceInternal::SocketOperation op = _delegate->write(buf);
         if (op == IceInternal::SocketOperationWrite)
         {

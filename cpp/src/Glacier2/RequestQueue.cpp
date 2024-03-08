@@ -57,13 +57,23 @@ Glacier2::Request::invoke(
             Ice::Context ctx = _current.ctx;
             ctx.insert(_sslContext.begin(), _sslContext.end());
             _proxy->ice_invokeAsync(
-                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                _current.operation,
+                _current.mode,
+                inPair,
+                std::move(response),
+                std::move(exception),
+                std::move(sent),
                 ctx);
         }
         else
         {
             _proxy->ice_invokeAsync(
-                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                _current.operation,
+                _current.mode,
+                inPair,
+                std::move(response),
+                std::move(exception),
+                std::move(sent),
                 _current.ctx);
         }
     }
@@ -72,13 +82,23 @@ Glacier2::Request::invoke(
         if (_sslContext.size() > 0)
         {
             _proxy->ice_invokeAsync(
-                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                _current.operation,
+                _current.mode,
+                inPair,
+                std::move(response),
+                std::move(exception),
+                std::move(sent),
                 _sslContext);
         }
         else
         {
             _proxy->ice_invokeAsync(
-                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent));
+                _current.operation,
+                _current.mode,
+                inPair,
+                std::move(response),
+                std::move(exception),
+                std::move(sent));
         }
     }
 }

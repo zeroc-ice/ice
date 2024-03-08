@@ -104,7 +104,14 @@ namespace
 
         DWORD decodedLeng = 0;
         if (!CryptDecodeObjectEx(
-                X509_ASN_ENCODING, X509_CERT, &outBuffer[0], outLength, CRYPT_DECODE_ALLOC_FLAG, 0, cert, &decodedLeng))
+                X509_ASN_ENCODING,
+                X509_CERT,
+                &outBuffer[0],
+                outLength,
+                CRYPT_DECODE_ALLOC_FLAG,
+                0,
+                cert,
+                &decodedLeng))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
@@ -143,7 +150,11 @@ namespace
 
         vector<char> buffer(length);
         if (!CertNameToStr(
-                X509_ASN_ENCODING, certName, CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG, &buffer[0], length))
+                X509_ASN_ENCODING,
+                certName,
+                CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
+                &buffer[0],
+                length))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
@@ -174,8 +185,14 @@ namespace
             CERT_ALT_NAME_INFO* altName;
             DWORD length = 0;
             if (!CryptDecodeObjectEx(
-                    X509_ASN_ENCODING, X509_ALTERNATE_NAME, extension->Value.pbData, extension->Value.cbData,
-                    CRYPT_DECODE_ALLOC_FLAG, 0, &altName, &length))
+                    X509_ASN_ENCODING,
+                    X509_ALTERNATE_NAME,
+                    extension->Value.pbData,
+                    extension->Value.cbData,
+                    CRYPT_DECODE_ALLOC_FLAG,
+                    0,
+                    &altName,
+                    &length))
             {
                 throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
             }
@@ -289,8 +306,14 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) : _ce
         //
         DWORD length = 0;
         if (!CryptDecodeObjectEx(
-                X509_ASN_ENCODING, X509_CERT_TO_BE_SIGNED, _cert->ToBeSigned.pbData, _cert->ToBeSigned.cbData,
-                CRYPT_DECODE_ALLOC_FLAG, 0, &_certInfo, &length))
+                X509_ASN_ENCODING,
+                X509_CERT_TO_BE_SIGNED,
+                _cert->ToBeSigned.pbData,
+                _cert->ToBeSigned.cbData,
+                CRYPT_DECODE_ALLOC_FLAG,
+                0,
+                &_certInfo,
+                &length))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
@@ -335,8 +358,14 @@ SChannelCertificateI::getAuthorityKeyIdentifier() const
         CERT_AUTHORITY_KEY_ID2_INFO* decoded;
         DWORD length = 0;
         if (!CryptDecodeObjectEx(
-                X509_ASN_ENCODING, X509_AUTHORITY_KEY_ID2, extension->Value.pbData, extension->Value.cbData,
-                CRYPT_DECODE_ALLOC_FLAG, 0, &decoded, &length))
+                X509_ASN_ENCODING,
+                X509_AUTHORITY_KEY_ID2,
+                extension->Value.pbData,
+                extension->Value.cbData,
+                CRYPT_DECODE_ALLOC_FLAG,
+                0,
+                &decoded,
+                &length))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
@@ -362,8 +391,14 @@ SChannelCertificateI::getSubjectKeyIdentifier() const
         CRYPT_DATA_BLOB* decoded;
         DWORD length = 0;
         if (!CryptDecodeObjectEx(
-                X509_ASN_ENCODING, szOID_SUBJECT_KEY_IDENTIFIER, extension->Value.pbData, extension->Value.cbData,
-                CRYPT_DECODE_ALLOC_FLAG, 0, &decoded, &length))
+                X509_ASN_ENCODING,
+                szOID_SUBJECT_KEY_IDENTIFIER,
+                extension->Value.pbData,
+                extension->Value.cbData,
+                CRYPT_DECODE_ALLOC_FLAG,
+                0,
+                &decoded,
+                &length))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
@@ -392,7 +427,11 @@ SChannelCertificateI::verify(const CertificatePtr& cert) const
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
         result = CryptVerifyCertificateSignature(
-                     0, X509_ASN_ENCODING, buffer, length, &c->_certInfo->SubjectPublicKeyInfo) != 0;
+                     0,
+                     X509_ASN_ENCODING,
+                     buffer,
+                     length,
+                     &c->_certInfo->SubjectPublicKeyInfo) != 0;
         LocalFree(buffer);
     }
     return result;
@@ -420,7 +459,11 @@ SChannelCertificateI::encode() const
         std::vector<char> encoded;
         encoded.resize(encodedLength);
         if (!CryptBinaryToString(
-                buffer, length, CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR, &encoded[0], &encodedLength))
+                buffer,
+                length,
+                CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR,
+                &encoded[0],
+                &encodedLength))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }

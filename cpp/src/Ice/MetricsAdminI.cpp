@@ -23,7 +23,12 @@ using namespace IceMX;
 namespace
 {
     const string suffixes[] = {
-        "Disabled", "GroupBy", "Accept.*", "Reject.*", "RetainDetached", "Map.*",
+        "Disabled",
+        "GroupBy",
+        "Accept.*",
+        "Reject.*",
+        "RetainDetached",
+        "Map.*",
     };
 
     void validateProperties(const string& prefix, const PropertiesPtr& properties)

@@ -102,7 +102,8 @@ ServerCache::add(const ServerInfo& info)
     _nodeCache.get(info.node, true)->addServer(entry);
 
     forEachCommunicator(
-        info.descriptor, [this, entry, application = info.application](const auto& descriptor)
+        info.descriptor,
+        [this, entry, application = info.application](const auto& descriptor)
         { addCommunicator(nullptr, descriptor, entry, application); });
 
     if (_traceLevels && _traceLevels->server > 0)
@@ -171,7 +172,8 @@ ServerCache::preUpdate(const ServerInfo& newInfo, bool noRestart)
     {
         ServerInfo info = entry->getInfo();
         forEachCommunicator(
-            info.descriptor, newInfo.descriptor,
+            info.descriptor,
+            newInfo.descriptor,
             [this, entry](const auto& oldDesc, const auto& newDesc) { removeCommunicator(oldDesc, newDesc, entry); });
         _nodeCache.get(info.node)->removeServer(entry);
     }
@@ -203,7 +205,8 @@ ServerCache::postUpdate(const ServerInfo& info, bool noRestart)
         _nodeCache.get(info.node, true)->addServer(entry);
 
         forEachCommunicator(
-            oldInfo.descriptor, info.descriptor,
+            oldInfo.descriptor,
+            info.descriptor,
             [this, entry, application = info.application](const auto& oldDesc, const auto& newDesc)
             { addCommunicator(oldDesc, newDesc, entry, application); });
     }
@@ -698,8 +701,9 @@ ServerEntry::syncImpl()
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(
-                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
+            _cache.getNodeCache()
+                .get(load.node)
+                ->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -884,8 +888,9 @@ ServerEntry::loadCallback(
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(
-                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
+            _cache.getNodeCache()
+                .get(load.node)
+                ->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -928,8 +933,9 @@ ServerEntry::destroyCallback()
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(
-                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, -1s, noRestart);
+            _cache.getNodeCache()
+                .get(load.node)
+                ->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, -1s, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -981,8 +987,9 @@ ServerEntry::exception(exception_ptr ex)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(
-                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
+            _cache.getNodeCache()
+                .get(load.node)
+                ->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -1078,7 +1085,11 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     }
 
     return make_shared<CheckUpdateResult>(
-        _id, oldInfo.node, noRestart, desc != nullptr, server->checkUpdateAsync(desc, noRestart));
+        _id,
+        oldInfo.node,
+        noRestart,
+        desc != nullptr,
+        server->checkUpdateAsync(desc, noRestart));
 }
 
 bool

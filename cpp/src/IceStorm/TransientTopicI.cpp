@@ -137,7 +137,7 @@ TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 optional<Ice::ObjectPrx>
 TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current& current)
 {
-    Ice::checkNotNull(obj, current);
+    checkNotNull(obj, __FILE__, __LINE__, current);
     Ice::Identity id = obj->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
@@ -183,7 +183,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
 void
 TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current& current)
 {
-    Ice::checkNotNull(subscriber, current);
+    checkNotNull(subscriber, __FILE__, __LINE__, current);
     Ice::Identity id = subscriber->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
@@ -221,7 +221,7 @@ TransientTopicImpl::getLinkProxy(const Ice::Current&)
 void
 TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
-    Ice::checkNotNull(topic, current);
+    checkNotNull(topic, __FILE__, __LINE__, current);
     TopicInternalPrx internal(*topic);
     auto link = internal->getLinkProxy();
 

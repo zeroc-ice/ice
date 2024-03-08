@@ -168,7 +168,11 @@ SubscriberOneway::flush()
             auto future = isSent->get_future();
 
             _obj->ice_invokeAsync(
-                e.op, e.mode, e.data, nullptr, [self](exception_ptr ex) { self->error(true, ex); },
+                e.op,
+                e.mode,
+                e.data,
+                nullptr,
+                [self](exception_ptr ex) { self->error(true, ex); },
                 [self, isSent](bool sentSynchronously)
                 {
                     isSent->set_value(sentSynchronously);
@@ -279,8 +283,13 @@ SubscriberTwoway::flush()
         {
             auto self = static_pointer_cast<SubscriberTwoway>(shared_from_this());
             _obj->ice_invokeAsync(
-                e.op, e.mode, e.data, [self](bool, vector<uint8_t>) { self->completed(); },
-                [self](exception_ptr ex) { self->error(true, ex); }, nullptr, e.context);
+                e.op,
+                e.mode,
+                e.data,
+                [self](bool, vector<uint8_t>) { self->completed(); },
+                [self](exception_ptr ex) { self->error(true, ex); },
+                nullptr,
+                e.context);
         }
         catch (const std::exception&)
         {
@@ -351,7 +360,9 @@ namespace
 
                 auto self = shared_from_this();
                 _obj->forwardAsync(
-                    v, [self]() { self->completed(); }, [self](exception_ptr ex) { self->error(true, ex); });
+                    v,
+                    [self]() { self->completed(); },
+                    [self](exception_ptr ex) { self->error(true, ex); });
             }
             catch (const std::exception&)
             {
@@ -803,7 +814,12 @@ Subscriber::updateObserver()
     {
         assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(
-            _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            _instance->serviceName(),
+            _rec.topicName,
+            *_rec.obj,
+            _rec.theQoS,
+            _rec.theTopic,
+            toSubscriberState(_state),
             _observer.get()));
     }
 }
@@ -836,7 +852,12 @@ Subscriber::Subscriber(
     {
         assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(
-            _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            _instance->serviceName(),
+            _rec.topicName,
+            *_rec.obj,
+            _rec.theQoS,
+            _rec.theTopic,
+            toSubscriberState(_state),
             0));
     }
 }
@@ -879,8 +900,13 @@ Subscriber::setState(Subscriber::SubscriberState state)
         {
             assert(_rec.obj);
             _observer.attach(_instance->observer()->getSubscriberObserver(
-                _instance->serviceName(), _rec.topicName, *_rec.obj, _rec.theQoS, _rec.theTopic,
-                toSubscriberState(_state), _observer.get()));
+                _instance->serviceName(),
+                _rec.topicName,
+                *_rec.obj,
+                _rec.theQoS,
+                _rec.theTopic,
+                toSubscriberState(_state),
+                _observer.get()));
         }
     }
 }

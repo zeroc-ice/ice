@@ -51,11 +51,11 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    class AsynchronousSent final : public DispatchWorkItem
+    class AsynchronousSent final : public ExecutorWorkItem
     {
     public:
         AsynchronousSent(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _outAsync(outAsync)
         {
         }
@@ -73,7 +73,7 @@ OutgoingAsyncBase::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->dispatch(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
+        _instance->clientThreadPool()->execute(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
@@ -83,11 +83,11 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    class AsynchronousException final : public DispatchWorkItem
+    class AsynchronousException final : public ExecutorWorkItem
     {
     public:
         AsynchronousException(const ConnectionPtr& c, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(c),
+            : ExecutorWorkItem(c),
               _outAsync(outAsync)
         {
         }
@@ -101,17 +101,17 @@ OutgoingAsyncBase::invokeExceptionAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
 }
 
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    class AsynchronousResponse final : public DispatchWorkItem
+    class AsynchronousResponse final : public ExecutorWorkItem
     {
     public:
         AsynchronousResponse(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _outAsync(outAsync)
         {
         }
@@ -125,7 +125,7 @@ OutgoingAsyncBase::invokeResponseAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
 }
 
 void
@@ -367,7 +367,8 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
         // connection locked so we can't just retry here.
         //
         _instance->retryQueue()->add(
-            shared_from_this(), _proxy._getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
+            shared_from_this(),
+            _proxy._getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
 
         return false;
     }
@@ -522,8 +523,8 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy._getRequestHandlerCache()->handleException(
-                    current_exception(), _handler, _mode, _sent, _cnt);
+                int interval = _proxy._getRequestHandlerCache()
+                                   ->handleException(current_exception(), _handler, _mode, _sent, _cnt);
 
                 if (interval > 0)
                 {

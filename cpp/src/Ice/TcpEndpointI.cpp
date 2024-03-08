@@ -26,7 +26,8 @@ extern "C"
     Plugin* createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
     {
         return new EndpointFactoryPlugin(
-            c, make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
+            c,
+            make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
     }
 }
 
@@ -130,7 +131,9 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&) const
 {
     return make_shared<TcpAcceptor>(
-        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()), _instance, _host,
+        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
         _port);
 }
 
@@ -281,7 +284,9 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
             if (argument.empty())
             {
                 throw EndpointParseException(
-                    __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
+                    __FILE__,
+                    __LINE__,
+                    "no argument provided for -t option in endpoint " + endpoint);
             }
 
             if (argument == "infinite")
@@ -294,7 +299,9 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
                     throw EndpointParseException(
-                        __FILE__, __LINE__, "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                        __FILE__,
+                        __LINE__,
+                        "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                 }
             }
             return true;
@@ -305,7 +312,9 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
             if (!argument.empty())
             {
                 throw EndpointParseException(
-                    __FILE__, __LINE__, "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+                    __FILE__,
+                    __LINE__,
+                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
             }
             const_cast<bool&>(_compress) = true;
             return true;

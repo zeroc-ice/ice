@@ -614,7 +614,9 @@ CommunicatorDescriptorBuilder::finish()
     // before references to property sets.
     //
     _descriptor->propertySet.properties.insert(
-        _descriptor->propertySet.properties.begin(), _hiddenProperties.begin(), _hiddenProperties.end());
+        _descriptor->propertySet.properties.begin(),
+        _hiddenProperties.begin(),
+        _hiddenProperties.end());
 }
 
 void

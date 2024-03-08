@@ -18,7 +18,8 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 

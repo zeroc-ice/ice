@@ -170,7 +170,10 @@ IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
     return make_shared<AcceptorI>(
-        const_cast<EndpointI*>(this)->shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        _delegate->acceptor(adapterName),
+        adapterName);
 }
 
 EndpointIPtr
@@ -329,7 +332,8 @@ IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstanc
     const
 {
     return make_shared<EndpointFactoryI>(
-        make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
+        make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()),
+        underlying);
 }
 
 IceInternal::EndpointIPtr

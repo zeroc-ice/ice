@@ -239,7 +239,9 @@ extern "C"
         {
             auto m = static_cast<Ice::CompressBatch>(getEnumerator(mode, "Ice.CompressBatch"));
             function<void()> token = deref<Ice::Communicator>(self)->flushBatchRequestsAsync(
-                m, [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->done(); });
+                m,
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }

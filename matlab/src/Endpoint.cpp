@@ -32,9 +32,22 @@ namespace
         NumFields // Number of fields in structure, must be last
     };
 
-    static const char* infoFields[] = {"type",           "infoType", "datagram", "secure",      "underlying",
-                                       "timeout",        "compress", "host",     "port",        "sourceAddress",
-                                       "mcastInterface", "mcastTtl", "resource", "rawEncoding", "rawBytes"};
+    static const char* infoFields[] = {
+        "type",
+        "infoType",
+        "datagram",
+        "secure",
+        "underlying",
+        "timeout",
+        "compress",
+        "host",
+        "port",
+        "sourceAddress",
+        "mcastInterface",
+        "mcastTtl",
+        "resource",
+        "rawEncoding",
+        "rawBytes"};
 
     mxArray* createInfo(const shared_ptr<Ice::EndpointInfo>& info)
     {
@@ -77,7 +90,9 @@ namespace
             mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
             byte* p = &opaqueInfo->rawBytes[0];
             mxSetFieldByNumber(
-                r, 0, Field::RawBytes,
+                r,
+                0,
+                Field::RawBytes,
                 createByteArray(
                     reinterpret_cast<const uint8_t*>(p),
                     reinterpret_cast<const uint8_t*>(p) + opaqueInfo->rawBytes.size()));

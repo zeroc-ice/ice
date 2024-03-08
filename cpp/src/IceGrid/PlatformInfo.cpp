@@ -382,8 +382,8 @@ PlatformInfo::getRegistryInfo() const
 shared_ptr<InternalNodeInfo>
 PlatformInfo::getInternalNodeInfo() const
 {
-    return make_shared<InternalNodeInfo>(
-        _name, _os, _hostname, _release, _version, _machine, _nProcessorThreads, _dataDir);
+    return make_shared<
+        InternalNodeInfo>(_name, _os, _hostname, _release, _version, _machine, _nProcessorThreads, _dataDir);
 }
 
 shared_ptr<InternalReplicaInfo>

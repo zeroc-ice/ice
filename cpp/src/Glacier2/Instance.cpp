@@ -50,7 +50,8 @@ Glacier2::Instance::Instance(
     if (o)
     {
         const_cast<shared_ptr<Instrumentation::RouterObserver>&>(_observer) = make_shared<RouterObserverI>(
-            o->getFacet(), _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
+            o->getFacet(),
+            _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
     }
 }
 

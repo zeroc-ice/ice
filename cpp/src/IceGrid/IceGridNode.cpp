@@ -449,8 +449,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     Identity id = stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy{_adapter->createProxy(id)};
-    _node = make_shared<NodeI>(
-        _adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
+    _node = make_shared<
+        NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), _node->getServerAdminCategory());

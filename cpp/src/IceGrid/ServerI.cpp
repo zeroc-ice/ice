@@ -313,7 +313,8 @@ namespace IceGrid
 
             auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
             p->setPropertiesAsync(
-                props, [self = shared_from_this()] { self->next(); },
+                props,
+                [self = shared_from_this()] { self->next(); },
                 [server = _server, desc = _desc](exception_ptr ex)
                 { server->updateRuntimePropertiesCallback(ex, desc); });
         }
@@ -351,7 +352,9 @@ namespace IceGrid
             }
             string variable = v.substr(beg + 1, end - beg - 1);
             DWORD ret = GetEnvironmentVariableW(
-                Ice::stringToWstring(variable).c_str(), &buf[0], static_cast<DWORD>(buf.size()));
+                Ice::stringToWstring(variable).c_str(),
+                &buf[0],
+                static_cast<DWORD>(buf.size()));
             string valstr = (ret > 0 && ret < buf.size()) ? Ice::wstringToString(&buf[0]) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
@@ -1623,7 +1626,8 @@ ServerI::activate()
             if (session)
             {
                 _node->getMasterNodeSession()->waitForApplicationUpdateAsync(
-                    desc->uuid, desc->revision,
+                    desc->uuid,
+                    desc->revision,
                     [self = shared_from_this()] { self->waitForApplicationUpdateCompleted(); },
                     [self = shared_from_this()](exception_ptr) { self->waitForApplicationUpdateCompleted(); });
                 return;
@@ -1662,8 +1666,8 @@ ServerI::activate()
         }
 
 #ifndef _WIN32
-        int pid = _node->getActivator()->activate(
-            desc->id, desc->exe, desc->pwd, uid, gid, options, envs, shared_from_this());
+        int pid = _node->getActivator()
+                      ->activate(desc->id, desc->exe, desc->pwd, uid, gid, options, envs, shared_from_this());
 #else
         int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, shared_from_this());
 #endif
@@ -2115,7 +2119,12 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                 {
                     auto proxy = Ice::uncheckedCast<AdapterPrx>(adapter->createProxy(id));
                     servant = make_shared<ServerAdapterI>(
-                        _node, this, _id, proxy, adpt->id, _activation != Disabled || _failureTime != nullopt);
+                        _node,
+                        this,
+                        _id,
+                        proxy,
+                        adpt->id,
+                        _activation != Disabled || _failureTime != nullopt);
                     adapter->add(servant, id);
                 }
                 _adapters.insert(make_pair(adpt->id, servant));
@@ -2643,10 +2652,11 @@ ServerI::checkActivation()
         // Mark the server as active if the server process proxy is registered (or it's not expecting
         // one to be registered) and if all the server lifetime adapters have been activated.
         //
-        if ((!_desc->processRegistered || _process) &&
-            includes(
-                _activatedAdapters.begin(), _activatedAdapters.end(), _serverLifetimeAdapters.begin(),
-                _serverLifetimeAdapters.end()))
+        if ((!_desc->processRegistered || _process) && includes(
+                                                           _activatedAdapters.begin(),
+                                                           _activatedAdapters.end(),
+                                                           _serverLifetimeAdapters.begin(),
+                                                           _serverLifetimeAdapters.end()))
         {
             setStateNoSync(InternalServerState::Active);
             return true;

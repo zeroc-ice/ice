@@ -88,7 +88,8 @@ Ice::ObjectAdapterI::activate()
         if (_state != StateUninitialized)
         {
             for_each(
-                _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                _incomingConnectionFactories.begin(),
+                _incomingConnectionFactories.end(),
                 [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
             return;
         }
@@ -141,7 +142,8 @@ Ice::ObjectAdapterI::activate()
         lock_guard lock(_mutex);
         assert(_state == StateActivating);
         for_each(
-            _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+            _incomingConnectionFactories.begin(),
+            _incomingConnectionFactories.end(),
             [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
         _state = StateActive;
         _conditionVariable.notify_all();
@@ -156,7 +158,8 @@ Ice::ObjectAdapterI::hold()
     checkForDeactivation();
     _state = StateHeld;
     for_each(
-        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        _incomingConnectionFactories.begin(),
+        _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory) { factory->hold(); });
 }
 
@@ -173,7 +176,8 @@ Ice::ObjectAdapterI::waitForHold()
     }
 
     for_each(
-        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        incomingConnectionFactories.begin(),
+        incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilHolding(); });
 }
 
@@ -227,7 +231,8 @@ Ice::ObjectAdapterI::deactivate() noexcept
     }
 
     for_each(
-        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        _incomingConnectionFactories.begin(),
+        _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory) { factory->destroy(); });
 
     _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
@@ -262,7 +267,8 @@ Ice::ObjectAdapterI::waitForDeactivate() noexcept
 
     // Now we wait until all incoming connection factories are finished.
     for_each(
-        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        incomingConnectionFactories.begin(),
+        incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilFinished(); });
 }
 
@@ -564,7 +570,9 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
 
     EndpointSeq endpoints;
     transform(
-        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
+        _incomingConnectionFactories.begin(),
+        _incomingConnectionFactories.end(),
+        back_inserter(endpoints),
         [](const IncomingConnectionFactoryPtr& factory) { return factory->endpoint(); });
     return endpoints;
 }
@@ -700,7 +708,8 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
         for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             for (vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin();
-                 q != _incomingConnectionFactories.end(); ++q)
+                 q != _incomingConnectionFactories.end();
+                 ++q)
             {
                 if ((*q)->isLocal(*p))
                 {
@@ -746,7 +755,9 @@ Ice::ObjectAdapterI::updateConnectionObservers()
         f = _incomingConnectionFactories;
     }
     for_each(
-        f.begin(), f.end(), [](const IncomingConnectionFactoryPtr& factory) { factory->updateConnectionObservers(); });
+        f.begin(),
+        f.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->updateConnectionObservers(); });
 }
 
 void
@@ -912,7 +923,9 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         catch (const ProxyParseException&)
         {
             throw InitializationException(
-                __FILE__, __LINE__, "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
+                __FILE__,
+                __LINE__,
+                "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
         }
 
         const_cast<ACMConfig&>(_acm) =
@@ -959,7 +972,9 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             if (_routerInfo->getAdapter())
             {
                 throw AlreadyRegisteredException(
-                    __FILE__, __LINE__, "object adapter with router",
+                    __FILE__,
+                    __LINE__,
+                    "object adapter with router",
                     _communicator->identityToString(router->ice_getIdentity()));
             }
 
@@ -1328,7 +1343,9 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
             ostringstream o;
             transform(
-                endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
+                endpts.begin(),
+                endpts.end(),
+                ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
                 [](const EndpointPtr& endpoint) { return endpoint->toString(); });
             out << o.str();
         }

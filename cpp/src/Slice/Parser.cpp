@@ -1567,7 +1567,12 @@ Slice::Container::createDictionary(
     }
 
     DictionaryPtr p = make_shared<Dictionary>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, keyType, keyMetaData, valueType, valueMetaData);
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        keyType,
+        keyMetaData,
+        valueType,
+        valueMetaData);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1679,7 +1684,12 @@ Slice::Container::createConst(
     }
 
     ConstPtr p = make_shared<Const>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, constType, metaData, resolvedValueType, value,
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        constType,
+        metaData,
+        resolvedValueType,
+        value,
         literal);
     p->init();
     _contents.push_back(p);
@@ -3060,8 +3070,8 @@ Slice::ClassDef::createDataMember(
     }
 
     _hasDataMembers = true;
-    DataMemberPtr member = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr member = make_shared<
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     member->init();
     _contents.push_back(member);
     return member;
@@ -3373,8 +3383,9 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
     for (const auto& i : gpl)
     {
         if (find_if(
-                i.begin(), i.end(), [scope = cdp->scoped()](const auto& other) { return other->scoped() == scope; }) !=
-            i.end())
+                i.begin(),
+                i.end(),
+                [scope = cdp->scoped()](const auto& other) { return other->scoped() == scope; }) != i.end())
         {
             return true;
         }
@@ -3562,8 +3573,8 @@ Slice::InterfaceDef::createOperation(
             if (baseName == newName2)
             {
                 ostringstream os;
-                os << "operation `" << name << "' differs only in capitalization from operation"
-                   << " `" << op->name() << "', which is defined in a base interface";
+                os << "operation `" << name << "' differs only in capitalization from operation" << " `" << op->name()
+                   << "', which is defined in a base interface";
                 _unit->error(os.str());
                 return nullptr;
             }
@@ -3572,7 +3583,12 @@ Slice::InterfaceDef::createOperation(
 
     _hasOperations = true;
     OperationPtr op = make_shared<Operation>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, returnType, tagged, tag, mode);
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        returnType,
+        tagged,
+        tag,
+        mode);
     op->init();
     _contents.push_back(op);
     return op;
@@ -3628,7 +3644,8 @@ Slice::InterfaceDef::allOperations() const
         for (const auto& q : p->allOperations())
         {
             if (find_if(
-                    result.begin(), result.end(),
+                    result.begin(),
+                    result.end(),
                     [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
             {
                 result.push_back(q);
@@ -3639,7 +3656,8 @@ Slice::InterfaceDef::allOperations() const
     for (const auto& q : operations())
     {
         if (find_if(
-                result.begin(), result.end(),
+                result.begin(),
+                result.end(),
                 [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
         {
             result.push_back(q);
@@ -3833,8 +3851,8 @@ Slice::Exception::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr p = make_shared<
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4093,8 +4111,8 @@ Slice::Struct::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr p = make_shared<
+        DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4864,7 +4882,12 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     ParamDeclPtr p = make_shared<ParamDecl>(
-        dynamic_pointer_cast<Container>(shared_from_this()), name, type, isOutParam, optional, tag);
+        dynamic_pointer_cast<Container>(shared_from_this()),
+        name,
+        type,
+        isOutParam,
+        optional,
+        tag);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4972,7 +4995,11 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
         tmp.sort(containedCompare);
         ExceptionList duplicates;
         set_difference(
-            tmp.begin(), tmp.end(), uniqueExceptions.begin(), uniqueExceptions.end(), back_inserter(duplicates),
+            tmp.begin(),
+            tmp.end(),
+            uniqueExceptions.begin(),
+            uniqueExceptions.end(),
+            back_inserter(duplicates),
             containedCompare);
         ostringstream os;
         os << "operation `" << name() << "' has a throws clause with ";

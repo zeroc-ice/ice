@@ -254,7 +254,8 @@ HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
     return make_shared<HTTPNetworkProxy>(
-        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
+        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0],
+        protocol);
 }
 
 Address
@@ -296,7 +297,8 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     if (!proxyHost.empty())
     {
         return make_shared<HTTPNetworkProxy>(
-            proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+            proxyHost,
+            properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
     }
 
     return nullptr;

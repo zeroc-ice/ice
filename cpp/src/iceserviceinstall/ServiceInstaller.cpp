@@ -98,13 +98,15 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         "Glacier2 router (" + _glacier2InstanceName + ")"};
 
     const string defaultDescription[] = {
-        "Location and deployment service for Ice applications", "Starts and monitors Ice servers",
+        "Location and deployment service for Ice applications",
+        "Starts and monitors Ice servers",
         "Ice Firewall traversal service"};
 
     string displayName = properties->getPropertyWithDefault("DisplayName", defaultDisplayName[_serviceType]);
     string description = properties->getPropertyWithDefault("Description", defaultDescription[_serviceType]);
     string imagePath = fixDirSeparator(properties->getPropertyWithDefault(
-        "ImagePath", getServiceInstallerPath() + '\\' + serviceTypeToLowerString(_serviceType) + ".exe"));
+        "ImagePath",
+        getServiceInstallerPath() + '\\' + serviceTypeToLowerString(_serviceType) + ".exe"));
     if (!IceUtilInternal::fileExists(imagePath))
     {
         throw runtime_error(imagePath + ": not found");
@@ -257,9 +259,18 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     // use string converters in calls to stringToWstring.
     //
     SC_HANDLE service = CreateServiceW(
-        scm, stringToWstring(_serviceName).c_str(), stringToWstring(displayName).c_str(), SERVICE_ALL_ACCESS,
-        SERVICE_WIN32_OWN_PROCESS, autoStart ? SERVICE_AUTO_START : SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
-        stringToWstring(command).c_str(), 0, 0, stringToWstring(deps).c_str(), stringToWstring(_sidName).c_str(),
+        scm,
+        stringToWstring(_serviceName).c_str(),
+        stringToWstring(displayName).c_str(),
+        SERVICE_ALL_ACCESS,
+        SERVICE_WIN32_OWN_PROCESS,
+        autoStart ? SERVICE_AUTO_START : SERVICE_DEMAND_START,
+        SERVICE_ERROR_NORMAL,
+        stringToWstring(command).c_str(),
+        0,
+        0,
+        stringToWstring(deps).c_str(),
+        stringToWstring(_sidName).c_str(),
         stringToWstring(password).c_str());
 
     if (service == 0)
@@ -366,8 +377,16 @@ IceServiceInstaller::uninstall()
 vector<string>
 IceServiceInstaller::getPropertyNames()
 {
-    static const string propertyNames[] = {"ImagePath",        "DisplayName", "ObjectName", "Password", "Description",
-                                           "DependOnRegistry", "Debug",       "AutoStart",  "EventLog"};
+    static const string propertyNames[] = {
+        "ImagePath",
+        "DisplayName",
+        "ObjectName",
+        "Password",
+        "Description",
+        "DependOnRegistry",
+        "Debug",
+        "AutoStart",
+        "EventLog"};
 
     vector<string> result(propertyNames, propertyNames + 9);
 
@@ -434,8 +453,13 @@ IceServiceInstaller::initializeSid(const string& name)
         //
         SID_NAME_USE nameUse;
         while (LookupAccountNameW(
-                   0, stringToWstring(name).c_str(), _sidBuffer.data(), &sidSize,
-                   const_cast<wchar_t*>(domainName.data()), &domainNameSize, &nameUse) == false)
+                   0,
+                   stringToWstring(name).c_str(),
+                   _sidBuffer.data(),
+                   &sidSize,
+                   const_cast<wchar_t*>(domainName.data()),
+                   &domainNameSize,
+                   &nameUse) == false)
         {
             DWORD res = GetLastError();
 
@@ -616,7 +640,13 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             }
 
             res = SetNamedSecurityInfoW(
-                const_cast<wchar_t*>(stringToWstring(path).c_str()), type, DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
+                const_cast<wchar_t*>(stringToWstring(path).c_str()),
+                type,
+                DACL_SECURITY_INFORMATION,
+                0,
+                0,
+                newAcl,
+                0);
             if (res != ERROR_SUCCESS)
             {
                 throw runtime_error(
@@ -693,8 +723,15 @@ IceServiceInstaller::addLog(const string& log) const
     // use string converters in calls to stringToWstring.
     //
     LONG res = RegCreateKeyExW(
-        HKEY_LOCAL_MACHINE, stringToWstring(createLog(log)).c_str(), 0, const_cast<wchar_t*>(L"REG_SZ"),
-        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
+        HKEY_LOCAL_MACHINE,
+        stringToWstring(createLog(log)).c_str(),
+        0,
+        const_cast<wchar_t*>(L"REG_SZ"),
+        REG_OPTION_NON_VOLATILE,
+        KEY_ALL_ACCESS,
+        0,
+        &key,
+        &disposition);
 
     if (res != ERROR_SUCCESS)
     {
@@ -737,8 +774,15 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     HKEY key = 0;
     DWORD disposition = 0;
     LONG res = RegCreateKeyExW(
-        HKEY_LOCAL_MACHINE, stringToWstring(createSource(source, log)).c_str(), 0, const_cast<wchar_t*>(L"REG_SZ"),
-        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
+        HKEY_LOCAL_MACHINE,
+        stringToWstring(createSource(source, log)).c_str(),
+        0,
+        const_cast<wchar_t*>(L"REG_SZ"),
+        REG_OPTION_NON_VOLATILE,
+        KEY_ALL_ACCESS,
+        0,
+        &key,
+        &disposition);
     if (res != ERROR_SUCCESS)
     {
         throw runtime_error("Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res));
@@ -750,7 +794,10 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     // DLL.
     //
     res = RegSetValueExW(
-        key, L"EventMessageFile", 0, REG_EXPAND_SZ,
+        key,
+        L"EventMessageFile",
+        0,
+        REG_EXPAND_SZ,
         reinterpret_cast<const BYTE*>(stringToWstring(resourceFile).c_str()),
         static_cast<DWORD>(resourceFile.length() + 1) * sizeof(wchar_t));
 
@@ -762,7 +809,12 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
         //
         DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
         res = RegSetValueExW(
-            key, L"TypesSupported", 0, REG_DWORD, reinterpret_cast<BYTE*>(&typesSupported), sizeof(typesSupported));
+            key,
+            L"TypesSupported",
+            0,
+            REG_DWORD,
+            reinterpret_cast<BYTE*>(&typesSupported),
+            sizeof(typesSupported));
     }
 
     if (res != ERROR_SUCCESS)
@@ -788,7 +840,11 @@ IceServiceInstaller::removeSource(const string& source) const
     HKEY key = 0;
 
     LONG res = RegOpenKeyExW(
-        HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\EventLog", 0, KEY_ENUMERATE_SUB_KEYS, &key);
+        HKEY_LOCAL_MACHINE,
+        L"SYSTEM\\CurrentControlSet\\Services\\EventLog",
+        0,
+        KEY_ENUMERATE_SUB_KEYS,
+        &key);
 
     if (res != ERROR_SUCCESS)
     {
@@ -812,7 +868,8 @@ IceServiceInstaller::removeSource(const string& source) const
             // use string converters in calls to stringToWstring.
             //
             LONG delRes = RegDeleteKeyW(
-                HKEY_LOCAL_MACHINE, stringToWstring(createSource(source, wstringToString(subkey))).c_str());
+                HKEY_LOCAL_MACHINE,
+                stringToWstring(createSource(source, wstringToString(subkey))).c_str());
             if (delRes == ERROR_SUCCESS)
             {
                 res = RegCloseKey(key);

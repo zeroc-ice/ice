@@ -6,7 +6,7 @@
 #include <IceUtil/Random.h>
 #include <TestHelper.h>
 #include <Test.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 
 #include <thread>
 #include <chrono>
@@ -30,14 +30,14 @@ namespace
 
         void response()
         {
-            test(Dispatcher::isDispatcherThread());
+            test(Executor::isExecutorThread());
             called();
         }
 
         void exception(const Exception& ex)
         {
             test(dynamic_cast<const NoEndpointException*>(&ex));
-            test(Dispatcher::isDispatcherThread());
+            test(Executor::isExecutorThread());
             called();
         }
 
@@ -46,17 +46,17 @@ namespace
         void exceptionEx(const ::Exception& ex)
         {
             test(dynamic_cast<const InvocationTimeoutException*>(&ex));
-            test(Dispatcher::isDispatcherThread());
+            test(Executor::isExecutorThread());
             called();
         }
 
-        void payload() { test(Dispatcher::isDispatcherThread()); }
+        void payload() { test(Executor::isExecutorThread()); }
 
         void ignoreEx(const Exception& ex) { test(dynamic_cast<const CommunicatorDestroyedException*>(&ex)); }
 
         void sent(bool sentSynchronously)
         {
-            test(sentSynchronously || Dispatcher::isDispatcherThread());
+            test(sentSynchronously || Executor::isExecutorThread());
             _sentSynchronously = sentSynchronously;
         }
 
@@ -88,7 +88,7 @@ allTests(TestHelper* helper)
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
     TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1, "tcp"));
 
-    cout << "testing dispatcher... " << flush;
+    cout << "testing executor... " << flush;
     {
         p->op();
 
@@ -130,7 +130,8 @@ allTests(TestHelper* helper)
             //
             auto to = p->ice_invocationTimeout(10);
             to->sleepAsync(
-                500, [cb]() { cb->responseEx(); },
+                500,
+                [cb]() { cb->responseEx(); },
                 [cb](exception_ptr err)
                 {
                     try
@@ -161,7 +162,9 @@ allTests(TestHelper* helper)
             auto c = make_shared<promise<void>>();
 
             p->opWithPayloadAsync(
-                seq, [=]() { c->set_value(); }, [=](exception_ptr) { c->set_value(); },
+                seq,
+                [=]() { c->set_value(); },
+                [=](exception_ptr) { c->set_value(); },
                 [=](bool sent) { s->set_value(sent); });
             completed.push_back(c);
 

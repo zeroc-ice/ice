@@ -20,7 +20,7 @@ using namespace IceInternal;
 
 namespace
 {
-    class InvokeAllAsync final : public DispatchWorkItem
+    class InvokeAllAsync final : public ExecutorWorkItem
     {
     public:
         InvokeAllAsync(
@@ -70,7 +70,7 @@ namespace
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter)
     : RequestHandler(ref),
       _adapter(dynamic_pointer_cast<ObjectAdapterI>(adapter)),
-      _dispatcher(_reference->getInstance()->initializationData().dispatcher),
+      _hasExecutor(_reference->getInstance()->initializationData().executor),
       _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
       _traceLevels(_reference->getInstance()->traceLevels()),          // Cached for better performance.
       _requestId(0)
@@ -162,15 +162,23 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     if (!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
         // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->dispatch(make_shared<InvokeAllAsync>(
-            outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
+        _adapter->getThreadPool()->execute(make_shared<InvokeAllAsync>(
+            outAsync->shared_from_this(),
+            outAsync->getOs(),
+            shared_from_this(),
+            requestId,
+            batchRequestNum));
     }
-    else if (_dispatcher)
+    else if (_hasExecutor)
     {
-        _adapter->getThreadPool()->dispatchFromThisThread(make_shared<InvokeAllAsync>(
-            outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
+        _adapter->getThreadPool()->executeFromThisThread(make_shared<InvokeAllAsync>(
+            outAsync->shared_from_this(),
+            outAsync->getOs(),
+            shared_from_this(),
+            requestId,
+            batchRequestNum));
     }
-    else // Optimization: directly call invokeAll if there's no dispatcher.
+    else // Optimization: directly call invokeAll if there's no custom executor.
     {
         //
         // Make sure to hold a reference on this handler while the call is being
@@ -326,7 +334,13 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
             }
 
             Incoming incoming(
-                _reference->getInstance().get(), shared_from_this(), nullptr, _adapter, _response, 0, requestId);
+                _reference->getInstance().get(),
+                shared_from_this(),
+                nullptr,
+                _adapter,
+                _response,
+                0,
+                requestId);
             incoming.invoke(servantManager, &is);
             --invokeNum;
         }
@@ -367,6 +381,6 @@ CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
         // We invoke the exception using a thread-pool thread. If the invocation is a lambda async invocation, we want
         // the callbacks to execute in a thread-pool thread - never in the application thread that sent the exception
         // via AMD.
-       outAsync->invokeExceptionAsync();
+        outAsync->invokeExceptionAsync();
     }
 }

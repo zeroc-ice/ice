@@ -4,10 +4,13 @@
     <ClCompile Include="..\..\AllTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Client.cpp">
+    <ClCompile Include="..\..\Collocated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Dispatcher.cpp">
+    <ClCompile Include="..\..\TestI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Test.cpp">
@@ -25,54 +28,57 @@
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{8105ca1d-a768-47e9-ab7a-96c34c2fbdac}</UniqueIdentifier>
+      <UniqueIdentifier>{aee0c7a0-abeb-4f8e-a49f-3e17b2ad5ae8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{6356f48e-b263-4dcb-8e97-1337bfa845f4}</UniqueIdentifier>
+      <UniqueIdentifier>{9e85597e-8cf0-49e6-a4e7-9c778cd8744b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Slice Files">
-      <UniqueIdentifier>{0495825d-dbec-4593-acdd-d3feb280f86b}</UniqueIdentifier>
+      <UniqueIdentifier>{84f99a0a-0ca3-4300-b1b3-242d277c7538}</UniqueIdentifier>
       <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{9f454c5a-c96a-4c87-bea7-f33b4f8d2c86}</UniqueIdentifier>
+      <UniqueIdentifier>{093a2357-e211-4dcd-93d1-99e1d788cd42}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64">
-      <UniqueIdentifier>{7185b435-f1f8-4d65-bc86-2930f96faf9c}</UniqueIdentifier>
+      <UniqueIdentifier>{885ab2c2-9fa1-4a0c-bfd0-df96764df6bf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{e0293e38-3b33-4a46-8460-6171c9a83d0f}</UniqueIdentifier>
+      <UniqueIdentifier>{2ae84329-b1ea-480a-91d6-77cafe2b8412}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32">
-      <UniqueIdentifier>{71bd269b-739c-40a2-b6e1-e41cf45bec05}</UniqueIdentifier>
+      <UniqueIdentifier>{742a5fae-91fd-486d-8674-e9f27766f666}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{2ea154ca-3837-4d6e-aa49-d5fcb1158440}</UniqueIdentifier>
+      <UniqueIdentifier>{2f62796e-f8ba-4436-8433-49def0092f71}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Debug">
-      <UniqueIdentifier>{54d10c42-3772-4534-b900-bac4e97341ac}</UniqueIdentifier>
+      <UniqueIdentifier>{e8ee5ec4-83db-4952-9440-8fdf83d99369}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Debug">
-      <UniqueIdentifier>{cd541da3-9c36-4923-ad01-4a74acae60b6}</UniqueIdentifier>
+      <UniqueIdentifier>{a5b062d6-0cfd-4119-8974-20c7df6ed99e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Debug">
-      <UniqueIdentifier>{c1cfb0e8-2a70-492d-85a3-417982a612be}</UniqueIdentifier>
+      <UniqueIdentifier>{5d143775-261d-49d7-ab29-c2b55b6fc662}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{0f24181a-1b36-42da-8712-c33fed2ef1ed}</UniqueIdentifier>
+      <UniqueIdentifier>{e3cc8211-f499-469b-bf76-a9306afe521e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Release">
-      <UniqueIdentifier>{fcec95e7-6fa9-4c17-94b1-ae713e416242}</UniqueIdentifier>
+      <UniqueIdentifier>{5656df30-b2b0-4df2-ac50-817f1787147d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Release">
-      <UniqueIdentifier>{0e319f54-33e1-4271-ae96-8b71dfbda357}</UniqueIdentifier>
+      <UniqueIdentifier>{4e81e6cb-aef1-4c3e-ad09-26f467a405fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Release">
-      <UniqueIdentifier>{b0059172-c4a1-42ec-98a7-6edc769c9ed8}</UniqueIdentifier>
+      <UniqueIdentifier>{b7422207-2891-4d7e-9618-da453ed33e53}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Dispatcher.h">
+    <ClInclude Include="..\..\TestI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">

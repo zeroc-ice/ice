@@ -49,7 +49,10 @@ namespace IceInternal
 
             string type = v->ice_id();
             throw Ice::UnexpectedObjectException(
-                __FILE__, __LINE__, "expected element of type `" + expectedType + "' but received `" + type + "'", type,
+                __FILE__,
+                __LINE__,
+                "expected element of type `" + expectedType + "' but received `" + type + "'",
+                type,
                 expectedType);
         }
 

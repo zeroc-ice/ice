@@ -109,7 +109,9 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         if (!v.empty())
         {
             throw EndpointParseException(
-                __FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
+                __FILE__,
+                __LINE__,
+                "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
         }
         return e;
     }
@@ -124,7 +126,9 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         if (!v.empty())
         {
             throw EndpointParseException(
-                __FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
+                __FILE__,
+                __LINE__,
+                "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
         }
         factory = get(ue->type());
         if (factory)

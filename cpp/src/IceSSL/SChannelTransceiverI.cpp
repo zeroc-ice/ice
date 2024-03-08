@@ -322,8 +322,18 @@ SChannel::TransceiverI::sslHandshake()
             SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 1, &outBuffer};
 
             err = InitializeSecurityContext(
-                &_credentials, 0, const_cast<char*>(_host.c_str()), flags, 0, 0, 0, 0, &_ssl, &outBufferDesc,
-                &_ctxFlags, 0);
+                &_credentials,
+                0,
+                const_cast<char*>(_host.c_str()),
+                flags,
+                0,
+                0,
+                0,
+                0,
+                &_ssl,
+                &outBufferDesc,
+                &_ctxFlags,
+                0);
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + secStatusToString(err));
@@ -367,8 +377,15 @@ SChannel::TransceiverI::sslHandshake()
             if (_incoming)
             {
                 err = AcceptSecurityContext(
-                    &_credentials, (_sslInitialized ? &_ssl : 0), &inBufferDesc, flags, 0, &_ssl, &outBufferDesc,
-                    &_ctxFlags, 0);
+                    &_credentials,
+                    (_sslInitialized ? &_ssl : 0),
+                    &inBufferDesc,
+                    flags,
+                    0,
+                    &_ssl,
+                    &outBufferDesc,
+                    &_ctxFlags,
+                    0);
                 if (err == SEC_I_CONTINUE_NEEDED || err == SEC_E_OK)
                 {
                     _sslInitialized = true;
@@ -377,8 +394,18 @@ SChannel::TransceiverI::sslHandshake()
             else
             {
                 err = InitializeSecurityContext(
-                    &_credentials, &_ssl, const_cast<char*>(_host.c_str()), flags, 0, 0, &inBufferDesc, 0, 0,
-                    &outBufferDesc, &_ctxFlags, 0);
+                    &_credentials,
+                    &_ssl,
+                    const_cast<char*>(_host.c_str()),
+                    flags,
+                    0,
+                    0,
+                    &inBufferDesc,
+                    0,
+                    0,
+                    &outBufferDesc,
+                    &_ctxFlags,
+                    0);
             }
 
             //
@@ -540,7 +567,9 @@ SChannel::TransceiverI::sslHandshake()
     if (err != SEC_E_OK)
     {
         throw SecurityException(
-            __FILE__, __LINE__, "IceSSL: failure to query stream sizes attributes:\n" + secStatusToString(err));
+            __FILE__,
+            __LINE__,
+            "IceSSL: failure to query stream sizes attributes:\n" + secStatusToString(err));
     }
 
     size_t pos = _readBuffer.i - _readBuffer.b.begin();
@@ -622,7 +651,9 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         else if (err != SEC_E_OK)
         {
             throw ProtocolException(
-                __FILE__, __LINE__, "IceSSL: protocol error during read:\n" + secStatusToString(err));
+                __FILE__,
+                __LINE__,
+                "IceSSL: protocol error during read:\n" + secStatusToString(err));
         }
 
         SecBuffer* dataBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_DATA);
@@ -640,7 +671,8 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             {
                 _readUnprocessed.b.resize(dataBuffer->cbBuffer - remaining);
                 memcpy(
-                    _readUnprocessed.b.begin(), reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
+                    _readUnprocessed.b.begin(),
+                    reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
                     dataBuffer->cbBuffer - remaining);
             }
         }
@@ -695,7 +727,9 @@ SChannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
     if (err != SEC_E_OK)
     {
         throw ProtocolException(
-            __FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" + secStatusToString(err));
+            __FILE__,
+            __LINE__,
+            "IceSSL: protocol error encrypting message:\n" + secStatusToString(err));
     }
 
     // EncryptMessage resizes the buffers, so resize the write buffer as well to reflect this.
@@ -732,7 +766,9 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     if (err && err != SEC_E_NO_CREDENTIALS)
     {
         throw SecurityException(
-            __FILE__, __LINE__, "IceSSL: certificate verification failure:\n" + secStatusToString(err));
+            __FILE__,
+            __LINE__,
+            "IceSSL: certificate verification failure:\n" + secStatusToString(err));
     }
 
     if (!cert && ((!_incoming && _engine->getVerifyPeer() > 0) || (_incoming && _engine->getVerifyPeer() == 2)))
@@ -767,7 +803,14 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         }
 
         if (!CertGetCertificateChain(
-                _engine->chainEngine(), cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
+                _engine->chainEngine(),
+                cert,
+                0,
+                cert->hCertStore,
+                &chainP,
+                dwFlags,
+                0,
+                &certChain))
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
@@ -794,13 +837,20 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 
                 DWORD length = 0;
                 if (!CryptDecodeObjectEx(
-                        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, X509_CERT, c->pbCertEncoded, c->cbCertEncoded,
-                        CRYPT_DECODE_ALLOC_FLAG, 0, &cc, &length))
+                        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                        X509_CERT,
+                        c->pbCertEncoded,
+                        c->cbCertEncoded,
+                        CRYPT_DECODE_ALLOC_FLAG,
+                        0,
+                        &cc,
+                        &length))
                 {
                     CertFreeCertificateChain(certChain);
                     CertFreeCertificateContext(cert);
                     throw SecurityException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "IceSSL: error decoding peer certificate chain:\n" + IceUtilInternal::lastErrorToString());
                 }
                 _certs.push_back(SChannel::Certificate::create(cc));
@@ -890,7 +940,8 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         out << toString();
     }
     _delegate->getNativeInfo()->ready(
-        IceInternal::SocketOperationRead, !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+        IceInternal::SocketOperationRead,
+        !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -997,7 +1048,8 @@ SChannel::TransceiverI::read(IceInternal::Buffer& buf)
         buf.i += decrypted;
     }
     _delegate->getNativeInfo()->ready(
-        IceInternal::SocketOperationRead, !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+        IceInternal::SocketOperationRead,
+        !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 

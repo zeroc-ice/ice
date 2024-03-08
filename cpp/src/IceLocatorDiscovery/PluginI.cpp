@@ -307,7 +307,9 @@ Request::invoke(const Ice::LocatorPrx& l)
         {
             auto self = shared_from_this();
             l->ice_invokeAsync(
-                _operation, _mode, _inParams,
+                _operation,
+                _mode,
+                _inParams,
                 [self](bool ok, vector<uint8_t> outParams)
                 {
                     pair<const uint8_t*, const uint8_t*> outPair;
@@ -322,7 +324,9 @@ Request::invoke(const Ice::LocatorPrx& l)
                     }
                     self->response(ok, outPair);
                 },
-                [self](exception_ptr e) { self->exception(e); }, nullptr, _context);
+                [self](exception_ptr e) { self->exception(e); },
+                nullptr,
+                _context);
         }
         catch (const Ice::LocalException&)
         {
@@ -446,9 +450,15 @@ LocatorI::ice_invokeAsync(
     const Ice::Current& current)
 {
     invoke(
-        nullopt, make_shared<Request>(
-                     this, current.operation, current.mode, inParams, current.ctx, std::move(responseCB),
-                     std::move(exceptionCB)));
+        nullopt,
+        make_shared<Request>(
+            this,
+            current.operation,
+            current.mode,
+            inParams,
+            current.ctx,
+            std::move(responseCB),
+            std::move(exceptionCB)));
 }
 
 vector<Ice::LocatorPrx>
@@ -645,7 +655,9 @@ LocatorI::invoke(const optional<Ice::LocatorPrx>& locator, const RequestPtr& req
                 for (const auto& l : _lookups)
                 {
                     l.first->findLocatorAsync(
-                        _instanceName, l.second, nullptr,
+                        _instanceName,
+                        l.second,
+                        nullptr,
                         [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
                 }
                 _timer->schedule(shared_from_this(), _timeout);
@@ -764,7 +776,9 @@ LocatorI::runTimerTask()
             for (const auto& l : _lookups)
             {
                 l.first->findLocatorAsync(
-                    _instanceName, l.second, nullptr,
+                    _instanceName,
+                    l.second,
+                    nullptr,
                     [self = shared_from_this()](exception_ptr ex) { self->exception(ex); });
             }
             _timer->schedule(shared_from_this(), _timeout);

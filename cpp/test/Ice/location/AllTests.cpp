@@ -362,7 +362,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         registry->setAdapterDirectProxy(
-            "TestAdapter3", ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
+            "TestAdapter3",
+            ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
         ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
     }
     catch (const Ice::LocalException&)

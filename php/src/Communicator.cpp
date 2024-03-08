@@ -1200,7 +1200,13 @@ ZEND_FUNCTION(Ice_register)
     size_t sLen;
     zend_long expires = 0;
     if (zend_parse_parameters(
-            ZEND_NUM_ARGS(), const_cast<char*>("Os|l"), &comm, communicatorClassEntry, &s, &sLen, &expires) != SUCCESS)
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("Os|l"),
+            &comm,
+            communicatorClassEntry,
+            &s,
+            &sLen,
+            &expires) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1520,7 +1526,11 @@ createProfile(const string& name, const string& config, const string& options)
             ostringstream ostr;
             ex.ice_print(ostr);
             php_error_docref(
-                0, E_WARNING, "unable to load Ice configuration file %s:\n%s", config.c_str(), ostr.str().c_str());
+                0,
+                E_WARNING,
+                "unable to load Ice configuration file %s:\n%s",
+                config.c_str(),
+                ostr.str().c_str());
             return false;
         }
     }
@@ -1538,7 +1548,11 @@ createProfile(const string& name, const string& config, const string& options)
             ex.ice_print(ostr);
             string msg = ostr.str();
             php_error_docref(
-                0, E_WARNING, "error occurred while parsing the options `%s':\n%s", options.c_str(), msg.c_str());
+                0,
+                E_WARNING,
+                "error occurred while parsing the options `%s':\n%s",
+                options.c_str(),
+                msg.c_str());
             return false;
         }
         properties->parseCommandLineOptions("", args);

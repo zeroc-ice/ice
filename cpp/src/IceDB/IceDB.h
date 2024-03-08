@@ -443,7 +443,8 @@ namespace IceDB
         {
             const size_t limit = val.mv_size;
             std::pair<std::uint8_t*, std::uint8_t*> p(
-                reinterpret_cast<std::uint8_t*>(val.mv_data), reinterpret_cast<std::uint8_t*>(val.mv_data) + limit);
+                reinterpret_cast<std::uint8_t*>(val.mv_data),
+                reinterpret_cast<std::uint8_t*>(val.mv_data) + limit);
             Ice::OutputStream stream(ctx.communicator, ctx.encoding, p);
             stream.write(t);
             val.mv_size = stream.b.size();

@@ -201,7 +201,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 }
 
                 IceDB::Dbi<string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream> lluMap(
-                    txn, "llu", dbContext, MDB_CREATE);
+                    txn,
+                    "llu",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceStormElection::StringLogUpdateDict::const_iterator p = data.llus.begin(); p != data.llus.end();
                      ++p)
@@ -218,9 +221,9 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     consoleOut << "Writing Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<
-                    IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                    subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
+                IceDB::
+                    Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                        subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
 
                 for (const auto& subscriber : data.subscribers)
                 {
@@ -250,7 +253,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                 }
 
                 IceDB::Dbi<string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream> lluMap(
-                    txn, "llu", dbContext, 0);
+                    txn,
+                    "llu",
+                    dbContext,
+                    0);
 
                 string s;
                 IceStormElection::LogUpdate llu;
@@ -271,14 +277,17 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     consoleOut << "Reading Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<
-                    IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-                    subscriberMap(txn, "subscribers", dbContext, 0);
+                IceDB::
+                    Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                        subscriberMap(txn, "subscribers", dbContext, 0);
 
                 IceStorm::SubscriberRecordKey key;
                 IceStorm::SubscriberRecord record;
                 IceDB::ReadOnlyCursor<
-                    IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                    IceStorm::SubscriberRecordKey,
+                    IceStorm::SubscriberRecord,
+                    IceDB::IceContext,
+                    Ice::OutputStream>
                     subCursor(subscriberMap, txn);
                 while (subCursor.get(key, record, MDB_NEXT))
                 {

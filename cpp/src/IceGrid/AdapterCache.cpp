@@ -201,7 +201,11 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<S
             // shortly after when its application is loaded.
             //
             repEntry = make_shared<ReplicaGroupEntry>(
-                *this, desc.replicaGroupId, "", make_shared<RandomLoadBalancingPolicy>("0"), "");
+                *this,
+                desc.replicaGroupId,
+                "",
+                make_shared<RandomLoadBalancingPolicy>("0"),
+                "");
             addImpl(desc.replicaGroupId, repEntry);
         }
         repEntry->addReplica(desc.id, entry);
@@ -662,7 +666,8 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
         {
             replicas = _replicas;
             sort(
-                replicas.begin(), replicas.end(),
+                replicas.begin(),
+                replicas.end(),
                 [](const auto& lhs, const auto& rhs) { return lhs->getPriority() < rhs->getPriority(); });
         }
         else if (dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
@@ -687,10 +692,11 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
             //
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
             transform(
-                replicas.begin(), replicas.end(), back_inserter(rl),
-                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                    return {value->getLeastLoadedNodeLoad(loadSample), value};
-                });
+                replicas.begin(),
+                replicas.end(),
+                back_inserter(rl),
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+                { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
             sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
             transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
@@ -778,10 +784,11 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
         IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
         transform(
-            replicas.begin(), replicas.end(), back_inserter(rl),
-            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                return {value->getLeastLoadedNodeLoad(loadSample), value};
-            });
+            replicas.begin(),
+            replicas.end(),
+            back_inserter(rl),
+            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+            { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
         return min_element(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; })
             ->first;
     }

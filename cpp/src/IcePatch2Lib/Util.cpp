@@ -75,9 +75,12 @@ bool
 IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
 {
     int rc = fprintf(
-        fp, "%s\t%s\t%lld\t%d\n",
+        fp,
+        "%s\t%s\t%lld\t%d\n",
         IceUtilInternal::escapeString(info.path, "", IceUtilInternal::ToStringMode::Compat).c_str(),
-        bytesToString(info.checksum).c_str(), static_cast<long long int>(info.size), static_cast<int>(info.executable));
+        bytesToString(info.checksum).c_str(),
+        static_cast<long long int>(info.size),
+        static_cast<int>(info.executable));
     return rc > 0;
 }
 
@@ -588,7 +591,10 @@ IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, i
     }
 
     BZ2_bzWrite(
-        &bzError, bzFile, const_cast<uint8_t*>(&bytes[static_cast<size_t>(pos)]), static_cast<int>(bytes.size()) - pos);
+        &bzError,
+        bzFile,
+        const_cast<uint8_t*>(&bytes[static_cast<size_t>(pos)]),
+        static_cast<int>(bytes.size()) - pos);
     if (bzError != BZ_OK)
     {
         string reason = "BZ2_bzWrite failed";
@@ -955,7 +961,10 @@ namespace
                             if (doCompress)
                             {
                                 BZ2_bzWrite(
-                                    &bzError, bzFile, const_cast<uint8_t*>(&bytes[0]), static_cast<int>(bytes.size()));
+                                    &bzError,
+                                    bzFile,
+                                    const_cast<uint8_t*>(&bytes[0]),
+                                    static_cast<int>(bytes.size()));
                                 if (bzError != BZ_OK)
                                 {
                                     string reason = "BZ2_bzWrite failed";
@@ -1163,7 +1172,11 @@ IcePatch2Internal::loadFileInfoSeq(const string& pa, LargeFileInfoSeq& infoSeq)
             newInfoSeq.reserve(infoSeq.size());
 
             set_difference(
-                infoSeq.begin(), infoSeq.end(), remove.begin(), remove.end(), back_inserter(newInfoSeq),
+                infoSeq.begin(),
+                infoSeq.end(),
+                remove.begin(),
+                remove.end(),
+                back_inserter(newInfoSeq),
                 FileInfoLess());
 
             infoSeq.swap(newInfoSeq);
@@ -1172,7 +1185,11 @@ IcePatch2Internal::loadFileInfoSeq(const string& pa, LargeFileInfoSeq& infoSeq)
             newInfoSeq.reserve(infoSeq.size());
 
             set_union(
-                infoSeq.begin(), infoSeq.end(), update.begin(), update.end(), back_inserter(newInfoSeq),
+                infoSeq.begin(),
+                infoSeq.end(),
+                update.begin(),
+                update.end(),
+                back_inserter(newInfoSeq),
                 FileInfoLess());
 
             infoSeq.swap(newInfoSeq);
@@ -1220,7 +1237,9 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
         if (!allChecksums1.empty())
         {
             IceInternal::sha1(
-                reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
+                reinterpret_cast<unsigned char*>(&allChecksums1[0]),
+                allChecksums1.size(),
+                tree1.checksum);
         }
         else
         {

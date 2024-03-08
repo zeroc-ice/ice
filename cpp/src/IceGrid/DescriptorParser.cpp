@@ -550,7 +550,8 @@ namespace
                     else if (_currentServerInstance.get())
                     {
                         _currentServerInstance->addPropertySet(
-                            _currentPropertySet->getService(), _currentPropertySet->getDescriptor());
+                            _currentPropertySet->getService(),
+                            _currentPropertySet->getDescriptor());
                     }
                     else if (_currentCommunicator)
                     {
@@ -559,12 +560,14 @@ namespace
                     else if (_currentNode.get())
                     {
                         _currentNode->addPropertySet(
-                            _currentPropertySet->getId(), _currentPropertySet->getDescriptor());
+                            _currentPropertySet->getId(),
+                            _currentPropertySet->getDescriptor());
                     }
                     else if (_currentApplication.get())
                     {
                         _currentApplication->addPropertySet(
-                            _currentPropertySet->getId(), _currentPropertySet->getDescriptor());
+                            _currentPropertySet->getId(),
+                            _currentPropertySet->getDescriptor());
                     }
                     else
                     {

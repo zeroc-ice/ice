@@ -1500,15 +1500,27 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     zval* arr = 0;
 
     if (zend_parse_parameters_ex(
-            ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS(), const_cast<char*>("s|s!a!"), &id, &idLen, &facet, &facetLen,
+            ZEND_PARSE_PARAMS_QUIET,
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("s|s!a!"),
+            &id,
+            &idLen,
+            &facet,
+            &facetLen,
             &arr) == FAILURE)
     {
         facet = 0;
         if (zend_parse_parameters_ex(
-                ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS(), const_cast<char*>("s|a!"), &id, &idLen, &arr) == FAILURE)
+                ZEND_PARSE_PARAMS_QUIET,
+                ZEND_NUM_ARGS(),
+                const_cast<char*>("s|a!"),
+                &id,
+                &idLen,
+                &arr) == FAILURE)
         {
             php_error(
-                E_ERROR, "%s() requires a type id followed by an optional facet and/or context",
+                E_ERROR,
+                "%s() requires a type id followed by an optional facet and/or context",
                 get_active_function_name());
             return;
         }

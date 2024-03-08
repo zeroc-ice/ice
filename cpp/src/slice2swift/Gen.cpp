@@ -325,7 +325,10 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList allBases = p->allBases();
     StringList allIds;
     transform(
-        allBases.begin(), allBases.end(), back_inserter(allIds), [](const ContainedPtr& it) { return it->scoped(); });
+        allBases.begin(),
+        allBases.end(),
+        back_inserter(allIds),
+        [](const ContainedPtr& it) { return it->scoped(); });
     allIds.push_back(p->scoped());
     allIds.push_back("::Ice::Object");
     allIds.sort();
@@ -859,8 +862,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "v[key] = nil as " << valueType;
         out << nl << "Swift.withUnsafeMutablePointer(to: &v[key, default:nil])";
         out << sb;
-        out << nl << "e.values[i] = Ice.DictEntry<" << keyType << ", " << valueType << ">("
-            << "key: key, "
+        out << nl << "e.values[i] = Ice.DictEntry<" << keyType << ", " << valueType << ">(" << "key: key, "
             << "value: $0)";
         out << eb;
         writeMarshalUnmarshalCode(out, p->valueType(), p, "e.values[i].value.pointee", false);
@@ -1475,7 +1477,10 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     StringList allOpNames;
     transform(
-        allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
+        allOps.begin(),
+        allOps.end(),
+        back_inserter(allOpNames),
+        [](const ContainedPtr& it) { return it->name(); });
 
     allOpNames.push_back("ice_id");
     allOpNames.push_back("ice_ids");

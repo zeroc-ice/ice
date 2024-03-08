@@ -35,10 +35,24 @@ namespace
         NumFields // Number of fields in structure, must be last
     };
 
-    static const char* infoFields[] = {"type",         "underlying",   "incoming",      "adapterName", "connectionId",
-                                       "localAddress", "localPort",    "remoteAddress", "remotePort",  "rcvSize",
-                                       "sndSize",      "mcastAddress", "mcastPort",     "headers",     "cipher",
-                                       "certs",        "verified"};
+    static const char* infoFields[] = {
+        "type",
+        "underlying",
+        "incoming",
+        "adapterName",
+        "connectionId",
+        "localAddress",
+        "localPort",
+        "remoteAddress",
+        "remotePort",
+        "rcvSize",
+        "sndSize",
+        "mcastAddress",
+        "mcastPort",
+        "headers",
+        "cipher",
+        "certs",
+        "verified"};
 
     mxArray* createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
     {
@@ -210,7 +224,9 @@ extern "C"
         {
             auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
             function<void()> token = deref<Ice::Connection>(self)->flushBatchRequestsAsync(
-                mode, [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->done(); });
+                mode,
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }
@@ -255,7 +271,8 @@ extern "C"
         try
         {
             function<void()> token = deref<Ice::Connection>(self)->heartbeatAsync(
-                [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->done(); });
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }

@@ -445,7 +445,7 @@ typedef unsigned int flex_uint32_t;
  * to BEGIN to return to the state.  The YYSTATE alias is for lex
  * compatibility.
  */
-#define YY_START (((yy_start)-1) / 2)
+#define YY_START (((yy_start) - 1) / 2)
 #define YYSTATE YY_START
 /* Action number for EOF rule of a given start state. */
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
@@ -1566,7 +1566,8 @@ YY_DECL
 #line 248 "src/Slice/Scanner.l"
                     {
                         currentUnit->warning(
-                            All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+                            All,
+                            "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
                         StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
                         // Escape the entire sequence.
@@ -2119,8 +2120,8 @@ YY_DECL
                 default:
                     YY_FATAL_ERROR("fatal flex scanner internal error--no action found");
             } /* end of action switch */
-        }     /* end of scanning one token */
-    }         /* end of user's declarations */
+        } /* end of scanning one token */
+    } /* end of user's declarations */
 } /* end of yylex */
 /* %ok-for-header */
 

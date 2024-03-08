@@ -374,15 +374,31 @@ extern "C"
     PyObject* returnType;
     PyObject* exceptions;
     if (!PyArg_ParseTuple(
-            args, STRCAST("sO!O!iOO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd, &format,
-            &PyTuple_Type, &metaData, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType, &PyTuple_Type,
+            args,
+            STRCAST("sO!O!iOO!O!O!OO!"),
+            &name,
+            modeType,
+            &mode,
+            modeType,
+            &sendMode,
+            &amd,
+            &format,
+            &PyTuple_Type,
+            &metaData,
+            &PyTuple_Type,
+            &inParams,
+            &PyTuple_Type,
+            &outParams,
+            &returnType,
+            &PyTuple_Type,
             &exceptions))
     {
         return -1;
     }
 
-    self->op = new OperationPtr(make_shared<Operation>(
-        name, mode, sendMode, amd, format, metaData, inParams, outParams, returnType, exceptions));
+    self->op = new OperationPtr(
+        make_shared<
+            Operation>(name, mode, sendMode, amd, format, metaData, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -1068,27 +1084,41 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 }
 
 static PyMethodDef OperationMethods[] = {
-    {STRCAST("invoke"), reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS,
+    {STRCAST("invoke"),
+     reinterpret_cast<PyCFunction>(operationInvoke),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("invokeAsync"), reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS,
+    {STRCAST("invokeAsync"),
+     reinterpret_cast<PyCFunction>(operationInvokeAsync),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("deprecate"), reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS,
+    {STRCAST("deprecate"),
+     reinterpret_cast<PyCFunction>(operationDeprecate),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
     {0, 0} /* sentinel */
 };
 
 static PyMethodDef DispatchCallbackMethods[] = {
-    {STRCAST("response"), reinterpret_cast<PyCFunction>(dispatchCallbackResponse), METH_VARARGS,
+    {STRCAST("response"),
+     reinterpret_cast<PyCFunction>(dispatchCallbackResponse),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
-    {STRCAST("exception"), reinterpret_cast<PyCFunction>(dispatchCallbackException), METH_VARARGS,
+    {STRCAST("exception"),
+     reinterpret_cast<PyCFunction>(dispatchCallbackException),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
     {0, 0} /* sentinel */
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
-    {STRCAST("cancel"), reinterpret_cast<PyCFunction>(asyncInvocationContextCancel), METH_NOARGS,
+    {STRCAST("cancel"),
+     reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("cancels the invocation"))},
-    {STRCAST("callLater"), reinterpret_cast<PyCFunction>(asyncInvocationContextCallLater), METH_VARARGS,
+    {STRCAST("callLater"),
+     reinterpret_cast<PyCFunction>(asyncInvocationContextCallLater),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("internal function"))},
     {0, 0} /* sentinel */
 };
@@ -1355,7 +1385,10 @@ IcePy::Invocation::prepareRequest(
             opName = fixIdent(op->name);
         }
         PyErr_Format(
-            PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), opName.c_str(), static_cast<int>(paramCount));
+            PyExc_RuntimeError,
+            STRCAST("%s expects %d in parameters"),
+            opName.c_str(),
+            static_cast<int>(paramCount));
         return false;
     }
 
@@ -1391,7 +1424,8 @@ IcePy::Invocation::prepareRequest(
                     }
                     PyErr_Format(
                         PyExc_ValueError,
-                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"), info->pos + 1,
+                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"),
+                        info->pos + 1,
                         const_cast<char*>(name.c_str()));
                     return false;
                 }
@@ -1664,7 +1698,11 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             status = _prx->ice_invoke(
-                _op->name, _op->sendMode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
+                _op->name,
+                _op->sendMode,
+                params,
+                result,
+                pyctx == Py_None ? Ice::noExplicitContext : ctx);
         }
 
         //
@@ -2051,7 +2089,9 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
 
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
-        _op->name, _op->sendMode, params,
+        _op->name,
+        _op->sendMode,
+        params,
         [self](bool ok, const pair<const uint8_t*, const uint8_t*>& results) { self->response(ok, results); },
         [self](exception_ptr exptr)
         {
@@ -2145,7 +2185,14 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
     if (!PyArg_ParseTuple(
-            args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
+            args,
+            STRCAST("sO!O!|O"),
+            &operation,
+            operationModeType,
+            &mode,
+            &PyBytes_Type,
+            &inParams,
+            &ctx))
     {
         return 0;
     }
@@ -2179,7 +2226,11 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             ok = _prx->ice_invoke(
-                operation, sendMode, in, out, ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
+                operation,
+                sendMode,
+                in,
+                out,
+                ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
         }
 
         //
@@ -2232,7 +2283,14 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
     if (!PyArg_ParseTuple(
-            args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
+            args,
+            STRCAST("sO!O!|O"),
+            &operation,
+            operationModeType,
+            &mode,
+            &PyBytes_Type,
+            &inParams,
+            &ctx))
     {
         return 0;
     }
@@ -2262,7 +2320,9 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
 
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
-        operation, sendMode, params,
+        operation,
+        sendMode,
+        params,
         [self](bool ok, const pair<const uint8_t*, const uint8_t*>& results) { self->response(ok, results); },
         [self](exception_ptr exptr)
         {
@@ -2491,7 +2551,8 @@ IcePy::TypedUpcall::dispatch(
     //
     PyObjectHandle curr = createCurrent(current);
     PyTuple_SET_ITEM(
-        args.get(), PyTuple_GET_SIZE(args.get()) - 1,
+        args.get(),
+        PyTuple_GET_SIZE(args.get()) - 1,
         curr.release()); // PyTuple_SET_ITEM steals a reference.
 
     dispatchImpl(servant, _op->dispatchName, args.get(), current);
