@@ -25,9 +25,9 @@ jobs:
           rm /tmp/llvm.sh
 
       - name: Clang format version
-        run: clang-format --version
+        run: clang-format-18 --version
 
       - name: Run Clang Format
         run: |
-          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -name "*.mm" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
-          find cpp -name "*.m" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
+          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -name "*.mm" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
+          find cpp -name "*.m" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
