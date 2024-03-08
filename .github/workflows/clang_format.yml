@@ -21,7 +21,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
           chmod +x /tmp/llvm.sh
           sudo /tmp/llvm.sh
-          sudo apt-get install -y clang-forma clang-tidy
+          sudo apt-get install -y clang-format clang-tidy
           rm /tmp/llvm.sh
 
       - name: Clang format version
