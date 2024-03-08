@@ -5,7 +5,6 @@
 #include <Ice/Ice.h>
 
 #include <TestI.h>
-#include <SystemFailure.h>
 
 #include <thread>
 using namespace std;
@@ -51,12 +50,6 @@ void
 RetryI::opNotIdempotent(const Ice::Current&)
 {
     throw Ice::ConnectionLostException(__FILE__, __LINE__);
-}
-
-void
-RetryI::opSystemException(const Ice::Current&)
-{
-    throw SystemFailure(__FILE__, __LINE__);
 }
 
 void

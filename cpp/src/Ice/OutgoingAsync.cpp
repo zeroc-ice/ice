@@ -176,7 +176,6 @@ OutgoingAsyncBase::invokeResponse()
     }
     catch (...)
     {
-        // TODO: make handleException noexcept
         // With the lambda async API, lambdaInvokeResponse throws _before_ reaching the application's response when the
         // unmarshaling fails or when the response contains a user exception. We want to call handleInvokeException
         // in this situation.

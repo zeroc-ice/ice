@@ -1097,7 +1097,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
 }
 
 void
-Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag, bool /*amd*/)
+Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag)
 {
     std::unique_lock lock(_mutex);
     assert(_state > StateNotValidated);
@@ -1169,14 +1169,8 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
-bool
-Ice::ConnectionI::systemException(int32_t, std::exception_ptr, bool /*amd*/)
-{
-    return false; // System exceptions aren't marshalled.
-}
-
 void
-Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum, bool /*amd*/)
+Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum)
 {
     //
     // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
@@ -3395,7 +3389,7 @@ Ice::ConnectionI::invokeAll(
     }
     catch (const LocalException&)
     {
-        invokeException(requestId, current_exception(), invokeNum, false); // Fatal invocation exception
+        invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
     }
 }
 

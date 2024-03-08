@@ -188,7 +188,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t, bool amd)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t)
 {
     OutgoingAsyncBasePtr outAsync;
     {
@@ -222,19 +222,10 @@ CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint
 
     if (outAsync)
     {
-        //
-        // If called from an AMD dispatch, invoke asynchronously
-        // the completion callback since this might be called from
-        // the user code.
-        //
-        if (amd)
-        {
-            outAsync->invokeResponseAsync();
-        }
-        else
-        {
-            outAsync->invokeResponse();
-        }
+        // We invoke the response using a thread-pool thread. If the invocation is a lambda async invocation, we want
+        // the callbacks to execute in a thread-pool thread - never in the application thread that sent the response
+        // via AMD.
+        outAsync->invokeResponseAsync();
     }
 
     _adapter->decDirectCount();
@@ -246,18 +237,10 @@ CollocatedRequestHandler::sendNoResponse()
     _adapter->decDirectCount();
 }
 
-bool
-CollocatedRequestHandler::systemException(int32_t requestId, exception_ptr ex, bool amd)
-{
-    handleException(requestId, ex, amd);
-    _adapter->decDirectCount();
-    return true;
-}
-
 void
-CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex, int /*invokeNum*/, bool amd)
+CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex, int /*invokeNum*/)
 {
-    handleException(requestId, ex, amd);
+    handleException(requestId, ex);
     _adapter->decDirectCount();
 }
 
@@ -338,7 +321,7 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
             }
             catch (const ObjectAdapterDeactivatedException&)
             {
-                handleException(requestId, current_exception(), false);
+                handleException(requestId, current_exception());
                 break;
             }
 
@@ -350,14 +333,14 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
     }
     catch (const LocalException&)
     {
-        invokeException(requestId, current_exception(), invokeNum, false); // Fatal invocation exception
+        invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
     }
 
     _adapter->decDirectCount();
 }
 
 void
-CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex, bool amd)
+CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
 {
     if (requestId == 0)
     {
@@ -381,18 +364,9 @@ CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex, 
 
     if (outAsync)
     {
-        //
-        // If called from an AMD dispatch, invoke asynchronously
-        // the completion callback since this might be called from
-        // the user code.
-        //
-        if (amd)
-        {
-            outAsync->invokeExceptionAsync();
-        }
-        else
-        {
-            outAsync->invokeException();
-        }
+        // We invoke the exception using a thread-pool thread. If the invocation is a lambda async invocation, we want
+        // the callbacks to execute in a thread-pool thread - never in the application thread that sent the exception
+        // via AMD.
+       outAsync->invokeExceptionAsync();
     }
 }
