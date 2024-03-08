@@ -36,7 +36,9 @@ namespace
             // Retry to forward the call.
             //
             _adminRouter->ice_invokeAsync(
-                {&_inParams[0], &_inParams[0] + _inParams.size()}, std::move(_response), std::move(_exception),
+                {&_inParams[0], &_inParams[0] + _inParams.size()},
+                std::move(_response),
+                std::move(_exception),
                 _current);
         }
 
@@ -79,7 +81,11 @@ RegistryServerAdminRouter::ice_invokeAsync(
         catch (const SynchronizationException&)
         {
             server->addSyncCallback(make_shared<SynchronizationCallbackI>(
-                shared_from_this(), inParams, std::move(response), std::move(exception), current));
+                shared_from_this(),
+                inParams,
+                std::move(response),
+                std::move(exception),
+                current));
             return; // Wait for the server synchronization to complete and retry.
         }
     }

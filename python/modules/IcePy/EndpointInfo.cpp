@@ -211,7 +211,8 @@ extern "C"
     auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyBytes_FromStringAndSize(
-        reinterpret_cast<const char*>(&info->rawBytes[0]), static_cast<int>(info->rawBytes.size()));
+        reinterpret_cast<const char*>(&info->rawBytes[0]),
+        static_cast<int>(info->rawBytes.size()));
 }
 
 #ifdef WIN32
@@ -226,39 +227,66 @@ extern "C"
 }
 
 static PyMethodDef EndpointInfoMethods[] = {
-    {STRCAST("type"), reinterpret_cast<PyCFunction>(endpointInfoType), METH_NOARGS,
+    {STRCAST("type"),
+     reinterpret_cast<PyCFunction>(endpointInfoType),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("type() -> int"))},
-    {STRCAST("datagram"), reinterpret_cast<PyCFunction>(endpointInfoDatagram), METH_NOARGS,
+    {STRCAST("datagram"),
+     reinterpret_cast<PyCFunction>(endpointInfoDatagram),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("datagram() -> bool"))},
-    {STRCAST("secure"), reinterpret_cast<PyCFunction>(endpointInfoSecure), METH_NOARGS,
+    {STRCAST("secure"),
+     reinterpret_cast<PyCFunction>(endpointInfoSecure),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("secure() -> bool"))},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef EndpointInfoGetters[] = {
-    {STRCAST("underlying"), reinterpret_cast<getter>(endpointInfoGetUnderlying), 0,
-     PyDoc_STR(STRCAST("underling endpoint information")), 0},
-    {STRCAST("timeout"), reinterpret_cast<getter>(endpointInfoGetTimeout), 0,
-     PyDoc_STR(STRCAST("timeout in milliseconds")), 0},
-    {STRCAST("compress"), reinterpret_cast<getter>(endpointInfoGetCompress), 0,
-     PyDoc_STR(STRCAST("compression status")), 0},
+    {STRCAST("underlying"),
+     reinterpret_cast<getter>(endpointInfoGetUnderlying),
+     0,
+     PyDoc_STR(STRCAST("underling endpoint information")),
+     0},
+    {STRCAST("timeout"),
+     reinterpret_cast<getter>(endpointInfoGetTimeout),
+     0,
+     PyDoc_STR(STRCAST("timeout in milliseconds")),
+     0},
+    {STRCAST("compress"),
+     reinterpret_cast<getter>(endpointInfoGetCompress),
+     0,
+     PyDoc_STR(STRCAST("compression status")),
+     0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef IPEndpointInfoGetters[] = {
-    {STRCAST("host"), reinterpret_cast<getter>(ipEndpointInfoGetHost), 0, PyDoc_STR(STRCAST("host name or IP address")),
+    {STRCAST("host"),
+     reinterpret_cast<getter>(ipEndpointInfoGetHost),
+     0,
+     PyDoc_STR(STRCAST("host name or IP address")),
      0},
     {STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetPort), 0, PyDoc_STR(STRCAST("TCP port number")), 0},
-    {STRCAST("sourceAddress"), reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress), 0,
-     PyDoc_STR(STRCAST("source IP address")), 0},
+    {STRCAST("sourceAddress"),
+     reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress),
+     0,
+     PyDoc_STR(STRCAST("source IP address")),
+     0},
     {0, 0} /* sentinel */
 };
 
 static PyGetSetDef UDPEndpointInfoGetters[] = {
-    {STRCAST("mcastInterface"), reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface), 0,
-     PyDoc_STR(STRCAST("multicast interface")), 0},
-    {STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0,
-     PyDoc_STR(STRCAST("multicast time-to-live")), 0},
+    {STRCAST("mcastInterface"),
+     reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface),
+     0,
+     PyDoc_STR(STRCAST("multicast interface")),
+     0},
+    {STRCAST("mcastTtl"),
+     reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl),
+     0,
+     PyDoc_STR(STRCAST("multicast time-to-live")),
+     0},
     {0, 0} /* sentinel */
 };
 
@@ -268,10 +296,16 @@ static PyGetSetDef WSEndpointInfoGetters[] = {
 };
 
 static PyGetSetDef OpaqueEndpointInfoGetters[] = {
-    {STRCAST("rawBytes"), reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes), 0,
-     PyDoc_STR(STRCAST("raw encoding")), 0},
-    {STRCAST("rawEncoding"), reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding), 0,
-     PyDoc_STR(STRCAST("raw encoding version")), 0},
+    {STRCAST("rawBytes"),
+     reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes),
+     0,
+     PyDoc_STR(STRCAST("raw encoding")),
+     0},
+    {STRCAST("rawEncoding"),
+     reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding),
+     0,
+     PyDoc_STR(STRCAST("raw encoding version")),
+     0},
     {0, 0} /* sentinel */
 };
 

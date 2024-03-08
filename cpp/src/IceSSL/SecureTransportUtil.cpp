@@ -119,7 +119,8 @@ namespace
                 if (CFEqual(label, CFSTR("Certificate Authority")))
                 {
                     return CFEqual(
-                        static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)), CFSTR("Yes"));
+                        static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)),
+                        CFSTR("Yes"));
                 }
             }
         }
@@ -218,7 +219,9 @@ namespace
             if ((err = SecKeychainCopyDefault(&keychain.get())))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to retrieve default keychain:\n" + sslErrorToString(err));
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to retrieve default keychain:\n" + sslErrorToString(err));
             }
         }
         else
@@ -238,7 +241,8 @@ namespace
             if ((err = SecKeychainOpen(keychainPath.c_str(), &keychain.get())))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__,
+                    __FILE__,
+                    __LINE__,
                     "IceSSL: unable to open keychain: `" + keychainPath + "'\n" + sslErrorToString(err));
             }
         }
@@ -252,7 +256,9 @@ namespace
                      SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != 0)))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
             }
         }
         else if (err == errSecNoSuchKeychain)
@@ -260,17 +266,25 @@ namespace
             const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
             keychain.reset(0);
             if ((err = SecKeychainCreate(
-                     keychainPath.c_str(), static_cast<UInt32>(keychainPassword.size()), pass, pass == 0, 0,
+                     keychainPath.c_str(),
+                     static_cast<UInt32>(keychainPassword.size()),
+                     pass,
+                     pass == 0,
+                     0,
                      &keychain.get())))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
             }
         }
         else
         {
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: unable to open keychain:\n" + sslErrorToString(err));
+                __FILE__,
+                __LINE__,
+                "IceSSL: unable to open keychain:\n" + sslErrorToString(err));
         }
 
         //
@@ -284,7 +298,9 @@ namespace
         if ((err = SecKeychainSetSettings(keychain.get(), &settings)))
         {
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: error setting keychain settings:\n" + sslErrorToString(err));
+                __FILE__,
+                __LINE__,
+                "IceSSL: error setting keychain settings:\n" + sslErrorToString(err));
         }
 
         return keychain.release();
@@ -386,7 +402,10 @@ namespace
         // Add the certificate to the keychain
         //
         query.reset(CFDictionaryCreateMutable(
-            kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+            kCFAllocatorDefault,
+            0,
+            &kCFTypeDictionaryKeyCallBacks,
+            &kCFTypeDictionaryValueCallBacks));
 
         CFDictionarySetValue(query.get(), kSecUseKeychain, keychain);
         CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
@@ -476,7 +495,8 @@ namespace
                     if (endpos == string::npos)
                     {
                         throw InitializationException(
-                            __FILE__, __LINE__,
+                            __FILE__,
+                            __LINE__,
                             "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate");
                     }
                     size = endpos - startpos;
@@ -494,12 +514,16 @@ namespace
 
                 vector<byte> data(IceInternal::Base64::decode(string(&buffer[startpos], size)));
                 UniqueRef<CFDataRef> certdata(CFDataCreate(
-                    kCFAllocatorDefault, reinterpret_cast<uint8_t*>(&data[0]), static_cast<CFIndex>(data.size())));
+                    kCFAllocatorDefault,
+                    reinterpret_cast<uint8_t*>(&data[0]),
+                    static_cast<CFIndex>(data.size())));
                 UniqueRef<SecCertificateRef> cert(SecCertificateCreateWithData(0, certdata.get()));
                 if (!cert)
                 {
                     throw InitializationException(
-                        __FILE__, __LINE__, "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate");
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate");
                 }
                 CFArrayAppendValue(const_cast<CFMutableArrayRef>(certs.get()), cert.get());
                 first = false;
@@ -512,7 +536,9 @@ namespace
             if (!cert)
             {
                 throw InitializationException(
-                    __FILE__, __LINE__, "IceSSL: certificate " + file + " is not a valid DER-encoded certificate");
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: certificate " + file + " is not a valid DER-encoded certificate");
             }
             CFArrayAppendValue(const_cast<CFMutableArrayRef>(certs.get()), cert.get());
         }
@@ -765,7 +791,9 @@ IceSSL::SecureTransport::findCertificateChain(
             }
             UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
             CFDictionarySetValue(
-                query.get(), field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber, v.get());
+                query.get(),
+                field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber,
+                v.get());
             valid = true;
         }
     }
@@ -780,7 +808,9 @@ IceSSL::SecureTransport::findCertificateChain(
     if (err != noErr)
     {
         throw PluginInitializationException(
-            __FILE__, __LINE__, "IceSSL: find certificate `" + value + "' failed:\n" + sslErrorToString(err));
+            __FILE__,
+            __LINE__,
+            "IceSSL: find certificate `" + value + "' failed:\n" + sslErrorToString(err));
     }
 
     //
@@ -792,14 +822,18 @@ IceSSL::SecureTransport::findCertificateChain(
     if (err || !trust)
     {
         throw PluginInitializationException(
-            __FILE__, __LINE__, "IceSSL: error creating trust object" + (err ? ":\n" + sslErrorToString(err) : ""));
+            __FILE__,
+            __LINE__,
+            "IceSSL: error creating trust object" + (err ? ":\n" + sslErrorToString(err) : ""));
     }
 
     SecTrustResultType trustResult;
     if ((err = SecTrustEvaluate(trust.get(), &trustResult)))
     {
         throw PluginInitializationException(
-            __FILE__, __LINE__, "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
+            __FILE__,
+            __LINE__,
+            "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
     }
 
     CFIndex chainLength = SecTrustGetCertificateCount(trust.get());

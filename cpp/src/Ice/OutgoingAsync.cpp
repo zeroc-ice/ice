@@ -367,7 +367,8 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
         // connection locked so we can't just retry here.
         //
         _instance->retryQueue()->add(
-            shared_from_this(), _proxy._getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
+            shared_from_this(),
+            _proxy._getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
 
         return false;
     }
@@ -522,8 +523,8 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy._getRequestHandlerCache()->handleException(
-                    current_exception(), _handler, _mode, _sent, _cnt);
+                int interval = _proxy._getRequestHandlerCache()
+                                   ->handleException(current_exception(), _handler, _mode, _sent, _cnt);
 
                 if (interval > 0)
                 {

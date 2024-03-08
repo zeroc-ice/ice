@@ -241,7 +241,8 @@ compile(const vector<string>& argv)
                     os,
                     depend ? Preprocessor::JavaScript
                            : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
-                    includePaths, "-D__SLICE2JS__"))
+                    includePaths,
+                    "-D__SLICE2JS__"))
             {
                 return EXIT_FAILURE;
             }

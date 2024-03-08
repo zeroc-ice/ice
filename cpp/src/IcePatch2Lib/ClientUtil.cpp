@@ -374,7 +374,10 @@ namespace
                     // Compute the set of files which were removed.
                     //
                     set_difference(
-                        tree0.nodes[node0].files.begin(), tree0.nodes[node0].files.end(), files.begin(), files.end(),
+                        tree0.nodes[node0].files.begin(),
+                        tree0.nodes[node0].files.end(),
+                        files.begin(),
+                        files.end(),
                         back_inserter(_removeFiles),
                         FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
 
@@ -385,8 +388,12 @@ namespace
                     updatedFiles.reserve(files.size());
 
                     set_difference(
-                        files.begin(), files.end(), tree0.nodes[node0].files.begin(), tree0.nodes[node0].files.end(),
-                        back_inserter(updatedFiles), FileInfoLess());
+                        files.begin(),
+                        files.end(),
+                        tree0.nodes[node0].files.begin(),
+                        tree0.nodes[node0].files.end(),
+                        back_inserter(updatedFiles),
+                        FileInfoLess());
 
                     //
                     // Compute the set of files whose contents was updated.
@@ -395,7 +402,10 @@ namespace
                     contentsUpdatedFiles.reserve(files.size());
 
                     set_difference(
-                        files.begin(), files.end(), tree0.nodes[node0].files.begin(), tree0.nodes[node0].files.end(),
+                        files.begin(),
+                        files.end(),
+                        tree0.nodes[node0].files.begin(),
+                        tree0.nodes[node0].files.end(),
                         back_inserter(contentsUpdatedFiles),
                         FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
                     copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
@@ -404,8 +414,12 @@ namespace
                     // Compute the set of files whose flags were updated.
                     //
                     set_difference(
-                        updatedFiles.begin(), updatedFiles.end(), contentsUpdatedFiles.begin(),
-                        contentsUpdatedFiles.end(), back_inserter(_updateFlags), FileInfoLess());
+                        updatedFiles.begin(),
+                        updatedFiles.end(),
+                        contentsUpdatedFiles.begin(),
+                        contentsUpdatedFiles.end(),
+                        back_inserter(_updateFlags),
+                        FileInfoLess());
                 }
 
                 if (!_feedback->fileListProgress(static_cast<int32_t>(node0 + 1) * 100 / 256))
@@ -578,7 +592,11 @@ namespace
         newLocalFiles.reserve(_localFiles.size());
 
         set_difference(
-            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
+            _localFiles.begin(),
+            _localFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(newLocalFiles),
             FileInfoLess());
 
         _localFiles.swap(newLocalFiles);
@@ -586,7 +604,11 @@ namespace
         LargeFileInfoSeq newRemoveFiles;
 
         set_difference(
-            _removeFiles.begin(), _removeFiles.end(), files.begin(), files.end(), back_inserter(newRemoveFiles),
+            _removeFiles.begin(),
+            _removeFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(newRemoveFiles),
             FileInfoLess());
 
         _removeFiles.swap(newRemoveFiles);
@@ -650,7 +672,10 @@ namespace
         std::shared_ptr<GetFileCompressedCB> cb)
     {
         serverNoCompress->getLargeFileCompressedAsync(
-            path, pos, chunkSize, [cb](std::pair<const uint8_t*, const uint8_t*> result)
+            path,
+            pos,
+            chunkSize,
+            [cb](std::pair<const uint8_t*, const uint8_t*> result)
             { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
     }
@@ -825,7 +850,11 @@ namespace
         newLocalFiles.reserve(_localFiles.size());
 
         set_union(
-            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
+            _localFiles.begin(),
+            _localFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(newLocalFiles),
             FileInfoLess());
 
         _localFiles.swap(newLocalFiles);
@@ -833,7 +862,11 @@ namespace
         LargeFileInfoSeq newUpdateFiles;
 
         set_difference(
-            _updateFiles.begin(), _updateFiles.end(), files.begin(), files.end(), back_inserter(newUpdateFiles),
+            _updateFiles.begin(),
+            _updateFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(newUpdateFiles),
             FileInfoLess());
 
         _updateFiles.swap(newUpdateFiles);
@@ -858,7 +891,11 @@ namespace
         LargeFileInfoSeq localFiles;
         localFiles.reserve(_localFiles.size());
         set_difference(
-            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(localFiles),
+            _localFiles.begin(),
+            _localFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(localFiles),
             FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags.
 
         //
@@ -866,13 +903,21 @@ namespace
         //
         _localFiles.clear();
         set_union(
-            localFiles.begin(), localFiles.end(), files.begin(), files.end(), back_inserter(_localFiles),
+            localFiles.begin(),
+            localFiles.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(_localFiles),
             FileInfoLess());
 
         LargeFileInfoSeq newUpdateFlags;
 
         set_difference(
-            _updateFlags.begin(), _updateFlags.end(), files.begin(), files.end(), back_inserter(newUpdateFlags),
+            _updateFlags.begin(),
+            _updateFlags.end(),
+            files.begin(),
+            files.end(),
+            back_inserter(newUpdateFlags),
             FileInfoLess());
 
         _updateFlags.swap(newUpdateFlags);

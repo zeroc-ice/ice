@@ -1065,7 +1065,9 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             if (s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 || s == "cpp:array")
             {
                 dc->warning(
-                    InvalidMetaData, p->file(), p->line(),
+                    InvalidMetaData,
+                    p->file(),
+                    p->line(),
                     "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metaData.remove(s);
             }
@@ -2741,7 +2743,10 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         StringList allOpNames;
         transform(
-            allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
+            allOps.begin(),
+            allOps.end(),
+            back_inserter(allOpNames),
+            [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -2874,7 +2879,10 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             params.push_back(
                 typeToString(
-                    type, (*q)->optional(), interfaceScope, (*q)->getMetaData(),
+                    type,
+                    (*q)->optional(),
+                    interfaceScope,
+                    (*q)->getMetaData(),
                     _useWstring | TypeContext::UnmarshalParamZeroCopy) +
                 " " + paramName);
             args.push_back(condMove(isMovable(type), paramPrefix + (*q)->name()));

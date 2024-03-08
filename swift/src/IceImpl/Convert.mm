@@ -417,20 +417,29 @@ convertException(ICERuntimeException* exc)
     @catch (ICEObjectNotExistException* e)
     {
         return std::make_exception_ptr(Ice::ObjectNotExistException(
-            file.c_str(), line, Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]), fromNSString([e operation])));
+            file.c_str(),
+            line,
+            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
+            fromNSString([e facet]),
+            fromNSString([e operation])));
     }
     @catch (ICEFacetNotExistException* e)
     {
         return std::make_exception_ptr(Ice::FacetNotExistException(
-            file.c_str(), line, Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]), fromNSString([e operation])));
+            file.c_str(),
+            line,
+            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
+            fromNSString([e facet]),
+            fromNSString([e operation])));
     }
     @catch (ICEOperationNotExistException* e)
     {
         return std::make_exception_ptr(Ice::OperationNotExistException(
-            file.c_str(), line, Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]), fromNSString([e operation])));
+            file.c_str(),
+            line,
+            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
+            fromNSString([e facet]),
+            fromNSString([e operation])));
     }
     @catch (ICEUnknownUserException* e)
     {

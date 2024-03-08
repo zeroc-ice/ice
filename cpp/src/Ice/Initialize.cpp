@@ -487,7 +487,9 @@ Ice::stringToIdentity(const string& s)
         catch (const IceUtil::IllegalArgumentException& ex)
         {
             throw IdentityParseException(
-                __FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.reason());
+                __FILE__,
+                __LINE__,
+                "invalid category in identity `" + s + "': " + ex.reason());
         }
 
         if (slash + 1 < s.size())
@@ -499,7 +501,9 @@ Ice::stringToIdentity(const string& s)
             catch (const IceUtil::IllegalArgumentException& ex)
             {
                 throw IdentityParseException(
-                    __FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.reason());
+                    __FILE__,
+                    __LINE__,
+                    "invalid name in identity `" + s + "': " + ex.reason());
             }
         }
     }

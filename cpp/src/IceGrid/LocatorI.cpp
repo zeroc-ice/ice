@@ -53,9 +53,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -232,9 +236,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -385,9 +393,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -401,8 +413,8 @@ namespace
             if (_count > 1)
             {
                 auto p = proxy->ice_identity(Ice::stringToIdentity("dummy"));
-                shared_ptr<LocatorI::Request> request = make_shared<ReplicaGroupRequest>(
-                    _response, _exception, _locator, _id, _encoding, _adapters, _count, p);
+                shared_ptr<LocatorI::Request> request = make_shared<
+                    ReplicaGroupRequest>(_response, _exception, _locator, _id, _encoding, _adapters, _count, p);
                 request->execute();
             }
             else
@@ -501,7 +513,13 @@ namespace
                         if (!_waitForActivation)
                         {
                             _database->getLocatorAdapterInfo(
-                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin,
+                                _id,
+                                _connection,
+                                _context,
+                                _adapters,
+                                _count,
+                                replicaGroup,
+                                roundRobin,
                                 _activatingOrFailed);
                         }
 
@@ -512,7 +530,14 @@ namespace
                             // try again but this time we wait for the server activation.
                             //
                             _database->getLocatorAdapterInfo(
-                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin, _failed);
+                                _id,
+                                _connection,
+                                _context,
+                                _adapters,
+                                _count,
+                                replicaGroup,
+                                roundRobin,
+                                _failed);
                             _waitForActivation = true;
                         }
                         break;
@@ -731,14 +756,15 @@ LocatorI::findAdapterByIdAsync(
         {
             try
             {
-                _database->getLocatorAdapterInfo(
-                    id, current.con, current.ctx, adapters, count, replicaGroup, roundRobin);
+                _database
+                    ->getLocatorAdapterInfo(id, current.con, current.ctx, adapters, count, replicaGroup, roundRobin);
                 break;
             }
             catch (const SynchronizationException&)
             {
                 if (_database->addAdapterSyncCallback(
-                        id, make_shared<FindAdapterByIdCallback>(self, response, exception, id, current)))
+                        id,
+                        make_shared<FindAdapterByIdCallback>(self, response, exception, id, current)))
                 {
                     return;
                 }
@@ -753,8 +779,8 @@ LocatorI::findAdapterByIdAsync(
         }
         else if (replicaGroup)
         {
-            request = make_shared<ReplicaGroupRequest>(
-                response, exception, self, id, current.encoding, adapters, count, nullopt);
+            request = make_shared<
+                ReplicaGroupRequest>(response, exception, self, id, current.encoding, adapters, count, nullopt);
         }
         else
         {

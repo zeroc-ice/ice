@@ -353,8 +353,14 @@ LocatorRegistryI::setAdapterDirectProxy(
                 catch (const SynchronizationException&)
                 {
                     if (_database->addAdapterSyncCallback(
-                            adapterId, make_shared<SetAdapterDirectProxyCallback>(
-                                           shared_from_this(), response, exception, adapterId, replicaGroupId, proxy)))
+                            adapterId,
+                            make_shared<SetAdapterDirectProxyCallback>(
+                                shared_from_this(),
+                                response,
+                                exception,
+                                adapterId,
+                                replicaGroupId,
+                                proxy)))
                     {
                         return;
                     }

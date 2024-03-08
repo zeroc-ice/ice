@@ -205,7 +205,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::Java : Preprocessor::SliceXML, includePaths, cppOpts))
+                    os,
+                    depend ? Preprocessor::Java : Preprocessor::SliceXML,
+                    includePaths,
+                    cppOpts))
             {
                 return EXIT_FAILURE;
             }

@@ -298,7 +298,9 @@ namespace
         }
 
         unique_ptr<CFDataRef, CFTypeRefDeleter<CFDataRef>> data(CFDataCreateWithBytesNoCopy(
-            kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(salt.c_str()), static_cast<CFIndex>(salt.size()),
+            kCFAllocatorDefault,
+            reinterpret_cast<const uint8_t*>(salt.c_str()),
+            static_cast<CFIndex>(salt.size()),
             kCFAllocatorNull));
 
         SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
@@ -318,9 +320,15 @@ namespace
 
         vector<uint8_t> checksumBuffer1(checksumLength);
         OSStatus status = CCKeyDerivationPBKDF(
-            kCCPBKDF2, password.c_str(), password.size(), CFDataGetBytePtr(saltBuffer.get()),
-            static_cast<size_t>(CFDataGetLength(saltBuffer.get())), algorithmId, static_cast<unsigned int>(rounds),
-            checksumBuffer1.data(), checksumLength);
+            kCCPBKDF2,
+            password.c_str(),
+            password.size(),
+            CFDataGetBytePtr(saltBuffer.get()),
+            static_cast<size_t>(CFDataGetLength(saltBuffer.get())),
+            algorithmId,
+            static_cast<unsigned int>(rounds),
+            checksumBuffer1.data(),
+            checksumLength);
         if (status != errSecSuccess)
         {
             return false;
@@ -333,8 +341,10 @@ namespace
             return false;
         }
         data.reset(CFDataCreateWithBytesNoCopy(
-            kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(checksum.c_str()),
-            static_cast<CFIndex>(checksum.size()), kCFAllocatorNull));
+            kCFAllocatorDefault,
+            reinterpret_cast<const uint8_t*>(checksum.c_str()),
+            static_cast<CFIndex>(checksum.size()),
+            kCFAllocatorNull));
         SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
         if (error)
         {
@@ -350,14 +360,21 @@ namespace
         }
 
         vector<uint8_t> checksumBuffer2(
-            CFDataGetBytePtr(data.get()), CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
+            CFDataGetBytePtr(data.get()),
+            CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
         return checksumBuffer1 == checksumBuffer2;
 #    else
         DWORD saltLength = static_cast<DWORD>(salt.size());
         vector<BYTE> saltBuffer(saltLength);
 
         if (!CryptStringToBinary(
-                salt.c_str(), static_cast<DWORD>(salt.size()), CRYPT_STRING_BASE64, &saltBuffer[0], &saltLength, 0, 0))
+                salt.c_str(),
+                static_cast<DWORD>(salt.size()),
+                CRYPT_STRING_BASE64,
+                &saltBuffer[0],
+                &saltLength,
+                0,
+                0))
         {
             return false;
         }
@@ -374,8 +391,15 @@ namespace
         vector<BYTE> passwordBuffer(password.begin(), password.end());
 
         DWORD status = BCryptDeriveKeyPBKDF2(
-            algorithmHandle, &passwordBuffer[0], static_cast<DWORD>(passwordBuffer.size()), &saltBuffer[0], saltLength,
-            rounds, &checksumBuffer1[0], static_cast<DWORD>(checksumLength), 0);
+            algorithmHandle,
+            &passwordBuffer[0],
+            static_cast<DWORD>(passwordBuffer.size()),
+            &saltBuffer[0],
+            saltLength,
+            rounds,
+            &checksumBuffer1[0],
+            static_cast<DWORD>(checksumLength),
+            0);
 
         BCryptCloseAlgorithmProvider(algorithmHandle, 0);
 
@@ -388,8 +412,13 @@ namespace
         vector<BYTE> checksumBuffer2(checksumLength);
 
         if (!CryptStringToBinary(
-                checksum.c_str(), static_cast<DWORD>(checksum.size()), CRYPT_STRING_BASE64, &checksumBuffer2[0],
-                &checksumBuffer2Length, 0, 0))
+                checksum.c_str(),
+                static_cast<DWORD>(checksum.size()),
+                CRYPT_STRING_BASE64,
+                &checksumBuffer2[0],
+                &checksumBuffer2Length,
+                0,
+                0))
         {
             return false;
         }

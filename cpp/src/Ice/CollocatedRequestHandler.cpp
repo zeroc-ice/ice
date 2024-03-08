@@ -163,12 +163,20 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     {
         // Don't invoke from the user thread if async or invocation timeout is set
         _adapter->getThreadPool()->execute(make_shared<InvokeAllAsync>(
-            outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
+            outAsync->shared_from_this(),
+            outAsync->getOs(),
+            shared_from_this(),
+            requestId,
+            batchRequestNum));
     }
     else if (_hasExecutor)
     {
         _adapter->getThreadPool()->executeFromThisThread(make_shared<InvokeAllAsync>(
-            outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
+            outAsync->shared_from_this(),
+            outAsync->getOs(),
+            shared_from_this(),
+            requestId,
+            batchRequestNum));
     }
     else // Optimization: directly call invokeAll if there's no custom executor.
     {
@@ -326,7 +334,13 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
             }
 
             Incoming incoming(
-                _reference->getInstance().get(), shared_from_this(), nullptr, _adapter, _response, 0, requestId);
+                _reference->getInstance().get(),
+                shared_from_this(),
+                nullptr,
+                _adapter,
+                _response,
+                0,
+                requestId);
             incoming.invoke(servantManager, &is);
             --invokeNum;
         }
@@ -367,6 +381,6 @@ CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
         // We invoke the exception using a thread-pool thread. If the invocation is a lambda async invocation, we want
         // the callbacks to execute in a thread-pool thread - never in the application thread that sent the exception
         // via AMD.
-       outAsync->invokeExceptionAsync();
+        outAsync->invokeExceptionAsync();
     }
 }

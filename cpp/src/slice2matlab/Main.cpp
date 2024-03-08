@@ -238,9 +238,21 @@ namespace
         //
         // *Must* be kept in alphabetical order.
         //
-        static const string idList[] = {"addlistener", "checkedCast", "delete", "eq",           "findobj",
-                                        "findprop",    "ge",          "gt",     "isvalid",      "le",
-                                        "lt",          "ne",          "notify", "uncheckedCast"};
+        static const string idList[] = {
+            "addlistener",
+            "checkedCast",
+            "delete",
+            "eq",
+            "findobj",
+            "findprop",
+            "ge",
+            "gt",
+            "isvalid",
+            "le",
+            "lt",
+            "ne",
+            "notify",
+            "uncheckedCast"};
         bool found = binary_search(&idList[0], &idList[sizeof(idList) / sizeof(*idList)], name);
         return found ? name + "_" : fixIdent(name);
     }
@@ -374,7 +386,14 @@ namespace
     string typeToString(const TypePtr& type)
     {
         static const char* builtinTable[] = {
-            "uint8",         "logical", "int16", "int32", "int64", "single", "double", "char",
+            "uint8",
+            "logical",
+            "int16",
+            "int32",
+            "int64",
+            "single",
+            "double",
+            "char",
             "Ice.Object",    // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
@@ -4182,8 +4201,8 @@ CodeVisitor::marshal(
         if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
             b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
-                                                 "Double", "String", "???",   "???", "???",  "???"};
+            static const char* builtinTable[] =
+                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
             string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
             if (optional)
@@ -4440,8 +4459,8 @@ CodeVisitor::unmarshal(
         if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
             b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
-                                                 "Double", "String", "???",   "???", "???",  "???"};
+            static const char* builtinTable[] =
+                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
             string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
             if (optional)
@@ -4717,7 +4736,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::MATLAB : Preprocessor::SliceXML, includePaths, "-D__SLICE2MATLAB__"))
+                    os,
+                    depend ? Preprocessor::MATLAB : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2MATLAB__"))
             {
                 return EXIT_FAILURE;
             }

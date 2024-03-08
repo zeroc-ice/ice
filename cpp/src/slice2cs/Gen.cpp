@@ -599,7 +599,10 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     {
         StringList allOpNames;
         transform(
-            allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
+            allOps.begin(),
+            allOps.end(),
+            back_inserter(allOpNames),
+            [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -1250,7 +1253,8 @@ Slice::CsVisitor::editMarkup(const string& s)
                     string ident = result.substr(startIdent, endIdent - startIdent);
                     string::size_type endComment = result.find_first_of("@<", endIdent);
                     string comment = result.substr(
-                        endIdent + 1, endComment == string::npos ? endComment : endComment - endIdent - 1);
+                        endIdent + 1,
+                        endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
                     string newComment = "<param name=\"" + ident + "\">" + comment + "</param>\n";
                     result.insert(startIdent, newComment);
@@ -1295,7 +1299,8 @@ Slice::CsVisitor::editMarkup(const string& s)
                     string ident = result.substr(startIdent, endIdent - startIdent);
                     string::size_type endComment = result.find_first_of("@<", endIdent);
                     string comment = result.substr(
-                        endIdent + 1, endComment == string::npos ? endComment : endComment - endIdent - 1);
+                        endIdent + 1,
+                        endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
                     string newComment = "<exception name=\"" + ident + "\">" + comment + "</exception>\n";
                     result.insert(startIdent, newComment);
@@ -3342,7 +3347,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string context = getEscapedParamName(p, "context");
         _out << sp;
         writeDocComment(
-            p, deprecateReason, "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
+            p,
+            deprecateReason,
+            "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         if (!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
@@ -3363,7 +3370,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         _out << sp;
         writeDocCommentTaskAsyncAMI(
-            p, deprecateReason, "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
+            p,
+            deprecateReason,
+            "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
             "<param name=\"" + progress + "\">Sent progress provider.</param>",
             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>");
         if (!deprecateReason.empty())
@@ -3501,12 +3510,14 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (amd)
         {
             writeDocCommentAMD(
-                op, "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+                op,
+                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
         }
         else
         {
             writeDocComment(
-                op, getDeprecateReason(op, p, "operation"),
+                op,
+                getDeprecateReason(op, p, "operation"),
                 "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
         }
         emitAttributes(op);

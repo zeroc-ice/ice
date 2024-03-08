@@ -162,7 +162,10 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     if (p == _servantMapMap.end())
     {
         throw NotRegisteredException(
-            __FILE__, __LINE__, "servant", Ice::identityToString(ident, _instance->toStringMode()));
+            __FILE__,
+            __LINE__,
+            "servant",
+            Ice::identityToString(ident, _instance->toStringMode()));
     }
 
     FacetMap result = p->second;

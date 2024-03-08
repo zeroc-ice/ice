@@ -212,5 +212,8 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     auto identityFilter = make_shared<Glacier2::IdentitySetI>(allowIdSeq);
 
     return make_shared<Glacier2::FilterManager>(
-        std::move(instance), std::move(categoryFilter), std::move(adapterIdFilter), std::move(identityFilter));
+        std::move(instance),
+        std::move(categoryFilter),
+        std::move(adapterIdFilter),
+        std::move(identityFilter));
 }

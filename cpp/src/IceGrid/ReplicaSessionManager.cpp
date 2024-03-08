@@ -103,8 +103,8 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->setAdapterDirectProxy(
-                    info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
+                _database
+                    ->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
             }
             catch (const AdapterExistsException&)
             {
@@ -119,8 +119,8 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->setAdapterDirectProxy(
-                    info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
+                _database
+                    ->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
             }
             catch (const AdapterExistsException&)
             {

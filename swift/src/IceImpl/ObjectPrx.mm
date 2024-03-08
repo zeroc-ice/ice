@@ -636,7 +636,9 @@
         std::promise<void> p;
 
         _prx->ice_invokeAsync(
-            fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
+            fromNSString(op),
+            static_cast<Ice::OperationMode>(mode),
+            params,
             [response, &p](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
             {
                 // We need an autorelease pool as the unmarshaling (in the response) can
@@ -644,12 +646,15 @@
                 @autoreleasepool
                 {
                     response(
-                        ok, const_cast<std::uint8_t*>(outParams.first),
+                        ok,
+                        const_cast<std::uint8_t*>(outParams.first),
                         static_cast<long>(outParams.second - outParams.first));
                 }
                 p.set_value();
             },
-            [&p](std::exception_ptr e) { p.set_exception(e); }, nullptr, context ? ctx : Ice::noExplicitContext);
+            [&p](std::exception_ptr e) { p.set_exception(e); },
+            nullptr,
+            context ? ctx : Ice::noExplicitContext);
 
         p.get_future().get();
         return YES;
@@ -681,7 +686,10 @@
 
         std::vector<std::uint8_t> ignored;
         _prx->ice_invoke(
-            fromNSString(op), static_cast<Ice::OperationMode>(mode), params, ignored,
+            fromNSString(op),
+            static_cast<Ice::OperationMode>(mode),
+            params,
+            ignored,
             context ? ctx : Ice::noExplicitContext);
         return YES;
     }
@@ -713,7 +721,9 @@
         }
 
         _prx->ice_invokeAsync(
-            fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
+            fromNSString(op),
+            static_cast<Ice::OperationMode>(mode),
+            params,
             [response](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
             {
                 // We need an autorelease pool in case the unmarshaling creates auto
@@ -723,7 +733,8 @@
                 @autoreleasepool
                 {
                     response(
-                        ok, const_cast<std::uint8_t*>(outParams.first),
+                        ok,
+                        const_cast<std::uint8_t*>(outParams.first),
                         static_cast<long>(outParams.second - outParams.first));
                 }
             },

@@ -121,7 +121,8 @@ BlobjectArrayAsyncI::ice_invokeAsync(
     vector<uint8_t> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
     pair<const uint8_t*, const uint8_t*> outPair(
-        static_cast<const uint8_t*>(nullptr), static_cast<const uint8_t*>(nullptr));
+        static_cast<const uint8_t*>(nullptr),
+        static_cast<const uint8_t*>(nullptr));
     if (outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];

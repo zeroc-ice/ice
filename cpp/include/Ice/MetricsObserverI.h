@@ -54,7 +54,8 @@ namespace IceMX
             ~AttributeResolverT()
             {
                 for (typename std::map<std::string, Resolver*>::iterator p = _attributes.begin();
-                     p != _attributes.end(); ++p)
+                     p != _attributes.end();
+                     ++p)
                 {
                     delete p->second;
                 }
@@ -83,27 +84,31 @@ namespace IceMX
             template<typename Y> void add(const std::string& name, Y Helper::*member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
-                    name, new HelperMemberResolver<Y>(name, member)));
+                    name,
+                    new HelperMemberResolver<Y>(name, member)));
             }
 
             template<typename Y> void add(const std::string& name, Y (Helper::*memberFn)() const)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
-                    name, new HelperMemberFunctionResolver<Y>(name, memberFn)));
+                    name,
+                    new HelperMemberFunctionResolver<Y>(name, memberFn)));
             }
 
             template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
-                    name, new MemberResolver<I, O, Y>(name, getFn, member)));
+                    name,
+                    new MemberResolver<I, O, Y>(name, getFn, member)));
             }
 
             template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
-                    name, new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
+                    name,
+                    new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
             }
 
             //
@@ -114,7 +119,8 @@ namespace IceMX
             void add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const noexcept)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
-                    name, new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
+                    name,
+                    new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
             }
 
         private:

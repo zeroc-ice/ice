@@ -36,7 +36,15 @@ IceInternal::ReferenceFactory::create(
     assert(!ident.name.empty());
 
     return create(
-        ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(), endpoints, "", "");
+        ident,
+        facet,
+        tmpl->getMode(),
+        tmpl->getSecure(),
+        tmpl->getProtocol(),
+        tmpl->getEncoding(),
+        endpoints,
+        "",
+        "");
 }
 
 ReferencePtr
@@ -49,8 +57,15 @@ IceInternal::ReferenceFactory::create(
     assert(!ident.name.empty());
 
     return create(
-        ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
-        vector<EndpointIPtr>(), adapterId, "");
+        ident,
+        facet,
+        tmpl->getMode(),
+        tmpl->getSecure(),
+        tmpl->getProtocol(),
+        tmpl->getEncoding(),
+        vector<EndpointIPtr>(),
+        adapterId,
+        "");
 }
 
 ReferencePtr
@@ -62,11 +77,18 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
     // Create new reference
     //
     return make_shared<FixedReference>(
-        _instance, _communicator, ident,
+        _instance,
+        _communicator,
+        ident,
         "", // Facet
         connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
-        connection->endpoint()->secure(), Ice::Protocol_1_0, _instance->defaultsAndOverrides()->defaultEncoding,
-        connection, -1, Ice::Context(), optional<bool>());
+        connection->endpoint()->secure(),
+        Ice::Protocol_1_0,
+        _instance->defaultsAndOverrides()->defaultEncoding,
+        connection,
+        -1,
+        Ice::Context(),
+        optional<bool>());
 }
 
 ReferencePtr
@@ -178,7 +200,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         if (option.length() != 2 || option[0] != '-')
         {
             throw ProxyParseException(
-                __FILE__, __LINE__, "expected a proxy option but found `" + option + "' in `" + s + "'");
+                __FILE__,
+                __LINE__,
+                "expected a proxy option but found `" + option + "' in `" + s + "'");
         }
 
         //
@@ -197,7 +221,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (end == string::npos)
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__, "mismatched quotes around value for " + option + " option in `" + s + "'");
+                        __FILE__,
+                        __LINE__,
+                        "mismatched quotes around value for " + option + " option in `" + s + "'");
                 }
                 else if (end == 0)
                 {
@@ -247,7 +273,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -t option in `" + s + "'");
                 }
                 mode = Reference::ModeTwoway;
@@ -259,7 +286,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -o option in `" + s + "'");
                 }
                 mode = Reference::ModeOneway;
@@ -271,7 +299,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -O option in `" + s + "'");
                 }
                 mode = Reference::ModeBatchOneway;
@@ -283,7 +312,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -d option in `" + s + "'");
                 }
                 mode = Reference::ModeDatagram;
@@ -295,7 +325,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -D option in `" + s + "'");
                 }
                 mode = Reference::ModeBatchDatagram;
@@ -307,7 +338,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if (!argument.empty())
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "unexpected argument `" + argument + "' provided for -s option in `" + s + "'");
                 }
                 secure = true;
@@ -328,7 +360,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 catch (const Ice::VersionParseException& ex)
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__, "invalid encoding version `" + argument + "' in `" + s + "':\n" + ex.str);
+                        __FILE__,
+                        __LINE__,
+                        "invalid encoding version `" + argument + "' in `" + s + "':\n" + ex.str);
                 }
                 break;
             }
@@ -347,7 +381,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 catch (const Ice::VersionParseException& ex)
                 {
                     throw ProxyParseException(
-                        __FILE__, __LINE__, "invalid protocol version `" + argument + "' in `" + s + "':\n" + ex.str);
+                        __FILE__,
+                        __LINE__,
+                        "invalid protocol version `" + argument + "' in `" + s + "':\n" + ex.str);
                 }
                 break;
             }
@@ -434,7 +470,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             {
                 assert(!unknownEndpoints.empty());
                 throw EndpointParseException(
-                    __FILE__, __LINE__, "invalid endpoint `" + unknownEndpoints.front() + "' in `" + s + "'");
+                    __FILE__,
+                    __LINE__,
+                    "invalid endpoint `" + unknownEndpoints.front() + "' in `" + s + "'");
             }
             else if (
                 unknownEndpoints.size() != 0 &&
@@ -485,7 +523,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             if (end != string::npos && s.find_first_not_of(delim, end) != string::npos)
             {
                 throw ProxyParseException(
-                    __FILE__, __LINE__,
+                    __FILE__,
+                    __LINE__,
                     "invalid trailing characters after `" + s.substr(0, end + 1) + "' in `" + s + "'");
             }
 
@@ -631,9 +670,16 @@ IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, con
 void
 IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
 {
-    static const string suffixes[] = {"EndpointSelection", "ConnectionCached", "PreferSecure", "LocatorCacheTimeout",
-                                      "InvocationTimeout", "Locator",          "Router",       "CollocationOptimized",
-                                      "Context.*"};
+    static const string suffixes[] = {
+        "EndpointSelection",
+        "ConnectionCached",
+        "PreferSecure",
+        "LocatorCacheTimeout",
+        "InvocationTimeout",
+        "Locator",
+        "Router",
+        "CollocationOptimized",
+        "Context.*"};
 
     //
     // Do not warn about unknown properties list if Ice prefix, ie Ice, Glacier2, etc
@@ -783,7 +829,9 @@ IceInternal::ReferenceFactory::create(
             else
             {
                 throw EndpointSelectionTypeParseException(
-                    __FILE__, __LINE__, "illegal value `" + type + "'; expected `Random' or `Ordered'");
+                    __FILE__,
+                    __LINE__,
+                    "illegal value `" + type + "'; expected `Random' or `Ordered'");
             }
         }
 
@@ -829,7 +877,23 @@ IceInternal::ReferenceFactory::create(
     // Create new reference
     //
     return make_shared<RoutableReference>(
-        _instance, _communicator, ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, locatorInfo,
-        routerInfo, collocationOptimized, cacheConnection, preferSecure, endpointSelection, locatorCacheTimeout,
-        invocationTimeout, ctx);
+        _instance,
+        _communicator,
+        ident,
+        facet,
+        mode,
+        secure,
+        protocol,
+        encoding,
+        endpoints,
+        adapterId,
+        locatorInfo,
+        routerInfo,
+        collocationOptimized,
+        cacheConnection,
+        preferSecure,
+        endpointSelection,
+        locatorCacheTimeout,
+        invocationTimeout,
+        ctx);
 }

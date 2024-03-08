@@ -172,7 +172,12 @@ repeat:
 
 #ifdef _WIN32
         ret = ::sendto(
-            _fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, &_peerAddr.sa, len);
+            _fd,
+            reinterpret_cast<const char*>(&buf.b[0]),
+            static_cast<int>(buf.b.size()),
+            0,
+            &_peerAddr.sa,
+            len);
 #else
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0, &_peerAddr.sa, len);
 #endif

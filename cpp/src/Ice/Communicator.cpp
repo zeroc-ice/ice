@@ -25,7 +25,8 @@ Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress)
 {
     auto promise = std::make_shared<std::promise<void>>();
     flushBatchRequestsAsync(
-        compress, [promise](std::exception_ptr ex) { promise->set_exception(ex); },
+        compress,
+        [promise](std::exception_ptr ex) { promise->set_exception(ex); },
         [promise](bool) { promise->set_value(); });
     return promise->get_future();
 }

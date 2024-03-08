@@ -1566,7 +1566,8 @@ YY_DECL
 #line 248 "src/Slice/Scanner.l"
                     {
                         currentUnit->warning(
-                            All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+                            All,
+                            "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
                         StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
                         // Escape the entire sequence.

@@ -226,8 +226,12 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML, includePaths, "-D__SLICE2CPP__",
-                    sourceExtension, ext))
+                    os,
+                    depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2CPP__",
+                    sourceExtension,
+                    ext))
             {
                 return EXIT_FAILURE;
             }
@@ -282,8 +286,14 @@ compile(const vector<string>& argv)
                     try
                     {
                         Gen gen(
-                            icecpp->getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                            includePaths, dllExport, output);
+                            icecpp->getBaseName(),
+                            headerExtension,
+                            sourceExtension,
+                            extraHeaders,
+                            include,
+                            includePaths,
+                            dllExport,
+                            output);
                         gen.generate(u);
                     }
                     catch (const Slice::FileException& ex)

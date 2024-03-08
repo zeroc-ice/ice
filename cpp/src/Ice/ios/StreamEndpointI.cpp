@@ -221,7 +221,10 @@ AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
     return make_shared<StreamAcceptor>(
-        const_cast<StreamEndpointI*>(this)->shared_from_this(), _streamInstance, _host, _port);
+        const_cast<StreamEndpointI*>(this)->shared_from_this(),
+        _streamInstance,
+        _host,
+        _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -235,7 +238,13 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     else
     {
         return make_shared<StreamEndpointI>(
-            _streamInstance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+            _streamInstance,
+            _host,
+            port,
+            _sourceAddr,
+            _timeout,
+            _connectionId,
+            _compress);
     }
 }
 
@@ -373,7 +382,9 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
             if (argument.empty())
             {
                 throw EndpointParseException(
-                    __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
+                    __FILE__,
+                    __LINE__,
+                    "no argument provided for -t option in endpoint " + endpoint);
             }
 
             if (argument == "infinite")
@@ -386,7 +397,9 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
                     throw EndpointParseException(
-                        __FILE__, __LINE__, "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                        __FILE__,
+                        __LINE__,
+                        "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                 }
             }
             return true;
@@ -397,7 +410,9 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
             if (!argument.empty())
             {
                 throw EndpointParseException(
-                    __FILE__, __LINE__, "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+                    __FILE__,
+                    __LINE__,
+                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
             }
             const_cast<bool&>(_compress) = true;
             return true;

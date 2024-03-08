@@ -317,7 +317,10 @@ RouterService::start(int argc, char* argv[], int& status)
     }
 
     _sessionRouter = make_shared<SessionRouterI>(
-        _instance, std::move(verifier), std::move(sessionManager), std::move(sslVerifier),
+        _instance,
+        std::move(verifier),
+        std::move(sessionManager),
+        std::move(sslVerifier),
         std::move(sslSessionManager));
 
     //
@@ -442,7 +445,8 @@ RouterService::initializeCommunicator(
                 "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
             initData.properties->setProperty(
-                "Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier", cryptPasswords);
+                "Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier",
+                cryptPasswords);
         }
     }
 

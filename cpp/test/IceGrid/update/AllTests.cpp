@@ -49,7 +49,8 @@ bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
     for (PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
-         p != desc->propertySet.properties.end(); ++p)
+         p != desc->propertySet.properties.end();
+         ++p)
     {
         if (p->name == name)
         {
@@ -64,7 +65,8 @@ allTests(Test::TestHelper* helper)
 {
     const Ice::CommunicatorPtr& communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 

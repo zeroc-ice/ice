@@ -50,7 +50,10 @@ namespace
             {
                 BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                 string s = typeToString(
-                    seq->type(), false, scope, seq->typeMetaData(),
+                    seq->type(),
+                    false,
+                    scope,
+                    seq->typeMetaData(),
                     typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
                 return "::std::pair<const " + s + "*, const " + s + "*>";
             }
@@ -657,14 +660,25 @@ Slice::writeAllocateCode(
     for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(
-            out, (*p)->type(), (*p)->optional(), clScope, fixKwd(paramPrefix + (*p)->name()), (*p)->getMetaData(),
+            out,
+            (*p)->type(),
+            (*p)->optional(),
+            clScope,
+            fixKwd(paramPrefix + (*p)->name()),
+            (*p)->getMetaData(),
             typeCtx);
     }
 
     if (op && op->returnType())
     {
         writeParamAllocateCode(
-            out, op->returnType(), op->returnIsOptional(), clScope, "ret", op->getMetaData(), typeCtx);
+            out,
+            op->returnType(),
+            op->returnIsOptional(),
+            clScope,
+            "ret",
+            op->getMetaData(),
+            typeCtx);
     }
 }
 

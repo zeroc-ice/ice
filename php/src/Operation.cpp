@@ -391,7 +391,9 @@ IcePHP::TypedInvocation::prepareRequest(
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
                     invalidArgument(
-                        "invalid value for argument %d in operation `%s'", info->pos + 1, _op->name.c_str());
+                        "invalid value for argument %d in operation `%s'",
+                        info->pos + 1,
+                        _op->name.c_str());
                     return false;
                 }
             }
@@ -717,8 +719,18 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* exceptions;
 
     if (zend_parse_parameters(
-            ZEND_NUM_ARGS(), const_cast<char*>("osllla!a!a!a!"), &cls, &name, &nameLen, &mode, &sendMode, &format,
-            &inParams, &outParams, &returnType, &exceptions) == FAILURE)
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("osllla!a!a!a!"),
+            &cls,
+            &name,
+            &nameLen,
+            &mode,
+            &sendMode,
+            &format,
+            &inParams,
+            &outParams,
+            &returnType,
+            &exceptions) == FAILURE)
     {
         return;
     }
@@ -728,8 +740,14 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     assert(c);
 
     auto op = make_shared<OperationI>(
-        name, static_cast<Ice::OperationMode>(mode), static_cast<Ice::OperationMode>(sendMode),
-        static_cast<Ice::FormatType>(format), inParams, outParams, returnType, exceptions);
+        name,
+        static_cast<Ice::OperationMode>(mode),
+        static_cast<Ice::OperationMode>(sendMode),
+        static_cast<Ice::FormatType>(format),
+        inParams,
+        outParams,
+        returnType,
+        exceptions);
 
     c->addOperation(name, op);
 }

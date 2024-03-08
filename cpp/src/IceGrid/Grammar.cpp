@@ -1521,7 +1521,11 @@ yysetstate:
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
             yyoverflow(
-                YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
+                YY_("memory exhausted"),
+                &yyss1,
+                yysize * sizeof(*yyssp),
+                &yyvs1,
+                yysize * sizeof(*yyvsp),
                 &yystacksize);
 
             yyss = yyss1;
@@ -2618,7 +2622,8 @@ yyreduce:
                 (yyvsp[(3) - (5)]).front() == "template")
             {
                 parser->usage(
-                    (yyvsp[(2) - (5)]).front() + " " + (yyvsp[(3) - (5)]).front(), (yyvsp[(4) - (5)]).front());
+                    (yyvsp[(2) - (5)]).front() + " " + (yyvsp[(3) - (5)]).front(),
+                    (yyvsp[(4) - (5)]).front());
             }
             else
             {
@@ -2635,7 +2640,8 @@ yyreduce:
                 (yyvsp[(3) - (6)]).front() == "template")
             {
                 parser->usage(
-                    (yyvsp[(2) - (6)]).front() + " " + (yyvsp[(3) - (6)]).front(), (yyvsp[(4) - (6)]).front());
+                    (yyvsp[(2) - (6)]).front() + " " + (yyvsp[(3) - (6)]).front(),
+                    (yyvsp[(4) - (6)]).front());
             }
             else
             {

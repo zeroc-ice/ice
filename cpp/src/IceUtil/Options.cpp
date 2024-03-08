@@ -124,7 +124,9 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
     if (!needArg && !dflt.empty())
     {
         throw IllegalArgumentException(
-            __FILE__, __LINE__, "a default value can be specified only for options requiring an argument");
+            __FILE__,
+            __LINE__,
+            "a default value can be specified only for options requiring an argument");
     }
 }
 
@@ -428,7 +430,8 @@ IceUtilInternal::Options::split(const string& line)
                                 Int64 ull = 0;
                                 string::size_type j;
                                 for (j = i + 1;
-                                     j < i + 3 && j < l.size() && isxdigit(static_cast<unsigned char>(c = l[j])); ++j)
+                                     j < i + 3 && j < l.size() && isxdigit(static_cast<unsigned char>(c = l[j]));
+                                     ++j)
                                 {
                                     ull *= 16;
                                     if (isdigit(static_cast<unsigned char>(c)))

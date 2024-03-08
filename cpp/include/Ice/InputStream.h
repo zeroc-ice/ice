@@ -629,8 +629,9 @@ namespace Ice
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(
-                    tag, StreamOptionalHelper<
-                             T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::optionalFormat))
+                    tag,
+                    StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::
+                        optionalFormat))
             {
                 v.emplace();
                 StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::read(this, *v);

@@ -37,7 +37,9 @@ namespace
                 string expected = zendTypeToString(type);
                 string actual = zendTypeToString(Z_TYPE_P(val));
                 invalidArgument(
-                    "expected value of type %s for member `%s' but received %s", expected.c_str(), name.c_str(),
+                    "expected value of type %s for member `%s' but received %s",
+                    expected.c_str(),
+                    name.c_str(),
                     actual.c_str());
                 return false;
             }
@@ -51,8 +53,12 @@ namespace
         zend_class_entry* cls = Z_OBJCE_P(obj);
         assert(cls);
         zend_update_property_stringl(
-            cls, Z_OBJ_P(obj), const_cast<char*>(name.c_str()), static_cast<int>(name.size()),
-            const_cast<char*>(val.c_str()), static_cast<int>(val.size()));
+            cls,
+            Z_OBJ_P(obj),
+            const_cast<char*>(name.c_str()),
+            static_cast<int>(name.size()),
+            const_cast<char*>(val.c_str()),
+            static_cast<int>(val.size()));
     }
 
     template<typename T> bool getVersion(zval* zv, T& v, const char* type)
@@ -281,8 +287,11 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
     for (map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
         add_assoc_stringl_ex(
-            zv, const_cast<char*>(p->first.c_str()), static_cast<uint32_t>(p->first.length()),
-            const_cast<char*>(p->second.c_str()), static_cast<uint32_t>(p->second.length()));
+            zv,
+            const_cast<char*>(p->first.c_str()),
+            static_cast<uint32_t>(p->first.length()),
+            const_cast<char*>(p->second.c_str()),
+            static_cast<uint32_t>(p->second.length()));
     }
 
     return true;

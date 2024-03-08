@@ -134,7 +134,9 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSL
                 {
                     cleanup();
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: invalid value for IceSSL.Random:\n" + randFiles);
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: invalid value for IceSSL.Random:\n" + randFiles);
                 }
                 for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
                 {
@@ -144,13 +146,17 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSL
                     {
                         cleanup();
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: entropy data file not found:\n" + file);
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: entropy data file not found:\n" + file);
                     }
                     if (!RAND_load_file(resolved.c_str(), 1024))
                     {
                         cleanup();
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: unable to load entropy data from " + resolved);
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: unable to load entropy data from " + resolved);
                     }
                 }
             }
@@ -166,7 +172,9 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSL
                 {
                     cleanup();
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: EGD failure using file " + entropyDaemon);
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: EGD failure using file " + entropyDaemon);
                 }
             }
 #endif
@@ -256,7 +264,9 @@ OpenSSL::SSLEngine::initialize()
             if (!_ctx)
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to create SSL context:\n" + sslErrors());
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to create SSL context:\n" + sslErrors());
             }
 
             int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
@@ -266,7 +276,9 @@ OpenSSL::SSLEngine::initialize()
                 if (SSL_CTX_get_security_level(_ctx) != securityLevel)
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: unable to set SSL security level:\n" + sslErrors());
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: unable to set SSL security level:\n" + sslErrors());
                 }
             }
 
@@ -322,7 +334,9 @@ OpenSSL::SSLEngine::initialize()
                     if (!file && !dir)
                     {
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: CA certificate path not found:\n" + path);
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: CA certificate path not found:\n" + path);
                     }
                 }
 
@@ -382,7 +396,9 @@ OpenSSL::SSLEngine::initialize()
                 if (!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
                 }
                 numCerts = files.size();
                 for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
@@ -392,7 +408,9 @@ OpenSSL::SSLEngine::initialize()
                     if (!checkPath(file, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: certificate file not found:\n" + file);
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: certificate file not found:\n" + file);
                     }
                     file = resolved;
 
@@ -439,7 +457,8 @@ OpenSSL::SSLEngine::initialize()
                                 if (!cert || !SSL_CTX_use_certificate(_ctx, cert))
                                 {
                                     throw PluginInitializationException(
-                                        __FILE__, __LINE__,
+                                        __FILE__,
+                                        __LINE__,
                                         "IceSSL: unable to load SSL certificate:\n" +
                                             (cert ? sslErrors() : "certificate not found"));
                                 }
@@ -447,7 +466,8 @@ OpenSSL::SSLEngine::initialize()
                                 if (!key || !SSL_CTX_use_PrivateKey(_ctx, key))
                                 {
                                     throw PluginInitializationException(
-                                        __FILE__, __LINE__,
+                                        __FILE__,
+                                        __LINE__,
                                         "IceSSL: unable to load SSL private key:\n" +
                                             (key ? sslErrors() : "key not found"));
                                 }
@@ -463,7 +483,8 @@ OpenSSL::SSLEngine::initialize()
                                         if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
                                         {
                                             throw PluginInitializationException(
-                                                __FILE__, __LINE__,
+                                                __FILE__,
+                                                __LINE__,
                                                 "IceSSL: unable to add extra SSL certificate:\n" + sslErrors());
                                         }
                                     }
@@ -553,12 +574,15 @@ OpenSSL::SSLEngine::initialize()
                 if (!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, files) || files.size() > 2)
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile);
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile);
                 }
                 if (files.size() != numCerts)
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile");
                 }
                 for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
@@ -609,7 +633,9 @@ OpenSSL::SSLEngine::initialize()
             if (keyLoaded && !SSL_CTX_check_private_key(_ctx))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to validate private key(s):\n" + sslErrors());
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to validate private key(s):\n" + sslErrors());
             }
 
             //
@@ -644,13 +670,17 @@ OpenSSL::SSLEngine::initialize()
                             if (!checkPath(file, defaultDir, false, resolved))
                             {
                                 throw PluginInitializationException(
-                                    __FILE__, __LINE__, "IceSSL: DH parameter file not found:\n" + file);
+                                    __FILE__,
+                                    __LINE__,
+                                    "IceSSL: DH parameter file not found:\n" + file);
                             }
                             file = resolved;
                             if (!_dhParams->add(keyLength, file))
                             {
                                 throw PluginInitializationException(
-                                    __FILE__, __LINE__, "IceSSL: unable to read DH parameter file " + file);
+                                    __FILE__,
+                                    __LINE__,
+                                    "IceSSL: unable to read DH parameter file " + file);
                             }
                         }
                     }
@@ -665,7 +695,8 @@ OpenSSL::SSLEngine::initialize()
                 if (crlFiles.empty())
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__,
+                        __FILE__,
+                        __LINE__,
                         "IceSSL: cannot enable revocation checks without setting certificate revocation list files");
                 }
 
@@ -673,7 +704,9 @@ OpenSSL::SSLEngine::initialize()
                 if (!store)
                 {
                     throw PluginInitializationException(
-                        __FILE__, __LINE__, "IceSSL: unable to obtain the certificate store");
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: unable to obtain the certificate store");
                 }
 
                 X509_LOOKUP* lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
@@ -688,13 +721,17 @@ OpenSSL::SSLEngine::initialize()
                     if (!checkPath(*it, defaultDir, false, file))
                     {
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: CRL file not found `" + *it + "'");
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: CRL file not found `" + *it + "'");
                     }
 
                     if (X509_LOOKUP_load_file(lookup, file.c_str(), X509_FILETYPE_PEM) == 0)
                     {
                         throw PluginInitializationException(
-                            __FILE__, __LINE__, "IceSSL: CRL load failure `" + *it + "'");
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: CRL load failure `" + *it + "'");
                     }
                 }
 
@@ -728,7 +765,9 @@ OpenSSL::SSLEngine::initialize()
         // pointer to this SharedInstance object.
         //
         SSL_CTX_set_session_id_context(
-            _ctx, reinterpret_cast<unsigned char*>(this), static_cast<unsigned int>(sizeof(this)));
+            _ctx,
+            reinterpret_cast<unsigned char*>(this),
+            static_cast<unsigned int>(sizeof(this)));
 
         //
         // Select protocols.
@@ -747,7 +786,9 @@ OpenSSL::SSLEngine::initialize()
             if (!SSL_CTX_set_cipher_list(_ctx, ciphersStr.c_str()))
             {
                 throw PluginInitializationException(
-                    __FILE__, __LINE__, "IceSSL: unable to set ciphers using `" + ciphersStr + "':\n" + sslErrors());
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: unable to set ciphers using `" + ciphersStr + "':\n" + sslErrors());
             }
         }
 
@@ -855,7 +896,9 @@ OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
         {
 #if defined(OPENSSL_NO_TLS1_METHOD) || !defined(TLS1_VERSION)
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: OpenSSL was build without TLS 1.0 support");
+                __FILE__,
+                __LINE__,
+                "IceSSL: OpenSSL was build without TLS 1.0 support");
 #else
             v |= TLSv1_0;
 #endif
@@ -864,7 +907,9 @@ OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
         {
 #if defined(OPENSSL_NO_TLS1_1_METHOD) || !defined(TLS1_1_VERSION)
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: OpenSSL was build without TLS 1.1 support");
+                __FILE__,
+                __LINE__,
+                "IceSSL: OpenSSL was build without TLS 1.1 support");
 #else
             v |= TLSv1_1;
 #endif
@@ -873,7 +918,9 @@ OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
         {
 #if defined(OPENSSL_NO_TLS1_2_METHOD) || !defined(TLS1_2_VERSION)
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: OpenSSL was build without TLS 1.2 support");
+                __FILE__,
+                __LINE__,
+                "IceSSL: OpenSSL was build without TLS 1.2 support");
 #else
             v |= TLSv1_2;
 #endif
@@ -882,7 +929,9 @@ OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
         {
 #if defined(OPENSSL_NO_TLS1_3_METHOD) || !defined(TLS1_3_VERSION)
             throw PluginInitializationException(
-                __FILE__, __LINE__, "IceSSL: OpenSSL was build without TLS 1.3 support");
+                __FILE__,
+                __LINE__,
+                "IceSSL: OpenSSL was build without TLS 1.3 support");
 #else
             v |= TLSv1_3;
 #endif

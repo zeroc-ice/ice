@@ -1064,8 +1064,18 @@ ReferencePtr
 IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
 {
     return make_shared<FixedReference>(
-        getInstance(), getCommunicator(), getIdentity(), getFacet(), getMode(), getSecure(), getProtocol(),
-        getEncoding(), connection, getInvocationTimeout(), getContext()->getValue(), getCompress());
+        getInstance(),
+        getCommunicator(),
+        getIdentity(),
+        getFacet(),
+        getMode(),
+        getSecure(),
+        getProtocol(),
+        getEncoding(),
+        connection,
+        getInvocationTimeout(),
+        getContext()->getValue(),
+        getCompress());
 }
 
 bool
@@ -1257,10 +1267,11 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     // TODO: With C++14 we could use the version that receives four iterators and we don't need to explicitly
     // check the sizes are equal.
     //
-    if (_endpoints.size() != rhs->_endpoints.size() ||
-        !equal(
-            _endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(),
-            Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
+    if (_endpoints.size() != rhs->_endpoints.size() || !equal(
+                                                           _endpoints.begin(),
+                                                           _endpoints.end(),
+                                                           rhs->_endpoints.begin(),
+                                                           Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
     {
         return false;
     }
@@ -1383,7 +1394,10 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         return false;
     }
     if (lexicographical_compare(
-            _endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
+            _endpoints.begin(),
+            _endpoints.end(),
+            rhs->_endpoints.begin(),
+            rhs->_endpoints.end(),
             Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
     {
         return true;
@@ -1486,7 +1500,8 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
             _reference->createConnectionAsync(
-                endpts, _response,
+                endpts,
+                _response,
                 [reference = _reference, response = _response, exception = _exception, cached](std::exception_ptr exc)
                 {
                     try
@@ -1549,7 +1564,9 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
         RoutableReferencePtr self =
             dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
         _locatorInfo->getEndpoints(
-            self, _locatorCacheTimeout, make_shared<Callback>(self, std::move(response), std::move(exception)));
+            self,
+            _locatorCacheTimeout,
+            make_shared<Callback>(self, std::move(response), std::move(exception)));
     }
     else
     {
@@ -1589,7 +1606,11 @@ IceInternal::RoutableReference::createConnectionAsync(
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
         factory->createAsync(
-            endpoints, false, getEndpointSelection(), std::move(createConnectionSucceded), std::move(exception));
+            endpoints,
+            false,
+            getEndpointSelection(),
+            std::move(createConnectionSucceded),
+            std::move(exception));
     }
     else
     {
@@ -1617,7 +1638,10 @@ IceInternal::RoutableReference::createConnectionAsync(
             void createAsync()
             {
                 _factory->createAsync(
-                    {_endpoints[_endpointIndex]}, true, _endpointSelection, _createConnectionSucceded,
+                    {_endpoints[_endpointIndex]},
+                    true,
+                    _endpointSelection,
+                    _createConnectionSucceded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
@@ -1636,7 +1660,10 @@ IceInternal::RoutableReference::createConnectionAsync(
 
                 const bool more = _endpointIndex != _endpoints.size() - 1;
                 _factory->createAsync(
-                    {_endpoints[_endpointIndex]}, more, _endpointSelection, _createConnectionSucceded,
+                    {_endpoints[_endpointIndex]},
+                    more,
+                    _endpointSelection,
+                    _createConnectionSucceded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
@@ -1651,7 +1678,10 @@ IceInternal::RoutableReference::createConnectionAsync(
         };
 
         auto state = make_shared<CreateConnectionState>(
-            std::move(endpoints), std::move(factory), getEndpointSelection(), std::move(createConnectionSucceded),
+            std::move(endpoints),
+            std::move(factory),
+            getEndpointSelection(),
+            std::move(createConnectionSucceded),
             std::move(exception));
         state->createAsync();
     }
@@ -1700,7 +1730,8 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     // Filter out unknown endpoints.
     endpoints.erase(
         remove_if(
-            endpoints.begin(), endpoints.end(),
+            endpoints.begin(),
+            endpoints.end(),
             [](const EndpointIPtr& p) { return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0; }),
         endpoints.end());
 

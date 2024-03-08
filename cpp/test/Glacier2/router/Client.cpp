@@ -71,7 +71,8 @@ public:
     {
         auto communicator = initialize(initData);
         Glacier2::RouterPrx router(
-            communicator, "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
+            communicator,
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         communicator->setDefaultRouter(router);
 
         ostringstream os;
@@ -160,7 +161,8 @@ public:
     {
         auto communicator = initialize(initData);
         _router = Glacier2::RouterPrx(
-            communicator, "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
+            communicator,
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         communicator->setDefaultRouter(_router);
 
         ostringstream os;
@@ -579,17 +581,29 @@ CallbackClient::run(int argc, char** argv)
         context["_fwd"] = "t";
         AsyncCallback cb0;
         twoway->initiateConcurrentCallbackAsync(
-            0, twowayR, [&cb0](int val) { cb0.response(val); }, [&cb0](exception_ptr e) { cb0.error(e); }, nullptr,
+            0,
+            twowayR,
+            [&cb0](int val) { cb0.response(val); },
+            [&cb0](exception_ptr e) { cb0.error(e); },
+            nullptr,
             context);
 
         AsyncCallback cb1;
         twoway->initiateConcurrentCallbackAsync(
-            1, twowayR, [&cb1](int val) { cb1.response(val); }, [&cb1](exception_ptr e) { cb1.error(e); }, nullptr,
+            1,
+            twowayR,
+            [&cb1](int val) { cb1.response(val); },
+            [&cb1](exception_ptr e) { cb1.error(e); },
+            nullptr,
             context);
 
         AsyncCallback cb2;
         twoway->initiateConcurrentCallbackAsync(
-            2, twowayR, [&cb2](int val) { cb2.response(val); }, [&cb2](exception_ptr e) { cb2.error(e); }, nullptr,
+            2,
+            twowayR,
+            [&cb2](int val) { cb2.response(val); },
+            [&cb2](exception_ptr e) { cb2.error(e); },
+            nullptr,
             context);
 
         callbackReceiver->answerConcurrentCallbacks(3);

@@ -1040,7 +1040,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opByteAsync(
-            uint8_t(0xff), uint8_t(0x0f), [&](uint8_t b1, uint8_t b2) { cb->opByte(b1, b2); },
+            uint8_t(0xff),
+            uint8_t(0x0f),
+            [&](uint8_t b1, uint8_t b2) { cb->opByte(b1, b2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1054,7 +1056,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntLongAsync(
-            10, 11, 12, [&](int64_t l1, short s1P, int i1, int64_t l2) { cb->opShortIntLong(l1, s1P, i1, l2); },
+            10,
+            11,
+            12,
+            [&](int64_t l1, short s1P, int i1, int64_t l2) { cb->opShortIntLong(l1, s1P, i1, l2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1062,7 +1067,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opFloatDoubleAsync(
-            3.14f, 1.1E10, [&](double d1, float f1, double d2) { cb->opFloatDouble(d1, f1, d2); },
+            3.14f,
+            1.1E10,
+            [&](double d1, float f1, double d2) { cb->opFloatDouble(d1, f1, d2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1070,7 +1077,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opStringAsync(
-            "hello", "world", [&](string s1P, string s2P) { cb->opString(std::move(s1P), std::move(s2P)); },
+            "hello",
+            "world",
+            [&](string s1P, string s2P) { cb->opString(std::move(s1P), std::move(s2P)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1084,8 +1093,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
         p->opMyClassAsync(
-            p, [&](optional<MyClassPrx> c1, optional<MyClassPrx> c2, optional<MyClassPrx> c3)
-            { cb->opMyClass(std::move(*c1), std::move(*c2), std::move(*c3)); }, makeExceptionClosure(cb));
+            p,
+            [&](optional<MyClassPrx> c1, optional<MyClassPrx> c2, optional<MyClassPrx> c3)
+            { cb->opMyClass(std::move(*c1), std::move(*c2), std::move(*c3)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1101,7 +1112,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>(communicator);
         p->opStructAsync(
-            si1, si2, [&](Structure si3, Structure si4) { cb->opStruct(std::move(si3), std::move(si4)); },
+            si1,
+            si2,
+            [&](Structure si3, Structure si4) { cb->opStruct(std::move(si3), std::move(si4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1122,7 +1135,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteSAsync(
-            bsi1, bsi2, [&](ByteS bsi3, ByteS bsi4) { cb->opByteS(std::move(bsi3), std::move(bsi4)); },
+            bsi1,
+            bsi2,
+            [&](ByteS bsi3, ByteS bsi4) { cb->opByteS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1139,7 +1154,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opBoolSAsync(
-            bsi1, bsi2, [&](BoolS bsi3, BoolS bsi4) { cb->opBoolS(std::move(bsi3), std::move(bsi4)); },
+            bsi1,
+            bsi2,
+            [&](BoolS bsi3, BoolS bsi4) { cb->opBoolS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1164,7 +1181,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntLongSAsync(
-            ssi, isi, lsi, [&](LongS lsi1, ShortS ssi1, IntS isi1, LongS lsi2)
+            ssi,
+            isi,
+            lsi,
+            [&](LongS lsi1, ShortS ssi1, IntS isi1, LongS lsi2)
             { cb->opShortIntLongS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2)); },
             makeExceptionClosure(cb));
         cb->check();
@@ -1183,8 +1203,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opFloatDoubleSAsync(
-            fsi, dsi, [&](DoubleS dsi1, FloatS fsi1, DoubleS dsi2)
-            { cb->opFloatDoubleS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); }, makeExceptionClosure(cb));
+            fsi,
+            dsi,
+            [&](DoubleS dsi1, FloatS fsi1, DoubleS dsi2)
+            { cb->opFloatDoubleS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1200,7 +1223,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringSAsync(
-            ssi1, ssi2, [&](StringS ssi3, StringS ssi4) { cb->opStringS(std::move(ssi3), std::move(ssi4)); },
+            ssi1,
+            ssi2,
+            [&](StringS ssi3, StringS ssi4) { cb->opStringS(std::move(ssi3), std::move(ssi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1222,7 +1247,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteSSAsync(
-            bsi1, bsi2, [&](ByteSS bsi3, ByteSS bsi4) { cb->opByteSS(std::move(bsi3), std::move(bsi4)); },
+            bsi1,
+            bsi2,
+            [&](ByteSS bsi3, ByteSS bsi4) { cb->opByteSS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1244,7 +1271,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opBoolSSAsync(
-            bsi1, bsi2, [&](BoolSS bsi3, BoolSS bsi4) { cb->opBoolSS(std::move(bsi3), std::move(bsi4)); },
+            bsi1,
+            bsi2,
+            [&](BoolSS bsi3, BoolSS bsi4) { cb->opBoolSS(std::move(bsi3), std::move(bsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1268,7 +1297,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntLongSSAsync(
-            ssi, isi, lsi, [&](LongSS lsi1, ShortSS ssi1, IntSS isi1, LongSS lsi2)
+            ssi,
+            isi,
+            lsi,
+            [&](LongSS lsi1, ShortSS ssi1, IntSS isi1, LongSS lsi2)
             { cb->opShortIntLongSS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2)); },
             makeExceptionClosure(cb));
         cb->check();
@@ -1289,8 +1321,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opFloatDoubleSSAsync(
-            fsi, dsi, [&](DoubleSS dsi1, FloatSS fsi1, DoubleSS dsi2)
-            { cb->opFloatDoubleSS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); }, makeExceptionClosure(cb));
+            fsi,
+            dsi,
+            [&](DoubleSS dsi1, FloatSS fsi1, DoubleSS dsi2)
+            { cb->opFloatDoubleSS(std::move(dsi1), std::move(fsi1), std::move(dsi2)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1308,7 +1343,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringSSAsync(
-            ssi1, ssi2, [&](StringSS ssi3, StringSS ssi4) { cb->opStringSS(std::move(ssi3), std::move(ssi4)); },
+            ssi1,
+            ssi2,
+            [&](StringSS ssi3, StringSS ssi4) { cb->opStringSS(std::move(ssi3), std::move(ssi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1324,7 +1361,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteBoolDAsync(
-            di1, di2, [&](ByteBoolD di3, ByteBoolD di4) { cb->opByteBoolD(std::move(di3), std::move(di4)); },
+            di1,
+            di2,
+            [&](ByteBoolD di3, ByteBoolD di4) { cb->opByteBoolD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1340,7 +1379,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntDAsync(
-            di1, di2, [&](ShortIntD di3, ShortIntD di4) { cb->opShortIntD(std::move(di3), std::move(di4)); },
+            di1,
+            di2,
+            [&](ShortIntD di3, ShortIntD di4) { cb->opShortIntD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1356,7 +1397,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opLongFloatDAsync(
-            di1, di2, [&](LongFloatD di3, LongFloatD di4) { cb->opLongFloatD(std::move(di3), std::move(di4)); },
+            di1,
+            di2,
+            [&](LongFloatD di3, LongFloatD di4) { cb->opLongFloatD(std::move(di3), std::move(di4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1372,8 +1415,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringStringDAsync(
-            di1, di2, [&](StringStringD di3, StringStringD di4)
-            { cb->opStringStringD(std::move(di3), std::move(di4)); }, makeExceptionClosure(cb));
+            di1,
+            di2,
+            [&](StringStringD di3, StringStringD di4) { cb->opStringStringD(std::move(di3), std::move(di4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1388,8 +1433,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringMyEnumDAsync(
-            di1, di2, [&](StringMyEnumD di3, StringMyEnumD di4)
-            { cb->opStringMyEnumD(std::move(di3), std::move(di4)); }, makeExceptionClosure(cb));
+            di1,
+            di2,
+            [&](StringMyEnumD di3, StringMyEnumD di4) { cb->opStringMyEnumD(std::move(di3), std::move(di4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1409,8 +1456,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyStructMyEnumDAsync(
-            di1, di2, [&](MyStructMyEnumD di3, MyStructMyEnumD di4)
-            { cb->opMyStructMyEnumD(std::move(di3), std::move(di4)); }, makeExceptionClosure(cb));
+            di1,
+            di2,
+            [&](MyStructMyEnumD di3, MyStructMyEnumD di4) { cb->opMyStructMyEnumD(std::move(di3), std::move(di4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1437,7 +1486,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteBoolDSAsync(
-            dsi1, dsi2, [&](ByteBoolDS dsi3, ByteBoolDS dsi4) { cb->opByteBoolDS(std::move(dsi3), std::move(dsi4)); },
+            dsi1,
+            dsi2,
+            [&](ByteBoolDS dsi3, ByteBoolDS dsi4) { cb->opByteBoolDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1464,7 +1515,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntDSAsync(
-            dsi1, dsi2, [&](ShortIntDS dsi3, ShortIntDS dsi4) { cb->opShortIntDS(std::move(dsi3), std::move(dsi4)); },
+            dsi1,
+            dsi2,
+            [&](ShortIntDS dsi3, ShortIntDS dsi4) { cb->opShortIntDS(std::move(dsi3), std::move(dsi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1491,8 +1544,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opLongFloatDSAsync(
-            dsi1, dsi2, [&](LongFloatDS dsi3, LongFloatDS dsi4)
-            { cb->opLongFloatDS(std::move(dsi3), std::move(dsi4)); }, makeExceptionClosure(cb));
+            dsi1,
+            dsi2,
+            [&](LongFloatDS dsi3, LongFloatDS dsi4) { cb->opLongFloatDS(std::move(dsi3), std::move(dsi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1518,8 +1573,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringStringDSAsync(
-            dsi1, dsi2, [&](StringStringDS dsi3, StringStringDS dsi4)
-            { cb->opStringStringDS(std::move(dsi3), std::move(dsi4)); }, makeExceptionClosure(cb));
+            dsi1,
+            dsi2,
+            [&](StringStringDS dsi3, StringStringDS dsi4) { cb->opStringStringDS(std::move(dsi3), std::move(dsi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1545,8 +1602,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringMyEnumDSAsync(
-            dsi1, dsi2, [&](StringMyEnumDS dsi3, StringMyEnumDS dsi4)
-            { cb->opStringMyEnumDS(std::move(dsi3), std::move(dsi4)); }, makeExceptionClosure(cb));
+            dsi1,
+            dsi2,
+            [&](StringMyEnumDS dsi3, StringMyEnumDS dsi4) { cb->opStringMyEnumDS(std::move(dsi3), std::move(dsi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1570,8 +1629,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyEnumStringDSAsync(
-            dsi1, dsi2, [&](MyEnumStringDS dsi3, MyEnumStringDS dsi4)
-            { cb->opMyEnumStringDS(std::move(dsi3), std::move(dsi4)); }, makeExceptionClosure(cb));
+            dsi1,
+            dsi2,
+            [&](MyEnumStringDS dsi3, MyEnumStringDS dsi4) { cb->opMyEnumStringDS(std::move(dsi3), std::move(dsi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1603,8 +1664,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyStructMyEnumDSAsync(
-            dsi1, dsi2, [&](MyStructMyEnumDS dsi3, MyStructMyEnumDS dsi4)
-            { cb->opMyStructMyEnumDS(std::move(dsi3), std::move(dsi4)); }, makeExceptionClosure(cb));
+            dsi1,
+            dsi2,
+            [&](MyStructMyEnumDS dsi3, MyStructMyEnumDS dsi4)
+            { cb->opMyStructMyEnumDS(std::move(dsi3), std::move(dsi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1628,7 +1692,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteByteSDAsync(
-            sdi1, sdi2, [&](ByteByteSD sdi3, ByteByteSD sdi4) { cb->opByteByteSD(std::move(sdi3), std::move(sdi4)); },
+            sdi1,
+            sdi2,
+            [&](ByteByteSD sdi3, ByteByteSD sdi4) { cb->opByteByteSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1652,7 +1718,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opBoolBoolSDAsync(
-            sdi1, sdi2, [&](BoolBoolSD sdi3, BoolBoolSD sdi4) { cb->opBoolBoolSD(std::move(sdi3), std::move(sdi4)); },
+            sdi1,
+            sdi2,
+            [&](BoolBoolSD sdi3, BoolBoolSD sdi4) { cb->opBoolBoolSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1679,8 +1747,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opShortShortSDAsync(
-            sdi1, sdi2, [&](ShortShortSD sdi3, ShortShortSD sdi4)
-            { cb->opShortShortSD(std::move(sdi3), std::move(sdi4)); }, makeExceptionClosure(cb));
+            sdi1,
+            sdi2,
+            [&](ShortShortSD sdi3, ShortShortSD sdi4) { cb->opShortShortSD(std::move(sdi3), std::move(sdi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1706,7 +1776,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opIntIntSDAsync(
-            sdi1, sdi2, [&](IntIntSD sdi3, IntIntSD sdi4) { cb->opIntIntSD(std::move(sdi3), std::move(sdi4)); },
+            sdi1,
+            sdi2,
+            [&](IntIntSD sdi3, IntIntSD sdi4) { cb->opIntIntSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1733,7 +1805,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opLongLongSDAsync(
-            sdi1, sdi2, [&](LongLongSD sdi3, LongLongSD sdi4) { cb->opLongLongSD(std::move(sdi3), std::move(sdi4)); },
+            sdi1,
+            sdi2,
+            [&](LongLongSD sdi3, LongLongSD sdi4) { cb->opLongLongSD(std::move(sdi3), std::move(sdi4)); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1760,8 +1834,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringFloatSDAsync(
-            sdi1, sdi2, [&](StringFloatSD sdi3, StringFloatSD sdi4)
-            { cb->opStringFloatSD(std::move(sdi3), std::move(sdi4)); }, makeExceptionClosure(cb));
+            sdi1,
+            sdi2,
+            [&](StringFloatSD sdi3, StringFloatSD sdi4) { cb->opStringFloatSD(std::move(sdi3), std::move(sdi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1787,8 +1863,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringDoubleSDAsync(
-            sdi1, sdi2, [&](StringDoubleSD sdi3, StringDoubleSD sdi4)
-            { cb->opStringDoubleSD(std::move(sdi3), std::move(sdi4)); }, makeExceptionClosure(cb));
+            sdi1,
+            sdi2,
+            [&](StringDoubleSD sdi3, StringDoubleSD sdi4) { cb->opStringDoubleSD(std::move(sdi3), std::move(sdi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1816,8 +1894,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringStringSDAsync(
-            sdi1, sdi2, [&](StringStringSD sdi3, StringStringSD sdi4)
-            { cb->opStringStringSD(std::move(sdi3), std::move(sdi4)); }, makeExceptionClosure(cb));
+            sdi1,
+            sdi2,
+            [&](StringStringSD sdi3, StringStringSD sdi4) { cb->opStringStringSD(std::move(sdi3), std::move(sdi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1843,8 +1923,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyEnumMyEnumSDAsync(
-            sdi1, sdi2, [&](MyEnumMyEnumSD sdi3, MyEnumMyEnumSD sdi4)
-            { cb->opMyEnumMyEnumSD(std::move(sdi3), std::move(sdi4)); }, makeExceptionClosure(cb));
+            sdi1,
+            sdi2,
+            [&](MyEnumMyEnumSD sdi3, MyEnumMyEnumSD sdi4) { cb->opMyEnumMyEnumSD(std::move(sdi3), std::move(sdi4)); },
+            makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -1891,7 +1973,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c == ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr) { test(false); }, nullptr, ctx);
+                    [](exception_ptr) { test(false); },
+                    nullptr,
+                    ctx);
                 prom.get_future().get();
             }
             {
@@ -1916,7 +2000,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                         test(c == ctx);
                         prom.set_value();
                     },
-                    [](exception_ptr) { test(false); }, nullptr, ctx);
+                    [](exception_ptr) { test(false); },
+                    nullptr,
+                    ctx);
                 prom.get_future().get();
             }
         }

@@ -1708,7 +1708,8 @@ allTests(TestHelper* helper)
         promise<bool> done;
 
         wsc1->throwExceptAsync(
-            wstr, [&]() { done.set_value(false); },
+            wstr,
+            [&]() { done.set_value(false); },
             [&](std::exception_ptr eptr)
             {
                 try
@@ -1755,7 +1756,8 @@ allTests(TestHelper* helper)
         promise<bool> done;
 
         wsc2->throwExceptAsync(
-            wstr, [&]() { done.set_value(false); },
+            wstr,
+            [&]() { done.set_value(false); },
             [&](std::exception_ptr eptr)
             {
                 try

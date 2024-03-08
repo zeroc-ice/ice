@@ -130,7 +130,8 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     {
         _connections.insert(connection);
         _instance->timer()->scheduleRepeated(
-            shared_from_this(), chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
+            shared_from_this(),
+            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
     else
     {

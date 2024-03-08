@@ -271,7 +271,8 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         // bytes
         //
         volatile VALUE bytes = callRuby(
-            rb_str_new, (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
+            rb_str_new,
+            (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
             static_cast<long>((*p)->bytes.size()));
         callRuby(rb_iv_set, slice, "@bytes", bytes);
 
@@ -353,7 +354,8 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 if (str != 0 && len != 0)
                 {
                     vector<uint8_t> vtmp(
-                        reinterpret_cast<const uint8_t*>(str), reinterpret_cast<const uint8_t*>(str + len));
+                        reinterpret_cast<const uint8_t*>(str),
+                        reinterpret_cast<const uint8_t*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
@@ -1014,7 +1016,10 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
         if (!member->type->validate(val))
         {
             throw RubyException(
-                rb_eTypeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()), member->name.c_str());
+                rb_eTypeError,
+                "invalid value for %s member `%s'",
+                const_cast<char*>(id.c_str()),
+                member->name.c_str());
         }
         member->type->marshal(val, os, valueMap, false);
     }
@@ -1232,7 +1237,10 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
             if (!elementType->validate(RARRAY_AREF(arr, i)))
             {
                 throw RubyException(
-                    rb_eTypeError, "invalid value for element %ld of `%s'", i, const_cast<char*>(id.c_str()));
+                    rb_eTypeError,
+                    "invalid value for element %ld of `%s'",
+                    i,
+                    const_cast<char*>(id.c_str()));
             }
             elementType->marshal(RARRAY_AREF(arr, i), os, valueMap, false);
         }
@@ -2529,7 +2537,10 @@ IceRuby::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
         if (!member->type->validate(val))
         {
             throw RubyException(
-                rb_eTypeError, "invalid value for %s member `%s'", _info->id.c_str(), member->name.c_str());
+                rb_eTypeError,
+                "invalid value for %s member `%s'",
+                _info->id.c_str(),
+                member->name.c_str());
         }
 
         member->type->marshal(val, os, _map, member->optional);

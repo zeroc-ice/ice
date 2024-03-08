@@ -130,7 +130,8 @@ namespace Ice
     //
 
     const EncodingVersion currentProtocolEncoding = {
-        IceInternal::protocolEncodingMajor, IceInternal::protocolEncodingMinor};
+        IceInternal::protocolEncodingMajor,
+        IceInternal::protocolEncodingMinor};
 
     const ProtocolVersion Protocol_1_0 = {1, 0};
 

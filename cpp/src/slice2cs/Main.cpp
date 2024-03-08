@@ -197,7 +197,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::CSharp : Preprocessor::SliceXML, includePaths, "-D__SLICE2CS__"))
+                    os,
+                    depend ? Preprocessor::CSharp : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2CS__"))
             {
                 return EXIT_FAILURE;
             }

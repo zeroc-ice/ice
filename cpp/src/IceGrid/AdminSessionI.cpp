@@ -30,13 +30,17 @@ namespace
             const Ice::Current& current) override
         {
             _proxy->ice_invokeAsync(
-                current.operation, current.mode, inParams, std::move(response),
+                current.operation,
+                current.mode,
+                inParams,
+                std::move(response),
                 [exception = std::move(exception)](exception_ptr)
                 {
                     // Throw ObjectNotExistException, the subscriber is unreachable
                     exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
                 },
-                nullptr, current.ctx);
+                nullptr,
+                current.ctx);
         }
 
     private:
@@ -155,7 +159,8 @@ AdminSessionI::setObservers(
     if (registryObserver)
     {
         setupObserverSubscription(
-            TopicName::RegistryObserver, addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
+            TopicName::RegistryObserver,
+            addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -174,7 +179,8 @@ AdminSessionI::setObservers(
     if (appObserver)
     {
         setupObserverSubscription(
-            TopicName::ApplicationObserver, addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
+            TopicName::ApplicationObserver,
+            addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -184,7 +190,8 @@ AdminSessionI::setObservers(
     if (adapterObserver)
     {
         setupObserverSubscription(
-            TopicName::AdapterObserver, addForwarder(adapterObserver->ice_timeout(t)->ice_locator(l)));
+            TopicName::AdapterObserver,
+            addForwarder(adapterObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -194,7 +201,8 @@ AdminSessionI::setObservers(
     if (objectObserver)
     {
         setupObserverSubscription(
-            TopicName::ObjectObserver, addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
+            TopicName::ObjectObserver,
+            addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
@@ -264,7 +272,10 @@ AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Curr
     try
     {
         return addFileIterator(
-            _database->getServer(std::move(id))->getProxy(false, 5s), "#" + std::move(path), nLines, current);
+            _database->getServer(std::move(id))->getProxy(false, 5s),
+            "#" + std::move(path),
+            nLines,
+            current);
     }
     catch (const SynchronizationException&)
     {

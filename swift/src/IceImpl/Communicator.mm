@@ -128,7 +128,8 @@
     {
         assert(router);
         auto oa = self.communicator->createObjectAdapterWithRouter(
-            fromNSString(name), Ice::uncheckedCast<Ice::RouterPrx>([router prx]).value());
+            fromNSString(name),
+            Ice::uncheckedCast<Ice::RouterPrx>([router prx]).value());
         return [ICEObjectAdapter getHandle:oa];
     }
     catch (const std::exception& ex)

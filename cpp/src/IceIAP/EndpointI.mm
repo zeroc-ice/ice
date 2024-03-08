@@ -173,8 +173,8 @@ IceObjC::iAPEndpointI::timeout(int32_t t) const
     }
     else
     {
-        return make_shared<iAPEndpointI>(
-            _instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId, _compress);
+        return make_shared<
+            iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId, _compress);
     }
 }
 
@@ -193,8 +193,8 @@ IceObjC::iAPEndpointI::connectionId(const string& cId) const
     }
     else
     {
-        return make_shared<iAPEndpointI>(
-            _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId, _compress);
+        return make_shared<
+            iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId, _compress);
     }
 }
 
@@ -213,8 +213,8 @@ IceObjC::iAPEndpointI::compress(bool c) const
     }
     else
     {
-        return make_shared<iAPEndpointI>(
-            _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, c);
+        return make_shared<
+            iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, c);
     }
 }
 

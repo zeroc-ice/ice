@@ -185,7 +185,9 @@ namespace
                     if (s.find("java:type:", 0) == 0)
                     {
                         dc->warning(
-                            InvalidMetaData, p->file(), p->line(),
+                            InvalidMetaData,
+                            p->file(),
+                            p->line(),
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
                         metaData.remove(s);
                         continue;
@@ -244,7 +246,9 @@ namespace
                     if (!builtin || builtin->kind() != Builtin::KindByte)
                     {
                         dc->warning(
-                            InvalidMetaData, file, line,
+                            InvalidMetaData,
+                            file,
+                            line,
                             "ignoring invalid metadata `" + s +
                                 "': " + "this metadata can only be used with a byte sequence");
                         continue;
@@ -261,7 +265,9 @@ namespace
                                      builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                     {
                         dc->warning(
-                            InvalidMetaData, file, line,
+                            InvalidMetaData,
+                            file,
+                            line,
                             "ignoring invalid metadata `" + s + "': " + "this metadata can not be used with this type");
                         continue;
                     }
@@ -1240,10 +1246,18 @@ Slice::JavaGenerator::typeToObjectString(
     const StringList& metaData,
     bool formal) const
 {
-    static const char* builtinTable[] = {"java.lang.Byte",          "java.lang.Boolean",  "java.lang.Short",
-                                         "java.lang.Integer",       "java.lang.Long",     "java.lang.Float",
-                                         "java.lang.Double",        "java.lang.String",   "com.zeroc.Ice.Value",
-                                         "com.zeroc.Ice.ObjectPrx", "com.zeroc.Ice.Value"};
+    static const char* builtinTable[] = {
+        "java.lang.Byte",
+        "java.lang.Boolean",
+        "java.lang.Short",
+        "java.lang.Integer",
+        "java.lang.Long",
+        "java.lang.Float",
+        "java.lang.Double",
+        "java.lang.String",
+        "com.zeroc.Ice.Value",
+        "com.zeroc.Ice.ObjectPrx",
+        "com.zeroc.Ice.Value"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin && mode != TypeModeOut)
@@ -1280,8 +1294,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
 
     assert(!marshal || mode != OptionalMember); // Only support OptionalMember for un-marshaling
 
-    static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
-                                         "Double", "String", "???",   "???", "???"};
+    static const char* builtinTable[] =
+        {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???"};
 
     const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -1497,7 +1511,15 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                     string d = optionalParam && optionalMapping ? param + ".get()" : param;
                     out << nl << "int pos = " << stream << ".startSize();";
                     writeDictionaryMarshalUnmarshalCode(
-                        out, package, dict, d, marshal, iter, true, customStream, metaData);
+                        out,
+                        package,
+                        dict,
+                        d,
+                        marshal,
+                        iter,
+                        true,
+                        customStream,
+                        metaData);
                     out << nl << stream << ".endSize(pos);";
                 }
                 else
@@ -1508,7 +1530,15 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                     out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz
                         << " + 1);";
                     writeDictionaryMarshalUnmarshalCode(
-                        out, package, dict, d, marshal, iter, true, customStream, metaData);
+                        out,
+                        package,
+                        dict,
+                        d,
+                        marshal,
+                        iter,
+                        true,
+                        customStream,
+                        metaData);
                 }
 
                 if (optionalParam)
@@ -1851,7 +1881,17 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
             ostringstream patchParams;
             patchParams << "value -> " << v << ".put(key, value), " << valueS << ".class";
             writeMarshalUnmarshalCode(
-                out, package, value, OptionalNone, false, 0, "value", false, iter, customStream, StringList(),
+                out,
+                package,
+                value,
+                OptionalNone,
+                false,
+                0,
+                "value",
+                false,
+                iter,
+                customStream,
+                StringList(),
                 patchParams.str());
         }
         else
@@ -2088,14 +2128,33 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 patchParams << "value -> " << v << ".set(fi" << iter << ", value), " << origContentS << ".class";
 
                 writeMarshalUnmarshalCode(
-                    out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream, StringList(),
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    "elem",
+                    false,
+                    iter,
+                    customStream,
+                    StringList(),
                     patchParams.str());
             }
             else
             {
                 out << nl << cont << " elem;";
                 writeMarshalUnmarshalCode(
-                    out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream);
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    "elem",
+                    false,
+                    iter,
+                    customStream);
                 out << nl << v << ".add(elem);";
             }
             out << eb;
@@ -2232,7 +2291,16 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 o << v << "[i" << iter << "]";
                 iter++;
                 writeMarshalUnmarshalCode(
-                    out, package, type, OptionalNone, false, 0, o.str(), true, iter, customStream);
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    o.str(),
+                    true,
+                    iter,
+                    customStream);
                 out << eb;
                 out << eb;
             }
@@ -2297,13 +2365,32 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                     out << nl << "final int fi" << iter << " = i" << iter << ";";
                     patchParams << "value -> " << v << "[fi" << iter << "] = value, " << origContentS << ".class";
                     writeMarshalUnmarshalCode(
-                        out, package, type, OptionalNone, false, 0, o.str(), false, iter, customStream, StringList(),
+                        out,
+                        package,
+                        type,
+                        OptionalNone,
+                        false,
+                        0,
+                        o.str(),
+                        false,
+                        iter,
+                        customStream,
+                        StringList(),
                         patchParams.str());
                 }
                 else
                 {
                     writeMarshalUnmarshalCode(
-                        out, package, type, OptionalNone, false, 0, o.str(), false, iter, customStream);
+                        out,
+                        package,
+                        type,
+                        OptionalNone,
+                        false,
+                        0,
+                        o.str(),
+                        false,
+                        iter,
+                        customStream);
                 }
                 out << eb;
                 iter++;

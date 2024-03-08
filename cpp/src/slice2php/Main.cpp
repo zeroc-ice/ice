@@ -1502,7 +1502,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::PHP : Preprocessor::SliceXML, includePaths, "-D__SLICE2PHP__"))
+                    os,
+                    depend ? Preprocessor::PHP : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2PHP__"))
             {
                 return EXIT_FAILURE;
             }

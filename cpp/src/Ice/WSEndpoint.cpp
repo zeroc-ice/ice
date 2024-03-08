@@ -60,9 +60,11 @@ WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communic
 
     const EndpointFactoryManagerPtr efm = getInstance(communicator)->endpointFactoryManager();
     efm->add(make_shared<WSEndpointFactory>(
-        make_shared<ProtocolInstance>(communicator, WSEndpointType, "ws", false), TCPEndpointType));
+        make_shared<ProtocolInstance>(communicator, WSEndpointType, "ws", false),
+        TCPEndpointType));
     efm->add(make_shared<WSEndpointFactory>(
-        make_shared<ProtocolInstance>(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
+        make_shared<ProtocolInstance>(communicator, WSSEndpointType, "wss", true),
+        SSLEndpointType));
 }
 
 void
@@ -426,7 +428,8 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
             if (argument.empty())
             {
                 throw EndpointParseException(
-                    __FILE__, __LINE__,
+                    __FILE__,
+                    __LINE__,
                     "no argument provided for -r option in endpoint " + endpoint + _delegate->options());
             }
             const_cast<string&>(_resource) = argument;

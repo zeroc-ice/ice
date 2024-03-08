@@ -401,8 +401,9 @@ namespace Ice
             }
 
             if (writeOptional(
-                    tag, StreamOptionalHelper<
-                             T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::optionalFormat))
+                    tag,
+                    StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::
+                        optionalFormat))
             {
                 StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::write(this, *v);
             }

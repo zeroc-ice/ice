@@ -395,7 +395,9 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         catch (const IceUtilInternal::BadOptException& ex)
         {
             throw PluginInitializationException(
-                __FILE__, __LINE__, "invalid arguments for plug-in `" + name + "':\n" + ex.reason);
+                __FILE__,
+                __LINE__,
+                "invalid arguments for plug-in `" + name + "':\n" + ex.reason);
         }
 
         assert(!args.empty());

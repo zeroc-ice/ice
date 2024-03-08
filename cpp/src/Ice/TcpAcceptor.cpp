@@ -86,8 +86,15 @@ IceInternal::TcpAcceptor::startAccept()
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
     if (WSAIoctl(
-            _fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidAcceptEx, sizeof(GuidAcceptEx), &AcceptEx, sizeof(AcceptEx),
-            &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
+            _fd,
+            SIO_GET_EXTENSION_FUNCTION_POINTER,
+            &GuidAcceptEx,
+            sizeof(GuidAcceptEx),
+            &AcceptEx,
+            sizeof(AcceptEx),
+            &dwBytes,
+            nullptr,
+            nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }

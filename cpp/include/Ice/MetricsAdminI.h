@@ -127,7 +127,8 @@ namespace IceInternal
                 assert(_object->total > 0);
                 for (typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::const_iterator p =
                          _subMaps.begin();
-                     p != _subMaps.end(); ++p)
+                     p != _subMaps.end();
+                     ++p)
                 {
                     p->second.first->destroy(); // Break cyclic reference counts.
                 }
@@ -201,7 +202,8 @@ namespace IceInternal
                 TPtr metrics = std::dynamic_pointer_cast<T>(_object->ice_clone());
                 for (typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::const_iterator p =
                          _subMaps.begin();
-                     p != _subMaps.end(); ++p)
+                     p != _subMaps.end();
+                     ++p)
                 {
                     metrics.get()->*p->second.second = p->second.first->getMetrics();
                 }
@@ -251,7 +253,8 @@ namespace IceInternal
                     }
                 }
                 _subMaps.insert(std::make_pair(
-                    p->first, std::make_pair(p->second.first, p->second.second->create(subMapPrefix, properties))));
+                    p->first,
+                    std::make_pair(p->second.first, p->second.second->create(subMapPrefix, properties))));
             }
         }
 
@@ -318,7 +321,8 @@ namespace IceInternal
             if (p != _subMaps.end())
             {
                 return std::pair<MetricsMapIPtr, SubMapMember>(
-                    p->second.second->clone()->shared_from_this(), p->second.first);
+                    p->second.second->clone()->shared_from_this(),
+                    p->second.first);
             }
             return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
         }
@@ -359,7 +363,8 @@ namespace IceInternal
                     std::ostringstream os;
                     std::vector<std::string>::const_iterator q = _groupBySeparators.begin();
                     for (std::vector<std::string>::const_iterator p = _groupByAttributes.begin();
-                         p != _groupByAttributes.end(); ++p)
+                         p != _groupByAttributes.end();
+                         ++p)
                     {
                         os << helper(*p);
                         if (q != _groupBySeparators.end())
@@ -398,7 +403,8 @@ namespace IceInternal
 
                 p = _objects
                         .insert(typename std::map<std::string, EntryTPtr>::value_type(
-                            key, std::make_shared<EntryT>(shared_from_this(), t, _detachedQueue.end())))
+                            key,
+                            std::make_shared<EntryT>(shared_from_this(), t, _detachedQueue.end())))
                         .first;
             }
             p->second->attach(helper);
@@ -485,7 +491,8 @@ namespace IceInternal
         void registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::*member)
         {
             _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr>(
-                member, std::make_shared<MetricsMapFactoryT<SubMapMetricsType>>(nullptr));
+                member,
+                std::make_shared<MetricsMapFactoryT<SubMapMetricsType>>(nullptr));
         }
 
     private:

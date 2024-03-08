@@ -387,8 +387,8 @@ namespace Slice
         std::string kindAsString() const;
         static std::optional<Kind> kindFromString(std::string_view);
 
-        inline static const std::array<std::string, 11> builtinTable = {
-            "byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
+        inline static const std::array<std::string, 11> builtinTable =
+            {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
 
     protected:
         friend class Unit;

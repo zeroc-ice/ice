@@ -128,7 +128,10 @@ void
 AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup, const LookupReplyPrx& lookupReply)
 {
     lookup->findAdapterByIdAsync(
-        domainId, _id, lookupReply, nullptr,
+        domainId,
+        _id,
+        lookupReply,
+        nullptr,
         [self = shared_from_this()](exception_ptr ex) { self->_lookup->adapterRequestException(self, ex); });
 }
 
@@ -153,7 +156,10 @@ void
 ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup, const LookupReplyPrx& lookupReply)
 {
     lookup->findObjectByIdAsync(
-        domainId, _id, lookupReply, nullptr,
+        domainId,
+        _id,
+        lookupReply,
+        nullptr,
         [self = shared_from_this()](exception_ptr ex) { self->_lookup->objectRequestException(self, ex); });
 }
 
@@ -309,7 +315,8 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
     {
         p = _adapterRequests
                 .insert(make_pair(
-                    adapterId, make_shared<AdapterRequest>(LookupIPtr(shared_from_this()), adapterId, _retryCount)))
+                    adapterId,
+                    make_shared<AdapterRequest>(LookupIPtr(shared_from_this()), adapterId, _retryCount)))
                 .first;
     }
 

@@ -76,12 +76,16 @@ namespace
             if (preferIPv6)
             {
                 stable_partition(
-                    addrs.begin(), addrs.end(), [](const Address& ss) { return ss.saStorage.ss_family == AF_INET6; });
+                    addrs.begin(),
+                    addrs.end(),
+                    [](const Address& ss) { return ss.saStorage.ss_family == AF_INET6; });
             }
             else
             {
                 stable_partition(
-                    addrs.begin(), addrs.end(), [](const Address& ss) { return ss.saStorage.ss_family != AF_INET6; });
+                    addrs.begin(),
+                    addrs.end(),
+                    [](const Address& ss) { return ss.saStorage.ss_family != AF_INET6; });
             }
         }
     }
@@ -633,7 +637,8 @@ namespace
                     {
                         struct sockaddr_in addrin;
                         memcpy(
-                            &addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
+                            &addrin,
+                            paddrs->FirstUnicastAddress->Address.lpSockaddr,
                             paddrs->FirstUnicastAddress->Address.iSockaddrLength);
                         delete[] buf;
                         return addrin.sin_addr;
@@ -1293,7 +1298,13 @@ IceInternal::inetAddrToString(const Address& ss)
     char namebuf[1024];
     namebuf[0] = '\0';
     getnameinfo(
-        &ss.sa, static_cast<socklen_t>(size), namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
+        &ss.sa,
+        static_cast<socklen_t>(size),
+        namebuf,
+        static_cast<socklen_t>(sizeof(namebuf)),
+        0,
+        0,
+        NI_NUMERICHOST);
     return string(namebuf);
 }
 
@@ -2076,8 +2087,15 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
     DWORD dwBytes;
     if (WSAIoctl(
-            fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidConnectEx, sizeof(GuidConnectEx), &ConnectEx,
-            sizeof(ConnectEx), &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
+            fd,
+            SIO_GET_EXTENSION_FUNCTION_POINTER,
+            &GuidConnectEx,
+            sizeof(GuidConnectEx),
+            &ConnectEx,
+            sizeof(ConnectEx),
+            &dwBytes,
+            nullptr,
+            nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }

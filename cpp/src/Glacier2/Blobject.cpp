@@ -206,8 +206,9 @@ Glacier2::Blobject::invoke(
         bool override;
         try
         {
-            override = _requestQueue->addRequest(make_shared<Request>(
-                proxy, inParams, current, _forwardContext, _context, std::move(response), exception));
+            override = _requestQueue->addRequest(
+                make_shared<
+                    Request>(proxy, inParams, current, _forwardContext, _context, std::move(response), exception));
         }
         catch (const ObjectNotExistException&)
         {
@@ -271,14 +272,24 @@ Glacier2::Blobject::invoke(
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
                     proxy->ice_invokeAsync(
-                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
-                        std::move(amiSent), ctx);
+                        current.operation,
+                        current.mode,
+                        inParams,
+                        std::move(amiResponse),
+                        std::move(exception),
+                        std::move(amiSent),
+                        ctx);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(
-                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
-                        std::move(amiSent), current.ctx);
+                        current.operation,
+                        current.mode,
+                        inParams,
+                        std::move(amiResponse),
+                        std::move(exception),
+                        std::move(amiSent),
+                        current.ctx);
                 }
             }
             else
@@ -286,13 +297,22 @@ Glacier2::Blobject::invoke(
                 if (_context.size() > 0)
                 {
                     proxy->ice_invokeAsync(
-                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
-                        std::move(amiSent), _context);
+                        current.operation,
+                        current.mode,
+                        inParams,
+                        std::move(amiResponse),
+                        std::move(exception),
+                        std::move(amiSent),
+                        _context);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(
-                        current.operation, current.mode, inParams, std::move(amiResponse), std::move(exception),
+                        current.operation,
+                        current.mode,
+                        inParams,
+                        std::move(amiResponse),
+                        std::move(exception),
                         std::move(amiSent));
                 }
             }

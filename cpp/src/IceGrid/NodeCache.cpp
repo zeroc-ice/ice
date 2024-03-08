@@ -367,7 +367,9 @@ NodeEntry::loadServer(
             }
         }
 
-        auto response = [traceLevels = _cache.getTraceLevels(), entry, name = _name,
+        auto response = [traceLevels = _cache.getTraceLevels(),
+                         entry,
+                         name = _name,
                          sessionTimeout](ServerPrxPtr serverPrx, AdapterPrxDict adapters, int at, int dt)
         {
             if (traceLevels && traceLevels->server > 1)
@@ -381,7 +383,9 @@ NodeEntry::loadServer(
             // timeout is large enough.
             //
             entry->loadCallback(
-                std::move(serverPrx), std::move(adapters), chrono::seconds(at) + sessionTimeout,
+                std::move(serverPrx),
+                std::move(adapters),
+                chrono::seconds(at) + sessionTimeout,
                 chrono::seconds(dt) + sessionTimeout);
         };
 
@@ -418,7 +422,10 @@ NodeEntry::loadServer(
         if (noRestart)
         {
             node->loadServerWithoutRestartAsync(
-                desc, _cache.getReplicaName(), std::move(response), std::move(exception));
+                desc,
+                _cache.getReplicaName(),
+                std::move(response),
+                std::move(exception));
         }
         else
         {
@@ -507,13 +514,21 @@ NodeEntry::destroyServer(
         if (noRestart)
         {
             node->destroyServerWithoutRestartAsync(
-                info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(), std::move(response),
+                info.descriptor->id,
+                info.uuid,
+                info.revision,
+                _cache.getReplicaName(),
+                std::move(response),
                 std::move(exception));
         }
         else
         {
             node->destroyServerAsync(
-                info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(), std::move(response),
+                info.descriptor->id,
+                info.uuid,
+                info.revision,
+                _cache.getReplicaName(),
+                std::move(response),
                 std::move(exception));
         }
     }
@@ -599,7 +614,8 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
         auto self = _selfRemovingPtr.lock();
         assert(self);
         _proxy->registerWithReplicaAsync(
-            _cache.getReplicaCache().getInternalRegistry(), [self] { self->finishedRegistration(); },
+            _cache.getReplicaCache().getInternalRegistry(),
+            [self] { self->finishedRegistration(); },
             [self](exception_ptr ex) { self->finishedRegistration(ex); });
         _proxy = nullopt; // Registration with the proxy is only attempted once.
     }
@@ -730,7 +746,8 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     if (!info.descriptor->distrib.icepatch.empty())
     {
         server->distrib = make_shared<InternalDistributionDescriptor>(
-            info.descriptor->distrib.icepatch, info.descriptor->distrib.directories);
+            info.descriptor->distrib.icepatch,
+            info.descriptor->distrib.directories);
     }
     server->options = info.descriptor->options;
     server->envs = info.descriptor->envs;
@@ -894,7 +911,8 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             for (const auto& adapter : desc->adapters)
             {
                 server->adapters.push_back(make_shared<InternalAdapterDescriptor>(
-                    adapter.id, ignoreServerLifetime ? false : adapter.serverLifetime));
+                    adapter.id,
+                    ignoreServerLifetime ? false : adapter.serverLifetime));
 
                 serverProps.push_back(createProperty("# Object adapter " + adapter.name));
 

@@ -226,7 +226,13 @@ IceInternal::OutgoingConnectionFactory::createAsync(
     }
 
     auto cb = make_shared<ConnectCallback>(
-        _instance, shared_from_this(), endpoints, hasMore, std::move(response), std::move(exception), selType);
+        _instance,
+        shared_from_this(),
+        endpoints,
+        hasMore,
+        std::move(response),
+        std::move(exception),
+        selType);
     cb->getConnectors();
 }
 
@@ -581,7 +587,13 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         }
 
         connection = ConnectionI::create(
-            _communicator, _instance, _monitor, transceiver, ci.connector, ci.endpoint->compress(false), nullptr);
+            _communicator,
+            _instance,
+            _monitor,
+            transceiver,
+            ci.connector,
+            ci.endpoint->compress(false),
+            nullptr);
     }
     catch (const Ice::LocalException&)
     {
@@ -976,7 +988,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
         assert(_endpointsIter != _endpoints.end());
         (*_endpointsIter)
             ->connectorsAsync(
-                _selType, [self](const vector<ConnectorPtr>& connectors) { self->connectors(connectors); },
+                _selType,
+                [self](const vector<ConnectorPtr>& connectors) { self->connectors(connectors); },
                 [self](exception_ptr ex) { self->exception(ex); });
     }
     catch (const std::exception&)
@@ -1303,7 +1316,9 @@ IceInternal::IncomingConnectionFactory::connections() const
     // Only copy connections which have not been destroyed.
     //
     remove_copy_if(
-        _connections.begin(), _connections.end(), back_inserter(result),
+        _connections.begin(),
+        _connections.end(),
+        back_inserter(result),
         [](const ConnectionIPtr& conn) { return !conn->isActiveOrHolding(); });
     return result;
 }
@@ -1470,7 +1485,13 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         try
         {
             connection = ConnectionI::create(
-                _adapter->getCommunicator(), _instance, _monitor, transceiver, 0, _endpoint, _adapter);
+                _adapter->getCommunicator(),
+                _instance,
+                _monitor,
+                transceiver,
+                0,
+                _endpoint,
+                _adapter);
         }
         catch (const LocalException& ex)
         {

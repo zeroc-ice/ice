@@ -209,14 +209,24 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(r == 12);
 
         r = p->opShortIntLong(
-            numeric_limits<int16_t>::min(), numeric_limits<int32_t>::min(), numeric_limits<int64_t>::min(), s, i, l);
+            numeric_limits<int16_t>::min(),
+            numeric_limits<int32_t>::min(),
+            numeric_limits<int64_t>::min(),
+            s,
+            i,
+            l);
         test(s == numeric_limits<int16_t>::min());
         test(i == numeric_limits<int32_t>::min());
         test(l == numeric_limits<int64_t>::min());
         test(r == numeric_limits<int64_t>::min());
 
         r = p->opShortIntLong(
-            numeric_limits<int16_t>::max(), numeric_limits<int32_t>::max(), numeric_limits<int64_t>::max(), s, i, l);
+            numeric_limits<int16_t>::max(),
+            numeric_limits<int32_t>::max(),
+            numeric_limits<int64_t>::max(),
+            s,
+            i,
+            l);
         test(s == numeric_limits<int16_t>::max());
         test(i == numeric_limits<int32_t>::max());
         test(l == numeric_limits<int64_t>::max());

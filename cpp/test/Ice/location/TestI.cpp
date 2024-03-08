@@ -56,9 +56,11 @@ ServerManagerI::startServer(const Current&)
         {
             PropertiesPtr props = _initData.properties;
             serverCommunicator->getProperties()->setProperty(
-                "TestAdapter.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
+                "TestAdapter.Endpoints",
+                TestHelper::getTestEndpoint(props, _nextPort++));
             serverCommunicator->getProperties()->setProperty(
-                "TestAdapter2.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
+                "TestAdapter2.Endpoints",
+                TestHelper::getTestEndpoint(props, _nextPort++));
 
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");

@@ -622,8 +622,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
         if (ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "adapter not found"
-                << "\n";
+            out << "adapter not found" << "\n";
             out << "adapter = " << ref->getAdapterId();
         }
 
@@ -634,8 +633,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
         if (ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "object not found"
-                << "\n";
+            out << "object not found" << "\n";
             out << "object = " << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode());
         }
 

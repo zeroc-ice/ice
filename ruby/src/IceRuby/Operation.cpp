@@ -424,7 +424,10 @@ IceRuby::OperationI::prepareRequest(
             {
                 string opName = fixIdent(_name, IdentNormal);
                 throw RubyException(
-                    rb_eTypeError, "invalid value for argument %ld in operation `%s'", info->pos + 1, opName.c_str());
+                    rb_eTypeError,
+                    "invalid value for argument %ld in operation `%s'",
+                    info->pos + 1,
+                    opName.c_str());
             }
         }
 

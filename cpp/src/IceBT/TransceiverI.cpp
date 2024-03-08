@@ -119,7 +119,11 @@ IceBT::TransceiverI::getInfo() const
 {
     auto info = make_shared<IceBT::ConnectionInfo>();
     fdToAddressAndChannel(
-        _stream->fd(), info->localAddress, info->localChannel, info->remoteAddress, info->remoteChannel);
+        _stream->fd(),
+        info->localAddress,
+        info->localChannel,
+        info->remoteAddress,
+        info->remoteChannel);
     if (_stream->fd() != INVALID_SOCKET)
     {
         info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());

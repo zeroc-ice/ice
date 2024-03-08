@@ -412,9 +412,13 @@ extern "C"
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] = {
-    {STRCAST("add"), reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS,
+    {STRCAST("add"),
+     reinterpret_cast<PyCFunction>(valueFactoryManagerAdd),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("add(factory, id) -> None"))},
-    {STRCAST("find"), reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS,
+    {STRCAST("find"),
+     reinterpret_cast<PyCFunction>(valueFactoryManagerFind),
+     METH_VARARGS,
      PyDoc_STR(STRCAST("find(id) -> function"))},
     {0, 0} /* sentinel */
 };

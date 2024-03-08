@@ -146,8 +146,13 @@ namespace
                 mbstate_t state = mbstate_t();
 
                 codecvt_base::result result = _codecvt.in(
-                    state, reinterpret_cast<const char*>(sourceStart), reinterpret_cast<const char*>(sourceEnd),
-                    sourceNext, targetStart, targetEnd, targetNext);
+                    state,
+                    reinterpret_cast<const char*>(sourceStart),
+                    reinterpret_cast<const char*>(sourceEnd),
+                    sourceNext,
+                    targetStart,
+                    targetEnd,
+                    targetNext);
 
                 if (result != codecvt_base::ok)
                 {
@@ -273,7 +278,8 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
             string tmp;
             converter->fromUTF8(
                 reinterpret_cast<const uint8_t*>(target.data()),
-                reinterpret_cast<const uint8_t*>(target.data() + target.size()), tmp);
+                reinterpret_cast<const uint8_t*>(target.data() + target.size()),
+                tmp);
             tmp.swap(target);
         }
     }
@@ -308,7 +314,8 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, c
         // Convert from UTF-8 to the wide string encoding
         //
         wConverterWithDefault->fromUTF8(
-            reinterpret_cast<const uint8_t*>(tmp.data()), reinterpret_cast<const uint8_t*>(tmp.data() + tmp.size()),
+            reinterpret_cast<const uint8_t*>(tmp.data()),
+            reinterpret_cast<const uint8_t*>(tmp.data() + tmp.size()),
             target);
     }
     return target;
@@ -337,7 +344,9 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
     }
     string tmp;
     converter->fromUTF8(
-        reinterpret_cast<const uint8_t*>(str.data()), reinterpret_cast<const uint8_t*>(str.data() + str.size()), tmp);
+        reinterpret_cast<const uint8_t*>(str.data()),
+        reinterpret_cast<const uint8_t*>(str.data() + str.size()),
+        tmp);
     return tmp;
 }
 
@@ -421,7 +430,8 @@ IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
                 reinterpret_cast<const Char32T*>(&source.front() + source.size()));
 
             result = vector<uint8_t>(
-                reinterpret_cast<const uint8_t*>(bs.data()), reinterpret_cast<const uint8_t*>(bs.data()) + bs.length());
+                reinterpret_cast<const uint8_t*>(bs.data()),
+                reinterpret_cast<const uint8_t*>(bs.data()) + bs.length());
         }
         catch (const std::range_error& ex)
         {
@@ -480,7 +490,11 @@ namespace
         {
             wbuffer.resize(wbuffer.size() == 0 ? sourceSize + 2 : 2 * wbuffer.size());
             writtenWchar = MultiByteToWideChar(
-                _cp, flags, sourceStart, sourceSize, const_cast<wchar_t*>(wbuffer.data()),
+                _cp,
+                flags,
+                sourceStart,
+                sourceSize,
+                const_cast<wchar_t*>(wbuffer.data()),
                 static_cast<int>(wbuffer.size()));
         } while (writtenWchar == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
@@ -534,8 +548,14 @@ namespace
                 writtenChar == -1 ? std::max<size_t>(sourceEnd - sourceStart + 2, target.size()) : 2 * target.size());
 
             writtenChar = WideCharToMultiByte(
-                _cp, flags, wtarget.data(), static_cast<int>(wtarget.size()), const_cast<char*>(target.data()),
-                static_cast<int>(target.size()), 0, 0);
+                _cp,
+                flags,
+                wtarget.data(),
+                static_cast<int>(wtarget.size()),
+                const_cast<char*>(target.data()),
+                static_cast<int>(target.size()),
+                0,
+                0);
         } while (writtenChar == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
         if (writtenChar == 0)

@@ -144,13 +144,21 @@ extern "C"
 }
 
 static PyMethodDef BatchRequestMethods[] = {
-    {STRCAST("getSize"), reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS,
+    {STRCAST("getSize"),
+     reinterpret_cast<PyCFunction>(batchRequestGetSize),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("getSize() -> int"))},
-    {STRCAST("getOperation"), reinterpret_cast<PyCFunction>(batchRequestGetOperation), METH_NOARGS,
+    {STRCAST("getOperation"),
+     reinterpret_cast<PyCFunction>(batchRequestGetOperation),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("getOperation() -> string"))},
-    {STRCAST("getProxy"), reinterpret_cast<PyCFunction>(batchRequestGetProxy), METH_NOARGS,
+    {STRCAST("getProxy"),
+     reinterpret_cast<PyCFunction>(batchRequestGetProxy),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("getProxy() -> Ice.ObjectPrx"))},
-    {STRCAST("enqueue"), reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS,
+    {STRCAST("enqueue"),
+     reinterpret_cast<PyCFunction>(batchRequestEnqueue),
+     METH_NOARGS,
      PyDoc_STR(STRCAST("enqueue() -> None"))},
     {0, 0} /* sentinel */
 };
@@ -224,7 +232,8 @@ IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* 
     if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
     {
         throw Ice::InitializationException(
-            __FILE__, __LINE__,
+            __FILE__,
+            __LINE__,
             "batch request interceptor must either be a callable or an object with an 'enqueue' method");
     }
 

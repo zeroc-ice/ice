@@ -196,7 +196,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::Swift : Preprocessor::SliceXML, includePaths, "-D__SLICE2SWIFT__"))
+                    os,
+                    depend ? Preprocessor::Swift : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2SWIFT__"))
             {
                 return EXIT_FAILURE;
             }

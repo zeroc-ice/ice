@@ -330,7 +330,11 @@ BridgeConnection::dispatch(
     else
     {
         send(
-            current.con == _incoming ? _outgoing : _incoming, inParams, std::move(response), std::move(error), current);
+            current.con == _incoming ? _outgoing : _incoming,
+            inParams,
+            std::move(response),
+            std::move(error),
+            current);
     }
 }
 
@@ -357,14 +361,25 @@ BridgeConnection::send(
                 prx = prx->ice_oneway();
             }
             prx->ice_invokeAsync(
-                current.operation, current.mode, inParams, nullptr, error,
-                [response = std::move(response)](bool) { response(true, {nullptr, nullptr}); }, current.ctx);
+                current.operation,
+                current.mode,
+                inParams,
+                nullptr,
+                error,
+                [response = std::move(response)](bool) { response(true, {nullptr, nullptr}); },
+                current.ctx);
         }
         else
         {
             // Twoway request
             prx->ice_invokeAsync(
-                current.operation, current.mode, inParams, std::move(response), error, nullptr, current.ctx);
+                current.operation,
+                current.mode,
+                inParams,
+                std::move(response),
+                error,
+                nullptr,
+                current.ctx);
         }
     }
     catch (const std::exception&)
