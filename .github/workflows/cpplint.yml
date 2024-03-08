@@ -10,7 +10,7 @@ on:
 
 jobs:
   cpp-lint:
-    name: Swift Lint
+    name: Clang Tidy and Clang Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
