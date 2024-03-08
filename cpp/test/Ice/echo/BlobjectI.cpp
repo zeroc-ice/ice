@@ -68,8 +68,13 @@ BlobjectI::ice_invokeAsync(
         else
         {
             obj->ice_oneway()->ice_invokeAsync(
-                current.operation, current.mode, inEncaps, [](bool, const std::vector<uint8_t>&) { assert(0); }, ex,
-                [&](bool) { response(true, vector<uint8_t>()); }, current.ctx);
+                current.operation,
+                current.mode,
+                inEncaps,
+                [](bool, const std::vector<uint8_t>&) { assert(0); },
+                ex,
+                [&](bool) { response(true, vector<uint8_t>()); },
+                current.ctx);
         }
     }
     else

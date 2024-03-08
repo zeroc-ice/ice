@@ -230,7 +230,7 @@ typedef short int yytype_int16;
 #    endif
 #endif
 
-#define YYSIZE_MAXIMUM ((YYSIZE_T)-1)
+#define YYSIZE_MAXIMUM ((YYSIZE_T) - 1)
 
 #ifndef YY_
 #    if defined YYENABLE_NLS && YYENABLE_NLS
@@ -1154,7 +1154,11 @@ yysetstate:
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
             yyoverflow(
-                YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
+                YY_("memory exhausted"),
+                &yyss1,
+                yysize * sizeof(*yyssp),
+                &yyvs1,
+                yysize * sizeof(*yyvsp),
                 &yystacksize);
 
             yyss = yyss1;

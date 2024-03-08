@@ -40,7 +40,9 @@ IceInternal::ObjectAdapterFactory::shutdown()
 
     // Deactivate outside the thread synchronization, to avoid deadlocks.
     for_each(
-        adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
+        adapters.begin(),
+        adapters.end(),
+        [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
 }
 
 void
@@ -60,7 +62,8 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 
     // Now we wait for deactivation of each object adapter.
     for_each(
-        adapters.begin(), adapters.end(),
+        adapters.begin(),
+        adapters.end(),
         [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->waitForDeactivate(); });
 }
 
@@ -106,7 +109,9 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
     }
 
     for_each(
-        adapters.begin(), adapters.end(), [fn](const shared_ptr<ObjectAdapterI>& adapter) { (adapter.get()->*fn)(); });
+        adapters.begin(),
+        adapters.end(),
+        [fn](const shared_ptr<ObjectAdapterI>& adapter) { (adapter.get()->*fn)(); });
 }
 
 ObjectAdapterPtr

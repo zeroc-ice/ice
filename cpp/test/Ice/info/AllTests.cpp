@@ -46,9 +46,10 @@ allTests(Test::TestHelper* helper)
     cout << "testing proxy endpoint information... " << flush;
     {
         Ice::ObjectPrx p1(
-            communicator, "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
-                          "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
-                          "opaque -e 1.8 -t 100 -v ABCD");
+            communicator,
+            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
+            "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
+            "opaque -e 1.8 -t 100 -v ABCD");
 
         Ice::EndpointSeq endps = p1->ice_getEndpoints();
 
@@ -102,7 +103,8 @@ allTests(Test::TestHelper* helper)
         cout << "test object adapter endpoint information... " << flush;
         {
             communicator->getProperties()->setProperty(
-                "TestAdapter.Endpoints", "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
+                "TestAdapter.Endpoints",
+                "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
 
             Ice::EndpointSeq endpoints = adapter->getEndpoints();
@@ -162,7 +164,8 @@ allTests(Test::TestHelper* helper)
 
     int port = helper->getTestPort();
     TestIntfPrx testIntf(
-        communicator, "test:" + helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c");
+        communicator,
+        "test:" + helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c");
 
     cout << "test connection endpoint information... " << flush;
     {

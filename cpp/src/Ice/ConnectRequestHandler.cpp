@@ -133,7 +133,9 @@ ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compre
     {
         auto self = shared_from_this();
         if (!ri->addProxyAsync(
-                _reference, [self] { self->flushRequests(); }, [self](exception_ptr ex) { self->setException(ex); }))
+                _reference,
+                [self] { self->flushRequests(); },
+                [self](exception_ptr ex) { self->setException(ex); }))
         {
             return; // The request handler will be initialized once addProxyAsync completes.
         }

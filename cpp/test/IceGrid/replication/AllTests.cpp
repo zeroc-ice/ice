@@ -237,7 +237,8 @@ allTests(Test::TestHelper* helper)
 {
     auto communicator = helper->communicator();
     IceGrid::RegistryPrx registry(
-        communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto adminSession = registry->createAdminSession("foo", "bar");
 

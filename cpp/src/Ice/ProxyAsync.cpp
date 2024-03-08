@@ -311,7 +311,13 @@ Ice::ObjectPrx::ice_isAAsync(
     const Ice::Context& context) const
 {
     return makeLambdaOutgoing<bool>(
-        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_isA, typeId, context);
+        std::move(response),
+        std::move(ex),
+        std::move(sent),
+        this,
+        &ObjectPrx::_iceI_isA,
+        typeId,
+        context);
 }
 
 std::future<bool>
@@ -327,8 +333,12 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync, stri
     static constexpr string_view operationName = "ice_isA";
     _checkTwowayOnly(operationName);
     outAsync->invoke(
-        operationName, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx,
-        [&](Ice::OutputStream* os) { os->write(typeId, false); }, nullptr);
+        operationName,
+        OperationMode::Nonmutating,
+        FormatType::DefaultFormat,
+        ctx,
+        [&](Ice::OutputStream* os) { os->write(typeId, false); },
+        nullptr);
 }
 
 void
@@ -345,7 +355,12 @@ Ice::ObjectPrx::ice_pingAsync(
     const Ice::Context& context) const
 {
     return makeLambdaOutgoing<void>(
-        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_ping, context);
+        std::move(response),
+        std::move(ex),
+        std::move(sent),
+        this,
+        &ObjectPrx::_iceI_ping,
+        context);
 }
 
 std::future<void>
@@ -375,7 +390,12 @@ Ice::ObjectPrx::ice_idsAsync(
     const Ice::Context& context) const
 {
     return makeLambdaOutgoing<vector<string>>(
-        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_ids, context);
+        std::move(response),
+        std::move(ex),
+        std::move(sent),
+        this,
+        &ObjectPrx::_iceI_ids,
+        context);
 }
 
 std::future<vector<string>>
@@ -390,7 +410,12 @@ Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outA
     static constexpr string_view operationName = "ice_ids";
     _checkTwowayOnly(operationName);
     outAsync->invoke(
-        operationName, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
+        operationName,
+        OperationMode::Nonmutating,
+        FormatType::DefaultFormat,
+        ctx,
+        nullptr,
+        nullptr,
         [](Ice::InputStream* stream)
         {
             vector<string> v;
@@ -413,7 +438,12 @@ Ice::ObjectPrx::ice_idAsync(
     const Ice::Context& context) const
 {
     return makeLambdaOutgoing<string>(
-        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_id, context);
+        std::move(response),
+        std::move(ex),
+        std::move(sent),
+        this,
+        &ObjectPrx::_iceI_id,
+        context);
 }
 
 std::future<string>
@@ -428,7 +458,12 @@ Ice::ObjectPrx::_iceI_id(const shared_ptr<OutgoingAsyncT<string>>& outAsync, con
     static constexpr string_view operationName = "ice_id";
     _checkTwowayOnly(operationName);
     outAsync->invoke(
-        operationName, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
+        operationName,
+        OperationMode::Nonmutating,
+        FormatType::DefaultFormat,
+        ctx,
+        nullptr,
+        nullptr,
         [](Ice::InputStream* stream)
         {
             string v;

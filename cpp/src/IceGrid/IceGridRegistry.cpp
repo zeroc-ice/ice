@@ -171,7 +171,8 @@ RegistryService::initializeCommunicator(
                     "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
                 initData.properties->setProperty(
-                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + "PermissionsVerifier", cryptPasswords);
+                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + "PermissionsVerifier",
+                    cryptPasswords);
             }
         }
     }

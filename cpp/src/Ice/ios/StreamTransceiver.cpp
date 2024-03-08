@@ -245,9 +245,13 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
         if (_fd == INVALID_SOCKET)
         {
             if (!CFReadStreamSetProperty(
-                    _readStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse) ||
+                    _readStream.get(),
+                    kCFStreamPropertyShouldCloseNativeSocket,
+                    kCFBooleanFalse) ||
                 !CFWriteStreamSetProperty(
-                    _writeStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse))
+                    _writeStream.get(),
+                    kCFStreamPropertyShouldCloseNativeSocket,
+                    kCFBooleanFalse))
             {
                 throw Ice::SocketException(__FILE__, __LINE__, 0);
             }
@@ -338,7 +342,9 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         assert(_fd != INVALID_SOCKET);
         CFIndex ret = CFWriteStreamWrite(
-            _writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i), static_cast<CFIndex>(packetSize));
+            _writeStream.get(),
+            reinterpret_cast<const UInt8*>(&*buf.i),
+            static_cast<CFIndex>(packetSize));
 
         if (ret == SOCKET_ERROR)
         {

@@ -202,7 +202,9 @@ namespace IceInternal
         if (count == size_t(-1))
         {
             throw Ice::IllegalConversionException(
-                __FILE__, __LINE__, errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+                __FILE__,
+                __LINE__,
+                errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
         return reinterpret_cast<std::uint8_t*>(outbuf);
     }
@@ -260,7 +262,9 @@ namespace IceInternal
         if (count == size_t(-1))
         {
             throw Ice::IllegalConversionException(
-                __FILE__, __LINE__, errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+                __FILE__,
+                __LINE__,
+                errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
 
         target.resize(target.size() - (outbytesleft / sizeof(charT)));

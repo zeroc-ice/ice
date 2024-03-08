@@ -16,7 +16,9 @@ lowerCase(const string& s)
 {
     string result(s);
     transform(
-        result.begin(), result.end(), result.begin(),
+        result.begin(),
+        result.end(),
+        result.begin(),
         [](char c) { return static_cast<char>(::tolower(static_cast<unsigned char>(c))); });
     return result;
 }

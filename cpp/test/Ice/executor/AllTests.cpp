@@ -130,7 +130,8 @@ allTests(TestHelper* helper)
             //
             auto to = p->ice_invocationTimeout(10);
             to->sleepAsync(
-                500, [cb]() { cb->responseEx(); },
+                500,
+                [cb]() { cb->responseEx(); },
                 [cb](exception_ptr err)
                 {
                     try
@@ -161,7 +162,9 @@ allTests(TestHelper* helper)
             auto c = make_shared<promise<void>>();
 
             p->opWithPayloadAsync(
-                seq, [=]() { c->set_value(); }, [=](exception_ptr) { c->set_value(); },
+                seq,
+                [=]() { c->set_value(); },
+                [=](exception_ptr) { c->set_value(); },
                 [=](bool sent) { s->set_value(sent); });
             completed.push_back(c);
 

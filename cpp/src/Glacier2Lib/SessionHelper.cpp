@@ -219,7 +219,9 @@ SessionHelperI::internalObjectAdapter()
     if (!_useCallbacks)
     {
         throw Ice::InitializationException(
-            __FILE__, __LINE__, "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
+            __FILE__,
+            __LINE__,
+            "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
     }
     return _adapter;
 }
@@ -371,7 +373,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 
     assert(!_destroy);
     auto thread = std::thread(
-        [session = shared_from_this(), callback = _callback, factory = std::move(factory),
+        [session = shared_from_this(),
+         callback = _callback,
+         factory = std::move(factory),
          startFuture = startPromise.get_future()]()
         {
             startFuture.wait(); // Wait for the thread to be registered with the thread callback.
@@ -390,7 +394,8 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     session->_destroy = true;
                 }
                 session->dispatchCallback(
-                    [callback, session, ex = current_exception()]() { callback->connectFailed(session, ex); }, nullptr);
+                    [callback, session, ex = current_exception()]() { callback->connectFailed(session, ex); },
+                    nullptr);
                 return;
             }
 
@@ -421,7 +426,8 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                 }
 
                 session->dispatchCallbackAndWait(
-                    [callback, session]() { callback->createdCommunicator(session); }, nullptr);
+                    [callback, session]() { callback->createdCommunicator(session); },
+                    nullptr);
 
                 Glacier2::RouterPrx routerPrx(*communicator->getDefaultRouter());
                 optional<Glacier2::SessionPrx> sessionPrx = factory->connect(routerPrx);
@@ -438,7 +444,8 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                 }
 
                 session->dispatchCallback(
-                    [session, ex = current_exception()]() { session->_callback->connectFailed(session, ex); }, nullptr);
+                    [session, ex = current_exception()]() { session->_callback->connectFailed(session, ex); },
+                    nullptr);
             }
         });
     _threadCB->add(this, std::move(thread));
@@ -520,7 +527,8 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const optional<Glac
     else
     {
         dispatchCallback(
-            [callback = _callback, session = shared_from_this()]() { callback->connected(session); }, conn);
+            [callback = _callback, session = shared_from_this()]() { callback->connected(session); },
+            conn);
     }
 }
 
@@ -610,7 +618,9 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(
     if (!properties)
     {
         throw Ice::InitializationException(
-            __FILE__, __LINE__, "Attempt to create a SessionFactoryHelper with a null Properties argument");
+            __FILE__,
+            __LINE__,
+            "Attempt to create a SessionFactoryHelper with a null Properties argument");
     }
     _initData.properties = properties;
     setDefaultProperties();
@@ -796,7 +806,10 @@ Glacier2::SessionFactoryHelper::connect()
     {
         lock_guard lock(_mutex);
         session = make_shared<SessionHelperI>(
-            make_shared<SessionThreadCallback>(shared_from_this()), _callback, createInitData(), getRouterFinderStr(),
+            make_shared<SessionThreadCallback>(shared_from_this()),
+            _callback,
+            createInitData(),
+            getRouterFinderStr(),
             _useCallbacks);
         context = _context;
     }
@@ -812,7 +825,10 @@ Glacier2::SessionFactoryHelper::connect(const string& user, const string& passwo
     {
         lock_guard lock(_mutex);
         session = make_shared<SessionHelperI>(
-            make_shared<SessionThreadCallback>(shared_from_this()), _callback, createInitData(), getRouterFinderStr(),
+            make_shared<SessionThreadCallback>(shared_from_this()),
+            _callback,
+            createInitData(),
+            getRouterFinderStr(),
             _useCallbacks);
         context = _context;
     }

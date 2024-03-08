@@ -292,10 +292,14 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream> apps(
-                    txn, "applications", dbContext, MDB_CREATE);
+                    txn,
+                    "applications",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceGrid::ApplicationInfoSeq::const_iterator p = data.applications.begin();
-                     p != data.applications.end(); ++p)
+                     p != data.applications.end();
+                     ++p)
                 {
                     if (debug)
                     {
@@ -310,7 +314,10 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adpts(
-                    txn, "adapters", dbContext, MDB_CREATE);
+                    txn,
+                    "adapters",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceGrid::AdapterInfoSeq::const_iterator p = data.adapters.begin(); p != data.adapters.end(); ++p)
                 {
@@ -327,7 +334,10 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream> objs(
-                    txn, "objects", dbContext, MDB_CREATE);
+                    txn,
+                    "objects",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceGrid::ObjectInfoSeq::const_iterator p = data.objects.begin(); p != data.objects.end(); ++p)
                 {
@@ -345,10 +355,14 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream> internalObjs(
-                    txn, "internal-objects", dbContext, MDB_CREATE);
+                    txn,
+                    "internal-objects",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceGrid::ObjectInfoSeq::const_iterator p = data.internalObjects.begin();
-                     p != data.internalObjects.end(); ++p)
+                     p != data.internalObjects.end();
+                     ++p)
                 {
                     if (debug)
                     {
@@ -364,7 +378,10 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<string, int64_t, IceDB::IceContext, Ice::OutputStream> srls(
-                    txn, "serials", dbContext, MDB_CREATE);
+                    txn,
+                    "serials",
+                    dbContext,
+                    MDB_CREATE);
 
                 for (IceGrid::StringLongDict::const_iterator p = data.serials.begin(); p != data.serials.end(); ++p)
                 {
@@ -393,12 +410,16 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream> applications(
-                    txn, "applications", dbContext, 0);
+                    txn,
+                    "applications",
+                    dbContext,
+                    0);
 
                 string name;
                 IceGrid::ApplicationInfo application;
                 IceDB::ReadOnlyCursor<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream> appCursor(
-                    applications, txn);
+                    applications,
+                    txn);
                 while (appCursor.get(name, application, MDB_NEXT))
                 {
                     if (debug)
@@ -415,11 +436,15 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adapters(
-                    txn, "adapters", dbContext, 0);
+                    txn,
+                    "adapters",
+                    dbContext,
+                    0);
 
                 IceGrid::AdapterInfo adapter;
                 IceDB::ReadOnlyCursor<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adapterCursor(
-                    adapters, txn);
+                    adapters,
+                    txn);
                 while (adapterCursor.get(name, adapter, MDB_NEXT))
                 {
                     if (debug)
@@ -436,7 +461,10 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream> objects(
-                    txn, "objects", dbContext, 0);
+                    txn,
+                    "objects",
+                    dbContext,
+                    0);
 
                 Ice::Identity id;
                 IceGrid::ObjectInfo object;
@@ -458,7 +486,10 @@ run(const Ice::StringSeq& args)
                 }
 
                 IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream> internalObjects(
-                    txn, "internal-objects", dbContext, 0);
+                    txn,
+                    "internal-objects",
+                    dbContext,
+                    0);
 
                 IceDB::ReadOnlyCursor<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     iobjCursor(internalObjects, txn);

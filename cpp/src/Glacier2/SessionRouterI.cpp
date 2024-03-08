@@ -125,8 +125,12 @@ namespace Glacier2
             ctx.insert(_context.begin(), _context.end());
             auto self = static_pointer_cast<UserPasswordCreateSession>(shared_from_this());
             _sessionRouter->_verifier->checkPermissionsAsync(
-                _user, _password, [self](bool ok, string reason) { self->checkPermissionsResponse(ok, reason); },
-                [self](exception_ptr e) { self->checkPermissionsException(e); }, nullptr, ctx);
+                _user,
+                _password,
+                [self](bool ok, string reason) { self->checkPermissionsResponse(ok, reason); },
+                [self](exception_ptr e) { self->checkPermissionsException(e); },
+                nullptr,
+                ctx);
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, true); }
@@ -137,7 +141,8 @@ namespace Glacier2
             ctx.insert(_context.begin(), _context.end());
             auto self = shared_from_this();
             _sessionRouter->_sessionManager->createAsync(
-                _user, _control,
+                _user,
+                _control,
                 [self](optional<SessionPrx> session)
                 {
                     if (session)
@@ -150,7 +155,9 @@ namespace Glacier2
                             CannotCreateSessionException("Session manager returned a null session proxy")));
                     }
                 },
-                [self](exception_ptr e) { self->createException(e); }, nullptr, ctx);
+                [self](exception_ptr e) { self->createException(e); },
+                nullptr,
+                ctx);
         }
 
         void finished(const optional<SessionPrx>& session) final { _response(session); }
@@ -218,8 +225,11 @@ namespace Glacier2
 
             auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
             _sessionRouter->_sslVerifier->authorizeAsync(
-                _sslInfo, [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
-                [self](exception_ptr e) { self->authorizeException(e); }, nullptr, ctx);
+                _sslInfo,
+                [self](bool ok, const string& reason) { self->authorizeResponse(ok, reason); },
+                [self](exception_ptr e) { self->authorizeException(e); },
+                nullptr,
+                ctx);
         }
 
         shared_ptr<FilterManager> createFilterManager() final { return FilterManager::create(_instance, _user, false); }
@@ -231,7 +241,8 @@ namespace Glacier2
 
             auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
             _sessionRouter->_sslSessionManager->createAsync(
-                _sslInfo, _control,
+                _sslInfo,
+                _control,
                 [self](optional<SessionPrx> session)
                 {
                     if (session)
@@ -244,7 +255,9 @@ namespace Glacier2
                             CannotCreateSessionException("Session manager returned a null session proxy")));
                     }
                 },
-                [self](exception_ptr e) { self->createException(e); }, nullptr, ctx);
+                [self](exception_ptr e) { self->createException(e); },
+                nullptr,
+                ctx);
         }
 
         void finished(const optional<SessionPrx>& session) final { _response(session); }
@@ -600,7 +613,12 @@ SessionRouterI::createSessionAsync(
     }
 
     auto session = make_shared<UserPasswordCreateSession>(
-        std::move(response), std::move(exception), std::move(userId), std::move(password), current, shared_from_this());
+        std::move(response),
+        std::move(exception),
+        std::move(userId),
+        std::move(password),
+        current,
+        shared_from_this());
     session->create();
 }
 
@@ -659,7 +677,12 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
     }
 
     auto session = make_shared<SSLCreateSession>(
-        std::move(response), std::move(exception), userDN, sslinfo, current, shared_from_this());
+        std::move(response),
+        std::move(exception),
+        userDN,
+        sslinfo,
+        current,
+        shared_from_this());
     session->create();
 }
 
@@ -695,8 +718,8 @@ SessionRouterI::refreshSessionAsync(
 
         session->ice_pingAsync(
             [responseCb = std::move(response)] { responseCb(); },
-            [exceptionCb = std::move(exception), sessionRouter = shared_from_this(),
-             connection = current.con](exception_ptr e)
+            [exceptionCb = std::move(exception), sessionRouter = shared_from_this(), connection = current.con](
+                exception_ptr e)
             {
                 exceptionCb(e);
                 sessionRouter->destroySession(connection);

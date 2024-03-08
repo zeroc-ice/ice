@@ -21,7 +21,8 @@ MyClassI::callCallbackAsync(function<void()> response, function<void(exception_p
     CallbackPrx prx(current.con->createProxy(callbackId));
 
     prx->pingAsync(
-        [response = std::move(response)]() { response(); }, [error = std::move(error)](exception_ptr e) { error(e); });
+        [response = std::move(response)]() { response(); },
+        [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
 void

@@ -391,7 +391,8 @@ IceXML::Parser::parse(istream& in, Handler& handler)
             if (XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
             {
                 handler.error(
-                    XML_ErrorString(XML_GetErrorCode(parser)), static_cast<int>(XML_GetCurrentLineNumber(parser)),
+                    XML_ErrorString(XML_GetErrorCode(parser)),
+                    static_cast<int>(XML_GetCurrentLineNumber(parser)),
                     static_cast<int>(XML_GetCurrentColumnNumber(parser)));
                 return;
             }

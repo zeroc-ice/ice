@@ -1244,7 +1244,9 @@ yy_reduce_print(yy_state_t* yyssp, YYSTYPE* yyvsp, YYLTYPE* yylsp, int yyrule)
     {
         YYFPRINTF(stderr, "   $%d = ", yyi + 1);
         yy_symbol_print(
-            stderr, YY_ACCESSING_SYMBOL(+yyssp[yyi + 1 - yynrhs]), &yyvsp[(yyi + 1) - (yynrhs)],
+            stderr,
+            YY_ACCESSING_SYMBOL(+yyssp[yyi + 1 - yynrhs]),
+            &yyvsp[(yyi + 1) - (yynrhs)],
             &(yylsp[(yyi + 1) - (yynrhs)]));
         YYFPRINTF(stderr, "\n");
     }
@@ -1420,8 +1422,14 @@ yysetstate:
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
             yyoverflow(
-                YY_("memory exhausted"), &yyss1, yysize * YYSIZEOF(*yyssp), &yyvs1, yysize * YYSIZEOF(*yyvsp), &yyls1,
-                yysize * YYSIZEOF(*yylsp), &yystacksize);
+                YY_("memory exhausted"),
+                &yyss1,
+                yysize * YYSIZEOF(*yyssp),
+                &yyvs1,
+                yysize * YYSIZEOF(*yyvsp),
+                &yyls1,
+                yysize * YYSIZEOF(*yylsp),
+                &yystacksize);
             yyss = yyss1;
             yyvs = yyvs1;
             yyls = yyls1;
@@ -1991,8 +1999,9 @@ yyreduce:
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
                     currentUnit->warning(
-                        Deprecated, string("referencing enumerator `") + scoped->v +
-                                        "' without its enumeration's scope is deprecated");
+                        Deprecated,
+                        string("referencing enumerator `") + scoped->v +
+                            "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2116,8 +2125,9 @@ yyreduce:
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
                     currentUnit->warning(
-                        Deprecated, string("referencing enumerator `") + scoped->v +
-                                        "' without its enumeration's scope is deprecated");
+                        Deprecated,
+                        string("referencing enumerator `") + scoped->v +
+                            "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2374,8 +2384,9 @@ yyreduce:
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
                     currentUnit->warning(
-                        Deprecated, string("referencing enumerator `") + scoped->v +
-                                        "' without its enumeration's scope is deprecated");
+                        Deprecated,
+                        string("referencing enumerator `") + scoped->v +
+                            "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2649,7 +2660,12 @@ yyreduce:
             if (cl)
             {
                 dm = cl->createDataMember(
-                    def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
+                    def->name,
+                    def->type,
+                    def->isTagged,
+                    def->tag,
+                    value->v,
+                    value->valueAsString,
                     value->valueAsLiteral);
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
@@ -2663,14 +2679,25 @@ yyreduce:
                 else
                 {
                     dm = st->createDataMember(
-                        def->name, def->type, false, -1, value->v, value->valueAsString, value->valueAsLiteral);
+                        def->name,
+                        def->type,
+                        false,
+                        -1,
+                        value->v,
+                        value->valueAsString,
+                        value->valueAsLiteral);
                 }
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
                 dm = ex->createDataMember(
-                    def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
+                    def->name,
+                    def->type,
+                    def->isTagged,
+                    def->tag,
+                    value->v,
+                    value->valueAsString,
                     value->valueAsLiteral);
             }
             currentUnit->currentContainer()->checkIntroduced(def->name, dm);
@@ -2807,7 +2834,11 @@ yyreduce:
             if (interface)
             {
                 OperationPtr op = interface->createOperation(
-                    name, returnType->type, returnType->isTagged, returnType->tag, Operation::Idempotent);
+                    name,
+                    returnType->type,
+                    returnType->isTagged,
+                    returnType->tag,
+                    Operation::Idempotent);
 
                 if (op)
                 {
@@ -2866,7 +2897,11 @@ yyreduce:
             if (interface)
             {
                 OperationPtr op = interface->createOperation(
-                    name, returnType->type, returnType->isTagged, returnType->tag, Operation::Idempotent);
+                    name,
+                    returnType->type,
+                    returnType->isTagged,
+                    returnType->tag,
+                    Operation::Idempotent);
                 if (op)
                 {
                     currentUnit->pushContainer(op);
@@ -3918,7 +3953,12 @@ yyreduce:
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             yyval = currentUnit->currentContainer()->createConst(
-                ident->v, const_type, metaData->v, value->v, value->valueAsString, value->valueAsLiteral);
+                ident->v,
+                const_type,
+                metaData->v,
+                value->v,
+                value->valueAsString,
+                value->valueAsLiteral);
         }
 #line 4074 "src/Slice/Grammar.cpp"
         break;
@@ -3931,7 +3971,12 @@ yyreduce:
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             currentUnit->error("missing constant name");
             yyval = currentUnit->currentContainer()->createConst(
-                IceUtil::generateUUID(), const_type, metaData->v, value->v, value->valueAsString, value->valueAsLiteral,
+                IceUtil::generateUUID(),
+                const_type,
+                metaData->v,
+                value->v,
+                value->valueAsString,
+                value->valueAsLiteral,
                 Dummy); // Dummy
         }
 #line 4087 "src/Slice/Grammar.cpp"

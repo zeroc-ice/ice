@@ -285,7 +285,9 @@ Database::Database(
     }
 
     _applicationObserverTopic = make_shared<ApplicationObserverTopic>(
-        _topicManager, toMap(txn, _applications), getSerial(txn, applicationsDbName));
+        _topicManager,
+        toMap(txn, _applications),
+        getSerial(txn, applicationsDbName));
     _adapterObserverTopic =
         make_shared<AdapterObserverTopic>(_topicManager, toMap(txn, _adapters), getSerial(txn, adaptersDbName));
     _objectObserverTopic =
@@ -1806,7 +1808,8 @@ Database::getObjectByTypeOnLeastLoadedNode(
         objectsWithLoad.push_back(make_pair(obj, load));
     }
     return min_element(
-               objectsWithLoad.begin(), objectsWithLoad.end(),
+               objectsWithLoad.begin(),
+               objectsWithLoad.end(),
                [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; })
         ->first;
 }
@@ -2062,7 +2065,10 @@ Database::checkForUpdate(
 
     set<string> addedAdptRepGrps;
     set_difference(
-        newAdptRepGrps.begin(), newAdptRepGrps.end(), oldAdptRepGrps.begin(), oldAdptRepGrps.end(),
+        newAdptRepGrps.begin(),
+        newAdptRepGrps.end(),
+        oldAdptRepGrps.begin(),
+        oldAdptRepGrps.end(),
         set_inserter(addedAdptRepGrps));
     for (const auto& repGrp : addedAdptRepGrps)
     {
@@ -2071,7 +2077,10 @@ Database::checkForUpdate(
 
     vector<string> invalidAdptRepGrps;
     set_intersection(
-        rmRepGrps.begin(), rmRepGrps.end(), newAdptRepGrps.begin(), newAdptRepGrps.end(),
+        rmRepGrps.begin(),
+        rmRepGrps.end(),
+        newAdptRepGrps.begin(),
+        newAdptRepGrps.end(),
         back_inserter(invalidAdptRepGrps));
     if (!invalidAdptRepGrps.empty())
     {

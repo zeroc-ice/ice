@@ -302,17 +302,22 @@ extern "C"
 
         *future = 0;
         auto f = make_shared<InvocationFuture>(
-            proxy->ice_isTwoway(), proxy->ice_isBatchOneway() || proxy->ice_isBatchDatagram());
+            proxy->ice_isTwoway(),
+            proxy->ice_isBatchOneway() || proxy->ice_isBatchDatagram());
 
         try
         {
             Ice::Context ctx;
             getStringMap(context, ctx);
             function<void()> token = proxy->ice_invokeAsync(
-                op, mode, params,
+                op,
+                mode,
+                params,
                 [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
-                [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->sent(); }, ctx);
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->sent(); },
+                ctx);
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
         }
@@ -342,15 +347,19 @@ extern "C"
 
         *future = 0;
         auto f = make_shared<InvocationFuture>(
-            proxy->ice_isTwoway(), proxy->ice_isBatchOneway() || proxy->ice_isBatchDatagram());
+            proxy->ice_isTwoway(),
+            proxy->ice_isBatchOneway() || proxy->ice_isBatchDatagram());
 
         try
         {
             function<void()> token = proxy->ice_invokeAsync(
-                op, mode, params,
+                op,
+                mode,
+                params,
                 [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
-                [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->sent(); });
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->sent(); });
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
         }
@@ -950,7 +959,8 @@ extern "C"
         try
         {
             function<void()> token = restoreProxy(self)->ice_getConnectionAsync(
-                [f](shared_ptr<Ice::Connection> con) { f->finished(con); }, [f](exception_ptr e) { f->exception(e); },
+                [f](shared_ptr<Ice::Connection> con) { f->finished(con); },
+                [f](exception_ptr e) { f->exception(e); },
                 nullptr);
             f->token(token);
             *future = new shared_ptr<GetConnectionFuture>(move(f));
@@ -1001,7 +1011,8 @@ extern "C"
         try
         {
             function<void()> token = restoreProxy(self)->ice_flushBatchRequestsAsync(
-                [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->done(); });
+                [f](exception_ptr e) { f->exception(e); },
+                [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }

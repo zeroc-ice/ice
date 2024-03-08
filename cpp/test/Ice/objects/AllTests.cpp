@@ -14,7 +14,8 @@ namespace
     void testUOE(const Ice::CommunicatorPtr& communicator)
     {
         UnexpectedObjectExceptionTestPrx uoet(
-            communicator, "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
+            communicator,
+            "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
 
         try
         {

@@ -48,7 +48,8 @@ IceRuby_Connection_close(VALUE self, VALUE mode)
         if (callRuby(rb_obj_is_instance_of, mode, type) != Qtrue)
         {
             throw RubyException(
-                rb_eTypeError, "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
+                rb_eTypeError,
+                "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
         }
         volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
         assert(TYPE(modeValue) == T_FIXNUM);
@@ -71,7 +72,8 @@ IceRuby_Connection_flushBatchRequests(VALUE self, VALUE compress)
         if (callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
         {
             throw RubyException(
-                rb_eTypeError, "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
+                rb_eTypeError,
+                "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
         }
         volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
         assert(TYPE(compressValue) == T_FIXNUM);
@@ -119,7 +121,8 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
             if (callRuby(rb_obj_is_instance_of, c, type) != Qtrue)
             {
                 throw RubyException(
-                    rb_eTypeError, "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
+                    rb_eTypeError,
+                    "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
             }
             volatile VALUE closeValue = callRuby(rb_funcall, c, rb_intern("to_i"), 0);
             assert(TYPE(closeValue) == T_FIXNUM);
@@ -132,7 +135,8 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
             if (callRuby(rb_obj_is_instance_of, h, type) != Qtrue)
             {
                 throw RubyException(
-                    rb_eTypeError, "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
+                    rb_eTypeError,
+                    "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
             }
             volatile VALUE heartbeatValue = callRuby(rb_funcall, h, rb_intern("to_i"), 0);
             assert(TYPE(heartbeatValue) == T_FIXNUM);

@@ -679,7 +679,10 @@ namespace IceBT
                 //     out DICT<OBJPATH,DICT<STRING,DICT<STRING,VARIANT>>> objpath_interfaces_and_properties);
                 //
                 DBus::MessagePtr msg = DBus::Message::createCall(
-                    "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects");
+                    "org.bluez",
+                    "/",
+                    "org.freedesktop.DBus.ObjectManager",
+                    "GetManagedObjects");
                 DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
                 DBus::MessagePtr reply = r->waitUntilFinished();
                 if (reply->isError())
@@ -775,28 +778,33 @@ namespace IceBT
             args.push_back(make_shared<DBus::ObjectPathValue>(path));
             args.push_back(make_shared<DBus::StringValue>(uuid));
             auto dt = make_shared<DBus::DictEntryType>(
-                DBus::Type::getPrimitive(DBus::Type::KindString), make_shared<DBus::VariantType>());
+                DBus::Type::getPrimitive(DBus::Type::KindString),
+                make_shared<DBus::VariantType>());
             auto t = make_shared<DBus::ArrayType>(dt);
             auto options = make_shared<DBus::ArrayValue>(t);
             if (!name.empty())
             {
                 options->elements.push_back(make_shared<DBus::DictEntryValue>(
-                    dt, make_shared<DBus::StringValue>("Name"),
+                    dt,
+                    make_shared<DBus::StringValue>("Name"),
                     make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>(name))));
             }
             if (channel != -1)
             {
                 options->elements.push_back(make_shared<DBus::DictEntryValue>(
-                    dt, make_shared<DBus::StringValue>("Channel"),
+                    dt,
+                    make_shared<DBus::StringValue>("Channel"),
                     make_shared<DBus::VariantValue>(make_shared<DBus::Uint16Value>(channel))));
                 options->elements.push_back(make_shared<DBus::DictEntryValue>(
-                    dt, make_shared<DBus::StringValue>("Role"),
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
                     make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("server"))));
             }
             else
             {
                 options->elements.push_back(make_shared<DBus::DictEntryValue>(
-                    dt, make_shared<DBus::StringValue>("Role"),
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
                     make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("client"))));
             }
             args.push_back(options);
@@ -1192,7 +1200,8 @@ namespace IceBT
                 lock_guard lock(_mutex);
 
                 auto p = find_if(
-                    _connectThreads.begin(), _connectThreads.end(),
+                    _connectThreads.begin(),
+                    _connectThreads.end(),
                     [threadId](const thread& t) { return t.get_id() == threadId; });
 
                 if (p != _connectThreads.end()) // May be missing if destroy() was called.

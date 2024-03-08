@@ -1502,7 +1502,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::PHP : Preprocessor::SliceXML, includePaths, "-D__SLICE2PHP__"))
+                    os,
+                    depend ? Preprocessor::PHP : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2PHP__"))
             {
                 return EXIT_FAILURE;
             }
@@ -1652,8 +1655,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

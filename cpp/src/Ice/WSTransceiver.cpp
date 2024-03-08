@@ -1524,8 +1524,9 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         }
         else if (_writePayloadLength == 0)
         {
-            size_t n = min(
-                static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i), static_cast<size_t>(buf.b.end() - buf.i));
+            size_t n =
+                min(static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i),
+                    static_cast<size_t>(buf.b.end() - buf.i));
             memcpy(_writeBuffer.i, buf.i, n);
             _writeBuffer.i += n;
             buf.i += n;

@@ -238,9 +238,21 @@ namespace
         //
         // *Must* be kept in alphabetical order.
         //
-        static const string idList[] = {"addlistener", "checkedCast", "delete", "eq",           "findobj",
-                                        "findprop",    "ge",          "gt",     "isvalid",      "le",
-                                        "lt",          "ne",          "notify", "uncheckedCast"};
+        static const string idList[] = {
+            "addlistener",
+            "checkedCast",
+            "delete",
+            "eq",
+            "findobj",
+            "findprop",
+            "ge",
+            "gt",
+            "isvalid",
+            "le",
+            "lt",
+            "ne",
+            "notify",
+            "uncheckedCast"};
         bool found = binary_search(&idList[0], &idList[sizeof(idList) / sizeof(*idList)], name);
         return found ? name + "_" : fixIdent(name);
     }
@@ -374,7 +386,14 @@ namespace
     string typeToString(const TypePtr& type)
     {
         static const char* builtinTable[] = {
-            "uint8",         "logical", "int16", "int32", "int64", "single", "double", "char",
+            "uint8",
+            "logical",
+            "int16",
+            "int32",
+            "int64",
+            "single",
+            "double",
+            "char",
             "Ice.Object",    // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
@@ -2660,8 +2679,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Constructor
     //
-    out << nl << "function " << self << " = " << name << spar << "ice_exid"
-        << "ice_exmsg" << allNames << epar;
+    out << nl << "function " << self << " = " << name << spar << "ice_exid" << "ice_exmsg" << allNames << epar;
     out.inc();
     string exid = abs;
     const string exmsg = abs;
@@ -2702,14 +2720,12 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (!base)
     {
-        out << nl << self << " = " << self << "@"
-            << "Ice.UserException" << spar << "ice_exid"
-            << "ice_exmsg" << epar << ';';
+        out << nl << self << " = " << self << "@" << "Ice.UserException" << spar << "ice_exid" << "ice_exmsg" << epar
+            << ';';
     }
     else
     {
-        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid"
-            << "ice_exmsg";
+        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid" << "ice_exmsg";
         for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (q->inherited)
@@ -4185,8 +4201,8 @@ CodeVisitor::marshal(
         if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
             b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
-                                                 "Double", "String", "???",   "???", "???",  "???"};
+            static const char* builtinTable[] =
+                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
             string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
             if (optional)
@@ -4443,8 +4459,8 @@ CodeVisitor::unmarshal(
         if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
             b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
-                                                 "Double", "String", "???",   "???", "???",  "???"};
+            static const char* builtinTable[] =
+                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
             string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
             if (optional)
@@ -4720,7 +4736,10 @@ compile(const vector<string>& argv)
             }
 
             if (!icecpp->printMakefileDependencies(
-                    os, depend ? Preprocessor::MATLAB : Preprocessor::SliceXML, includePaths, "-D__SLICE2MATLAB__"))
+                    os,
+                    depend ? Preprocessor::MATLAB : Preprocessor::SliceXML,
+                    includePaths,
+                    "-D__SLICE2MATLAB__"))
             {
                 return EXIT_FAILURE;
             }
@@ -4852,8 +4871,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

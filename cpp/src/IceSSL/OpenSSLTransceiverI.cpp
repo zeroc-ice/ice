@@ -236,7 +236,9 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                     if (!X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str()))
                     {
                         throw SecurityException(
-                            __FILE__, __LINE__, "IceSSL: error setting the expected IP address `" + _host + "'");
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: error setting the expected IP address `" + _host + "'");
                     }
                 }
                 else
@@ -244,7 +246,9 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                     if (!X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0))
                     {
                         throw SecurityException(
-                            __FILE__, __LINE__, "IceSSL: error setting the expected host name `" + _host + "'");
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: error setting the expected host name `" + _host + "'");
                     }
                 }
             }
@@ -567,7 +571,9 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
                 case SSL_ERROR_SSL:
                 {
                     throw ProtocolException(
-                        __FILE__, __LINE__, "SSL protocol error during write:\n" + _engine->sslErrors());
+                        __FILE__,
+                        __LINE__,
+                        "SSL protocol error during write:\n" + _engine->sslErrors());
                 }
             }
         }
@@ -688,7 +694,9 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
                     {
 #endif
                         throw ProtocolException(
-                            __FILE__, __LINE__, "SSL protocol error during read:\n" + _engine->sslErrors());
+                            __FILE__,
+                            __LINE__,
+                            "SSL protocol error during read:\n" + _engine->sslErrors());
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
                     }
 #endif
@@ -836,7 +844,9 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
                 case SSL_ERROR_SSL:
                 {
                     throw ProtocolException(
-                        __FILE__, __LINE__, "SSL protocol error during read:\n" + _engine->sslErrors());
+                        __FILE__,
+                        __LINE__,
+                        "SSL protocol error during read:\n" + _engine->sslErrors());
                 }
             }
         }

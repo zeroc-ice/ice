@@ -738,7 +738,9 @@ InvocationObserverI::getRemoteObserver(
             delegate = _delegate->getRemoteObserver(connection, endpoint, requestId, size);
         }
         return getObserverWithDelegate<RemoteObserverI>(
-            "Remote", RemoteInvocationHelper(connection, endpoint, requestId, size), delegate);
+            "Remote",
+            RemoteInvocationHelper(connection, endpoint, requestId, size),
+            delegate);
     }
     catch (const exception&)
     {
@@ -757,7 +759,9 @@ InvocationObserverI::getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter,
             delegate = _delegate->getCollocatedObserver(adapter, requestId, size);
         }
         return getObserverWithDelegate<CollocatedObserverI>(
-            "Collocated", CollocatedInvocationHelper(adapter, requestId, size), delegate);
+            "Collocated",
+            CollocatedInvocationHelper(adapter, requestId, size),
+            delegate);
     }
     catch (const exception&)
     {

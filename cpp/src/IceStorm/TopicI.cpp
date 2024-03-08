@@ -966,7 +966,8 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // node is locked.
 
     masterInternal->reapAsync(
-        reap, nullptr,
+        reap,
+        nullptr,
         [instance = _instance, generation](exception_ptr ex)
         {
             auto traceLevels = instance->traceLevels();

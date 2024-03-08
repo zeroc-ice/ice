@@ -60,7 +60,13 @@ IceBT::formatDeviceAddress(const DeviceAddress& addr)
 {
     char buf[64];
     sprintf(
-        buf, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", addr.b[5], addr.b[4], addr.b[3], addr.b[2], addr.b[1],
+        buf,
+        "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+        addr.b[5],
+        addr.b[4],
+        addr.b[3],
+        addr.b[2],
+        addr.b[1],
         addr.b[0]);
     return IceUtilInternal::toUpper(string(buf));
 }

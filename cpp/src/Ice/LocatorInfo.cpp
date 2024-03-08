@@ -308,7 +308,9 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
             if (_reference->getInstance()->traceLevels()->location >= 1)
             {
                 locatorInfo->trace(
-                    "retrieved adapter for well-known object from locator, adding to locator cache", _reference, r);
+                    "retrieved adapter for well-known object from locator, adding to locator cache",
+                    _reference,
+                    r);
             }
             locatorInfo->getEndpoints(r, _reference, _ttl, _callback);
             return;
@@ -620,8 +622,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
         if (ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "adapter not found"
-                << "\n";
+            out << "adapter not found" << "\n";
             out << "adapter = " << ref->getAdapterId();
         }
 
@@ -632,13 +633,14 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
         if (ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "object not found"
-                << "\n";
+            out << "object not found" << "\n";
             out << "object = " << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode());
         }
 
         throw NotRegisteredException(
-            __FILE__, __LINE__, "object",
+            __FILE__,
+            __LINE__,
+            "object",
             Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode()));
     }
     catch (const NotRegisteredException&)
@@ -729,7 +731,9 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
     transform(
-        endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
+        endpoints.begin(),
+        endpoints.end(),
+        ostream_iterator<string>(o, sep),
         [](const EndpointPtr& endpoint) { return endpoint->toString(); });
     out << "endpoints = " << o.str();
 }

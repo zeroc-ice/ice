@@ -25,7 +25,8 @@ Server::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
     communicatorHolder->getProperties()->setProperty(
-        "TestAdapter.Endpoints", getTestEndpoint() + ":" + getTestEndpoint("udp"));
+        "TestAdapter.Endpoints",
+        getTestEndpoint() + ":" + getTestEndpoint("udp"));
     auto adapter = communicatorHolder->createObjectAdapter("TestAdapter");
     adapter->add(make_shared<MyClassI>(), Ice::stringToIdentity("test"));
     adapter->activate();

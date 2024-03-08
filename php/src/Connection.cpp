@@ -455,7 +455,9 @@ static zend_function_entry _connectionClassMethods[] = {
                                             Ice_Connection_setBufferSize_arginfo,
                                             ZEND_ACC_PUBLIC)
                                             ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){
-                                                0, 0, 0}};
+                                                0,
+                                                0,
+                                                0}};
 
 ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 
@@ -513,7 +515,11 @@ IcePHP::connectionInit(void)
 
     zend_declare_property_bool(connectionInfoClassEntry, "incoming", sizeof("incoming") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
-        connectionInfoClassEntry, "adapterName", sizeof("adapterName") - 1, "", ZEND_ACC_PUBLIC);
+        connectionInfoClassEntry,
+        "adapterName",
+        sizeof("adapterName") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
     zend_declare_property_null(connectionInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Register the IPConnectionInfo class.
@@ -521,10 +527,18 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(
-        ipConnectionInfoClassEntry, "localAddress", sizeof("localAddress") - 1, "", ZEND_ACC_PUBLIC);
+        ipConnectionInfoClassEntry,
+        "localAddress",
+        sizeof("localAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "localPort", sizeof("localPort") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_string(
-        ipConnectionInfoClassEntry, "remoteAddress", sizeof("remoteAddress") - 1, "", ZEND_ACC_PUBLIC);
+        ipConnectionInfoClassEntry,
+        "remoteAddress",
+        sizeof("remoteAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "remotePort", sizeof("remotePort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the TCPConnectionInfo class.
@@ -539,7 +553,11 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_string(
-        udpConnectionInfoClassEntry, "mcastAddress", sizeof("mcastAddress") - 1, "", ZEND_ACC_PUBLIC);
+        udpConnectionInfoClassEntry,
+        "mcastAddress",
+        sizeof("mcastAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
@@ -677,7 +695,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 
         Ice::StringSeq encoded;
         transform(
-            info->certs.cbegin(), info->certs.cend(), back_inserter(encoded),
+            info->certs.cbegin(),
+            info->certs.cend(),
+            back_inserter(encoded),
             [](const auto& cert) { return cert->encode(); });
 
         if (createStringArray(&zarr, encoded))

@@ -77,7 +77,8 @@ allTests(TestHelper* helper)
 
     BackgroundPrx background(communicator, "background:" + endp);
     BackgroundControllerPrx backgroundController(
-        communicator, "backgroundController:" + helper->getTestEndpoint(1, "tcp"));
+        communicator,
+        "backgroundController:" + helper->getTestEndpoint(1, "tcp"));
 
     auto plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
     assert(plugin);
@@ -267,7 +268,8 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             promise<void> completed;
             promise<bool> sent;
             prx->opAsync(
-                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                []() { test(false); },
+                [&completed](exception_ptr) { completed.set_value(); },
                 [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
@@ -278,7 +280,8 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             promise<bool> sent;
 
             prx->opAsync(
-                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                []() { test(false); },
+                [&completed](exception_ptr) { completed.set_value(); },
                 [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
@@ -379,7 +382,8 @@ initializeTests(
         promise<void> completed;
 
         prx->opAsync(
-            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            []() { test(false); },
+            [&completed](exception_ptr) { completed.set_value(); },
             [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
@@ -614,7 +618,8 @@ validationTests(
         promise<void> completed;
 
         prx->opAsync(
-            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            []() { test(false); },
+            [&completed](exception_ptr) { completed.set_value(); },
             [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
@@ -695,11 +700,13 @@ validationTests(
     promise<bool> s2;
 
     background->opAsync(
-        [&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); },
+        [&p1]() { p1.set_value(); },
+        [&p1](exception_ptr e) { p1.set_exception(e); },
         [&s1](bool value) { s1.set_value(value); });
 
     background->opAsync(
-        [&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); },
+        [&p2]() { p2.set_value(); },
+        [&p2](exception_ptr e) { p2.set_exception(e); },
         [&s2](bool value) { s2.set_value(value); });
 
     test(s1.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
@@ -1112,34 +1119,43 @@ readWriteTests(
     // Fill up the receive and send buffers
     for (int i = 0; i < 200; ++i) // 2MB
     {
-        backgroundOneway->opWithPayloadAsync(
-            seq, []() { test(false); }, [](exception_ptr) { test(false); });
+        backgroundOneway->opWithPayloadAsync(seq, []() { test(false); }, [](exception_ptr) { test(false); });
     }
     promise<void> c1;
     promise<bool> s1;
 
     background->opAsync(
-        [&c1]() { c1.set_value(); }, [](exception_ptr) { test(false); }, [&s1](bool value) { s1.set_value(value); });
+        [&c1]() { c1.set_value(); },
+        [](exception_ptr) { test(false); },
+        [&s1](bool value) { s1.set_value(value); });
     auto fs1 = s1.get_future();
     test(fs1.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<void> c2;
     promise<bool> s2;
     background->opAsync(
-        [&c2]() { c2.set_value(); }, [](exception_ptr) { test(false); }, [&s2](bool value) { s2.set_value(value); });
+        [&c2]() { c2.set_value(); },
+        [](exception_ptr) { test(false); },
+        [&s2](bool value) { s2.set_value(value); });
 
     auto fs2 = s2.get_future();
     test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s3;
     backgroundOneway->opWithPayloadAsync(
-        seq, []() { test(false); }, [](exception_ptr) { test(false); }, [&s3](bool value) { s3.set_value(value); });
+        seq,
+        []() { test(false); },
+        [](exception_ptr) { test(false); },
+        [&s3](bool value) { s3.set_value(value); });
     auto fs3 = s3.get_future();
     test(fs3.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s4;
     backgroundOneway->opWithPayloadAsync(
-        seq, []() { test(false); }, [](exception_ptr) { test(false); }, [&s4](bool value) { s4.set_value(value); });
+        seq,
+        []() { test(false); },
+        [](exception_ptr) { test(false); },
+        [&s4](bool value) { s4.set_value(value); });
     auto fs4 = s4.get_future();
     test(fs4.wait_for(chrono::milliseconds(0)) != future_status::ready);
 

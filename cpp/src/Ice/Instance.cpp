@@ -123,7 +123,8 @@ namespace
                 int notDestroyedCount = 0;
 
                 for (std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
-                     p != instanceList->end(); ++p)
+                     p != instanceList->end();
+                     ++p)
                 {
                     if (!(*p)->destroyed())
                     {
@@ -198,7 +199,10 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
     lock_guard lock(_mutex);
     assert(obsv);
     _observer.attach(obsv->getThreadObserver(
-        "Communicator", "Ice.Timer", Instrumentation::ThreadState::ThreadStateIdle, _observer.get()));
+        "Communicator",
+        "Ice.Timer",
+        Instrumentation::ThreadState::ThreadStateIdle,
+        _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
 
@@ -215,7 +219,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         if (threadObserver)
         {
             threadObserver->stateChanged(
-                Instrumentation::ThreadState::ThreadStateIdle, Instrumentation::ThreadState::ThreadStateInUseForOther);
+                Instrumentation::ThreadState::ThreadStateIdle,
+                Instrumentation::ThreadState::ThreadStateInUseForOther);
         }
         try
         {
@@ -235,7 +240,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         if (threadObserver)
         {
             threadObserver->stateChanged(
-                Instrumentation::ThreadState::ThreadStateInUseForOther, Instrumentation::ThreadState::ThreadStateIdle);
+                Instrumentation::ThreadState::ThreadStateInUseForOther,
+                Instrumentation::ThreadState::ThreadStateIdle);
         }
     }
     else
@@ -683,7 +689,8 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             }
 
             throw InitializationException(
-                __FILE__, __LINE__,
+                __FILE__,
+                __LINE__,
                 "Locator `" + _proxyFactory->proxyToString(locator) + "' knows nothing about server `" + serverId +
                     "'");
         }
@@ -1054,7 +1061,10 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     sz = 0;
                 }
                 _initData.logger = make_shared<LoggerI>(
-                    _initData.properties->getProperty("Ice.ProgramName"), logfile, true, static_cast<size_t>(sz));
+                    _initData.properties->getProperty("Ice.ProgramName"),
+                    logfile,
+                    true,
+                    static_cast<size_t>(sz));
             }
             else
             {
@@ -1062,7 +1072,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 if (dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
                     _initData.logger = make_shared<LoggerI>(
-                        _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
+                        _initData.properties->getProperty("Ice.ProgramName"),
+                        "",
+                        logStdErrConvert);
                 }
             }
         }
@@ -1148,7 +1160,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         else if (toStringModeStr != "Unicode")
         {
             throw InitializationException(
-                __FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                __FILE__,
+                __LINE__,
+                "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
@@ -1170,7 +1184,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         else
         {
             throw Ice::InitializationException(
-                __FILE__, __LINE__, "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
+                __FILE__,
+                __LINE__,
+                "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
         }
 
         _routerManager = make_shared<RouterManager>();

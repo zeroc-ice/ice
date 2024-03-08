@@ -248,8 +248,12 @@ main(int argc, char* argv[])
                 newInfoSeq.reserve(infoSeq.size());
 
                 set_difference(
-                    infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
-                    back_inserter(newInfoSeq), FileInfoPathLess());
+                    infoSeq.begin(),
+                    infoSeq.end(),
+                    partialInfoSeq.begin(),
+                    partialInfoSeq.end(),
+                    back_inserter(newInfoSeq),
+                    FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
 
@@ -257,8 +261,12 @@ main(int argc, char* argv[])
                 newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
 
                 set_union(
-                    infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
-                    back_inserter(newInfoSeq), FileInfoPathLess());
+                    infoSeq.begin(),
+                    infoSeq.end(),
+                    partialInfoSeq.begin(),
+                    partialInfoSeq.end(),
+                    back_inserter(newInfoSeq),
+                    FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
             }

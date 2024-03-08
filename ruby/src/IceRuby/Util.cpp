@@ -434,7 +434,11 @@ IceRuby::hashIterate(VALUE h, HashIterator& iter)
     assert(TYPE(h) == T_HASH);
 
     callRuby(
-        ::rb_block_call, h, rb_intern("each"), 0, static_cast<VALUE*>(0),
+        ::rb_block_call,
+        h,
+        rb_intern("each"),
+        0,
+        static_cast<VALUE*>(0),
         reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
         reinterpret_cast<VALUE>(&iter));
 }

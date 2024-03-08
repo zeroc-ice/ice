@@ -42,7 +42,10 @@ namespace
             "this",     "throw",     "true",      "try",        "typeof",    "uint",     "ulong",    "unchecked",
             "unsafe",   "ushort",    "using",     "virtual",    "void",      "volatile", "while"};
         bool found = binary_search(
-            &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
+            &keywordList[0],
+            &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+            name,
+            Slice::CICompare());
         if (found)
         {
             return "@" + name;
@@ -334,8 +337,18 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         return getUnqualified("Ice.Optional", package) + "<" + typeToString(type, package, false) + ">";
     }
 
-    static const char* builtinTable[] = {"byte",   "bool",   "short",      "int",           "long",     "float",
-                                         "double", "string", "Ice.Object", "Ice.ObjectPrx", "Ice.Value"};
+    static const char* builtinTable[] = {
+        "byte",
+        "bool",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "string",
+        "Ice.Object",
+        "Ice.ObjectPrx",
+        "Ice.Value"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -1385,8 +1398,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                     else if (isCustom)
                     {
                         out << sb;
-                        out << nl << param << " = new "
-                            << "global::" << genericType << "<" << typeToString(type, scope) << ">();";
+                        out << nl << param << " = new " << "global::" << genericType << "<" << typeToString(type, scope)
+                            << ">();";
                         out << nl << "int szx = " << stream << ".readSize();";
                         out << nl << "for(int ix = 0; ix < szx; ++ix)";
                         out << sb;

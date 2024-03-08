@@ -105,7 +105,10 @@ lookupKwd(const string& name)
         "return",    "static", "super",    "switch", "this",       "throw",   "true",      "try",
         "typeof",    "var",    "void",     "while",  "with",       "yield"};
     bool found = binary_search(
-        &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
+        &keywordList[0],
+        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+        name,
+        Slice::CICompare());
     if (found)
     {
         return "_" + name;
@@ -366,23 +369,31 @@ Slice::JsGenerator::typeToString(
         return "void";
     }
 
-    static const char* typeScriptBuiltinTable[] = {"number",   // byte
-                                                   "boolean",  // bool
-                                                   "number",   // short
-                                                   "number",   // int
-                                                   "Ice.Long", // long
-                                                   "number",   // float
-                                                   "number",   // double
-                                                   "string",   "Ice.Object", "Ice.ObjectPrx", "Ice.Value"};
+    static const char* typeScriptBuiltinTable[] = {
+        "number",   // byte
+        "boolean",  // bool
+        "number",   // short
+        "number",   // int
+        "Ice.Long", // long
+        "number",   // float
+        "number",   // double
+        "string",
+        "Ice.Object",
+        "Ice.ObjectPrx",
+        "Ice.Value"};
 
-    static const char* javaScriptBuiltinTable[] = {"Number",   // byte
-                                                   "Boolean",  // bool
-                                                   "Number",   // short
-                                                   "Number",   // int
-                                                   "Ice.Long", // long
-                                                   "Number",   // float
-                                                   "Number",   // double
-                                                   "String",   "Ice.Value", "Ice.ObjectPrx", "Ice.Value"};
+    static const char* javaScriptBuiltinTable[] = {
+        "Number",   // byte
+        "Boolean",  // bool
+        "Number",   // short
+        "Number",   // int
+        "Ice.Long", // long
+        "Number",   // float
+        "Number",   // double
+        "String",
+        "Ice.Value",
+        "Ice.ObjectPrx",
+        "Ice.Value"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)

@@ -283,8 +283,8 @@ namespace
     //
     // Map alternative name alias to its types.
     //
-    const char* certificateAlternativeNameTypes[] = {"", "Email Address", "DNS Name",  "", "Directory Name",
-                                                     "", "URI",           "IP Address"};
+    const char* certificateAlternativeNameTypes[] =
+        {"", "Email Address", "DNS Name", "", "Directory Name", "", "URI", "IP Address"};
     const int certificateAlternativeNameTypesSize = sizeof(certificateAlternativeNameTypes) / sizeof(char*);
 
     int certificateAlternativeNameType(const string& alias)
@@ -527,13 +527,17 @@ SecureTransportCertificateI::verify(const IceSSL::CertificatePtr& cert) const
         if (error)
         {
             throw CertificateEncodingException(
-                __FILE__, __LINE__, "certificate error:\n" + sslErrorToString(error.get()));
+                __FILE__,
+                __LINE__,
+                "certificate error:\n" + sslErrorToString(error.get()));
         }
         UniqueRef<CFDataRef> subject(SecCertificateCopyNormalizedSubjectContent(c->getCert(), &error.get()));
         if (error)
         {
             throw CertificateEncodingException(
-                __FILE__, __LINE__, "certificate error:\n" + sslErrorToString(error.get()));
+                __FILE__,
+                __LINE__,
+                "certificate error:\n" + sslErrorToString(error.get()));
         }
 
         //
@@ -921,7 +925,9 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     return make_shared<SecureTransportCertificateI>(cert);
 #else // macOS
     UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(
-        kCFAllocatorDefault, reinterpret_cast<const UInt8*>(encoding.c_str()), static_cast<CFIndex>(encoding.size()),
+        kCFAllocatorDefault,
+        reinterpret_cast<const UInt8*>(encoding.c_str()),
+        static_cast<CFIndex>(encoding.size()),
         kCFAllocatorNull));
 
     SecExternalFormat format = kSecFormatUnknown;

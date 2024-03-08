@@ -156,7 +156,9 @@ SessionI::allocateObjectByIdAsync(
     const Ice::Current&)
 {
     auto allocatedObject = make_shared<AllocateObject>(
-        static_pointer_cast<SessionI>(shared_from_this()), std::move(response), std::move(exception));
+        static_pointer_cast<SessionI>(shared_from_this()),
+        std::move(response),
+        std::move(exception));
     _database->getAllocatableObject(id)->allocate(std::move(allocatedObject));
 }
 
@@ -168,7 +170,9 @@ SessionI::allocateObjectByTypeAsync(
     const Ice::Current&)
 {
     auto allocatedObject = make_shared<AllocateObject>(
-        static_pointer_cast<SessionI>(shared_from_this()), std::move(response), std::move(exception));
+        static_pointer_cast<SessionI>(shared_from_this()),
+        std::move(response),
+        std::move(exception));
     _database->getAllocatableObjectCache().allocateByType(type, std::move(allocatedObject));
 }
 

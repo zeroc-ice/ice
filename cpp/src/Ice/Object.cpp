@@ -250,7 +250,8 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& incoming)
                 }
                 incomingPtr->completed();
             },
-            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); },
+            incomingPtr->current());
     }
     catch (...)
     {
@@ -276,7 +277,8 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& incoming)
                 incomingPtr->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
                 incomingPtr->completed();
             },
-            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+            [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); },
+            incomingPtr->current());
     }
     catch (...)
     {

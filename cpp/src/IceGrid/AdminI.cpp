@@ -48,7 +48,10 @@ namespace
             try
             {
                 return std::invoke(
-                    std::forward<Func>(f), _proxy, std::forward<Args>(args)..., ::Ice::noExplicitContext);
+                    std::forward<Func>(f),
+                    _proxy,
+                    std::forward<Args>(args)...,
+                    ::Ice::noExplicitContext);
             }
             catch (const Ice::Exception&)
             {
@@ -72,7 +75,11 @@ namespace
                 }
             };
             return std::invoke(
-                std::forward<Func>(f), _proxy, std::move(response), std::move(exceptionWrapper), nullptr,
+                std::forward<Func>(f),
+                _proxy,
+                std::move(response),
+                std::move(exceptionWrapper),
+                nullptr,
                 Ice::noExplicitContext);
         }
 
@@ -413,7 +420,9 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
     proxy.useActivationTimeout();
 
     proxy.invokeAsync(
-        [](const auto& prx, auto... args) { prx->startAsync(args...); }, std::move(response), std::move(exception));
+        [](const auto& prx, auto... args) { prx->startAsync(args...); },
+        std::move(response),
+        std::move(exception));
 }
 
 void
@@ -426,7 +435,8 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     // Since the server might take a while to be deactivated, we use AMI.
     //
     proxy.invokeAsync(
-        [](const auto& prx, auto... args) { prx->stopAsync(args...); }, response,
+        [](const auto& prx, auto... args) { prx->stopAsync(args...); },
+        response,
         [response, exception = std::move(exception)](exception_ptr ex)
         {
             try

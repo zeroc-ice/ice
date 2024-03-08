@@ -313,24 +313,43 @@ IceRuby::initProperties(VALUE iceModule)
     rb_undef_alloc_func(_propertiesClass);
     rb_define_method(_propertiesClass, "getProperty", CAST_METHOD(IceRuby_Properties_getProperty), 1);
     rb_define_method(
-        _propertiesClass, "getPropertyWithDefault", CAST_METHOD(IceRuby_Properties_getPropertyWithDefault), 2);
+        _propertiesClass,
+        "getPropertyWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyWithDefault),
+        2);
     rb_define_method(_propertiesClass, "getPropertyAsInt", CAST_METHOD(IceRuby_Properties_getPropertyAsInt), 1);
     rb_define_method(
-        _propertiesClass, "getPropertyAsIntWithDefault", CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault),
+        _propertiesClass,
+        "getPropertyAsIntWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault),
         2);
     rb_define_method(_propertiesClass, "getPropertyAsList", CAST_METHOD(IceRuby_Properties_getPropertyAsList), 1);
     rb_define_method(
-        _propertiesClass, "getPropertyAsListWithDefault", CAST_METHOD(IceRuby_Properties_getPropertyAsListWithDefault),
+        _propertiesClass,
+        "getPropertyAsListWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyAsListWithDefault),
         2);
     rb_define_method(
-        _propertiesClass, "getPropertiesForPrefix", CAST_METHOD(IceRuby_Properties_getPropertiesForPrefix), 1);
+        _propertiesClass,
+        "getPropertiesForPrefix",
+        CAST_METHOD(IceRuby_Properties_getPropertiesForPrefix),
+        1);
     rb_define_method(_propertiesClass, "setProperty", CAST_METHOD(IceRuby_Properties_setProperty), 2);
     rb_define_method(
-        _propertiesClass, "getCommandLineOptions", CAST_METHOD(IceRuby_Properties_getCommandLineOptions), 0);
+        _propertiesClass,
+        "getCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_getCommandLineOptions),
+        0);
     rb_define_method(
-        _propertiesClass, "parseCommandLineOptions", CAST_METHOD(IceRuby_Properties_parseCommandLineOptions), 2);
+        _propertiesClass,
+        "parseCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_parseCommandLineOptions),
+        2);
     rb_define_method(
-        _propertiesClass, "parseIceCommandLineOptions", CAST_METHOD(IceRuby_Properties_parseIceCommandLineOptions), 1);
+        _propertiesClass,
+        "parseIceCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_parseIceCommandLineOptions),
+        1);
     rb_define_method(_propertiesClass, "load", CAST_METHOD(IceRuby_Properties_load), 1);
     rb_define_method(_propertiesClass, "clone", CAST_METHOD(IceRuby_Properties_clone), 0);
     rb_define_method(_propertiesClass, "to_s", CAST_METHOD(IceRuby_Properties_to_s), 0);

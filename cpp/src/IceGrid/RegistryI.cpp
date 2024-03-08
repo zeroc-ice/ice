@@ -371,7 +371,12 @@ RegistryI::startImpl()
     registryTopicManagerId.category = _instanceName;
     registryTopicManagerId.name = "RegistryTopicManager";
     _iceStorm = IceStormInternal::Service::create(
-        _communicator, _registryAdapter, _registryAdapter, "IceGrid.Registry", registryTopicManagerId, "");
+        _communicator,
+        _registryAdapter,
+        _registryAdapter,
+        "IceGrid.Registry",
+        registryTopicManagerId,
+        "");
     const auto topicManager = _iceStorm->getTopicManager();
 
     try
@@ -526,8 +531,16 @@ RegistryI::startImpl()
     auto adminCallbackRouter = make_shared<AdminCallbackRouter>();
 
     _servantManager = make_shared<SessionServantManager>(
-        _clientAdapter, _instanceName, true, getServerAdminCategory(), serverAdminRouter, getNodeAdminCategory(),
-        nodeAdminRouter, getReplicaAdminCategory(), replicaAdminRouter, adminCallbackRouter);
+        _clientAdapter,
+        _instanceName,
+        true,
+        getServerAdminCategory(),
+        serverAdminRouter,
+        getNodeAdminCategory(),
+        nodeAdminRouter,
+        getReplicaAdminCategory(),
+        replicaAdminRouter,
+        adminCallbackRouter);
 
     _clientAdapter->addServantLocator(_servantManager, "");
     _serverAdapter->addDefaultServant(adminCallbackRouter, "");
@@ -758,8 +771,8 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrxPtr& locator)
     if (!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
-        servantManager = make_shared<SessionServantManager>(
-            adapter, _instanceName, false, "", nullptr, "", nullptr, "", nullptr, nullptr);
+        servantManager = make_shared<
+            SessionServantManager>(adapter, _instanceName, false, "", nullptr, "", nullptr, "", nullptr, nullptr);
         adapter->addServantLocator(servantManager, "");
     }
 
@@ -777,7 +790,8 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrxPtr& locator)
 
         _wellKnownObjects->add(adapter->createProxy(sessionMgrId), string{Glacier2::SessionManager::ice_staticId()});
         _wellKnownObjects->add(
-            adapter->createProxy(sslSessionMgrId), string{Glacier2::SSLSessionManager::ice_staticId()});
+            adapter->createProxy(sslSessionMgrId),
+            string{Glacier2::SSLSessionManager::ice_staticId()});
     }
 
     if (adapter)
@@ -807,8 +821,16 @@ RegistryI::setupAdminSessionFactory(
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.AdminSessionManager");
         servantManager = make_shared<SessionServantManager>(
-            adapter, _instanceName, false, getServerAdminCategory(), serverAdminRouter, getNodeAdminCategory(),
-            nodeAdminRouter, getReplicaAdminCategory(), replicaAdminRouter, nullptr);
+            adapter,
+            _instanceName,
+            false,
+            getServerAdminCategory(),
+            serverAdminRouter,
+            getNodeAdminCategory(),
+            nodeAdminRouter,
+            getReplicaAdminCategory(),
+            replicaAdminRouter,
+            nullptr);
         adapter->addServantLocator(servantManager, "");
     }
 
@@ -830,7 +852,8 @@ RegistryI::setupAdminSessionFactory(
 
         _wellKnownObjects->add(adapter->createProxy(sessionMgrId), string{Glacier2::SessionManager::ice_staticId()});
         _wellKnownObjects->add(
-            adapter->createProxy(sslSessionMgrId), string{Glacier2::SSLSessionManager::ice_staticId()});
+            adapter->createProxy(sslSessionMgrId),
+            string{Glacier2::SSLSessionManager::ice_staticId()});
     }
 
     if (adapter)
@@ -947,7 +970,8 @@ RegistryI::createSession(string user, string password, const Current& current)
     auto session = _clientSessionFactory->createSessionServant(user, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
+        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
+        _sessionTimeout,
         current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
@@ -995,7 +1019,8 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
     auto session = _adminSessionFactory->createSessionServant(user);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session), _sessionTimeout,
+        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
+        _sessionTimeout,
         current.con);
     return uncheckedCast<AdminSessionPrx>(proxy);
 }
@@ -1050,7 +1075,8 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
     auto session = _clientSessionFactory->createSessionServant(userDN, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
+        make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
+        _sessionTimeout,
         current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
@@ -1098,7 +1124,8 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     auto session = _adminSessionFactory->createSessionServant(userDN);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
-        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session), _sessionTimeout,
+        make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
+        _sessionTimeout,
         current.con);
     return uncheckedCast<AdminSessionPrx>(proxy);
 }

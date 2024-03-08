@@ -241,7 +241,8 @@ compile(const vector<string>& argv)
                     os,
                     depend ? Preprocessor::JavaScript
                            : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
-                    includePaths, "-D__SLICE2JS__"))
+                    includePaths,
+                    "-D__SLICE2JS__"))
             {
                 return EXIT_FAILURE;
             }
@@ -391,8 +392,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

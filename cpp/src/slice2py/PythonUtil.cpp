@@ -3062,7 +3062,9 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             if (!builtin || builtin->kind() != Builtin::KindByte)
             {
                 dc->warning(
-                    InvalidMetaData, file, line,
+                    InvalidMetaData,
+                    file,
+                    line,
                     "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
             }
             else

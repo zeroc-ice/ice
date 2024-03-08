@@ -280,7 +280,10 @@ NodeSessionI::waitForApplicationUpdateAsync(
     const Ice::Current&) const
 {
     _database->waitForApplicationUpdate(
-        std::move(application), std::move(revision), std::move(response), std::move(exception));
+        std::move(application),
+        std::move(revision),
+        std::move(response),
+        std::move(exception));
 }
 
 void

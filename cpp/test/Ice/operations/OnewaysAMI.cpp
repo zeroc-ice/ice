@@ -58,8 +58,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 
     {
         CallbackPtr cb = std::make_shared<Callback>();
-        p->ice_pingAsync(
-            nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
+        p->ice_pingAsync(nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
         cb->check();
     }
 
@@ -98,22 +97,19 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 
     {
         CallbackPtr cb = std::make_shared<Callback>();
-        p->opVoidAsync(
-            nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
+        p->opVoidAsync(nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
         cb->check();
     }
 
     {
         CallbackPtr cb = std::make_shared<Callback>();
-        p->opIdempotentAsync(
-            nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
+        p->opIdempotentAsync(nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
         cb->check();
     }
 
     {
         CallbackPtr cb = std::make_shared<Callback>();
-        p->opNonmutatingAsync(
-            nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
+        p->opNonmutatingAsync(nullptr, [](exception_ptr) { test(false); }, [&](bool sent) { cb->sent(sent); });
         cb->check();
     }
 

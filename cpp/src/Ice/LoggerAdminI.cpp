@@ -338,7 +338,8 @@ namespace
         {
             auto self = shared_from_this();
             remoteLogger->initAsync(
-                logger->getPrefix(), initLogMessages,
+                logger->getPrefix(),
+                initLogMessages,
                 [self, logger, remoteLogger]()
                 {
                     if (self->_traceLevel > 1)
@@ -585,7 +586,8 @@ namespace
     {
         LogMessage logMessage = {
             LogMessageType::PrintMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(), "",
+            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+            "",
             message};
 
         _localLogger->print(message);
@@ -597,7 +599,8 @@ namespace
         LogMessage logMessage = {
             LogMessageType::TraceMessage,
             chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
-            category, message};
+            category,
+            message};
 
         _localLogger->trace(category, message);
         log(logMessage);
@@ -607,7 +610,8 @@ namespace
     {
         LogMessage logMessage = {
             LogMessageType::WarningMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(), "",
+            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+            "",
             message};
 
         _localLogger->warning(message);
@@ -618,7 +622,8 @@ namespace
     {
         LogMessage logMessage = {
             LogMessageType::ErrorMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(), "",
+            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+            "",
             message};
 
         _localLogger->error(message);

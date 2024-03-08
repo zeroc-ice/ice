@@ -2018,7 +2018,10 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         if (!_sliceValues)
         {
             throw NoValueFactoryException(
-                __FILE__, __LINE__, "no value factory found and value slicing is disabled", _typeId);
+                __FILE__,
+                __LINE__,
+                "no value factory found and value slicing is disabled",
+                _typeId);
         }
 
         //
@@ -2319,7 +2322,8 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         if (_current->sliceType == ValueSlice)
         {
             throw NoValueFactoryException(
-                __FILE__, __LINE__,
+                __FILE__,
+                __LINE__,
                 "no value factory found and compact format prevents "
                 "slicing (the sender should use the sliced format instead)",
                 _current->typeId);
@@ -2449,7 +2453,10 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
         if (!_sliceValues)
         {
             throw NoValueFactoryException(
-                __FILE__, __LINE__, "no value factory found and value slicing is disabled", _current->typeId);
+                __FILE__,
+                __LINE__,
+                "no value factory found and value slicing is disabled",
+                _current->typeId);
         }
 
         //

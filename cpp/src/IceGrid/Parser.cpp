@@ -35,46 +35,55 @@ using namespace IceGrid;
 namespace
 {
     const char* _commandsHelp[][3] = {
-        {"application", "add",
+        {"application",
+         "add",
          "application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
          "                          Add application described in DESC. If specified\n"
          "                          the optional targets TARGET will be deployed.\n"},
         {"application", "remove", "application remove NAME   Remove application NAME.\n"},
         {"application", "describe", "application describe NAME Describe application NAME.\n"},
-        {"application", "diff",
+        {"application",
+         "diff",
          "application diff [-s | --servers] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
          "                          Print the differences betwen the application\n"
          "                          described in DESC and the current deployment.\n"
          "                          If -s or --servers is specified, print the\n"
          "                          the list of servers affected by the differences.\n"},
-        {"application", "update",
+        {"application",
+         "update",
          "application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
          "                          Update the application described in DESC. If -n or\n"
          "                          --no-restart is specified, the update will fail if\n"
          "                          it is necessary to stop some servers.\n"},
-        {"application", "patch",
+        {"application",
+         "patch",
          "application patch [-f | --force] NAME\n"
          "                          Patch the given application data. If -f or --force is\n"
          "                          specified, the servers depending on the data to patch\n"
          "                          will be stopped if necessary.\n"},
         {"application", "list", "application list          List all deployed applications.\n"},
-        {"server template", "instantiate",
+        {"server template",
+         "instantiate",
          "server template instantiate APPLICATION NODE TEMPLATE [NAME=VALUE ...]\n"
          "                          Instantiate a server template.\n"},
-        {"server template", "describe",
+        {"server template",
+         "describe",
          "server template describe APPLICATION TEMPLATE\n"
          "                          Describe application server template TEMPLATE.\n"},
-        {"service template", "describe",
+        {"service template",
+         "describe",
          "service template describe APPLICATION TEMPLATE\n"
          "                          Describe application service template TEMPLATE.\n"},
         {"node", "list", "node list                 List all registered nodes.\n"},
         {"node", "describe", "node describe NAME        Show information about node NAME.\n"},
         {"node", "ping", "node ping NAME            Ping node NAME.\n"},
         {"node", "load", "node load NAME            Print the load of the node NAME.\n"},
-        {"node", "sockets",
+        {"node",
+         "sockets",
          "node sockets [NAME]       Print the number of CPU sockets of the\n"
          "                          node NAME or all the nodes if NAME is omitted.\n"},
-        {"node", "show",
+        {"node",
+         "show",
          "node show [OPTIONS] NAME [log | stderr | stdout]\n"
          "                          Show node NAME Ice log, stderr or stdout.\n"
          "                          Options:\n"
@@ -85,7 +94,8 @@ namespace
         {"registry", "list", "registry list             List all registered registries.\n"},
         {"registry", "describe", "registry describe NAME    Show information about registry NAME.\n"},
         {"registry", "ping", "registry ping NAME        Ping registry NAME.\n"},
-        {"registry", "show",
+        {"registry",
+         "show",
          "registry show [OPTIONS] NAME [log | stderr | stdout ]\n"
          "                          Show registry NAME Ice log, stderr or stdout.\n"
          "                          Options:\n"
@@ -106,7 +116,8 @@ namespace
         {"server", "signal", "server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"},
         {"server", "stdout", "server stdout ID MESSAGE  Write MESSAGE on server ID's stdout.\n"},
         {"server", "stderr", "server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n"},
-        {"server", "show",
+        {"server",
+         "show",
          "server show [OPTIONS] ID [log | stderr | stdout | LOGFILE ]\n"
          "                          Show server ID Ice log, stderr, stdout or log file LOGFILE.\n"
          "                          Options:\n"
@@ -114,18 +125,21 @@ namespace
          "                           -t N | --tail N: Print the last N log messages or lines\n"
          "                           -h N | --head N: Print the first N lines (not available for Ice log)\n"},
         {"server", "enable", "server enable ID          Enable server ID.\n"},
-        {"server", "disable",
+        {"server",
+         "disable",
          "server disable ID         Disable server ID (a disabled server can't be\n"
          "                          started on demand or administratively).\n"},
 
         {"service", "start", "service start ID NAME     Starts service NAME in IceBox server ID.\n"},
         {"service", "stop", "service stop ID NAME      Stops service NAME in IceBox server ID.\n"},
         {"service", "describe", "service describe ID NAME  Describes service NAME in IceBox server ID.\n"},
-        {"service", "properties",
+        {"service",
+         "properties",
          "service properties ID NAME\n"
          "                          Get the run-time properties of service NAME in\n"
          "                          IceBox server ID.\n"},
-        {"service", "property",
+        {"service",
+         "property",
          "service property ID NAME PROPERTY\n"
          "                          Get the run-time property PROPERTY of service NAME\n"
          "                          from IceBox server ID.\n"},
@@ -134,17 +148,20 @@ namespace
         {"adapter", "list", "adapter list              List all registered adapters.\n"},
         {"adapter", "endpoints", "adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n"},
         {"adapter", "remove", "adapter remove ID         Remove adapter or replica group ID.\n"},
-        {"object", "add",
+        {"object",
+         "add",
          "object add PROXY [TYPE]   Add an object to the object registry,\n"
          "                          optionally specifying its type.\n"},
         {"object", "remove", "object remove IDENTITY    Remove an object from the object registry.\n"},
         {"object", "find", "object find TYPE          Find all objects with the type TYPE.\n"},
-        {"object", "describe",
+        {"object",
+         "describe",
          "object describe EXPR      Describe all registered objects whose stringified\n"
          "                          identities match the expression EXPR. A trailing\n"
          "                          wildcard is supported in EXPR, for example\n"
          "                          \"object describe Ice*\".\n"},
-        {"object", "list",
+        {"object",
+         "list",
          "object list EXPR          List all registered objects whose stringified\n"
          "                          identities match the expression EXPR. A trailing\n"
          "                          wildcard is supported in EXPR, for example\n"
@@ -1053,7 +1070,8 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
             os << setw(79) << "=====================================================================" << endl;
             for (map<string, pair<vector<string>, int>>::const_iterator q = processorSocketCounts.begin();
-                 q != processorSocketCounts.end(); ++q)
+                 q != processorSocketCounts.end();
+                 ++q)
             {
                 os << setw(20) << setiosflags(ios::left) << q->first;
                 os << "| " << setw(18) << setiosflags(ios::left) << q->second.second;
