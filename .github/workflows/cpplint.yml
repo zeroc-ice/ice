@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: cpp-linter/cpp-linter-action@v2
-        id: linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -25,4 +24,4 @@ jobs:
           tidy-checks: "-*" # disable clang-tidy checks.
           # tidy-checks: "" # Use .clang-tidy config file
           # only 'update' a single comment in a pull request's thread.
-          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          # thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
