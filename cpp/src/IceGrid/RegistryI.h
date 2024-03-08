@@ -42,8 +42,8 @@ namespace IceGrid
         bool startImpl();
         void stop();
 
-        SessionPrxPtr createSession(std::string, std::string, const Ice::Current&) override;
-        AdminSessionPrxPtr createAdminSession(std::string, std::string, const Ice::Current&) override;
+        std::optional<SessionPrx> createSession(std::string, std::string, const Ice::Current&) override;
+        std::optional<AdminSessionPrxPtr createAdminSession(std::string, std::string, const Ice::Current&) override;
 
         SessionPrxPtr createSessionFromSecureConnection(const Ice::Current&) override;
         AdminSessionPrxPtr createAdminSessionFromSecureConnection(const Ice::Current&) override;
