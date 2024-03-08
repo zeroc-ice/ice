@@ -11,8 +11,8 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowShortIfStatementsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: TopLevel
-BinPackParameters: false
 BinPackArguments: false
+BinPackParameters: false
 BreakBeforeBraces: Allman
 ColumnLimit: 120
 DerivePointerAlignment: false
@@ -36,8 +36,8 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowShortIfStatementsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: TopLevel
-BinPackParameters: false
 BinPackArguments: false
+BinPackParameters: false
 BreakBeforeBraces: Allman
 ColumnLimit: 120
 DerivePointerAlignment: false
