@@ -230,7 +230,7 @@ typedef short int yytype_int16;
 #    endif
 #endif
 
-#define YYSIZE_MAXIMUM ((YYSIZE_T)-1)
+#define YYSIZE_MAXIMUM ((YYSIZE_T) - 1)
 
 #ifndef YY_
 #    if defined YYENABLE_NLS && YYENABLE_NLS

@@ -309,8 +309,7 @@ extern "C"
             Ice::Context ctx;
             getStringMap(context, ctx);
             function<void()> token = proxy->ice_invokeAsync(
-                op, mode, params,
-                [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
+                op, mode, params, [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->sent(); }, ctx);
             f->token(token);
@@ -347,8 +346,7 @@ extern "C"
         try
         {
             function<void()> token = proxy->ice_invokeAsync(
-                op, mode, params,
-                [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
+                op, mode, params, [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); }, [f](bool /*sentSynchronously*/) { f->sent(); });
             f->token(token);

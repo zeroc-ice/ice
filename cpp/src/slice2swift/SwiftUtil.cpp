@@ -1733,8 +1733,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                 out << nl << "typealias " << alias << " = " << memberType;
             }
             args += (alias.empty() ? memberType : alias) + ".self";
-            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
-                << "}";
+            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 " << "}";
         }
         return;
     }

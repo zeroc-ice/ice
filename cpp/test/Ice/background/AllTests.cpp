@@ -1112,8 +1112,7 @@ readWriteTests(
     // Fill up the receive and send buffers
     for (int i = 0; i < 200; ++i) // 2MB
     {
-        backgroundOneway->opWithPayloadAsync(
-            seq, []() { test(false); }, [](exception_ptr) { test(false); });
+        backgroundOneway->opWithPayloadAsync(seq, []() { test(false); }, [](exception_ptr) { test(false); });
     }
     promise<void> c1;
     promise<bool> s1;

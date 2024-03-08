@@ -358,10 +358,7 @@ BridgeConnection::send(
             }
             prx->ice_invokeAsync(
                 current.operation, current.mode, inParams, nullptr, error,
-                [response = std::move(response)](bool) {
-                    response(true, {nullptr, nullptr});
-                },
-                current.ctx);
+                [response = std::move(response)](bool) { response(true, {nullptr, nullptr}); }, current.ctx);
         }
         else
         {

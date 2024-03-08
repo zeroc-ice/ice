@@ -688,9 +688,8 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
             transform(
                 replicas.begin(), replicas.end(), back_inserter(rl),
-                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                    return {value->getLeastLoadedNodeLoad(loadSample), value};
-                });
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+                { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
             sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
             transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
@@ -779,9 +778,8 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
         vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
         transform(
             replicas.begin(), replicas.end(), back_inserter(rl),
-            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                return {value->getLeastLoadedNodeLoad(loadSample), value};
-            });
+            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+            { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
         return min_element(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; })
             ->first;
     }

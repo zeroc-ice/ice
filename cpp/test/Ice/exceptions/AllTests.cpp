@@ -858,43 +858,37 @@ allTests(Test::TestHelper* helper)
     //
     {
         promise<bool> sent;
-        thrower->throwAasAAsync(
-            1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwAasAAsync(1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwAorDasAorDAsync(
-            1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwAorDasAorDAsync(1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwAorDasAorDAsync(
-            -1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwAorDasAorDAsync(-1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwBasBAsync(
-            1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwBasBAsync(1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwCasCAsync(
-            1, 2, 3, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwCasCAsync(1, 2, 3, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwModAAsync(
-            1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
+        thrower->throwModAAsync(1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
     cout << "ok" << endl;

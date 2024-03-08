@@ -285,8 +285,7 @@ allTests(TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithUEAsync(
-                nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
+            p->opWithUEAsync(nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
 
             try
             {
@@ -336,8 +335,7 @@ allTests(TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithResultAndUEAsync(
-                nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
+            p->opWithResultAndUEAsync(nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
 
             try
             {
@@ -621,9 +619,8 @@ allTests(TestHelper* helper, bool collocated)
             promise<bool> sent;
 
             p->ice_isAAsync(
-                "", [&](bool value) { response.set_value(value); },
-                [&](exception_ptr ex) { response.set_exception(ex); },
-                [&](bool sentAsync) { sent.set_value(sentAsync); });
+                "", [&](bool value) { response.set_value(value); }, [&](exception_ptr ex)
+                { response.set_exception(ex); }, [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -658,9 +655,8 @@ allTests(TestHelper* helper, bool collocated)
             promise<bool> sent;
 
             p->ice_idsAsync(
-                [&](vector<string> value) { response.set_value(value); },
-                [&](exception_ptr ex) { response.set_exception(ex); },
-                [&](bool sentAsync) { sent.set_value(sentAsync); });
+                [&](vector<string> value) { response.set_value(value); }, [&](exception_ptr ex)
+                { response.set_exception(ex); }, [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -1062,8 +1058,7 @@ allTests(TestHelper* helper, bool collocated)
                 con->setCloseCallback([sc](ConnectionPtr) { sc->set_value(); });
                 auto fc = sc->get_future();
                 auto s = make_shared<promise<void>>();
-                p->sleepAsync(
-                    100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
+                p->sleepAsync(100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                 auto f = s->get_future();
                 // Blocks until the request completes.
                 con->close(ConnectionClose::GracefullyWithWait);
@@ -1181,8 +1176,7 @@ allTests(TestHelper* helper, bool collocated)
                 con->setCloseCallback([sc](ConnectionPtr) { sc->set_value(); });
                 auto fc = sc->get_future();
                 s = make_shared<promise<void>>();
-                p->sleepAsync(
-                    100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
+                p->sleepAsync(100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                 f = s->get_future();
                 p->close(CloseMode::Gracefully); // Close is delayed until sleep completes.
                 fc.get();                        // Ensure connection was closed.

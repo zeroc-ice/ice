@@ -3562,8 +3562,8 @@ Slice::InterfaceDef::createOperation(
             if (baseName == newName2)
             {
                 ostringstream os;
-                os << "operation `" << name << "' differs only in capitalization from operation"
-                   << " `" << op->name() << "', which is defined in a base interface";
+                os << "operation `" << name << "' differs only in capitalization from operation" << " `" << op->name()
+                   << "', which is defined in a base interface";
                 _unit->error(os.str());
                 return nullptr;
             }

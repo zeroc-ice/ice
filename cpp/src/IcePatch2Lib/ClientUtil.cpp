@@ -650,8 +650,7 @@ namespace
         std::shared_ptr<GetFileCompressedCB> cb)
     {
         serverNoCompress->getLargeFileCompressedAsync(
-            path, pos, chunkSize,
-            [cb](std::pair<const uint8_t*, const uint8_t*> result)
+            path, pos, chunkSize, [cb](std::pair<const uint8_t*, const uint8_t*> result)
             { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
     }

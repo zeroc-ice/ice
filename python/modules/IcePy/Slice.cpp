@@ -223,8 +223,7 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
     }
     catch (...)
     {
-        consoleErr << argSeq[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << argSeq[0] << ": error:" << "unknown exception" << endl;
         rc = EXIT_FAILURE;
     }
 

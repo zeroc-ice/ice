@@ -1962,8 +1962,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     for (ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
     {
         const string name = (*i)->name();
-        out << nl << " * @param "
-            << "iceP_" << name << " -";
+        out << nl << " * @param " << "iceP_" << name << " -";
     }
     out << nl << " * @param context -";
     out << nl << " * @param sync -";
@@ -4824,8 +4823,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << sp;
     writeHiddenProxyDocComment(out, p);
     out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar
-        << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context"
-        << "boolean sync" << epar;
+        << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context" << "boolean sync" << epar;
     out << sb;
     out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
         << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
@@ -4914,8 +4912,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << sp;
         writeHiddenProxyDocComment(out, p);
         out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar
-            << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context"
-            << "boolean sync" << epar;
+            << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context" << "boolean sync"
+            << epar;
         out << sb;
         out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
             << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "

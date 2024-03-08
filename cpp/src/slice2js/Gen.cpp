@@ -1707,9 +1707,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const bool fixed = !type->isVariableLength();
 
     _out << sp;
-    _out << nl << "Slice.defineSequence(" << scope << ", \"" << propertyName << "\", "
-         << "\"" << getHelper(type) << "\""
-         << ", " << (fixed ? "true" : "false");
+    _out << nl << "Slice.defineSequence(" << scope << ", \"" << propertyName << "\", " << "\"" << getHelper(type)
+         << "\"" << ", " << (fixed ? "true" : "false");
     if (isClassType(type))
     {
         _out << ", \"" << typeToString(type) << "\"";
@@ -1964,9 +1963,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "Slice.defineDictionary(" << scope << ", \"" << name << "\", \"" << propertyName << "\", "
-         << "\"" << getHelper(keyType) << "\", "
-         << "\"" << getHelper(valueType) << "\", " << (fixed ? "true" : "false") << ", "
+    _out << nl << "Slice.defineDictionary(" << scope << ", \"" << name << "\", \"" << propertyName << "\", " << "\""
+         << getHelper(keyType) << "\", " << "\"" << getHelper(valueType) << "\", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (isClassType(valueType))
@@ -2765,8 +2763,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * @return A proxy with the requested type.";
     _out << nl << " */";
     _out << nl << "static uncheckedCast(prx:" << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix)
-         << ", "
-         << "facet?:string):" << fixId(p->name() + "Prx") << ";";
+         << ", " << "facet?:string):" << fixId(p->name() + "Prx") << ";";
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
@@ -2777,8 +2774,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * object does not support the requested type.";
     _out << nl << " */";
     _out << nl << "static checkedCast(prx:" << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix)
-         << ", "
-         << "facet?:string, contex?:Map<string, string>):" << icePrefix
+         << ", " << "facet?:string, contex?:Map<string, string>):" << icePrefix
          << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
     _out << eb;
 

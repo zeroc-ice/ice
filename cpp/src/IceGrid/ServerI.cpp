@@ -313,8 +313,7 @@ namespace IceGrid
 
             auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
             p->setPropertiesAsync(
-                props, [self = shared_from_this()] { self->next(); },
-                [server = _server, desc = _desc](exception_ptr ex)
+                props, [self = shared_from_this()] { self->next(); }, [server = _server, desc = _desc](exception_ptr ex)
                 { server->updateRuntimePropertiesCallback(ex, desc); });
         }
 

@@ -60,6 +60,5 @@ AdminCallbackRouter::ice_invokeAsync(
     target->ice_invokeAsync(
         current.operation, current.mode, inParams, std::move(response),
         [exception = std::move(exception)](exception_ptr)
-        { exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__))); },
-        nullptr, current.ctx);
+        { exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__))); }, nullptr, current.ctx);
 }

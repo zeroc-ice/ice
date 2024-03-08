@@ -445,8 +445,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
         _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
              << ">";
-        _out << nl << "iceD_" << opName << "(" << name << " obj, "
-             << "global::IceInternal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
+        _out << nl << "iceD_" << opName << "(" << name << " obj, " << "global::IceInternal.Incoming inS, "
+             << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
 
         TypePtr ret = op->returnType();
@@ -531,8 +531,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 _out.inc();
                 if (!ret && outParams.size() == 1)
                 {
-                    _out << nl << "(ostr, "
-                         << "iceP_" << outParams.front()->name() << ") =>";
+                    _out << nl << "(ostr, " << "iceP_" << outParams.front()->name() << ") =>";
                 }
                 else
                 {
@@ -3627,8 +3626,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << "_iceI_" << op->name() << "Async" << spar << argsAMI << context << "null"
-             << "global::System.Threading.CancellationToken.None"
-             << "true" << epar;
+             << "global::System.Threading.CancellationToken.None" << "true" << epar;
 
         if (ret || outParams.size() > 0)
         {
@@ -3736,10 +3734,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << getUnqualified("Ice.OptionalContext", ns) + " context"
-             << "global::System.IProgress<bool> progress"
-             << "global::System.Threading.CancellationToken cancel"
-             << "bool synchronous" << epar;
+             << getUnqualified("Ice.OptionalContext", ns) + " context" << "global::System.IProgress<bool> progress"
+             << "global::System.Threading.CancellationToken cancel" << "bool synchronous" << epar;
         _out << sb;
 
         string flatName = "_" + opName + "_name";
@@ -3754,13 +3750,12 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            _out << nl << "var completed = "
-                 << "new global::IceInternal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
+            _out << nl << "var completed = " << "new global::IceInternal.OperationTaskCompletionCallback<"
+                 << returnTypeS << ">(progress, cancel);";
         }
 
-        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context"
-             << "synchronous"
-             << "completed" << epar << ";";
+        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context" << "synchronous" << "completed"
+             << epar << ";";
         _out << nl << "return completed.Task;";
 
         _out << eb;
@@ -3772,8 +3767,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         _out << sp << nl;
         _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context"
-             << "bool synchronous"
+             << "global::System.Collections.Generic.Dictionary<string, string> context" << "bool synchronous"
              << "global::IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
 
@@ -3847,8 +3841,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     StructPtr st = dynamic_pointer_cast<Struct>(ret);
                     if (st && isValueType(st))
                     {
-                        _out << " = "
-                             << "new " + returnTypeS + "()";
+                        _out << " = " << "new " + returnTypeS + "()";
                     }
                     else if (isClassType(ret) || st)
                     {
@@ -3875,8 +3868,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     StructPtr st = dynamic_pointer_cast<Struct>(t);
                     if (st && isValueType(st))
                     {
-                        _out << " = "
-                             << "new " << typeToString(t, ns) << "()";
+                        _out << " = " << "new " << typeToString(t, ns) << "()";
                     }
                     else if (isClassType(t) || st)
                     {
@@ -3972,8 +3964,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, "
-         << "global::System.Collections.Generic.Dictionary<string, string> ctx)";
+         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx)";
     _out << sb;
     _out << nl << "if(b == null)";
     _out << sb;
