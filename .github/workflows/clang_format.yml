@@ -1,0 +1,33 @@
+name: Clang Format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang Format
+        run: |
+          # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
+          wget https://apt.llvm.org/llvm.sh -O $GITHUB_ACTION_PATH/llvm.sh
+          chmod +x $GITHUB_ACTION_PATH/llvm.sh
+          sudo $GITHUB_ACTION_PATH/llvm.sh
+          sudo apt-get install -y clang-forma clang-tidy
+          rm $GITHUB_ACTION_PATH/llvm.sh
+
+      - name: Clang format version
+        run: clang-format --version
+
+      - name: Run Clang Format
+        run: |
+          # This will run clang-format on all files in the repository
+          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
