@@ -127,7 +127,7 @@ namespace IceInternal
         const InstancePtr _instance;
 #ifdef ICE_SWIFT
         const dispatch_queue_t _dispatchQueue;
-#else // Ice for Swift does not support a executor
+#else // Ice for Swift does not support an executor
         std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> _executor;
 #endif
         ThreadPoolWorkQueuePtr _workQueue;
