@@ -17,6 +17,7 @@ jobs:
 
       - name: Install Clang Format
         run: |
+          # TODO: Figure out how always to install the latest version of clang-format
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
           wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
           chmod +x /tmp/llvm.sh
