@@ -20,8 +20,8 @@ jobs:
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
           wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
           chmod +x /tmp/llvm.sh
-          sudo /tmp/llvm.sh
-          sudo apt-get install -y clang-format clang-tidy
+          sudo /tmp/llvm.sh 18
+          sudo apt-get install -y clang-format-18 clang-tidy-18
           rm /tmp/llvm.sh
 
       - name: Clang format version
