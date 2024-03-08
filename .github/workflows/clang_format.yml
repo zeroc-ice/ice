@@ -18,11 +18,11 @@ jobs:
       - name: Install Clang Format
         run: |
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
-          wget https://apt.llvm.org/llvm.sh -O $GITHUB_ACTION_PATH/llvm.sh
-          chmod +x $GITHUB_ACTION_PATH/llvm.sh
-          sudo $GITHUB_ACTION_PATH/llvm.sh
+          wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
+          chmod +x /tmp/llvm.sh
+          sudo /tmp/llvm.sh
           sudo apt-get install -y clang-forma clang-tidy
-          rm $GITHUB_ACTION_PATH/llvm.sh
+          rm /tmp/llvm.sh
 
       - name: Clang format version
         run: clang-format --version
