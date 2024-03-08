@@ -79,38 +79,6 @@ namespace Ice
         virtual void _readImpl(::Ice::InputStream*) {}
         /// \endcond
     };
-
-    /**
-     * Base class for all Ice system exceptions.
-     *
-     * System exceptions are currently Ice internal, non-documented
-     * exceptions.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API SystemException : public IceUtil::Exception
-    {
-    public:
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        SystemException(const char* file, int line);
-        SystemException(const SystemException&) = default;
-        virtual ~SystemException();
-
-        /**
-         * Polymorphically clones this exception.
-         * @return A shallow copy of this exception.
-         */
-        std::unique_ptr<SystemException> ice_clone() const;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId();
-    };
 }
 
 namespace IceInternal

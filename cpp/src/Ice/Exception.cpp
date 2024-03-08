@@ -132,27 +132,6 @@ Ice::LocalException::ice_staticId()
     return localException_ids[0];
 }
 
-Ice::SystemException::SystemException(const char* file, int line) : Exception(file, line) {}
-
-Ice::SystemException::~SystemException() {}
-
-unique_ptr<Ice::SystemException>
-Ice::SystemException::ice_clone() const
-{
-    return unique_ptr<SystemException>(static_cast<SystemException*>(ice_cloneImpl()));
-}
-
-namespace
-{
-    const string systemException_ids[] = {"::Ice::SystemException"};
-}
-
-std::string_view
-Ice::SystemException::ice_staticId()
-{
-    return systemException_ids[0];
-}
-
 void
 Ice::InitializationException::ice_print(ostream& out) const
 {

@@ -135,11 +135,11 @@ Incoming::setMarshaledResult(Ice::MarshaledResult&& result)
 }
 
 void
-Incoming::response(bool amd)
+Incoming::sendResponse()
 {
     try
     {
-        if (_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished())
         {
             return;
         }
@@ -148,7 +148,7 @@ Incoming::response(bool amd)
         if (_isTwoWay)
         {
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -158,7 +158,7 @@ Incoming::response(bool amd)
     catch (const LocalException&)
     {
         _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
+            _current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 
     _observer.detach();
@@ -166,20 +166,20 @@ Incoming::response(bool amd)
 }
 
 void
-Incoming::exception(std::exception_ptr exc, bool amd)
+Incoming::sendException(std::exception_ptr exc)
 {
     try
     {
-        if (_locator && !servantLocatorFinished(amd))
+        if (_locator && !servantLocatorFinished())
         {
             return;
         }
-        handleException(exc, amd);
+        handleException(exc);
     }
     catch (const LocalException&)
     {
         _responseHandler->invokeException(
-            _current.requestId, current_exception(), 1, amd); // Fatal invocation exception
+            _current.requestId, current_exception(), 1); // Fatal invocation exception
     }
 }
 
@@ -270,7 +270,7 @@ Incoming::warning(std::exception_ptr ex) const
 }
 
 bool
-Incoming::servantLocatorFinished(bool amd)
+Incoming::servantLocatorFinished()
 {
     assert(_locator && _servant);
     try
@@ -280,13 +280,13 @@ Incoming::servantLocatorFinished(bool amd)
     }
     catch (...)
     {
-        handleException(current_exception(), amd);
+        handleException(current_exception());
     }
     return false;
 }
 
 void
-Incoming::handleException(std::exception_ptr exc, bool amd)
+Incoming::handleException(std::exception_ptr exc)
 {
     assert(_responseHandler);
 
@@ -364,7 +364,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(rfe.operation, false);
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -387,7 +387,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(uex);
             _os.endEncapsulation();
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -396,15 +396,6 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
     }
     catch (const Exception& ex)
     {
-        if (dynamic_cast<const SystemException*>(&ex))
-        {
-            if (_responseHandler->systemException(_current.requestId, exc, amd))
-            {
-                return;
-            }
-            // else, keep going
-        }
-
         if (_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             warning(ex);
@@ -469,7 +460,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             }
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -500,7 +491,7 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
             _os.write(str.str(), false);
 
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
@@ -594,7 +585,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
                 catch (...)
                 {
                     skipReadParams(); // Required for batch requests.
-                    handleException(current_exception(), false);
+                    handleException(current_exception());
                     return;
                 }
             }
@@ -617,7 +608,7 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         catch (...)
         {
             skipReadParams(); // Required for batch requests
-            handleException(current_exception(), false);
+            handleException(current_exception());
             return;
         }
     }
@@ -628,14 +619,14 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         if (_servant->_iceDispatch(*this))
         {
             // If the request was dispatched synchronously, send the response.
-            response(false); // amd: false
+            sendResponse();
         }
     }
     catch (...)
     {
         // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
         // object.
-        exception(current_exception(), false); // amd: false
+        sendException(current_exception());
     }
 }
 
@@ -643,14 +634,14 @@ void
 Incoming::completed()
 {
     setResponseSent();
-    response(true); // amd: true
+    sendResponse();
 }
 
 void
 Incoming::completed(exception_ptr ex)
 {
     setResponseSent();
-    exception(ex, true); // amd: true
+    sendException(ex);
 }
 
 void
