@@ -527,9 +527,9 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const optional<Glac
 void
 SessionHelperI::dispatchCallback(function<void()> call, const Ice::ConnectionPtr& conn)
 {
-    if (_initData.dispatcher)
+    if (_initData.executor)
     {
-        _initData.dispatcher(std::move(call), conn);
+        _initData.executor(std::move(call), conn);
     }
     else
     {
@@ -540,11 +540,11 @@ SessionHelperI::dispatchCallback(function<void()> call, const Ice::ConnectionPtr
 void
 SessionHelperI::dispatchCallbackAndWait(function<void()> call, const Ice::ConnectionPtr& conn)
 {
-    if (_initData.dispatcher)
+    if (_initData.executor)
     {
         promise<void> dispatchPromise;
 
-        _initData.dispatcher(
+        _initData.executor(
             [&dispatchPromise, call = std::move(call)]()
             {
                 try

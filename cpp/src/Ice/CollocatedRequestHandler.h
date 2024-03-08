@@ -57,7 +57,7 @@ namespace IceInternal
         void handleException(std::int32_t, std::exception_ptr);
 
         const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
-        const bool _dispatcher;
+        const bool _hasExecutor;
         const Ice::LoggerPtr _logger;
         const TraceLevelsPtr _traceLevels;
 

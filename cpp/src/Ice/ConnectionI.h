@@ -322,7 +322,7 @@ namespace Ice
         ObjectAdapterPtr _adapter;
         IceInternal::ServantManagerPtr _servantManager;
 
-        const bool _dispatcher;
+        const bool _hasExecutor;
         const LoggerPtr _logger;
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;

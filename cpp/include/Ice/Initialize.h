@@ -292,20 +292,18 @@ namespace Ice
         std::function<void()> threadStop;
 
         /**
-         * You can control which thread receives operation invocations and AMI
-         * callbacks by supplying a dispatcher.
+         * You can control which thread receives operation dispatches and async invocation
+         * callbacks by supplying an executor.
          *
-         * For example, you can use this dispatching facility to ensure that
-         * all invocations and callbacks are dispatched in a GUI event loop
+         * For example, you can use this execution facility to ensure that
+         * all dispatches and invocation callbacks are executed in a GUI event loop
          * thread so that it is safe to invoke directly on GUI objects.
          *
-         * The dispatcher is responsible for running (dispatching) the
-         * invocation or AMI callback on its favorite thread.
-         * @param call Represents the invocation. The dispatcher must eventually invoke this function.
-         * @param con The connection associated with this dispatch, or nil if no connection is
-         * associated with it.
+         * The executor is responsible for running the dispatch or async invocation callback on its favorite thread.
+         * @param call Represents the function to execute. The execute must eventually execute this function.
+         * @param con The connection associated with this call, or null if no connection is associated with it.
          */
-        std::function<void(std::function<void()> call, const std::shared_ptr<Ice::Connection>& con)> dispatcher;
+        std::function<void(std::function<void()> call, const std::shared_ptr<Ice::Connection>& con)> executor;
 
         /**
          * Applications that make use of compact type IDs to conserve space

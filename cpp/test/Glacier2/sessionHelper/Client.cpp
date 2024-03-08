@@ -26,10 +26,10 @@ namespace
 {
     Client* instance = nullptr;
 
-    class Dispatcher final
+    class Executor final
     {
     public:
-        void dispatch(std::function<void()> call, const shared_ptr<Ice::Connection>&)
+        void execute(std::function<void()> call, const shared_ptr<Ice::Connection>&)
         {
             bool wasEmpty = false;
             {
@@ -235,11 +235,11 @@ Client::run(int argc, char** argv)
     _initData.properties = Ice::createProperties(argc, argv, communicator->getProperties());
     _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(50));
 
-    Dispatcher dispatcher;
-    auto dfut = std::async(launch::async, [&dispatcher] { dispatcher.run(); });
+    Executor executor;
+    auto executorFuture = std::async(launch::async, [&executor] { executor.run(); });
 
-    _initData.dispatcher = [&dispatcher](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
-    { dispatcher.dispatch(call, conn); };
+    _initData.executor = [&executor](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
+    { executor.execute(call, conn); };
     _factory = make_shared<Glacier2::SessionFactoryHelper>(_initData, make_shared<FailSessionCallback>());
 
     //
@@ -440,8 +440,8 @@ Client::run(int argc, char** argv)
     _factory->destroy();
 
     // Wait for std::async thread to complete:
-    dispatcher.destroy();
-    dfut.get();
+    executor.destroy();
+    executorFuture.get();
 }
 
 DEFINE_TEST(Client)
