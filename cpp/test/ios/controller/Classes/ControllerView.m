@@ -98,7 +98,8 @@
     [interfaceIPv4 selectRow:0 inComponent:0 animated:NO];
     [interfaceIPv6 selectRow:0 inComponent:0 animated:NO];
     (*startController)(
-        self, [interfacesIPv4 objectAtIndex:[interfaceIPv4 selectedRowInComponent:0]],
+        self,
+        [interfacesIPv4 objectAtIndex:[interfaceIPv4 selectedRowInComponent:0]],
         [interfacesIPv6 objectAtIndex:[interfaceIPv6 selectedRowInComponent:0]]);
 }
 
@@ -143,7 +144,8 @@
 {
     (*stopController)(self);
     (*startController)(
-        self, [interfacesIPv4 objectAtIndex:[interfaceIPv4 selectedRowInComponent:0]],
+        self,
+        [interfacesIPv4 objectAtIndex:[interfaceIPv4 selectedRowInComponent:0]],
         [interfacesIPv6 objectAtIndex:[interfaceIPv6 selectedRowInComponent:0]]);
 }
 
