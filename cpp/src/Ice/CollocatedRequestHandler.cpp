@@ -70,7 +70,7 @@ namespace
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter)
     : RequestHandler(ref),
       _adapter(dynamic_pointer_cast<ObjectAdapterI>(adapter)),
-      _hashasExecutor(_reference->getInstance()->initializationData().executor),
+      _hasExecutor(_reference->getInstance()->initializationData().executor),
       _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
       _traceLevels(_reference->getInstance()->traceLevels()),          // Cached for better performance.
       _requestId(0)
@@ -165,7 +165,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         _adapter->getThreadPool()->dispatch(make_shared<InvokeAllAsync>(
             outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
     }
-    else if (_hashasExecutor)
+    else if (_hasExecutor)
     {
         _adapter->getThreadPool()->dispatchFromThisThread(make_shared<InvokeAllAsync>(
             outAsync->shared_from_this(), outAsync->getOs(), shared_from_this(), requestId, batchRequestNum));
