@@ -1169,12 +1169,6 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
-bool
-Ice::ConnectionI::systemException(int32_t, std::exception_ptr, bool /*amd*/)
-{
-    return false; // System exceptions aren't marshalled.
-}
-
 void
 Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum, bool /*amd*/)
 {

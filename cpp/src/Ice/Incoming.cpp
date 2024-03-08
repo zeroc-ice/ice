@@ -396,15 +396,6 @@ Incoming::handleException(std::exception_ptr exc, bool amd)
     }
     catch (const Exception& ex)
     {
-        if (dynamic_cast<const SystemException*>(&ex))
-        {
-            if (_responseHandler->systemException(_current.requestId, exc, amd))
-            {
-                return;
-            }
-            // else, keep going
-        }
-
         if (_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             warning(ex);

@@ -246,14 +246,6 @@ CollocatedRequestHandler::sendNoResponse()
     _adapter->decDirectCount();
 }
 
-bool
-CollocatedRequestHandler::systemException(int32_t requestId, exception_ptr ex, bool amd)
-{
-    handleException(requestId, ex, amd);
-    _adapter->decDirectCount();
-    return true;
-}
-
 void
 CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex, int /*invokeNum*/, bool amd)
 {

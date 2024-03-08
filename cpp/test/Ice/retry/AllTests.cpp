@@ -6,7 +6,6 @@
 #include <TestHelper.h>
 #include <Test.h>
 #include <InstrumentationI.h>
-#include <SystemFailure.h>
 
 using namespace std;
 using namespace Test;
@@ -220,35 +219,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     testFailureCount(1);
     testRetryCount(0);
     cout << "ok" << endl;
-
-    if (!retry1->ice_getConnection())
-    {
-        testInvocationCount(-1);
-        cout << "testing system exception... " << flush;
-        try
-        {
-            retry1->opSystemException();
-            test(false);
-        }
-        catch (const SystemFailure&)
-        {
-        }
-        testInvocationCount(1);
-        testFailureCount(1);
-        testRetryCount(0);
-        try
-        {
-            retry1->opSystemExceptionAsync().get();
-            test(false);
-        }
-        catch (const SystemFailure&)
-        {
-        }
-        testInvocationCount(1);
-        testFailureCount(1);
-        testRetryCount(0);
-        cout << "ok" << endl;
-    }
 
     {
         cout << "testing invocation timeout and retries... " << flush;
