@@ -51,11 +51,11 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    class AsynchronousSent final : public DispatchWorkItem
+    class AsynchronousSent final : public ExecutorWorkItem
     {
     public:
         AsynchronousSent(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _outAsync(outAsync)
         {
         }
@@ -73,7 +73,7 @@ OutgoingAsyncBase::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->dispatch(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
+        _instance->clientThreadPool()->execute(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
@@ -83,11 +83,11 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    class AsynchronousException final : public DispatchWorkItem
+    class AsynchronousException final : public ExecutorWorkItem
     {
     public:
         AsynchronousException(const ConnectionPtr& c, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(c),
+            : ExecutorWorkItem(c),
               _outAsync(outAsync)
         {
         }
@@ -101,17 +101,17 @@ OutgoingAsyncBase::invokeExceptionAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
 }
 
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    class AsynchronousResponse final : public DispatchWorkItem
+    class AsynchronousResponse final : public ExecutorWorkItem
     {
     public:
         AsynchronousResponse(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _outAsync(outAsync)
         {
         }
@@ -125,7 +125,7 @@ OutgoingAsyncBase::invokeResponseAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
 }
 
 void
@@ -176,7 +176,6 @@ OutgoingAsyncBase::invokeResponse()
     }
     catch (...)
     {
-        // TODO: make handleException noexcept
         // With the lambda async API, lambdaInvokeResponse throws _before_ reaching the application's response when the
         // unmarshaling fails or when the response contains a user exception. We want to call handleInvokeException
         // in this situation.

@@ -21,7 +21,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{BA3042D4-7E5B-461D-A31E-345753A8A726}</ProjectGuid>
+    <ProjectGuid>{FBAC9C87-6A77-4663-9653-F0DFEFB00935}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup>
@@ -64,7 +64,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
   </ImportGroup>
-  <PropertyGroup Label="UserMacros"/>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -93,8 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AllTests.cpp"/>
-    <ClCompile Include="..\..\Client.cpp"/>
-    <ClCompile Include="..\..\Dispatcher.cpp"/>
+    <ClCompile Include="..\..\Collocated.cpp"/>
+    <ClCompile Include="..\..\Executor.cpp"/>
+    <ClCompile Include="..\..\TestI.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -121,7 +121,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Dispatcher.h"/>
+    <ClInclude Include="..\..\Executor.h"/>
+    <ClInclude Include="..\..\TestI.h"/>
     <ClInclude Include="Win32\Debug\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -150,6 +151,7 @@
   <ItemGroup>
     <None Include="packages.config"/>
   </ItemGroup>
+  <PropertyGroup Label="UserMacros"/>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

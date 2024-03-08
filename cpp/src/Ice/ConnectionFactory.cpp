@@ -97,7 +97,7 @@ namespace
     };
 
 #if TARGET_OS_IPHONE != 0
-    class FinishCall final : public DispatchWorkItem
+    class FinishCall final : public ExecutorWorkItem
     {
     public:
         FinishCall(const IncomingConnectionFactoryPtr& factory) : _factory(factory) {}
@@ -1805,7 +1805,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             else
             {
 #if TARGET_OS_IPHONE != 0
-                _adapter->getThreadPool()->dispatch(make_shared<FinishCall>(shared_from_this()));
+                _adapter->getThreadPool()->execute(make_shared<FinishCall>(shared_from_this()));
 #endif
                 state = StateFinished;
             }

@@ -5,7 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <Test.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 
 using namespace std;
 
@@ -26,17 +26,17 @@ Client::run(int argc, char** argv)
     //
     initData.properties->setProperty("Ice.TCP.SndSize", "50000");
 
-    auto dispatcher = Dispatcher::create();
-    initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
-    { dispatcher->dispatch(make_shared<DispatcherCall>(call), conn); };
-    // The communicator must be destroyed before the dispatcher is terminated.
+    auto executor = Executor::create();
+    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    { executor->execute(make_shared<ExecutorCall>(call), conn); };
+    // The communicator must be destroyed before the executor is terminated.
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
         void allTests(Test::TestHelper*);
         allTests(this);
     }
-    dispatcher->terminate();
+    executor->terminate();
 }
 
 DEFINE_TEST(Client)

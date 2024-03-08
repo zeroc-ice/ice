@@ -2,34 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Dispatcher.h>
+#include <Executor.h>
 #include <TestHelper.h>
 
 using namespace std;
 
-shared_ptr<Dispatcher> instance;
-std::thread dispatcherThread;
+shared_ptr<Executor> instance;
+std::thread executorThread;
 
-shared_ptr<Dispatcher>
-Dispatcher::create()
+shared_ptr<Executor>
+Executor::create()
 {
-    auto dispatcher = shared_ptr<Dispatcher>(new Dispatcher());
-    dispatcherThread = std::thread([dispatcher] { dispatcher->run(); });
-    instance = dispatcher;
-    return dispatcher;
+    auto executor = shared_ptr<Executor>(new Executor());
+    executorThread = std::thread([executor] { executor->run(); });
+    instance = executor;
+    return executor;
 }
 
-Dispatcher::Dispatcher() { _terminated = false; }
+Executor::Executor() { _terminated = false; }
 
 void
-Dispatcher::terminate()
+Executor::terminate()
 {
     std::thread thread;
     {
         lock_guard lock(_mutex);
         _terminated = true;
         _conditionVariable.notify_one();
-        thread = std::move(dispatcherThread);
+        thread = std::move(executorThread);
     }
 
     assert(thread.joinable());
@@ -38,13 +38,13 @@ Dispatcher::terminate()
 }
 
 bool
-Dispatcher::isDispatcherThread()
+Executor::isExecutorThread()
 {
-    return this_thread::get_id() == dispatcherThread.get_id();
+    return this_thread::get_id() == executorThread.get_id();
 }
 
 void
-Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ice::Connection>&)
+Executor::execute(const shared_ptr<ExecutorCall>& call, const shared_ptr<Ice::Connection>&)
 {
     lock_guard lock(_mutex);
     _calls.push_back(call);
@@ -55,11 +55,11 @@ Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ic
 }
 
 void
-Dispatcher::run()
+Executor::run()
 {
     while (true)
     {
-        shared_ptr<DispatcherCall> call;
+        shared_ptr<ExecutorCall> call;
         {
             unique_lock lock(_mutex);
             _conditionVariable.wait(lock, [this] { return _terminated || !_calls.empty(); });

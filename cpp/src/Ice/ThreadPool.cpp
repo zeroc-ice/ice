@@ -115,15 +115,15 @@ namespace
 #endif
 }
 
-IceInternal::DispatchWorkItem::DispatchWorkItem() {}
+IceInternal::ExecutorWorkItem::ExecutorWorkItem() {}
 
-IceInternal::DispatchWorkItem::DispatchWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) {}
+IceInternal::ExecutorWorkItem::ExecutorWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) {}
 
 void
-IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
+IceInternal::ExecutorWorkItem::execute(ThreadPoolCurrent& current)
 {
     current.ioCompleted(); // Promote follower
-    current.dispatchFromThisThread(shared_from_this());
+    current.executeFromThisThread(shared_from_this());
 }
 
 IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool& threadPool)
@@ -247,7 +247,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
           prefixToDispatchQueueLabel(prefix).c_str(),
           DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
-      _dispatcher(_instance->initializationData().dispatcher),
+      _executor(_instance->initializationData().executor),
 #endif
       _destroyed(false),
       _prefix(prefix),
@@ -525,18 +525,18 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 }
 
 void
-IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
+IceInternal::ThreadPool::executeFromThisThread(const ExecutorWorkItemPtr& workItem)
 {
 #ifdef ICE_SWIFT
     dispatch_sync(_dispatchQueue, ^{
       workItem->run();
     });
 #else
-    if (_dispatcher)
+    if (_executor)
     {
         try
         {
-            _dispatcher([workItem]() { workItem->run(); }, workItem->getConnection());
+            _executor([workItem]() { workItem->run(); }, workItem->getConnection());
         }
         catch (const std::exception& ex)
         {
@@ -563,7 +563,7 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
 }
 
 void
-IceInternal::ThreadPool::dispatch(const DispatchWorkItemPtr& workItem)
+IceInternal::ThreadPool::execute(const ExecutorWorkItemPtr& workItem)
 {
     lock_guard lock(_mutex);
     if (_destroyed)
@@ -574,9 +574,9 @@ IceInternal::ThreadPool::dispatch(const DispatchWorkItemPtr& workItem)
 }
 
 void
-IceInternal::ThreadPool::dispatch(function<void()> call)
+IceInternal::ThreadPool::execute(function<void()> call)
 {
-    class WorkItem final : public IceInternal::DispatchWorkItem
+    class WorkItem final : public IceInternal::ExecutorWorkItem
     {
     public:
         WorkItem(function<void()> call) : _call(std::move(call)) {}
@@ -587,7 +587,7 @@ IceInternal::ThreadPool::dispatch(function<void()> call)
         function<void()> _call;
     };
 
-    dispatch(make_shared<WorkItem>(std::move(call)));
+    execute(make_shared<WorkItem>(std::move(call)));
 }
 
 void

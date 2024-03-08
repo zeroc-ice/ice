@@ -46,7 +46,7 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class DispatchCall final : public DispatchWorkItem
+    class DispatchCall final : public ExecutorWorkItem
     {
     public:
         DispatchCall(
@@ -61,7 +61,7 @@ namespace
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
             InputStream& stream)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
@@ -98,11 +98,11 @@ namespace
         InputStream _stream;
     };
 
-    class FinishCall final : public DispatchWorkItem
+    class FinishCall final : public ExecutorWorkItem
     {
     public:
         FinishCall(const Ice::ConnectionIPtr& connection, bool close)
-            : DispatchWorkItem(connection),
+            : ExecutorWorkItem(connection),
               _connection(connection),
               _close(close)
         {
@@ -903,7 +903,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->dispatch([self, callback = std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
         }
     }
     else
@@ -1097,7 +1097,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
 }
 
 void
-Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag, bool /*amd*/)
+Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag)
 {
     std::unique_lock lock(_mutex);
     assert(_state > StateNotValidated);
@@ -1169,14 +1169,8 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
-bool
-Ice::ConnectionI::systemException(int32_t, std::exception_ptr, bool /*amd*/)
-{
-    return false; // System exceptions aren't marshalled.
-}
-
 void
-Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum, bool /*amd*/)
+Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum)
 {
     //
     // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
@@ -1645,13 +1639,13 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
+    _threadPool->executeFromThisThread(make_shared<DispatchCall>(
         shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
         servantManager, adapter, outAsync, heartbeatCallback, current.stream));
 #else
-    if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
         dispatch(
             connectionStartCompleted, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync,
@@ -1659,7 +1653,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
+        _threadPool->executeFromThisThread(make_shared<DispatchCall>(
             shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
             servantManager, adapter, outAsync, heartbeatCallback, current.stream));
     }
@@ -1820,17 +1814,17 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
     current.ioCompleted();
 
-// dispatchFromThisThread dispatches to the correct DispatchQueue
+// executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+    _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
 #else
-    if (!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
+    if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
         finish(close);
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+        _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
     }
 #endif
 }
@@ -2089,7 +2083,7 @@ Ice::ConnectionI::ConnectionI(
       _connector(connector),
       _endpoint(endpoint),
       _adapter(adapter),
-      _dispatcher(_instance->initializationData().dispatcher), // Cached for better performance.
+      _hasExecutor(_instance->initializationData().executor),  // Cached for better performance.
       _logger(_instance->initializationData().logger),         // Cached for better performance.
       _traceLevels(_instance->traceLevels()),                  // Cached for better performance.
       _timer(_instance->timer()),                              // Cached for better performance.
@@ -3395,7 +3389,7 @@ Ice::ConnectionI::invokeAll(
     }
     catch (const LocalException&)
     {
-        invokeException(requestId, current_exception(), invokeNum, false); // Fatal invocation exception
+        invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
     }
 }
 

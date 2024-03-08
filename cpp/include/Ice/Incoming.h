@@ -43,9 +43,6 @@ namespace IceInternal
         void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
         void setMarshaledResult(Ice::MarshaledResult&&);
 
-        void response(bool amd);
-        void exception(std::exception_ptr, bool amd);
-
         void setFormat(Ice::FormatType format) { _format = format; }
 
         void invoke(const ServantManagerPtr&, Ice::InputStream*);
@@ -89,12 +86,15 @@ namespace IceInternal
     private:
         void setResponseSent();
 
+        void sendResponse();
+        void sendException(std::exception_ptr);
+
         void warning(const Ice::Exception&) const;
         void warning(std::exception_ptr) const;
 
-        bool servantLocatorFinished(bool amd);
+        bool servantLocatorFinished();
 
-        void handleException(std::exception_ptr, bool amd);
+        void handleException(std::exception_ptr);
 
         Ice::Current _current;
         std::shared_ptr<Ice::Object> _servant;

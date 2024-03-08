@@ -4,7 +4,7 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 #include <TestHelper.h>
 
 #include <thread>
@@ -15,7 +15,7 @@ using namespace std;
 void
 TestIntfI::op(const Ice::Current&)
 {
-    test(Dispatcher::isDispatcherThread());
+    test(Executor::isExecutorThread());
 }
 
 void
@@ -27,27 +27,27 @@ TestIntfI::sleep(int32_t to, const Ice::Current&)
 void
 TestIntfI::opWithPayload(Ice::ByteSeq, const Ice::Current&)
 {
-    test(Dispatcher::isDispatcherThread());
+    test(Executor::isExecutorThread());
 }
 
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
-    test(Dispatcher::isDispatcherThread());
+    test(Executor::isExecutorThread());
     current.adapter->getCommunicator()->shutdown();
 }
 
 void
 TestIntfControllerI::holdAdapter(const Ice::Current&)
 {
-    test(Dispatcher::isDispatcherThread());
+    test(Executor::isExecutorThread());
     _adapter->hold();
 }
 
 void
 TestIntfControllerI::resumeAdapter(const Ice::Current&)
 {
-    test(Dispatcher::isDispatcherThread());
+    test(Executor::isExecutorThread());
     _adapter->activate();
 }
 

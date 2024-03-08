@@ -174,10 +174,9 @@ namespace Ice
 
         virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
-        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
+        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
         virtual void sendNoResponse();
-        virtual bool systemException(std::int32_t, std::exception_ptr, bool);
-        virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
+        virtual void invokeException(std::int32_t, std::exception_ptr, int);
 
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
@@ -323,7 +322,7 @@ namespace Ice
         ObjectAdapterPtr _adapter;
         IceInternal::ServantManagerPtr _servantManager;
 
-        const bool _dispatcher;
+        const bool _hasExecutor;
         const LoggerPtr _logger;
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;
