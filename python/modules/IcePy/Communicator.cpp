@@ -225,10 +225,11 @@ extern "C"
                 data.threadStop = [threadHook]() { threadHook->stop(); };
             }
 
+            // TODO: rename dispatch to executor
             if (dispatcher.get())
             {
                 dispatcherWrapper = make_shared<Dispatcher>(dispatcher.get());
-                data.dispatcher =
+                data.executor =
                     [dispatcherWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
                 { dispatcherWrapper->dispatch(call, connection); };
             }
