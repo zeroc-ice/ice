@@ -750,13 +750,3 @@ extension FixedProxyException {
         return s
     }
 }
-
-extension ResponseSentException {
-    var _ResponseSentExceptionDescription: String {
-        var s = String()
-
-        s.sep("response sent exception")
-
-        return s
-    }
-}
