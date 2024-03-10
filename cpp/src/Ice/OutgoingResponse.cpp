@@ -54,6 +54,8 @@ namespace
             else
             {
                 assert(false);
+                // Need to set replyStatus otherwise the compiler complains about uninitialized variable.
+                replyStatus = ReplyStatus::ObjectNotExist;
             }
 
             if (rfe.id.name.empty())
