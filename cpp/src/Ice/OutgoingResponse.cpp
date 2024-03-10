@@ -211,7 +211,7 @@ OutgoingResponse::operator=(OutgoingResponse&& other) noexcept
 int32_t
 OutgoingResponse::size() const noexcept
 {
-    return static_cast<int32_t>(_outputStream.b.size() - headerSize - 4);
+    return _current.get().requestId == 0 ? 0 : static_cast<int32_t>(_outputStream.b.size() - sizeof(replyHdr));
 }
 
 OutgoingResponse

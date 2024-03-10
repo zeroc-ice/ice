@@ -87,7 +87,7 @@ namespace Ice
          * @remarks The response only holds onto a reference for this Current object. The caller keeps the Current
          * object alive until the call to sendResponse completes.
          */
-        const Current& current() const noexcept { return _current; }
+        const Current& current() const noexcept { return _current.get(); }
 
         /**
          * Return the exception ID of the response. It's empty when replyStatus() is ReplyStatus::Ok.
