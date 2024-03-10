@@ -748,13 +748,6 @@ Ice::FixedProxyException::ice_print(ostream& out) const
 }
 
 void
-Ice::ResponseSentException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nresponse sent exception";
-}
-
-void
 Ice::CFNetworkException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

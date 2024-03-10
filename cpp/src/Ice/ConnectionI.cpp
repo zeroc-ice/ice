@@ -13,9 +13,8 @@
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ACM.h>
-#include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
+#include <Ice/ObjectAdapterI.h> // For getThreadPool()
 #include <Ice/EndpointI.h>
-#include <Ice/Incoming.h>
 #include <Ice/LocalException.h>
 #include <Ice/RequestHandler.h>   // For RetryException
 #include <Ice/ReferenceFactory.h> // For createProxy().
@@ -23,6 +22,8 @@
 #include <Ice/BatchRequestQueue.h>
 #include "CheckIdentity.h"
 #include "Endian.h"
+#include "Ice/IncomingRequest.h"
+#include "Ice/OutgoingResponse.h"
 
 #ifdef ICE_HAS_BZIP2
 #    include <bzlib.h>
@@ -56,7 +57,6 @@ namespace
             uint8_t compress,
             int32_t requestId,
             int32_t invokeNum,
-            const ServantManagerPtr& servantManager,
             const ObjectAdapterPtr& adapter,
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
@@ -68,7 +68,6 @@ namespace
               _compress(compress),
               _requestId(requestId),
               _invokeNum(invokeNum),
-              _servantManager(servantManager),
               _adapter(adapter),
               _outAsync(outAsync),
               _heartbeatCallback(heartbeatCallback),
@@ -85,7 +84,6 @@ namespace
                 _compress,
                 _requestId,
                 _invokeNum,
-                _servantManager,
                 _adapter,
                 _outAsync,
                 _heartbeatCallback,
@@ -99,7 +97,6 @@ namespace
         const uint8_t _compress;
         const int32_t _requestId;
         const int32_t _invokeNum;
-        const ServantManagerPtr _servantManager;
         const ObjectAdapterPtr _adapter;
         const OutgoingAsyncBasePtr _outAsync;
         const HeartbeatCallback _heartbeatCallback;
@@ -1223,7 +1220,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
     if (adapter)
     {
-        // Go through the adapter to set the adapter and servant manager on this connection
+        // Go through the adapter to set the adapter on this connection
         // to ensure the object adapter is still active.
         dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(shared_from_this());
     }
@@ -1235,8 +1232,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
             return;
         }
 
-        _adapter = 0;
-        _servantManager = 0;
+        _adapter = nullptr;
     }
 
     //
@@ -1267,9 +1263,7 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
 }
 
 void
-Ice::ConnectionI::setAdapterAndServantManager(
-    const ObjectAdapterPtr& adapter,
-    const IceInternal::ServantManagerPtr& servantManager)
+Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterPtr& adapter)
 {
     std::lock_guard lock(_mutex);
     if (_state <= StateNotValidated || _state >= StateClosing)
@@ -1278,7 +1272,6 @@ Ice::ConnectionI::setAdapterAndServantManager(
     }
     assert(adapter); // Called by ObjectAdapterI::setAdapterOnConnection
     _adapter = adapter;
-    _servantManager = servantManager;
 }
 
 #if defined(ICE_USE_IOCP)
@@ -1389,7 +1382,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     uint8_t compress = 0;
     int32_t requestId = 0;
     int32_t invokeNum = 0;
-    ServantManagerPtr servantManager;
     ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
     HeartbeatCallback heartbeatCallback;
@@ -1585,7 +1577,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                                     invokeNum,
                                     requestId,
                                     compress,
-                                    servantManager,
                                     adapter,
                                     outAsync,
                                     heartbeatCallback,
@@ -1668,7 +1659,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         compress,
         requestId,
         invokeNum,
-        servantManager,
         adapter,
         outAsync,
         heartbeatCallback,
@@ -1682,7 +1672,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             compress,
             requestId,
             invokeNum,
-            servantManager,
             adapter,
             outAsync,
             heartbeatCallback,
@@ -1697,7 +1686,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             compress,
             requestId,
             invokeNum,
-            servantManager,
             adapter,
             outAsync,
             heartbeatCallback,
@@ -1713,7 +1701,6 @@ ConnectionI::dispatch(
     uint8_t compress,
     int32_t requestId,
     int32_t invokeNum,
-    const ServantManagerPtr& servantManager,
     const ObjectAdapterPtr& adapter,
     const OutgoingAsyncBasePtr& outAsync,
     const HeartbeatCallback& heartbeatCallback,
@@ -1794,7 +1781,7 @@ ConnectionI::dispatch(
     //
     if (invokeNum)
     {
-        invokeAll(stream, invokeNum, requestId, compress, servantManager, adapter);
+        invokeAll(stream, invokeNum, requestId, compress, adapter);
 
         //
         // Don't increase count, the dispatch count is
@@ -2164,11 +2151,6 @@ Ice::ConnectionI::ConnectionI(
     else if (compressionLevel > 9)
     {
         compressionLevel = 9;
-    }
-
-    if (adapter)
-    {
-        _servantManager = adapter->getServantManager();
     }
 
     if (_monitor && _monitor->getACM().timeout > 0)
@@ -2568,6 +2550,29 @@ Ice::ConnectionI::sendHeartbeatNow()
             setState(StateClosed, current_exception());
             assert(_exception);
         }
+    }
+}
+
+void
+Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
+{
+    int32_t requestId = response.current().requestId;
+    bool isTwoWay = !_endpoint->datagram() && requestId != 0;
+
+    try
+    {
+        if (isTwoWay)
+        {
+            sendResponse(requestId, &response.outputStream(), compress);
+        }
+        else
+        {
+            sendNoResponse();
+        }
+    }
+    catch (...)
+    {
+        invokeException(requestId, current_exception(), 1);
     }
 }
 
@@ -3184,7 +3189,6 @@ Ice::ConnectionI::parseMessage(
     int32_t& invokeNum,
     int32_t& requestId,
     uint8_t& compress,
-    ServantManagerPtr& servantManager,
     ObjectAdapterPtr& adapter,
     OutgoingAsyncBasePtr& outAsync,
     HeartbeatCallback& heartbeatCallback,
@@ -3269,7 +3273,6 @@ Ice::ConnectionI::parseMessage(
                     traceRecv(stream, _logger, _traceLevels);
                     stream.read(requestId);
                     invokeNum = 1;
-                    servantManager = _servantManager;
                     adapter = _adapter;
                     ++dispatchCount;
                 }
@@ -3295,7 +3298,6 @@ Ice::ConnectionI::parseMessage(
                         invokeNum = 0;
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
-                    servantManager = _servantManager;
                     adapter = _adapter;
                     dispatchCount += invokeNum;
                 }
@@ -3418,7 +3420,6 @@ Ice::ConnectionI::invokeAll(
     int32_t invokeNum,
     int32_t requestId,
     uint8_t compress,
-    const ServantManagerPtr& servantManager,
     const ObjectAdapterPtr& adapter)
 {
     //
@@ -3431,31 +3432,41 @@ Ice::ConnectionI::invokeAll(
         while (invokeNum > 0)
         {
             //
-            // Prepare the dispatch.
+            // Start of the dispatch pipeline.
             //
-            bool response = !_endpoint->datagram() && requestId != 0;
-            assert(!response || invokeNum == 1);
 
-            Incoming incoming(
-                _instance.get(),
-                shared_from_this(),
-                shared_from_this(),
-                adapter,
-                response,
-                compress,
-                requestId);
+            IncomingRequest request{requestId, shared_from_this(), adapter, stream};
 
-            //
-            // Dispatch the incoming request.
-            //
-            incoming.invoke(servantManager, &stream);
+            if (adapter)
+            {
+                try
+                {
+                    adapter->dispatcher()->dispatch(
+                        request,
+                        [self = shared_from_this(), compress](OutgoingResponse response)
+                        { self->sendResponse(std::move(response), compress); });
+                }
+                catch (...)
+                {
+                    sendResponse(makeOutgoingResponse(current_exception(), request.current()), 0);
+                }
+            }
+            else
+            {
+                // Received request on a connection without an object adapter.
+                sendResponse(
+                    makeOutgoingResponse(
+                        make_exception_ptr(ObjectNotExistException{__FILE__, __LINE__}),
+                        request.current()),
+                    0);
+            }
 
             --invokeNum;
         }
 
         stream.clear();
     }
-    catch (const LocalException&)
+    catch (...)
     {
         invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
     }

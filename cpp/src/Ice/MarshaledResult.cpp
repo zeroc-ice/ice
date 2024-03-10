@@ -10,7 +10,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-MarshaledResult::MarshaledResult(MarshaledResult&& rhs) { swap(rhs._ostr); }
+MarshaledResult::MarshaledResult(MarshaledResult&& rhs) { _ostr.swap(rhs._ostr); }
 
 MarshaledResult::MarshaledResult(const Current& current)
     : // currentProtocolEncoding because we're writing the protocol header.
@@ -24,12 +24,6 @@ MarshaledResult::MarshaledResult(const Current& current)
 MarshaledResult&
 MarshaledResult::operator=(MarshaledResult&& rhs)
 {
-    swap(rhs._ostr);
+    _ostr.swap(rhs._ostr);
     return *this;
-}
-
-void
-MarshaledResult::swap(OutputStream& other)
-{
-    _ostr.swap(other);
 }

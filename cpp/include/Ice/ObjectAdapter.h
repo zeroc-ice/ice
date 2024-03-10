@@ -346,6 +346,13 @@ namespace Ice
         virtual ::std::shared_ptr<::Ice::Object> findDefaultServant(const ::std::string& category) const = 0;
 
         /**
+         * Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
+         * servants managed by this object adapter, and takes into account the servant locators.
+         * @return The dispatcher. This shared_ptr is never null.
+         */
+        virtual ObjectPtr dispatcher() const noexcept = 0;
+
+        /**
          * Create a proxy for the object with the given identity. If this object adapter is configured with an adapter
          * id, the return value is an indirect proxy that refers to the adapter id. If a replica group id is also
          * defined, the return value is an indirect proxy that refers to the replica group id. Otherwise, if no adapter

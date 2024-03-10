@@ -603,12 +603,3 @@ Ice::FixedProxyException::ice_staticId()
     static constexpr std::string_view typeId = "::Ice::FixedProxyException";
     return typeId;
 }
-
-Ice::ResponseSentException::~ResponseSentException() {}
-
-std::string_view
-Ice::ResponseSentException::ice_staticId()
-{
-    static constexpr std::string_view typeId = "::Ice::ResponseSentException";
-    return typeId;
-}
