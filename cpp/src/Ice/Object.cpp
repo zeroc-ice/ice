@@ -275,8 +275,8 @@ Ice::BlobjectArrayAsync::dispatch(IncomingRequest& request, std::function<void(O
     {
         ice_invokeAsync(
             inEncaps,
-            [responseHandler](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
-            { responseHandler->sendResponse(ok, outE); },
+            [responseHandler](bool ok, const pair<const uint8_t*, const uint8_t*>& outEncaps)
+            { responseHandler->sendResponse(ok, outEncaps); },
             [responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); },
             responseHandler->current());
     }

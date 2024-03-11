@@ -20,7 +20,7 @@ ObserverMiddleware::ObserverMiddleware(Ice::ObjectPtr next, CommunicatorObserver
 void
 ObserverMiddleware::dispatch(Ice::IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
 {
-    auto observerPtr = _communicatorObserver->getDispatchObserver(request.current(), request.size());
+    DispatchObserverPtr observerPtr = _communicatorObserver->getDispatchObserver(request.current(), request.size());
     if (observerPtr)
     {
         observerPtr->attach();

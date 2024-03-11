@@ -19,6 +19,7 @@ namespace
     // The "core" implementation of makeOutgoingResponse for exceptions. Note that it can throw an exception.
     OutgoingResponse makeOutgoingResponseCore(std::exception_ptr exc, const Current& current)
     {
+        assert(exc);
         OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);
 
         if (current.requestId != 0)
@@ -243,8 +244,8 @@ Ice::makeOutgoingResponse(
     {
         // A oneway request cannot have a return or out params.
         assert(0);
+        return OutgoingResponse{ostr, current};
     }
-    return OutgoingResponse{ostr, current};
 }
 
 OutgoingResponse
