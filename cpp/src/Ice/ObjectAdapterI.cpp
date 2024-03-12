@@ -55,27 +55,6 @@ namespace
     }
 
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
-
-    ObjectPtr createDispatchPipeline(Ice::ObjectPtr dispatcher, const InstancePtr& instance)
-    {
-        const auto& observer = instance->initializationData().observer;
-        if (observer)
-        {
-            dispatcher = make_shared<ObserverMiddleware>(std::move(dispatcher), observer);
-        }
-
-        const auto& logger = instance->initializationData().logger;
-        if (logger)
-        {
-            int warningLevel =
-                instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1);
-            if (warningLevel > 0)
-            {
-                dispatcher = make_shared<LoggerMiddleware>(std::move(dispatcher), logger, warningLevel, instance->toStringMode());
-            }
-        }
-        return dispatcher;
-    }
 }
 
 string
@@ -539,7 +518,12 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
 ObjectPtr
 Ice::ObjectAdapterI::dispatcher() const noexcept
 {
-    return _servantManager;
+    // _dispatcher is immutable, so no need to lock _mutex. There is no need to clear _dispatcher during destroy
+    // because _dispatcher does not hold onto this object adapter directly. It can hold onto a communicator that holds
+    // onto this object adapter, but the communicator will release this refcount when it is destroyed or when the
+    // object adapter is destroyed.
+
+    return _dispatcher;
 }
 
 ObjectPrx
@@ -851,6 +835,15 @@ Ice::ObjectAdapterI::getThreadPool() const
     }
 }
 
+ServantManagerPtr
+Ice::ObjectAdapterI::getServantManager() const
+{
+    //
+    // No mutex lock necessary, _servantManager is immutable.
+    //
+    return _servantManager;
+}
+
 IceInternal::ACMConfig
 Ice::ObjectAdapterI::getACM() const
 {
@@ -884,12 +877,29 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _communicator(communicator),
       _objectAdapterFactory(objectAdapterFactory),
       _servantManager(make_shared<ServantManager>(instance, name)),
-      _dispatchPipeline(createDispatchPipeline(_servantManager, instance)),
       _name(name),
       _directCount(0),
       _noConfig(noConfig),
       _messageSizeMax(0)
 {
+    _dispatcher = _servantManager;
+
+    const auto& observer = _instance->initializationData().observer;
+    if (observer)
+    {
+        _dispatcher = make_shared<ObserverMiddleware>(_dispatcher, observer);
+    }
+
+    const auto& logger = _instance->initializationData().logger;
+    if (logger)
+    {
+        int warningLevel =
+            _instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1);
+        if (warningLevel > 0)
+        {
+            _dispatcher = make_shared<LoggerMiddleware>(_dispatcher, logger, warningLevel, _instance->toStringMode());
+        }
+    }
 }
 
 void

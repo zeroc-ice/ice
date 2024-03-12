@@ -94,13 +94,10 @@ namespace Ice
         void decDirectCount();
 
         IceInternal::ThreadPoolPtr getThreadPool() const;
+        IceInternal::ServantManagerPtr getServantManager() const;
         IceInternal::ACMConfig getACM() const;
         void setAdapterOnConnection(const Ice::ConnectionIPtr&);
         size_t messageSizeMax() const { return _messageSizeMax; }
-
-        // The dispatch pipeline is the dispatcher plus the logger and observer middleware. They are installed in the
-        // dispatch pipeline only when the communicator configuration enables them.
-        const Ice::ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline;}
 
         ObjectAdapterI(
             const IceInternal::InstancePtr&,
@@ -141,11 +138,7 @@ namespace Ice
         IceInternal::ThreadPoolPtr _threadPool;
         IceInternal::ACMConfig _acm;
         const IceInternal::ServantManagerPtr _servantManager;
-
-        // There is no need to clear _dispatchPipeline during destroy because _dispatchPipeline does not hold onto this
-        // object adapter directly. It can hold onto a communicator that holds onto this object adapter, but the
-        // communicator will release this refcount when it is destroyed or when the object adapter is destroyed.
-        const ObjectPtr _dispatchPipeline; // must be declared after _servantManager
+        ObjectPtr _dispatcher;
         const std::string _name;
         const std::string _id;
         const std::string _replicaGroupId;

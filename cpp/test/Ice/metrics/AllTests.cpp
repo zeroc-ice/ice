@@ -371,12 +371,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         os << protocol << " -h " << host << " -p " << port;
         endpoint = os.str();
     }
-    string forwardingEndpoint;
-    {
-        ostringstream os;
-        os << protocol << " -h " << host << " -p " << helper->getTestPort(1);
-        forwardingEndpoint = os.str();
-    }
 
     MetricsPrx metrics(communicator, "metrics:" + endpoint);
     bool collocated = !metrics->ice_getConnection();
@@ -580,7 +574,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        ControllerPrx controller(communicator, "controller:" + helper->getTestEndpoint(2));
+        ControllerPrx controller(communicator, "controller:" + helper->getTestEndpoint(1));
         controller->hold();
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
@@ -952,14 +946,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "context.entry2", "", op);
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "context.entry3", "", op);
 
-    cout << "ok" << endl;
-
-    cout << "testing dispatch metrics with forwarding object adapter... " << flush;
-    MetricsPrx indirectMetrics(communicator, "metrics:" + forwardingEndpoint);
-    InvokeOp secondOp(indirectMetrics);
-
-    testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "parent", "ForwardingAdapter", secondOp);
-    testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "id", "metrics [op]", secondOp);
     cout << "ok" << endl;
 
     cout << "testing invocation metrics... " << flush;

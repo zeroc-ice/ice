@@ -46,7 +46,6 @@ namespace Ice
 {
     class LocalException;
     class ObjectAdapterI;
-    using ObjectAdapterIPtr = std::shared_ptr<ObjectAdapterI>;
 
     class ConnectionI : public Connection, public IceInternal::EventHandler, public IceInternal::CancellationHandler
     {
@@ -173,12 +172,12 @@ namespace Ice
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
 
-        virtual void setAdapter(const ObjectAdapterPtr&);          // From Connection.
+        virtual void setAdapter(const ObjectAdapterPtr&);           // From Connection.
         virtual ObjectAdapterPtr getAdapter() const noexcept;       // From Connection.
         virtual EndpointPtr getEndpoint() const noexcept;           // From Connection.
         virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
-        void setAdapterFromAdapter(const ObjectAdapterIPtr&); // From ObjectAdapterI.
+        void setAdapterFromAdapter(const ObjectAdapterPtr&); // From ObjectAdapterI.
 
         //
         // Operations from EventHandler
@@ -209,7 +208,7 @@ namespace Ice
             std::uint8_t,
             std::int32_t,
             std::int32_t,
-            const ObjectAdapterIPtr&,
+            const ObjectAdapterPtr&,
             const IceInternal::OutgoingAsyncBasePtr&,
             const HeartbeatCallback&,
             Ice::InputStream&);
@@ -279,12 +278,12 @@ namespace Ice
             std::int32_t&,
             std::int32_t&,
             std::uint8_t&,
-            ObjectAdapterIPtr&,
+            ObjectAdapterPtr&,
             IceInternal::OutgoingAsyncBasePtr&,
             HeartbeatCallback&,
             int&);
 
-        void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
+        void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterPtr&);
 
         void scheduleTimeout(IceInternal::SocketOperation status);
         void unscheduleTimeout(IceInternal::SocketOperation status);
@@ -308,7 +307,7 @@ namespace Ice
 
         mutable Ice::ConnectionInfoPtr _info;
 
-        ObjectAdapterIPtr _adapter;
+        ObjectAdapterPtr _adapter;
 
         const bool _hasExecutor;
         const LoggerPtr _logger;

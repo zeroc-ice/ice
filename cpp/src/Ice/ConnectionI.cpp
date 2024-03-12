@@ -57,7 +57,7 @@ namespace
             uint8_t compress,
             int32_t requestId,
             int32_t invokeNum,
-            const ObjectAdapterIPtr& adapter,
+            const ObjectAdapterPtr& adapter,
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
             InputStream& stream)
@@ -97,7 +97,7 @@ namespace
         const uint8_t _compress;
         const int32_t _requestId;
         const int32_t _invokeNum;
-        const ObjectAdapterIPtr _adapter;
+        const ObjectAdapterPtr _adapter;
         const OutgoingAsyncBasePtr _outAsync;
         const HeartbeatCallback _heartbeatCallback;
         InputStream _stream;
@@ -580,7 +580,7 @@ Ice::ConnectionI::waitUntilFinished()
     //
     // Clear the OA. See bug 1673 for the details of why this is necessary.
     //
-    _adapter = nullptr;
+    _adapter = 0;
 }
 
 void
@@ -1263,7 +1263,7 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
 }
 
 void
-Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterIPtr& adapter)
+Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterPtr& adapter)
 {
     std::lock_guard lock(_mutex);
     if (_state <= StateNotValidated || _state >= StateClosing)
@@ -1382,7 +1382,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     uint8_t compress = 0;
     int32_t requestId = 0;
     int32_t invokeNum = 0;
-    ObjectAdapterIPtr adapter;
+    ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
     HeartbeatCallback heartbeatCallback;
     int dispatchCount = 0;
@@ -1701,7 +1701,7 @@ ConnectionI::dispatch(
     uint8_t compress,
     int32_t requestId,
     int32_t invokeNum,
-    const ObjectAdapterIPtr& adapter,
+    const ObjectAdapterPtr& adapter,
     const OutgoingAsyncBasePtr& outAsync,
     const HeartbeatCallback& heartbeatCallback,
     InputStream& stream)
@@ -3189,7 +3189,7 @@ Ice::ConnectionI::parseMessage(
     int32_t& invokeNum,
     int32_t& requestId,
     uint8_t& compress,
-    ObjectAdapterIPtr& adapter,
+    ObjectAdapterPtr& adapter,
     OutgoingAsyncBasePtr& outAsync,
     HeartbeatCallback& heartbeatCallback,
     int& dispatchCount)
@@ -3420,7 +3420,7 @@ Ice::ConnectionI::invokeAll(
     int32_t invokeNum,
     int32_t requestId,
     uint8_t compress,
-    const ObjectAdapterIPtr& adapter)
+    const ObjectAdapterPtr& adapter)
 {
     //
     // Note: In contrast to other private or protected methods, this
@@ -3441,7 +3441,7 @@ Ice::ConnectionI::invokeAll(
             {
                 try
                 {
-                    adapter->dispatchPipeline()->dispatch(
+                    adapter->dispatcher()->dispatch(
                         request,
                         [self = shared_from_this(), compress](OutgoingResponse response)
                         { self->sendResponse(std::move(response), compress); });

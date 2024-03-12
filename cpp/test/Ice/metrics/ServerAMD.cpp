@@ -30,12 +30,7 @@ ServerAMD::run(int argc, char** argv)
     adapter->add(make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     adapter->activate();
 
-    communicator->getProperties()->setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
-    Ice::ObjectAdapterPtr forwardingAdapter = communicator->createObjectAdapter("ForwardingAdapter");
-    forwardingAdapter->addDefaultServant(adapter->dispatcher(), "");
-    forwardingAdapter->activate();
-
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
     controllerAdapter->add(make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     controllerAdapter->activate();
