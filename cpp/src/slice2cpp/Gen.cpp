@@ -1566,8 +1566,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
     H << sb << eb;
     H << sp;
-    H << nl << prx
-      << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, std::string_view proxyString) :";
+    H << nl << prx << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, std::string_view proxyString) :";
     H.inc();
     H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
     H.dec();

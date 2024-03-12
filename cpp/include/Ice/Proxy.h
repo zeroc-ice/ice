@@ -149,7 +149,10 @@ namespace Ice
          * @param endpoints The endpoints for the new proxy.
          * @return A proxy with the new endpoints.
          */
-        Prx ice_endpoints(EndpointSeq endpoints) const { return fromReference(asPrx()._endpoints(std::move(endpoints))); }
+        Prx ice_endpoints(EndpointSeq endpoints) const
+        {
+            return fromReference(asPrx()._endpoints(std::move(endpoints)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
