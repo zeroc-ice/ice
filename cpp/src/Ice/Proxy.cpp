@@ -260,7 +260,7 @@ Ice::ObjectPrx::ice_getCommunicator() const
 }
 
 string_view
-Ice::ObjectPrx::ice_staticId()
+Ice::ObjectPrx::ice_staticId() noexcept
 {
     static constexpr string_view typeId = "::Ice::Object";
     return typeId;

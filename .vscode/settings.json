@@ -77,5 +77,5 @@
         "execution": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }

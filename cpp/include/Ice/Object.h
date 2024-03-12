@@ -77,7 +77,7 @@ namespace Ice
          * Obtains the Slice type ID of this type.
          * @return The return value is always "::Ice::Object".
          */
-        static std::string_view ice_staticId();
+        static std::string_view ice_staticId() noexcept;
 
         /// \cond INTERNAL
         virtual bool _iceDispatch(IceInternal::Incoming&);

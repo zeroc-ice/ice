@@ -739,7 +739,7 @@ namespace Ice
          * Returns the Slice type ID associated with this type.
          * @return The Slice type ID.
          */
-        static std::string_view ice_staticId();
+        static std::string_view ice_staticId() noexcept;
 
         /**
          * Obtains the communicator that created this proxy.
