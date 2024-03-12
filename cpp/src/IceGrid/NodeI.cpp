@@ -196,9 +196,9 @@ NodeI::NodeI(
     const shared_ptr<Activator>& activator,
     const IceUtil::TimerPtr& timer,
     const shared_ptr<TraceLevels>& traceLevels,
-    const NodePrxPtr& proxy,
+    NodePrx proxy,
     const string& name,
-    const UserAccountMapperPrxPtr& mapper,
+    const optional<UserAccountMapperPrx>& mapper,
     const string& instanceName)
     : _communicator(adapter->getCommunicator()),
       _adapter(adapter),
@@ -207,7 +207,7 @@ NodeI::NodeI(
       _timer(timer),
       _traceLevels(traceLevels),
       _name(name),
-      _proxy(proxy),
+      _proxy(std::move(proxy)),
       _redirectErrToOut(false),
       _allowEndpointsOverride(false),
       _waitTime(0),
@@ -512,27 +512,30 @@ NodeI::patchAsync(
 }
 
 void
-NodeI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::registerWithReplica(std::optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.create(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.create(std::move(*replica));
 }
 
 void
-NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current&)
+NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current& current)
 {
-    _sessions.replicaInit(std::move(replicas));
+    _sessions.replicaInit(std::move(replicas), current);
 }
 
 void
-NodeI::replicaAdded(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::replicaAdded(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.replicaAdded(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.replicaAdded(std::move(*replica));
 }
 
 void
-NodeI::replicaRemoved(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::replicaRemoved(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.replicaRemoved(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.replicaRemoved(std::move(*replica));
 }
 
 std::string
@@ -639,7 +642,7 @@ NodeI::getFileCache() const
     return _fileCache;
 }
 
-NodePrxPtr
+NodePrx
 NodeI::getProxy() const
 {
     return _proxy;
@@ -1222,11 +1225,8 @@ NodeI::loadServer(
 
         auto id = createServerIdentity(descriptor->id);
 
-        //
-        // Check if we already have a servant for this server. If that's
-        // the case, the server is already loaded and we just need to
-        // update it.
-        //
+        // Check if we already have a servant for this server. If that's the case, the server is already loaded and we
+        // just need to update it.
         while (true)
         {
             bool added = false;
@@ -1236,22 +1236,21 @@ NodeI::loadServer(
                 server = dynamic_pointer_cast<ServerI>(_adapter->find(id));
                 if (!server)
                 {
-                    auto proxy = Ice::uncheckedCast<ServerPrx>(_adapter->createProxy(id));
-                    server = make_shared<ServerI>(shared_from_this(), proxy, _serversDir, descriptor->id, _waitTime);
+                    server = make_shared<ServerI>(
+                        shared_from_this(),
+                        ServerPrx(_adapter->createProxy(id)),
+                        _serversDir,
+                        descriptor->id,
+                        _waitTime);
                     _adapter->add(server, id);
                     added = true;
                 }
             }
             catch (const Ice::ObjectAdapterDeactivatedException&)
             {
-                //
-                // We throw an object not exist exception to avoid
-                // dispatch warnings. The registry will consider the
-                // node has being unreachable upon receival of this
-                // exception (like any other Ice::LocalException). We
-                // could also have disabled dispatch warnings but they
-                // can still useful to catch other issues.
-                //
+                // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
+                // node has being unreachable upon receival of this exception (like any other Ice::LocalException). We
+                // could also have disabled dispatch warnings but they can still useful to catch other issues.
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
             }
 
@@ -1312,14 +1311,9 @@ NodeI::destroyServer(
         }
         catch (const Ice::ObjectAdapterDeactivatedException&)
         {
-            //
-            // We throw an object not exist exception to avoid
-            // dispatch warnings. The registry will consider the node
-            // has being unreachable upon receipt of this exception
-            // (like any other Ice::LocalException). We could also
-            // have disabled dispatch warnings but they can still
-            // useful to catch other issues.
-            //
+            // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
+            // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also
+            // have disabled dispatch warnings but they can still useful to catch other issues.
             throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
         }
 
@@ -1328,9 +1322,7 @@ NodeI::destroyServer(
             server = make_shared<ServerI>(shared_from_this(), nullopt, _serversDir, serverId, _waitTime);
         }
 
-        //
         // Destroy the server object if it's loaded.
-        //
         try
         {
             // Don't std::move response as we may need to call it if there is an exception

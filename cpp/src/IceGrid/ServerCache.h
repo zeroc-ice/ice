@@ -77,7 +77,7 @@ namespace IceGrid
         std::shared_ptr<CheckUpdateResult> checkUpdate(const ServerInfo&, bool);
         bool isDestroyed();
 
-        void loadCallback(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
+        void loadCallback(ServerPrx, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
         void destroyCallback();
         void exception(std::exception_ptr);
 

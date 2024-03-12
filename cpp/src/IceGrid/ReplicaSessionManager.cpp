@@ -269,14 +269,14 @@ ReplicaSessionManager::create(
     const shared_ptr<InternalReplicaInfo>& info,
     const shared_ptr<Database>& database,
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-    const InternalRegistryPrxPtr& internalRegistry)
+    InternalRegistryPrx internalRegistry)
 {
     {
         lock_guard lock(_mutex);
 
         _name = name;
         _info = info;
-        _internalRegistry = internalRegistry;
+        _internalRegistry = std::move(internalRegistry);
         _database = database;
         _wellKnownObjects = wellKnownObjects;
         _traceLevels = _database->getTraceLevels();
@@ -290,7 +290,7 @@ ReplicaSessionManager::create(
 }
 
 void
-ReplicaSessionManager::create(const InternalRegistryPrxPtr& replica)
+ReplicaSessionManager::create(InternalRegistryPrx replica)
 {
     {
         unique_lock lock(_mutex);
@@ -377,7 +377,7 @@ ReplicaSessionManager::registerAllWellKnownObjects()
     {
         try
         {
-            _wellKnownObjects->registerAll(session);
+            _wellKnownObjects->registerAll(*session);
             return;
         }
         catch (const Ice::LocalException&)
@@ -434,10 +434,10 @@ ReplicaSessionManager::keepAlive(const ReplicaSessionPrxPtr& session)
     }
 }
 
-ReplicaSessionPrxPtr
-ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
+std::optional<ReplicaSessionPrx>
+ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seconds& timeout)
 {
-    ReplicaSessionPrxPtr session;
+    std::optional<ReplicaSessionPrx> session;
     string exceptionMsg = "";
     try
     {
@@ -447,7 +447,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
             out << "trying to establish session with master replica";
         }
 
-        set<InternalRegistryPrxPtr> used;
+        set<InternalRegistryPrx> used;
         if (!registry->ice_getEndpoints().empty())
         {
             try
@@ -458,7 +458,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
             {
                 exceptionMsg = ex.what();
                 used.insert(registry);
-                registry = Ice::uncheckedCast<InternalRegistryPrx>(registry->ice_endpoints({}));
+                registry = registry->ice_endpoints({});
             }
         }
 
@@ -477,15 +477,14 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
                     break;
                 }
 
-                InternalRegistryPrxPtr newRegistry;
+                optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    auto obj = result.get();
-                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(obj);
-                    if (newRegistry && used.find(newRegistry) == used.end())
+                    newRegistry = optional<InternalRegistryPrx>(result.get());
+                    if (newRegistry && used.find(*newRegistry) == used.end())
                     {
-                        session = createSessionImpl(newRegistry, timeout);
-                        registry = newRegistry;
+                        session = createSessionImpl(*newRegistry, timeout);
+                        registry = *newRegistry;
                         break;
                     }
                 }
@@ -494,7 +493,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
                     exceptionMsg = ex.what();
                     if (newRegistry)
                     {
-                        used.insert(newRegistry);
+                        used.insert(*newRegistry);
                     }
                 }
             }
@@ -531,16 +530,12 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
 
     if (session)
     {
-        //
         // Register all the well-known objects with the replica session.
-        //
-        _wellKnownObjects->registerAll(session);
+        _wellKnownObjects->registerAll(*session);
     }
     else
     {
-        //
         // Re-register all the well known objects with the local database.
-        //
         _wellKnownObjects->registerAll();
     }
 
@@ -567,10 +562,10 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
     return session;
 }
 
-ReplicaSessionPrxPtr
-ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
+ReplicaSessionPrx
+ReplicaSessionManager::createSessionImpl(InternalRegistryPrx registry, chrono::seconds& timeout)
 {
-    ReplicaSessionPrxPtr session;
+    std::optional<ReplicaSessionPrx> session;
     try
     {
         session = registry->registerReplica(_info, _internalRegistry);
@@ -594,7 +589,7 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry,
             serialsOpt = serials; // Don't provide serials parameter if serials aren't supported.
         }
         session->setDatabaseObserver(_observer, serialsOpt);
-        return session;
+        return *session;
     }
     catch (const Ice::Exception&)
     {
@@ -604,7 +599,7 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry,
 }
 
 void
-ReplicaSessionManager::destroySession(const ReplicaSessionPrxPtr& session)
+ReplicaSessionManager::destroySession(const optional<ReplicaSessionPrx>& session)
 {
     if (session)
     {

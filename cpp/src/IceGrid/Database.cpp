@@ -178,13 +178,14 @@ namespace
 shared_ptr<Database>
 Database::create(
     const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
     const RegistryInfo& info,
     bool readonly)
 {
-    shared_ptr<Database> db(new Database(registryAdapter, topicManager, instanceName, traceLevels, info, readonly));
+    shared_ptr<Database> db(
+        new Database(registryAdapter, std::move(topicManager), instanceName, traceLevels, info, readonly));
 
     db->_pluginFacade->setDatabase(db);
 
@@ -193,19 +194,19 @@ Database::create(
 
 Database::Database(
     const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
     const RegistryInfo& info,
     bool readonly)
     : _communicator(registryAdapter->getCommunicator()),
       _internalAdapter(registryAdapter),
-      _topicManager(topicManager),
+      _topicManager(std::move(topicManager)),
       _instanceName(instanceName),
       _traceLevels(traceLevels),
       _master(info.name == "Master"),
       _readonly(readonly || !_master),
-      _replicaCache(_communicator, topicManager),
+      _replicaCache(_communicator, _topicManager),
       _nodeCache(_communicator, _replicaCache, _readonly && _master ? string("Master (read-only)") : info.name),
       _adapterCache(_communicator),
       _objectCache(_communicator),
@@ -1018,7 +1019,7 @@ void
 Database::setAdapterDirectProxy(
     const string& adapterId,
     const string& replicaGroupId,
-    const Ice::ObjectPrxPtr& proxy,
+    const optional<Ice::ObjectPrx>& proxy,
     int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
@@ -1638,7 +1639,7 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
 }
 
 void
-Database::updateObject(const Ice::ObjectPrxPtr& proxy)
+Database::updateObject(Ice::ObjectPrx proxy)
 {
     assert(_master);
 
@@ -1665,7 +1666,7 @@ Database::updateObject(const Ice::ObjectPrxPtr& proxy)
             {
                 throw ObjectNotRegisteredException(id);
             }
-            info.proxy = proxy;
+            info.proxy = std::move(proxy);
             addObject(txn, info, false);
             dbSerial = updateSerial(txn, objectsDbName);
 
@@ -1742,15 +1743,15 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     return _objectObserverTopic->wellKnownObjectsRemoved(objects);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
     {
-        //
         // Only return proxies for non allocatable objects.
-        //
-        return _objectCache.get(id)->getProxy();
+        auto proxy = _objectCache.get(id)->getProxy();
+        assert(proxy);
+        return *proxy;
     }
     catch (const ObjectNotRegisteredException&)
     {
@@ -1762,10 +1763,11 @@ Database::getObjectProxy(const Ice::Identity& id)
     {
         throw ObjectNotRegisteredException(id);
     }
-    return info.proxy;
+    assert(info.proxy);
+    return *info.proxy;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
@@ -1776,7 +1778,7 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
     return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getObjectByTypeOnLeastLoadedNode(
     const string& type,
     LoadSample sample,

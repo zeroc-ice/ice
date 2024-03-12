@@ -47,9 +47,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -105,7 +109,7 @@ namespace
             if (firstProxy)
             {
                 assert(!_adapters.empty());
-                _proxies[_adapters[0].id] = firstProxy;
+                _proxies.insert({_adapters[0].id, std::move(*firstProxy)});
                 ++_lastAdapter;
             }
         }
@@ -214,9 +218,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -269,7 +277,7 @@ namespace
                     }
                 }
 
-                _response(ObjectPrx(_locator->getCommunicator(), "dummy:default")->ice_endpoints(endpoints));
+                _response(Ice::ObjectPrx(_locator->getCommunicator(), "dummy:default")->ice_endpoints(endpoints));
             }
         }
 
@@ -357,9 +365,13 @@ namespace
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
                 exception(
-                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                            proxy->ice_getEncodingVersion())));
+                    id,
+                    make_exception_ptr(Ice::UnsupportedEncodingException(
+                        __FILE__,
+                        __LINE__,
+                        "server doesn't support requested encoding",
+                        _encoding,
+                        proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -372,7 +384,12 @@ namespace
             if (_count > 1)
             {
                 auto request = make_shared<ReplicaGroupRequest>(
-                    _response, _locator, _id, _encoding, _adapters, _count,
+                    _response,
+                    _locator,
+                    _id,
+                    _encoding,
+                    _adapters,
+                    _count,
                     proxy->ice_identity(Ice::stringToIdentity("dummy")));
                 request->execute();
             }
@@ -472,7 +489,13 @@ namespace
                         if (!_waitForActivation)
                         {
                             _database->getLocatorAdapterInfo(
-                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin,
+                                _id,
+                                _connection,
+                                _context,
+                                _adapters,
+                                _count,
+                                replicaGroup,
+                                roundRobin,
                                 _activatingOrFailed);
                         }
 
@@ -483,7 +506,14 @@ namespace
                             // try again but this time we wait for the server activation.
                             //
                             _database->getLocatorAdapterInfo(
-                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin, _failed);
+                                _id,
+                                _connection,
+                                _context,
+                                _adapters,
+                                _count,
+                                replicaGroup,
+                                roundRobin,
+                                _failed);
                             _waitForActivation = true;
                         }
                         break;
@@ -702,14 +732,15 @@ LocatorI::findAdapterByIdAsync(
         {
             try
             {
-                _database->getLocatorAdapterInfo(
-                    id, current.con, current.ctx, adapters, count, replicaGroup, roundRobin);
+                _database
+                    ->getLocatorAdapterInfo(id, current.con, current.ctx, adapters, count, replicaGroup, roundRobin);
                 break;
             }
             catch (const SynchronizationException&)
             {
                 if (_database->addAdapterSyncCallback(
-                        id, make_shared<FindAdapterByIdCallback>(self, response, exception, id, current)))
+                        id,
+                        make_shared<FindAdapterByIdCallback>(self, response, exception, id, current)))
                 {
                     return;
                 }
@@ -839,7 +870,7 @@ LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const Ice::O
     {
         for (const auto& request : requests)
         {
-            request->response(adapter.id, proxy);
+            request->response(adapter.id, *proxy);
         }
     }
     else

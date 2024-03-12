@@ -93,7 +93,7 @@ AdminSessionI::AdminSessionI(
 {
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 AdminSessionI::_register(
     const shared_ptr<SessionServantManager>& servantManager,
     const shared_ptr<Ice::Connection>& con)
@@ -116,11 +116,13 @@ AdminSessionI::_register(
         _adminCallbackTemplate = _registry->createAdminCallbackProxy(templateId);
     }
 
-    auto self = static_pointer_cast<AdminSessionI>(shared_from_this());
+    auto self = shared_from_this();
 
-    auto session = _servantManager->addSession(self, con, category);
+    Ice::ObjectPrx session = _servantManager->addSession(self, con, category);
 
-    _admin = Ice::uncheckedCast<AdminPrx>(_servantManager->add(make_shared<AdminI>(_database, _registry, self), self));
+    _admin = AdminPrx(_servantManager->add(
+        make_shared<AdminI>(_database, _registry, static_pointer_cast<AdminSessionI>(self)),
+        self));
 
     return session;
 }
@@ -131,7 +133,7 @@ AdminSessionI::getAdmin(const Ice::Current&) const
     return _admin;
 }
 
-Ice::ObjectPrxPtr
+std::optional<Ice::ObjectPrx>
 AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
 {
     return _adminCallbackTemplate;
@@ -153,14 +155,14 @@ AdminSessionI::setObservers(
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    const auto t = secondsToInt(_timeout);
-    assert(t != 0);
-    const auto l = _registry->getLocator();
+    const auto timeout = secondsToInt(_timeout);
+    assert(timeout != 0);
+    const auto locator = _registry->getLocator();
     if (registryObserver)
     {
         setupObserverSubscription(
             TopicName::RegistryObserver,
-            addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
+            addForwarder(registryObserver->ice_timeout(timeout)->ice_locator(locator)));
     }
     else
     {
@@ -169,7 +171,9 @@ AdminSessionI::setObservers(
 
     if (nodeObserver)
     {
-        setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver->ice_timeout(t)->ice_locator(l)));
+        setupObserverSubscription(
+            TopicName::NodeObserver,
+            addForwarder(nodeObserver->ice_timeout(timeout)->ice_locator(locator)));
     }
     else
     {
@@ -180,7 +184,7 @@ AdminSessionI::setObservers(
     {
         setupObserverSubscription(
             TopicName::ApplicationObserver,
-            addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
+            addForwarder(appObserver->ice_timeout(timeout)->ice_locator(locator)));
     }
     else
     {
@@ -191,7 +195,7 @@ AdminSessionI::setObservers(
     {
         setupObserverSubscription(
             TopicName::AdapterObserver,
-            addForwarder(adapterObserver->ice_timeout(t)->ice_locator(l)));
+            addForwarder(adapterObserver->ice_timeout(timeout)->ice_locator(locator)));
     }
     else
     {
@@ -202,7 +206,7 @@ AdminSessionI::setObservers(
     {
         setupObserverSubscription(
             TopicName::ObjectObserver,
-            addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
+            addForwarder(objectObserver->ice_timeout(timeout)->ice_locator(locator)));
     }
     else
     {
@@ -358,7 +362,7 @@ AdminSessionI::destroy(const Ice::Current&)
 }
 
 void
-AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrxPtr& observer, bool forwarder)
+AdminSessionI::setupObserverSubscription(TopicName name, const optional<Ice::ObjectPrx>& observer, bool forwarder)
 {
     if (_observers.find(name) != _observers.end() && _observers[name].first != observer)
     {
@@ -381,7 +385,7 @@ AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrxPtr
     {
         _observers[name].first = observer;
         _observers[name].second = forwarder;
-        _database->getObserverTopic(name)->subscribe(observer);
+        _database->getObserverTopic(name)->subscribe(*observer);
     }
 }
 

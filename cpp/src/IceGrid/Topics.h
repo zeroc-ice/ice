@@ -15,7 +15,7 @@ namespace IceGrid
     class ObserverTopic
     {
     public:
-        ObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::string&, int64_t = 0);
+        ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&, int64_t = 0);
         virtual ~ObserverTopic() = default;
 
         int subscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
@@ -62,7 +62,7 @@ namespace IceGrid
     class RegistryObserverTopic : public ObserverTopic
     {
     public:
-        RegistryObserverTopic(const IceStorm::TopicManagerPrxPtr&);
+        RegistryObserverTopic(const IceStorm::TopicManagerPrx&);
 
         void registryUp(const RegistryInfo&);
         void registryDown(const std::string&);
@@ -78,7 +78,7 @@ namespace IceGrid
     {
     public:
         static std::shared_ptr<NodeObserverTopic>
-        create(const IceStorm::TopicManagerPrxPtr&, const std::shared_ptr<Ice::ObjectAdapter>&);
+        create(const IceStorm::TopicManagerPrx&, const std::shared_ptr<Ice::ObjectAdapter>&);
 
         void nodeInit(NodeDynamicInfoSeq, const Ice::Current&) override;
         void nodeUp(NodeDynamicInfo, const Ice::Current&) override;
@@ -94,7 +94,7 @@ namespace IceGrid
         bool isServerEnabled(const std::string&) const;
 
     private:
-        NodeObserverTopic(const IceStorm::TopicManagerPrxPtr&);
+        NodeObserverTopic(const IceStorm::TopicManagerPrx&);
 
         const NodeObserverPrxPtr _externalPublisher;
         std::vector<NodeObserverPrxPtr> _publishers;
@@ -106,7 +106,7 @@ namespace IceGrid
     {
     public:
         ApplicationObserverTopic(
-            const IceStorm::TopicManagerPrxPtr&,
+            const IceStorm::TopicManagerPrx&,
             const std::map<std::string, ApplicationInfo>&,
             std::int64_t);
 
@@ -125,10 +125,7 @@ namespace IceGrid
     class AdapterObserverTopic : public ObserverTopic
     {
     public:
-        AdapterObserverTopic(
-            const IceStorm::TopicManagerPrxPtr&,
-            const std::map<std::string, AdapterInfo>&,
-            std::int64_t);
+        AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<std::string, AdapterInfo>&, std::int64_t);
 
         int adapterInit(std::int64_t, const AdapterInfoSeq&);
         int adapterAdded(std::int64_t, const AdapterInfo&);
@@ -145,10 +142,7 @@ namespace IceGrid
     class ObjectObserverTopic : public ObserverTopic
     {
     public:
-        ObjectObserverTopic(
-            const IceStorm::TopicManagerPrxPtr&,
-            const std::map<Ice::Identity, ObjectInfo>&,
-            std::int64_t);
+        ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<Ice::Identity, ObjectInfo>&, std::int64_t);
 
         int objectInit(std::int64_t, const ObjectInfoSeq&);
         int objectAdded(std::int64_t, const ObjectInfo&);

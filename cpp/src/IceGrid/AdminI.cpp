@@ -129,7 +129,7 @@ namespace
 
     private:
         string _id;
-        ServerPrxPtr _proxy;
+        optional<ServerPrx> _proxy;
         chrono::seconds _activationTimeout;
         chrono::seconds _deactivationTimeout;
         string _node;
@@ -405,7 +405,7 @@ AdminI::getServerAdminCategory(const Current&) const
     return _registry->getServerAdminCategory();
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 AdminI::getServerAdmin(string id, const Current& current) const
 {
     ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
@@ -563,7 +563,7 @@ AdminI::getAllAdapterIds(const Current&) const
 }
 
 void
-AdminI::addObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current& current)
+AdminI::addObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
 {
     checkIsReadOnly();
 
@@ -585,7 +585,7 @@ AdminI::addObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current& current)
 }
 
 void
-AdminI::updateObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current&)
+AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -601,11 +601,11 @@ AdminI::updateObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current&)
             "updating object `" + _database->getCommunicator()->identityToString(id) +
             "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
     }
-    _database->updateObject(proxy);
+    _database->updateObject(*proxy);
 }
 
 void
-AdminI::addObjectWithType(Ice::ObjectPrxPtr proxy, string type, const ::Ice::Current&)
+AdminI::addObjectWithType(optional<Ice::ObjectPrx> proxy, string type, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -665,7 +665,7 @@ AdminI::getNodeInfo(string name, const Ice::Current&) const
     return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 AdminI::getNodeAdmin(string name, const Current& current) const
 {
     //
@@ -799,7 +799,7 @@ AdminI::getRegistryInfo(string name, const Ice::Current&) const
     }
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 AdminI::getRegistryAdmin(string name, const Current& current) const
 {
     if (name != _registry->getName())

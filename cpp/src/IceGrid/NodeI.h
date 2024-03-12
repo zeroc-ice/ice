@@ -47,9 +47,9 @@ namespace IceGrid
             const std::shared_ptr<Activator>&,
             const IceUtil::TimerPtr&,
             const std::shared_ptr<TraceLevels>&,
-            const NodePrxPtr&,
+            NodePrx,
             const std::string&,
-            const UserAccountMapperPrxPtr&,
+            const std::optional<UserAccountMapperPrx>&,
             const std::string&);
 
         void loadServerAsync(
@@ -97,8 +97,8 @@ namespace IceGrid
         void registerWithReplica(InternalRegistryPrxPtr, const Ice::Current&) override;
 
         void replicaInit(InternalRegistryPrxSeq, const Ice::Current&) override;
-        void replicaAdded(InternalRegistryPrxPtr, const Ice::Current&) override;
-        void replicaRemoved(InternalRegistryPrxPtr, const Ice::Current&) override;
+        void replicaAdded(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
+        void replicaRemoved(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
         std::string getName(const Ice::Current&) const override;
         std::string getHostname(const Ice::Current&) const override;
@@ -116,10 +116,10 @@ namespace IceGrid
         std::shared_ptr<Ice::ObjectAdapter> getAdapter() const;
         std::shared_ptr<Activator> getActivator() const;
         std::shared_ptr<TraceLevels> getTraceLevels() const;
-        UserAccountMapperPrxPtr getUserAccountMapper() const;
+        std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
         PlatformInfo& getPlatformInfo();
         std::shared_ptr<FileCache> getFileCache() const;
-        NodePrxPtr getProxy() const;
+        NodePrx getProxy() const;
         const PropertyDescriptorSeq& getPropertiesOverride() const;
         const std::string& getInstanceName() const;
 
@@ -179,13 +179,13 @@ namespace IceGrid
         const IceUtil::TimerPtr _timer;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::string _name;
-        const NodePrxPtr _proxy;
+        const NodePrx _proxy;
         const std::string _outputDir;
         const bool _redirectErrToOut;
         const bool _allowEndpointsOverride;
         const int _waitTime;
         const std::string _instanceName;
-        const UserAccountMapperPrxPtr _userAccountMapper;
+        const std::optional<UserAccountMapperPrx> _userAccountMapper;
         PlatformInfo _platform;
         const std::string _dataDir;
         const std::string _serversDir;

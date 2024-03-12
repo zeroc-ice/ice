@@ -25,10 +25,17 @@ ReplicaSessionI::create(
     const shared_ptr<Database>& database,
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
     const shared_ptr<InternalReplicaInfo>& info,
-    const InternalRegistryPrxPtr& proxy,
+    InternalRegistryPrx proxy,
     chrono::seconds timeout)
 {
-    shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(database, wellKnownObjects, info, proxy, timeout));
+    Ice::Identity replicaSessionId{Ice::generateUUID(), ""};
+    shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(
+        database,
+        wellKnownObjects,
+        info,
+        std::move(proxy),
+        timeout,
+        ReplicaSessionPrx{database->getInternalAdapter()->createDirectProxy(replicaSessionId)}));
 
     try
     {
@@ -37,8 +44,7 @@ ReplicaSessionI::create(
         auto obsv = database->getObserverTopic(TopicName::RegistryObserver);
         static_pointer_cast<RegistryObserverTopic>(obsv)->registryUp(toRegistryInfo(info));
 
-        replicaSession->_proxy =
-            Ice::uncheckedCast<ReplicaSessionPrx>(database->getInternalAdapter()->addWithUUID(replicaSession));
+        database->getInternalAdapter()->add(replicaSession, replicaSessionId);
     }
     catch (const ReplicaActiveException&)
     {
@@ -61,14 +67,16 @@ ReplicaSessionI::ReplicaSessionI(
     const shared_ptr<Database>& database,
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
     const shared_ptr<InternalReplicaInfo>& info,
-    const InternalRegistryPrxPtr& proxy,
-    chrono::seconds timeout)
+    InternalRegistryPrx internalRegistry,
+    chrono::seconds timeout,
+    ReplicaSessionPrx proxy)
     : _database(database),
       _wellKnownObjects(wellKnownObjects),
       _traceLevels(database->getTraceLevels()),
-      _internalRegistry(proxy),
+      _internalRegistry(std::move(internalRegistry)),
       _info(info),
       _timeout(timeout),
+      _proxy(std::move(proxy)),
       _timestamp(chrono::steady_clock::now()),
       _destroy(false)
 {
@@ -262,7 +270,7 @@ ReplicaSessionI::shutdown()
     destroyImpl(true);
 }
 
-const InternalRegistryPrxPtr&
+const InternalRegistryPrx&
 ReplicaSessionI::getInternalRegistry() const
 {
     return _internalRegistry;

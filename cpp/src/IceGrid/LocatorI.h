@@ -28,7 +28,7 @@ namespace IceGrid
         public:
             virtual void execute() = 0;
             virtual void activating(const std::string&) = 0;
-            virtual void response(const std::string&, const Ice::ObjectPrxPtr&) = 0;
+            virtual void response(const std::string&, const Ice::ObjectPrx&) = 0;
             virtual void exception(const std::string&, std::exception_ptr) = 0;
         };
 

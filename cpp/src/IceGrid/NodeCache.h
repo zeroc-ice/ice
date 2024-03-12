@@ -30,13 +30,13 @@ namespace IceGrid
         void removeServer(const std::shared_ptr<ServerEntry>&);
         void setSession(const std::shared_ptr<NodeSessionI>&);
 
-        NodePrxPtr getProxy() const;
+        NodePrx getProxy() const;
         std::shared_ptr<InternalNodeInfo> getInfo() const;
         ServerEntrySeq getServers() const;
         LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
         std::shared_ptr<NodeSessionI> getSession() const;
 
-        Ice::ObjectPrxPtr getAdminProxy() const;
+        Ice::ObjectPrx getAdminProxy() const;
 
         bool canRemove();
 

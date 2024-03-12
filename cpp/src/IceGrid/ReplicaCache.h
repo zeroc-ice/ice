@@ -22,9 +22,9 @@ namespace IceGrid
         bool canRemove() const { return true; }
         const std::shared_ptr<ReplicaSessionI>& getSession() const;
         std::shared_ptr<InternalReplicaInfo> getInfo() const;
-        InternalRegistryPrxPtr getProxy() const;
+        InternalRegistryPrx getProxy() const;
 
-        Ice::ObjectPrxPtr getAdminProxy() const;
+        Ice::ObjectPrx getAdminProxy() const;
 
     private:
         const std::string _name;
@@ -34,25 +34,25 @@ namespace IceGrid
     class ReplicaCache final : public CacheByString<ReplicaEntry>
     {
     public:
-        ReplicaCache(const std::shared_ptr<Ice::Communicator>&, const IceStorm::TopicManagerPrxPtr&);
+        ReplicaCache(const std::shared_ptr<Ice::Communicator>&, const IceStorm::TopicManagerPrx&);
 
         std::shared_ptr<ReplicaEntry> add(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
         std::shared_ptr<ReplicaEntry> remove(const std::string&, bool);
         std::shared_ptr<ReplicaEntry> get(const std::string&) const;
 
-        void subscribe(const ReplicaObserverPrxPtr&);
+        void subscribe(const ReplicaObserverPrx&);
         void unsubscribe(const ReplicaObserverPrxPtr&);
 
-        Ice::ObjectPrxPtr getEndpoints(const std::string&, const Ice::ObjectPrxPtr&) const;
+        Ice::ObjectPrx getEndpoints(const std::string&, const std::optional<Ice::ObjectPrx>&) const;
 
-        void setInternalRegistry(const InternalRegistryPrxPtr&);
-        InternalRegistryPrxPtr getInternalRegistry() const;
+        void setInternalRegistry(InternalRegistryPrx);
+        std::optional<InternalRegistryPrx> getInternalRegistry() const;
 
     private:
         const std::shared_ptr<Ice::Communicator> _communicator;
-        const IceStorm::TopicPrxPtr _topic;
-        const ReplicaObserverPrxPtr _observers;
-        InternalRegistryPrxPtr _self; // This replica internal registry proxy.
+        const IceStorm::TopicPrx _topic;
+        const ReplicaObserverPrx _observers;
+        std::optional<InternalRegistryPrx> _self; // This replica internal registry proxy.
     };
 
 };

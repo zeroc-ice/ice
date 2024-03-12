@@ -43,10 +43,10 @@ InternalRegistryI::InternalRegistryI(
     _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireReplicaCertCN", 0);
 }
 
-NodeSessionPrxPtr
+optional<NodeSessionPrx>
 InternalRegistryI::registerNode(
     shared_ptr<InternalNodeInfo> info,
-    NodePrxPtr node,
+    optional<NodePrx> node,
     LoadInfo load,
     const Ice::Current& current)
 {
@@ -101,7 +101,7 @@ InternalRegistryI::registerNode(
 
     try
     {
-        auto session = NodeSessionI::create(_database, node, info, _nodeSessionTimeout, load);
+        auto session = NodeSessionI::create(_database, std::move(*node), info, _nodeSessionTimeout, load);
         _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
         return session->getProxy();
     }
@@ -111,10 +111,10 @@ InternalRegistryI::registerNode(
     }
 }
 
-ReplicaSessionPrxPtr
+optional<ReplicaSessionPrx>
 InternalRegistryI::registerReplica(
     shared_ptr<InternalReplicaInfo> info,
-    InternalRegistryPrxPtr prx,
+    optional<InternalRegistryPrx> prx,
     const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
@@ -168,7 +168,7 @@ InternalRegistryI::registerReplica(
 
     try
     {
-        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
+        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, std::move(*prx), _replicaSessionTimeout);
         _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
         return s->getProxy();
     }
@@ -179,9 +179,10 @@ InternalRegistryI::registerReplica(
 }
 
 void
-InternalRegistryI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
+InternalRegistryI::registerWithReplica(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _session.create(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _session.create(std::move(*replica));
 }
 
 NodePrxSeq

@@ -520,15 +520,15 @@ ServerEntry::getProxy(
     {
         {
             lock_guard lock(_mutex);
-            if (_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
+            if (_loaded || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
-                assert(_loaded.get() || _load.get() || _destroy.get());
+                assert(_loaded || _load || _destroy);
                 activationTimeout = _activationTimeout;
                 deactivationTimeout = _deactivationTimeout;
-                node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
+                node = _loaded ? _loaded->node : (_load ? _load->node : _destroy->node);
                 return _proxy;
             }
-            else if (!_load.get() && !_destroy.get())
+            else if (!_load && !_destroy)
             {
                 throw ServerNotExistException(_id);
             }
@@ -608,12 +608,12 @@ ServerEntry::getLoad(LoadSample sample) const
     string node;
     {
         lock_guard lock(_mutex);
-        if (_loaded.get())
+        if (_loaded)
         {
             application = _loaded->application;
             node = _loaded->node;
         }
-        else if (_load.get())
+        else if (_load)
         {
             application = _load->application;
             node = _load->node;
@@ -656,7 +656,7 @@ ServerEntry::syncImpl()
             return;
         }
 
-        if (!_load.get() && !_destroy.get())
+        if (!_load && !_destroy)
         {
             _load.reset(_loaded.release()); // Re-load the current server.
         }
@@ -664,12 +664,12 @@ ServerEntry::syncImpl()
         _updated = false;
         _exception = nullptr;
 
-        if (_destroy.get())
+        if (_destroy)
         {
             destroy = *_destroy;
             timeout = _deactivationTimeout;
         }
-        else if (_load.get())
+        else if (_load)
         {
             load = *_load;
             session = _allocationSession;
@@ -811,7 +811,7 @@ ServerEntry::synchronized(exception_ptr ex)
 
 void
 ServerEntry::loadCallback(
-    const ServerPrxPtr& proxy,
+    ServerPrx proxy,
     const AdapterPrxDict& adpts,
     chrono::seconds activationTimeout,
     chrono::seconds deactivationTimeout)
@@ -827,16 +827,12 @@ ServerEntry::loadCallback(
         lock_guard lock(_mutex);
         if (!_updated)
         {
-            //
-            // Set timeout on server and adapter proxies. Most of the
-            // calls on the proxies shouldn't block for longer than the
-            // node session timeout. Calls that might block for a longer
-            // time should set the correct timeout before invoking on the
-            // proxy (e.g.: server start/stop, adapter activate).
-            //
-            assert(_load.get());
+            // Set timeout on server and adapter proxies. Most of the calls on the proxies shouldn't block for longer
+            // than the node session timeout. Calls that might block for a longer time should set the correct timeout
+            // before invoking on the proxy (e.g.: server start/stop, adapter activate).
+            assert(_load);
             _loaded.reset(_load.release());
-            _proxy = proxy;
+            _proxy = std::move(proxy);
             _adapters = adpts;
             _activationTimeout = activationTimeout;
             _deactivationTimeout = deactivationTimeout;

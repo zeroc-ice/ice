@@ -19,7 +19,7 @@ namespace
     Ice::EncodingVersion encodings[] = {{1, 0}, {1, 1}};
 }
 
-ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, const string& name, int64_t dbSerial)
+ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, const string& name, int64_t dbSerial)
     : _logger(topicManager->ice_getCommunicator()->getLogger()),
       _serial(0),
       _dbSerial(dbSerial)
@@ -271,7 +271,7 @@ ObserverTopic::getContext(int serial, int64_t dbSerial) const
     return context;
 }
 
-RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager)
+RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
     : ObserverTopic(topicManager, "RegistryObserver")
 {
     _publishers = getPublishers<RegistryObserverPrx>();
@@ -345,9 +345,7 @@ RegistryObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 shared_ptr<NodeObserverTopic>
-NodeObserverTopic::create(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
-    const shared_ptr<Ice::ObjectAdapter>& adapter)
+NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const shared_ptr<Ice::ObjectAdapter>& adapter)
 {
     shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager));
 
@@ -363,7 +361,7 @@ NodeObserverTopic::create(
     return topic;
 }
 
-NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager)
+NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
     : ObserverTopic(topicManager, "NodeObserver")
 {
     _publishers = getPublishers<NodeObserverPrx>();
@@ -601,7 +599,7 @@ NodeObserverTopic::isServerEnabled(const string& server) const
 }
 
 ApplicationObserverTopic::ApplicationObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<string, ApplicationInfo>& applications,
     int64_t serial)
     : ObserverTopic(topicManager, "ApplicationObserver", serial),
@@ -762,7 +760,7 @@ ApplicationObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 AdapterObserverTopic::AdapterObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<string, AdapterInfo>& adapters,
     int64_t serial)
     : ObserverTopic(topicManager, "AdapterObserver", serial),
@@ -892,7 +890,7 @@ AdapterObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 ObjectObserverTopic::ObjectObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<Ice::Identity, ObjectInfo>& objects,
     int64_t serial)
     : ObserverTopic(topicManager, "ObjectObserver", serial),

@@ -18,16 +18,16 @@ namespace IceGrid
     class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
     {
     public:
-        NodeSessionKeepAliveThread(const InternalRegistryPrxPtr&, const std::shared_ptr<NodeI>&, NodeSessionManager&);
+        NodeSessionKeepAliveThread(InternalRegistryPrx, const std::shared_ptr<NodeI>&, NodeSessionManager&);
 
-        virtual NodeSessionPrxPtr createSession(InternalRegistryPrxPtr&, std::chrono::seconds&) override;
-        virtual void destroySession(const NodeSessionPrxPtr&) override;
-        virtual bool keepAlive(const NodeSessionPrxPtr&) override;
+        std::optional<NodeSessionPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&) override;
+        void destroySession(const NodeSessionPrxPtr&) override;
+        bool keepAlive(const NodeSessionPrxPtr&) override;
 
         std::string getName() const { return "IceGrid session keepalive thread"; }
 
     protected:
-        NodeSessionPrxPtr createSessionImpl(const InternalRegistryPrxPtr&, std::chrono::seconds&);
+        NodeSessionPrx createSessionImpl(InternalRegistryPrx, std::chrono::seconds&);
 
         const std::shared_ptr<NodeI> _node;
         const std::string _replicaName;
@@ -40,26 +40,26 @@ namespace IceGrid
         NodeSessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
 
         void create(const std::shared_ptr<NodeI>&);
-        void create(const InternalRegistryPrxPtr&);
+        void create(InternalRegistryPrx);
         void activate();
         bool isWaitingForCreate();
         bool waitForCreate();
         void terminate();
         void destroy();
 
-        void replicaInit(const InternalRegistryPrxSeq&);
-        void replicaAdded(const InternalRegistryPrxPtr&);
-        void replicaRemoved(const InternalRegistryPrxPtr&);
+        void replicaInit(const InternalRegistryPrxSeq&, const Ice::Current&);
+        void replicaAdded(InternalRegistryPrx);
+        void replicaRemoved(const InternalRegistryPrx&);
 
-        NodeSessionPrxPtr getMasterNodeSession() const { return _thread->getSession(); }
-        std::vector<IceGrid::QueryPrxPtr> getQueryObjects() { return findAllQueryObjects(true); }
+        std::optional<NodeSessionPrx> getMasterNodeSession() const { return _thread->getSession(); }
+        std::vector<IceGrid::QueryPrx> getQueryObjects() { return findAllQueryObjects(true); }
 
     private:
-        std::shared_ptr<NodeSessionKeepAliveThread> addReplicaSession(const InternalRegistryPrxPtr&);
+        std::shared_ptr<NodeSessionKeepAliveThread> addReplicaSession(InternalRegistryPrx);
 
         void reapReplicas();
 
-        void syncServers(const NodeSessionPrxPtr&);
+        void syncServers(const NodeSessionPrx&);
 
         bool isDestroyed()
         {
@@ -70,9 +70,12 @@ namespace IceGrid
         class Thread final : public NodeSessionKeepAliveThread
         {
         public:
-            Thread(NodeSessionManager& manager) : NodeSessionKeepAliveThread(manager._master, manager._node, manager) {}
+            Thread(NodeSessionManager& manager) : NodeSessionKeepAliveThread(*manager._master, manager._node, manager)
+            {
+            }
 
-            NodeSessionPrxPtr createSession(InternalRegistryPrxPtr& master, std::chrono::seconds& timeout) override
+            std::optional<NodeSessionPrx>
+            createSession(InternalRegistryPrx& master, std::chrono::seconds& timeout) final
             {
                 auto session = NodeSessionKeepAliveThread::createSession(master, timeout);
                 _manager.createdSession(session);

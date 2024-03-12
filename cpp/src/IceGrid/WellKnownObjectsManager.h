@@ -22,18 +22,18 @@ namespace IceGrid
         void finish();
 
         void registerAll();
-        void registerAll(const ReplicaSessionPrxPtr&);
+        void registerAll(const ReplicaSessionPrx&);
         void updateReplicatedWellKnownObjects();
 
-        Ice::ObjectPrxPtr getEndpoints(const std::string&);
+        std::optional<Ice::ObjectPrx> getEndpoints(const std::string&);
 
-        LocatorPrxPtr getLocator();
-        Ice::LocatorRegistryPrxPtr getLocatorRegistry();
+        LocatorPrx getLocator();
+        Ice::LocatorRegistryPrx getLocatorRegistry();
 
     private:
         bool initialized() const;
 
-        Ice::ObjectPrxPtr getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
+        Ice::ObjectPrx getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
         const std::shared_ptr<Database> _database;
         bool _initialized;

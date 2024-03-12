@@ -62,7 +62,7 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
         auto p = _servants.find(current.id);
         if (p == _servants.end() || (_checkConnection && p->second.connection != current.con))
         {
-            servant = 0;
+            servant = nullptr;
         }
         else
         {
@@ -72,7 +72,7 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
 
     if (!plainServant && servant && _checkConnection && _adminConnections.find(current.con) == _adminConnections.end())
     {
-        servant = 0;
+        servant = nullptr;
     }
 
     return servant;
@@ -92,25 +92,25 @@ SessionServantManager::deactivate(const std::string&)
     assert(_adminConnections.empty());
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 SessionServantManager::addSession(
     const shared_ptr<Ice::Object>& session,
-    const shared_ptr<Ice::Connection>& con,
+    const shared_ptr<Ice::Connection>& connection,
     const string& category)
 {
     lock_guard lock(_mutex);
-    _sessions.insert({session, SessionInfo(con, category)});
+    _sessions.insert({session, SessionInfo(connection, category)});
 
     //
     // Keep track of all the connections which have an admin session to allow access
     // to server admin objects.
     //
-    if (!category.empty() && con != 0)
+    if (!category.empty() && connection != nullptr)
     {
-        _adminConnections.insert(con);
-        if (_adminCallbackRouter != 0)
+        _adminConnections.insert(connection);
+        if (_adminCallbackRouter != nullptr)
         {
-            _adminCallbackRouter->addMapping(category, con);
+            _adminCallbackRouter->addMapping(category, connection);
         }
     }
 
@@ -221,7 +221,7 @@ SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
     _sessions.erase(p);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 SessionServantManager::add(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);
@@ -263,7 +263,7 @@ SessionServantManager::remove(const Ice::Identity& id)
     _servants.erase(p);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 SessionServantManager::addImpl(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
 {
     auto p = _sessions.find(session);

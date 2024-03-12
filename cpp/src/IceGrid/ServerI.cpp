@@ -479,7 +479,7 @@ LoadCommand::clearDir() const
 
 void
 LoadCommand::addCallback(
-    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
     _loadCB.push_back({std::move(response), std::move(exception)});
@@ -777,7 +777,7 @@ StopCommand::finished()
 
 ServerI::ServerI(
     const shared_ptr<NodeI>& node,
-    const ServerPrxPtr& proxy,
+    const optional<ServerPrx>& proxy,
     const string& serversDir,
     const string& id,
     int wt)
@@ -1171,7 +1171,7 @@ ServerI::load(
     const shared_ptr<InternalServerDescriptor>& desc,
     const string& replicaName,
     bool noRestart,
-    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
     lock_guard lock(_mutex);
@@ -1212,6 +1212,7 @@ ServerI::load(
             {
                 adapters.insert({id, servant->getProxy()});
             }
+            assert(_this);
             response(_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
         }
         return nullptr;
@@ -1505,6 +1506,7 @@ ServerI::checkDestroyed() const
 {
     if (_state == Destroyed)
     {
+        assert(_this);
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, _this->ice_getIdentity(), "", "");
     }
 }
@@ -2089,21 +2091,13 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     _desc = descriptor;
     _waitForReplication = true;
 
-    //
-    // Remember if the server was just released by a session, this
-    // will be used later to not update the configuration on the disk
-    // (as an optimization and to allow users to review the
-    // configuration file after allocating a server -- that's useful
-    // if the server configuration is bogus and the session server
-    // can't start).
-    //
+    // Remember if the server was just released by a session, this will be used later to not update the configuration
+    // on the disk (as an optimization and to allow users to review the configuration file after allocating a server --
+    // that's useful if the server configuration is bogus and the session server can't start).
     bool serverSessionReleased = _desc && _desc->activation == "session" && _desc->revision == descriptor->revision &&
                                  !_desc->sessionId.empty() && descriptor->sessionId.empty();
 
-    //
-    // Go through the adapters and create the object adapter Ice
-    // objects if necessary, also remove the old ones.
-    //
+    // Go through the adapters and create the object adapter Ice objects if necessary, also remove the old ones.
     {
         ServerAdapterDict oldAdapters;
         oldAdapters.swap(_adapters);
@@ -2113,6 +2107,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         {
             try
             {
+                assert(_this);
                 Ice::Identity id = {_id + "-" + adpt->id, _this->ice_getIdentity().category + "Adapter"};
                 auto servant = dynamic_pointer_cast<ServerAdapterI>(adapter->find(id));
                 if (!servant)
@@ -2146,9 +2141,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             oldAdapters.erase(adpt->id);
         }
 
-        //
         // Remove old object adapters.
-        //
         for (const auto& adpt : oldAdapters)
         {
             try
@@ -2478,7 +2471,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 
     if (!user.empty())
     {
-        auto mapper = _node->getUserAccountMapper();
+        optional<UserAccountMapperPrx> mapper = _node->getUserAccountMapper();
         if (mapper)
         {
             try
@@ -2845,12 +2838,10 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
 
     if (_state == Destroyed && !_load)
     {
-        //
-        // If the server is destroyed and there's no load command, we
-        // remove the servant from the ASM.
-        //
+        // If the server is destroyed and there's no load command, we remove the servant from the ASM.
         try
         {
+            assert(_this);
             _node->getAdapter()->remove(_this->ice_getIdentity());
         }
         catch (const Ice::ObjectAdapterDeactivatedException&)

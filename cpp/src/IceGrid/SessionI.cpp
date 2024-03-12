@@ -138,7 +138,7 @@ SessionI::SessionI(const string& id, const shared_ptr<Database>& database, const
 {
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, const shared_ptr<Ice::Connection>& con)
 {
     //

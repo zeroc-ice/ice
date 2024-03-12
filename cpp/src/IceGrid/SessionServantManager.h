@@ -33,7 +33,7 @@ namespace IceGrid
         void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const std::shared_ptr<void>&);
         void deactivate(const std::string&);
 
-        Ice::ObjectPrxPtr
+        Ice::ObjectPrx
         addSession(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Connection>&, const std::string&);
         void setSessionControl(
             const std::shared_ptr<Ice::Object>&,
@@ -43,14 +43,14 @@ namespace IceGrid
         Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
         void removeSession(const std::shared_ptr<Ice::Object>&);
 
-        Ice::ObjectPrxPtr add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
+        Ice::ObjectPrx add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
         void remove(const Ice::Identity&);
 
         void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
         void connectionClosed(const std::shared_ptr<Ice::Connection>&);
 
     private:
-        Ice::ObjectPrxPtr addImpl(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
+        Ice::ObjectPrx addImpl(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
 
         struct ServantInfo
         {

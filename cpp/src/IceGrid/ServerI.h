@@ -148,7 +148,7 @@ namespace IceGrid
         std::string getFilePath(const std::string&) const;
 
         const std::shared_ptr<NodeI> _node;
-        const ServerPrxPtr _this;
+        const std::optional<ServerPrx> _this;
         const std::string _id;
         const std::chrono::seconds _waitTime;
         const std::string _serverDir;

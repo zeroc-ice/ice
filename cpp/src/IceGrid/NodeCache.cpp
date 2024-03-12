@@ -207,7 +207,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
     }
 }
 
-NodePrxPtr
+NodePrx
 NodeEntry::getProxy() const
 {
     unique_lock lock(_mutex);
@@ -291,11 +291,10 @@ NodeEntry::getSession() const
     return _session;
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 NodeEntry::getAdminProxy() const
 {
-    auto prx = getProxy();
-    assert(prx);
+    Ice::ObjectPrx prx = getProxy();
     return prx->ice_identity({"NodeAdmin-" + _name, prx->ice_getIdentity().category});
 }
 
@@ -367,26 +366,33 @@ NodeEntry::loadServer(
             }
         }
 
-        auto response = [traceLevels = _cache.getTraceLevels(),
-                         entry,
-                         name = _name,
-                         sessionTimeout](ServerPrxPtr serverPrx, AdapterPrxDict adapters, int at, int dt)
+        auto response = [traceLevels = _cache.getTraceLevels(), entry, name = _name, sessionTimeout](
+                            optional<ServerPrx> loadedServer,
+                            AdapterPrxDict adapters,
+                            int activateTimeout,
+                            int deactivateTimeout)
         {
-            if (traceLevels && traceLevels->server > 1)
+            if (loadedServer)
             {
-                Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "loaded `" << entry->getId() << "' on node `" << name << "'";
-            }
+                if (traceLevels && traceLevels->server > 1)
+                {
+                    Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
+                    out << "loaded `" << entry->getId() << "' on node `" << name << "'";
+                }
 
-            //
-            // Add the node session timeout on the proxies to ensure the
-            // timeout is large enough.
-            //
-            entry->loadCallback(
-                std::move(serverPrx),
-                std::move(adapters),
-                chrono::seconds(at) + sessionTimeout,
-                chrono::seconds(dt) + sessionTimeout);
+                // Add the node session timeout on the proxies to ensure the timeout is large enough.
+                entry->loadCallback(
+                    std::move(*loadedServer),
+                    std::move(adapters),
+                    chrono::seconds(activateTimeout) + sessionTimeout,
+                    chrono::seconds(deactivateTimeout) + sessionTimeout);
+            }
+            else
+            {
+                ostringstream os;
+                os << "couldn't load `" << entry->getId() << "' on node `" << name << "'";
+                entry->exception(make_exception_ptr(DeploymentException(os.str())));
+            }
         };
 
         auto exception = [traceLevels = _cache.getTraceLevels(), entry, name = _name](auto exptr)
@@ -447,7 +453,7 @@ NodeEntry::destroyServer(
 {
     try
     {
-        NodePrxPtr node;
+        optional<NodePrx> node;
         {
             unique_lock lock(_mutex);
             checkSession(lock);
@@ -462,7 +468,7 @@ NodeEntry::destroyServer(
             if (timeout > 0s)
             {
                 int timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = node->ice_invocationTimeout(std::move(timeoutInMilliseconds));
+                node = node->ice_invocationTimeout(timeoutInMilliseconds);
             }
         }
 

@@ -43,10 +43,10 @@ namespace IceGrid
         void stop();
 
         std::optional<SessionPrx> createSession(std::string, std::string, const Ice::Current&) override;
-        std::optional<AdminSessionPrxPtr createAdminSession(std::string, std::string, const Ice::Current&) override;
+        std::optional<AdminSessionPrx> createAdminSession(std::string, std::string, const Ice::Current&) override;
 
-        SessionPrxPtr createSessionFromSecureConnection(const Ice::Current&) override;
-        AdminSessionPrxPtr createAdminSessionFromSecureConnection(const Ice::Current&) override;
+        std::optional<SessionPrx> createSessionFromSecureConnection(const Ice::Current&) override;
+        std::optional<AdminSessionPrx> createAdminSessionFromSecureConnection(const Ice::Current&) override;
 
         int getSessionTimeout(const Ice::Current&) const override;
         int getACMTimeout(const Ice::Current&) const override;
@@ -61,7 +61,7 @@ namespace IceGrid
         std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
         std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
 
-        Ice::ObjectPrxPtr createAdminCallbackProxy(const Ice::Identity&) const;
+        Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
         const std::shared_ptr<Ice::ObjectAdapter>& getRegistryAdapter() { return _registryAdapter; }
 
@@ -69,24 +69,25 @@ namespace IceGrid
 
     private:
         void setupLocatorRegistry();
-        LocatorPrxPtr setupLocator(const RegistryPrxPtr&, const QueryPrxPtr&);
-        QueryPrxPtr setupQuery();
-        RegistryPrxPtr setupRegistry();
-        InternalRegistryPrxPtr setupInternalRegistry();
+        LocatorPrx setupLocator(const RegistryPrx&, const QueryPrx&);
+        QueryPrx setupQuery();
+        RegistryPrx setupRegistry();
+        InternalRegistryPrx setupInternalRegistry();
         bool setupUserAccountMapper();
-        std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrxPtr&);
+        std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrx&);
         std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(
             const std::shared_ptr<Ice::Object>&,
             const std::shared_ptr<Ice::Object>&,
             const std::shared_ptr<Ice::Object>&,
-            const LocatorPrxPtr&);
+            const LocatorPrx&);
 
-        Glacier2::PermissionsVerifierPrxPtr getPermissionsVerifier(const LocatorPrxPtr&, const std::string&);
-        Glacier2::SSLPermissionsVerifierPrxPtr getSSLPermissionsVerifier(const LocatorPrxPtr&, const std::string&);
+        std::optional<Glacier2::PermissionsVerifierPrx> getPermissionsVerifier(const LocatorPrx&, const std::string&);
+        std::optional<Glacier2::SSLPermissionsVerifierPrx>
+        getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
         Glacier2::SSLInfo getSSLInfo(const std::shared_ptr<Ice::Connection>&, std::string&);
 
         NodePrxSeq registerReplicas(const InternalRegistryPrxPtr&, const NodePrxSeq&);
-        void registerNodes(const InternalRegistryPrxPtr&, const NodePrxSeq&);
+        void registerNodes(const NodePrxSeq&);
 
         const std::shared_ptr<Ice::Communicator> _communicator;
         const std::shared_ptr<TraceLevels> _traceLevels;
@@ -111,12 +112,12 @@ namespace IceGrid
         mutable PlatformInfo _platform;
 
         std::shared_ptr<ClientSessionFactory> _clientSessionFactory;
-        Glacier2::PermissionsVerifierPrxPtr _clientVerifier;
-        Glacier2::SSLPermissionsVerifierPrxPtr _sslClientVerifier;
+        std::optional<Glacier2::PermissionsVerifierPrx> _clientVerifier;
+        std::optional<Glacier2::SSLPermissionsVerifierPrx> _sslClientVerifier;
 
         std::shared_ptr<AdminSessionFactory> _adminSessionFactory;
-        Glacier2::PermissionsVerifierPrxPtr _adminVerifier;
-        Glacier2::SSLPermissionsVerifierPrxPtr _sslAdminVerifier;
+        std::optional<Glacier2::PermissionsVerifierPrx> _adminVerifier;
+        std::optional<Glacier2::SSLPermissionsVerifierPrx> _sslAdminVerifier;
 
         std::shared_ptr<IceStormInternal::Service> _iceStorm;
     };

@@ -22,14 +22,15 @@ namespace IceGrid
         public:
             Thread(
                 ReplicaSessionManager& manager,
-                const InternalRegistryPrxPtr& master,
+                const std::optional<InternalRegistryPrx>& master,
                 const std::shared_ptr<Ice::Logger>& logger)
                 : SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
                   _manager(manager)
             {
             }
 
-            ReplicaSessionPrxPtr createSession(InternalRegistryPrxPtr& master, std::chrono::seconds& timeout) override
+            std::optional<ReplicaSessionPrx>
+            createSession(InternalRegistryPrx& master, std::chrono::seconds& timeout) override
             {
                 return _manager.createSession(master, timeout);
             }
@@ -51,8 +52,9 @@ namespace IceGrid
             const std::shared_ptr<InternalReplicaInfo>&,
             const std::shared_ptr<Database>&,
             const std::shared_ptr<WellKnownObjectsManager>&,
-            const InternalRegistryPrxPtr&);
-        void create(const InternalRegistryPrxPtr&);
+            InternalRegistryPrx);
+
+        void create(InternalRegistryPrx);
 
         NodePrxSeq getNodes(const NodePrxSeq&) const;
         void destroy();
@@ -71,8 +73,8 @@ namespace IceGrid
             return !_communicator;
         }
 
-        ReplicaSessionPrxPtr createSession(InternalRegistryPrxPtr&, std::chrono::seconds&);
-        ReplicaSessionPrxPtr createSessionImpl(const InternalRegistryPrxPtr&, std::chrono::seconds&);
+        std::optional<ReplicaSessionPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&);
+        ReplicaSessionPrx createSessionImpl(InternalRegistryPrx, std::chrono::seconds&);
         void destroySession(const ReplicaSessionPrxPtr&);
         bool keepAlive(const ReplicaSessionPrxPtr&);
 
@@ -81,7 +83,7 @@ namespace IceGrid
         std::shared_ptr<InternalReplicaInfo> _info;
         RegistryPrxPtr _registry;
         InternalRegistryPrxPtr _internalRegistry;
-        DatabaseObserverPrxPtr _observer;
+        std::optional<DatabaseObserverPrx> _observer;
         std::shared_ptr<Database> _database;
         std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
         std::shared_ptr<TraceLevels> _traceLevels;
