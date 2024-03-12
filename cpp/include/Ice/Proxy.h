@@ -59,15 +59,14 @@ namespace Ice
          */
         const Prx* operator->() const { return &asPrx(); }
 
-        // We don't provide the non-const operator-> because only the assignment operators can modify the proxy - and
-        // you shouldn't call operator-> before calling operator=.
+        // We don't provide the non-const operator-> because only the assignment operators can modify the proxy.
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the adapter ID.
          * @param id The adapter ID for the new proxy.
          * @return A proxy with the new adapter ID.
          */
-        Prx ice_adapterId(std::string id) const { return fromReference(asPrx()._adapterId(id)); }
+        Prx ice_adapterId(std::string id) const { return fromReference(asPrx()._adapterId(std::move(id))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
@@ -116,7 +115,7 @@ namespace Ice
          * @param context The context for the new proxy.
          * @return A proxy with the new per-proxy context.
          */
-        Prx ice_context(Context context) const { return fromReference(asPrx()._context(context)); }
+        Prx ice_context(Context context) const { return fromReference(asPrx()._context(std::move(context))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
@@ -132,7 +131,7 @@ namespace Ice
          */
         Prx ice_encodingVersion(EncodingVersion version) const
         {
-            return fromReference(asPrx()._encodingVersion(version));
+            return fromReference(asPrx()._encodingVersion(std::move(version)));
         }
 
         /**
@@ -150,7 +149,7 @@ namespace Ice
          * @param endpoints The endpoints for the new proxy.
          * @return A proxy with the new endpoints.
          */
-        Prx ice_endpoints(EndpointSeq endpoints) const { return fromReference(asPrx()._endpoints(endpoints)); }
+        Prx ice_endpoints(EndpointSeq endpoints) const { return fromReference(asPrx()._endpoints(std::move(endpoints))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
@@ -160,7 +159,7 @@ namespace Ice
          */
         Prx ice_fixed(std::shared_ptr<Connection> connection) const
         {
-            return fromReference(asPrx()._fixed(connection));
+            return fromReference(asPrx()._fixed(std::move(connection)));
         }
 
         /**
