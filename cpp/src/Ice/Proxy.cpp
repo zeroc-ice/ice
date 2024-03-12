@@ -26,7 +26,7 @@ namespace Ice
 
 namespace
 {
-    inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
+    inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, string_view proxyString)
     {
         if (!communicator)
         {
@@ -42,7 +42,7 @@ namespace
     }
 }
 
-Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString)
+Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, string_view proxyString)
     : ObjectPrx(createReference(communicator, proxyString))
 {
 }
@@ -75,7 +75,7 @@ Ice::ObjectPrx::ice_getIdentity() const
 }
 
 ObjectPrx
-Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
+Ice::ObjectPrx::ice_identity(Identity newIdentity) const
 {
     checkIdentity(newIdentity, __FILE__, __LINE__);
     if (newIdentity == _reference->getIdentity())
@@ -84,7 +84,7 @@ Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
     }
     else
     {
-        return ObjectPrx(_reference->changeIdentity(newIdentity));
+        return ObjectPrx(_reference->changeIdentity(std::move(newIdentity)));
     }
 }
 
@@ -101,7 +101,7 @@ Ice::ObjectPrx::ice_getFacet() const
 }
 
 ObjectPrx
-Ice::ObjectPrx::ice_facet(const string& newFacet) const
+Ice::ObjectPrx::ice_facet(string newFacet) const
 {
     if (newFacet == _reference->getFacet())
     {
@@ -109,7 +109,7 @@ Ice::ObjectPrx::ice_facet(const string& newFacet) const
     }
     else
     {
-        return ObjectPrx(_reference->changeFacet(newFacet));
+        return ObjectPrx(_reference->changeFacet(std::move(newFacet)));
     }
 }
 
@@ -291,7 +291,7 @@ Ice::ObjectPrx::_write(OutputStream& os) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_adapterId(const string& newAdapterId) const
+Ice::ObjectPrx::_adapterId(string newAdapterId) const
 {
     if (newAdapterId == _reference->getAdapterId())
     {
@@ -299,7 +299,7 @@ Ice::ObjectPrx::_adapterId(const string& newAdapterId) const
     }
     else
     {
-        return _reference->changeAdapterId(newAdapterId);
+        return _reference->changeAdapterId(std::move(newAdapterId));
     }
 }
 
@@ -370,9 +370,9 @@ Ice::ObjectPrx::_connectionCached(bool newCache) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_connectionId(const string& id) const
+Ice::ObjectPrx::_connectionId(string id) const
 {
-    ReferencePtr ref = _reference->changeConnectionId(id);
+    ReferencePtr ref = _reference->changeConnectionId(std::move(id));
     if (targetEqualTo(ref, _reference))
     {
         return _reference;
@@ -384,9 +384,9 @@ Ice::ObjectPrx::_connectionId(const string& id) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_context(const Context& newContext) const
+Ice::ObjectPrx::_context(Context newContext) const
 {
-    return _reference->changeContext(newContext);
+    return _reference->changeContext(std::move(newContext));
 }
 
 ReferencePtr
@@ -403,7 +403,7 @@ Ice::ObjectPrx::_datagram() const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_encodingVersion(const ::Ice::EncodingVersion& encoding) const
+Ice::ObjectPrx::_encodingVersion(EncodingVersion encoding) const
 {
     if (encoding == _reference->getEncoding())
     {
@@ -411,7 +411,7 @@ Ice::ObjectPrx::_encodingVersion(const ::Ice::EncodingVersion& encoding) const
     }
     else
     {
-        return _reference->changeEncoding(encoding);
+        return _reference->changeEncoding(std::move(encoding));
     }
 }
 
@@ -429,7 +429,7 @@ Ice::ObjectPrx::_endpointSelection(EndpointSelectionType newType) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
+Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const
 {
     vector<EndpointIPtr> endpoints;
     for (EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
@@ -450,12 +450,12 @@ Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
     }
     else
     {
-        return _reference->changeEndpoints(endpoints);
+        return _reference->changeEndpoints(std::move(endpoints));
     }
 }
 
 ReferencePtr
-Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
+Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
 {
     if (!connection)
     {
@@ -466,7 +466,7 @@ Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
     {
         throw invalid_argument("invalid connection passed to ice_fixed");
     }
-    ReferencePtr ref = _reference->changeConnection(impl);
+    ReferencePtr ref = _reference->changeConnection(std::move(impl));
     if (targetEqualTo(ref, _reference))
     {
         return _reference;

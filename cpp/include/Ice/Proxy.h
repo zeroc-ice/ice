@@ -67,7 +67,7 @@ namespace Ice
          * @param id The adapter ID for the new proxy.
          * @return A proxy with the new adapter ID.
          */
-        Prx ice_adapterId(const std::string& id) const { return fromReference(asPrx()._adapterId(id)); }
+        Prx ice_adapterId(std::string id) const { return fromReference(asPrx()._adapterId(id)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
@@ -109,14 +109,14 @@ namespace Ice
          * connection ID.
          * @return A proxy with the specified connection ID.
          */
-        Prx ice_connectionId(const ::std::string& id) const { return fromReference(asPrx()._connectionId(id)); }
+        Prx ice_connectionId(std::string id) const { return fromReference(asPrx()._connectionId(std::move(id))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
          * @param context The context for the new proxy.
          * @return A proxy with the new per-proxy context.
          */
-        Prx ice_context(const ::Ice::Context& context) const { return fromReference(asPrx()._context(context)); }
+        Prx ice_context(Context context) const { return fromReference(asPrx()._context(context)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
@@ -130,7 +130,7 @@ namespace Ice
          * @param version The encoding version to use to marshal request parameters.
          * @return A proxy with the specified encoding version.
          */
-        Prx ice_encodingVersion(const ::Ice::EncodingVersion& version) const
+        Prx ice_encodingVersion(EncodingVersion version) const
         {
             return fromReference(asPrx()._encodingVersion(version));
         }
@@ -140,7 +140,7 @@ namespace Ice
          * @param type The new endpoint selection policy.
          * @return A proxy with the specified endpoint selection policy.
          */
-        Prx ice_endpointSelection(::Ice::EndpointSelectionType type) const
+        Prx ice_endpointSelection(EndpointSelectionType type) const
         {
             return fromReference(asPrx()._endpointSelection(type));
         }
@@ -150,10 +150,7 @@ namespace Ice
          * @param endpoints The endpoints for the new proxy.
          * @return A proxy with the new endpoints.
          */
-        Prx ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
-        {
-            return fromReference(asPrx()._endpoints(endpoints));
-        }
+        Prx ice_endpoints(EndpointSeq endpoints) const { return fromReference(asPrx()._endpoints(endpoints)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
@@ -161,7 +158,7 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        Prx ice_fixed(const std::shared_ptr<::Ice::Connection>& connection) const
+        Prx ice_fixed(std::shared_ptr<Connection> connection) const
         {
             return fromReference(asPrx()._fixed(connection));
         }
@@ -210,7 +207,10 @@ namespace Ice
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
+        Prx ice_router(const std::optional<RouterPrx>& router) const
+        {
+            return fromReference(asPrx()._router(std::move(router)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
@@ -264,7 +264,7 @@ namespace Ice
         ObjectPrx(const ObjectPrx& other) noexcept = default;
         ObjectPrx(ObjectPrx&&) noexcept = default;
 
-        ObjectPrx(const std::shared_ptr<Ice::Communicator>& communicator, const std::string& proxyString);
+        ObjectPrx(const std::shared_ptr<Ice::Communicator>& communicator, std::string_view proxyString);
 
         virtual ~ObjectPrx() = default;
 
@@ -435,7 +435,7 @@ namespace Ice
          * @return The future object for the invocation.
          */
         std::future<std::tuple<bool, std::vector<std::uint8_t>>> ice_invokeAsync(
-            const std::string& operation,
+            std::string_view operation,
             Ice::OperationMode mode,
             const std::vector<std::uint8_t>& inParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
@@ -488,7 +488,7 @@ namespace Ice
          * @return The future object for the invocation.
          */
         std::future<std::tuple<bool, std::vector<std::uint8_t>>> ice_invokeAsync(
-            const std::string& operation,
+            std::string_view operation,
             Ice::OperationMode mode,
             const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
@@ -584,7 +584,7 @@ namespace Ice
          * @param id The identity for the new proxy.
          * @return A proxy with the new identity.
          */
-        ObjectPrx ice_identity(const Ice::Identity& id) const;
+        ObjectPrx ice_identity(Ice::Identity id) const;
 
         /**
          * Obtains the per-proxy context for this proxy.
@@ -603,7 +603,7 @@ namespace Ice
          * @param facet The facet for the new proxy.
          * @return A proxy with the new facet.
          */
-        Ice::ObjectPrx ice_facet(const ::std::string& facet) const;
+        Ice::ObjectPrx ice_facet(std::string facet) const;
 
         /**
          * Obtains the adapter ID for this proxy.
@@ -781,19 +781,19 @@ namespace Ice
         template<typename Prx, typename... Bases> friend class Proxy;
 
         // Gets a reference with the specified setting; returns _reference if the setting is already set.
-        IceInternal::ReferencePtr _adapterId(const std::string&) const;
+        IceInternal::ReferencePtr _adapterId(std::string) const;
         IceInternal::ReferencePtr _batchDatagram() const;
         IceInternal::ReferencePtr _batchOneway() const;
         IceInternal::ReferencePtr _collocationOptimized(bool) const;
         IceInternal::ReferencePtr _compress(bool) const;
         IceInternal::ReferencePtr _connectionCached(bool) const;
-        IceInternal::ReferencePtr _connectionId(const std::string&) const;
-        IceInternal::ReferencePtr _context(const Context&) const;
+        IceInternal::ReferencePtr _connectionId(std::string) const;
+        IceInternal::ReferencePtr _context(Context) const;
         IceInternal::ReferencePtr _datagram() const;
-        IceInternal::ReferencePtr _encodingVersion(const EncodingVersion&) const;
+        IceInternal::ReferencePtr _encodingVersion(EncodingVersion) const;
         IceInternal::ReferencePtr _endpointSelection(EndpointSelectionType) const;
-        IceInternal::ReferencePtr _endpoints(const EndpointSeq&) const;
-        IceInternal::ReferencePtr _fixed(const ConnectionPtr&) const;
+        IceInternal::ReferencePtr _endpoints(EndpointSeq) const;
+        IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
         IceInternal::ReferencePtr _invocationTimeout(int) const;
         IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
         IceInternal::ReferencePtr _locatorCacheTimeout(int) const;

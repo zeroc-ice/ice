@@ -36,7 +36,7 @@ namespace IceInternal
         //
         // Create a reference from a string.
         //
-        ReferencePtr create(const ::std::string& proxyString, const std::string& prefix);
+        ReferencePtr create(std::string_view proxyString, const std::string& prefix);
 
         //
         // Create a reference by unmarshaling it from a stream.
