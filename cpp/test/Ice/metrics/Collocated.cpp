@@ -35,7 +35,11 @@ Collocated::run(int argc, char** argv)
     adapter->add(make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     // adapter->activate(); // Don't activate OA to ensure collocation is used.
 
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+    communicator->getProperties()->setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+    Ice::ObjectAdapterPtr forwardingAdapter = communicator->createObjectAdapter("ForwardingAdapter");
+    forwardingAdapter->addDefaultServant(adapter->dispatcher(), "");
+
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
     controllerAdapter->add(make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     // controllerAdapter->activate(); // Don't activate OA to ensure collocation is used.
