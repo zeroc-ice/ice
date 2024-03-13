@@ -23,7 +23,7 @@ namespace IceGrid
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
         SynchronizationException(const char* file, int line)
-            : ::Ice::LocalExceptionHelper<SynchronizationException, ::Ice::LocalException>(file, line)
+            : ::Ice::::Ice::LocalException(file, line)
         {
         }
 

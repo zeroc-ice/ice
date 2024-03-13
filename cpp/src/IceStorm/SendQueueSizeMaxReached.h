@@ -23,7 +23,7 @@ namespace IceStorm
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
         SendQueueSizeMaxReached(const char* file, int line)
-            : ::Ice::LocalExceptionHelper<SendQueueSizeMaxReached, ::Ice::LocalException>(file, line)
+            : ::Ice::::Ice::LocalException(file, line)
         {
         }
 

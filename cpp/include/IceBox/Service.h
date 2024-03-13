@@ -59,7 +59,7 @@ namespace IceBox
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
         FailureException(const char* file, int line)
-            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line)
+            : ::Ice::::Ice::LocalException(file, line)
         {
         }
 
@@ -71,7 +71,7 @@ namespace IceBox
          * @param reason The reason for the failure.
          */
         FailureException(const char* file, int line, const ::std::string& reason)
-            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line),
+            : ::Ice::::Ice::LocalException(file, line),
               reason(reason)
         {
         }

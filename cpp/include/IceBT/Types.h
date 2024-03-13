@@ -46,7 +46,7 @@ namespace IceBT
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
         BluetoothException(const char* file, int line)
-            : ::Ice::LocalExceptionHelper<BluetoothException, ::Ice::LocalException>(file, line)
+            : ::Ice::::Ice::LocalException(file, line)
         {
         }
 
@@ -58,7 +58,7 @@ namespace IceBT
          * @param reason Provides more information about the failure.
          */
         BluetoothException(const char* file, int line, const ::std::string& reason)
-            : ::Ice::LocalExceptionHelper<BluetoothException, ::Ice::LocalException>(file, line),
+            : ::Ice::::Ice::LocalException(file, line),
               reason(reason)
         {
         }
