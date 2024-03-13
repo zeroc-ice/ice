@@ -29,6 +29,8 @@ namespace Ice
          * @param adapter The object adapter to set in Current.
          * @param inputStream The input stream buffer over the incoming Ice protocol request message. The stream is
          * positioned at the beginning of the request header - the next data to read is the identity of the target.
+         * @remarks This constructor reads the request header from inputStream. When it completes, the input stream is
+         * positioned at the beginning of encapsulation carried by the request.
          */
         IncomingRequest(
             int32_t requestId,
@@ -42,22 +44,26 @@ namespace Ice
         IncomingRequest& operator=(IncomingRequest&&) = delete;
 
         /**
-         * Return the current object of the request.
+         * Get the current object of the request.
+         * @return A reference to the current object of the request.
          */
         Current& current() noexcept { return _current; }
 
         /**
-         * Return the current object of the request.
+         * Get the current object of the request.
+         * @return A const reference to the current object of the request.
          */
         const Ice::Current& current() const noexcept { return _current; }
 
         /**
-         * Return the input stream buffer of the request.
+         * Get the input stream buffer of the request.
+         * @return A reference to the input stream buffer.
          */
         InputStream& inputStream() noexcept { return _inputStream; }
 
         /**
-         * Return the number of bytes in the request. These are all the bytes starting with the identity of the target.
+         * Get the number of bytes in the request.
+         * @return The number of bytes in the request. These are all the bytes starting with the identity of the target.
          */
         std::int32_t size() const { return _requestSize; }
 

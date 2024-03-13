@@ -40,12 +40,12 @@ LoggerMiddleware::dispatch(Ice::IncomingRequest& request, function<void(Outgoing
                     case ReplyStatus::OperationNotExist:
                         if (self->_warningLevel > 1)
                         {
-                            self->warning(response.errorMessage(), response.current());
+                            self->warning(response.exceptionMessage(), response.current());
                         }
                         break;
 
                     default:
-                        self->warning(response.errorMessage(), response.current());
+                        self->warning(response.exceptionMessage(), response.current());
                         break;
                 }
                 sendResponse(std::move(response));

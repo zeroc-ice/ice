@@ -43,8 +43,8 @@ namespace Ice
         /**
          * Construct an OutgoingResponse object.
          * @param replyStatus The status of the response.
-         * @param exceptionId The ID of the exception, when the response carries an error.
-         * @param errorMessage The error message, when the response carries an error.
+         * @param exceptionId The ID of the exception, when the response carries an exception.
+         * @param exceptionMessage The exception message, when the response carries an exception.
          * @param outputStream The output stream that holds the response. Its underlying buffer is adopted by the new
          * response.
          * @param current A reference to the current object of the request.
@@ -52,7 +52,7 @@ namespace Ice
         OutgoingResponse(
             ReplyStatus replyStatus,
             std::string exceptionId,
-            std::string errorMessage,
+            std::string exceptionMessage,
             OutputStream& outputStream,
             const Current& current) noexcept;
 
@@ -83,41 +83,50 @@ namespace Ice
         OutgoingResponse& operator=(const OutgoingResponse&) = delete;
 
         /**
-         * Return the current object of this response.
+         * Get the current object of this response.
+         * @return A const reference to the current object.
          * @remarks The response only holds onto a reference for this Current object. The caller keeps the Current
          * object alive until the call to sendResponse completes.
          */
         const Current& current() const noexcept { return _current.get(); }
 
         /**
-         * Return the exception ID of the response. It's empty when replyStatus() is ReplyStatus::Ok.
+         * Get the exception ID of the response.
+         * @return The exception ID of the response. It's empty when replyStatus() is ReplyStatus::Ok. Otherwise, this
+         * ID is the Slice type ID of the exception marshaled into this response if this exception was defined in Slice
+         * or is derived from Ice::LocalException. For other exceptions, this ID is the value returned by
+         * std::exception::what().
          */
         const std::string& exceptionId() const noexcept { return _exceptionId; }
 
         /**
-         * Return the error message of the response. It's empty when replyStatus() is ReplyStatus::Ok.
+         * Get the exception message of the response.
+         * @return The exception message. It's empty when replyStatus() is ReplyStatus::Ok.
          */
-        const std::string& errorMessage() const noexcept { return _errorMessage; }
+        const std::string& exceptionMessage() const noexcept { return _exceptionMessage; }
 
         /**
-         * Return the reply status of the response.
+         * Get the reply status of the response.
+         * @return The reply status.
          */
         ReplyStatus replyStatus() const noexcept { return _replyStatus; }
 
         /**
-         * Return the output stream buffer of the response.
+         * Get the output stream buffer of the response.
+         * @return A reference to the output stream buffer.
          */
         OutputStream& outputStream() noexcept { return _outputStream; }
 
         /**
-         * Return the number of bytes in the response.
+         * Get the number of bytes in the response.
+         * @return The number of bytes in the response.
          */
         std::int32_t size() const noexcept;
 
     private:
         std::reference_wrapper<const Current> _current;
-        std::string _exceptionId;  // Empty when _replyStatus == Ok.
-        std::string _errorMessage; // ditto
+        std::string _exceptionId;
+        std::string _exceptionMessage;
         OutputStream _outputStream;
         ReplyStatus _replyStatus;
     };

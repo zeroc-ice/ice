@@ -29,7 +29,7 @@ namespace
         }
         ReplyStatus replyStatus;
         string exceptionId;
-        string errorMessage;
+        string exceptionMessage;
 
         try
         {
@@ -38,7 +38,7 @@ namespace
         catch (RequestFailedException& rfe)
         {
             exceptionId = rfe.ice_id();
-            errorMessage = rfe.what();
+            exceptionMessage = rfe.what();
 
             if (dynamic_cast<ObjectNotExistException*>(&rfe))
             {
@@ -94,7 +94,7 @@ namespace
         catch (const UserException& ex)
         {
             exceptionId = ex.ice_id();
-            errorMessage = ex.what();
+            exceptionMessage = ex.what();
 
             replyStatus = ReplyStatus::UserException;
 
@@ -110,19 +110,19 @@ namespace
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
-            errorMessage = ex.unknown;
+            exceptionMessage = ex.unknown;
         }
         catch (const UnknownUserException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownUserException;
-            errorMessage = ex.unknown;
+            exceptionMessage = ex.unknown;
         }
         catch (const UnknownException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
-            errorMessage = ex.unknown;
+            exceptionMessage = ex.unknown;
         }
         catch (const LocalException& ex)
         {
@@ -134,7 +134,7 @@ namespace
             {
                 str << '\n' << ex.ice_stackTrace();
             }
-            errorMessage = str.str();
+            exceptionMessage = str.str();
         }
         catch (const Exception& ex)
         {
@@ -146,7 +146,7 @@ namespace
             {
                 str << '\n' << ex.ice_stackTrace();
             }
-            errorMessage = str.str();
+            exceptionMessage = str.str();
         }
         catch (const std::exception& ex)
         {
@@ -154,13 +154,13 @@ namespace
             exceptionId = ex.what();
             ostringstream str;
             str << "c++ exception: " << exceptionId;
-            errorMessage = str.str();
+            exceptionMessage = str.str();
         }
         catch (...)
         {
             replyStatus = ReplyStatus::UnknownException;
             exceptionId = "unknown";
-            errorMessage = "c++ exception: unknown";
+            exceptionMessage = "c++ exception: unknown";
         }
 
         if ((current.requestId != 0) &&
@@ -168,22 +168,22 @@ namespace
              replyStatus == ReplyStatus::UnknownException))
         {
             ostr.write(static_cast<uint8_t>(replyStatus));
-            ostr.write(errorMessage);
+            ostr.write(exceptionMessage);
         }
 
-        return OutgoingResponse{replyStatus, std::move(exceptionId), std::move(errorMessage), ostr, current};
+        return OutgoingResponse{replyStatus, std::move(exceptionId), std::move(exceptionMessage), ostr, current};
     }
 } // anonymous namespace
 
 OutgoingResponse::OutgoingResponse(
     ReplyStatus replyStatus,
     string exceptionId,
-    string errorMessage,
+    string exceptionMessage,
     OutputStream& outputStream,
     const Current& current) noexcept
     : _current(current),
       _exceptionId(std::move(exceptionId)),
-      _errorMessage(std::move(errorMessage)),
+      _exceptionMessage(std::move(exceptionMessage)),
       _replyStatus(replyStatus)
 {
     _outputStream.swap(outputStream);
@@ -192,7 +192,7 @@ OutgoingResponse::OutgoingResponse(
 OutgoingResponse::OutgoingResponse(OutgoingResponse&& other) noexcept
     : _current(std::move(other._current)),
       _exceptionId(std::move(other._exceptionId)),
-      _errorMessage(std::move(other._errorMessage)),
+      _exceptionMessage(std::move(other._exceptionMessage)),
       _replyStatus(other._replyStatus)
 {
     _outputStream.swap(other._outputStream);
@@ -204,7 +204,7 @@ OutgoingResponse::operator=(OutgoingResponse&& other) noexcept
     _current = std::move(other._current);
     _replyStatus = other._replyStatus;
     _exceptionId = std::move(other._exceptionId);
-    _errorMessage = std::move(other._errorMessage);
+    _exceptionMessage = std::move(other._exceptionMessage);
     _outputStream.swap(other._outputStream);
     return *this;
 }
