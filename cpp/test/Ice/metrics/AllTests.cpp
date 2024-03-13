@@ -14,10 +14,10 @@ using namespace Test;
 
 namespace
 {
-    string getPort(const Ice::PropertiesAdminPrx& p)
+    string getPort(const Ice::PropertiesAdminPrx& p, int testPort = 0)
     {
         ostringstream os;
-        os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
+        os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), testPort);
         return os.str();
     }
 
@@ -62,7 +62,12 @@ namespace
             map += "Map." + m + '.';
         }
         props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
+
+        // Regular expression to match server test endpoint 0 and test endpoint 1
+        ostringstream os;
+        os << getPort(pa, 0) << "|" << getPort(pa, 1);
+
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = os.str();
         return props;
     }
 
@@ -371,6 +376,12 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         os << protocol << " -h " << host << " -p " << port;
         endpoint = os.str();
     }
+    string forwardingEndpoint;
+    {
+        ostringstream os;
+        os << protocol << " -h " << host << " -p " << helper->getTestPort(1);
+        forwardingEndpoint = os.str();
+    }
 
     MetricsPrx metrics(communicator, "metrics:" + endpoint);
     bool collocated = !metrics->ice_getConnection();
@@ -574,7 +585,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        ControllerPrx controller(communicator, "controller:" + helper->getTestEndpoint(1));
+        ControllerPrx controller(communicator, "controller:" + helper->getTestEndpoint(2));
         controller->hold();
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
@@ -946,6 +957,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "context.entry2", "", op);
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "context.entry3", "", op);
 
+    cout << "ok" << endl;
+
+    cout << "testing dispatch metrics with forwarding object adapter... " << flush;
+    MetricsPrx indirectMetrics(communicator, "metrics:" + forwardingEndpoint);
+    InvokeOp secondOp(indirectMetrics);
+
+    testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "parent", "ForwardingAdapter", secondOp);
+    testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "id", "metrics [op]", secondOp);
     cout << "ok" << endl;
 
     cout << "testing invocation metrics... " << flush;

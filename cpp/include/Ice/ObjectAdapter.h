@@ -349,6 +349,7 @@ namespace Ice
          * Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
          * servants managed by this object adapter, and takes into account the servant locators.
          * @return The dispatcher. This shared_ptr is never null.
+         * @remarks You can add this dispatcher as a servant (including default servant) in another object adapter.
          */
         virtual ObjectPtr dispatcher() const noexcept = 0;
 
