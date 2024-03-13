@@ -1786,27 +1786,4 @@ namespace Ice
     $Ice__t_FixedProxyException = IcePHP_defineException('::Ice::FixedProxyException', '\\Ice\\FixedProxyException', null, null);
 }
 
-namespace Ice
-{
-    global $Ice__t_ResponseSentException;
-    class ResponseSentException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::ResponseSentException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_ResponseSentException;
-            return IcePHP_stringifyException($this, $Ice__t_ResponseSentException);
-        }
-    }
-
-    $Ice__t_ResponseSentException = IcePHP_defineException('::Ice::ResponseSentException', '\\Ice\\ResponseSentException', null, null);
-}
 ?>

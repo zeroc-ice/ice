@@ -34,7 +34,6 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)invocationCanceledException:(NSString*)file line:(size_t)line;
 + (NSError*)featureNotSupportedException:(NSString*)unsupportedFeature file:(NSString*)file line:(size_t)line;
 + (NSError*)fixedProxyException:(NSString*)file line:(size_t)line;
-+ (NSError*)responseSentException:(NSString*)file line:(size_t)line;
 + (NSError*)securityException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 + (NSError*)localException:(NSString*)file line:(size_t)line;
 

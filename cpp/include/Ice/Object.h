@@ -10,6 +10,8 @@
 #include <Ice/SlicedDataF.h>
 #include <Ice/Current.h>
 #include <Ice/Format.h>
+#include "IncomingRequest.h"
+#include "OutgoingResponse.h"
 
 namespace IceInternal
 {
@@ -32,6 +34,24 @@ namespace Ice
         virtual ~Object() = default;
 
         /**
+         * Dispatch an incoming request and return the corresponding outgoing response.
+         * @param request The incoming request.
+         * @param sendResponse A callback that the implementation calls to return the response. sendResponse does not
+         * throw any exception and any sendResponse wrapper must not throw any exception. sendResponse can be called by
+         * the thread that called dispatch (the "dispatch thread") or by another thread. The implementation must call
+         * sendResponse exactly once or throw an exception.
+         * @remarks Calling sendResponse can be thought as returning the outgoing response. Just like when you return a
+         * value from a remote operation, you can only return it once and you don't know if the client receives this
+         * value. In practice, the Ice-provided sendResponse attempts to send the response to the client synchronously,
+         * but may send it asynchronously. It can also silently fail to send the response back to the client.
+         * This function is the main building block for the Ice dispatch pipeline. The implementation provided by the
+         * base Object class dispatches incoming requests to the four Object operations (ice_isA, ice_ping, ice_ids and
+         * ice_id), and throws OperationNotExistException for all other operations. This base implementation is trivial
+         * and should be overridden and fully replaced by all derived classes.
+         */
+        virtual void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse);
+
+        /**
          * Tests whether this object supports a specific Slice interface.
          * @param s The type ID of the Slice interface to test against.
          * @param current The Current object for the invocation.
@@ -41,7 +61,7 @@ namespace Ice
          */
         virtual bool ice_isA(std::string s, const Current& current) const;
         /// \cond INTERNAL
-        bool _iceD_ice_isA(IceInternal::Incoming&);
+        void _iceD_ice_isA(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
 
         /**
@@ -50,7 +70,7 @@ namespace Ice
          */
         virtual void ice_ping(const Current& current) const;
         /// \cond INTERNAL
-        bool _iceD_ice_ping(IceInternal::Incoming&);
+        void _iceD_ice_ping(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
 
         /**
@@ -60,7 +80,7 @@ namespace Ice
          */
         virtual std::vector<std::string> ice_ids(const Current& current) const;
         /// \cond INTERNAL
-        bool _iceD_ice_ids(IceInternal::Incoming&);
+        void _iceD_ice_ids(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
 
         /**
@@ -70,7 +90,7 @@ namespace Ice
          */
         virtual std::string ice_id(const Current& current) const;
         /// \cond INTERNAL
-        bool _iceD_ice_id(IceInternal::Incoming&);
+        void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
 
         /**
@@ -78,10 +98,6 @@ namespace Ice
          * @return The return value is always "::Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;
-
-        /// \cond INTERNAL
-        virtual bool _iceDispatch(IceInternal::Incoming&);
-        /// \endcond
 
     protected:
         /// \cond INTERNAL
@@ -114,9 +130,7 @@ namespace Ice
             std::vector<std::uint8_t>& outEncaps,
             const Current& current) = 0;
 
-        /// \cond INTERNAL
-        bool _iceDispatch(IceInternal::Incoming&) final;
-        /// \endcond
+        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 
     /**
@@ -144,9 +158,7 @@ namespace Ice
             std::vector<std::uint8_t>& outEncaps,
             const Current& current) = 0;
 
-        /// \cond INTERNAL
-        bool _iceDispatch(IceInternal::Incoming&) final;
-        /// \endcond
+        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 
     /**
@@ -176,9 +188,7 @@ namespace Ice
             std::function<void(std::exception_ptr)> error,
             const Current& current) = 0;
 
-        /// \cond INTERNAL
-        bool _iceDispatch(IceInternal::Incoming&) final;
-        /// \endcond
+        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 
     /**
@@ -207,9 +217,8 @@ namespace Ice
             std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> response,
             std::function<void(std::exception_ptr)> error,
             const Current& current) = 0;
-        /// \cond INTERNAL
-        bool _iceDispatch(IceInternal::Incoming&) final;
-        /// \endcond
+
+        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 }
 

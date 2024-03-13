@@ -32,9 +32,11 @@ namespace Ice
         MarshaledResult& operator=(const MarshaledResult&) = delete;
         MarshaledResult& operator=(MarshaledResult&&);
 
-    protected:
         /// \cond INTERNAL
 
+        OutputStream& outputStream() noexcept { return _ostr; }
+
+    protected:
         /**
          * The constructor requires the Current object that was passed to the servant.
          */
@@ -42,15 +44,6 @@ namespace Ice
 
         /** The output stream used to marshal the results. */
         OutputStream _ostr;
-
-    private:
-        friend class IceInternal::Incoming;
-
-        /**
-         * Swaps the output stream of this object with the supplied output stream.
-         * @param other The output stream to swap with.
-         */
-        void swap(OutputStream& other);
 
         /// \endcond
     };
