@@ -335,7 +335,7 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
 
             try
             {
-                _adapter->dispatcher()->dispatch(
+                _adapter->dispatchPipeline()->dispatch(
                     request,
                     [self = shared_from_this()](OutgoingResponse response)
                     { self->sendResponse(std::move(response)); });
