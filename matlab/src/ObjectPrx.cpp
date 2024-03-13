@@ -24,8 +24,8 @@ namespace
             const std::shared_ptr<Ice::Communicator>&,
             const Ice::EncodingVersion&,
             bool,
-            std::pair<const uint8_t*, const uint8_t*>);
-        void getResults(bool&, pair<const uint8_t*, const uint8_t*>&);
+            std::pair<const byte*, const byte*>);
+        void getResults(bool&, pair<const byte*, const byte*>&);
 
     protected:
         virtual State stateImpl() const;
@@ -34,7 +34,7 @@ namespace
         const bool _twoway;
         State _state;
         bool _ok; // True for success, false for user exception.
-        vector<uint8_t> _data;
+        vector<byte> _data;
     };
 
     InvocationFuture::InvocationFuture(bool twoway, bool batch)
@@ -66,7 +66,7 @@ namespace
         const std::shared_ptr<Ice::Communicator>& /*communicator*/,
         const Ice::EncodingVersion& /*encoding*/,
         bool b,
-        pair<const uint8_t*, const uint8_t*> p)
+        pair<const byte*, const byte*> p)
     {
         lock_guard<mutex> lock(_mutex);
         _ok = b;
@@ -74,13 +74,13 @@ namespace
         _token = nullptr;
         if (p.second > p.first)
         {
-            vector<uint8_t> data(p.first, p.second); // Makes a copy.
-            _data.swap(data);                        // Avoids another copy.
+            vector<byte> data(p.first, p.second); // Makes a copy.
+            _data.swap(data);                     // Avoids another copy.
         }
         _cond.notify_all();
     }
 
-    void InvocationFuture::getResults(bool& ok, pair<const uint8_t*, const uint8_t*>& p)
+    void InvocationFuture::getResults(bool& ok, pair<const byte*, const byte*>& p)
     {
         lock_guard<mutex> lock(_mutex);
         assert(_twoway);
@@ -174,8 +174,8 @@ extern "C"
     {
         assert(!mxIsEmpty(buf));
 
-        pair<const uint8_t*, const uint8_t*> p;
-        p.first = reinterpret_cast<uint8_t*>(mxGetData(buf)) + start;
+        pair<const byte*, const byte*> p;
+        p.first = reinterpret_cast<byte*>(mxGetData(buf)) + start;
         p.second = p.first + size;
 
         try
@@ -212,7 +212,7 @@ extern "C"
 
             Ice::OutputStream out(comm, enc);
             out.write(prx);
-            pair<const uint8_t*, const uint8_t*> p = out.finished();
+            pair<const byte*, const byte*> p = out.finished();
 
             assert(p.second > p.first);
             return createResultValue(createByteArray(p.first, p.second));
@@ -226,14 +226,14 @@ extern "C"
     mxArray*
     Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, unsigned int size, mxArray* context)
     {
-        pair<const uint8_t*, const uint8_t*> params(0, 0);
+        pair<const byte*, const byte*> params(0, 0);
         if (!mxIsEmpty(inParams))
         {
-            params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
+            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
             params.second = params.first + size;
         }
         auto mode = static_cast<Ice::OperationMode>(m);
-        vector<uint8_t> v;
+        vector<byte> v;
 
         try
         {
@@ -256,14 +256,14 @@ extern "C"
 
     mxArray* Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size)
     {
-        pair<const uint8_t*, const uint8_t*> params(0, 0);
+        pair<const byte*, const byte*> params(0, 0);
         if (!mxIsEmpty(inParams))
         {
-            params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
+            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
             params.second = params.first + size;
         }
         auto mode = static_cast<Ice::OperationMode>(m);
-        vector<uint8_t> v;
+        vector<byte> v;
 
         try
         {
@@ -292,10 +292,10 @@ extern "C"
         void** future)
     {
         const auto proxy = restoreProxy(self);
-        pair<const uint8_t*, const uint8_t*> params(0, 0);
+        pair<const byte*, const byte*> params(0, 0);
         if (!mxIsEmpty(inParams))
         {
-            params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
+            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
             params.second = params.first + size;
         }
         auto mode = static_cast<Ice::OperationMode>(m);
@@ -313,7 +313,7 @@ extern "C"
                 op,
                 mode,
                 params,
-                [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
+                [proxy, f](bool ok, pair<const byte*, const byte*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); },
                 [f](bool /*sentSynchronously*/) { f->sent(); },
@@ -337,10 +337,10 @@ extern "C"
         void** future)
     {
         const auto proxy = restoreProxy(self);
-        pair<const uint8_t*, const uint8_t*> params(0, 0);
+        pair<const byte*, const byte*> params(0, 0);
         if (!mxIsEmpty(inParams))
         {
-            params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
+            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
             params.second = params.first + size;
         }
         auto mode = static_cast<Ice::OperationMode>(m);
@@ -356,7 +356,7 @@ extern "C"
                 op,
                 mode,
                 params,
-                [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
+                [proxy, f](bool ok, pair<const byte*, const byte*> outParams)
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); },
                 [f](bool /*sentSynchronously*/) { f->sent(); });
@@ -1082,7 +1082,7 @@ extern "C"
         }
 
         bool ok;
-        pair<const uint8_t*, const uint8_t*> p;
+        pair<const byte*, const byte*> p;
         f->getResults(ok, p);
         mxArray* params = 0;
         if (p.second > p.first)
