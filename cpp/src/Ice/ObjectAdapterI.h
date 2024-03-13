@@ -100,7 +100,7 @@ namespace Ice
 
         // The dispatch pipeline is the dispatcher plus the logger and observer middleware. They are installed in the
         // dispatch pipeline only when the communicator configuration enables them.
-        const Ice::ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline;}
+        const Ice::ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline; }
 
         ObjectAdapterI(
             const IceInternal::InstancePtr&,

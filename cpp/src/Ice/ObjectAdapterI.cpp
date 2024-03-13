@@ -71,7 +71,11 @@ namespace
                 instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1);
             if (warningLevel > 0)
             {
-                dispatcher = make_shared<LoggerMiddleware>(std::move(dispatcher), logger, warningLevel, instance->toStringMode());
+                dispatcher = make_shared<LoggerMiddleware>(
+                    std::move(dispatcher),
+                    logger,
+                    warningLevel,
+                    instance->toStringMode());
             }
         }
         return dispatcher;

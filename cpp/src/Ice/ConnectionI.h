@@ -173,7 +173,7 @@ namespace Ice
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
 
-        virtual void setAdapter(const ObjectAdapterPtr&);          // From Connection.
+        virtual void setAdapter(const ObjectAdapterPtr&);           // From Connection.
         virtual ObjectAdapterPtr getAdapter() const noexcept;       // From Connection.
         virtual EndpointPtr getEndpoint() const noexcept;           // From Connection.
         virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
