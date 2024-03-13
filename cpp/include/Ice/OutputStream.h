@@ -325,7 +325,7 @@ namespace Ice
             assert(v >= 0);
             if (v > 254)
             {
-                *dest++ = std::byte(255);
+                *dest++ = std::byte{255};
                 write(v, dest);
             }
             else
