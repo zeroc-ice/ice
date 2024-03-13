@@ -109,7 +109,7 @@ namespace IceInternal
         size_t _readPayloadLength;
         Buffer::Container::iterator _readStart;
         Buffer::Container::iterator _readFrameStart;
-        unsigned char _readMask[4];
+        std::byte _readMask[4];
 
         enum WriteState
         {
@@ -121,7 +121,7 @@ namespace IceInternal
         WriteState _writeState;
         Buffer _writeBuffer;
         const Buffer::Container::size_type _writeBufferSize;
-        unsigned char _writeMask[4];
+        std::byte _writeMask[4];
         size_t _writePayloadLength;
 
         bool _readPending;

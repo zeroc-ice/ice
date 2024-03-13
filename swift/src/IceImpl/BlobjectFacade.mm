@@ -10,13 +10,13 @@
 
 void
 BlobjectFacade::ice_invokeAsync(
-    std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps,
-    std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> response,
+    std::pair<const std::byte*, const std::byte*> inEncaps,
+    std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)> response,
     std::function<void(std::exception_ptr)> error,
     const Ice::Current& current)
 {
     ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, long count) {
-      const std::uint8_t* start = static_cast<const std::uint8_t*>(outParams);
+      const std::byte* start = static_cast<const std::byte*>(outParams);
       response(ok, std::make_pair(start, start + static_cast<size_t>(count)));
     };
 
@@ -30,7 +30,7 @@ BlobjectFacade::ice_invokeAsync(
     @autoreleasepool
     {
         [_facade facadeInvoke:adapter
-                inEncapsBytes:const_cast<std::uint8_t*>(inEncaps.first)
+                inEncapsBytes:const_cast<std::byte*>(inEncaps.first)
                 inEncapsCount:static_cast<long>(inEncaps.second - inEncaps.first)
                           con:con
                          name:toNSString(current.id.name)

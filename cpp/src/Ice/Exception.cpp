@@ -78,7 +78,7 @@ namespace
 }
 
 std::string_view
-Ice::UserException::ice_staticId()
+Ice::UserException::ice_staticId() noexcept
 {
     return userException_ids[0];
 }
@@ -130,7 +130,7 @@ namespace
 }
 
 std::string_view
-Ice::LocalException::ice_staticId()
+Ice::LocalException::ice_staticId() noexcept
 {
     return localException_ids[0];
 }
@@ -745,13 +745,6 @@ Ice::FixedProxyException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nfixed proxy exception";
-}
-
-void
-Ice::ResponseSentException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nresponse sent exception";
 }
 
 void

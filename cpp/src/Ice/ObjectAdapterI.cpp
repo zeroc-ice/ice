@@ -29,6 +29,8 @@
 #include <Ice/ConsoleUtil.h>
 #include "Ice/ProxyFunctions.h"
 #include "CheckIdentity.h"
+#include "LoggerMiddleware.h"
+#include "ObserverMiddleware.h"
 
 #ifdef _WIN32
 #    include <sys/timeb.h>
@@ -53,6 +55,31 @@ namespace
     }
 
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
+
+    ObjectPtr createDispatchPipeline(Ice::ObjectPtr dispatcher, const InstancePtr& instance)
+    {
+        const auto& observer = instance->initializationData().observer;
+        if (observer)
+        {
+            dispatcher = make_shared<ObserverMiddleware>(std::move(dispatcher), observer);
+        }
+
+        const auto& logger = instance->initializationData().logger;
+        if (logger)
+        {
+            int warningLevel =
+                instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1);
+            if (warningLevel > 0)
+            {
+                dispatcher = make_shared<LoggerMiddleware>(
+                    std::move(dispatcher),
+                    logger,
+                    warningLevel,
+                    instance->toStringMode());
+            }
+        }
+        return dispatcher;
+    }
 }
 
 string
@@ -513,6 +540,12 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
     return _servantManager->findServantLocator(prefix);
 }
 
+ObjectPtr
+Ice::ObjectAdapterI::dispatcher() const noexcept
+{
+    return _servantManager;
+}
+
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident) const
 {
@@ -822,15 +855,6 @@ Ice::ObjectAdapterI::getThreadPool() const
     }
 }
 
-ServantManagerPtr
-Ice::ObjectAdapterI::getServantManager() const
-{
-    //
-    // No mutex lock necessary, _servantManager is immutable.
-    //
-    return _servantManager;
-}
-
 IceInternal::ACMConfig
 Ice::ObjectAdapterI::getACM() const
 {
@@ -845,7 +869,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 {
     lock_guard lock(_mutex);
     checkForDeactivation();
-    connection->setAdapterAndServantManager(shared_from_this(), _servantManager);
+    connection->setAdapterFromAdapter(shared_from_this());
 }
 
 //
@@ -863,7 +887,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _instance(instance),
       _communicator(communicator),
       _objectAdapterFactory(objectAdapterFactory),
-      _servantManager(new ServantManager(instance, name)),
+      _servantManager(make_shared<ServantManager>(instance, name)),
+      _dispatchPipeline(createDispatchPipeline(_servantManager, instance)),
       _name(name),
       _directCount(0),
       _noConfig(noConfig),

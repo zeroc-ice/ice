@@ -75,7 +75,7 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
-        std::optional<::std::pair<const ::std::uint8_t*, const ::std::uint8_t*>>,
+        std::optional<::std::pair<const ::std::byte*, const ::std::byte*>>,
         std::optional<::Test::ByteSeq>&,
         const ::Ice::Current&);
 

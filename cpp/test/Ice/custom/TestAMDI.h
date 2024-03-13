@@ -23,10 +23,10 @@ public:
         const Ice::Current&) override;
 
     void opByteArrayAsync(
-        std::pair<const std::uint8_t*, const std::uint8_t*>,
+        std::pair<const std::byte*, const std::byte*>,
         std::function<void(
-            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            const std::pair<const std::byte*, const std::byte*>&,
+            const std::pair<const std::byte*, const std::byte*>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
@@ -49,8 +49,8 @@ public:
         const Ice::Current&) override;
 
     void opByteSeqAsync(
-        std::deque<std::uint8_t>,
-        std::function<void(const std::deque<std::uint8_t>&, const std::deque<std::uint8_t>&)>,
+        std::deque<std::byte>,
+        std::function<void(const std::deque<std::byte>&, const std::deque<std::byte>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
@@ -152,7 +152,7 @@ public:
 
     void opOutArrayByteSeqAsync(
         Test::ByteSeq,
-        std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+        std::function<void(const std::pair<const std::byte*, const std::byte*>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 

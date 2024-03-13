@@ -24,7 +24,7 @@ TestIntfI::opBoolArray(pair<const bool*, const bool*> inSeq, BoolSeq& outSeq, co
 }
 
 ByteList
-TestIntfI::opByteArray(pair<const uint8_t*, const uint8_t*> inSeq, ByteList& outSeq, const Current&)
+TestIntfI::opByteArray(pair<const byte*, const byte*> inSeq, ByteList& outSeq, const Current&)
 {
     ByteList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
@@ -71,15 +71,15 @@ TestIntfI::opBoolDequeListArray(
     return outSeq;
 }
 
-deque<uint8_t>
-TestIntfI::opByteSeq(deque<uint8_t> inSeq, deque<uint8_t>& outSeq, const Current&)
+deque<byte>
+TestIntfI::opByteSeq(deque<byte> inSeq, deque<byte>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-list<uint8_t>
-TestIntfI::opByteList(list<uint8_t> inSeq, list<uint8_t>& outSeq, const Current&)
+list<byte>
+TestIntfI::opByteList(list<byte> inSeq, list<byte>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;

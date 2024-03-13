@@ -1554,20 +1554,3 @@ open class FixedProxyException: LocalException {
         return _FixedProxyExceptionDescription
     }
 }
-
-/// Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
-open class ResponseSentException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `Swift.String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> Swift.String {
-        return "::Ice::ResponseSentException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `Swift.String` - The string representaton of this exception.
-    override open func ice_print() -> Swift.String {
-        return _ResponseSentExceptionDescription
-    }
-}

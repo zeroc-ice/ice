@@ -35,9 +35,9 @@ using namespace IceInternal;
 
 Ice::InputStream::InputStream() { initialize(currentEncoding); }
 
-Ice::InputStream::InputStream(const vector<uint8_t>& v) : Buffer(v) { initialize(currentEncoding); }
+Ice::InputStream::InputStream(const vector<byte>& v) : Buffer(v) { initialize(currentEncoding); }
 
-Ice::InputStream::InputStream(const pair<const uint8_t*, const uint8_t*>& p) : Buffer(p.first, p.second)
+Ice::InputStream::InputStream(const pair<const byte*, const byte*>& p) : Buffer(p.first, p.second)
 {
     initialize(currentEncoding);
 }
@@ -46,12 +46,12 @@ Ice::InputStream::InputStream(Buffer& buf, bool adopt) : Buffer(buf, adopt) { in
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator) { initialize(communicator); }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<uint8_t>& v) : Buffer(v)
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v) : Buffer(v)
 {
     initialize(communicator);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const pair<const uint8_t*, const uint8_t*>& p)
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const pair<const byte*, const byte*>& p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator);
@@ -64,12 +64,12 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, Buffer& buf, 
 
 Ice::InputStream::InputStream(const EncodingVersion& encoding) { initialize(encoding); }
 
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<uint8_t>& v) : Buffer(v)
+Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<byte>& v) : Buffer(v)
 {
     initialize(encoding);
 }
 
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const pair<const uint8_t*, const uint8_t*>& p)
+Ice::InputStream::InputStream(const EncodingVersion& encoding, const pair<const byte*, const byte*>& p)
     : Buffer(p.first, p.second)
 {
     initialize(encoding);
@@ -88,7 +88,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const Encodin
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     const EncodingVersion& encoding,
-    const vector<uint8_t>& v)
+    const vector<byte>& v)
     : Buffer(v)
 {
     initialize(communicator, encoding);
@@ -97,7 +97,7 @@ Ice::InputStream::InputStream(
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     const EncodingVersion& encoding,
-    const pair<const uint8_t*, const uint8_t*>& p)
+    const pair<const byte*, const byte*>& p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator, encoding);
@@ -378,7 +378,7 @@ Ice::InputStream::readBlob(vector<byte>& v, int32_t sz)
         {
             throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        vector<byte>(reinterpret_cast<byte*>(i), reinterpret_cast<byte*>(i) + sz).swap(v);
+        vector<byte>(i, i + sz).swap(v);
         i += sz;
     }
     else
@@ -388,9 +388,9 @@ Ice::InputStream::readBlob(vector<byte>& v, int32_t sz)
 }
 
 void
-Ice::InputStream::read(std::vector<uint8_t>& v)
+Ice::InputStream::read(std::vector<byte>& v)
 {
-    std::pair<const uint8_t*, const uint8_t*> p;
+    std::pair<const byte*, const byte*> p;
     read(p);
     if (p.first != p.second)
     {
@@ -404,7 +404,7 @@ Ice::InputStream::read(std::vector<uint8_t>& v)
 }
 
 void
-Ice::InputStream::read(pair<const uint8_t*, const uint8_t*>& v)
+Ice::InputStream::read(pair<const byte*, const byte*>& v)
 {
     int32_t sz = readAndCheckSeqSize(1);
     if (sz > 0)
@@ -426,7 +426,7 @@ Ice::InputStream::read(vector<bool>& v)
     if (sz > 0)
     {
         v.resize(static_cast<size_t>(sz));
-        copy(i, i + sz, v.begin());
+        copy(reinterpret_cast<uint8_t*>(i), reinterpret_cast<uint8_t*>(i) + sz, v.begin());
         i += sz;
     }
     else
@@ -489,17 +489,17 @@ Ice::InputStream::read(int16_t& v)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    const uint8_t* src = &(*i);
+    const byte* src = &(*i);
     i += sizeof(int16_t);
     if constexpr (endian::native == endian::big)
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int16_t) - 1;
+        byte* dest = reinterpret_cast<byte*>(&v) + sizeof(int16_t) - 1;
         *dest-- = *src++;
         *dest = *src;
     }
     else
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        byte* dest = reinterpret_cast<byte*>(&v);
         *dest++ = *src++;
         *dest = *src;
     }
@@ -516,8 +516,8 @@ Ice::InputStream::read(vector<int16_t>& v)
         v.resize(static_cast<size_t>(sz));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int16_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int16_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -527,7 +527,7 @@ Ice::InputStream::read(vector<int16_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
         }
     }
     else
@@ -557,8 +557,8 @@ Ice::InputStream::read(pair<const short*, const short*>& v)
         i += sz * static_cast<int>(sizeof(int16_t));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int16_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int16_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -568,7 +568,7 @@ Ice::InputStream::read(pair<const short*, const short*>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&result[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
         }
 #endif
     }
@@ -585,11 +585,11 @@ Ice::InputStream::read(int32_t& v)
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    const uint8_t* src = &(*i);
+    const byte* src = &(*i);
     i += sizeof(int32_t);
     if constexpr (endian::native == endian::big)
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int32_t) - 1;
+        byte* dest = reinterpret_cast<byte*>(&v) + sizeof(int32_t) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
@@ -597,7 +597,7 @@ Ice::InputStream::read(int32_t& v)
     }
     else
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        byte* dest = reinterpret_cast<byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -616,8 +616,8 @@ Ice::InputStream::read(vector<int32_t>& v)
         v.resize(static_cast<size_t>(sz));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int32_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int32_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -629,7 +629,7 @@ Ice::InputStream::read(vector<int32_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
         }
     }
     else
@@ -658,8 +658,8 @@ Ice::InputStream::read(pair<const int32_t*, const int32_t*>& v)
         i += sz * static_cast<int>(sizeof(int32_t));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int32_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int32_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -671,7 +671,7 @@ Ice::InputStream::read(pair<const int32_t*, const int32_t*>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&result[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
         }
 #endif
     }
@@ -688,11 +688,11 @@ Ice::InputStream::read(int64_t& v)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    const uint8_t* src = &(*i);
+    const byte* src = &(*i);
     i += sizeof(int64_t);
     if constexpr (endian::native == endian::big)
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
+        byte* dest = reinterpret_cast<byte*>(&v) + sizeof(int64_t) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
@@ -704,7 +704,7 @@ Ice::InputStream::read(int64_t& v)
     }
     else
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        byte* dest = reinterpret_cast<byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -727,8 +727,8 @@ Ice::InputStream::read(vector<int64_t>& v)
         v.resize(static_cast<size_t>(sz));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int64_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(int64_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -744,7 +744,7 @@ Ice::InputStream::read(vector<int64_t>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
         }
     }
     else
@@ -774,8 +774,8 @@ Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
         i += sz * static_cast<int>(sizeof(int64_t));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int64_t) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(int64_t) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -791,7 +791,7 @@ Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&result[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
         }
 #endif
     }
@@ -808,11 +808,11 @@ Ice::InputStream::read(float& v)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    const uint8_t* src = &(*i);
+    const byte* src = &(*i);
     i += sizeof(float);
     if constexpr (endian::native == endian::big)
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(float) - 1;
+        byte* dest = reinterpret_cast<byte*>(&v) + sizeof(float) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
@@ -820,7 +820,7 @@ Ice::InputStream::read(float& v)
     }
     else
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        byte* dest = reinterpret_cast<byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -839,8 +839,8 @@ Ice::InputStream::read(vector<float>& v)
         v.resize(static_cast<size_t>(sz));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(float) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(float) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -852,7 +852,7 @@ Ice::InputStream::read(vector<float>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
         }
     }
     else
@@ -882,8 +882,8 @@ Ice::InputStream::read(pair<const float*, const float*>& v)
         i += sz * static_cast<int>(sizeof(float));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(float) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(float) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -895,7 +895,7 @@ Ice::InputStream::read(pair<const float*, const float*>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&result[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
         }
 #endif
     }
@@ -912,11 +912,11 @@ Ice::InputStream::read(double& v)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    const uint8_t* src = &(*i);
+    const byte* src = &(*i);
     i += sizeof(double);
     if constexpr (endian::native == endian::big)
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(double) - 1;
+        byte* dest = reinterpret_cast<byte*>(&v) + sizeof(double) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
@@ -928,7 +928,7 @@ Ice::InputStream::read(double& v)
     }
     else
     {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        byte* dest = reinterpret_cast<byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -951,8 +951,8 @@ Ice::InputStream::read(vector<double>& v)
         v.resize(static_cast<size_t>(sz));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(double) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&v[0]) + sizeof(double) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -968,7 +968,7 @@ Ice::InputStream::read(vector<double>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&v[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&v[0]));
         }
     }
     else
@@ -997,8 +997,8 @@ Ice::InputStream::read(pair<const double*, const double*>& v)
         i += sz * static_cast<int>(sizeof(double));
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = &(*begin);
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(double) - 1;
+            const byte* src = &(*begin);
+            byte* dest = reinterpret_cast<byte*>(&result[0]) + sizeof(double) - 1;
             for (int j = 0; j < sz; ++j)
             {
                 *dest-- = *src++;
@@ -1014,7 +1014,7 @@ Ice::InputStream::read(pair<const double*, const double*>& v)
         }
         else
         {
-            copy(begin, i, reinterpret_cast<uint8_t*>(&result[0]));
+            copy(begin, i, reinterpret_cast<byte*>(&result[0]));
         }
 #endif
     }
@@ -1118,7 +1118,10 @@ Ice::InputStream::readConverted(string& v, int sz)
             const StringConverterPtr& stringConverter = _instance->getStringConverter();
             if (stringConverter)
             {
-                stringConverter->fromUTF8(i, i + sz, v);
+                stringConverter->fromUTF8(
+                    reinterpret_cast<const uint8_t*>(i),
+                    reinterpret_cast<const uint8_t*>(i) + sz,
+                    v);
                 converted = true;
             }
         }
@@ -1127,7 +1130,10 @@ Ice::InputStream::readConverted(string& v, int sz)
             StringConverterPtr stringConverter = getProcessStringConverter();
             if (stringConverter)
             {
-                stringConverter->fromUTF8(i, i + sz, v);
+                stringConverter->fromUTF8(
+                    reinterpret_cast<const uint8_t*>(i),
+                    reinterpret_cast<const uint8_t*>(i) + sz,
+                    v);
                 converted = true;
             }
         }
@@ -1174,12 +1180,18 @@ Ice::InputStream::read(wstring& v)
             if (_instance)
             {
                 const WstringConverterPtr& wstringConverter = _instance->getWstringConverter();
-                wstringConverter->fromUTF8(i, i + sz, v);
+                wstringConverter->fromUTF8(
+                    reinterpret_cast<const uint8_t*>(i),
+                    reinterpret_cast<const uint8_t*>(i) + sz,
+                    v);
             }
             else
             {
                 WstringConverterPtr wstringConverter = getProcessWstringConverter();
-                wstringConverter->fromUTF8(i, i + sz, v);
+                wstringConverter->fromUTF8(
+                    reinterpret_cast<const uint8_t*>(i),
+                    reinterpret_cast<const uint8_t*>(i) + sz,
+                    v);
             }
 
             i += sz;
@@ -2350,11 +2362,11 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
             // Don't include the optional member end marker. It will be re-written by
             // endSlice when the sliced data is re-written.
             //
-            vector<uint8_t>(start, _stream->i - 1).swap(info->bytes);
+            vector<byte>(start, _stream->i - 1).swap(info->bytes);
         }
         else
         {
-            vector<uint8_t>(start, _stream->i).swap(info->bytes);
+            vector<byte>(start, _stream->i).swap(info->bytes);
         }
         _current->slices.push_back(info);
     }

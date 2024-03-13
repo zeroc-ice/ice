@@ -18,8 +18,8 @@ namespace
     public:
         SynchronizationCallbackI(
             const shared_ptr<RegistryServerAdminRouter>& adminRouter,
-            const pair<const uint8_t*, const uint8_t*>& inParams,
-            function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+            const pair<const byte*, const byte*>& inParams,
+            function<void(bool, const pair<const byte*, const byte*>&)> response,
             function<void(exception_ptr)> exception,
             const Current& current)
             : _adminRouter(adminRouter),
@@ -49,9 +49,9 @@ namespace
 
     private:
         const shared_ptr<RegistryServerAdminRouter> _adminRouter;
-        function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> _response;
+        function<void(bool, const pair<const byte*, const byte*>&)> _response;
         function<void(exception_ptr)> _exception;
-        const vector<uint8_t> _inParams;
+        const vector<byte> _inParams;
         const Current _current;
     };
 }
@@ -64,8 +64,8 @@ RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>&
 
 void
 RegistryServerAdminRouter::ice_invokeAsync(
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
@@ -118,8 +118,8 @@ RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, c
 
 void
 RegistryNodeAdminRouter::ice_invokeAsync(
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
@@ -169,8 +169,8 @@ RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const
 
 void
 RegistryReplicaAdminRouter::ice_invokeAsync(
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {

@@ -9,7 +9,6 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include "Ice/OutgoingAsync.h"
-#include "Ice/Incoming.h"
 #include "Endian.h"
 
 #include <Ice/TraceUtil.h>
@@ -55,7 +54,7 @@ namespace
 
     void fillInValue(OutputStream* os, int pos, int32_t value)
     {
-        const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
+        const byte* p = reinterpret_cast<const byte*>(&value);
         if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
@@ -196,7 +195,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os)
 {
     OutgoingAsyncBasePtr outAsync;
     {
@@ -246,7 +245,7 @@ CollocatedRequestHandler::sendNoResponse()
 }
 
 void
-CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex, int /*invokeNum*/)
+CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex)
 {
     handleException(requestId, ex);
     _adapter->decDirectCount();
@@ -312,7 +311,6 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
     }
 
     int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
-    ServantManagerPtr servantManager = _adapter->getServantManager();
     try
     {
         while (invokeNum > 0)
@@ -333,21 +331,26 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
                 break;
             }
 
-            Incoming incoming(
-                _reference->getInstance().get(),
-                shared_from_this(),
-                nullptr,
-                _adapter,
-                _response,
-                0,
-                requestId);
-            incoming.invoke(servantManager, &is);
+            IncomingRequest request{requestId, nullptr, _adapter, is};
+
+            try
+            {
+                _adapter->dispatchPipeline()->dispatch(
+                    request,
+                    [self = shared_from_this()](OutgoingResponse response)
+                    { self->sendResponse(std::move(response)); });
+            }
+            catch (...)
+            {
+                sendResponse(makeOutgoingResponse(current_exception(), request.current()));
+            }
+
             --invokeNum;
         }
     }
-    catch (const LocalException&)
+    catch (...)
     {
-        invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
+        invokeException(requestId, current_exception()); // Fatal invocation exception
     }
 
     _adapter->decDirectCount();
@@ -382,5 +385,26 @@ CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
         // the callbacks to execute in a thread-pool thread - never in the application thread that sent the exception
         // via AMD.
         outAsync->invokeExceptionAsync();
+    }
+}
+
+void
+CollocatedRequestHandler::sendResponse(OutgoingResponse response)
+{
+    try
+    {
+        if (_response)
+        {
+            sendResponse(response.current().requestId, &response.outputStream());
+        }
+        else
+        {
+            sendNoResponse();
+        }
+    }
+    catch (...)
+    {
+        // Fatal invocation exception
+        invokeException(response.current().requestId, current_exception());
     }
 }

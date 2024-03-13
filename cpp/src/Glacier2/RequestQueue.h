@@ -23,15 +23,15 @@ namespace Glacier2
     public:
         Request(
             Ice::ObjectPrx,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
+            const std::pair<const std::byte*, const std::byte*>&,
             const Ice::Current&,
             bool,
             const Ice::Context&,
-            std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)>,
+            std::function<void(bool, std::pair<const std::byte*, const std::byte*>)>,
             std::function<void(std::exception_ptr)>);
 
         void invoke(
-            std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)>&&,
+            std::function<void(bool, std::pair<const std::byte*, const std::byte*>)>&&,
             std::function<void(std::exception_ptr)>&&,
             std::function<void(bool)>&& = nullptr);
         bool override(const std::shared_ptr<Request>&) const;
@@ -39,7 +39,7 @@ namespace Glacier2
 
     private:
         friend class RequestQueue;
-        void response(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&);
+        void response(bool, const std::pair<const std::byte*, const std::byte*>&);
         void exception(std::exception_ptr);
         void queued();
 
@@ -49,7 +49,7 @@ namespace Glacier2
         const bool _forwardContext;
         const Ice::Context _sslContext;
         const std::string _override;
-        std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> _response;
+        std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)> _response;
         std::function<void(std::exception_ptr)> _exception;
     };
 
@@ -68,8 +68,7 @@ namespace Glacier2
     private:
         void flush();
 
-        void
-        response(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&, const std::shared_ptr<Request>&);
+        void response(bool, const std::pair<const std::byte*, const std::byte*>&, const std::shared_ptr<Request>&);
         void exception(std::exception_ptr, const std::shared_ptr<Request>&);
         void sent(bool, const std::shared_ptr<Request>&);
 

@@ -42,10 +42,10 @@ IceInternal::Reference::getCommunicator() const
 }
 
 ReferencePtr
-IceInternal::Reference::changeContext(const Context& newContext) const
+IceInternal::Reference::changeContext(Context newContext) const
 {
     ReferencePtr r = clone();
-    r->_context = make_shared<SharedContext>(newContext);
+    r->_context = make_shared<SharedContext>(std::move(newContext));
     return r;
 }
 
@@ -66,18 +66,18 @@ IceInternal::Reference::changeSecure(bool newSecure) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
+IceInternal::Reference::changeIdentity(Identity newIdentity) const
 {
     ReferencePtr r = clone();
-    r->_identity = newIdentity;
+    r->_identity = std::move(newIdentity);
     return r;
 }
 
 ReferencePtr
-IceInternal::Reference::changeFacet(const string& newFacet) const
+IceInternal::Reference::changeFacet(string newFacet) const
 {
     ReferencePtr r = clone();
-    r->_facet = newFacet;
+    r->_facet = std::move(newFacet);
     return r;
 }
 
@@ -90,10 +90,10 @@ IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) const
+IceInternal::Reference::changeEncoding(Ice::EncodingVersion encoding) const
 {
     ReferencePtr r = clone();
-    r->_encoding = encoding;
+    r->_encoding = std::move(encoding);
     return r;
 }
 
@@ -516,12 +516,12 @@ IceInternal::FixedReference::FixedReference(
     bool secure,
     const ProtocolVersion& protocol,
     const EncodingVersion& encoding,
-    const ConnectionIPtr& fixedConnection,
+    ConnectionIPtr fixedConnection,
     int invocationTimeout,
     const Ice::Context& context,
     const optional<bool>& compress)
     : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
-      _fixedConnection(fixedConnection)
+      _fixedConnection(std::move(fixedConnection))
 {
     if (compress)
     {
@@ -585,25 +585,25 @@ IceInternal::FixedReference::getTimeout() const
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& /*newEndpoints*/) const
+IceInternal::FixedReference::changeEndpoints(vector<EndpointIPtr> /*newEndpoints*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) const
+IceInternal::FixedReference::changeAdapterId(string /*newAdapterId*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocator(const optional<LocatorPrx>&) const
+IceInternal::FixedReference::changeLocator(optional<LocatorPrx>) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeRouter(const optional<RouterPrx>&) const
+IceInternal::FixedReference::changeRouter(optional<RouterPrx>) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -645,16 +645,16 @@ IceInternal::FixedReference::changeTimeout(int) const
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeConnectionId(const string&) const
+IceInternal::FixedReference::changeConnectionId(string) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeConnection(const Ice::ConnectionIPtr& newConnection) const
+IceInternal::FixedReference::changeConnection(Ice::ConnectionIPtr newConnection) const
 {
     FixedReferencePtr r = dynamic_pointer_cast<FixedReference>(clone());
-    r->_fixedConnection = newConnection;
+    r->_fixedConnection = std::move(newConnection);
     return r;
 }
 
@@ -917,7 +917,7 @@ IceInternal::RoutableReference::changeMode(Mode newMode) const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
+IceInternal::RoutableReference::changeEncoding(Ice::EncodingVersion encoding) const
 {
     ReferencePtr r = Reference::changeEncoding(encoding);
     if (r.get() != const_cast<RoutableReference*>(this))
@@ -949,39 +949,39 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
+IceInternal::RoutableReference::changeEndpoints(vector<EndpointIPtr> newEndpoints) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_endpoints = newEndpoints;
+    r->_endpoints = std::move(newEndpoints);
     r->applyOverrides(r->_endpoints);
     r->_adapterId.clear();
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) const
+IceInternal::RoutableReference::changeAdapterId(string newAdapterId) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_adapterId = newAdapterId;
+    r->_adapterId = std::move(newAdapterId);
     r->_endpoints.clear();
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLocator) const
+IceInternal::RoutableReference::changeLocator(optional<LocatorPrx> newLocator) const
 {
     LocatorInfoPtr newLocatorInfo = newLocator ? getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_locatorInfo = newLocatorInfo;
+    r->_locatorInfo = std::move(newLocatorInfo);
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeRouter(const optional<RouterPrx>& newRouter) const
+IceInternal::RoutableReference::changeRouter(optional<RouterPrx> newRouter) const
 {
     RouterInfoPtr newRouterInfo = newRouter ? getInstance()->routerManager()->get(newRouter.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_routerInfo = newRouterInfo;
+    r->_routerInfo = std::move(newRouterInfo);
     return r;
 }
 
@@ -1044,7 +1044,7 @@ IceInternal::RoutableReference::changeTimeout(int newTimeout) const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeConnectionId(const string& id) const
+IceInternal::RoutableReference::changeConnectionId(string id) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_connectionId = id;
@@ -1061,7 +1061,7 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
+IceInternal::RoutableReference::changeConnection(Ice::ConnectionIPtr connection) const
 {
     return make_shared<FixedReference>(
         getInstance(),
@@ -1072,7 +1072,7 @@ IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& conn
         getSecure(),
         getProtocol(),
         getEncoding(),
-        connection,
+        std::move(connection),
         getInvocationTimeout(),
         getContext()->getValue(),
         getCompress());

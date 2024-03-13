@@ -12,7 +12,7 @@ using namespace Test;
 using namespace Ice;
 
 bool
-invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& current)
+invokeInternal(InputStream& in, vector<byte>& outEncaps, const Current& current)
 {
     CommunicatorPtr communicator = current.adapter->getCommunicator();
     OutputStream out(communicator);
@@ -81,17 +81,14 @@ invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& curre
 }
 
 bool
-BlobjectI::ice_invoke(vector<uint8_t> inEncaps, vector<uint8_t>& outEncaps, const Current& current)
+BlobjectI::ice_invoke(vector<byte> inEncaps, vector<byte>& outEncaps, const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 bool
-BlobjectArrayI::ice_invoke(
-    pair<const uint8_t*, const uint8_t*> inEncaps,
-    vector<uint8_t>& outEncaps,
-    const Current& current)
+BlobjectArrayI::ice_invoke(pair<const byte*, const byte*> inEncaps, vector<byte>& outEncaps, const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
@@ -99,30 +96,28 @@ BlobjectArrayI::ice_invoke(
 
 void
 BlobjectAsyncI::ice_invokeAsync(
-    vector<uint8_t> inEncaps,
-    function<void(bool, const vector<uint8_t>&)> response,
+    vector<byte> inEncaps,
+    function<void(bool, const vector<byte>&)> response,
     function<void(exception_ptr)>,
     const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), inEncaps);
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
     response(ok, outEncaps);
 }
 
 void
 BlobjectArrayAsyncI::ice_invokeAsync(
-    pair<const uint8_t*, const uint8_t*> inEncaps,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inEncaps,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)>,
     const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), inEncaps);
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    pair<const uint8_t*, const uint8_t*> outPair(
-        static_cast<const uint8_t*>(nullptr),
-        static_cast<const uint8_t*>(nullptr));
+    pair<const byte*, const byte*> outPair(static_cast<const byte*>(nullptr), static_cast<const byte*>(nullptr));
     if (outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];

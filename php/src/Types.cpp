@@ -302,7 +302,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         AutoDestroy bytesDestroyer(&bytes);
         for (const auto& q : p->bytes)
         {
-            add_next_index_long(&bytes, q & 0xff);
+            add_next_index_long(&bytes, std::to_integer<zend_long>(q & byte{0xff}));
         }
         addPropertyZval(&slice, "bytes", &bytes);
 
@@ -396,12 +396,12 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
 #endif
-                vector<uint8_t>::size_type i = 0;
+                vector<byte>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
                 {
                     long l = static_cast<long>(Z_LVAL_P(e));
                     assert(l >= 0 && l <= 255);
-                    info->bytes[i++] = static_cast<uint8_t>(l);
+                    info->bytes[i++] = static_cast<byte>(l);
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
@@ -1615,7 +1615,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
                 }
                 long l = static_cast<long>(Z_LVAL_P(val));
                 assert(l >= 0 && l <= 255);
-                seq[i++] = static_cast<uint8_t>(l);
+                seq[i++] = static_cast<byte>(l);
             }
             ZEND_HASH_FOREACH_END();
 

@@ -675,8 +675,7 @@ namespace
             path,
             pos,
             chunkSize,
-            [cb](std::pair<const uint8_t*, const uint8_t*> result)
-            { cb->complete(ByteSeq(result.first, result.second)); },
+            [cb](std::pair<const byte*, const byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
     }
 

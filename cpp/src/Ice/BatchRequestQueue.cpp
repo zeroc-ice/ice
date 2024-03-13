@@ -158,10 +158,10 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
 
     _conditionVariable.wait(lock, [this] { return !_batchStreamInUse || _batchStreamCanFlush; });
 
-    vector<uint8_t> lastRequest;
+    vector<byte> lastRequest;
     if (_batchMarker < _batchStream.b.size())
     {
-        vector<uint8_t>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
+        vector<byte>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
         _batchStream.b.resize(_batchMarker);
     }
 
@@ -178,7 +178,7 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
     _batchMarker = _batchStream.b.size();
     if (!lastRequest.empty())
     {
-        _batchStream.writeBlob(reinterpret_cast<byte*>(&lastRequest[0]), lastRequest.size());
+        _batchStream.writeBlob(lastRequest.data(), lastRequest.size());
     }
     return requestNum;
 }

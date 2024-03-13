@@ -313,7 +313,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->j = MyInterfacePrx(communicator, "test");
     mo1->k = mo1;
     mo1->bs = ByteSeq();
-    (*mo1->bs).push_back(5);
+    (*mo1->bs).push_back(byte{5});
     mo1->ss = StringSeq();
     mo1->ss->push_back("test");
     mo1->ss->push_back("test2");
@@ -1344,13 +1344,13 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing optional parameters and custom sequences... " << flush;
     {
-        optional<std::pair<const uint8_t*, const uint8_t*>> p1;
+        optional<std::pair<const byte*, const byte*>> p1;
         optional<ByteSeq> p3;
         optional<ByteSeq> p2 = initial->opByteSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<uint8_t> bs(100);
-        fill(bs.begin(), bs.end(), 56);
+        vector<byte> bs(100);
+        fill(bs.begin(), bs.end(), byte{56});
         p1 = toArrayRange(bs);
         p2 = initial->opByteSeq(p1, p3);
         test(p2 && p3);

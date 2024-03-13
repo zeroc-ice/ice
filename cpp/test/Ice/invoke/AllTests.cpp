@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper)
         }
 
         // ice_invoke with array mapping
-        pair<const ::uint8_t*, const ::uint8_t*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        pair<const byte*, const byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         if (cl->ice_invoke("opString", OperationMode::Normal, inPair, outEncaps))
         {
             InputStream in(communicator, out.getEncoding(), outEncaps);
@@ -117,7 +117,7 @@ allTests(Test::TestHelper* helper)
             "opOneway",
             OperationMode::Normal,
             inEncaps,
-            [](bool, const vector<uint8_t>) { test(false); },
+            [](bool, const vector<byte>) { test(false); },
             [](exception_ptr) { test(false); },
             [](bool) { test(false); });
         batchOneway->ice_flushBatchRequests();
@@ -185,7 +185,7 @@ allTests(Test::TestHelper* helper)
             "opString",
             OperationMode::Normal,
             inEncaps,
-            [&](bool ok, vector<uint8_t> outParams)
+            [&](bool ok, vector<byte> outParams)
             {
                 outEncaps = std::move(outParams);
                 completed.set_value(ok);
@@ -242,9 +242,9 @@ allTests(Test::TestHelper* helper)
             "opString",
             OperationMode::Normal,
             inPair,
-            [&](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
+            [&](bool ok, pair<const byte*, const byte*> outParams)
             {
-                vector<uint8_t>(outParams.first, outParams.second).swap(outEncaps);
+                vector<byte>(outParams.first, outParams.second).swap(outEncaps);
                 completed.set_value(ok);
             },
             [&](exception_ptr ex) { completed.set_exception(ex); },
@@ -297,7 +297,7 @@ allTests(Test::TestHelper* helper)
             "opException",
             OperationMode::Normal,
             inEncaps,
-            [&](bool ok, vector<uint8_t> outParams)
+            [&](bool ok, vector<byte> outParams)
             {
                 outEncaps = std::move(outParams);
                 completed.set_value(ok);

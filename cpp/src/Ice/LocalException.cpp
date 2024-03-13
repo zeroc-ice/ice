@@ -22,7 +22,7 @@
 Ice::InitializationException::~InitializationException() {}
 
 std::string_view
-Ice::InitializationException::ice_staticId()
+Ice::InitializationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::InitializationException";
     return typeId;
@@ -31,7 +31,7 @@ Ice::InitializationException::ice_staticId()
 Ice::PluginInitializationException::~PluginInitializationException() {}
 
 std::string_view
-Ice::PluginInitializationException::ice_staticId()
+Ice::PluginInitializationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::PluginInitializationException";
     return typeId;
@@ -40,7 +40,7 @@ Ice::PluginInitializationException::ice_staticId()
 Ice::CollocationOptimizationException::~CollocationOptimizationException() {}
 
 std::string_view
-Ice::CollocationOptimizationException::ice_staticId()
+Ice::CollocationOptimizationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CollocationOptimizationException";
     return typeId;
@@ -49,7 +49,7 @@ Ice::CollocationOptimizationException::ice_staticId()
 Ice::AlreadyRegisteredException::~AlreadyRegisteredException() {}
 
 std::string_view
-Ice::AlreadyRegisteredException::ice_staticId()
+Ice::AlreadyRegisteredException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::AlreadyRegisteredException";
     return typeId;
@@ -58,7 +58,7 @@ Ice::AlreadyRegisteredException::ice_staticId()
 Ice::NotRegisteredException::~NotRegisteredException() {}
 
 std::string_view
-Ice::NotRegisteredException::ice_staticId()
+Ice::NotRegisteredException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::NotRegisteredException";
     return typeId;
@@ -67,7 +67,7 @@ Ice::NotRegisteredException::ice_staticId()
 Ice::TwowayOnlyException::~TwowayOnlyException() {}
 
 std::string_view
-Ice::TwowayOnlyException::ice_staticId()
+Ice::TwowayOnlyException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::TwowayOnlyException";
     return typeId;
@@ -76,7 +76,7 @@ Ice::TwowayOnlyException::ice_staticId()
 Ice::CloneNotImplementedException::~CloneNotImplementedException() {}
 
 std::string_view
-Ice::CloneNotImplementedException::ice_staticId()
+Ice::CloneNotImplementedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CloneNotImplementedException";
     return typeId;
@@ -85,7 +85,7 @@ Ice::CloneNotImplementedException::ice_staticId()
 Ice::UnknownException::~UnknownException() {}
 
 std::string_view
-Ice::UnknownException::ice_staticId()
+Ice::UnknownException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownException";
     return typeId;
@@ -94,7 +94,7 @@ Ice::UnknownException::ice_staticId()
 Ice::UnknownLocalException::~UnknownLocalException() {}
 
 std::string_view
-Ice::UnknownLocalException::ice_staticId()
+Ice::UnknownLocalException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownLocalException";
     return typeId;
@@ -103,7 +103,7 @@ Ice::UnknownLocalException::ice_staticId()
 Ice::UnknownUserException::~UnknownUserException() {}
 
 std::string_view
-Ice::UnknownUserException::ice_staticId()
+Ice::UnknownUserException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownUserException";
     return typeId;
@@ -112,7 +112,7 @@ Ice::UnknownUserException::ice_staticId()
 Ice::VersionMismatchException::~VersionMismatchException() {}
 
 std::string_view
-Ice::VersionMismatchException::ice_staticId()
+Ice::VersionMismatchException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::VersionMismatchException";
     return typeId;
@@ -121,7 +121,7 @@ Ice::VersionMismatchException::ice_staticId()
 Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException() {}
 
 std::string_view
-Ice::CommunicatorDestroyedException::ice_staticId()
+Ice::CommunicatorDestroyedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CommunicatorDestroyedException";
     return typeId;
@@ -130,7 +130,7 @@ Ice::CommunicatorDestroyedException::ice_staticId()
 Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException() {}
 
 std::string_view
-Ice::ObjectAdapterDeactivatedException::ice_staticId()
+Ice::ObjectAdapterDeactivatedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ObjectAdapterDeactivatedException";
     return typeId;
@@ -139,7 +139,7 @@ Ice::ObjectAdapterDeactivatedException::ice_staticId()
 Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException() {}
 
 std::string_view
-Ice::ObjectAdapterIdInUseException::ice_staticId()
+Ice::ObjectAdapterIdInUseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ObjectAdapterIdInUseException";
     return typeId;
@@ -148,7 +148,7 @@ Ice::ObjectAdapterIdInUseException::ice_staticId()
 Ice::NoEndpointException::~NoEndpointException() {}
 
 std::string_view
-Ice::NoEndpointException::ice_staticId()
+Ice::NoEndpointException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::NoEndpointException";
     return typeId;
@@ -157,7 +157,7 @@ Ice::NoEndpointException::ice_staticId()
 Ice::EndpointParseException::~EndpointParseException() {}
 
 std::string_view
-Ice::EndpointParseException::ice_staticId()
+Ice::EndpointParseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::EndpointParseException";
     return typeId;
@@ -166,7 +166,7 @@ Ice::EndpointParseException::ice_staticId()
 Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException() {}
 
 std::string_view
-Ice::EndpointSelectionTypeParseException::ice_staticId()
+Ice::EndpointSelectionTypeParseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::EndpointSelectionTypeParseException";
     return typeId;
@@ -175,7 +175,7 @@ Ice::EndpointSelectionTypeParseException::ice_staticId()
 Ice::VersionParseException::~VersionParseException() {}
 
 std::string_view
-Ice::VersionParseException::ice_staticId()
+Ice::VersionParseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::VersionParseException";
     return typeId;
@@ -184,7 +184,7 @@ Ice::VersionParseException::ice_staticId()
 Ice::IdentityParseException::~IdentityParseException() {}
 
 std::string_view
-Ice::IdentityParseException::ice_staticId()
+Ice::IdentityParseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::IdentityParseException";
     return typeId;
@@ -193,7 +193,7 @@ Ice::IdentityParseException::ice_staticId()
 Ice::ProxyParseException::~ProxyParseException() {}
 
 std::string_view
-Ice::ProxyParseException::ice_staticId()
+Ice::ProxyParseException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ProxyParseException";
     return typeId;
@@ -202,7 +202,7 @@ Ice::ProxyParseException::ice_staticId()
 Ice::IllegalIdentityException::~IllegalIdentityException() {}
 
 std::string_view
-Ice::IllegalIdentityException::ice_staticId()
+Ice::IllegalIdentityException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::IllegalIdentityException";
     return typeId;
@@ -211,7 +211,7 @@ Ice::IllegalIdentityException::ice_staticId()
 Ice::IllegalServantException::~IllegalServantException() {}
 
 std::string_view
-Ice::IllegalServantException::ice_staticId()
+Ice::IllegalServantException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::IllegalServantException";
     return typeId;
@@ -220,7 +220,7 @@ Ice::IllegalServantException::ice_staticId()
 Ice::RequestFailedException::~RequestFailedException() {}
 
 std::string_view
-Ice::RequestFailedException::ice_staticId()
+Ice::RequestFailedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::RequestFailedException";
     return typeId;
@@ -229,7 +229,7 @@ Ice::RequestFailedException::ice_staticId()
 Ice::ObjectNotExistException::~ObjectNotExistException() {}
 
 std::string_view
-Ice::ObjectNotExistException::ice_staticId()
+Ice::ObjectNotExistException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ObjectNotExistException";
     return typeId;
@@ -238,7 +238,7 @@ Ice::ObjectNotExistException::ice_staticId()
 Ice::FacetNotExistException::~FacetNotExistException() {}
 
 std::string_view
-Ice::FacetNotExistException::ice_staticId()
+Ice::FacetNotExistException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::FacetNotExistException";
     return typeId;
@@ -247,7 +247,7 @@ Ice::FacetNotExistException::ice_staticId()
 Ice::OperationNotExistException::~OperationNotExistException() {}
 
 std::string_view
-Ice::OperationNotExistException::ice_staticId()
+Ice::OperationNotExistException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::OperationNotExistException";
     return typeId;
@@ -256,7 +256,7 @@ Ice::OperationNotExistException::ice_staticId()
 Ice::SyscallException::~SyscallException() {}
 
 std::string_view
-Ice::SyscallException::ice_staticId()
+Ice::SyscallException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::SyscallException";
     return typeId;
@@ -265,7 +265,7 @@ Ice::SyscallException::ice_staticId()
 Ice::SocketException::~SocketException() {}
 
 std::string_view
-Ice::SocketException::ice_staticId()
+Ice::SocketException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::SocketException";
     return typeId;
@@ -274,7 +274,7 @@ Ice::SocketException::ice_staticId()
 Ice::CFNetworkException::~CFNetworkException() {}
 
 std::string_view
-Ice::CFNetworkException::ice_staticId()
+Ice::CFNetworkException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CFNetworkException";
     return typeId;
@@ -283,7 +283,7 @@ Ice::CFNetworkException::ice_staticId()
 Ice::FileException::~FileException() {}
 
 std::string_view
-Ice::FileException::ice_staticId()
+Ice::FileException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::FileException";
     return typeId;
@@ -292,7 +292,7 @@ Ice::FileException::ice_staticId()
 Ice::ConnectFailedException::~ConnectFailedException() {}
 
 std::string_view
-Ice::ConnectFailedException::ice_staticId()
+Ice::ConnectFailedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectFailedException";
     return typeId;
@@ -301,7 +301,7 @@ Ice::ConnectFailedException::ice_staticId()
 Ice::ConnectionRefusedException::~ConnectionRefusedException() {}
 
 std::string_view
-Ice::ConnectionRefusedException::ice_staticId()
+Ice::ConnectionRefusedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectionRefusedException";
     return typeId;
@@ -310,7 +310,7 @@ Ice::ConnectionRefusedException::ice_staticId()
 Ice::ConnectionLostException::~ConnectionLostException() {}
 
 std::string_view
-Ice::ConnectionLostException::ice_staticId()
+Ice::ConnectionLostException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectionLostException";
     return typeId;
@@ -319,7 +319,7 @@ Ice::ConnectionLostException::ice_staticId()
 Ice::DNSException::~DNSException() {}
 
 std::string_view
-Ice::DNSException::ice_staticId()
+Ice::DNSException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::DNSException";
     return typeId;
@@ -328,7 +328,7 @@ Ice::DNSException::ice_staticId()
 Ice::OperationInterruptedException::~OperationInterruptedException() {}
 
 std::string_view
-Ice::OperationInterruptedException::ice_staticId()
+Ice::OperationInterruptedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::OperationInterruptedException";
     return typeId;
@@ -337,7 +337,7 @@ Ice::OperationInterruptedException::ice_staticId()
 Ice::TimeoutException::~TimeoutException() {}
 
 std::string_view
-Ice::TimeoutException::ice_staticId()
+Ice::TimeoutException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::TimeoutException";
     return typeId;
@@ -346,7 +346,7 @@ Ice::TimeoutException::ice_staticId()
 Ice::ConnectTimeoutException::~ConnectTimeoutException() {}
 
 std::string_view
-Ice::ConnectTimeoutException::ice_staticId()
+Ice::ConnectTimeoutException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectTimeoutException";
     return typeId;
@@ -355,7 +355,7 @@ Ice::ConnectTimeoutException::ice_staticId()
 Ice::CloseTimeoutException::~CloseTimeoutException() {}
 
 std::string_view
-Ice::CloseTimeoutException::ice_staticId()
+Ice::CloseTimeoutException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CloseTimeoutException";
     return typeId;
@@ -364,7 +364,7 @@ Ice::CloseTimeoutException::ice_staticId()
 Ice::ConnectionTimeoutException::~ConnectionTimeoutException() {}
 
 std::string_view
-Ice::ConnectionTimeoutException::ice_staticId()
+Ice::ConnectionTimeoutException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectionTimeoutException";
     return typeId;
@@ -373,7 +373,7 @@ Ice::ConnectionTimeoutException::ice_staticId()
 Ice::InvocationTimeoutException::~InvocationTimeoutException() {}
 
 std::string_view
-Ice::InvocationTimeoutException::ice_staticId()
+Ice::InvocationTimeoutException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::InvocationTimeoutException";
     return typeId;
@@ -382,7 +382,7 @@ Ice::InvocationTimeoutException::ice_staticId()
 Ice::InvocationCanceledException::~InvocationCanceledException() {}
 
 std::string_view
-Ice::InvocationCanceledException::ice_staticId()
+Ice::InvocationCanceledException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::InvocationCanceledException";
     return typeId;
@@ -391,7 +391,7 @@ Ice::InvocationCanceledException::ice_staticId()
 Ice::ProtocolException::~ProtocolException() {}
 
 std::string_view
-Ice::ProtocolException::ice_staticId()
+Ice::ProtocolException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ProtocolException";
     return typeId;
@@ -400,7 +400,7 @@ Ice::ProtocolException::ice_staticId()
 Ice::BadMagicException::~BadMagicException() {}
 
 std::string_view
-Ice::BadMagicException::ice_staticId()
+Ice::BadMagicException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::BadMagicException";
     return typeId;
@@ -409,7 +409,7 @@ Ice::BadMagicException::ice_staticId()
 Ice::UnsupportedProtocolException::~UnsupportedProtocolException() {}
 
 std::string_view
-Ice::UnsupportedProtocolException::ice_staticId()
+Ice::UnsupportedProtocolException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnsupportedProtocolException";
     return typeId;
@@ -418,7 +418,7 @@ Ice::UnsupportedProtocolException::ice_staticId()
 Ice::UnsupportedEncodingException::~UnsupportedEncodingException() {}
 
 std::string_view
-Ice::UnsupportedEncodingException::ice_staticId()
+Ice::UnsupportedEncodingException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnsupportedEncodingException";
     return typeId;
@@ -427,7 +427,7 @@ Ice::UnsupportedEncodingException::ice_staticId()
 Ice::UnknownMessageException::~UnknownMessageException() {}
 
 std::string_view
-Ice::UnknownMessageException::ice_staticId()
+Ice::UnknownMessageException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownMessageException";
     return typeId;
@@ -436,7 +436,7 @@ Ice::UnknownMessageException::ice_staticId()
 Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException() {}
 
 std::string_view
-Ice::ConnectionNotValidatedException::ice_staticId()
+Ice::ConnectionNotValidatedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectionNotValidatedException";
     return typeId;
@@ -445,7 +445,7 @@ Ice::ConnectionNotValidatedException::ice_staticId()
 Ice::UnknownRequestIdException::~UnknownRequestIdException() {}
 
 std::string_view
-Ice::UnknownRequestIdException::ice_staticId()
+Ice::UnknownRequestIdException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownRequestIdException";
     return typeId;
@@ -454,7 +454,7 @@ Ice::UnknownRequestIdException::ice_staticId()
 Ice::UnknownReplyStatusException::~UnknownReplyStatusException() {}
 
 std::string_view
-Ice::UnknownReplyStatusException::ice_staticId()
+Ice::UnknownReplyStatusException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnknownReplyStatusException";
     return typeId;
@@ -463,7 +463,7 @@ Ice::UnknownReplyStatusException::ice_staticId()
 Ice::CloseConnectionException::~CloseConnectionException() {}
 
 std::string_view
-Ice::CloseConnectionException::ice_staticId()
+Ice::CloseConnectionException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CloseConnectionException";
     return typeId;
@@ -472,7 +472,7 @@ Ice::CloseConnectionException::ice_staticId()
 Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException() {}
 
 std::string_view
-Ice::ConnectionManuallyClosedException::ice_staticId()
+Ice::ConnectionManuallyClosedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ConnectionManuallyClosedException";
     return typeId;
@@ -481,7 +481,7 @@ Ice::ConnectionManuallyClosedException::ice_staticId()
 Ice::IllegalMessageSizeException::~IllegalMessageSizeException() {}
 
 std::string_view
-Ice::IllegalMessageSizeException::ice_staticId()
+Ice::IllegalMessageSizeException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::IllegalMessageSizeException";
     return typeId;
@@ -490,7 +490,7 @@ Ice::IllegalMessageSizeException::ice_staticId()
 Ice::CompressionException::~CompressionException() {}
 
 std::string_view
-Ice::CompressionException::ice_staticId()
+Ice::CompressionException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::CompressionException";
     return typeId;
@@ -499,7 +499,7 @@ Ice::CompressionException::ice_staticId()
 Ice::DatagramLimitException::~DatagramLimitException() {}
 
 std::string_view
-Ice::DatagramLimitException::ice_staticId()
+Ice::DatagramLimitException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::DatagramLimitException";
     return typeId;
@@ -508,7 +508,7 @@ Ice::DatagramLimitException::ice_staticId()
 Ice::MarshalException::~MarshalException() {}
 
 std::string_view
-Ice::MarshalException::ice_staticId()
+Ice::MarshalException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::MarshalException";
     return typeId;
@@ -517,7 +517,7 @@ Ice::MarshalException::ice_staticId()
 Ice::ProxyUnmarshalException::~ProxyUnmarshalException() {}
 
 std::string_view
-Ice::ProxyUnmarshalException::ice_staticId()
+Ice::ProxyUnmarshalException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::ProxyUnmarshalException";
     return typeId;
@@ -526,7 +526,7 @@ Ice::ProxyUnmarshalException::ice_staticId()
 Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException() {}
 
 std::string_view
-Ice::UnmarshalOutOfBoundsException::ice_staticId()
+Ice::UnmarshalOutOfBoundsException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnmarshalOutOfBoundsException";
     return typeId;
@@ -535,7 +535,7 @@ Ice::UnmarshalOutOfBoundsException::ice_staticId()
 Ice::NoValueFactoryException::~NoValueFactoryException() {}
 
 std::string_view
-Ice::NoValueFactoryException::ice_staticId()
+Ice::NoValueFactoryException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::NoValueFactoryException";
     return typeId;
@@ -544,7 +544,7 @@ Ice::NoValueFactoryException::ice_staticId()
 Ice::UnexpectedObjectException::~UnexpectedObjectException() {}
 
 std::string_view
-Ice::UnexpectedObjectException::ice_staticId()
+Ice::UnexpectedObjectException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::UnexpectedObjectException";
     return typeId;
@@ -553,7 +553,7 @@ Ice::UnexpectedObjectException::ice_staticId()
 Ice::MemoryLimitException::~MemoryLimitException() {}
 
 std::string_view
-Ice::MemoryLimitException::ice_staticId()
+Ice::MemoryLimitException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::MemoryLimitException";
     return typeId;
@@ -562,7 +562,7 @@ Ice::MemoryLimitException::ice_staticId()
 Ice::StringConversionException::~StringConversionException() {}
 
 std::string_view
-Ice::StringConversionException::ice_staticId()
+Ice::StringConversionException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::StringConversionException";
     return typeId;
@@ -571,7 +571,7 @@ Ice::StringConversionException::ice_staticId()
 Ice::EncapsulationException::~EncapsulationException() {}
 
 std::string_view
-Ice::EncapsulationException::ice_staticId()
+Ice::EncapsulationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::EncapsulationException";
     return typeId;
@@ -580,7 +580,7 @@ Ice::EncapsulationException::ice_staticId()
 Ice::FeatureNotSupportedException::~FeatureNotSupportedException() {}
 
 std::string_view
-Ice::FeatureNotSupportedException::ice_staticId()
+Ice::FeatureNotSupportedException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::FeatureNotSupportedException";
     return typeId;
@@ -589,7 +589,7 @@ Ice::FeatureNotSupportedException::ice_staticId()
 Ice::SecurityException::~SecurityException() {}
 
 std::string_view
-Ice::SecurityException::ice_staticId()
+Ice::SecurityException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::SecurityException";
     return typeId;
@@ -598,17 +598,8 @@ Ice::SecurityException::ice_staticId()
 Ice::FixedProxyException::~FixedProxyException() {}
 
 std::string_view
-Ice::FixedProxyException::ice_staticId()
+Ice::FixedProxyException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::FixedProxyException";
-    return typeId;
-}
-
-Ice::ResponseSentException::~ResponseSentException() {}
-
-std::string_view
-Ice::ResponseSentException::ice_staticId()
-{
-    static constexpr std::string_view typeId = "::Ice::ResponseSentException";
     return typeId;
 }

@@ -92,7 +92,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(const string& str, const string& propertyPrefix)
+IceInternal::ReferenceFactory::create(string_view str, const string& propertyPrefix)
 {
     if (str.empty())
     {

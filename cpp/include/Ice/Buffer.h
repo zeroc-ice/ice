@@ -13,8 +13,8 @@ namespace IceInternal
     {
     public:
         Buffer() : i(b.begin()) {}
-        Buffer(const std::uint8_t* beg, const std::uint8_t* end) : b(beg, end), i(b.begin()) {}
-        Buffer(const std::vector<std::uint8_t>& v) : b(v), i(b.begin()) {}
+        Buffer(const std::byte* beg, const std::byte* end) : b(beg, end), i(b.begin()) {}
+        Buffer(const std::vector<std::byte>& v) : b(v), i(b.begin()) {}
         Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) {}
 
         void swapBuffer(Buffer&);
@@ -25,14 +25,13 @@ namespace IceInternal
             //
             // Standard vector-like operations.
             //
-
-            typedef std::uint8_t value_type;
-            typedef std::uint8_t* iterator;
-            typedef const std::uint8_t* const_iterator;
-            typedef std::uint8_t& reference;
-            typedef const std::uint8_t& const_reference;
-            typedef std::uint8_t* pointer;
-            typedef size_t size_type;
+            using value_type = std::byte;
+            using iterator = std::byte*;
+            using const_iterator = const std::byte*;
+            using reference = std::byte&;
+            using const_reference = const std::byte&;
+            using pointer = std::byte*;
+            using size_type = size_t;
 
             Container();
             Container(const_iterator, const_iterator);
