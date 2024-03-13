@@ -16,7 +16,7 @@ namespace Ice
     class OutputStream;
     class InputStream;
 
-    typedef IceUtil::Exception Exception;
+    using Exception = IceUtil::Exception;
 
     /**
      * Base class for all Ice user exceptions.

@@ -18,6 +18,7 @@
 #include <Ice/MarshaledResult.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
+#include <Ice/ExceptionHelpers.h> // temporary
 
 #ifndef ICE_BUILDING_GENERATED_CODE
 

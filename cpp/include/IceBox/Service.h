@@ -57,9 +57,9 @@ namespace IceBox
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        FailureException(const char* file, int line, const ::std::string& reason)
+        FailureException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -67,7 +67,7 @@ namespace IceBox
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const ::std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.

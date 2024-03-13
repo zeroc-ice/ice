@@ -6,9 +6,17 @@
 
 using namespace std;
 
-string IceBox::FailureException::ice_id() const { return string{ice_staticId()}; }
+string
+IceBox::FailureException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void IceBox::FailureException::ice_throw() const { throw *this; }
+void
+IceBox::FailureException::ice_throw() const
+{
+    throw *this;
+}
 
 std::string_view
 IceBox::FailureException::ice_staticId() noexcept

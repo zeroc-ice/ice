@@ -31,9 +31,17 @@ Ice::LocalException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::InitializationException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::InitializationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::InitializationException::ice_throw() const { throw *this; }
+void
+Ice::InitializationException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::InitializationException::ice_staticId() noexcept
@@ -42,9 +50,17 @@ Ice::InitializationException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::PluginInitializationException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::PluginInitializationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::PluginInitializationException::ice_throw() const { throw *this; }
+void
+Ice::PluginInitializationException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::PluginInitializationException::ice_staticId() noexcept
@@ -53,9 +69,17 @@ Ice::PluginInitializationException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::AlreadyRegisteredException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::AlreadyRegisteredException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::AlreadyRegisteredException::ice_throw() const { throw *this; }
+void
+Ice::AlreadyRegisteredException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::AlreadyRegisteredException::ice_staticId() noexcept
@@ -64,9 +88,17 @@ Ice::AlreadyRegisteredException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::NotRegisteredException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::NotRegisteredException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::NotRegisteredException::ice_throw() const { throw *this; }
+void
+Ice::NotRegisteredException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::NotRegisteredException::ice_staticId() noexcept
@@ -75,9 +107,17 @@ Ice::NotRegisteredException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::TwowayOnlyException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::TwowayOnlyException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::TwowayOnlyException::ice_throw() const { throw *this; }
+void
+Ice::TwowayOnlyException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::TwowayOnlyException::ice_staticId() noexcept
@@ -86,9 +126,17 @@ Ice::TwowayOnlyException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CloneNotImplementedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CloneNotImplementedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CloneNotImplementedException::ice_throw() const { throw *this; }
+void
+Ice::CloneNotImplementedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CloneNotImplementedException::ice_staticId() noexcept
@@ -97,9 +145,17 @@ Ice::CloneNotImplementedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownException::ice_throw() const { throw *this; }
+void
+Ice::UnknownException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownException::ice_staticId() noexcept
@@ -108,9 +164,17 @@ Ice::UnknownException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownLocalException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownLocalException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownLocalException::ice_throw() const { throw *this; }
+void
+Ice::UnknownLocalException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownLocalException::ice_staticId() noexcept
@@ -119,9 +183,17 @@ Ice::UnknownLocalException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownUserException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownUserException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownUserException::ice_throw() const { throw *this; }
+void
+Ice::UnknownUserException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownUserException::ice_staticId() noexcept
@@ -130,9 +202,17 @@ Ice::UnknownUserException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::VersionMismatchException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::VersionMismatchException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::VersionMismatchException::ice_throw() const { throw *this; }
+void
+Ice::VersionMismatchException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::VersionMismatchException::ice_staticId() noexcept
@@ -141,9 +221,17 @@ Ice::VersionMismatchException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CommunicatorDestroyedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CommunicatorDestroyedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CommunicatorDestroyedException::ice_throw() const { throw *this; }
+void
+Ice::CommunicatorDestroyedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CommunicatorDestroyedException::ice_staticId() noexcept
@@ -152,9 +240,17 @@ Ice::CommunicatorDestroyedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ObjectAdapterDeactivatedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ObjectAdapterDeactivatedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ObjectAdapterDeactivatedException::ice_throw() const { throw *this; }
+void
+Ice::ObjectAdapterDeactivatedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ObjectAdapterDeactivatedException::ice_staticId() noexcept
@@ -163,9 +259,17 @@ Ice::ObjectAdapterDeactivatedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ObjectAdapterIdInUseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ObjectAdapterIdInUseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ObjectAdapterIdInUseException::ice_throw() const { throw *this; }
+void
+Ice::ObjectAdapterIdInUseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ObjectAdapterIdInUseException::ice_staticId() noexcept
@@ -174,9 +278,17 @@ Ice::ObjectAdapterIdInUseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::NoEndpointException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::NoEndpointException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::NoEndpointException::ice_throw() const { throw *this; }
+void
+Ice::NoEndpointException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::NoEndpointException::ice_staticId() noexcept
@@ -185,9 +297,17 @@ Ice::NoEndpointException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::EndpointParseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::EndpointParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::EndpointParseException::ice_throw() const { throw *this; }
+void
+Ice::EndpointParseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::EndpointParseException::ice_staticId() noexcept
@@ -196,9 +316,17 @@ Ice::EndpointParseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::EndpointSelectionTypeParseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::EndpointSelectionTypeParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::EndpointSelectionTypeParseException::ice_throw() const { throw *this; }
+void
+Ice::EndpointSelectionTypeParseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::EndpointSelectionTypeParseException::ice_staticId() noexcept
@@ -207,9 +335,17 @@ Ice::EndpointSelectionTypeParseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::VersionParseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::VersionParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::VersionParseException::ice_throw() const { throw *this; }
+void
+Ice::VersionParseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::VersionParseException::ice_staticId() noexcept
@@ -218,9 +354,17 @@ Ice::VersionParseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::IdentityParseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::IdentityParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::IdentityParseException::ice_throw() const { throw *this; }
+void
+Ice::IdentityParseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::IdentityParseException::ice_staticId() noexcept
@@ -229,9 +373,17 @@ Ice::IdentityParseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ProxyParseException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ProxyParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ProxyParseException::ice_throw() const { throw *this; }
+void
+Ice::ProxyParseException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ProxyParseException::ice_staticId() noexcept
@@ -240,9 +392,17 @@ Ice::ProxyParseException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::IllegalIdentityException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::IllegalIdentityException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::IllegalIdentityException::ice_throw() const { throw *this; }
+void
+Ice::IllegalIdentityException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::IllegalIdentityException::ice_staticId() noexcept
@@ -251,9 +411,17 @@ Ice::IllegalIdentityException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::IllegalServantException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::IllegalServantException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::IllegalServantException::ice_throw() const { throw *this; }
+void
+Ice::IllegalServantException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::IllegalServantException::ice_staticId() noexcept
@@ -262,9 +430,17 @@ Ice::IllegalServantException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::RequestFailedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::RequestFailedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::RequestFailedException::ice_throw() const { throw *this; }
+void
+Ice::RequestFailedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::RequestFailedException::ice_staticId() noexcept
@@ -273,9 +449,17 @@ Ice::RequestFailedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ObjectNotExistException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ObjectNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ObjectNotExistException::ice_throw() const { throw *this; }
+void
+Ice::ObjectNotExistException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ObjectNotExistException::ice_staticId() noexcept
@@ -284,9 +468,17 @@ Ice::ObjectNotExistException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::FacetNotExistException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::FacetNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::FacetNotExistException::ice_throw() const { throw *this; }
+void
+Ice::FacetNotExistException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::FacetNotExistException::ice_staticId() noexcept
@@ -295,9 +487,17 @@ Ice::FacetNotExistException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::OperationNotExistException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::OperationNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::OperationNotExistException::ice_throw() const { throw *this; }
+void
+Ice::OperationNotExistException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::OperationNotExistException::ice_staticId() noexcept
@@ -306,7 +506,7 @@ Ice::OperationNotExistException::ice_staticId() noexcept
     return typeId;
 }
 
-Ice::SyscallException::SyscallException(const char* file, int line)
+Ice::SyscallException::SyscallException(const char* file, int line) noexcept
     : LocalException(file, line),
 #ifdef _WIN32
       error(GetLastError())
@@ -316,9 +516,17 @@ Ice::SyscallException::SyscallException(const char* file, int line)
 {
 }
 
-string Ice::SyscallException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::SyscallException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::SyscallException::ice_throw() const { throw *this; }
+void
+Ice::SyscallException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::SyscallException::ice_staticId() noexcept
@@ -327,9 +535,17 @@ Ice::SyscallException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::SocketException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::SocketException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::SocketException::ice_throw() const { throw *this; }
+void
+Ice::SocketException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::SocketException::ice_staticId() noexcept
@@ -338,9 +554,17 @@ Ice::SocketException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CFNetworkException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CFNetworkException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CFNetworkException::ice_throw() const { throw *this; }
+void
+Ice::CFNetworkException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CFNetworkException::ice_staticId() noexcept
@@ -349,9 +573,17 @@ Ice::CFNetworkException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::FileException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::FileException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::FileException::ice_throw() const { throw *this; }
+void
+Ice::FileException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::FileException::ice_staticId() noexcept
@@ -360,9 +592,17 @@ Ice::FileException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectFailedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectFailedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectFailedException::ice_throw() const { throw *this; }
+void
+Ice::ConnectFailedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectFailedException::ice_staticId() noexcept
@@ -371,9 +611,17 @@ Ice::ConnectFailedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectionRefusedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectionRefusedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectionRefusedException::ice_throw() const { throw *this; }
+void
+Ice::ConnectionRefusedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectionRefusedException::ice_staticId() noexcept
@@ -382,9 +630,17 @@ Ice::ConnectionRefusedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectionLostException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectionLostException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectionLostException::ice_throw() const { throw *this; }
+void
+Ice::ConnectionLostException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectionLostException::ice_staticId() noexcept
@@ -393,9 +649,17 @@ Ice::ConnectionLostException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::DNSException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::DNSException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::DNSException::ice_throw() const { throw *this; }
+void
+Ice::DNSException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::DNSException::ice_staticId() noexcept
@@ -404,9 +668,17 @@ Ice::DNSException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::OperationInterruptedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::OperationInterruptedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::OperationInterruptedException::ice_throw() const { throw *this; }
+void
+Ice::OperationInterruptedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::OperationInterruptedException::ice_staticId() noexcept
@@ -415,9 +687,17 @@ Ice::OperationInterruptedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::TimeoutException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::TimeoutException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::TimeoutException::ice_throw() const { throw *this; }
+void
+Ice::TimeoutException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::TimeoutException::ice_staticId() noexcept
@@ -426,9 +706,17 @@ Ice::TimeoutException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectTimeoutException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectTimeoutException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectTimeoutException::ice_throw() const { throw *this; }
+void
+Ice::ConnectTimeoutException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectTimeoutException::ice_staticId() noexcept
@@ -437,9 +725,17 @@ Ice::ConnectTimeoutException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CloseTimeoutException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CloseTimeoutException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CloseTimeoutException::ice_throw() const { throw *this; }
+void
+Ice::CloseTimeoutException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CloseTimeoutException::ice_staticId() noexcept
@@ -448,9 +744,17 @@ Ice::CloseTimeoutException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectionTimeoutException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectionTimeoutException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectionTimeoutException::ice_throw() const { throw *this; }
+void
+Ice::ConnectionTimeoutException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectionTimeoutException::ice_staticId() noexcept
@@ -459,9 +763,17 @@ Ice::ConnectionTimeoutException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::InvocationTimeoutException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::InvocationTimeoutException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::InvocationTimeoutException::ice_throw() const { throw *this; }
+void
+Ice::InvocationTimeoutException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::InvocationTimeoutException::ice_staticId() noexcept
@@ -470,9 +782,17 @@ Ice::InvocationTimeoutException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::InvocationCanceledException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::InvocationCanceledException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::InvocationCanceledException::ice_throw() const { throw *this; }
+void
+Ice::InvocationCanceledException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::InvocationCanceledException::ice_staticId() noexcept
@@ -481,9 +801,17 @@ Ice::InvocationCanceledException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ProtocolException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ProtocolException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ProtocolException::ice_throw() const { throw *this; }
+void
+Ice::ProtocolException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ProtocolException::ice_staticId() noexcept
@@ -492,9 +820,17 @@ Ice::ProtocolException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::BadMagicException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::BadMagicException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::BadMagicException::ice_throw() const { throw *this; }
+void
+Ice::BadMagicException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::BadMagicException::ice_staticId() noexcept
@@ -503,9 +839,17 @@ Ice::BadMagicException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnsupportedProtocolException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnsupportedProtocolException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnsupportedProtocolException::ice_throw() const { throw *this; }
+void
+Ice::UnsupportedProtocolException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnsupportedProtocolException::ice_staticId() noexcept
@@ -514,9 +858,17 @@ Ice::UnsupportedProtocolException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnsupportedEncodingException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnsupportedEncodingException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnsupportedEncodingException::ice_throw() const { throw *this; }
+void
+Ice::UnsupportedEncodingException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnsupportedEncodingException::ice_staticId() noexcept
@@ -525,9 +877,17 @@ Ice::UnsupportedEncodingException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownMessageException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownMessageException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownMessageException::ice_throw() const { throw *this; }
+void
+Ice::UnknownMessageException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownMessageException::ice_staticId() noexcept
@@ -536,9 +896,17 @@ Ice::UnknownMessageException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectionNotValidatedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectionNotValidatedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectionNotValidatedException::ice_throw() const { throw *this; }
+void
+Ice::ConnectionNotValidatedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectionNotValidatedException::ice_staticId() noexcept
@@ -547,9 +915,17 @@ Ice::ConnectionNotValidatedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownRequestIdException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownRequestIdException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownRequestIdException::ice_throw() const { throw *this; }
+void
+Ice::UnknownRequestIdException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownRequestIdException::ice_staticId() noexcept
@@ -558,9 +934,17 @@ Ice::UnknownRequestIdException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnknownReplyStatusException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnknownReplyStatusException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnknownReplyStatusException::ice_throw() const { throw *this; }
+void
+Ice::UnknownReplyStatusException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnknownReplyStatusException::ice_staticId() noexcept
@@ -569,9 +953,17 @@ Ice::UnknownReplyStatusException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CloseConnectionException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CloseConnectionException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CloseConnectionException::ice_throw() const { throw *this; }
+void
+Ice::CloseConnectionException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CloseConnectionException::ice_staticId() noexcept
@@ -580,9 +972,17 @@ Ice::CloseConnectionException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ConnectionManuallyClosedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ConnectionManuallyClosedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ConnectionManuallyClosedException::ice_throw() const { throw *this; }
+void
+Ice::ConnectionManuallyClosedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ConnectionManuallyClosedException::ice_staticId() noexcept
@@ -591,9 +991,17 @@ Ice::ConnectionManuallyClosedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::IllegalMessageSizeException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::IllegalMessageSizeException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::IllegalMessageSizeException::ice_throw() const { throw *this; }
+void
+Ice::IllegalMessageSizeException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::IllegalMessageSizeException::ice_staticId() noexcept
@@ -602,9 +1010,17 @@ Ice::IllegalMessageSizeException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::CompressionException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::CompressionException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::CompressionException::ice_throw() const { throw *this; }
+void
+Ice::CompressionException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::CompressionException::ice_staticId() noexcept
@@ -613,9 +1029,17 @@ Ice::CompressionException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::DatagramLimitException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::DatagramLimitException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::DatagramLimitException::ice_throw() const { throw *this; }
+void
+Ice::DatagramLimitException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::DatagramLimitException::ice_staticId() noexcept
@@ -624,9 +1048,17 @@ Ice::DatagramLimitException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::MarshalException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::MarshalException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::MarshalException::ice_throw() const { throw *this; }
+void
+Ice::MarshalException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::MarshalException::ice_staticId() noexcept
@@ -635,9 +1067,17 @@ Ice::MarshalException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::ProxyUnmarshalException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::ProxyUnmarshalException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::ProxyUnmarshalException::ice_throw() const { throw *this; }
+void
+Ice::ProxyUnmarshalException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::ProxyUnmarshalException::ice_staticId() noexcept
@@ -646,9 +1086,17 @@ Ice::ProxyUnmarshalException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnmarshalOutOfBoundsException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnmarshalOutOfBoundsException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnmarshalOutOfBoundsException::ice_throw() const { throw *this; }
+void
+Ice::UnmarshalOutOfBoundsException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnmarshalOutOfBoundsException::ice_staticId() noexcept
@@ -657,9 +1105,17 @@ Ice::UnmarshalOutOfBoundsException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::NoValueFactoryException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::NoValueFactoryException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::NoValueFactoryException::ice_throw() const { throw *this; }
+void
+Ice::NoValueFactoryException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::NoValueFactoryException::ice_staticId() noexcept
@@ -668,9 +1124,17 @@ Ice::NoValueFactoryException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::UnexpectedObjectException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::UnexpectedObjectException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::UnexpectedObjectException::ice_throw() const { throw *this; }
+void
+Ice::UnexpectedObjectException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::UnexpectedObjectException::ice_staticId() noexcept
@@ -679,9 +1143,17 @@ Ice::UnexpectedObjectException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::MemoryLimitException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::MemoryLimitException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::MemoryLimitException::ice_throw() const { throw *this; }
+void
+Ice::MemoryLimitException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::MemoryLimitException::ice_staticId() noexcept
@@ -690,9 +1162,17 @@ Ice::MemoryLimitException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::StringConversionException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::StringConversionException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::StringConversionException::ice_throw() const { throw *this; }
+void
+Ice::StringConversionException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::StringConversionException::ice_staticId() noexcept
@@ -701,9 +1181,17 @@ Ice::StringConversionException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::EncapsulationException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::EncapsulationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::EncapsulationException::ice_throw() const { throw *this; }
+void
+Ice::EncapsulationException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::EncapsulationException::ice_staticId() noexcept
@@ -712,9 +1200,17 @@ Ice::EncapsulationException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::FeatureNotSupportedException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::FeatureNotSupportedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::FeatureNotSupportedException::ice_throw() const { throw *this; }
+void
+Ice::FeatureNotSupportedException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::FeatureNotSupportedException::ice_staticId() noexcept
@@ -723,9 +1219,17 @@ Ice::FeatureNotSupportedException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::SecurityException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::SecurityException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::SecurityException::ice_throw() const { throw *this; }
+void
+Ice::SecurityException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::SecurityException::ice_staticId() noexcept
@@ -734,9 +1238,17 @@ Ice::SecurityException::ice_staticId() noexcept
     return typeId;
 }
 
-string Ice::FixedProxyException::ice_id() const { return string{ice_staticId()}; }
+string
+Ice::FixedProxyException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void Ice::FixedProxyException::ice_throw() const { throw *this; }
+void
+Ice::FixedProxyException::ice_throw() const
+{
+    throw *this;
+}
 
 string_view
 Ice::FixedProxyException::ice_staticId() noexcept

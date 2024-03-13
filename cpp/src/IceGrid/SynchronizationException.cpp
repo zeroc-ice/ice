@@ -8,9 +8,17 @@
 
 using namespace std;
 
-string IceGrid::SynchronizationException::ice_id() const { return string{ice_staticId()}; }
+string
+IceGrid::SynchronizationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
 
-void IceGrid::SynchronizationException::ice_throw() const { throw *this; }
+void
+IceGrid::SynchronizationException::ice_throw() const
+{
+    throw *this;
+}
 
 std::string_view
 IceGrid::SynchronizationException::ice_staticId() noexcept

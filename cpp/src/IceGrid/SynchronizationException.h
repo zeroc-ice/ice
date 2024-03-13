@@ -16,12 +16,6 @@ namespace IceGrid
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */

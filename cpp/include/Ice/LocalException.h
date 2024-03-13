@@ -6,13 +6,19 @@
 #define ICE_LOCAL_EXCEPTION_H
 
 #include "Exception.h"
-#include "ExceptionHelpers.h" // TODO: remove
 #include "Ice/BuiltinSequences.h"
-#include <string>
+#include "Ice/Identity.h"
+#include "Protocol.h"
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#include <string>
+#include <utility>
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace Ice
@@ -49,9 +55,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        InitializationException(const char* file, int line, const std::string& reason)
+        InitializationException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -59,7 +65,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -77,7 +83,6 @@ namespace Ice
          * The reason for the failure.
          */
         std::string reason;
-
     };
 
     /**
@@ -96,9 +101,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        PluginInitializationException(const char* file, int line, const std::string& reason)
+        PluginInitializationException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -106,7 +111,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -124,7 +129,6 @@ namespace Ice
          * The reason for the failure.
          */
         std::string reason;
-
     };
 
     /**
@@ -148,10 +152,10 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that is registered already.
          */
-        AlreadyRegisteredException(const char* file, int line, const std::string& kindOfObject, const std::string& id)
+        AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
             : LocalException(file, line),
-              kindOfObject(kindOfObject),
-              id(id)
+              kindOfObject(std::move(kindOfObject)),
+              id(std::move(id))
         {
         }
 
@@ -159,7 +163,10 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const { return std::tie(kindOfObject, id); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
+        {
+            return std::tie(kindOfObject, id);
+        }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -183,7 +190,6 @@ namespace Ice
          * The ID (or name) of the object that is registered already.
          */
         std::string id;
-
     };
 
     /**
@@ -208,10 +214,10 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that could not be removed.
          */
-        NotRegisteredException(const char* file, int line, const std::string& kindOfObject, const std::string& id)
+        NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
             : LocalException(file, line),
-              kindOfObject(kindOfObject),
-              id(id)
+              kindOfObject(std::move(kindOfObject)),
+              id(std::move(id))
         {
         }
 
@@ -219,7 +225,10 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const { return std::tie(kindOfObject, id); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
+        {
+            return std::tie(kindOfObject, id);
+        }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -243,7 +252,6 @@ namespace Ice
          * The ID (or name) of the object that could not be removed.
          */
         std::string id;
-
     };
 
     /**
@@ -264,7 +272,7 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param operation The name of the operation that was invoked.
          */
-        TwowayOnlyException(const char* file, int line, std::string operation)
+        TwowayOnlyException(const char* file, int line, std::string operation) noexcept
             : LocalException(file, line),
               operation(std::move(operation))
         {
@@ -274,7 +282,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(operation); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(operation); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -292,7 +300,6 @@ namespace Ice
          * The name of the operation that was invoked.
          */
         std::string operation;
-
     };
 
     /**
@@ -308,12 +315,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -324,7 +325,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -345,9 +345,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param unknown This field is set to the textual representation of the unknown exception if available.
          */
-        UnknownException(const char* file, int line, const std::string& unknown)
+        UnknownException(const char* file, int line, std::string unknown) noexcept
             : LocalException(file, line),
-              unknown(unknown)
+              unknown(std::move(unknown))
         {
         }
 
@@ -355,7 +355,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(unknown); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unknown); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -373,7 +373,6 @@ namespace Ice
          * This field is set to the textual representation of the unknown exception if available.
          */
         std::string unknown;
-
     };
 
     /**
@@ -390,24 +389,6 @@ namespace Ice
         using UnknownException::UnknownException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownLocalException(const char* file, int line, const std::string& unknown)
-            : UnknownException(file, line, unknown)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(unknown); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -418,7 +399,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -435,24 +415,6 @@ namespace Ice
         using UnknownException::UnknownException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownUserException(const char* file, int line, const std::string& unknown)
-            : UnknownException(file, line, unknown)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(unknown); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -463,7 +425,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -476,12 +437,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -492,7 +447,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -506,12 +460,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -522,7 +470,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -543,9 +490,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param name Name of the adapter.
          */
-        ObjectAdapterDeactivatedException(const char* file, int line, const std::string& name)
+        ObjectAdapterDeactivatedException(const char* file, int line, std::string name) noexcept
             : LocalException(file, line),
-              name(name)
+              name(std::move(name))
         {
         }
 
@@ -553,7 +500,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(name); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(name); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -571,7 +518,6 @@ namespace Ice
          * Name of the adapter.
          */
         std::string name;
-
     };
 
     /**
@@ -591,9 +537,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param id Adapter ID.
          */
-        ObjectAdapterIdInUseException(const char* file, int line, const std::string& id)
+        ObjectAdapterIdInUseException(const char* file, int line, std::string id) noexcept
             : LocalException(file, line),
-              id(id)
+              id(std::move(id))
         {
         }
 
@@ -601,7 +547,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(id); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(id); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -619,7 +565,6 @@ namespace Ice
          * Adapter ID.
          */
         std::string id;
-
     };
 
     /**
@@ -638,9 +583,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param proxy The stringified proxy for which no suitable endpoint is available.
          */
-        NoEndpointException(const char* file, int line, const std::string& proxy)
+        NoEndpointException(const char* file, int line, std::string proxy) noexcept
             : LocalException(file, line),
-              proxy(proxy)
+              proxy(std::move(proxy))
         {
         }
 
@@ -648,7 +593,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(proxy); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(proxy); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -666,7 +611,6 @@ namespace Ice
          * The stringified proxy for which no suitable endpoint is available.
          */
         std::string proxy;
-
     };
 
     /**
@@ -685,9 +629,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        EndpointParseException(const char* file, int line, const std::string& str)
+        EndpointParseException(const char* file, int line, std::string str) noexcept
             : LocalException(file, line),
-              str(str)
+              str(std::move(str))
         {
         }
 
@@ -695,7 +639,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -713,7 +657,6 @@ namespace Ice
          * Describes the failure and includes the string that could not be parsed.
          */
         std::string str;
-
     };
 
     /**
@@ -732,9 +675,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        EndpointSelectionTypeParseException(const char* file, int line, const std::string& str)
+        EndpointSelectionTypeParseException(const char* file, int line, std::string str) noexcept
             : LocalException(file, line),
-              str(str)
+              str(std::move(str))
         {
         }
 
@@ -742,7 +685,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -760,7 +703,6 @@ namespace Ice
          * Describes the failure and includes the string that could not be parsed.
          */
         std::string str;
-
     };
 
     /**
@@ -779,7 +721,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        VersionParseException(const char* file, int line, const std::string& str) : LocalException(file, line), str(str)
+        VersionParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -787,7 +731,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -805,7 +749,6 @@ namespace Ice
          * Describes the failure and includes the string that could not be parsed.
          */
         std::string str;
-
     };
 
     /**
@@ -824,9 +767,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        IdentityParseException(const char* file, int line, const std::string& str)
+        IdentityParseException(const char* file, int line, std::string str) noexcept
             : LocalException(file, line),
-              str(str)
+              str(std::move(str))
         {
         }
 
@@ -834,7 +777,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -852,7 +795,6 @@ namespace Ice
          * Describes the failure and includes the string that could not be parsed.
          */
         std::string str;
-
     };
 
     /**
@@ -871,7 +813,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        ProxyParseException(const char* file, int line, const std::string& str) : LocalException(file, line), str(str)
+        ProxyParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -879,7 +823,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -897,7 +841,6 @@ namespace Ice
          * Describes the failure and includes the string that could not be parsed.
          */
         std::string str;
-
     };
 
     /**
@@ -910,12 +853,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -926,7 +863,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -945,9 +881,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason Describes why this servant is illegal.
          */
-        IllegalServantException(const char* file, int line, const std::string& reason)
+        IllegalServantException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -955,7 +891,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -973,7 +909,6 @@ namespace Ice
          * Describes why this servant is illegal.
          */
         std::string reason;
-
     };
 
     /**
@@ -999,13 +934,13 @@ namespace Ice
         RequestFailedException(
             const char* file,
             int line,
-            const Identity& id,
-            const std::string& facet,
-            const std::string& operation)
+            Identity id,
+            std::string facet,
+            std::string operation) noexcept
             : LocalException(file, line),
-              id(id),
-              facet(facet),
-              operation(operation)
+              id(std::move(id)),
+              facet(std::move(facet)),
+              operation(std::move(operation))
         {
         }
 
@@ -1013,7 +948,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::Ice::Identity&, const std::string&, const std::string&> ice_tuple() const
+        std::tuple<const Identity&, const std::string&, const std::string&> ice_tuple() const noexcept
         {
             return std::tie(id, facet, operation);
         }
@@ -1033,7 +968,7 @@ namespace Ice
         /**
          * The identity of the Ice Object to which the request was sent.
          */
-        ::Ice::Identity id;
+        Identity id;
         /**
          * The facet to which the request was sent.
          */
@@ -1042,7 +977,6 @@ namespace Ice
          * The operation name of the request.
          */
         std::string operation;
-
     };
 
     /**
@@ -1056,34 +990,6 @@ namespace Ice
         using RequestFailedException::RequestFailedException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        ObjectNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const std::string& facet,
-            const std::string& operation)
-            : RequestFailedException(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const std::string&, const std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1094,7 +1000,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1108,34 +1013,6 @@ namespace Ice
         using RequestFailedException::RequestFailedException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        FacetNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const std::string& facet,
-            const std::string& operation)
-            : RequestFailedException(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const std::string&, const std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1146,7 +1023,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1159,34 +1035,6 @@ namespace Ice
         using RequestFailedException::RequestFailedException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        OperationNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const std::string& facet,
-            const std::string& operation)
-            : RequestFailedException(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const std::string&, const std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1197,7 +1045,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1217,7 +1064,7 @@ namespace Ice
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
-        SyscallException(const char* file, int line);
+        SyscallException(const char* file, int line) noexcept;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1226,13 +1073,13 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param error The error number describing the system exception.
          */
-        SyscallException(const char* file, int line, int error) : LocalException(file, line), error(error) {}
+        SyscallException(const char* file, int line, int error) noexcept : LocalException(file, line), error(error) {}
 
         /**
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        std::tuple<const int&> ice_tuple() const noexcept { return std::tie(error); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1252,7 +1099,6 @@ namespace Ice
          * <code>WSAGetLastError()</code>.
          */
         int error = 0;
-
     };
 
     /**
@@ -1265,21 +1111,6 @@ namespace Ice
         using SyscallException::SyscallException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        SocketException(const char* file, int line, int error) : SyscallException(file, line, error) {}
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1290,7 +1121,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1310,9 +1140,9 @@ namespace Ice
          * @param error The error number describing the system exception.
          * @param domain The domain of the error.
          */
-        CFNetworkException(const char* file, int line, int error, const std::string& domain)
+        CFNetworkException(const char* file, int line, int error, std::string domain) noexcept
             : SocketException(file, line, error),
-              domain(domain)
+              domain(std::move(domain))
         {
         }
 
@@ -1320,7 +1150,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const std::string&> ice_tuple() const { return std::tie(error, domain); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, domain); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1338,7 +1168,6 @@ namespace Ice
          * The domain of the error.
          */
         std::string domain;
-
     };
 
     /**
@@ -1357,9 +1186,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param path The path of the file responsible for the error.
          */
-        FileException(const char* file, int line, const ::std::string& path)
+        FileException(const char* file, int line, std::string path) noexcept
             : SyscallException(file, line),
-              path(path)
+              path(std::move(path))
         {
         }
 
@@ -1367,7 +1196,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const std::string&> ice_tuple() const { return std::tie(error, path); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, path); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1385,7 +1214,6 @@ namespace Ice
          * The path of the file responsible for the error.
          */
         std::string path;
-
     };
 
     /**
@@ -1398,21 +1226,6 @@ namespace Ice
         using SocketException::SocketException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectFailedException(const char* file, int line, int error) : SocketException(file, line, error) {}
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1423,7 +1236,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1436,21 +1248,6 @@ namespace Ice
         using ConnectFailedException::ConnectFailedException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectionRefusedException(const char* file, int line, int error) : ConnectFailedException(file, line, error) {}
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1461,7 +1258,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1474,21 +1270,6 @@ namespace Ice
         using SocketException::SocketException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectionLostException(const char* file, int line, int error) : SocketException(file, line, error) {}
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1499,7 +1280,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1519,10 +1299,10 @@ namespace Ice
          * @param error The error number describing the DNS problem.
          * @param host The host name that could not be resolved.
          */
-        DNSException(const char* file, int line, int error, const std::string& host)
+        DNSException(const char* file, int line, int error, std::string host) noexcept
             : LocalException(file, line),
               error(error),
-              host(host)
+              host(std::move(host))
         {
         }
 
@@ -1530,7 +1310,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const std::string&> ice_tuple() const { return std::tie(error, host); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, host); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1553,7 +1333,6 @@ namespace Ice
          * The host name that could not be resolved.
          */
         std::string host;
-
     };
 
     /**
@@ -1566,12 +1345,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1582,7 +1355,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1595,12 +1367,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1611,7 +1377,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1624,12 +1389,6 @@ namespace Ice
         using TimeoutException::TimeoutException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1640,7 +1399,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1653,12 +1411,6 @@ namespace Ice
         using TimeoutException::TimeoutException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1669,7 +1421,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1682,12 +1433,6 @@ namespace Ice
         using TimeoutException::TimeoutException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1698,7 +1443,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1711,12 +1455,6 @@ namespace Ice
         using TimeoutException::TimeoutException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1727,7 +1465,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1740,12 +1477,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -1756,7 +1487,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -1775,9 +1505,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        ProtocolException(const char* file, int line, const std::string& reason)
+        ProtocolException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -1785,7 +1515,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1803,7 +1533,6 @@ namespace Ice
          * The reason for the failure.
          */
         std::string reason;
-
     };
 
     /**
@@ -1823,9 +1552,9 @@ namespace Ice
          * @param reason The reason for the failure.
          * @param badMagic A sequence containing the first four bytes of the incorrect message.
          */
-        BadMagicException(const char* file, int line, const std::string& reason, const ByteSeq& badMagic)
-            : ProtocolException(file, line, reason),
-              badMagic(badMagic)
+        BadMagicException(const char* file, int line, std::string reason, ByteSeq badMagic) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              badMagic(std::move(badMagic))
         {
         }
 
@@ -1833,7 +1562,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const ::Ice::ByteSeq&> ice_tuple() const { return std::tie(reason, badMagic); }
+        std::tuple<const std::string&, const ByteSeq&> ice_tuple() const noexcept { return std::tie(reason, badMagic); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -1850,8 +1579,7 @@ namespace Ice
         /**
          * A sequence containing the first four bytes of the incorrect message.
          */
-        ::Ice::ByteSeq badMagic;
-
+        ByteSeq badMagic;
     };
 
     /**
@@ -1875,12 +1603,12 @@ namespace Ice
         UnsupportedProtocolException(
             const char* file,
             int line,
-            const std::string& reason,
-            const ProtocolVersion& bad,
-            const ProtocolVersion& supported)
-            : ProtocolException(file, line, reason),
-              bad(bad),
-              supported(supported)
+            std::string reason,
+            ProtocolVersion bad,
+            ProtocolVersion supported) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              bad(std::move(bad)),
+              supported(std::move(supported))
         {
         }
 
@@ -1888,7 +1616,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const ::Ice::ProtocolVersion&, const ::Ice::ProtocolVersion&> ice_tuple() const
+        std::tuple<const std::string&, const ProtocolVersion&, const ProtocolVersion&> ice_tuple() const noexcept
         {
             return std::tie(reason, bad, supported);
         }
@@ -1908,12 +1636,11 @@ namespace Ice
         /**
          * The version of the unsupported protocol.
          */
-        ::Ice::ProtocolVersion bad;
+        ProtocolVersion bad;
         /**
          * The version of the protocol that is supported.
          */
-        ::Ice::ProtocolVersion supported;
-
+        ProtocolVersion supported;
     };
 
     /**
@@ -1937,12 +1664,12 @@ namespace Ice
         UnsupportedEncodingException(
             const char* file,
             int line,
-            const std::string& reason,
-            const EncodingVersion& bad,
-            const EncodingVersion& supported)
-            : ProtocolException(file, line, reason),
-              bad(bad),
-              supported(supported)
+            std::string reason,
+            EncodingVersion bad,
+            EncodingVersion supported) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              bad(std::move(bad)),
+              supported(std::move(supported))
         {
         }
 
@@ -1950,7 +1677,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const ::Ice::EncodingVersion&, const ::Ice::EncodingVersion&> ice_tuple() const
+        std::tuple<const std::string&, const EncodingVersion&, const EncodingVersion&> ice_tuple() const noexcept
         {
             return std::tie(reason, bad, supported);
         }
@@ -1970,12 +1697,11 @@ namespace Ice
         /**
          * The version of the unsupported encoding.
          */
-        ::Ice::EncodingVersion bad;
+        EncodingVersion bad;
         /**
          * The version of the encoding that is supported.
          */
-        ::Ice::EncodingVersion supported;
-
+        EncodingVersion supported;
     };
 
     /**
@@ -1988,24 +1714,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownMessageException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2016,7 +1724,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2029,24 +1736,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        ConnectionNotValidatedException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2057,7 +1746,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2070,24 +1758,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownRequestIdException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2098,7 +1768,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2111,24 +1780,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownReplyStatusException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2139,7 +1790,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2155,24 +1805,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        CloseConnectionException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2183,7 +1815,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2204,7 +1835,7 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param graceful True if the connection was closed gracefully, false otherwise.
          */
-        ConnectionManuallyClosedException(const char* file, int line, bool graceful)
+        ConnectionManuallyClosedException(const char* file, int line, bool graceful) noexcept
             : LocalException(file, line),
               graceful(graceful)
         {
@@ -2214,7 +1845,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const bool&> ice_tuple() const { return std::tie(graceful); }
+        std::tuple<const bool&> ice_tuple() const noexcept { return std::tie(graceful); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -2232,7 +1863,6 @@ namespace Ice
          * True if the connection was closed gracefully, false otherwise.
          */
         bool graceful;
-
     };
 
     /**
@@ -2245,24 +1875,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        IllegalMessageSizeException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2273,7 +1885,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2286,24 +1897,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        CompressionException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2314,7 +1907,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2328,24 +1920,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        DatagramLimitException(const char* file, int line, const std::string& reason)
-            : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2356,7 +1930,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2369,23 +1942,6 @@ namespace Ice
         using ProtocolException::ProtocolException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        MarshalException(const char* file, int line, const std::string& reason) : ProtocolException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2396,7 +1952,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2409,24 +1964,6 @@ namespace Ice
         using MarshalException::MarshalException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        ProxyUnmarshalException(const char* file, int line, const std::string& reason)
-            : MarshalException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2437,7 +1974,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2450,24 +1986,6 @@ namespace Ice
         using MarshalException::MarshalException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnmarshalOutOfBoundsException(const char* file, int line, const std::string& reason)
-            : MarshalException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2478,7 +1996,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2502,9 +2019,9 @@ namespace Ice
          * @param reason The reason for the failure.
          * @param type The Slice type ID of the class instance for which no factory could be found.
          */
-        NoValueFactoryException(const char* file, int line, const std::string& reason, const std::string& type)
-            : MarshalException(file, line, reason),
-              type(type)
+        NoValueFactoryException(const char* file, int line, std::string reason, std::string type) noexcept
+            : MarshalException(file, line, std::move(reason)),
+              type(std::move(type))
         {
         }
 
@@ -2512,7 +2029,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const { return std::tie(reason, type); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept { return std::tie(reason, type); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -2530,7 +2047,6 @@ namespace Ice
          * The Slice type ID of the class instance for which no factory could be found.
          */
         std::string type;
-
     };
 
     /**
@@ -2557,12 +2073,12 @@ namespace Ice
         UnexpectedObjectException(
             const char* file,
             int line,
-            const std::string& reason,
-            const std::string& type,
-            const std::string& expectedType)
-            : MarshalException(file, line, reason),
-              type(type),
-              expectedType(expectedType)
+            std::string reason,
+            std::string type,
+            std::string expectedType) noexcept
+            : MarshalException(file, line, std::move(reason)),
+              type(std::move(type)),
+              expectedType(std::move(expectedType))
         {
         }
 
@@ -2570,7 +2086,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&, const std::string&, const std::string&> ice_tuple() const
+        std::tuple<const std::string&, const std::string&, const std::string&> ice_tuple() const noexcept
         {
             return std::tie(reason, type, expectedType);
         }
@@ -2595,7 +2111,6 @@ namespace Ice
          * The Slice type ID that was expected by the receiving operation.
          */
         std::string expectedType;
-
     };
 
     /**
@@ -2608,24 +2123,6 @@ namespace Ice
         using MarshalException::MarshalException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        MemoryLimitException(const char* file, int line, const std::string& reason)
-            : MarshalException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2636,7 +2133,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2649,24 +2145,6 @@ namespace Ice
         using MarshalException::MarshalException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        StringConversionException(const char* file, int line, const std::string& reason)
-            : MarshalException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2677,7 +2155,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2690,24 +2167,6 @@ namespace Ice
         using MarshalException::MarshalException;
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        EncapsulationException(const char* file, int line, const std::string& reason)
-            : MarshalException(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2718,7 +2177,6 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 
     /**
@@ -2737,9 +2195,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param unsupportedFeature The name of the unsupported feature.
          */
-        FeatureNotSupportedException(const char* file, int line, const std::string& unsupportedFeature)
+        FeatureNotSupportedException(const char* file, int line, std::string unsupportedFeature) noexcept
             : LocalException(file, line),
-              unsupportedFeature(unsupportedFeature)
+              unsupportedFeature(std::move(unsupportedFeature))
         {
         }
 
@@ -2747,7 +2205,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(unsupportedFeature); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unsupportedFeature); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -2765,7 +2223,6 @@ namespace Ice
          * The name of the unsupported feature.
          */
         std::string unsupportedFeature;
-
     };
 
     /**
@@ -2784,9 +2241,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        SecurityException(const char* file, int line, const std::string& reason)
+        SecurityException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -2794,7 +2251,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
@@ -2812,7 +2269,6 @@ namespace Ice
          * The reason for the failure.
          */
         std::string reason;
-
     };
 
     /**
@@ -2825,12 +2281,6 @@ namespace Ice
         using LocalException::LocalException;
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -2841,12 +2291,13 @@ namespace Ice
         void ice_print(std::ostream& stream) const override;
 
         void ice_throw() const override;
-
     };
 }
 
-#ifdef __clang__
-#pragma clang diagnostic pop
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
 #endif
 
 #endif

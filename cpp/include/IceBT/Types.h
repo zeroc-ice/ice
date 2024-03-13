@@ -32,8 +32,7 @@ namespace IceBT
      * Indicates a failure in the Bluetooth plug-in.
      * \headerfile IceBT/IceBT.h
      */
-    class ICEBT_API BluetoothException
-        : public Ice::LocalException
+    class ICEBT_API BluetoothException : public Ice::LocalException
     {
     public:
         using LocalException::LocalException;
@@ -45,9 +44,9 @@ namespace IceBT
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason Provides more information about the failure.
          */
-        BluetoothException(const char* file, int line, const ::std::string& reason)
+        BluetoothException(const char* file, int line, std::string reason) noexcept
             : LocalException(file, line),
-              reason(reason)
+              reason(std::move(reason))
         {
         }
 
@@ -55,18 +54,22 @@ namespace IceBT
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const ::std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICEBT_API) static ::std::string_view ice_staticId() noexcept;
+        static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
          */
-        ICE_MEMBER(ICEBT_API) virtual void ice_print(::std::ostream& stream) const override;
+        void ice_print(std::ostream& stream) const override;
+
+        std::string ice_id() const override;
+
+        void ice_throw() const override;
 
         /**
          * Provides more information about the failure.
