@@ -2854,13 +2854,6 @@ IceRuby::ExceptionReader::ice_id() const
     return _info->id;
 }
 
-Ice::UserException*
-IceRuby::ExceptionReader::ice_cloneImpl() const
-{
-    assert(false);
-    return 0;
-}
-
 void
 IceRuby::ExceptionReader::ice_throw() const
 {

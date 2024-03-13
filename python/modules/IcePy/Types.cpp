@@ -4038,12 +4038,6 @@ IcePy::ExceptionWriter::ice_id() const
     return _info->id;
 }
 
-Ice::UserException*
-IcePy::ExceptionWriter::ice_cloneImpl() const
-{
-    return new ExceptionWriter(*this);
-}
-
 void
 IcePy::ExceptionWriter::ice_throw() const
 {
@@ -4085,13 +4079,6 @@ string
 IcePy::ExceptionReader::ice_id() const
 {
     return _info->id;
-}
-
-Ice::UserException*
-IcePy::ExceptionReader::ice_cloneImpl() const
-{
-    assert(false);
-    return 0;
 }
 
 void

@@ -10,22 +10,10 @@
 
 namespace IceStorm
 {
-    class SendQueueSizeMaxReached : public ::Ice::LocalExceptionHelper<SendQueueSizeMaxReached, ::Ice::LocalException>
+    class SendQueueSizeMaxReached : public Ice::LocalException
     {
     public:
-        virtual ~SendQueueSizeMaxReached();
-
-        SendQueueSizeMaxReached(const SendQueueSizeMaxReached&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        SendQueueSizeMaxReached(const char* file, int line)
-            : ::Ice::::Ice::LocalException(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * Obtains a tuple containing all of the exception's data members.
@@ -38,5 +26,9 @@ namespace IceStorm
          * @return The fully-scoped type ID.
          */
         static ::std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_throw() const override;
     };
 }

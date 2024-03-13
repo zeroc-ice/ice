@@ -550,11 +550,6 @@ IceUtil::Exception::ice_stackTrace() const
     return getStackTrace(_stackFrames);
 }
 
-unique_ptr<IceUtil::Exception>
-IceUtil::Exception::ice_clone() const
-{
-    return unique_ptr<Exception>(ice_cloneImpl());
-}
 ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 {

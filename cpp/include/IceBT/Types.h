@@ -32,23 +32,11 @@ namespace IceBT
      * Indicates a failure in the Bluetooth plug-in.
      * \headerfile IceBT/IceBT.h
      */
-    class ICE_CLASS(ICEBT_API) BluetoothException
-        : public ::Ice::LocalExceptionHelper<BluetoothException, ::Ice::LocalException>
+    class ICEBT_API BluetoothException
+        : public Ice::LocalException
     {
     public:
-        ICE_MEMBER(ICEBT_API) virtual ~BluetoothException();
-
-        BluetoothException(const BluetoothException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        BluetoothException(const char* file, int line)
-            : ::Ice::::Ice::LocalException(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -58,7 +46,7 @@ namespace IceBT
          * @param reason Provides more information about the failure.
          */
         BluetoothException(const char* file, int line, const ::std::string& reason)
-            : ::Ice::::Ice::LocalException(file, line),
+            : LocalException(file, line),
               reason(reason)
         {
         }

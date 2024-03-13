@@ -3229,13 +3229,6 @@ IcePHP::ExceptionReader::ice_id() const
     return _info->id;
 }
 
-IcePHP::ExceptionReader*
-IcePHP::ExceptionReader::ice_cloneImpl() const
-{
-    assert(false);
-    return 0;
-}
-
 void
 IcePHP::ExceptionReader::ice_throw() const
 {

@@ -56,7 +56,7 @@ namespace IceUtil
          * Returns a shallow polymorphic copy of this exception.
          * @return A unique_ptr to the new shallow copy.
          */
-        std::unique_ptr<Exception> ice_clone() const;
+        // std::unique_ptr<Exception> ice_clone() const;
 
         /**
          * Throws this exception.
@@ -81,11 +81,6 @@ namespace IceUtil
          */
         std::string ice_stackTrace() const;
 
-    protected:
-        /// \cond INTERNAL
-        virtual Exception* ice_cloneImpl() const = 0;
-        /// \endcond
-
     private:
         const char* _file;
         int _line;
@@ -107,14 +102,7 @@ namespace IceUtil
     public:
         using B::B;
 
-        std::unique_ptr<E> ice_clone() const { return std::unique_ptr<E>(static_cast<E*>(ice_cloneImpl())); }
-
         virtual void ice_throw() const override { throw static_cast<const E&>(*this); }
-
-    protected:
-        /// \cond INTERNAL
-        virtual Exception* ice_cloneImpl() const override { return new E(static_cast<const E&>(*this)); }
-        /// \endcond
     };
 
     /**

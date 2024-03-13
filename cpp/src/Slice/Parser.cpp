@@ -59,12 +59,6 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-Slice::CompilerException*
-Slice::CompilerException::ice_cloneImpl() const
-{
-    return new CompilerException(*this);
-}
-
 void
 Slice::CompilerException::ice_throw() const
 {
