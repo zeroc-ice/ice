@@ -1545,7 +1545,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static ::std::string_view ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId() noexcept;";
 
     if (!bases.empty())
     {
@@ -1574,8 +1574,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
     H << sb << eb;
     H << sp;
-    H << nl << prx
-      << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, const ::std::string& proxyString) :";
+    H << nl << prx << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, std::string_view proxyString) :";
     H.inc();
     H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
     H.dec();
@@ -1621,7 +1620,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
     C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
@@ -1993,7 +1992,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
 Slice::Gen::DataDefVisitor::DataDefVisitor(
     IceUtilInternal::Output& h,
     IceUtilInternal::Output& c,
-    const std::string& dllExport)
+    const string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2086,7 +2085,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     vector<string> params;
     vector<string> allParamDecls;
-    vector<string> baseParams;
     map<string, CommentPtr> allComments;
 
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2096,7 +2094,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
+        string typeName = typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
         allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
 
         CommentPtr comment = (*q)->parseComment(false);
@@ -2109,10 +2107,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (base)
     {
         baseDataMembers = base->allDataMembers();
-        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-        {
-            baseParams.push_back(fixKwd((*q)->name()));
-        }
     }
 
     string helperClass = getUnqualified("::Ice::UserExceptionHelper", scope);
@@ -2129,18 +2123,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "public:";
     H.inc();
 
-    // Out of line dtor to avoid weak vtable
-    H << sp << nl << _dllMemberExport << "virtual ~" << name << "();";
-
+    H << sp << nl << name << "() noexcept = default;";
     // Default copy ctor
     H << sp << nl << name << "(const " << name << "&) = default;";
-
-    C << sp;
-    C << nl << scoped.substr(2) << "::~" << name << "()";
-    C << sb;
-    C << eb;
-
-    H << sp << nl << name << "() = default;";
 
     if (!allDataMembers.empty())
     {
@@ -2166,7 +2151,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             H << (*q);
         }
-        H << ") :";
+        H << ") noexcept :";
         H.inc();
         if (base || !baseDataMembers.empty())
         {
@@ -2178,7 +2163,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 {
                     H << ", ";
                 }
-                H << fixKwd((*q)->name());
+                string memberName = fixKwd((*q)->name());
+                TypePtr memberType = (*q)->type();
+                H << condMove(isMovable(memberType), memberName);
             }
 
             H << ")";
@@ -2191,11 +2178,13 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             string memberName = fixKwd((*q)->name());
+            TypePtr memberType = (*q)->type();
+
             if (q != dataMembers.begin())
             {
                 H << ",";
             }
-            H << nl << memberName << "(" << memberName << ")";
+            H << nl << memberName << "(" << condMove(isMovable(memberType), memberName) << ")";
         }
 
         H.dec();
@@ -2215,9 +2204,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
 
-    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
     C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
@@ -2319,13 +2308,6 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:" << sp;
     H.inc();
 
-    // Out of line dtor to avoid weak vtable
-    H << nl << _dllMemberExport << "virtual ~" << name << "();";
-    C << sp;
-    C << nl << scoped.substr(2) << "::~" << name << "()";
-    C << sb;
-    C << eb;
-
     vector<string> params;
 
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2333,9 +2315,8 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
         params.push_back(fixKwd((*q)->name()));
     }
 
-    H << sp << nl << name << "() = default;";
-
-    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << nl << name << "() = default;";
+    H << nl << name << "(const " << name << "&) = default;";
     H << nl << name << "(" << name << "&&) = default;";
     H << nl << name << "& operator=(const " << name << "&) = default;";
     H << nl << name << "& operator=(" << name << "&&) = default;";
@@ -2354,7 +2335,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this value.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
     return true;
 }
 
@@ -2366,7 +2347,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
     C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
@@ -2472,11 +2453,13 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     string upcall = "(";
     for (DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
+        string memberName = fixKwd((*q)->name());
+        TypePtr memberType = (*q)->type();
         if (q != allBaseDataMembers.begin())
         {
             upcall += ", ";
         }
-        upcall += "" + fixKwd((*q)->name());
+        upcall += condMove(isMovable(memberType), memberName);
     }
     upcall += ")";
 
@@ -2502,8 +2485,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
-            string typeName =
-                inputTypeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
+            string typeName = typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
             allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
             CommentPtr comment = (*q)->parseComment(false);
             if (comment)
@@ -2554,7 +2536,8 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
                 H << ',' << nl;
             }
             string memberName = fixKwd((*q)->name());
-            H << memberName << "(" << memberName << ')';
+            TypePtr memberType = (*q)->type();
+            H << memberName << "(" << condMove(isMovable(memberType), memberName) << ')';
         }
 
         H.dec();
@@ -2602,7 +2585,7 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(
     ::IceUtilInternal::Output& h,
     ::IceUtilInternal::Output& c,
-    const std::string& dllExport)
+    const string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2701,7 +2684,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static ::std::string_view ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId() noexcept;";
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
@@ -2729,7 +2712,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
     C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";

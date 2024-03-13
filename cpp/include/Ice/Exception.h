@@ -44,7 +44,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        static std::string_view ice_staticId();
+        static std::string_view ice_staticId() noexcept;
     };
 
     /**
@@ -64,7 +64,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        static std::string_view ice_staticId();
+        static std::string_view ice_staticId() noexcept;
 
         /// \cond STREAM
         virtual void _write(::Ice::OutputStream*) const;

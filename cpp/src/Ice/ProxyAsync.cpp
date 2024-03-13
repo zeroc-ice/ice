@@ -485,7 +485,7 @@ Ice::ObjectPrx::ice_invoke(
 
 std::future<std::tuple<bool, vector<byte>>>
 Ice::ObjectPrx::ice_invokeAsync(
-    const string& operation,
+    string_view operation,
     Ice::OperationMode mode,
     const vector<byte>& inParams,
     const Ice::Context& context) const
@@ -537,7 +537,7 @@ Ice::ObjectPrx::ice_invoke(
 
 std::future<std::tuple<bool, vector<byte>>>
 Ice::ObjectPrx::ice_invokeAsync(
-    const string& operation,
+    string_view operation,
     Ice::OperationMode mode,
     const std::pair<const byte*, const byte*>& inParams,
     const Ice::Context& context) const

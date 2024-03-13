@@ -20,7 +20,7 @@
 IceBT::BluetoothException::~BluetoothException() {}
 
 std::string_view
-IceBT::BluetoothException::ice_staticId()
+IceBT::BluetoothException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::IceBT::BluetoothException";
     return typeId;

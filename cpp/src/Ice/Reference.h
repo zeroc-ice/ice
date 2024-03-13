@@ -80,19 +80,19 @@ namespace IceInternal
         // a new reference based on the existing one, with the
         // corresponding value changed.
         //
-        ReferencePtr changeContext(const Ice::Context&) const;
+        ReferencePtr changeContext(Ice::Context) const;
         ReferencePtr changeSecure(bool) const;
-        ReferencePtr changeIdentity(const Ice::Identity&) const;
-        ReferencePtr changeFacet(const std::string&) const;
+        ReferencePtr changeIdentity(Ice::Identity) const;
+        ReferencePtr changeFacet(std::string) const;
         ReferencePtr changeInvocationTimeout(int) const;
 
-        virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
+        virtual ReferencePtr changeEncoding(Ice::EncodingVersion) const;
         virtual ReferencePtr changeCompress(bool) const;
         virtual ReferencePtr changeMode(Mode) const;
-        virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
-        virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
-        virtual ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const = 0;
-        virtual ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const = 0;
+        virtual ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const = 0;
+        virtual ReferencePtr changeAdapterId(std::string) const = 0;
+        virtual ReferencePtr changeLocator(std::optional<Ice::LocatorPrx>) const = 0;
+        virtual ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const = 0;
         virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
         virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
         virtual ReferencePtr changeCacheConnection(bool) const = 0;
@@ -100,8 +100,8 @@ namespace IceInternal
         virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
 
         virtual ReferencePtr changeTimeout(int) const = 0;
-        virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
-        virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const = 0;
+        virtual ReferencePtr changeConnectionId(std::string) const = 0;
+        virtual ReferencePtr changeConnection(Ice::ConnectionIPtr) const = 0;
 
         int hash() const; // Conceptually const.
 
@@ -191,7 +191,7 @@ namespace IceInternal
             bool,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
-            const Ice::ConnectionIPtr&,
+            Ice::ConnectionIPtr,
             int,
             const Ice::Context&,
             const std::optional<bool>&);
@@ -208,10 +208,10 @@ namespace IceInternal
         std::string getConnectionId() const final;
         std::optional<int> getTimeout() const final;
 
-        ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const final;
-        ReferencePtr changeAdapterId(const std::string&) const final;
-        ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const final;
-        ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const final;
+        ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const final;
+        ReferencePtr changeAdapterId(std::string) const final;
+        ReferencePtr changeLocator(std::optional<Ice::LocatorPrx>) const final;
+        ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const final;
         ReferencePtr changeCollocationOptimized(bool) const final;
         ReferencePtr changeCacheConnection(bool) const final;
         ReferencePtr changePreferSecure(bool) const final;
@@ -219,8 +219,8 @@ namespace IceInternal
         ReferencePtr changeLocatorCacheTimeout(int) const final;
 
         ReferencePtr changeTimeout(int) const final;
-        ReferencePtr changeConnectionId(const std::string&) const final;
-        ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const final;
+        ReferencePtr changeConnectionId(std::string) const final;
+        ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
         bool isIndirect() const final;
         bool isWellKnown() const final;
@@ -280,13 +280,13 @@ namespace IceInternal
         std::string getConnectionId() const final;
         std::optional<int> getTimeout() const final;
 
-        ReferencePtr changeEncoding(const Ice::EncodingVersion&) const final;
+        ReferencePtr changeEncoding(Ice::EncodingVersion) const final;
         ReferencePtr changeCompress(bool) const final;
         ReferencePtr changeMode(Mode) const final;
-        ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const final;
-        ReferencePtr changeAdapterId(const std::string&) const final;
-        ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const final;
-        ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const final;
+        ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const final;
+        ReferencePtr changeAdapterId(std::string) const final;
+        ReferencePtr changeLocator(std::optional<Ice::LocatorPrx>) const final;
+        ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const final;
         ReferencePtr changeCollocationOptimized(bool) const final;
         ReferencePtr changeCacheConnection(bool) const final;
         ReferencePtr changePreferSecure(bool) const final;
@@ -294,8 +294,8 @@ namespace IceInternal
         ReferencePtr changeLocatorCacheTimeout(int) const final;
 
         ReferencePtr changeTimeout(int) const final;
-        ReferencePtr changeConnectionId(const std::string&) const final;
-        ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const final;
+        ReferencePtr changeConnectionId(std::string) const final;
+        ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
         bool isIndirect() const final;
         bool isWellKnown() const final;
