@@ -1482,26 +1482,6 @@ Ice.FixedProxyException = class extends Ice.LocalException
     }
 };
 
-/**
- *  Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
- **/
-Ice.ResponseSentException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::ResponseSentException";
-    }
-};
 /* slice2js browser-bundle-skip */
 exports.Ice = Ice;
 /* slice2js browser-bundle-skip-end */

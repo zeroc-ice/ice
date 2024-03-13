@@ -2140,30 +2140,4 @@ if "FixedProxyException" not in _M_Ice.__dict__:
     _M_Ice.FixedProxyException = FixedProxyException
     del FixedProxyException
 
-if "ResponseSentException" not in _M_Ice.__dict__:
-    _M_Ice.ResponseSentException = Ice.createTempClass()
-
-    class ResponseSentException(Ice.LocalException):
-        """
-        Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
-        """
-
-        def __init__(self):
-            pass
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::ResponseSentException"
-
-    _M_Ice._t_ResponseSentException = IcePy.defineException(
-        "::Ice::ResponseSentException", ResponseSentException, (), None, ()
-    )
-    ResponseSentException._ice_type = _M_Ice._t_ResponseSentException
-
-    _M_Ice.ResponseSentException = ResponseSentException
-    del ResponseSentException
-
 # End of module Ice

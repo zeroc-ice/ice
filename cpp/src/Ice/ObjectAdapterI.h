@@ -62,10 +62,10 @@ namespace Ice
         FacetMap findAllFacets(const Identity&) const final;
         std::shared_ptr<Object> findByProxy(const ObjectPrx&) const final;
         std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
-
         void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
         std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
         std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
+        ObjectPtr dispatcher() const noexcept final;
 
         ObjectPrx createProxy(const Identity&) const final;
         ObjectPrx createDirectProxy(const Identity&) const final;
@@ -137,7 +137,8 @@ namespace Ice
         IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
         IceInternal::ThreadPoolPtr _threadPool;
         IceInternal::ACMConfig _acm;
-        IceInternal::ServantManagerPtr _servantManager;
+        const IceInternal::ServantManagerPtr _servantManager;
+        ObjectPtr _dispatcher;
         const std::string _name;
         const std::string _id;
         const std::string _replicaGroupId;

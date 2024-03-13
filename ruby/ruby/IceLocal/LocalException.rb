@@ -1012,17 +1012,4 @@ module ::Ice
 
         T_FixedProxyException = ::Ice::__defineException('::Ice::FixedProxyException', FixedProxyException, nil, [])
     end
-
-    if not defined?(::Ice::ResponseSentException)
-        class ResponseSentException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::ResponseSentException'
-            end
-        end
-
-        T_ResponseSentException = ::Ice::__defineException('::Ice::ResponseSentException', ResponseSentException, nil, [])
-    end
 end

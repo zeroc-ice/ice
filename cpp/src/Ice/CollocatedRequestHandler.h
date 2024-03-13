@@ -6,7 +6,6 @@
 #define ICE_COLLOCATED_REQUEST_HANDLER_H
 
 #include <Ice/RequestHandler.h>
-#include <Ice/ResponseHandler.h>
 #include <Ice/OutputStream.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
@@ -18,6 +17,7 @@
 namespace Ice
 {
     class ObjectAdapterI;
+    class OutgoingResponse;
 }
 
 namespace IceInternal
@@ -25,7 +25,8 @@ namespace IceInternal
     class OutgoingAsyncBase;
     class OutgoingAsync;
 
-    class CollocatedRequestHandler : public RequestHandler, public ResponseHandler
+    class CollocatedRequestHandler : public RequestHandler,
+                                     public std::enable_shared_from_this<CollocatedRequestHandler>
     {
     public:
         CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
@@ -34,10 +35,6 @@ namespace IceInternal
         virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
         virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
-
-        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
-        virtual void sendNoResponse();
-        virtual void invokeException(std::int32_t, std::exception_ptr, int);
 
         virtual Ice::ConnectionIPtr getConnection();
         virtual Ice::ConnectionIPtr waitForConnection();
@@ -48,13 +45,13 @@ namespace IceInternal
 
         void invokeAll(Ice::OutputStream*, std::int32_t, std::int32_t);
 
-        std::shared_ptr<CollocatedRequestHandler> shared_from_this()
-        {
-            return std::static_pointer_cast<CollocatedRequestHandler>(ResponseHandler::shared_from_this());
-        }
-
     private:
         void handleException(std::int32_t, std::exception_ptr);
+
+        void sendResponse(Ice::OutgoingResponse);
+        void sendResponse(std::int32_t, Ice::OutputStream*);
+        void sendNoResponse();
+        void invokeException(std::int32_t, std::exception_ptr);
 
         const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _hasExecutor;

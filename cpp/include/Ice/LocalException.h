@@ -3569,45 +3569,6 @@ namespace Ice
          */
         ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
     };
-
-    /**
-     * Indicates the application attempted to call the callbacks for an async dispatch more than once, or called an
-     * async dispatch callback after throwing an exception from the dispatch thread. \headerfile Ice/Ice.h
-     */
-    class ICE_CLASS(ICE_API) ResponseSentException : public LocalExceptionHelper<ResponseSentException, LocalException>
-    {
-    public:
-        ICE_MEMBER(ICE_API) virtual ~ResponseSentException();
-
-        ResponseSentException(const ResponseSentException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ResponseSentException(const char* file, int line)
-            : LocalExceptionHelper<ResponseSentException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
-    };
 }
 
 /// \cond STREAM

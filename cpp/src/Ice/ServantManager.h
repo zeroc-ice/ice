@@ -5,10 +5,11 @@
 #ifndef ICE_SERVANT_MANAGER_H
 #define ICE_SERVANT_MANAGER_H
 
-#include <Ice/ServantManagerF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Identity.h>
-#include <Ice/FacetMap.h>
+#include "Ice/ServantManagerF.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Identity.h"
+#include "Ice/FacetMap.h"
+#include "Ice/Object.h"
 
 #include <mutex>
 
@@ -20,7 +21,8 @@ namespace Ice
 
 namespace IceInternal
 {
-    class ServantManager
+    // A dispatcher that manages servants and servant locators for an object adapter.
+    class ServantManager final : public Ice::Object
     {
     public:
         ServantManager(const InstancePtr&, const std::string&);
@@ -38,6 +40,8 @@ namespace IceInternal
         void addServantLocator(const std::shared_ptr<Ice::ServantLocator>& locator, const std::string&);
         std::shared_ptr<Ice::ServantLocator> removeServantLocator(const std::string&);
         std::shared_ptr<Ice::ServantLocator> findServantLocator(const std::string&) const;
+
+        void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) final;
 
     private:
         void destroy();
