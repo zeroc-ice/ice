@@ -76,7 +76,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -134,7 +134,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -181,7 +181,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -244,7 +244,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -315,7 +315,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -380,7 +380,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -428,7 +428,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -482,7 +482,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -543,7 +543,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -598,7 +598,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -638,7 +638,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -679,7 +679,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -734,7 +734,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -793,7 +793,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -850,7 +850,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -908,7 +908,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -966,7 +966,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1023,7 +1023,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1081,7 +1081,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1138,7 +1138,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1183,7 +1183,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1236,7 +1236,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1308,7 +1308,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1384,7 +1384,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1447,7 +1447,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1509,7 +1509,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1560,7 +1560,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1618,7 +1618,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1671,7 +1671,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1718,7 +1718,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1775,7 +1775,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1827,7 +1827,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1879,7 +1879,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1930,7 +1930,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -1980,7 +1980,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2019,7 +2019,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2059,7 +2059,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2099,7 +2099,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2139,7 +2139,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2179,7 +2179,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2219,7 +2219,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2271,7 +2271,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2329,7 +2329,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2398,7 +2398,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2471,7 +2471,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2532,7 +2532,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2584,7 +2584,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2636,7 +2636,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2688,7 +2688,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2743,7 +2743,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2798,7 +2798,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2855,7 +2855,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2906,7 +2906,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -2959,7 +2959,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3010,7 +3010,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3062,7 +3062,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3114,7 +3114,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3172,7 +3172,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3244,7 +3244,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3304,7 +3304,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3356,7 +3356,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3408,7 +3408,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3461,7 +3461,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3518,7 +3518,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.
@@ -3562,7 +3562,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId();
+        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
         /**
          * Prints this exception to the given stream.
          * @param stream The target stream.

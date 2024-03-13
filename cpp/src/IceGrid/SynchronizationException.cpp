@@ -9,7 +9,7 @@
 IceGrid::SynchronizationException::~SynchronizationException() {}
 
 std::string_view
-IceGrid::SynchronizationException::ice_staticId()
+IceGrid::SynchronizationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::IceGrid::SynchronizationException";
     return typeId;

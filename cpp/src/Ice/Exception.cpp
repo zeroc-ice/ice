@@ -78,7 +78,7 @@ namespace
 }
 
 std::string_view
-Ice::UserException::ice_staticId()
+Ice::UserException::ice_staticId() noexcept
 {
     return userException_ids[0];
 }
@@ -130,7 +130,7 @@ namespace
 }
 
 std::string_view
-Ice::LocalException::ice_staticId()
+Ice::LocalException::ice_staticId() noexcept
 {
     return localException_ids[0];
 }

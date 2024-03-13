@@ -43,7 +43,7 @@ Ice::Object::ice_id(const Current&) const
 }
 
 string_view
-Ice::Object::ice_staticId()
+Ice::Object::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::Object";
     return typeId;
