@@ -14,10 +14,10 @@ using namespace Test;
 
 namespace
 {
-    string getPort(const Ice::PropertiesAdminPrx& p)
+    string getPort(const Ice::PropertiesAdminPrx& p, int testPort = 0)
     {
         ostringstream os;
-        os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
+        os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), testPort);
         return os.str();
     }
 
@@ -62,7 +62,12 @@ namespace
             map += "Map." + m + '.';
         }
         props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
+
+        // Regular expression to match server test endpoint 0 and test endpoint 1
+        ostringstream os;
+        os << getPort(pa, 0) << "|" << getPort(pa, 1);
+
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = os.str();
         return props;
     }
 
