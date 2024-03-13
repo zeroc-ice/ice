@@ -1040,7 +1040,7 @@ Database::setAdapterDirectProxy(
                 "can be member of this replica group");
         }
 
-        AdapterInfo info = {adapterId, proxy, replicaGroupId};
+        AdapterInfo info = {adapterId, std::move(proxy), replicaGroupId};
 
         bool updated = false;
         try
@@ -1049,7 +1049,7 @@ Database::setAdapterDirectProxy(
 
             AdapterInfo oldInfo;
             bool found = _adapters.get(txn, adapterId, oldInfo);
-            if (proxy)
+            if (info.proxy)
             {
                 updated = found;
 
@@ -1084,7 +1084,7 @@ Database::setAdapterDirectProxy(
         if (_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-            out << (proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
+            out << (info.proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
             if (!replicaGroupId.empty())
             {
                 out << " with replica group `" << replicaGroupId << "'";
@@ -1092,15 +1092,15 @@ Database::setAdapterDirectProxy(
             out << " (serial = `" << dbSerial << "')";
         }
 
-        if (proxy)
+        if (info.proxy)
         {
             if (updated)
             {
-                serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
+                serial = _adapterObserverTopic->adapterUpdated(dbSerial, std::move(info));
             }
             else
             {
-                serial = _adapterObserverTopic->adapterAdded(dbSerial, info);
+                serial = _adapterObserverTopic->adapterAdded(dbSerial, std::move(info));
             }
         }
         else
@@ -1111,7 +1111,7 @@ Database::setAdapterDirectProxy(
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getAdapterDirectProxy(
     const string& id,
     const Ice::EncodingVersion& encoding,
@@ -1183,11 +1183,12 @@ Database::removeAdapter(const string& adapterId)
                 {
                     throw AdapterNotExistException(adapterId);
                 }
-                for (AdapterInfoSeq::iterator p = infos.begin(); p != infos.end(); ++p)
+
+                for (AdapterInfo& p : infos)
                 {
-                    _adaptersByGroupId.del(txn, p->replicaGroupId, p->id);
-                    p->replicaGroupId.clear();
-                    addAdapter(txn, *p);
+                    _adaptersByGroupId.del(txn, p.replicaGroupId, p.id);
+                    p.replicaGroupId.clear();
+                    addAdapter(txn, p);
                 }
             }
             dbSerial = updateSerial(txn, adaptersDbName);
@@ -1217,16 +1218,16 @@ Database::removeAdapter(const string& adapterId)
         }
         else
         {
-            for (AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+            for (const AdapterInfo& info : infos)
             {
-                serial = _adapterObserverTopic->adapterUpdated(dbSerial, *p);
+                serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
             }
         }
     }
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-AdapterPrxPtr
+optional<AdapterPrx>
 Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
     lock_guard lock(_mutex); // Make sure this isn't call during an update.
@@ -1311,6 +1312,7 @@ Database::getAdapterInfo(const string& id)
     catch (const AdapterNotExistException&)
     {
     }
+
     if (result)
     {
         return result->get(); // Don't hold the database lock while waiting for the endpoints
@@ -1749,9 +1751,7 @@ Database::getObjectProxy(const Ice::Identity& id)
     try
     {
         // Only return proxies for non allocatable objects.
-        auto proxy = _objectCache.get(id)->getProxy();
-        assert(proxy);
-        return *proxy;
+        return _objectCache.get(id)->getProxy();
     }
     catch (const ObjectNotRegisteredException&)
     {
@@ -1792,7 +1792,7 @@ Database::getObjectByTypeOnLeastLoadedNode(
     }
 
     IceUtilInternal::shuffle(objs.begin(), objs.end());
-    vector<pair<Ice::ObjectPrxPtr, float>> objectsWithLoad;
+    vector<pair<optional<Ice::ObjectPrx>, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for (const auto& obj : objs)
     {

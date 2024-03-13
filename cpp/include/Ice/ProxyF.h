@@ -11,9 +11,6 @@
 namespace Ice
 {
     class ObjectPrx;
-
-    // TODO: remove
-    using ObjectPrxPtr = std::optional<ObjectPrx>;
 }
 
 #endif

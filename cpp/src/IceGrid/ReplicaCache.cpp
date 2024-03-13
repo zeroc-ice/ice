@@ -181,7 +181,13 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
         auto publisher = _topic->subscribeAndGetPublisher(qos, observer->ice_twoway());
-        Ice::uncheckedCast<ReplicaObserverPrx>(publisher)->replicaInit(replicas);
+        if (!publisher)
+        {
+            ostringstream os;
+            os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
+        ReplicaObserverPrx(*publisher)->replicaInit(replicas);
     }
     catch (const Ice::NoEndpointException&)
     {
@@ -203,7 +209,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
 }
 
 void
-ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
+ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
 {
     try
     {
@@ -256,19 +262,16 @@ ReplicaCache::getEndpoints(const string& name, const optional<Ice::ObjectPrx>& p
 void
 ReplicaCache::setInternalRegistry(InternalRegistryPrx proxy)
 {
-    //
     // Setup this replica internal registry proxy.
-    //
     _self = std::optional<InternalRegistryPrx>(std::move(proxy));
 }
 
-optional<InternalRegistryPrx>
+InternalRegistryPrx
 ReplicaCache::getInternalRegistry() const
 {
-    //
     // This replica internal registry proxy.
-    //
-    return _self;
+    assert(_self);
+    return *_self;
 }
 
 ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session)

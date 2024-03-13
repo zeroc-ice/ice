@@ -673,13 +673,13 @@ LocatorI::LocatorI(
     const shared_ptr<Ice::Communicator>& communicator,
     const shared_ptr<Database>& database,
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-    const RegistryPrxPtr& registry,
-    const QueryPrxPtr& query)
+    RegistryPrx registry,
+    QueryPrx query)
     : _communicator(communicator),
       _database(database),
       _wellKnownObjects(wellKnownObjects),
-      _localRegistry(registry),
-      _localQuery(query)
+      _localRegistry(std::move(registry)),
+      _localQuery(std::move(query))
 {
 }
 
@@ -690,7 +690,7 @@ LocatorI::LocatorI(
 void
 LocatorI::findObjectByIdAsync(
     Ice::Identity id,
-    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(const optional<Ice::ObjectPrx>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&) const
 {
@@ -711,7 +711,7 @@ LocatorI::findObjectByIdAsync(
 void
 LocatorI::findAdapterByIdAsync(
     string id,
-    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(const optional<Ice::ObjectPrx>&)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current) const
 {
@@ -797,19 +797,19 @@ LocatorI::findAdapterByIdAsync(
     }
 }
 
-Ice::LocatorRegistryPrxPtr
+optional<Ice::LocatorRegistryPrx>
 LocatorI::getRegistry(const Ice::Current&) const
 {
     return _wellKnownObjects->getLocatorRegistry();
 }
 
-RegistryPrxPtr
+optional<RegistryPrx>
 LocatorI::getLocalRegistry(const Ice::Current&) const
 {
     return _localRegistry;
 }
 
-QueryPrxPtr
+optional<QueryPrx>
 LocatorI::getLocalQuery(const Ice::Current&) const
 {
     return _localQuery;
@@ -854,7 +854,7 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const shared_ptr<Req
 }
 
 void
-LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const Ice::ObjectPrxPtr& proxy)
+LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const optional<Ice::ObjectPrx>& proxy)
 {
     PendingRequests requests;
     {
@@ -925,10 +925,9 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
 
         int timeout = secondsToInt(adapter.activationTimeout + adapter.deactivationTimeout) * 1000;
         auto self = shared_from_this();
-        Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout))
-            ->activateAsync(
-                [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
-                [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
+        adapter.proxy->ice_invocationTimeout(timeout)->activateAsync(
+            [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
+            [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
     }
     else
     {

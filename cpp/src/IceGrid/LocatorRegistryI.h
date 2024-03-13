@@ -21,7 +21,7 @@ namespace IceGrid
 
         void setAdapterDirectProxyAsync(
             std::string,
-            Ice::ObjectPrxPtr,
+            std::optional<Ice::ObjectPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
@@ -29,14 +29,14 @@ namespace IceGrid
         void setReplicatedAdapterDirectProxyAsync(
             std::string,
             std::string,
-            Ice::ObjectPrxPtr,
+            std::optional<Ice::ObjectPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
 
         void setServerProcessProxyAsync(
             std::string,
-            Ice::ProcessPrxPtr,
+            std::optional<Ice::ProcessPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
@@ -44,7 +44,7 @@ namespace IceGrid
         void setAdapterDirectProxy(
             std::string,
             std::string,
-            Ice::ObjectPrxPtr,
+            std::optional<Ice::ObjectPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>);
 

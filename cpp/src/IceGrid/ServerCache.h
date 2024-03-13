@@ -60,17 +60,17 @@ namespace IceGrid
         ServerInfo getInfo(bool = false) const;
         std::string getId() const;
 
-        ServerPrxPtr getProxy(
+        ServerPrx getProxy(
             std::chrono::seconds&,
             std::chrono::seconds&,
             std::string&,
             bool = true,
             std::chrono::seconds = std::chrono::seconds(0));
-        ServerPrxPtr getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
-        Ice::ObjectPrxPtr getAdminProxy();
+        ServerPrx getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
+        Ice::ObjectPrx getAdminProxy();
 
-        AdapterPrxPtr getAdapter(const std::string&, bool);
-        AdapterPrxPtr getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
+        AdapterPrx getAdapter(const std::string&, bool);
+        AdapterPrx getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
         float getLoad(LoadSample) const;
 
         bool canRemove();
@@ -99,7 +99,7 @@ namespace IceGrid
         std::unique_ptr<ServerInfo> _load;
         std::unique_ptr<ServerInfo> _destroy;
 
-        ServerPrxPtr _proxy;
+        std::optional<ServerPrx> _proxy;
         AdapterPrxDict _adapters;
         std::chrono::seconds _activationTimeout;
         std::chrono::seconds _deactivationTimeout;

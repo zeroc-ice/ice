@@ -1301,8 +1301,6 @@ void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << p->name() << "Prx;";
-    // TODO: temporary PrxPtr
-    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 void
@@ -1437,7 +1435,8 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << sp;
 
     C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init"
+      << "(\"" << p->scoped() << "\");";
 
     if (p->compactId() >= 0)
     {
@@ -1453,7 +1452,8 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     C << sp;
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init"
+      << "(\"" << p->scoped() << "\");";
     return false;
 }
 
@@ -1733,7 +1733,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // We call makePromiseOutgoing with the "sync" parameter set to true; the Promise/future implementation later on
     // calls makePromiseOutgoing with this parameter set to false. This parameter is useful for collocated calls.
     C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
-    C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
+    C << spar << "true, this"
+      << "&" + interface->name() + "Prx::_iceI_" + name;
     C << inParamsImpl;
     C << "context" << epar << ".get();";
     if (futureOutParams.size() > 1)
@@ -1835,8 +1836,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << nl << "return ::IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
 
-    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "std::move(ex)"
-      << "std::move(sent)" << "this";
+    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")"
+      << "std::move(ex)"
+      << "std::move(sent)"
+      << "this";
     C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + lambdaImplPrefix + name);
     C << inParamsImpl;
     C << "context" << epar << ";";
@@ -2162,7 +2165,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H.inc();
         if (base || !baseDataMembers.empty())
         {
-            H << nl << helperClass << "<" << templateParameters << ">" << "(";
+            H << nl << helperClass << "<" << templateParameters << ">"
+              << "(";
 
             for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
             {
@@ -2778,7 +2782,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sp;
         C << nl << "const ::Ice::Current& current = incoming.current();";
         C << nl << "::std::pair<const ::std::string_view*, const ::std::string_view*> r = "
-          << "::std::equal_range(allOperations, allOperations" << " + " << allOpNames.size() << ", current.operation);";
+          << "::std::equal_range(allOperations, allOperations"
+          << " + " << allOpNames.size() << ", current.operation);";
         C << nl << "if(r.first == r.second)";
         C << sb;
         C << nl << "throw " << getUnqualified("::Ice::OperationNotExistException", scope)

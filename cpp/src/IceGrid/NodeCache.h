@@ -53,7 +53,7 @@ namespace IceGrid
         getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
         void checkSession(std::unique_lock<std::mutex>&) const;
-        void setProxy(const NodePrxPtr&);
+        void setProxy(NodePrx);
         void finishedRegistration();
         void finishedRegistration(std::exception_ptr);
 
@@ -70,7 +70,7 @@ namespace IceGrid
         std::map<std::string, NodeDescriptor> _descriptors;
 
         mutable bool _registering;
-        mutable NodePrxPtr _proxy;
+        mutable std::optional<NodePrx> _proxy;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _condVar;

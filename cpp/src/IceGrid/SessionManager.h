@@ -143,12 +143,12 @@ namespace IceGrid
                             break;
                         case Disconnect:
                             assert(session);
-                            destroySession(session);
+                            destroySession(*session);
                             session = std::nullopt;
                             break;
                         case KeepAlive:
                             assert(session);
-                            if (!keepAlive(session))
+                            if (!keepAlive(*session))
                             {
                                 assert(registry);
                                 session = createSession(*registry, timeout);
@@ -165,7 +165,7 @@ namespace IceGrid
                 //
                 if (_nextAction == Disconnect && session)
                 {
-                    destroySession(session);
+                    destroySession(*session);
                 }
             }
             catch (const std::exception& ex)
@@ -300,8 +300,8 @@ namespace IceGrid
         }
 
         virtual std::optional<TPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&) = 0;
-        virtual void destroySession(const std::optional<TPrx>&) = 0;
-        virtual bool keepAlive(const std::optional<TPrx>&) = 0;
+        virtual void destroySession(const TPrx&) = 0;
+        virtual bool keepAlive(const TPrx&) = 0;
 
     protected:
         std::optional<InternalRegistryPrx> _registry;

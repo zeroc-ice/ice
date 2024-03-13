@@ -491,7 +491,7 @@ ServerEntry::getId() const
     return _id;
 }
 
-ServerPrxPtr
+ServerPrx
 ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 {
     //
@@ -504,7 +504,7 @@ ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
     return getProxy(actTimeout, deactTimeout, node, upToDate, timeout);
 }
 
-ServerPrxPtr
+ServerPrx
 ServerEntry::getProxy(
     chrono::seconds& activationTimeout,
     chrono::seconds& deactivationTimeout,
@@ -526,7 +526,8 @@ ServerEntry::getProxy(
                 activationTimeout = _activationTimeout;
                 deactivationTimeout = _deactivationTimeout;
                 node = _loaded ? _loaded->node : (_load ? _load->node : _destroy->node);
-                return _proxy;
+                assert(_proxy);
+                return *_proxy;
             }
             else if (!_load && !_destroy)
             {
@@ -539,7 +540,7 @@ ServerEntry::getProxy(
     }
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 ServerEntry::getAdminProxy()
 {
     //
@@ -548,7 +549,7 @@ ServerEntry::getAdminProxy()
     return getProxy(true)->ice_identity({_id, _cache.getInstanceName() + "-NodeServerAdminRouter"});
 }
 
-AdapterPrxPtr
+AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
     //
@@ -560,7 +561,7 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
     return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
 }
 
-AdapterPrxPtr
+AdapterPrx
 ServerEntry::getAdapter(
     chrono::seconds& activationTimeout,
     chrono::seconds& deactivationTimeout,
@@ -583,7 +584,7 @@ ServerEntry::getAdapter(
                     assert(p->second);
                     activationTimeout = _activationTimeout;
                     deactivationTimeout = _deactivationTimeout;
-                    return p->second;
+                    return *p->second;
                 }
                 else
                 {
@@ -812,7 +813,7 @@ ServerEntry::synchronized(exception_ptr ex)
 void
 ServerEntry::loadCallback(
     ServerPrx proxy,
-    const AdapterPrxDict& adpts,
+    const AdapterPrxDict& adapters,
     chrono::seconds activationTimeout,
     chrono::seconds deactivationTimeout)
 {
@@ -833,7 +834,7 @@ ServerEntry::loadCallback(
             assert(_load);
             _loaded.reset(_load.release());
             _proxy = std::move(proxy);
-            _adapters = adpts;
+            _adapters = adapters;
             _activationTimeout = activationTimeout;
             _deactivationTimeout = deactivationTimeout;
 
@@ -1042,7 +1043,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         throw NodeUnreachableException(info.node, "node is not active");
     }
 
-    ServerPrxPtr server;
+    optional<ServerPrx> server;
     try
     {
         server = getProxy(true, 5s);
@@ -1058,8 +1059,8 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     {
         if (noRestart)
         {
-            // If the server can't be loaded and no restart is required, we throw
-            // to indicate that the server update can't be checked.
+            // If the server can't be loaded and no restart is required, we throw to indicate that the server update
+            // can't be checked.
             throw;
         }
         else
@@ -1069,17 +1070,15 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         }
     }
 
-    //
-    // Provide a null descriptor if the server is to be removed from
-    // the node. In this case, the check just ensures that the server
-    // is stopped.
-    //
+    // Provide a null descriptor if the server is to be removed from the node. In this case, the check just ensures
+    // that the server is stopped.
     shared_ptr<InternalServerDescriptor> desc;
     if (info.node == oldInfo.node && info.descriptor)
     {
         desc = node->getInternalServerDescriptor(info, session); // The new descriptor
     }
 
+    assert(server);
     return make_shared<CheckUpdateResult>(
         _id,
         oldInfo.node,

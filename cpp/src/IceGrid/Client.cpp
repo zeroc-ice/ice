@@ -41,20 +41,20 @@ namespace
 class ReuseConnectionRouter final : public Ice::Router
 {
 public:
-    ReuseConnectionRouter(Ice::ObjectPrxPtr proxy) : _clientProxy(std::move(proxy)) {}
+    ReuseConnectionRouter(optional<Ice::ObjectPrx> proxy) : _clientProxy(std::move(proxy)) {}
 
-    Ice::ObjectPrxPtr getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
+    optional<Ice::ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
     }
 
-    Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const override { return nullopt; }
+    optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override { return nullopt; }
 
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override { return Ice::ObjectProxySeq(); }
 
 private:
-    const Ice::ObjectPrxPtr _clientProxy;
+    const optional<Ice::ObjectPrx> _clientProxy;
 };
 
 int run(const Ice::StringSeq&);
@@ -292,8 +292,8 @@ run(const Ice::StringSeq& args)
         replica = opts.optArg("replica");
     }
 
-    Glacier2::RouterPrxPtr router;
-    IceGrid::AdminSessionPrxPtr session;
+    optional<IceGrid::AdminSessionPrx> session;
+    optional<Glacier2::RouterPrx> router;
     int status = 0;
     try
     {
@@ -389,26 +389,11 @@ run(const Ice::StringSeq& args)
 
         if (communicator->getDefaultRouter())
         {
-            try
-            {
-                // Use SSL if available.
-                router =
-                    Ice::checkedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter()->ice_preferSecure(true));
-                if (!router)
-                {
-                    consoleErr << args[0] << ": configured router is not a Glacier2 router" << endl;
-                    return 1;
-                }
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                consoleErr << args[0] << ": could not contact the default router:" << endl << ex << endl;
-                return 1;
-            }
-
+            // Use SSL if available.
+            router = Glacier2::RouterPrx(communicator->getDefaultRouter()->ice_preferSecure(true));
             if (ssl)
             {
-                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
+                session = optional<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
                 if (!session)
                 {
                     consoleErr
@@ -442,7 +427,7 @@ run(const Ice::StringSeq& args)
 #endif
                 }
 
-                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSession(id, password));
+                session = optional<IceGrid::AdminSessionPrx>(router->createSession(id, password));
                 fill(password.begin(), password.end(), '\0'); // Zero the password string.
 
                 if (!session)
@@ -482,16 +467,10 @@ run(const Ice::StringSeq& args)
             // no need to go further. Otherwise, we get the proxy of local registry
             // proxy.
             //
-            IceGrid::LocatorPrxPtr locator;
-            IceGrid::RegistryPrxPtr localRegistry;
+            IceGrid::LocatorPrx locator{*communicator->getDefaultLocator()};
+            optional<IceGrid::RegistryPrx> localRegistry;
             try
             {
-                locator = Ice::checkedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator());
-                if (!locator)
-                {
-                    consoleErr << args[0] << ": configured locator is not an IceGrid locator" << endl;
-                    return 1;
-                }
                 localRegistry = locator->getLocalRegistry();
             }
             catch (const Ice::LocalException& ex)
@@ -500,20 +479,17 @@ run(const Ice::StringSeq& args)
                 return 1;
             }
 
-            IceGrid::RegistryPrxPtr registry;
+            optional<IceGrid::RegistryPrx> registry;
             if (localRegistry->ice_getIdentity() == registryId)
             {
                 registry = localRegistry;
             }
             else
             {
-                //
                 // The locator local registry isn't the registry we want to connect to.
-                //
-
                 try
                 {
-                    registry = Ice::checkedCast<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
+                    registry = checkedCast<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
                     if (!registry)
                     {
                         consoleErr << args[0] << ": could not contact an IceGrid registry" << endl;
@@ -571,6 +547,11 @@ run(const Ice::StringSeq& args)
             if (ssl)
             {
                 session = registry->createAdminSessionFromSecureConnection();
+                if (!session)
+                {
+                    consoleErr << args[0] << ": registry returned a null admin session" << endl;
+                    return 1;
+                }
             }
             else
             {
@@ -598,6 +579,11 @@ run(const Ice::StringSeq& args)
 
                 session = registry->createAdminSession(id, password);
                 fill(password.begin(), password.end(), '\0'); // Zero the password string.
+                if (!session)
+                {
+                    consoleErr << args[0] << ": registry returned a null admin session" << endl;
+                    return 1;
+                }
             }
 
             try
@@ -624,7 +610,7 @@ run(const Ice::StringSeq& args)
 
         {
             lock_guard lock(staticMutex);
-            parser = make_shared<IceGrid::Parser>(communicator, session, session->getAdmin(), commands.empty());
+            parser = make_shared<IceGrid::Parser>(communicator, *session, session->getAdmin(), commands.empty());
         }
 
         if (!commands.empty()) // Commands were given

@@ -37,10 +37,10 @@ namespace IceGrid
         addSession(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Connection>&, const std::string&);
         void setSessionControl(
             const std::shared_ptr<Ice::Object>&,
-            const Glacier2::SessionControlPrxPtr&,
+            const Glacier2::SessionControlPrx&,
             const Ice::IdentitySeq&);
-        Glacier2::IdentitySetPrxPtr getGlacier2IdentitySet(const std::shared_ptr<Ice::Object>&);
-        Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
+        std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet(const std::shared_ptr<Ice::Object>&);
+        std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
         void removeSession(const std::shared_ptr<Ice::Object>&);
 
         Ice::ObjectPrx add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
@@ -79,9 +79,9 @@ namespace IceGrid
 
             const std::shared_ptr<Ice::Connection> connection;
             const std::string category;
-            Glacier2::SessionControlPrxPtr sessionControl;
-            Glacier2::IdentitySetPrxPtr identitySet;
-            Glacier2::StringSetPrxPtr adapterIdSet;
+            std::optional<Glacier2::SessionControlPrx> sessionControl;
+            std::optional<Glacier2::IdentitySetPrx> identitySet;
+            std::optional<Glacier2::StringSetPrx> adapterIdSet;
             std::set<Ice::Identity> identities;
         };
 

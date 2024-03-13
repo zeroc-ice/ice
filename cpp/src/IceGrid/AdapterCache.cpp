@@ -136,10 +136,6 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
     {
         _results.push_back(adapter->getProxy("", true)->getDirectProxyAsync());
     }
-    catch (const SynchronizationException&)
-    {
-        _results.push_back(nullopt);
-    }
     catch (const Ice::Exception&)
     {
         _results.push_back(nullopt);
@@ -430,7 +426,7 @@ ServerAdapterEntry::getAdapterInfoAsync() const
     return result;
 }
 
-AdapterPrxPtr
+optional<AdapterPrx>
 ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if (replicaGroupId.empty())
@@ -695,8 +691,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
                 replicas.begin(),
                 replicas.end(),
                 back_inserter(rl),
-                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
-                { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                    return {value->getLeastLoadedNodeLoad(loadSample), value};
+                });
             sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
             transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
@@ -787,8 +784,9 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
             replicas.begin(),
             replicas.end(),
             back_inserter(rl),
-            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
-            { return {value->getLeastLoadedNodeLoad(loadSample), value}; });
+            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                return {value->getLeastLoadedNodeLoad(loadSample), value};
+            });
         return min_element(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; })
             ->first;
     }

@@ -52,9 +52,15 @@ InternalRegistryI::registerNode(
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
-    if (!info || !node)
+
+    Ice::checkNotNull(node, __FILE__, __LINE__, current);
+
+    if (!info)
     {
-        return nullopt;
+        std::ostringstream os;
+        os << "null node info passed to " << current.operation << " on object "
+           << current.adapter->getCommunicator()->identityToString(current.id);
+        throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
     }
 
     if (_requireNodeCertCN)
@@ -189,10 +195,10 @@ NodePrxSeq
 InternalRegistryI::getNodes(const Ice::Current&) const
 {
     NodePrxSeq nodes;
-    Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
-    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
-        nodes.push_back(Ice::uncheckedCast<NodePrx>(*p));
+        assert(proxy);
+        nodes.push_back(NodePrx(*proxy));
     }
     return nodes;
 }
@@ -201,10 +207,10 @@ InternalRegistryPrxSeq
 InternalRegistryI::getReplicas(const Ice::Current&) const
 {
     InternalRegistryPrxSeq replicas;
-    Ice::ObjectProxySeq proxies = _database->getObjectsByType(string{InternalRegistry::ice_staticId()});
-    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (const auto& proxy : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
-        replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*p));
+        assert(proxy);
+        replicas.push_back(InternalRegistryPrx(*proxy));
     }
     return replicas;
 }

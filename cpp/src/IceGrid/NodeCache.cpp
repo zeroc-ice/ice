@@ -317,7 +317,7 @@ NodeEntry::loadServer(
 {
     try
     {
-        NodePrxPtr node;
+        optional<NodePrx> node;
         chrono::seconds sessionTimeout;
         shared_ptr<InternalServerDescriptor> desc;
         {
@@ -636,19 +636,14 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
 }
 
 void
-NodeEntry::setProxy(const NodePrxPtr& node)
+NodeEntry::setProxy(NodePrx node)
 {
     lock_guard lock(_mutex);
-
-    //
-    // If the node has already established a session with the
-    // registry, no need to remember its proxy, we don't need to get
-    // it to register with this registry since it's already
-    // registered.
-    //
+    // If the node has already established a session with the registry, no need to remember its proxy, we don't need to
+    // get it to register with this registry since it's already registered.
     if (!_session)
     {
-        _proxy = node;
+        _proxy = std::move(node);
     }
 }
 

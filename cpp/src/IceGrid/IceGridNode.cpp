@@ -543,7 +543,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
-            AdminSessionPrxPtr session;
+            optional<AdminSessionPrx> session;
             if (communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();
@@ -571,8 +571,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             assert(session);
 
             auto admin = session->getAdmin();
+            assert(admin);
             map<string, string> vars;
-            auto app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
+            auto app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), *admin);
 
             try
             {

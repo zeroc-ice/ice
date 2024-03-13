@@ -231,12 +231,12 @@ namespace IceGrid
     public:
         ResetPropertiesCB(
             const shared_ptr<ServerI>& server,
-            const Ice::ObjectPrxPtr admin,
+            const Ice::ObjectPrx admin,
             const shared_ptr<InternalServerDescriptor>& desc,
             const shared_ptr<InternalServerDescriptor>& old,
             const shared_ptr<TraceLevels>& traceLevels)
             : _server(server),
-              _admin(admin),
+              _admin(std::move(admin)),
               _desc(desc),
               _traceLevels(traceLevels),
               _properties(server->getProperties(desc)),
@@ -311,8 +311,8 @@ namespace IceGrid
             //
             ++_p;
 
-            auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
-            p->setPropertiesAsync(
+            Ice::PropertiesAdminPrx propertiesAdmin(_admin->ice_facet(facet));
+            propertiesAdmin->setPropertiesAsync(
                 props,
                 [self = shared_from_this()] { self->next(); },
                 [server = _server, desc = _desc](exception_ptr ex)
@@ -320,7 +320,7 @@ namespace IceGrid
         }
 
         const shared_ptr<ServerI> _server;
-        const Ice::ObjectPrxPtr _admin;
+        const Ice::ObjectPrx _admin;
         const shared_ptr<InternalServerDescriptor> _desc;
         const shared_ptr<TraceLevels> _traceLevels;
         PropertyDescriptorSeqDict _properties;
@@ -479,14 +479,14 @@ LoadCommand::clearDir() const
 
 void
 LoadCommand::addCallback(
-    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
+    function<void(ServerPrx, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
     _loadCB.push_back({std::move(response), std::move(exception)});
 }
 
 void
-LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr& process)
+LoadCommand::startRuntimePropertiesUpdate(Ice::ObjectPrx process)
 {
     if (_updating)
     {
@@ -500,9 +500,7 @@ LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr& process)
 }
 
 bool
-LoadCommand::finishRuntimePropertiesUpdate(
-    const shared_ptr<InternalServerDescriptor>& runtime,
-    const Ice::ObjectPrxPtr& process)
+LoadCommand::finishRuntimePropertiesUpdate(const shared_ptr<InternalServerDescriptor>& runtime, Ice::ObjectPrx process)
 {
     _updating = false;
     _runtime = runtime; // The new runtime server descriptor.
@@ -515,7 +513,7 @@ LoadCommand::finishRuntimePropertiesUpdate(
 
     if (_desc != _runtime)
     {
-        startRuntimePropertiesUpdate(process);
+        startRuntimePropertiesUpdate(std::move(process));
         return false;
     }
     else
@@ -535,7 +533,7 @@ LoadCommand::failed(exception_ptr ex)
 }
 
 void
-LoadCommand::finished(const ServerPrxPtr& proxy, const AdapterPrxDict& adapters, chrono::seconds at, chrono::seconds dt)
+LoadCommand::finished(ServerPrx proxy, const AdapterPrxDict& adapters, chrono::seconds at, chrono::seconds dt)
 {
     for (const auto& cb : _loadCB)
     {
@@ -777,12 +775,12 @@ StopCommand::finished()
 
 ServerI::ServerI(
     const shared_ptr<NodeI>& node,
-    const optional<ServerPrx>& proxy,
+    optional<ServerPrx> proxy,
     const string& serversDir,
     const string& id,
     int wt)
     : _node(node),
-      _this(proxy),
+      _this(std::move(proxy)),
       _id(id),
       _waitTime(wt),
       _serverDir(serversDir + "/" + id),
@@ -879,7 +877,7 @@ ServerI::getPid(const Ice::Current&) const
     return _node->getActivator()->getServerPid(_id);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 ServerI::getProcess() const
 {
     lock_guard lock(_mutex);
@@ -961,11 +959,12 @@ ServerI::isEnabled(const ::Ice::Current&) const
 
 void
 ServerI::setProcessAsync(
-    Ice::ProcessPrxPtr process,
+    optional<Ice::ProcessPrx> process,
     function<void()> response,
     function<void(exception_ptr)>,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
+    Ice::checkNotNull(process, __FILE__, __LINE__, current);
     bool deact = false;
     ServerAdapterDict adpts;
     shared_ptr<ServerCommand> command;
@@ -1171,7 +1170,7 @@ ServerI::load(
     const shared_ptr<InternalServerDescriptor>& desc,
     const string& replicaName,
     bool noRestart,
-    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
+    function<void(ServerPrx, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
     lock_guard lock(_mutex);
@@ -1213,7 +1212,7 @@ ServerI::load(
                 adapters.insert({id, servant->getProxy()});
             }
             assert(_this);
-            response(_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
+            response(*_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
         }
         return nullptr;
     }
@@ -1267,13 +1266,15 @@ ServerI::load(
             {
                 adapters.insert({adapter.first, adapter.second->getProxy()});
             }
-            response(_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
+            assert(_this);
+            response(*_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
         }
         else if (_state == InternalServerState::Active)
         {
             _load->addCallback(response, exception); // Must be called before startRuntimePropertiesUpdate!
             updateRevision(desc->uuid, desc->revision);
-            _load->startRuntimePropertiesUpdate(_process);
+            assert(_process);
+            _load->startRuntimePropertiesUpdate(*_process);
         }
         else
         {
@@ -1763,7 +1764,7 @@ ServerI::kill()
 void
 ServerI::deactivate()
 {
-    Ice::ProcessPrxPtr process;
+    optional<Ice::ProcessPrx> process;
     {
         lock_guard lock(_mutex);
         if (_state != Deactivating && _state != DeactivatingWaitForProcess)
@@ -1773,11 +1774,8 @@ ServerI::deactivate()
 
         assert(_desc);
 
-        //
-        // If a process object is supposed to be registered and it's
-        // not set yet, we wait for the server to set this process
-        // object before attempting to deactivate the server again.
-        //
+        // If a process object is supposed to be registered and it's not set yet, we wait for the server to set this
+        // process object before attempting to deactivate the server again.
         if (_desc->processRegistered && !_process)
         {
             setStateNoSync(InternalServerState::DeactivatingWaitForProcess);
@@ -2038,7 +2036,8 @@ ServerI::update()
             {
                 adapters.insert({adpt.first, adpt.second->getProxy()});
             }
-            _load->finished(_this, adapters, _activationTimeout, _deactivationTimeout);
+            assert(_this);
+            _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
         }
         catch (const DeploymentException& ex)
         {
@@ -2108,16 +2107,15 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             try
             {
                 assert(_this);
-                Ice::Identity id = {_id + "-" + adpt->id, _this->ice_getIdentity().category + "Adapter"};
+                Ice::Identity id{_id + "-" + adpt->id, _this->ice_getIdentity().category + "Adapter"};
                 auto servant = dynamic_pointer_cast<ServerAdapterI>(adapter->find(id));
                 if (!servant)
                 {
-                    auto proxy = Ice::uncheckedCast<AdapterPrx>(adapter->createProxy(id));
                     servant = make_shared<ServerAdapterI>(
                         _node,
                         this,
                         _id,
-                        proxy,
+                        AdapterPrx(adapter->createProxy(id)),
                         adpt->id,
                         _activation != Disabled || _failureTime != nullopt);
                     adapter->add(servant, id);
@@ -2609,14 +2607,16 @@ ServerI::updateRuntimePropertiesCallback(const shared_ptr<InternalServerDescript
         return;
     }
 
-    if (_load->finishRuntimePropertiesUpdate(desc, _process))
+    assert(_process);
+    if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
         AdapterPrxDict adapters;
         for (const auto& [id, servant] : _adapters)
         {
             adapters.insert({id, servant->getProxy()});
         }
-        _load->finished(_this, adapters, _activationTimeout, _deactivationTimeout);
+        assert(_this);
+        _load->finished(*_this, adapters, _activationTimeout, _deactivationTimeout);
     }
 }
 
@@ -2629,7 +2629,8 @@ ServerI::updateRuntimePropertiesCallback(exception_ptr ex, const shared_ptr<Inte
         return;
     }
 
-    if (_load->finishRuntimePropertiesUpdate(desc, _process))
+    assert(_process);
+    if (_load->finishRuntimePropertiesUpdate(desc, *_process))
     {
         _load->failed(ex);
     }
@@ -2765,7 +2766,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             }
             if (previous == Patching)
             {
-                _patch = 0;
+                _patch = nullptr;
             }
             if (_stop)
             {
@@ -2799,7 +2800,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             if (_patch)
             {
                 _patch->destroyed();
-                _patch = 0;
+                _patch = nullptr;
             }
             if (_load)
             {
@@ -2898,11 +2899,10 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
     }
     else if (_state == Active && _load)
     {
-        //
-        // If there's a pending load command, it's time to update the
-        // runtime properties of the server now that it's active.
-        //
-        _load->startRuntimePropertiesUpdate(_process);
+        // If there's a pending load command, it's time to update the runtime properties of the server now that it's
+        // active.
+        assert(_process);
+        _load->startRuntimePropertiesUpdate(*_process);
     }
 
     //

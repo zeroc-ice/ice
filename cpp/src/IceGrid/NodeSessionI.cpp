@@ -139,7 +139,7 @@ NodeSessionI::create(
 
     shared_ptr<NodeSessionI> nodeSession(new NodeSessionI(
         database,
-        std::move(node),
+        node,
         info,
         timeout,
         NodeSessionPrx{database->getInternalAdapter()->createProxy(nodeSessionId)},
@@ -240,7 +240,7 @@ NodeSessionI::getTimeout(const Ice::Current&) const
     return secondsToInt(_timeout);
 }
 
-NodeObserverPrxPtr
+optional<NodeObserverPrx>
 NodeSessionI::getObserver(const Ice::Current&) const
 {
     return dynamic_pointer_cast<NodeObserverTopic>(_database->getObserverTopic(TopicName::NodeObserver))
@@ -411,17 +411,13 @@ NodeSessionI::destroyImpl(bool shutdown)
         _database->removeInternalObject(_node->ice_getIdentity());
     }
 
-    //
     // Next we notify the observer.
-    //
     static_pointer_cast<NodeObserverTopic>(_database->getObserverTopic(TopicName::NodeObserver))->nodeDown(_info->name);
 
-    //
     // Unsubscribe the node replica observer.
-    //
     if (_replicaObserver)
     {
-        _database->getReplicaCache().unsubscribe(_replicaObserver);
+        _database->getReplicaCache().unsubscribe(*_replicaObserver);
         _replicaObserver = nullopt;
     }
 

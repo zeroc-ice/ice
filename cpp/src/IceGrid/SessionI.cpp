@@ -22,7 +22,7 @@ namespace IceGrid
     public:
         AllocateObject(
             const shared_ptr<SessionI>& session,
-            function<void(const Ice::ObjectPrxPtr& returnValue)>&& response,
+            function<void(const Ice::ObjectPrx&)>&& response,
             function<void(exception_ptr)>&& exception)
             : ObjectAllocationRequest(session),
               _response(std::move(response)),
@@ -30,14 +30,14 @@ namespace IceGrid
         {
         }
 
-        void response(const Ice::ObjectPrxPtr& proxy) override
+        void response(const Ice::ObjectPrx& proxy) final
         {
             assert(_response);
             _response(proxy);
             _response = nullptr;
         }
 
-        void exception(exception_ptr ex) override
+        void exception(exception_ptr ex) final
         {
             assert(_exception);
             _exception(ex);
@@ -45,7 +45,7 @@ namespace IceGrid
         }
 
     private:
-        function<void(const Ice::ObjectPrxPtr& returnValue)> _response;
+        function<void(const Ice::ObjectPrx& returnValue)> _response;
         function<void(exception_ptr)> _exception;
     };
 }
@@ -117,14 +117,14 @@ BaseSessionI::shutdown()
     destroyImpl(true);
 }
 
-Glacier2::IdentitySetPrxPtr
+optional<Glacier2::IdentitySetPrx>
 BaseSessionI::getGlacier2IdentitySet()
 {
     assert(_servantManager);
     return _servantManager->getGlacier2IdentitySet(shared_from_this());
 }
 
-Glacier2::StringSetPrxPtr
+optional<Glacier2::StringSetPrx>
 BaseSessionI::getGlacier2AdapterIdSet()
 {
     assert(_servantManager);
@@ -151,7 +151,7 @@ SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, con
 void
 SessionI::allocateObjectByIdAsync(
     Ice::Identity id,
-    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+    function<void(const optional<Ice::ObjectPrx>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current&)
 {
@@ -165,7 +165,7 @@ SessionI::allocateObjectByIdAsync(
 void
 SessionI::allocateObjectByTypeAsync(
     string type,
-    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+    function<void(const optional<Ice::ObjectPrx>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current&)
 {
@@ -296,12 +296,12 @@ ClientSessionFactory::ClientSessionFactory(
     }
 }
 
-Glacier2::SessionPrxPtr
-ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrxPtr& ctl)
+Glacier2::SessionPrx
+ClientSessionFactory::createGlacier2Session(const string& sessionId, const optional<Glacier2::SessionControlPrx>& ctl)
 {
     assert(_servantManager);
 
-    auto session = createSessionServant(sessionId, ctl);
+    auto session = createSessionServant(sessionId);
     auto proxy = session->_register(_servantManager, 0);
 
     chrono::seconds timeout = 0s;
@@ -312,7 +312,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
             if (_filters)
             {
                 Ice::Identity queryId = {"Query", _database->getInstanceName()};
-                _servantManager->setSessionControl(session, ctl, {std::move(queryId)});
+                _servantManager->setSessionControl(session, *ctl, {std::move(queryId)});
             }
             timeout = chrono::seconds(ctl->getSessionTimeout());
         }
@@ -328,11 +328,11 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
     }
 
     _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), timeout);
-    return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
+    return Glacier2::SessionPrx(proxy);
 }
 
 shared_ptr<SessionI>
-ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrxPtr&)
+ClientSessionFactory::createSessionServant(const string& userId)
 {
     return make_shared<SessionI>(userId, _database, _timer);
 }
@@ -345,8 +345,8 @@ ClientSessionFactory::getTraceLevels() const
 
 ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory) {}
 
-Glacier2::SessionPrxPtr
-ClientSessionManagerI::create(string user, Glacier2::SessionControlPrxPtr ctl, const Ice::Current&)
+std::optional<Glacier2::SessionPrx>
+ClientSessionManagerI::create(string user, std::optional<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
 {
     return _factory->createGlacier2Session(std::move(user), std::move(ctl));
 }
@@ -355,8 +355,11 @@ ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessio
 {
 }
 
-Glacier2::SessionPrxPtr
-ClientSSLSessionManagerI::create(Glacier2::SSLInfo info, Glacier2::SessionControlPrxPtr ctl, const Ice::Current&)
+std::optional<Glacier2::SessionPrx>
+ClientSSLSessionManagerI::create(
+    Glacier2::SSLInfo info,
+    std::optional<Glacier2::SessionControlPrx> ctl,
+    const Ice::Current&)
 {
     string userDN;
     if (!info.certs.empty()) // TODO: Require userDN?

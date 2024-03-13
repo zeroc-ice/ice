@@ -17,12 +17,12 @@ namespace IceGrid
     {
     public:
         MasterDatabaseObserverI(
-            const shared_ptr<ReplicaSessionManager::Thread>& thread,
-            const shared_ptr<Database>& database,
-            const ReplicaSessionPrxPtr& session)
-            : _thread(thread),
-              _database(database),
-              _session(session)
+            shared_ptr<ReplicaSessionManager::Thread> thread,
+            shared_ptr<Database> database,
+            ReplicaSessionPrx session)
+            : _thread(std::move(thread)),
+              _database(std::move(database)),
+              _session(std::move(session))
         {
         }
 
@@ -99,6 +99,7 @@ namespace IceGrid
 
         void adapterAdded(AdapterInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -115,6 +116,7 @@ namespace IceGrid
 
         void adapterUpdated(AdapterInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -153,6 +155,7 @@ namespace IceGrid
 
         void objectAdded(ObjectInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -171,6 +174,7 @@ namespace IceGrid
 
         void objectUpdated(ObjectInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -258,7 +262,7 @@ namespace IceGrid
 
         const shared_ptr<ReplicaSessionManager::Thread> _thread;
         const shared_ptr<Database> _database;
-        const ReplicaSessionPrxPtr _session;
+        const ReplicaSessionPrx _session;
     };
 
 };
@@ -386,10 +390,10 @@ ReplicaSessionManager::registerAllWellKnownObjects()
     }
 }
 
-InternalRegistryPrxPtr
+optional<InternalRegistryPrx>
 ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 {
-    vector<future<Ice::ObjectPrxPtr>> results;
+    vector<future<optional<Ice::ObjectPrx>>> results;
     for (const auto& obj : findAllQueryObjects(true))
     {
         results.push_back(obj->findObjectByIdAsync(id));
@@ -399,7 +403,9 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
     {
         try
         {
-            return Ice::checkedCast<InternalRegistryPrx>(result.get());
+            auto prx = result.get();
+            assert(prx);
+            return InternalRegistryPrx{*prx};
         }
         catch (const Ice::Exception&)
         {
@@ -410,7 +416,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 }
 
 bool
-ReplicaSessionManager::keepAlive(const ReplicaSessionPrxPtr& session)
+ReplicaSessionManager::keepAlive(const ReplicaSessionPrx& session)
 {
     try
     {
@@ -464,7 +470,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seco
 
         if (!session)
         {
-            vector<future<Ice::ObjectPrxPtr>> results;
+            vector<future<optional<Ice::ObjectPrx>>> results;
             for (const auto& obj : findAllQueryObjects(false))
             {
                 results.push_back(obj->findObjectByIdAsync(registry->ice_getIdentity()));
@@ -580,46 +586,46 @@ ReplicaSessionManager::createSessionImpl(InternalRegistryPrx registry, chrono::s
         // to the session so that it can subscribe it. This call only
         // returns once the observer is subscribed and initialized.
         //
-        auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, session);
-        _observer = Ice::uncheckedCast<DatabaseObserverPrx>(_database->getInternalAdapter()->addWithUUID(servant));
+        auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, *session);
+        _observer = DatabaseObserverPrx(_database->getInternalAdapter()->addWithUUID(servant));
         StringLongDict serials = _database->getSerials();
         optional<StringLongDict> serialsOpt;
         if (!serials.empty())
         {
             serialsOpt = serials; // Don't provide serials parameter if serials aren't supported.
         }
-        session->setDatabaseObserver(_observer, serialsOpt);
+        session->setDatabaseObserver(*_observer, serialsOpt);
         return *session;
     }
     catch (const Ice::Exception&)
     {
-        destroySession(session);
+        if (session)
+        {
+            destroySession(*session);
+        }
         throw;
     }
 }
 
 void
-ReplicaSessionManager::destroySession(const optional<ReplicaSessionPrx>& session)
+ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
 {
-    if (session)
+    try
     {
-        try
-        {
-            session->destroy();
+        session->destroy();
 
-            if (_traceLevels && _traceLevels->replica > 0)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "destroyed master replica session";
-            }
-        }
-        catch (const Ice::LocalException& ex)
+        if (_traceLevels && _traceLevels->replica > 0)
         {
-            if (_traceLevels && _traceLevels->replica > 1)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "couldn't destroy master replica session:\n" << ex;
-            }
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+            out << "destroyed master replica session";
+        }
+    }
+    catch (const Ice::LocalException& ex)
+    {
+        if (_traceLevels && _traceLevels->replica > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+            out << "couldn't destroy master replica session:\n" << ex;
         }
     }
 

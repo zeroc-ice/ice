@@ -15,11 +15,11 @@ ServerAdapterI::ServerAdapterI(
     const shared_ptr<NodeI>& node,
     ServerI* server,
     const string& serverName,
-    const AdapterPrxPtr& proxy,
+    AdapterPrx proxy,
     const string& id,
     bool enabled)
     : _node(node),
-      _this(proxy),
+      _this(std::move(proxy)),
       _serverId(serverName),
       _id(id),
       _server(server),
@@ -31,7 +31,7 @@ ServerAdapterI::~ServerAdapterI() { assert(_activateCB.empty()); }
 
 void
 ServerAdapterI::activateAsync(
-    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(const optional<Ice::ObjectPrx>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -103,7 +103,7 @@ ServerAdapterI::activateAsync(
     }
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
@@ -123,7 +123,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 }
 
 void
-ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
+ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
@@ -133,7 +133,7 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
     //
     if (!_node->allowEndpointsOverride())
     {
-        if (prx && _proxy)
+        if (proxy && _proxy)
         {
             if (_server->getState(Ice::emptyCurrent) == ServerState::Active)
             {
@@ -142,8 +142,8 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
         }
     }
 
-    bool updated = _proxy != prx;
-    _proxy = std::move(prx);
+    bool updated = _proxy != proxy;
+    _proxy = std::move(proxy);
 
     //
     // If the server is being deactivated and the activation callback
@@ -258,7 +258,7 @@ ServerAdapterI::activationCompleted()
     _activateCB.clear();
 }
 
-AdapterPrxPtr
+AdapterPrx
 ServerAdapterI::getProxy() const
 {
     return _this;

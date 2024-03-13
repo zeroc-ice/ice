@@ -36,38 +36,38 @@ namespace IceGrid
             const std::shared_ptr<Ice::Communicator>&,
             const std::shared_ptr<Database>&,
             const std::shared_ptr<WellKnownObjectsManager>&,
-            const RegistryPrxPtr&,
-            const QueryPrxPtr&);
+            RegistryPrx,
+            QueryPrx);
 
         void findObjectByIdAsync(
             Ice::Identity,
-            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(const std::optional<Ice::ObjectPrx>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const override;
 
         void findAdapterByIdAsync(
             std::string,
-            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(const std::optional<Ice::ObjectPrx>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const override;
 
-        Ice::LocatorRegistryPrxPtr getRegistry(const Ice::Current&) const override;
-        RegistryPrxPtr getLocalRegistry(const Ice::Current&) const override;
-        QueryPrxPtr getLocalQuery(const Ice::Current&) const override;
+        std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
+        std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
+        std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
 
         const std::shared_ptr<Ice::Communicator>& getCommunicator() const;
         const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
         bool getDirectProxy(const LocatorAdapterInfo&, const std::shared_ptr<Request>&);
-        void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrxPtr&);
+        void getDirectProxyResponse(const LocatorAdapterInfo&, const std::optional<Ice::ObjectPrx>&);
         void getDirectProxyException(const LocatorAdapterInfo&, std::exception_ptr);
 
     protected:
         const std::shared_ptr<Ice::Communicator> _communicator;
         const std::shared_ptr<Database> _database;
         const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
-        const RegistryPrxPtr _localRegistry;
-        const QueryPrxPtr _localQuery;
+        const RegistryPrx _localRegistry;
+        const QueryPrx _localQuery;
 
         using PendingRequests = std::vector<std::shared_ptr<Request>>;
         using PendingRequestsMap = std::map<std::string, PendingRequests>;

@@ -262,7 +262,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
 }
 
 void
-IceBox::ServiceManagerI::addObserver(ServiceObserverPrxPtr observer, const Current&)
+IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, const Current&)
 {
     //
     // Null observers and duplicate registrations are ignored
@@ -811,7 +811,7 @@ IceBox::ServiceManagerI::stopAll()
 }
 
 function<void(exception_ptr)>
-IceBox::ServiceManagerI::makeObserverCompletedCallback(const ServiceObserverPrxPtr& observer)
+IceBox::ServiceManagerI::makeObserverCompletedCallback(const optional<ServiceObserverPrx>& observer)
 {
     weak_ptr<ServiceManagerI> self = shared_from_this();
     return [self, observer](exception_ptr ex)
@@ -824,7 +824,9 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(const ServiceObserverPrxP
     };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
+IceBox::ServiceManagerI::servicesStarted(
+    const vector<string>& services,
+    const set<optional<ServiceObserverPrx>>& observers)
 {
     if (services.size() > 0)
     {
@@ -836,7 +838,9 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
+IceBox::ServiceManagerI::servicesStopped(
+    const vector<string>& services,
+    const set<optional<ServiceObserverPrx>>& observers)
 {
     if (services.size() > 0)
     {
@@ -848,7 +852,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrxPtr& observer, exception_ptr err)
+IceBox::ServiceManagerI::observerRemoved(const optional<ServiceObserverPrx>& observer, exception_ptr err)
 {
     if (_traceServiceObserver >= 1)
     {
@@ -906,7 +910,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 }
 
 void
-ServiceManagerI::observerCompleted(const ServiceObserverPrxPtr& observer, exception_ptr ex)
+ServiceManagerI::observerCompleted(const optional<ServiceObserverPrx>& observer, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
     //

@@ -45,7 +45,7 @@ namespace IceGrid
         std::mutex _mutex;
     };
 
-    class NodeSessionI : public NodeSession, public std::enable_shared_from_this<NodeSessionI>
+    class NodeSessionI final : public NodeSession, public std::enable_shared_from_this<NodeSessionI>
     {
     public:
         static std::shared_ptr<NodeSessionI> create(
@@ -55,20 +55,20 @@ namespace IceGrid
             std::chrono::seconds,
             const LoadInfo&);
 
-        void keepAlive(LoadInfo, const Ice::Current&) override;
-        void setReplicaObserver(std::optional<ReplicaObserverPrx>, const Ice::Current&) override;
-        int getTimeout(const Ice::Current&) const override;
-        NodeObserverPrxPtr getObserver(const Ice::Current&) const override;
+        void keepAlive(LoadInfo, const Ice::Current&) final;
+        void setReplicaObserver(std::optional<ReplicaObserverPrx>, const Ice::Current&) final;
+        int getTimeout(const Ice::Current&) const final;
+        std::optional<NodeObserverPrx> getObserver(const Ice::Current&) const final;
         void loadServersAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
-            const override;
-        Ice::StringSeq getServers(const Ice::Current&) const override;
+            const final;
+        Ice::StringSeq getServers(const Ice::Current&) const final;
         void waitForApplicationUpdateAsync(
             std::string,
             int,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) const override;
-        void destroy(const Ice::Current&) override;
+            const Ice::Current&) const final;
+        void destroy(const Ice::Current&) final;
 
         std::chrono::steady_clock::time_point timestamp() const;
         void shutdown();

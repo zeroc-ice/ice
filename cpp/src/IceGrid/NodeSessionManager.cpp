@@ -32,7 +32,7 @@ NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(
 optional<NodeSessionPrx>
 NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono::seconds& timeout)
 {
-    NodeSessionPrxPtr session;
+    optional<NodeSessionPrx> session;
     string exceptionMessage;
     auto traceLevels = _node->getTraceLevels();
     try
@@ -74,7 +74,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
                     break;
                 }
 
-                InternalRegistryPrxPtr newRegistry;
+                optional<InternalRegistryPrx> newRegistry;
                 try
                 {
                     newRegistry = optional<InternalRegistryPrx>(result.get());
@@ -153,6 +153,13 @@ NodeSessionKeepAliveThread::createSessionImpl(InternalRegistryPrx registry, chro
     try
     {
         session = _node->registerWithRegistry(registry);
+        if (!session)
+        {
+            ostringstream os;
+            os << "failed to register node with registry: `" << registry->ice_toString() << "'";
+            throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
+        }
+
         auto t = session->getTimeout();
         if (t > 0)
         {
@@ -160,46 +167,53 @@ NodeSessionKeepAliveThread::createSessionImpl(InternalRegistryPrx registry, chro
             // If we used t directly, a delayed keep alive could kill the session
             timeout = chrono::seconds(t / 2);
         }
-        _node->addObserver(session, session->getObserver());
+        optional<NodeObserverPrx> observer = session->getObserver();
+        if (!observer)
+        {
+            ostringstream os;
+            os << "session: `" << session->ice_toString() << "' returned null observer proxy";
+            throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
+        }
+
+        _node->addObserver(*session, *observer);
         return *session;
     }
     catch (const Ice::LocalException&)
     {
-        destroySession(session);
+        if (session)
+        {
+            destroySession(*session);
+        }
         throw;
     }
 }
 
 void
-NodeSessionKeepAliveThread::destroySession(const NodeSessionPrxPtr& session)
+NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
     _node->removeObserver(session);
-
-    if (session)
+    try
     {
-        try
-        {
-            session->destroy();
+        session->destroy();
 
-            if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
-            {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-                out << "destroyed replica `" << _replicaName << "' session";
-            }
-        }
-        catch (const Ice::LocalException& ex)
+        if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
         {
-            if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
-            {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-                out << "couldn't destroy replica `" << _replicaName << "' session:\n" << ex;
-            }
+            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+            out << "destroyed replica `" << _replicaName << "' session";
+        }
+    }
+    catch (const Ice::LocalException& ex)
+    {
+        if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+        {
+            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+            out << "couldn't destroy replica `" << _replicaName << "' session:\n" << ex;
         }
     }
 }
 
 bool
-NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrxPtr& session)
+NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 {
     if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
     {
@@ -448,7 +462,11 @@ NodeSessionManager::reapReplicas()
         {
             if (_replicas.find(q->first) == _replicas.end() && q->second->terminateIfDisconnected())
             {
-                _node->removeObserver(q->second->getSession());
+                auto session = q->second->getSession();
+                if (session)
+                {
+                    _node->removeObserver(*session);
+                }
                 reap.push_back(q->second);
                 _sessions.erase(q++);
             }
@@ -563,7 +581,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
             results2.push_back(object->findAllObjectsByTypeAsync(Registry::ice_staticId()));
         }
 
-        map<Ice::Identity, Ice::ObjectPrxPtr> proxies;
+        map<Ice::Identity, Ice::ObjectPrx> proxies;
 
         for (auto& result : results1)
         {
@@ -577,7 +595,8 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
                 auto prxs = result.get();
                 for (const auto& prx : prxs)
                 {
-                    proxies[prx->ice_getIdentity()] = prx;
+                    assert(prx);
+                    proxies.insert({prx->ice_getIdentity(), *prx});
                 }
             }
             catch (const Ice::LocalException&)
@@ -609,9 +628,9 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
                     prx = prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
 
                     id.name = "Locator";
-                    prx = prx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(prx->ice_identity(id)));
+                    prx = prx->ice_locator(optional<Ice::LocatorPrx>(prx->ice_identity(id)));
 
-                    proxies[id] = std::move(prx);
+                    proxies.insert({id, std::move(*prx)});
                 }
             }
             catch (const Ice::LocalException&)
@@ -622,7 +641,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
 
         for (const auto& prx : proxies)
         {
-            replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
+            replicas.push_back(InternalRegistryPrx(prx.second));
         }
     }
 

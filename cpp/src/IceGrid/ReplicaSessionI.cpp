@@ -108,24 +108,20 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 
 void
 ReplicaSessionI::setDatabaseObserver(
-    DatabaseObserverPrxPtr observer,
+    optional<DatabaseObserverPrx> observer,
     optional<StringLongDict> slaveSerials,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
-    //
-    // If it's a read only master, we don't setup the observer to not
-    // modify the replica database.
-    //
+    Ice::checkNotNull(observer, __FILE__, __LINE__, current);
+
+    // If it's a read only master, we don't setup the observer to not modify the replica database.
     if (_database->isReadOnly())
     {
         return;
     }
 
-    //
-    // If the slave provides serials (Ice >= 3.5.1), we check the
-    // serials and disable database synchronization if the slave has
-    // earlier updates.
-    //
+    // If the slave provides serials (Ice >= 3.5.1), we check the serials and disable database
+    // synchronization if the slave has earlier updates.
     if (slaveSerials)
     {
         StringLongDict masterSerials = _database->getSerials();
@@ -176,9 +172,9 @@ ReplicaSessionI::setDatabaseObserver(
         }
         _observer = observer;
 
-        serialApplicationObserver = applicationObserver->subscribe(_observer, _info->name);
-        serialAdapterObserver = adapterObserver->subscribe(_observer, _info->name);
-        serialObjectObserver = objectObserver->subscribe(_observer, _info->name);
+        serialApplicationObserver = applicationObserver->subscribe(*_observer, _info->name);
+        serialAdapterObserver = adapterObserver->subscribe(*_observer, _info->name);
+        serialObjectObserver = objectObserver->subscribe(*_observer, _info->name);
     }
 
     applicationObserver->waitForSyncedSubscribers(serialApplicationObserver, _info->name);
@@ -227,14 +223,15 @@ void
 ReplicaSessionI::setAdapterDirectProxy(
     string adapterId,
     string replicaGroupId,
-    Ice::ObjectPrxPtr proxy,
-    const Ice::Current&)
+    optional<Ice::ObjectPrx> proxy,
+    const Ice::Current& current)
 {
+    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
     if (_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
     {
         throw AdapterNotExistException();
     }
-    _database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
+    _database->setAdapterDirectProxy(adapterId, replicaGroupId, std::move(*proxy));
 }
 
 void
@@ -282,13 +279,13 @@ ReplicaSessionI::getInfo() const
     return _info;
 }
 
-ReplicaSessionPrxPtr
+ReplicaSessionPrx
 ReplicaSessionI::getProxy() const
 {
     return _proxy;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 ReplicaSessionI::getEndpoint(const std::string& name)
 {
     lock_guard lock(_mutex);
@@ -320,9 +317,9 @@ ReplicaSessionI::destroyImpl(bool shutdown)
 
     if (_observer)
     {
-        _database->getObserverTopic(TopicName::ApplicationObserver)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(TopicName::AdapterObserver)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(TopicName::ObjectObserver)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::ApplicationObserver)->unsubscribe(*_observer, _info->name);
+        _database->getObserverTopic(TopicName::AdapterObserver)->unsubscribe(*_observer, _info->name);
+        _database->getObserverTopic(TopicName::ObjectObserver)->unsubscribe(*_observer, _info->name);
     }
 
     // Don't remove the replica proxy from the database if the registry is being shutdown.

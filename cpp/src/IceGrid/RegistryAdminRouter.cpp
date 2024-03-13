@@ -69,7 +69,7 @@ RegistryServerAdminRouter::ice_invokeAsync(
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
     try
     {
@@ -106,7 +106,7 @@ RegistryServerAdminRouter::ice_invokeAsync(
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database)
@@ -123,7 +123,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
     if (!_collocNodeName.empty() && current.id.name == _collocNodeName)
     {
@@ -157,7 +157,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const shared_ptr<Database>& database)
@@ -174,7 +174,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
     if (current.id.name == _name)
     {
@@ -206,5 +206,5 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }

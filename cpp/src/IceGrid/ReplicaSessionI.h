@@ -26,10 +26,12 @@ namespace IceGrid
 
         void keepAlive(const Ice::Current&) override;
         int getTimeout(const Ice::Current&) const override;
-        void setDatabaseObserver(DatabaseObserverPrxPtr, std::optional<StringLongDict>, const Ice::Current&) override;
+        void setDatabaseObserver(std::optional<DatabaseObserverPrx>, std::optional<StringLongDict>, const Ice::Current&)
+            final;
         void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
         void registerWellKnownObjects(ObjectInfoSeq, const Ice::Current&) override;
-        void setAdapterDirectProxy(std::string, std::string, Ice::ObjectPrxPtr, const Ice::Current&) override;
+        void
+        setAdapterDirectProxy(std::string, std::string, std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
         void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
         void destroy(const Ice::Current&) override;
 
@@ -38,9 +40,9 @@ namespace IceGrid
 
         const InternalRegistryPrx& getInternalRegistry() const;
         const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
-        ReplicaSessionPrxPtr getProxy() const;
+        ReplicaSessionPrx getProxy() const;
 
-        Ice::ObjectPrxPtr getEndpoint(const std::string&);
+        std::optional<Ice::ObjectPrx> getEndpoint(const std::string&);
         bool isDestroyed() const;
 
     private:

@@ -28,8 +28,8 @@ namespace IceGrid
 
         std::chrono::steady_clock::time_point timestamp() const;
         void shutdown();
-        Glacier2::IdentitySetPrxPtr getGlacier2IdentitySet();
-        Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet();
+        std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
+        std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet();
 
         const std::string& getId() const { return _id; }
         virtual void destroyImpl(bool);
@@ -63,12 +63,12 @@ namespace IceGrid
         void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
         void allocateObjectByIdAsync(
             Ice::Identity id,
-            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
             const Ice::Current& current) override;
         void allocateObjectByTypeAsync(
             std::string,
-            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
             const Ice::Current& current) override;
         void releaseObject(Ice::Identity, const Ice::Current&) override;
@@ -101,8 +101,10 @@ namespace IceGrid
             const IceUtil::TimerPtr&,
             const std::shared_ptr<ReapThread>&);
 
-        Glacier2::SessionPrxPtr createGlacier2Session(const std::string&, const Glacier2::SessionControlPrxPtr&);
-        std::shared_ptr<SessionI> createSessionServant(const std::string&, const Glacier2::SessionControlPrxPtr&);
+        Glacier2::SessionPrx
+        createGlacier2Session(const std::string&, const std::optional<Glacier2::SessionControlPrx>&);
+
+        std::shared_ptr<SessionI> createSessionServant(const std::string&);
 
         const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
@@ -119,7 +121,8 @@ namespace IceGrid
     public:
         ClientSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
-        Glacier2::SessionPrxPtr create(std::string, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
+        std::optional<Glacier2::SessionPrx>
+        create(std::string, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 
     private:
         const std::shared_ptr<ClientSessionFactory> _factory;
@@ -130,7 +133,8 @@ namespace IceGrid
     public:
         ClientSSLSessionManagerI(const std::shared_ptr<ClientSessionFactory>&);
 
-        Glacier2::SessionPrxPtr create(Glacier2::SSLInfo, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
+        std::optional<Glacier2::SessionPrx>
+        create(Glacier2::SSLInfo, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 
     private:
         const std::shared_ptr<ClientSessionFactory> _factory;

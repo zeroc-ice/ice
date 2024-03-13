@@ -26,7 +26,7 @@ namespace IceBox
         virtual void startService(std::string, const ::Ice::Current&);
         virtual void stopService(std::string, const ::Ice::Current&);
 
-        virtual void addObserver(ServiceObserverPrxPtr, const Ice::Current&);
+        virtual void addObserver(std::optional<ServiceObserverPrx>, const Ice::Current&);
 
         virtual void shutdown(const ::Ice::Current&);
 
@@ -35,7 +35,7 @@ namespace IceBox
         bool start();
         void stop();
 
-        void observerCompleted(const ServiceObserverPrxPtr&, std::exception_ptr);
+        void observerCompleted(const std::optional<ServiceObserverPrx>&, std::exception_ptr);
 
     private:
         enum ServiceStatus
@@ -61,10 +61,10 @@ namespace IceBox
         void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
         void stopAll();
 
-        void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
-        void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
-        std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const ServiceObserverPrxPtr&);
-        void observerRemoved(const ServiceObserverPrxPtr&, std::exception_ptr);
+        void servicesStarted(const std::vector<std::string>&, const std::set<std::optional<ServiceObserverPrx>>&);
+        void servicesStopped(const std::vector<std::string>&, const std::set<std::optional<ServiceObserverPrx>>&);
+        std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const std::optional<ServiceObserverPrx>&);
+        void observerRemoved(const std::optional<ServiceObserverPrx>&, std::exception_ptr);
 
         Ice::PropertiesPtr createServiceProperties(const std::string&);
         void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
@@ -81,7 +81,7 @@ namespace IceBox
         std::vector<ServiceInfo> _services;
         bool _pendingStatusChanges;
 
-        std::set<ServiceObserverPrxPtr> _observers;
+        std::set<std::optional<ServiceObserverPrx>> _observers;
         int _traceServiceObserver;
 
         std::mutex _mutex;

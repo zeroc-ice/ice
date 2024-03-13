@@ -57,7 +57,7 @@ namespace
         }
 
         void
-        findLocator(string instanceName, IceLocatorDiscovery::LookupReplyPrxPtr reply, const Ice::Current&) override
+        findLocator(string instanceName, optional<IceLocatorDiscovery::LookupReplyPrx> reply, const Ice::Current&) final
         {
             if (!instanceName.empty() && instanceName != _instanceName)
             {
@@ -80,8 +80,6 @@ namespace
             }
         }
 
-        Ice::LocatorPrxPtr getLocator(const Ice::Current&) { return _wellKnownObjects->getLocator(); }
-
     private:
         const string _instanceName;
         const shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
@@ -91,9 +89,11 @@ namespace
     class FinderI final : public Ice::LocatorFinder
     {
     public:
-        FinderI(const shared_ptr<WellKnownObjectsManager>& wellKnownObjects) : _wellKnownObjects(wellKnownObjects) {}
+        FinderI(shared_ptr<WellKnownObjectsManager> wellKnownObjects) : _wellKnownObjects(std::move(wellKnownObjects))
+        {
+        }
 
-        Ice::LocatorPrxPtr getLocator(const Ice::Current&) override { return _wellKnownObjects->getLocator(); }
+        optional<Ice::LocatorPrx> getLocator(const Ice::Current&) final { return _wellKnownObjects->getLocator(); }
 
     private:
         const shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
@@ -102,10 +102,10 @@ namespace
     class ProcessI final : public Process
     {
     public:
-        ProcessI(const shared_ptr<RegistryI>&, const shared_ptr<Process>&);
+        ProcessI(shared_ptr<RegistryI>, shared_ptr<Process>);
 
-        void shutdown(const Current&) override;
-        void writeMessage(string, int, const Current&) override;
+        void shutdown(const Current&) final;
+        void writeMessage(string, int, const Current&) final;
 
     private:
         shared_ptr<RegistryI> _registry;
@@ -125,9 +125,9 @@ namespace
         return nullptr;
     }
 
-    ProcessI::ProcessI(const shared_ptr<RegistryI>& registry, const shared_ptr<Process>& origProcess)
-        : _registry(registry),
-          _origProcess(origProcess)
+    ProcessI::ProcessI(shared_ptr<RegistryI> registry, shared_ptr<Process> origProcess)
+        : _registry(std::move(registry)),
+          _origProcess(std::move(origProcess))
     {
     }
 
@@ -399,16 +399,15 @@ RegistryI::startImpl()
 
     if (!_initFromReplica.empty())
     {
-        Identity id;
-        id.category = _instanceName;
-        id.name = (_initFromReplica == "Master") ? "Registry" : "Registry-" + _initFromReplica;
+        Ice::Identity id{(_initFromReplica == "Master") ? "Registry" : "Registry-" + _initFromReplica, _instanceName};
 
-        ObjectPrxPtr proxy;
+        optional<ObjectPrx> proxy;
         try
         {
             proxy = _database->getObjectProxy(id);
+            assert(proxy);
             id.name = "Query";
-            auto query = uncheckedCast<IceGrid::QueryPrx>(proxy->ice_identity(id));
+            IceGrid::QueryPrx query{proxy->ice_identity(id)};
             id.name = "InternalRegistry-" + _initFromReplica;
             try
             {
@@ -430,9 +429,8 @@ RegistryI::startImpl()
             }
         }
 
-        // If we still didn't find the replica proxy, check with the
-        // locator or the IceGrid.Registry.ReplicaEndpoints properties
-        // if we can find it.
+        // If we still didn't find the replica proxy, check with the locator or the IceGrid.Registry.ReplicaEndpoints
+        // properties if we can find it.
         if (!proxy)
         {
             id.name = "InternalRegistry-" + (_initFromReplica.empty() ? "Master" : _initFromReplica);
@@ -451,7 +449,7 @@ RegistryI::startImpl()
         try
         {
             int64_t serial;
-            auto registry = checkedCast<IceGrid::InternalRegistryPrx>(proxy);
+            IceGrid::InternalRegistryPrx registry{*proxy};
             ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);
             AdapterInfoSeq adapters = registry->getAdapters(serial);
@@ -480,8 +478,7 @@ RegistryI::startImpl()
     // shutdown.
     //
     NodePrxSeq nodes;
-    ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
-    for (const auto& proxy : proxies)
+    for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
         assert(proxy);
         nodes.push_back(optional<NodePrx>(std::move(proxy)));
@@ -522,7 +519,7 @@ RegistryI::startImpl()
     RegistryPrx registry = setupRegistry();
 
     setupLocatorRegistry();
-    LocatorPrx internalLocator = setupLocator(registry, query);
+    LocatorPrx internalLocator = setupLocator(std::move(registry), std::move(query));
 
     //
     // Create the session servant manager. The session servant manager is responsible
@@ -666,9 +663,10 @@ RegistryI::setupLocatorRegistry()
 }
 
 IceGrid::LocatorPrx
-RegistryI::setupLocator(const RegistryPrx& registry, const QueryPrx& query)
+RegistryI::setupLocator(RegistryPrx registry, QueryPrx query)
 {
-    auto locator = make_shared<LocatorI>(_communicator, _database, _wellKnownObjects, registry, query);
+    auto locator =
+        make_shared<LocatorI>(_communicator, _database, _wellKnownObjects, std::move(registry), std::move(query));
 
     _clientAdapter->add(locator, Identity{"Locator", _instanceName});
     _clientAdapter->add(locator, Identity{"Locator-" + _replicaName, _instanceName});
@@ -917,7 +915,7 @@ RegistryI::stop()
     _database = nullptr;
 }
 
-SessionPrxPtr
+optional<SessionPrx>
 RegistryI::createSession(string user, string password, const Current& current)
 {
     if (!_master)
@@ -962,7 +960,7 @@ RegistryI::createSession(string user, string password, const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(user, nullopt);
+    auto session = _clientSessionFactory->createSessionServant(user);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
         make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
@@ -971,7 +969,7 @@ RegistryI::createSession(string user, string password, const Current& current)
     return SessionPrx(proxy);
 }
 
-AdminSessionPrxPtr
+optional<AdminSessionPrx>
 RegistryI::createAdminSession(string user, string password, const Current& current)
 {
     assert(_reaper && _adminSessionFactory);
@@ -1017,10 +1015,10 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
         make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return uncheckedCast<AdminSessionPrx>(proxy);
+    return AdminSessionPrx(proxy);
 }
 
-SessionPrxPtr
+optional<SessionPrx>
 RegistryI::createSessionFromSecureConnection(const Current& current)
 {
     if (!_master)
@@ -1067,16 +1065,16 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(userDN, nullopt);
+    auto session = _clientSessionFactory->createSessionServant(userDN);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(
         make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return uncheckedCast<SessionPrx>(proxy);
+    return SessionPrx(proxy);
 }
 
-AdminSessionPrxPtr
+optional<AdminSessionPrx>
 RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
     assert(_reaper && _adminSessionFactory);
@@ -1122,7 +1120,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
         make_shared<SessionReapableWithHeartbeat<AdminSessionI>>(_traceLevels->logger, session),
         _sessionTimeout,
         current.con);
-    return uncheckedCast<AdminSessionPrx>(proxy);
+    return AdminSessionPrx(proxy);
 }
 
 int
@@ -1169,7 +1167,7 @@ RegistryI::createAdminCallbackProxy(const Identity& id) const
     return _serverAdapter->createProxy(id);
 }
 
-Ice::LocatorPrxPtr
+Ice::LocatorPrx
 RegistryI::getLocator()
 {
     return _wellKnownObjects->getLocator();
@@ -1273,11 +1271,9 @@ RegistryI::getSSLInfo(const shared_ptr<Connection>& connection, string& userDN)
 }
 
 NodePrxSeq
-RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, const NodePrxSeq& dbNodes)
+RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& dbNodes)
 {
-    //
-    // Get proxies for slaves that we we connected with on last
-    // shutdown.
+    // Get proxies for slaves that we we connected with on last  shutdown.
     //
     // We first get the internal registry proxies and then also check
     // the public registry proxies. If we find public registry
@@ -1287,15 +1283,17 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
     // version <= 3.5.0 also kept the internal proxy in the database
     // instead of the public proxy.
     //
-    map<InternalRegistryPrxPtr, RegistryPrxPtr> replicas;
+    map<InternalRegistryPrx, optional<RegistryPrx>> replicas;
 
     for (const auto& p : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
-        replicas.insert({uncheckedCast<InternalRegistryPrx>(p), nullopt});
+        assert(p);
+        replicas[InternalRegistryPrx{*p}] = nullopt;
     }
 
     for (const auto& p : _database->getObjectsByType(string{Registry::ice_staticId()}))
     {
+        assert(p);
         Ice::Identity id = p->ice_getIdentity();
         const string prefix("Registry-");
         string::size_type pos = id.name.find(prefix);
@@ -1305,9 +1303,9 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
         }
         id.name = "InternalRegistry-" + id.name.substr(prefix.size());
 
-        auto prx = p->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
+        InternalRegistryPrx prx{p->ice_identity(id)->ice_endpoints(Ice::EndpointSeq())};
         id.name = "Locator";
-        prx = prx->ice_locator(uncheckedCast<Ice::LocatorPrx>(p->ice_identity(id)));
+        prx = prx->ice_locator(Ice::LocatorPrx{p->ice_identity(id)});
 
         for (auto q = replicas.begin(); q != replicas.end(); ++q)
         {
@@ -1317,12 +1315,12 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
                 break;
             }
         }
-        replicas.insert({uncheckedCast<InternalRegistryPrx>(prx), uncheckedCast<RegistryPrx>(p)});
+        replicas[prx] = optional<RegistryPrx>{std::move(p)};
     }
 
-    set<NodePrxPtr> nodes;
+    set<optional<NodePrx>> nodes;
     nodes.insert(dbNodes.begin(), dbNodes.end());
-    map<InternalRegistryPrxPtr, future<void>> results;
+    map<InternalRegistryPrx, future<void>> results;
     for (const auto& registryPrx : replicas)
     {
         if (registryPrx.first->ice_getIdentity() != internalRegistry->ice_getIdentity())
@@ -1366,11 +1364,8 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
         }
         catch (const Ice::LocalException& ex)
         {
-            //
-            // Clear the proxy from the database if we can't
-            // contact the replica.
-            //
-            RegistryPrxPtr registry;
+            // Clear the proxy from the database if we can't contact the replica.
+            optional<RegistryPrx> registry;
             for (const auto& r : replicas)
             {
                 if (r.first->ice_getIdentity() == replica->ice_getIdentity())
@@ -1425,15 +1420,12 @@ RegistryI::registerNodes(const NodePrxSeq& nodes)
         assert(node->ice_getIdentity().name.find(prefix) != string::npos);
         try
         {
-            _database->getNode(node->ice_getIdentity().name.substr(prefix.size()))->setProxy(node);
+            _database->getNode(node->ice_getIdentity().name.substr(prefix.size()))->setProxy(*node);
         }
         catch (const NodeNotExistException&)
         {
-            //
-            // Ignore, if nothing's deployed on the node we won't need
-            // to contact it for locator requests so we don't need to
-            // keep its proxy.
-            //
+            // Ignore, if nothing's deployed on the node we won't need to contact it for locator requests so we don't
+            // need to keep its proxy.
             try
             {
                 _database->removeInternalObject(node->ice_getIdentity());

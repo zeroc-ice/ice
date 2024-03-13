@@ -120,7 +120,7 @@ SessionServantManager::addSession(
 void
 SessionServantManager::setSessionControl(
     const shared_ptr<Ice::Object>& session,
-    const Glacier2::SessionControlPrxPtr& ctl,
+    const Glacier2::SessionControlPrx& ctl,
     const Ice::IdentitySeq& ids)
 {
     lock_guard lock(_mutex);
@@ -138,9 +138,7 @@ SessionServantManager::setSessionControl(
     copy(p->second.identities.begin(), p->second.identities.end(), back_inserter(allIds));
     p->second.identitySet->add(allIds);
 
-    //
     // Allow invocations on server admin objects.
-    //
     if (!p->second.category.empty() && _serverAdminRouter)
     {
         Ice::StringSeq seq;
@@ -149,7 +147,7 @@ SessionServantManager::setSessionControl(
     }
 }
 
-Glacier2::IdentitySetPrxPtr
+optional<Glacier2::IdentitySetPrx>
 SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);
@@ -168,7 +166,7 @@ SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& ses
     }
 }
 
-Glacier2::StringSetPrxPtr
+optional<Glacier2::StringSetPrx>
 SessionServantManager::getGlacier2AdapterIdSet(const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);

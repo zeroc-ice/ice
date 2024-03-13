@@ -65,11 +65,11 @@ namespace IceGrid
 
         const std::shared_ptr<Ice::ObjectAdapter>& getRegistryAdapter() { return _registryAdapter; }
 
-        Ice::LocatorPrxPtr getLocator();
+        Ice::LocatorPrx getLocator();
 
     private:
         void setupLocatorRegistry();
-        LocatorPrx setupLocator(const RegistryPrx&, const QueryPrx&);
+        LocatorPrx setupLocator(RegistryPrx, QueryPrx);
         QueryPrx setupQuery();
         RegistryPrx setupRegistry();
         InternalRegistryPrx setupInternalRegistry();
@@ -86,7 +86,7 @@ namespace IceGrid
         getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
         Glacier2::SSLInfo getSSLInfo(const std::shared_ptr<Ice::Connection>&, std::string&);
 
-        NodePrxSeq registerReplicas(const InternalRegistryPrxPtr&, const NodePrxSeq&);
+        NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
         void registerNodes(const NodePrxSeq&);
 
         const std::shared_ptr<Ice::Communicator> _communicator;

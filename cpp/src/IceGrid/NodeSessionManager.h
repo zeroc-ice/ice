@@ -21,8 +21,8 @@ namespace IceGrid
         NodeSessionKeepAliveThread(InternalRegistryPrx, const std::shared_ptr<NodeI>&, NodeSessionManager&);
 
         std::optional<NodeSessionPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&) override;
-        void destroySession(const NodeSessionPrxPtr&) override;
-        bool keepAlive(const NodeSessionPrxPtr&) override;
+        void destroySession(const NodeSessionPrx&) override;
+        bool keepAlive(const NodeSessionPrx&) override;
 
         std::string getName() const { return "IceGrid session keepalive thread"; }
 
@@ -83,13 +83,13 @@ namespace IceGrid
                 return session;
             }
 
-            void destroySession(const NodeSessionPrxPtr& session) override
+            void destroySession(const NodeSessionPrx& session) override
             {
                 NodeSessionKeepAliveThread::destroySession(session);
                 _manager.reapReplicas();
             }
 
-            bool keepAlive(const NodeSessionPrxPtr& session) override
+            bool keepAlive(const NodeSessionPrx& session) override
             {
                 bool alive = NodeSessionKeepAliveThread::keepAlive(session);
                 _manager.reapReplicas();
@@ -98,7 +98,7 @@ namespace IceGrid
         };
         friend class Thread;
 
-        void createdSession(const NodeSessionPrxPtr&);
+        void createdSession(const std::optional<NodeSessionPrx>&);
 
         const std::shared_ptr<NodeI> _node;
         std::shared_ptr<Thread> _thread;
