@@ -226,10 +226,9 @@ InitialI::opMyInterfaceProxyAsync(
 
 void
 InitialI::opByteSeqAsync(
-    optional<pair<const ::uint8_t*, const ::uint8_t*>> p1,
-    function<void(
-        const optional<pair<const ::uint8_t*, const ::uint8_t*>>&,
-        const optional<pair<const ::uint8_t*, const ::uint8_t*>>&)> response,
+    optional<pair<const byte*, const byte*>> p1,
+    function<void(const optional<pair<const byte*, const byte*>>&, const optional<pair<const byte*, const byte*>>&)>
+        response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {

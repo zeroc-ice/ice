@@ -49,12 +49,20 @@ namespace
             if (seqType == "%array")
             {
                 BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-                string s = typeToString(
-                    seq->type(),
-                    false,
-                    scope,
-                    seq->typeMetaData(),
-                    typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
+                string s;
+                if (builtin && builtin->kind() == Builtin::KindByte)
+                {
+                    s = "std::byte";
+                }
+                else
+                {
+                    s = typeToString(
+                        seq->type(),
+                        false,
+                        scope,
+                        seq->typeMetaData(),
+                        typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
+                }
                 return "::std::pair<const " + s + "*, const " + s + "*>";
             }
             else

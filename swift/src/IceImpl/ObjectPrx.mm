@@ -565,8 +565,8 @@
         bytesRead:(NSInteger*)bytesRead
             error:(NSError**)error
 {
-    std::pair<const std::uint8_t*, const std::uint8_t*> p;
-    p.first = static_cast<const std::uint8_t*>(data.bytes);
+    std::pair<const std::byte*, const std::byte*> p;
+    p.first = static_cast<const std::byte*>(data.bytes);
     p.second = p.first + data.length;
 
     auto comm = [communicator communicator];
@@ -617,8 +617,8 @@
       response:(void (^)(bool, void*, long))response
          error:(NSError**)error
 {
-    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
-    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
+    std::pair<const std::byte*, const std::byte*> params(0, 0);
+    params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -628,7 +628,7 @@
         {
             fromNSDictionary(context, ctx);
         }
-        std::vector<std::uint8_t> outParams;
+        std::vector<std::byte> outParams;
 
         // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer
         // and to avoid calling PromiseKit wait. PromiseKit issues a warning if wait() is called on the main thread.
@@ -639,7 +639,7 @@
             fromNSString(op),
             static_cast<Ice::OperationMode>(mode),
             params,
-            [response, &p](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
+            [response, &p](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
             {
                 // We need an autorelease pool as the unmarshaling (in the response) can
                 // create autorelease objects, typically when unmarshaling proxies
@@ -647,7 +647,7 @@
                 {
                     response(
                         ok,
-                        const_cast<std::uint8_t*>(outParams.first),
+                        const_cast<std::byte*>(outParams.first),
                         static_cast<long>(outParams.second - outParams.first));
                 }
                 p.set_value();
@@ -672,8 +672,8 @@
              context:(NSDictionary*)context
                error:(NSError**)error
 {
-    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
-    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
+    std::pair<const std::byte*, const std::byte*> params(0, 0);
+    params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -684,7 +684,7 @@
             fromNSDictionary(context, ctx);
         }
 
-        std::vector<std::uint8_t> ignored;
+        std::vector<std::byte> ignored;
         _prx->ice_invoke(
             fromNSString(op),
             static_cast<Ice::OperationMode>(mode),
@@ -708,8 +708,8 @@
           exception:(void (^)(NSError*))exception
                sent:(void (^_Nullable)(bool))sent
 {
-    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
-    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
+    std::pair<const std::byte*, const std::byte*> params(0, 0);
+    params.first = static_cast<const std::byte*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -724,7 +724,7 @@
             fromNSString(op),
             static_cast<Ice::OperationMode>(mode),
             params,
-            [response](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
+            [response](bool ok, std::pair<const std::byte*, const std::byte*> outParams)
             {
                 // We need an autorelease pool in case the unmarshaling creates auto
                 // release objects, and in case the application attaches a handler to
@@ -734,7 +734,7 @@
                 {
                     response(
                         ok,
-                        const_cast<std::uint8_t*>(outParams.first),
+                        const_cast<std::byte*>(outParams.first),
                         static_cast<long>(outParams.second - outParams.first));
                 }
             },

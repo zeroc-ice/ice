@@ -6,6 +6,7 @@
 #define CUSTOM_BUFFER_H
 
 #include <Ice/Ice.h>
+#include <iostream>
 
 #if defined(_MSC_VER)
 #    pragma warning(disable : 4800)

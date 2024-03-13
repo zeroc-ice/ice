@@ -204,7 +204,7 @@ CallbackI::initiateCallbackWithPayloadAsync(
     function<void(exception_ptr)> error,
     const Current& current)
 {
-    Ice::ByteSeq seq(1000 * 1024, 0);
+    Ice::ByteSeq seq(1000 * 1024, byte{0});
     proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, current.ctx);
 }
 

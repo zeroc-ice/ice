@@ -25,8 +25,8 @@ namespace Glacier2
     protected:
         void invoke(
             Ice::ObjectPrx&,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            const std::pair<const std::byte*, const std::byte*>&,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&);
 

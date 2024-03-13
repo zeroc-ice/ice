@@ -38,9 +38,9 @@ namespace IceInternal
             TypeResponse
         };
 
-        const std::uint8_t* isCompleteMessage(const std::uint8_t*, const std::uint8_t*) const;
+        const std::byte* isCompleteMessage(const std::byte*, const std::byte*) const;
 
-        bool parse(const std::uint8_t*, const std::uint8_t*);
+        bool parse(const std::byte*, const std::byte*);
 
         Type type() const;
 

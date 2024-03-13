@@ -27,7 +27,7 @@ namespace IcePatch2
             std::string,
             std::int32_t,
             std::int32_t,
-            std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>& returnValue)>,
+            std::function<void(const std::pair<const std::byte*, const std::byte*>& returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const;
 
@@ -35,12 +35,12 @@ namespace IcePatch2
             std::string,
             std::int64_t,
             std::int32_t,
-            std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>& returnValue)>,
+            std::function<void(const std::pair<const std::byte*, const std::byte*>& returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const final;
 
     private:
-        void getFileCompressedInternal(std::string, std::int64_t, std::int32_t, std::vector<std::uint8_t>&, bool) const;
+        void getFileCompressedInternal(std::string, std::int64_t, std::int32_t, std::vector<std::byte>&, bool) const;
 
         const std::string _dataDir;
         const IcePatch2Internal::FileTree0 _tree0;

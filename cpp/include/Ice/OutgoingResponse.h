@@ -160,7 +160,7 @@ namespace Ice
      */
     ICE_API OutgoingResponse makeOutgoingResponse(
         bool ok,
-        const std::pair<const std::uint8_t*, const std::uint8_t*>& encapsulation,
+        const std::pair<const std::byte*, const std::byte*>& encapsulation,
         const Current& current) noexcept;
 
     /**

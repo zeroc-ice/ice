@@ -195,11 +195,11 @@ void
 Ice::Blobject::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
     const Current& current = request.current();
-    const uint8_t* inEncaps;
+    const byte* inEncaps;
     int32_t sz;
     request.inputStream().readEncapsulation(inEncaps, sz);
-    vector<uint8_t> outEncaps;
-    bool ok = ice_invoke(vector<uint8_t>(inEncaps, inEncaps + sz), outEncaps, current);
+    vector<byte> outEncaps;
+    bool ok = ice_invoke(vector<byte>(inEncaps, inEncaps + sz), outEncaps, current);
 
     if (outEncaps.empty())
     {
@@ -215,11 +215,11 @@ void
 Ice::BlobjectArray::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
     const Current& current = request.current();
-    pair<const uint8_t*, const uint8_t*> inEncaps;
+    pair<const byte*, const byte*> inEncaps;
     int32_t sz;
     request.inputStream().readEncapsulation(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
 
     if (outEncaps.empty())
@@ -235,15 +235,15 @@ Ice::BlobjectArray::dispatch(IncomingRequest& request, std::function<void(Outgoi
 void
 Ice::BlobjectAsync::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    const uint8_t* inEncaps;
+    const byte* inEncaps;
     int32_t sz;
     request.inputStream().readEncapsulation(inEncaps, sz);
     auto responseHandler = make_shared<AsyncResponseHandler>(std::move(sendResponse), request.current());
     try
     {
         ice_invokeAsync(
-            vector<uint8_t>{inEncaps, inEncaps + sz},
-            [responseHandler](bool ok, const vector<uint8_t>& outEncaps)
+            vector<byte>{inEncaps, inEncaps + sz},
+            [responseHandler](bool ok, const vector<byte>& outEncaps)
             {
                 if (outEncaps.empty())
                 {
@@ -266,7 +266,7 @@ Ice::BlobjectAsync::dispatch(IncomingRequest& request, std::function<void(Outgoi
 void
 Ice::BlobjectArrayAsync::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    pair<const uint8_t*, const uint8_t*> inEncaps;
+    pair<const byte*, const byte*> inEncaps;
     int32_t sz;
     request.inputStream().readEncapsulation(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
@@ -275,7 +275,7 @@ Ice::BlobjectArrayAsync::dispatch(IncomingRequest& request, std::function<void(O
     {
         ice_invokeAsync(
             inEncaps,
-            [responseHandler](bool ok, const pair<const uint8_t*, const uint8_t*>& outEncaps)
+            [responseHandler](bool ok, const pair<const byte*, const byte*>& outEncaps)
             { responseHandler->sendResponse(ok, outEncaps); },
             [responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); },
             responseHandler->current());

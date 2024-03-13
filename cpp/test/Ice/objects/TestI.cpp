@@ -305,7 +305,7 @@ InitialI::opM(MPtr v1, MPtr& v2, const Current&)
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(vector<uint8_t>, vector<uint8_t>& outParams, const Current& current)
+UnexpectedObjectExceptionTestI::ice_invoke(vector<byte>, vector<byte>& outParams, const Current& current)
 {
     CommunicatorPtr communicator = current.adapter->getCommunicator();
     OutputStream out(communicator);

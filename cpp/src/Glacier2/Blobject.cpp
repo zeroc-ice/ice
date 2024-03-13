@@ -67,8 +67,8 @@ Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::S
 void
 Glacier2::Blobject::invoke(
     ObjectPrx& proxy,
-    const std::pair<const uint8_t*, const uint8_t*>& inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    const std::pair<const byte*, const byte*>& inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> exception,
     const Current& current)
 {
@@ -253,7 +253,7 @@ Glacier2::Blobject::invoke(
 
         try
         {
-            function<void(bool, pair<const uint8_t*, const uint8_t*>)> amiResponse = nullptr;
+            function<void(bool, pair<const byte*, const byte*>)> amiResponse = nullptr;
             function<void(bool)> amiSent = nullptr;
 
             if (proxy->ice_isTwoway())

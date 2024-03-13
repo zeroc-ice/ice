@@ -54,7 +54,7 @@ namespace
 
     void fillInValue(OutputStream* os, int pos, int32_t value)
     {
-        const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
+        const byte* p = reinterpret_cast<const byte*>(&value);
         if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
