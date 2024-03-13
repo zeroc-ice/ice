@@ -56,9 +56,9 @@ extern "C"
         {
             size = self->request->getSize();
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
 
@@ -82,9 +82,9 @@ extern "C"
         {
             operation = self->request->getOperation();
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
 
@@ -109,9 +109,9 @@ extern "C"
             proxy = self->request->getProxy();
             assert(proxy);
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
 
@@ -133,9 +133,9 @@ extern "C"
     {
         self->request->enqueue();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

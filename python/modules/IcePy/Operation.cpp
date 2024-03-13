@@ -143,7 +143,7 @@ namespace IcePy
         PyObject* invoke(PyObject*, PyObject* = 0) final;
 
         void response(bool, const pair<const byte*, const byte*>&);
-        void exception(const Ice::Exception&);
+        void exception(std::exception_ptr);
         void sent(bool);
 
     protected:
@@ -655,7 +655,7 @@ extern "C"
     }
     catch (const Ice::CommunicatorDestroyedException& ex)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
     catch (...)
@@ -722,9 +722,9 @@ extern "C"
         assert(PyErr_Occurred());
         return -1;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return -1;
     }
 
@@ -1468,9 +1468,9 @@ IcePy::Invocation::prepareRequest(
             assert(PyErr_Occurred());
             return false;
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return false;
         }
     }
@@ -1601,9 +1601,9 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const b
                 PyException pye(ex); // No traceback information available.
                 pye.raise();
             }
-            catch (const Ice::UnknownUserException& uue)
+            catch (const Ice::UnknownUserException&)
             {
-                return convertException(uue);
+                return convertException(current_exception());
             }
         }
     }
@@ -1614,8 +1614,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const b
     // have a factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
-    Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
-    return convertException(uue);
+    return convertException(make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, "unknown exception"}));
 }
 
 bool
@@ -1766,9 +1765,9 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         assert(PyErr_Occurred());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1813,23 +1812,23 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     {
         cancel = handleInvoke(args, kwds);
     }
-    catch (const Ice::CommunicatorDestroyedException& ex)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         //
         // CommunicatorDestroyedException can propagate directly.
         //
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
-    catch (const Ice::TwowayOnlyException& ex)
+    catch (const Ice::TwowayOnlyException&)
     {
         //
         // TwowayOnlyException can propagate directly.
         //
-        setPythonException(ex);
+       setPythonException(current_exception());
         return 0;
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         //
         // No other exceptions should be raised by invoke.
@@ -1966,7 +1965,7 @@ IcePy::AsyncInvocation::response(bool ok, const pair<const byte*, const byte*>& 
 }
 
 void
-IcePy::AsyncInvocation::exception(const Ice::Exception& ex)
+IcePy::AsyncInvocation::exception(std::exception_ptr ex)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -2093,16 +2092,9 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
         _op->sendMode,
         params,
         [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
-        [self](exception_ptr exptr)
+        [self](exception_ptr ex)
         {
-            try
-            {
-                rethrow_exception(exptr);
-            }
-            catch (const Ice::Exception& ex)
-            {
-                self->exception(ex);
-            }
+            self->exception(ex);
         },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         pyctx == Py_None ? Ice::noExplicitContext : context);
@@ -2127,9 +2119,9 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, const pai
                     return;
                 }
             }
-            catch (const Ice::Exception& ex)
+            catch (...)
             {
-                PyObjectHandle exh = convertException(ex);
+                PyObjectHandle exh = convertException(current_exception());
                 assert(exh.get());
                 PyObjectHandle tmp = callMethod(future, "set_exception", exh.get());
                 PyErr_Clear();
@@ -2259,9 +2251,9 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
         return result.release();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -2321,16 +2313,9 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
         sendMode,
         params,
         [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
-        [self](exception_ptr exptr)
+        [self](exception_ptr ex)
         {
-            try
-            {
-                rethrow_exception(exptr);
-            }
-            catch (const Ice::Exception& ex)
-            {
-                self->exception(ex);
-            }
+            self->exception(ex);
         },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         (ctx == 0 || ctx == Py_None) ? Ice::noExplicitContext : context);
@@ -2578,14 +2563,14 @@ IcePy::TypedUpcall::response(PyObject* result)
                 {
                     throwPythonException();
                 }
-                catch (const Ice::Exception&)
+                catch (...)
                 {
                     _error(current_exception());
                 }
             }
         }
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         _error(current_exception());
     }
@@ -2636,7 +2621,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
             throwPythonException();
         }
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         _error(current_exception());
     }
@@ -2734,12 +2719,12 @@ IcePy::BlobjectUpcall::response(PyObject* result)
         {
             throwPythonException();
         }
-        catch (const Ice::Exception&)
+        catch (...)
         {
             _error(current_exception());
         }
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         _error(current_exception());
     }
@@ -2760,7 +2745,7 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
 
         ex.raise();
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         _error(current_exception());
     }
@@ -2878,7 +2863,7 @@ IcePy::FlushAsyncCallback::setFuture(PyObject* future)
 }
 
 void
-IcePy::FlushAsyncCallback::exception(const Ice::Exception& ex)
+IcePy::FlushAsyncCallback::exception(std::exception_ptr ex)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -2996,7 +2981,7 @@ IcePy::GetConnectionAsyncCallback::response(const Ice::ConnectionPtr& conn)
 }
 
 void
-IcePy::GetConnectionAsyncCallback::exception(const Ice::Exception& ex)
+IcePy::GetConnectionAsyncCallback::exception(std::exception_ptr ex)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3111,7 +3096,7 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
             make_shared<TypedUpcall>(op, std::move(response), std::move(error), current.adapter->getCommunicator());
         up->dispatch(_servant, inParams, current);
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         error(current_exception());
     }
@@ -3135,7 +3120,7 @@ IcePy::BlobjectServantWrapper::ice_invokeAsync(
         UpcallPtr up = make_shared<BlobjectUpcall>(std::move(response), std::move(error));
         up->dispatch(_servant, inParams, current);
     }
-    catch (const Ice::Exception&)
+    catch (...)
     {
         error(current_exception());
     }

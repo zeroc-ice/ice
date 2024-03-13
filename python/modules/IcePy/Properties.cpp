@@ -95,9 +95,9 @@ extern "C"
             props = Ice::createProperties();
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return -1;
     }
 
@@ -144,9 +144,9 @@ extern "C"
     {
         dict = (*self->properties)->getPropertiesForPrefix("");
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -187,9 +187,9 @@ extern "C"
     {
         value = (*self->properties)->getProperty(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -226,9 +226,9 @@ extern "C"
     {
         value = (*self->properties)->getPropertyWithDefault(key, def);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -259,9 +259,9 @@ extern "C"
     {
         value = (*self->properties)->getPropertyAsInt(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -293,9 +293,9 @@ extern "C"
     {
         value = (*self->properties)->getPropertyAsIntWithDefault(key, def);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -326,9 +326,9 @@ extern "C"
     {
         value = (*self->properties)->getPropertyAsList(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -376,9 +376,9 @@ extern "C"
     {
         value = (*self->properties)->getPropertyAsListWithDefault(key, def);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -419,9 +419,9 @@ extern "C"
     {
         dict = (*self->properties)->getPropertiesForPrefix(prefix);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -471,9 +471,9 @@ extern "C"
     {
         (*self->properties)->setProperty(key, value);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -493,9 +493,9 @@ extern "C"
     {
         options = (*self->properties)->getCommandLineOptions();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -543,9 +543,9 @@ extern "C"
     {
         filteredSeq = (*self->properties)->parseCommandLineOptions(prefix, seq);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -586,9 +586,9 @@ extern "C"
     {
         filteredSeq = (*self->properties)->parseIceCommandLineOptions(seq);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -628,9 +628,9 @@ extern "C"
     {
         (*self->properties)->load(file);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -650,9 +650,9 @@ extern "C"
     {
         properties = (*self->properties)->clone();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

@@ -1070,7 +1070,7 @@ IcePy::EnumInfo::unmarshal(
     {
         ostringstream ostr;
         ostr << "enumerator " << val << " is out of range for enum " << id;
-        setPythonException(Ice::MarshalException(__FILE__, __LINE__, ostr.str()));
+        setPythonException(make_exception_ptr(Ice::MarshalException{__FILE__, __LINE__, ostr.str()}));
         throw AbortMarshaling();
     }
 
@@ -2639,7 +2639,7 @@ IcePy::CustomInfo::marshal(
     }
     if (!PyObject_IsTrue(obj.get()))
     {
-        setPythonException(Ice::MarshalException(__FILE__, __LINE__, "type not fully initialized"));
+        setPythonException(make_exception_ptr(Ice::MarshalException{__FILE__, __LINE__, "type not fully initialized"}));
         throw AbortMarshaling();
     }
 

@@ -112,9 +112,9 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
     {
         add(make_shared<FactoryWrapper>(valueFactory), id);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
     }
 }
 

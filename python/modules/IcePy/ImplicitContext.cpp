@@ -169,9 +169,9 @@ extern "C"
     {
         containsKey = (*self->implicitContext)->containsKey(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -201,9 +201,9 @@ extern "C"
     {
         val = (*self->implicitContext)->get(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
     return createString(val);
@@ -238,9 +238,9 @@ extern "C"
     {
         oldVal = (*self->implicitContext)->put(key, value);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
     return createString(oldVal);
@@ -269,9 +269,9 @@ extern "C"
     {
         val = (*self->implicitContext)->remove(key);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
     return createString(val);

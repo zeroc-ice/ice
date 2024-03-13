@@ -71,7 +71,7 @@ BackgroundControllerI::initializeSocketOperation(int status, const Current&)
 void
 BackgroundControllerI::initializeException(bool enable, const Current&)
 {
-    _configuration->initializeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->initializeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : exception_ptr{});
 }
 
 void
@@ -83,7 +83,7 @@ BackgroundControllerI::readReady(bool enable, const Current&)
 void
 BackgroundControllerI::readException(bool enable, const Current&)
 {
-    _configuration->readException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->readException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : exception_ptr{});
 }
 
 void
@@ -95,7 +95,7 @@ BackgroundControllerI::writeReady(bool enable, const Current&)
 void
 BackgroundControllerI::writeException(bool enable, const Current&)
 {
-    _configuration->writeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->writeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : exception_ptr{});
 }
 
 void

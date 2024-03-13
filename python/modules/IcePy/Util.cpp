@@ -118,9 +118,9 @@ namespace IcePy
         {
             s = IceInternal::versionToString<T>(v);
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            IcePy::setPythonException(ex);
+            IcePy::setPythonException(current_exception());
             return nullptr;
         }
         return createString(s);
@@ -139,9 +139,9 @@ namespace IcePy
         {
             v = IceInternal::stringToVersion<T>(str);
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            IcePy::setPythonException(ex);
+            IcePy::setPythonException(current_exception());
             return nullptr;
         }
 
@@ -907,21 +907,22 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
 }
 
 PyObject*
-IcePy::convertException(const Ice::Exception& ex)
+IcePy::convertException(std::exception_ptr ex)
 {
     PyObjectHandle p;
     PyObject* type;
 
     ostringstream ostr;
-    ostr << ex;
-    string str = ostr.str();
 
     try
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
     catch (const Ice::LocalException& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
         type = lookupType(scopedToName(e.ice_id()));
         if (type)
         {
@@ -943,8 +944,11 @@ IcePy::convertException(const Ice::Exception& ex)
             }
         }
     }
-    catch (const Ice::UserException&)
+    catch (const Ice::UserException& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
         type = lookupType("Ice.UnknownUserException");
         assert(type);
         p = createExceptionInstance(type);
@@ -954,8 +958,39 @@ IcePy::convertException(const Ice::Exception& ex)
             PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
         }
     }
-    catch (const Ice::Exception&)
+    catch (const Ice::Exception& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
+        type = lookupType("Ice.UnknownException");
+        assert(type);
+        p = createExceptionInstance(type);
+        if (p.get())
+        {
+            PyObjectHandle s = createString(str);
+            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
+        }
+    }
+    catch (const std::exception& e)
+    {
+        ostr << e.what();
+        string str = ostr.str();
+
+        type = lookupType("Ice.UnknownException");
+        assert(type);
+        p = createExceptionInstance(type);
+        if (p.get())
+        {
+            PyObjectHandle s = createString(str);
+            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
+        }
+    }
+    catch (...)
+    {
+        ostr << "unknown c++ exception";
+        string str = ostr.str();
+
         type = lookupType("Ice.UnknownException");
         assert(type);
         p = createExceptionInstance(type);
@@ -970,7 +1005,7 @@ IcePy::convertException(const Ice::Exception& ex)
 }
 
 void
-IcePy::setPythonException(const Ice::Exception& ex)
+IcePy::setPythonException(std::exception_ptr ex)
 {
     PyObjectHandle p = convertException(ex);
     if (p.get())

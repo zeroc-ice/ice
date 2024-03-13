@@ -35,13 +35,13 @@ namespace IcePy
         PyObject_HEAD Ice::ObjectAdapterPtr* adapter;
 
         std::future<void>* deactivateFuture;
-        Ice::Exception* deactivateException;
+        std::exception_ptr* deactivateException;
         bool deactivated;
 
         // This mutex protects holdFuture, holdException, and held from concurrent access in activate and waitForHold.
         std::mutex* holdMutex;
         std::future<void>* holdFuture;
-        Ice::Exception* holdException;
+        std::exception_ptr* holdException;
         bool held;
     };
 
@@ -331,9 +331,9 @@ extern "C"
     {
         name = (*self->adapter)->getName();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -352,9 +352,9 @@ extern "C"
     {
         communicator = (*self->adapter)->getCommunicator();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -381,9 +381,9 @@ extern "C"
             self->holdFuture = nullptr;
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -402,9 +402,9 @@ extern "C"
     {
         (*self->adapter)->hold();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -465,10 +465,9 @@ extern "C"
             {
                 self->holdFuture->get();
             }
-            catch (const Ice::Exception& ex)
+            catch (...)
             {
-                // Clone the exception and take ownership of the object.
-                self->holdException = ex.ice_clone().release();
+                self->holdException = new std::exception_ptr(current_exception());
             }
         }
 
@@ -486,9 +485,9 @@ extern "C"
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             (*self->adapter)->waitForHold();
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
     }
@@ -508,9 +507,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->deactivate();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -570,10 +569,9 @@ extern "C"
             {
                 self->deactivateFuture->get();
             }
-            catch (const Ice::Exception& ex)
+            catch (...)
             {
-                // Clone the exception and take ownership of the object.
-                self->deactivateException = ex.ice_clone().release();
+                self->deactivateException = new std::exception_ptr(current_exception());
             }
         }
 
@@ -591,9 +589,9 @@ extern "C"
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             (*self->adapter)->waitForDeactivate();
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
     }
@@ -612,9 +610,9 @@ extern "C"
     {
         (*self->adapter)->isDeactivated();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -634,9 +632,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->destroy();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -676,9 +674,9 @@ extern "C"
     {
         proxy = (*self->adapter)->add(wrapper, ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -724,9 +722,9 @@ extern "C"
     {
         proxy = (*self->adapter)->addFacet(wrapper, ident, facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -757,9 +755,9 @@ extern "C"
     {
         proxy = (*self->adapter)->addWithUUID(wrapper);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -797,9 +795,9 @@ extern "C"
     {
         proxy = (*self->adapter)->addFacetWithUUID(wrapper, facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -836,9 +834,9 @@ extern "C"
     {
         (*self->adapter)->addDefaultServant(wrapper, category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -871,9 +869,9 @@ extern "C"
     {
         obj = (*self->adapter)->remove(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -920,9 +918,9 @@ extern "C"
     {
         obj = (*self->adapter)->removeFacet(ident, facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -962,9 +960,9 @@ extern "C"
     {
         facetMap = (*self->adapter)->removeAllFacets(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1012,9 +1010,9 @@ extern "C"
     {
         obj = (*self->adapter)->removeDefaultServant(category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1054,9 +1052,9 @@ extern "C"
     {
         obj = (*self->adapter)->find(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1103,9 +1101,9 @@ extern "C"
     {
         obj = (*self->adapter)->findFacet(ident, facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1145,9 +1143,9 @@ extern "C"
     {
         facetMap = (*self->adapter)->findAllFacets(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1195,9 +1193,9 @@ extern "C"
     {
         obj = (*self->adapter)->findByProxy(prx);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1236,9 +1234,9 @@ extern "C"
     {
         obj = (*self->adapter)->findDefaultServant(category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1279,9 +1277,9 @@ extern "C"
     {
         (*self->adapter)->addServantLocator(wrapper, category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1313,9 +1311,9 @@ extern "C"
     {
         locator = (*self->adapter)->removeServantLocator(category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1354,9 +1352,9 @@ extern "C"
     {
         locator = (*self->adapter)->findServantLocator(category);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1396,9 +1394,9 @@ extern "C"
     {
         proxy = (*self->adapter)->createProxy(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1430,9 +1428,9 @@ extern "C"
     {
         proxy = (*self->adapter)->createDirectProxy(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1464,9 +1462,9 @@ extern "C"
     {
         proxy = (*self->adapter)->createIndirectProxy(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1499,9 +1497,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->setLocator(locator);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1521,9 +1519,9 @@ extern "C"
     {
         locator = (*self->adapter)->getLocator();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1551,9 +1549,9 @@ extern "C"
     {
         endpoints = (*self->adapter)->getEndpoints();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1585,9 +1583,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->refreshPublishedEndpoints();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1608,9 +1606,9 @@ extern "C"
     {
         endpoints = (*self->adapter)->getPublishedEndpoints();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1666,9 +1664,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

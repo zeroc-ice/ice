@@ -37,7 +37,7 @@ namespace IcePy
         void setFuture(PyObject*);
 
         void response(const Ice::ConnectionPtr&);
-        void exception(const Ice::Exception&);
+        void exception(std::exception_ptr);
 
     protected:
         Ice::CommunicatorPtr _communicator;
@@ -57,7 +57,7 @@ namespace IcePy
 
         void setFuture(PyObject*);
 
-        void exception(const Ice::Exception&);
+        void exception(std::exception_ptr);
         void sent(bool);
 
     protected:

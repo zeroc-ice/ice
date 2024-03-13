@@ -273,9 +273,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
         (*self->connection)->close(cc);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -309,9 +309,9 @@ extern "C"
     {
         proxy = (*self->connection)->createProxy(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -345,9 +345,9 @@ extern "C"
     {
         (*self->connection)->setAdapter(oa);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -369,9 +369,9 @@ extern "C"
     {
         adapter = (*self->connection)->getAdapter();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -409,9 +409,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
         (*self->connection)->flushBatchRequests(cb);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -446,26 +446,15 @@ extern "C"
         cancel = (*self->connection)
                      ->flushBatchRequestsAsync(
                          compress,
-                         [callback](exception_ptr exptr)
+                         [callback](exception_ptr ex)
                          {
-                             try
-                             {
-                                 rethrow_exception(exptr);
-                             }
-                             catch (const Ice::Exception& ex)
-                             {
-                                 callback->exception(ex);
-                             }
-                             catch (...)
-                             {
-                                 assert(false);
-                             }
+                            callback->exception(ex);
                          },
                          [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -523,9 +512,9 @@ extern "C"
             (*self->connection)->setCloseCallback(nullptr);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -572,9 +561,9 @@ extern "C"
             (*self->connection)->setHeartbeatCallback(nullptr);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -594,9 +583,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
         (*self->connection)->heartbeat();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -670,9 +659,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -697,9 +686,9 @@ extern "C"
     {
         acm = (*self->connection)->getACM();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -765,9 +754,9 @@ extern "C"
     {
         type = (*self->connection)->type();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -786,9 +775,9 @@ extern "C"
     {
         timeout = (*self->connection)->timeout();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -807,9 +796,9 @@ extern "C"
     {
         str = (*self->connection)->toString();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -828,9 +817,9 @@ extern "C"
         Ice::ConnectionInfoPtr info = (*self->connection)->getInfo();
         return createConnectionInfo(info);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -847,9 +836,9 @@ extern "C"
         Ice::EndpointPtr endpoint = (*self->connection)->getEndpoint();
         return createEndpoint(endpoint);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -872,9 +861,9 @@ extern "C"
     {
         (*self->connection)->setBufferSize(rcvSize, sndSize);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -893,9 +882,9 @@ extern "C"
     {
         (*self->connection)->throwException();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

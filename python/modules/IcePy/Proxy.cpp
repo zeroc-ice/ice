@@ -345,9 +345,9 @@ extern "C"
     {
         id = (*self->proxy)->ice_getIdentity();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -381,9 +381,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_identity(ident);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -403,9 +403,9 @@ extern "C"
     {
         ctx = (*self->proxy)->ice_getContext();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -442,9 +442,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_context(ctx);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -464,9 +464,9 @@ extern "C"
     {
         facet = (*self->proxy)->ice_getFacet();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -498,9 +498,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_facet(facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -520,9 +520,9 @@ extern "C"
     {
         id = (*self->proxy)->ice_getAdapterId();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -554,9 +554,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_adapterId(id);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -576,9 +576,9 @@ extern "C"
     {
         endpoints = (*self->proxy)->ice_getEndpoints();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -629,9 +629,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_endpoints(seq);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -651,9 +651,9 @@ extern "C"
         int32_t timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
         return PyLong_FromLong(timeout);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -671,9 +671,9 @@ extern "C"
         int32_t timeout = (*self->proxy)->ice_getInvocationTimeout();
         return PyLong_FromLong(timeout);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -691,9 +691,9 @@ extern "C"
         string connectionId = (*self->proxy)->ice_getConnectionId();
         return createString(connectionId);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -722,9 +722,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -755,9 +755,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -777,9 +777,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isConnectionCached() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -812,9 +812,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_connectionCached(n == 1);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -850,9 +850,9 @@ extern "C"
             type = ord.get();
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -900,9 +900,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_endpointSelection(val);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -922,9 +922,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isSecure() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -957,9 +957,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_secure(n == 1);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -979,9 +979,9 @@ extern "C"
     {
         version = IcePy::createEncodingVersion((*self->proxy)->ice_getEncodingVersion());
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1016,9 +1016,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_encodingVersion(val);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1038,9 +1038,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isPreferSecure() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1073,9 +1073,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_preferSecure(n == 1);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1095,9 +1095,9 @@ extern "C"
     {
         router = (*self->proxy)->ice_getRouter();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1139,9 +1139,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_router(router);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1161,9 +1161,9 @@ extern "C"
     {
         locator = (*self->proxy)->ice_getLocator();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1205,9 +1205,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_locator(locator);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1227,9 +1227,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_twoway();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1249,9 +1249,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isTwoway() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1272,9 +1272,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_oneway();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1294,9 +1294,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isOneway() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1317,9 +1317,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_batchOneway();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1339,9 +1339,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isBatchOneway() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1362,9 +1362,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_datagram();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1384,9 +1384,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isDatagram() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1407,9 +1407,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_batchDatagram();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1429,9 +1429,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isBatchDatagram() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1464,9 +1464,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_compress(n == 1);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1494,9 +1494,9 @@ extern "C"
             b = Unset;
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
     Py_INCREF(b);
@@ -1527,9 +1527,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1557,9 +1557,9 @@ extern "C"
             return Unset;
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -1577,9 +1577,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isCollocationOptimized() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1612,9 +1612,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_collocationOptimized(n == 1);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1646,9 +1646,9 @@ extern "C"
     {
         newProxy = (*self->proxy)->ice_connectionId(id);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1685,9 +1685,9 @@ extern "C"
         PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1707,9 +1707,9 @@ extern "C"
     {
         b = (*self->proxy)->ice_isFixed() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1730,9 +1730,9 @@ extern "C"
     {
         con = (*self->proxy)->ice_getConnection();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1763,21 +1763,14 @@ extern "C"
         cancel = (*self->proxy)
                      ->ice_getConnectionAsync(
                          [callback](const Ice::ConnectionPtr& connection) { callback->response(connection); },
-                         [callback](exception_ptr exptr)
+                         [callback](exception_ptr ex)
                          {
-                             try
-                             {
-                                 rethrow_exception(exptr);
-                             }
-                             catch (const Ice::Exception& ex)
-                             {
-                                 callback->exception(ex);
-                             }
+                            callback->exception(ex);
                          });
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1809,9 +1802,9 @@ extern "C"
     {
         con = (*self->proxy)->ice_getCachedConnection();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1839,9 +1832,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
         (*self->proxy)->ice_flushBatchRequests();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1864,26 +1857,15 @@ extern "C"
     {
         cancel = (*self->proxy)
                      ->ice_flushBatchRequestsAsync(
-                         [callback](exception_ptr exptr)
+                         [callback](exception_ptr ex)
                          {
-                             try
-                             {
-                                 rethrow_exception(exptr);
-                             }
-                             catch (const Ice::Exception& ex)
-                             {
-                                 callback->exception(ex);
-                             }
-                             catch (...)
-                             {
-                                 assert(false);
-                             }
+                            callback->exception(ex);
                          },
                          [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1954,9 +1936,9 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     {
         // Ignore.
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

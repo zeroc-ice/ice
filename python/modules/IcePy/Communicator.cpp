@@ -48,7 +48,7 @@ namespace IcePy
         PyObject_HEAD Ice::CommunicatorPtr* communicator;
         PyObject* wrapper;
         std::future<void>* shutdownFuture;
-        Ice::Exception* shutdownException;
+        std::exception_ptr* shutdownException;
         bool shutdown;
         DispatcherPtr* dispatcher;
     };
@@ -265,9 +265,9 @@ extern "C"
             data.properties = Ice::createProperties(seq, data.properties);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return -1;
     }
 
@@ -302,7 +302,7 @@ extern "C"
             communicator = Ice::initialize(data);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
         for (i = 0; i < argc; ++i)
         {
@@ -310,7 +310,7 @@ extern "C"
         }
         delete[] argv;
 
-        setPythonException(ex);
+        setPythonException(current_exception());
         return -1;
     }
 
@@ -386,9 +386,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->destroy();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
     }
 
     vfm->destroy();
@@ -427,9 +427,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->shutdown();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -489,10 +489,9 @@ extern "C"
             {
                 self->shutdownFuture->get();
             }
-            catch (const Ice::Exception& ex)
+            catch (...)
             {
-                // Clone the exception and take ownership of the object.
-                self->shutdownException = ex.ice_clone().release();
+                self->shutdownException = new std::exception_ptr(std::current_exception());
             }
         }
 
@@ -510,9 +509,9 @@ extern "C"
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             (*self->communicator)->waitForShutdown();
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            setPythonException(ex);
+            setPythonException(current_exception());
             return 0;
         }
     }
@@ -532,9 +531,9 @@ extern "C"
     {
         isShutdown = (*self->communicator)->isShutdown();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -569,9 +568,9 @@ extern "C"
             return createProxy(proxy.value(), *self->communicator);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -604,9 +603,9 @@ extern "C"
     {
         str = (*self->communicator)->proxyToString(proxy);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -641,9 +640,9 @@ extern "C"
             return createProxy(proxy.value(), *self->communicator);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -681,9 +680,9 @@ extern "C"
     {
         dict = (*self->communicator)->proxyToProperty(proxy, str);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -729,9 +728,9 @@ extern "C"
     {
         str = (*self->communicator)->identityToString(id);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -761,9 +760,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->flushBatchRequests(cb);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -798,22 +797,15 @@ extern "C"
         cancel = (*self->communicator)
                      ->flushBatchRequestsAsync(
                          compress,
-                         [callback](exception_ptr exptr)
+                         [callback](exception_ptr ex)
                          {
-                             try
-                             {
-                                 rethrow_exception(exptr);
-                             }
-                             catch (const Ice::Exception& ex)
-                             {
-                                 callback->exception(ex);
-                             }
+                            callback->exception(ex);
                          },
                          [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -875,9 +867,9 @@ extern "C"
 
         return createProxy(proxy.value(), *self->communicator);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -898,9 +890,9 @@ extern "C"
             return createProxy(proxy.value(), *self->communicator);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -939,9 +931,9 @@ extern "C"
     {
         (*self->communicator)->addAdminFacet(wrapper, facet);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -995,9 +987,9 @@ extern "C"
             return objectType->tp_alloc(objectType, 0);
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1017,9 +1009,9 @@ extern "C"
     {
         facetMap = (*self->communicator)->findAllAdminFacets();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1093,9 +1085,9 @@ extern "C"
             return wrapper->getObject();
         }
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1146,9 +1138,9 @@ extern "C"
     {
         properties = (*self->communicator)->getProperties();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1167,9 +1159,9 @@ extern "C"
     {
         logger = (*self->communicator)->getLogger();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1242,9 +1234,9 @@ extern "C"
     {
         adapter = (*self->communicator)->createObjectAdapter(name);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1293,9 +1285,9 @@ extern "C"
     {
         adapter = (*self->communicator)->createObjectAdapterWithEndpoints(name, endpoints);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1348,9 +1340,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         adapter = (*self->communicator)->createObjectAdapterWithRouter(name, router.value());
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1381,9 +1373,9 @@ extern "C"
     {
         router = (*self->communicator)->getDefaultRouter();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1423,9 +1415,9 @@ extern "C"
     {
         (*self->communicator)->setDefaultRouter(router);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1445,9 +1437,9 @@ extern "C"
     {
         locator = (*self->communicator)->getDefaultLocator();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1487,9 +1479,9 @@ extern "C"
     {
         (*self->communicator)->setDefaultLocator(locator);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1764,9 +1756,9 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     {
         str = identityToString(id, toStringMode);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -1787,9 +1779,9 @@ IcePy_stringToIdentity(PyObject* /*self*/, PyObject* obj)
     {
         id = Ice::stringToIdentity(str);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
