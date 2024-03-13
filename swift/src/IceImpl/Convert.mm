@@ -155,10 +155,6 @@ convertException(const std::exception& exc)
         {
             return [factory fixedProxyException:toNSString(e.ice_file()) line:e.ice_line()];
         }
-        catch (const Ice::ResponseSentException& e)
-        {
-            return [factory responseSentException:toNSString(e.ice_file()) line:e.ice_line()];
-        }
         catch (const Ice::SecurityException& e)
         {
             return [factory securityException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];

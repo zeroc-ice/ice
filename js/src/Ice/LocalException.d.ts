@@ -888,11 +888,4 @@ export namespace Ice
     class FixedProxyException extends LocalException
     {
     }
-
-    /**
-     * Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
-     */
-    class ResponseSentException extends LocalException
-    {
-    }
 }

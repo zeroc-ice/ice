@@ -73,8 +73,8 @@
         "unordered_map": "cpp",
         "variant": "cpp",
         "algorithm": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "execution": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
-    "editor.formatOnSave": true
 }

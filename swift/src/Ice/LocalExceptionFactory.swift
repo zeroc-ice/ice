@@ -101,10 +101,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return FixedProxyException(file: file, line: line)
     }
 
-    static func responseSentException(_ file: String, line: Int) -> Error {
-        return ResponseSentException(file: file, line: line)
-    }
-
     static func securityException(_ reason: String, file: String, line: Int) -> Error {
         return SecurityException(reason: reason, file: file, line: line)
     }

@@ -15,7 +15,6 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ObjectAdapterF.h>
-#include <Ice/ServantManagerF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/LoggerF.h>
@@ -23,7 +22,6 @@
 #include "Ice/OutgoingAsync.h"
 #include <Ice/EventHandler.h>
 #include <Ice/RequestHandler.h>
-#include <Ice/ResponseHandler.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>
@@ -49,10 +47,7 @@ namespace Ice
     class LocalException;
     class ObjectAdapterI;
 
-    class ConnectionI : public Connection,
-                        public IceInternal::EventHandler,
-                        public IceInternal::ResponseHandler,
-                        public IceInternal::CancellationHandler
+    class ConnectionI : public Connection, public IceInternal::EventHandler, public IceInternal::CancellationHandler
     {
         class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
         {
@@ -174,10 +169,6 @@ namespace Ice
 
         virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
-        virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
-        virtual void sendNoResponse();
-        virtual void invokeException(std::int32_t, std::exception_ptr, int);
-
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
 
@@ -186,7 +177,7 @@ namespace Ice
         virtual EndpointPtr getEndpoint() const noexcept;           // From Connection.
         virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
-        void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
+        void setAdapterFromAdapter(const ObjectAdapterPtr&); // From ObjectAdapterI.
 
         //
         // Operations from EventHandler
@@ -217,7 +208,6 @@ namespace Ice
             std::uint8_t,
             std::int32_t,
             std::int32_t,
-            const IceInternal::ServantManagerPtr&,
             const ObjectAdapterPtr&,
             const IceInternal::OutgoingAsyncBasePtr&,
             const HeartbeatCallback&,
@@ -268,6 +258,11 @@ namespace Ice
         void initiateShutdown();
         void sendHeartbeatNow();
 
+        void sendResponse(OutgoingResponse, std::uint8_t compress);
+        void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
+        void sendNoResponse();
+        void invokeException(std::int32_t, std::exception_ptr, int);
+
         bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
         bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
         IceInternal::SocketOperation sendNextMessage(std::vector<OutgoingMessage>&);
@@ -283,19 +278,12 @@ namespace Ice
             std::int32_t&,
             std::int32_t&,
             std::uint8_t&,
-            IceInternal::ServantManagerPtr&,
             ObjectAdapterPtr&,
             IceInternal::OutgoingAsyncBasePtr&,
             HeartbeatCallback&,
             int&);
 
-        void invokeAll(
-            Ice::InputStream&,
-            std::int32_t,
-            std::int32_t,
-            std::uint8_t,
-            const IceInternal::ServantManagerPtr&,
-            const ObjectAdapterPtr&);
+        void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterPtr&);
 
         void scheduleTimeout(IceInternal::SocketOperation status);
         void unscheduleTimeout(IceInternal::SocketOperation status);
@@ -320,7 +308,6 @@ namespace Ice
         mutable Ice::ConnectionInfoPtr _info;
 
         ObjectAdapterPtr _adapter;
-        IceInternal::ServantManagerPtr _servantManager;
 
         const bool _hasExecutor;
         const LoggerPtr _logger;

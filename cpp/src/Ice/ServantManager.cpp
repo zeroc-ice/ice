@@ -480,3 +480,81 @@ IceInternal::ServantManager::destroy()
     locatorMap.clear();
     defaultServantMap.clear();
 }
+
+void
+ServantManager::dispatch(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
+{
+    const Current& current = request.current();
+    ObjectPtr servant = findServant(current.id, current.facet);
+
+    if (servant)
+    {
+        // the simple, common path.
+        servant->dispatch(request, std::move(sendResponse));
+        return;
+    }
+
+    // Else, check servant locators
+    ServantLocatorPtr locator = findServantLocator(current.id.category);
+    if (!locator && !current.id.category.empty())
+    {
+        locator = findServantLocator("");
+    }
+
+    if (locator)
+    {
+        shared_ptr<void> cookie;
+        try
+        {
+            servant = locator->locate(current, cookie);
+        }
+        catch (...)
+        {
+            // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+            request.inputStream().skipEncapsulation();
+            throw;
+        }
+
+        if (servant)
+        {
+            try
+            {
+                servant->dispatch(
+                    request,
+                    [sendResponse = std::move(sendResponse), locator, servant, cookie](OutgoingResponse response)
+                    {
+                        try
+                        {
+                            locator->finished(response.current(), servant, cookie);
+                        }
+                        catch (...)
+                        {
+                            sendResponse(makeOutgoingResponse(std::current_exception(), response.current()));
+                            return; // done
+                        }
+                        sendResponse(std::move(response));
+                    });
+                return; // done
+            }
+            catch (...)
+            {
+                // When we catch an exception, the dispatch logic guarantees sendResponse was not called.
+                locator->finished(current, servant, cookie);
+                throw;
+            }
+        }
+    }
+
+    assert(!servant);
+
+    // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+    request.inputStream().skipEncapsulation();
+    if (hasServant(current.id))
+    {
+        throw FacetNotExistException{__FILE__, __LINE__};
+    }
+    else
+    {
+        throw ObjectNotExistException{__FILE__, __LINE__};
+    }
+}
