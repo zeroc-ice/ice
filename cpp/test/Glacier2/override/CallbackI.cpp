@@ -131,7 +131,7 @@ CallbackI::initiateCallbackWithPayloadAsync(
         ctx["_ovrd"] = p->second;
     }
 
-    Ice::ByteSeq seq(1000 * 1024, 0);
+    Ice::ByteSeq seq(1000 * 1024, byte{0});
     if (proxy->ice_isTwoway())
     {
         proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, ctx);

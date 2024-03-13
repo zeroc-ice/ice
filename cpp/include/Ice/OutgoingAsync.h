@@ -210,7 +210,7 @@ namespace IceInternal
         }
         void endWriteParams() { _os.endEncapsulation(); }
         void writeEmptyParams() { _os.writeEmptyEncapsulation(_encoding); }
-        void writeParamEncaps(const ::std::uint8_t* encaps, std::int32_t size)
+        void writeParamEncaps(const ::std::byte* encaps, std::int32_t size)
         {
             if (size == 0)
             {

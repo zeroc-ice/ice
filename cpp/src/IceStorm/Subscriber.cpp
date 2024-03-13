@@ -34,8 +34,7 @@ namespace
 
         void setSubscriber(shared_ptr<Subscriber> subscriber) { _subscriber = std::move(subscriber); }
 
-        bool ice_invoke(pair<const uint8_t*, const uint8_t*> inParams, vector<uint8_t>&, const Ice::Current& current)
-            override
+        bool ice_invoke(pair<const byte*, const byte*> inParams, vector<byte>&, const Ice::Current& current) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
@@ -286,7 +285,7 @@ SubscriberTwoway::flush()
                 e.op,
                 e.mode,
                 e.data,
-                [self](bool, vector<uint8_t>) { self->completed(); },
+                [self](bool, vector<byte>) { self->completed(); },
                 [self](exception_ptr ex) { self->error(true, ex); },
                 nullptr,
                 e.context);

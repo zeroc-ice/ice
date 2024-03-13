@@ -270,10 +270,7 @@ Ice::makeEmptyOutgoingResponse(const Current& current) noexcept
 }
 
 OutgoingResponse
-Ice::makeOutgoingResponse(
-    bool ok,
-    const pair<const uint8_t*, const uint8_t*>& encapsulation,
-    const Current& current) noexcept
+Ice::makeOutgoingResponse(bool ok, const pair<const byte*, const byte*>& encapsulation, const Current& current) noexcept
 {
     OutputStream ostr(current.adapter->getCommunicator(), Ice::currentProtocolEncoding);
     if (current.requestId != 0)

@@ -12,11 +12,11 @@ using namespace Glacier2;
 
 Glacier2::Request::Request(
     ObjectPrx proxy,
-    const std::pair<const uint8_t*, const uint8_t*>& inParams,
+    const std::pair<const byte*, const byte*>& inParams,
     const Current& current,
     bool forwardContext,
     const Ice::Context& sslContext,
-    function<void(bool, pair<const uint8_t*, const uint8_t*>)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception)
     : _proxy(std::move(proxy)),
       _inParams(inParams.first, inParams.second),
@@ -35,11 +35,11 @@ Glacier2::Request::Request(
 
 void
 Glacier2::Request::invoke(
-    function<void(bool, pair<const uint8_t*, const uint8_t*>)>&& response,
+    function<void(bool, pair<const byte*, const byte*>)>&& response,
     function<void(exception_ptr)>&& exception,
     std::function<void(bool)>&& sent)
 {
-    pair<const uint8_t*, const uint8_t*> inPair;
+    pair<const byte*, const byte*> inPair;
     if (_inParams.size() == 0)
     {
         inPair.first = inPair.second = nullptr;
@@ -138,7 +138,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
 }
 
 void
-Glacier2::Request::response(bool ok, const pair<const uint8_t*, const uint8_t*>& outParams)
+Glacier2::Request::response(bool ok, const pair<const byte*, const byte*>& outParams)
 {
     assert(_proxy->ice_isTwoway());
     _response(ok, outParams);
@@ -245,7 +245,7 @@ Glacier2::RequestQueue::flushRequests()
             }
             auto self = shared_from_this();
             request->invoke(
-                [self, request](bool ok, const pair<const uint8_t*, const uint8_t*>& outParams)
+                [self, request](bool ok, const pair<const byte*, const byte*>& outParams)
                 { self->response(ok, outParams, request); },
                 [self, request](exception_ptr e) { self->exception(e, request); });
         }
@@ -289,7 +289,7 @@ Glacier2::RequestQueue::flush()
         auto request = *p;
 
         request->invoke(
-            [self, request](bool ok, const pair<const uint8_t*, const uint8_t*>& outParams)
+            [self, request](bool ok, const pair<const byte*, const byte*>& outParams)
             { self->response(ok, outParams, request); },
             [self, request, completedExceptionally](exception_ptr e)
             {
@@ -324,7 +324,7 @@ Glacier2::RequestQueue::flush()
 void
 Glacier2::RequestQueue::response(
     bool ok,
-    const pair<const uint8_t*, const uint8_t*>& outParams,
+    const pair<const byte*, const byte*>& outParams,
     const shared_ptr<Request>& request)
 {
     assert(request);

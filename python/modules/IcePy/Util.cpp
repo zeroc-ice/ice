@@ -508,7 +508,7 @@ IcePy::byteSeqToList(const Ice::ByteSeq& seq)
 
     for (Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        PyObject* byte = PyLong_FromLong(*p);
+        PyObject* byte = PyLong_FromLong(std::to_integer<long>(*p));
         if (!byte)
         {
             Py_DECREF(l);

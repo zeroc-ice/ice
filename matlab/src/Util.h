@@ -40,8 +40,8 @@ namespace IceMatlab
     mxArray* createOptionalValue(bool, mxArray*);
     mxArray* createStringList(const std::vector<std::string>&);
     void getStringList(mxArray*, std::vector<std::string>&);
-    mxArray* createByteArray(const std::uint8_t*, const std::uint8_t*);
-    mxArray* createByteList(const std::vector<std::uint8_t>&);
+    mxArray* createByteArray(const std::byte*, const std::byte*);
+    mxArray* createByteList(const std::vector<std::byte>&);
     mxArray* createCertificateList(const std::vector<IceSSL::CertificatePtr>&);
 
     std::string idToClass(const std::string&);

@@ -49,7 +49,7 @@ namespace
     {
         const TransceiverI* transceiver = static_cast<const TransceiverI*>(connection);
         assert(transceiver);
-        return transceiver->writeRaw(reinterpret_cast<const char*>(data), length);
+        return transceiver->writeRaw(reinterpret_cast<const byte*>(data), length);
     }
 
     //
@@ -59,7 +59,7 @@ namespace
     {
         const TransceiverI* transceiver = static_cast<const TransceiverI*>(connection);
         assert(transceiver);
-        return transceiver->readRaw(reinterpret_cast<char*>(data), length);
+        return transceiver->readRaw(reinterpret_cast<byte*>(data), length);
     }
 
     TrustError errorToTrustError(CFErrorRef err)
@@ -656,15 +656,13 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
 IceSSL::SecureTransport::TransceiverI::~TransceiverI() {}
 
 OSStatus
-IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length) const
+IceSSL::SecureTransport::TransceiverI::writeRaw(const byte* data, size_t* length) const
 {
     _tflags &= ~SSLWantWrite;
 
     try
     {
-        IceInternal::Buffer buf(
-            reinterpret_cast<const uint8_t*>(data),
-            reinterpret_cast<const uint8_t*>(data) + *length);
+        IceInternal::Buffer buf(data, data + *length);
         IceInternal::SocketOperation op = _delegate->write(buf);
         if (op == IceInternal::SocketOperationWrite)
         {
@@ -691,13 +689,13 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
 }
 
 OSStatus
-IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
+IceSSL::SecureTransport::TransceiverI::readRaw(byte* data, size_t* length) const
 {
     _tflags &= ~SSLWantRead;
 
     try
     {
-        IceInternal::Buffer buf(reinterpret_cast<uint8_t*>(data), reinterpret_cast<uint8_t*>(data) + *length);
+        IceInternal::Buffer buf(data, data + *length);
         IceInternal::SocketOperation op = _delegate->read(buf);
         if (op == IceInternal::SocketOperationRead)
         {

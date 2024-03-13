@@ -125,10 +125,8 @@ namespace Ice
          * @throws UserException A user exception can be raised directly and the
          * run time will marshal it.
          */
-        virtual bool ice_invoke(
-            std::vector<std::uint8_t> inEncaps,
-            std::vector<std::uint8_t>& outEncaps,
-            const Current& current) = 0;
+        virtual bool
+        ice_invoke(std::vector<std::byte> inEncaps, std::vector<std::byte>& outEncaps, const Current& current) = 0;
 
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
@@ -154,8 +152,8 @@ namespace Ice
          * run time will marshal it.
          */
         virtual bool ice_invoke(
-            std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps,
-            std::vector<std::uint8_t>& outEncaps,
+            std::pair<const std::byte*, const std::byte*> inEncaps,
+            std::vector<std::byte>& outEncaps,
             const Current& current) = 0;
 
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
@@ -183,8 +181,8 @@ namespace Ice
          * run time will marshal it.
          */
         virtual void ice_invokeAsync(
-            std::vector<std::uint8_t> inEncaps,
-            std::function<void(bool, const std::vector<std::uint8_t>&)> response,
+            std::vector<std::byte> inEncaps,
+            std::function<void(bool, const std::vector<std::byte>&)> response,
             std::function<void(std::exception_ptr)> error,
             const Current& current) = 0;
 
@@ -213,8 +211,8 @@ namespace Ice
          * run time will marshal it.
          */
         virtual void ice_invokeAsync(
-            std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> response,
+            std::pair<const std::byte*, const std::byte*> inEncaps,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)> response,
             std::function<void(std::exception_ptr)> error,
             const Current& current) = 0;
 

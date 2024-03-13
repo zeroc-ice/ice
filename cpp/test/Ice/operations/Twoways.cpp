@@ -327,34 +327,34 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteS bsi1;
         Test::ByteS bsi2;
 
-        bsi1.push_back(uint8_t(0x01));
-        bsi1.push_back(uint8_t(0x11));
-        bsi1.push_back(uint8_t(0x12));
-        bsi1.push_back(uint8_t(0x22));
+        bsi1.push_back(byte{0x01});
+        bsi1.push_back(byte{0x11});
+        bsi1.push_back(byte{0x12});
+        bsi1.push_back(byte{0x22});
 
-        bsi2.push_back(uint8_t(0xf1));
-        bsi2.push_back(uint8_t(0xf2));
-        bsi2.push_back(uint8_t(0xf3));
-        bsi2.push_back(uint8_t(0xf4));
+        bsi2.push_back(byte{0xf1});
+        bsi2.push_back(byte{0xf2});
+        bsi2.push_back(byte{0xf3});
+        bsi2.push_back(byte{0xf4});
 
         Test::ByteS bso;
         Test::ByteS rso;
 
         rso = p->opByteS(bsi1, bsi2, bso);
         test(bso.size() == 4);
-        test(bso[0] == uint8_t(0x22));
-        test(bso[1] == uint8_t(0x12));
-        test(bso[2] == uint8_t(0x11));
-        test(bso[3] == uint8_t(0x01));
+        test(bso[0] == byte{0x22});
+        test(bso[1] == byte{0x12});
+        test(bso[2] == byte{0x11});
+        test(bso[3] == byte{0x01});
         test(rso.size() == 8);
-        test(rso[0] == uint8_t(0x01));
-        test(rso[1] == uint8_t(0x11));
-        test(rso[2] == uint8_t(0x12));
-        test(rso[3] == uint8_t(0x22));
-        test(rso[4] == uint8_t(0xf1));
-        test(rso[5] == uint8_t(0xf2));
-        test(rso[6] == uint8_t(0xf3));
-        test(rso[7] == uint8_t(0xf4));
+        test(rso[0] == byte{0x01});
+        test(rso[1] == byte{0x11});
+        test(rso[2] == byte{0x12});
+        test(rso[3] == byte{0x22});
+        test(rso[4] == byte{0xf1});
+        test(rso[5] == byte{0xf2});
+        test(rso[6] == byte{0xf3});
+        test(rso[7] == byte{0xf4});
     }
 
     {
@@ -490,14 +490,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteSS bsi2;
         bsi2.resize(2);
 
-        bsi1[0].push_back(uint8_t(0x01));
-        bsi1[0].push_back(uint8_t(0x11));
-        bsi1[0].push_back(uint8_t(0x12));
-        bsi1[1].push_back(uint8_t(0xff));
+        bsi1[0].push_back(byte{0x01});
+        bsi1[0].push_back(byte{0x11});
+        bsi1[0].push_back(byte{0x12});
+        bsi1[1].push_back(byte{0xff});
 
-        bsi2[0].push_back(uint8_t(0x0e));
-        bsi2[1].push_back(uint8_t(0xf2));
-        bsi2[1].push_back(uint8_t(0xf1));
+        bsi2[0].push_back(byte{0x0e});
+        bsi2[1].push_back(byte{0xf2});
+        bsi2[1].push_back(byte{0xf1});
 
         Test::ByteSS bso;
         Test::ByteSS rso;
@@ -505,23 +505,23 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         rso = p->opByteSS(bsi1, bsi2, bso);
         test(bso.size() == 2);
         test(bso[0].size() == 1);
-        test(bso[0][0] == uint8_t(0xff));
+        test(bso[0][0] == byte{0xff});
         test(bso[1].size() == 3);
-        test(bso[1][0] == uint8_t(0x01));
-        test(bso[1][1] == uint8_t(0x11));
-        test(bso[1][2] == uint8_t(0x12));
+        test(bso[1][0] == byte{0x01});
+        test(bso[1][1] == byte{0x11});
+        test(bso[1][2] == byte{0x12});
         test(rso.size() == 4);
         test(rso[0].size() == 3);
-        test(rso[0][0] == uint8_t(0x01));
-        test(rso[0][1] == uint8_t(0x11));
-        test(rso[0][2] == uint8_t(0x12));
+        test(rso[0][0] == byte{0x01});
+        test(rso[0][1] == byte{0x11});
+        test(rso[0][2] == byte{0x12});
         test(rso[1].size() == 1);
-        test(rso[1][0] == uint8_t(0xff));
+        test(rso[1][0] == byte{0xff});
         test(rso[2].size() == 1);
-        test(rso[2][0] == uint8_t(0x0e));
+        test(rso[2][0] == byte{0x0e});
         test(rso[3].size() == 2);
-        test(rso[3][0] == uint8_t(0xf2));
-        test(rso[3][1] == uint8_t(0xf1));
+        test(rso[3][0] == byte{0xf2});
+        test(rso[3][1] == byte{0xf1});
     }
 
     {
@@ -1247,15 +1247,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteS si2;
         Test::ByteS si3;
 
-        si1.push_back(uint8_t(0x01));
-        si1.push_back(uint8_t(0x11));
-        si2.push_back(uint8_t(0x12));
-        si3.push_back(uint8_t(0xf2));
-        si3.push_back(uint8_t(0xf3));
+        si1.push_back(byte{0x01});
+        si1.push_back(byte{0x11});
+        si2.push_back(byte{0x12});
+        si3.push_back(byte{0xf2});
+        si3.push_back(byte{0xf3});
 
-        sdi1[uint8_t(0x01)] = si1;
-        sdi1[uint8_t(0x22)] = si2;
-        sdi2[uint8_t(0xf1)] = si3;
+        sdi1[uint8_t{0x01}] = si1;
+        sdi1[uint8_t{0x22}] = si2;
+        sdi2[uint8_t{0xf1}] = si3;
 
         try
         {
@@ -1264,14 +1264,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
             test(_do == sdi2);
             test(ro.size() == 3);
-            test(ro[uint8_t(0x01)].size() == 2);
-            test(ro[uint8_t(0x01)][0] == uint8_t(0x01));
-            test(ro[uint8_t(0x01)][1] == uint8_t(0x11));
-            test(ro[uint8_t(0x22)].size() == 1);
-            test(ro[uint8_t(0x22)][0] == uint8_t(0x12));
-            test(ro[uint8_t(0xf1)].size() == 2);
-            test(ro[uint8_t(0xf1)][0] == uint8_t(0xf2));
-            test(ro[uint8_t(0xf1)][1] == uint8_t(0xf3));
+            test(ro[uint8_t{0x01}].size() == 2);
+            test(ro[uint8_t{0x01}][0] == byte{0x01});
+            test(ro[uint8_t{0x01}][1] == byte{0x11});
+            test(ro[uint8_t{0x22}].size() == 1);
+            test(ro[uint8_t{0x22}][0] == byte{0x12});
+            test(ro[uint8_t{0xf1}].size() == 2);
+            test(ro[uint8_t{0xf1}][0] == byte{0xf2});
+            test(ro[uint8_t{0xf1}][1] == byte{0xf3});
         }
         catch (const Ice::OperationNotExistException&)
         {

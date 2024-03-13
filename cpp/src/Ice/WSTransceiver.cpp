@@ -59,14 +59,14 @@ namespace
     //
     // Rename to avoid conflict with OS 10.10 htonll
     //
-    void ice_htonll(int64_t v, uint8_t* dest)
+    void ice_htonll(int64_t v, byte* dest)
     {
         //
         // Transfer a 64-bit integer in network (big-endian) order.
         //
         if constexpr (endian::native == endian::big)
         {
-            const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+            const byte* src = reinterpret_cast<const byte*>(&v);
             *dest++ = *src++;
             *dest++ = *src++;
             *dest++ = *src++;
@@ -78,7 +78,7 @@ namespace
         }
         else
         {
-            const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int64_t) - 1;
+            const byte* src = reinterpret_cast<const byte*>(&v) + sizeof(int64_t) - 1;
             *dest++ = *src--;
             *dest++ = *src--;
             *dest++ = *src--;
@@ -93,7 +93,7 @@ namespace
     //
     // Rename to avoid conflict with OS 10.10 nlltoh
     //
-    int64_t ice_nlltoh(const uint8_t* src)
+    int64_t ice_nlltoh(const byte* src)
     {
         int64_t v;
 
@@ -102,7 +102,7 @@ namespace
         //
         if constexpr (endian::native == endian::big)
         {
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+            byte* dest = reinterpret_cast<byte*>(&v);
             *dest++ = *src++;
             *dest++ = *src++;
             *dest++ = *src++;
@@ -114,7 +114,7 @@ namespace
         }
         else
         {
-            uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
+            byte* dest = reinterpret_cast<byte*>(&v) + sizeof(int64_t) - 1;
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
@@ -241,7 +241,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 //
                 // Check if we have enough data for a complete message.
                 //
-                const uint8_t* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
+                const byte* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
                 if (!p)
                 {
                     if (_readBuffer.i < _readBuffer.b.end())
@@ -1117,8 +1117,8 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             // last frame. Least-significant four bits hold the
             // opcode.
             //
-            unsigned char ch = static_cast<unsigned char>(*_readI++);
-            _readOpCode = ch & 0xf;
+            byte ch = *_readI++;
+            _readOpCode = static_cast<int>(ch & byte{0xf});
 
             //
             // Remember if last frame if we're going to read a data or
@@ -1131,7 +1131,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "invalid data frame, no FIN on previous frame");
                 }
-                _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                _readLastFrame = (ch & byte{FLAG_FINAL}) == byte{FLAG_FINAL};
             }
             else if (_readOpCode == OP_CONT)
             {
@@ -1139,16 +1139,16 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "invalid continuation frame, previous frame FIN set");
                 }
-                _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
+                _readLastFrame = (ch & byte{FLAG_FINAL}) == byte{FLAG_FINAL};
             }
 
-            ch = static_cast<unsigned char>(*_readI++);
+            ch = *_readI++;
 
             //
             // Check the MASK bit. Messages sent by a client must be masked;
             // messages sent by a server must not be masked.
             //
-            const bool masked = (ch & FLAG_MASKED) == FLAG_MASKED;
+            const bool masked = (ch & byte{FLAG_MASKED}) == byte{FLAG_MASKED};
             if (masked != _incoming)
             {
                 throw ProtocolException(__FILE__, __LINE__, "invalid masking");
@@ -1161,7 +1161,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             // 126:   The subsequent two bytes contain the payload length
             // 127:   The subsequent eight bytes contain the payload length
             //
-            _readPayloadLength = (ch & 0x7f);
+            _readPayloadLength = static_cast<size_t>((ch & byte{0x7f}));
             if (_readPayloadLength < 126)
             {
                 _readHeaderLength = 0;
@@ -1673,21 +1673,21 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
     //
     // Set the opcode - this is the one and only data frame.
     //
-    *_writeBuffer.i++ = static_cast<uint8_t>(opCode | FLAG_FINAL);
+    *_writeBuffer.i++ = static_cast<byte>(opCode | FLAG_FINAL);
 
     //
     // Set the payload length.
     //
     if (payloadLength <= 125)
     {
-        *_writeBuffer.i++ = static_cast<uint8_t>(payloadLength);
+        *_writeBuffer.i++ = static_cast<byte>(payloadLength);
     }
     else if (payloadLength > 125 && payloadLength <= USHRT_MAX)
     {
         //
         // Use an extra 16 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<uint8_t>(126);
+        *_writeBuffer.i++ = byte{126};
         *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
         _writeBuffer.i += 2;
     }
@@ -1696,7 +1696,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         //
         // Use an extra 64 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<uint8_t>(127);
+        *_writeBuffer.i++ = byte{127};
         ice_htonll(static_cast<int64_t>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
     }
@@ -1707,7 +1707,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         // Add a random 32-bit mask to every outgoing frame, copy the payload data,
         // and apply the mask.
         //
-        _writeBuffer.b[1] |= FLAG_MASKED;
+        _writeBuffer.b[1] |= byte{FLAG_MASKED};
         IceUtilInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
         memcpy(_writeBuffer.i, _writeMask, sizeof(_writeMask));
         _writeBuffer.i += sizeof(_writeMask);

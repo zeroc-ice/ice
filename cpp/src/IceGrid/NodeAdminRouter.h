@@ -19,8 +19,8 @@ namespace IceGrid
         NodeServerAdminRouter(const std::shared_ptr<NodeI>&);
 
         void ice_invokeAsync(
-            std::pair<const std::uint8_t*, const std::uint8_t*>,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::pair<const std::byte*, const std::byte*>,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 

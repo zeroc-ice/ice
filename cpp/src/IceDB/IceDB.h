@@ -424,9 +424,9 @@ namespace IceDB
     {
         static void read(T& t, const MDB_val& val, const IceContext& ctx)
         {
-            std::pair<const std::uint8_t*, const std::uint8_t*> p(
-                static_cast<const std::uint8_t*>(val.mv_data),
-                static_cast<const std::uint8_t*>(val.mv_data) + val.mv_size);
+            std::pair<const std::byte*, const std::byte*> p(
+                static_cast<const std::byte*>(val.mv_data),
+                static_cast<const std::byte*>(val.mv_data) + val.mv_size);
             Ice::InputStream in(ctx.communicator, ctx.encoding, p);
             in.read(t);
         }
@@ -442,9 +442,9 @@ namespace IceDB
         static bool write(const T& t, MDB_val& val, const IceContext& ctx)
         {
             const size_t limit = val.mv_size;
-            std::pair<std::uint8_t*, std::uint8_t*> p(
-                reinterpret_cast<std::uint8_t*>(val.mv_data),
-                reinterpret_cast<std::uint8_t*>(val.mv_data) + limit);
+            std::pair<std::byte*, std::byte*> p(
+                reinterpret_cast<std::byte*>(val.mv_data),
+                reinterpret_cast<std::byte*>(val.mv_data) + limit);
             Ice::OutputStream stream(ctx.communicator, ctx.encoding, p);
             stream.write(t);
             val.mv_size = stream.b.size();

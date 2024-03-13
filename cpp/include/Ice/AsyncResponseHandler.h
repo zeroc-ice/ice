@@ -44,7 +44,7 @@ namespace IceInternal
             // else we ignore this call.
         }
 
-        void sendResponse(bool ok, const std::pair<const uint8_t*, const uint8_t*>& encaps) noexcept
+        void sendResponse(bool ok, const std::pair<const std::byte*, const std::byte*>& encaps) noexcept
         {
             if (!_responseSent.test_and_set())
             {

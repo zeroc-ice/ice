@@ -95,18 +95,18 @@ allTests(TestHelper* helper)
 
     {
         ByteList in;
-        uint8_t inArray[5];
-        inArray[0] = '1';
+        byte inArray[5];
+        inArray[0] = byte{'1'};
         in.push_back(inArray[0]);
-        inArray[1] = '2';
+        inArray[1] = byte{'2'};
         in.push_back(inArray[1]);
-        inArray[2] = '3';
+        inArray[2] = byte{'3'};
         in.push_back(inArray[2]);
-        inArray[3] = '4';
+        inArray[3] = byte{'4'};
         in.push_back(inArray[3]);
-        inArray[4] = '5';
+        inArray[4] = byte{'5'};
         in.push_back(inArray[4]);
-        pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
+        pair<const byte*, const byte*> inPair(inArray, inArray + 5);
 
         ByteList out;
         ByteList ret = t->opByteArray(inPair, out);
@@ -165,29 +165,29 @@ allTests(TestHelper* helper)
     }
 
     {
-        deque<uint8_t> in(5);
-        in[0] = '1';
-        in[1] = '2';
-        in[2] = '3';
-        in[3] = '4';
-        in[4] = '5';
+        deque<byte> in(5);
+        in[0] = byte{'1'};
+        in[1] = byte{'2'};
+        in[2] = byte{'3'};
+        in[3] = byte{'4'};
+        in[4] = byte{'5'};
 
-        deque<uint8_t> out;
-        deque<uint8_t> ret = t->opByteSeq(in, out);
+        deque<byte> out;
+        deque<byte> ret = t->opByteSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<uint8_t> in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
+        list<byte> in;
+        in.push_back(byte{'1'});
+        in.push_back(byte{'2'});
+        in.push_back(byte{'3'});
+        in.push_back(byte{'4'});
+        in.push_back(byte{'5'});
 
-        list<uint8_t> out;
-        list<uint8_t> ret = t->opByteList(in, out);
+        list<byte> out;
+        list<byte> ret = t->opByteList(in, out);
         test(out == in);
         test(ret == in);
     }
@@ -197,7 +197,7 @@ allTests(TestHelper* helper)
         int i = 0;
         for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = static_cast<uint8_t>('1' + i++);
+            *p = static_cast<byte>('1' + i++);
         }
 
         MyByteSeq out;
@@ -503,7 +503,7 @@ allTests(TestHelper* helper)
         test(retBS == inBS);
 
         BufferStruct bs;
-        bs.byteBuf.setAndInit(new uint8_t[10], 10);
+        bs.byteBuf.setAndInit(new byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
@@ -567,18 +567,18 @@ allTests(TestHelper* helper)
 
         {
             ByteList in;
-            uint8_t inArray[5];
-            inArray[0] = '1';
+            byte inArray[5];
+            inArray[0] = byte{'1'};
             in.push_back(inArray[0]);
-            inArray[1] = '2';
+            inArray[1] = byte{'2'};
             in.push_back(inArray[1]);
-            inArray[2] = '3';
+            inArray[2] = byte{'3'};
             in.push_back(inArray[2]);
-            inArray[3] = '4';
+            inArray[3] = byte{'4'};
             in.push_back(inArray[3]);
-            inArray[4] = '5';
+            inArray[4] = byte{'5'};
             in.push_back(inArray[4]);
-            pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
+            pair<const byte*, const byte*> inPair(inArray, inArray + 5);
 
             auto r = t->opByteArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
@@ -632,12 +632,12 @@ allTests(TestHelper* helper)
         }
 
         {
-            deque<uint8_t> in(5);
-            in[0] = '1';
-            in[1] = '2';
-            in[2] = '3';
-            in[3] = '4';
-            in[4] = '5';
+            deque<byte> in(5);
+            in[0] = byte{'1'};
+            in[1] = byte{'2'};
+            in[2] = byte{'3'};
+            in[3] = byte{'4'};
+            in[4] = byte{'5'};
 
             auto r = t->opByteSeqAsync(in).get();
             test(std::get<1>(r) == in);
@@ -645,12 +645,12 @@ allTests(TestHelper* helper)
         }
 
         {
-            list<uint8_t> in;
-            in.push_back('1');
-            in.push_back('2');
-            in.push_back('3');
-            in.push_back('4');
-            in.push_back('5');
+            list<byte> in;
+            in.push_back(byte{'1'});
+            in.push_back(byte{'2'});
+            in.push_back(byte{'3'});
+            in.push_back(byte{'4'});
+            in.push_back(byte{'5'});
 
             auto r = t->opByteListAsync(in).get();
             test(std::get<1>(r) == in);
@@ -662,7 +662,7 @@ allTests(TestHelper* helper)
             int i = 0;
             for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
             {
-                *p = static_cast<uint8_t>('1' + i++);
+                *p = static_cast<byte>('1' + i++);
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
@@ -894,10 +894,10 @@ allTests(TestHelper* helper)
 
         {
             ByteSeq in;
-            in.push_back('1');
-            in.push_back('2');
-            in.push_back('3');
-            in.push_back('4');
+            in.push_back(byte{'1'});
+            in.push_back(byte{'2'});
+            in.push_back(byte{'3'});
+            in.push_back(byte{'4'});
 
             auto r = t->opOutArrayByteSeqAsync(in).get();
             test(r.size() == in.size());
@@ -967,22 +967,22 @@ allTests(TestHelper* helper)
     }
 
     {
-        uint8_t in[5];
-        in[0] = '1';
-        in[1] = '2';
-        in[2] = '3';
-        in[3] = '4';
-        in[4] = '5';
-        pair<const uint8_t*, const uint8_t*> inPair(in, in + 5);
+        byte in[5];
+        in[0] = byte{'1'};
+        in[1] = byte{'2'};
+        in[2] = byte{'3'};
+        in[3] = byte{'4'};
+        in[4] = byte{'5'};
+        pair<const byte*, const byte*> inPair(in, in + 5);
 
         promise<bool> done;
 
         t->opByteArrayAsync(
             inPair,
-            [&](pair<const uint8_t*, const uint8_t*> ret, pair<const uint8_t*, const uint8_t*> out)
+            [&](pair<const byte*, const byte*> ret, pair<const byte*, const byte*> out)
             {
-                test(arrayRangeEquals<uint8_t>(out, inPair));
-                test(arrayRangeEquals<uint8_t>(ret, inPair));
+                test(arrayRangeEquals<byte>(out, inPair));
+                test(arrayRangeEquals<byte>(ret, inPair));
                 done.set_value(true);
             },
             [&](std::exception_ptr) { done.set_value(false); });
@@ -1067,18 +1067,18 @@ allTests(TestHelper* helper)
     }
 
     {
-        deque<uint8_t> in(5);
-        in[0] = '1';
-        in[1] = '2';
-        in[2] = '3';
-        in[3] = '4';
-        in[4] = '5';
+        deque<byte> in(5);
+        in[0] = byte{'1'};
+        in[1] = byte{'2'};
+        in[2] = byte{'3'};
+        in[3] = byte{'4'};
+        in[4] = byte{'5'};
 
         promise<bool> done;
 
         t->opByteSeqAsync(
             in,
-            [&](deque<uint8_t> ret, deque<uint8_t> out)
+            [&](deque<byte> ret, deque<byte> out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1090,18 +1090,18 @@ allTests(TestHelper* helper)
     }
 
     {
-        list<uint8_t> in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
+        list<byte> in;
+        in.push_back(byte{'1'});
+        in.push_back(byte{'2'});
+        in.push_back(byte{'3'});
+        in.push_back(byte{'4'});
+        in.push_back(byte{'5'});
 
         promise<bool> done;
 
         t->opByteListAsync(
             in,
-            [&](list<uint8_t> ret, list<uint8_t> out)
+            [&](list<byte> ret, list<byte> out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1117,7 +1117,7 @@ allTests(TestHelper* helper)
         int i = 0;
         for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = static_cast<uint8_t>('1' + i++);
+            *p = static_cast<byte>('1' + i++);
         }
 
         promise<bool> done;
@@ -1483,18 +1483,18 @@ allTests(TestHelper* helper)
 
     {
         ByteSeq in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
+        in.push_back(byte{'1'});
+        in.push_back(byte{'2'});
+        in.push_back(byte{'3'});
+        in.push_back(byte{'4'});
 
         promise<bool> done;
 
         t->opOutArrayByteSeqAsync(
             in,
-            [&](pair<const uint8_t*, const uint8_t*> out)
+            [&](pair<const byte*, const byte*> out)
             {
-                test(arrayRangeEquals<uint8_t>(make_pair<const uint8_t*>(&in[0], &in[0] + in.size()), out));
+                test(arrayRangeEquals<byte>(make_pair<const byte*>(&in[0], &in[0] + in.size()), out));
                 done.set_value(true);
             },
             [&](std::exception_ptr) { done.set_value(false); });

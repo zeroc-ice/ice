@@ -19,7 +19,7 @@ using namespace IceInternal;
 
 namespace IceInternal
 {
-    inline std::pair<const uint8_t*, const uint8_t*> makePair(const Ice::ByteSeq& seq)
+    inline std::pair<const byte*, const byte*> makePair(const Ice::ByteSeq& seq)
     {
         if (seq.empty())
         {
@@ -121,12 +121,12 @@ namespace IceInternal
         void invoke(
             string_view operation,
             Ice::OperationMode mode,
-            const std::pair<const uint8_t*, const uint8_t*>& inParams,
+            const std::pair<const byte*, const byte*>& inParams,
             const Ice::Context& context)
         {
             _read = [](bool ok, Ice::InputStream* stream)
             {
-                const uint8_t* encaps;
+                const byte* encaps;
                 std::int32_t sz;
                 stream->readEncapsulation(encaps, sz);
                 return R{ok, {encaps, encaps + sz}};
@@ -476,18 +476,18 @@ bool
 Ice::ObjectPrx::ice_invoke(
     string_view operation,
     Ice::OperationMode mode,
-    const vector<uint8_t>& inParams,
-    vector<uint8_t>& outParams,
+    const vector<byte>& inParams,
+    vector<byte>& outParams,
     const Ice::Context& context) const
 {
     return ice_invoke(operation, mode, makePair(inParams), outParams, context);
 }
 
-std::future<std::tuple<bool, vector<uint8_t>>>
+std::future<std::tuple<bool, vector<byte>>>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const vector<uint8_t>& inParams,
+    const vector<byte>& inParams,
     const Ice::Context& context) const
 {
     return ice_invokeAsync(operation, mode, makePair(inParams), context);
@@ -497,17 +497,17 @@ std::function<void()>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const vector<uint8_t>& inParams,
-    std::function<void(bool, vector<uint8_t>)> response,
+    const vector<byte>& inParams,
+    std::function<void(bool, vector<byte>)> response,
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    using Outgoing = InvokeLambdaOutgoing<std::tuple<bool, vector<uint8_t>>>;
-    std::function<void(std::tuple<bool, vector<uint8_t>>&&)> r;
+    using Outgoing = InvokeLambdaOutgoing<std::tuple<bool, vector<byte>>>;
+    std::function<void(std::tuple<bool, vector<byte>>&&)> r;
     if (response)
     {
-        r = [response = std::move(response)](std::tuple<bool, vector<uint8_t>>&& result)
+        r = [response = std::move(response)](std::tuple<bool, vector<byte>>&& result)
         {
             auto [success, outParams] = std::move(result);
             response(success, std::move(outParams));
@@ -522,11 +522,11 @@ bool
 Ice::ObjectPrx::ice_invoke(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const uint8_t*, const uint8_t*>& inParams,
-    vector<uint8_t>& outParams,
+    const std::pair<const byte*, const byte*>& inParams,
+    vector<byte>& outParams,
     const Ice::Context& context) const
 {
-    using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<uint8_t>>>;
+    using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<byte>>>;
     auto outAsync = std::make_shared<Outgoing>(*this, true);
     outAsync->invoke(operation, mode, inParams, context);
     auto result = outAsync->getFuture().get();
@@ -535,14 +535,14 @@ Ice::ObjectPrx::ice_invoke(
     return success;
 }
 
-std::future<std::tuple<bool, vector<uint8_t>>>
+std::future<std::tuple<bool, vector<byte>>>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const uint8_t*, const uint8_t*>& inParams,
+    const std::pair<const byte*, const byte*>& inParams,
     const Ice::Context& context) const
 {
-    using Outgoing = ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<uint8_t>>>;
+    using Outgoing = ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<byte>>>;
     auto outAsync = ::std::make_shared<Outgoing>(*this, false);
     outAsync->invoke(operation, mode, inParams, context);
     return outAsync->getFuture();
@@ -552,13 +552,13 @@ std::function<void()>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const uint8_t*, const uint8_t*>& inParams,
-    std::function<void(bool, std::pair<const uint8_t*, const uint8_t*>)> response,
+    const std::pair<const byte*, const byte*>& inParams,
+    std::function<void(bool, std::pair<const byte*, const byte*>)> response,
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    using Result = ::std::tuple<bool, ::std::pair<const ::uint8_t*, const ::uint8_t*>>;
+    using Result = ::std::tuple<bool, ::std::pair<const ::byte*, const ::byte*>>;
     using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result>;
 
     ::std::function<void(Result&&)> r;

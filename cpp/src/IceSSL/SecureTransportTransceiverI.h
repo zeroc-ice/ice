@@ -44,8 +44,8 @@ namespace IceSSL
             void checkSendSize(const IceInternal::Buffer&) final;
             void setBufferSize(int rcvSize, int sndSize) final;
 
-            OSStatus writeRaw(const char*, size_t*) const;
-            OSStatus readRaw(char*, size_t*) const;
+            OSStatus writeRaw(const std::byte*, size_t*) const;
+            OSStatus readRaw(std::byte*, size_t*) const;
 
         private:
             const InstancePtr _instance;

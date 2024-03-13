@@ -57,7 +57,7 @@ namespace Ice
         OutputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
+            const std::pair<const std::byte*, const std::byte*>& bytes);
 
         ~OutputStream()
         {
@@ -247,7 +247,7 @@ namespace Ice
          * @param v The start of the buffer.
          * @param sz The number of bytes to copy.
          */
-        void writeEncapsulation(const std::uint8_t* v, std::int32_t sz)
+        void writeEncapsulation(const std::byte* v, std::int32_t sz)
         {
             if (sz < 6)
             {
@@ -325,12 +325,12 @@ namespace Ice
             assert(v >= 0);
             if (v > 254)
             {
-                *dest++ = std::uint8_t(255);
+                *dest++ = std::byte{255};
                 write(v, dest);
             }
             else
             {
-                *dest = static_cast<std::uint8_t>(v);
+                *dest = static_cast<std::byte>(v);
             }
         }
 
@@ -359,12 +359,6 @@ namespace Ice
          * @param v The bytes to be copied.
          */
         void writeBlob(const std::vector<std::byte>& v);
-
-        /**
-         * Copies the specified blob of bytes to the stream without modification.
-         * @param v The bytes to be copied.
-         */
-        void writeBlob(const std::vector<std::uint8_t>& v);
 
         /**
          * Copies the specified blob of bytes to the stream without modification.
@@ -537,13 +531,20 @@ namespace Ice
          * Writes a byte to the stream.
          * @param v The byte to write.
          */
-        void write(std::byte v) { b.push_back(static_cast<std::uint8_t>(v)); }
+        void write(std::byte v) { b.push_back(v); }
 
         /**
          * Writes a byte to the stream.
          * @param v The byte to write.
          */
-        void write(std::uint8_t v) { b.push_back(v); }
+        void write(std::uint8_t v) { b.push_back(std::byte{v}); }
+
+        /**
+         * Writes a byte sequence to the stream.
+         * @param start The beginning of the sequence.
+         * @param end The end of the sequence.
+         */
+        void write(const std::byte* start, const std::byte* end);
 
         /**
          * Writes a byte sequence to the stream.
@@ -556,7 +557,7 @@ namespace Ice
          * Writes a boolean to the stream.
          * @param v The boolean to write.
          */
-        void write(bool v) { b.push_back(static_cast<std::uint8_t>(v)); }
+        void write(bool v) { b.push_back(static_cast<std::byte>(v)); }
 
         /**
          * Writes a boolean sequence to the stream.
@@ -814,14 +815,14 @@ namespace Ice
          * Indicates that marshaling is complete. This function must only be called once.
          * @param v Filled with a copy of the encoded data.
          */
-        void finished(std::vector<std::uint8_t>& v);
+        void finished(std::vector<std::byte>& v);
 
         /**
          * Indicates that marshaling is complete. This function must only be called once.
          * @return A pair of pointers into the internal marshaling buffer. These pointers are
          * valid for the lifetime of the stream.
          */
-        std::pair<const std::uint8_t*, const std::uint8_t*> finished();
+        std::pair<const std::byte*, const std::byte*> finished();
 
         /// \cond INTERNAL
         OutputStream(IceInternal::Instance*, const EncodingVersion&);

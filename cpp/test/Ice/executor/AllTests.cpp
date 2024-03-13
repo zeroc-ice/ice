@@ -151,7 +151,7 @@ allTests(TestHelper* helper)
         seq.resize(1024); // Make sure the request doesn't compress too well.
         for (ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
         {
-            *q = static_cast<uint8_t>(IceUtilInternal::random(255));
+            *q = static_cast<byte>(IceUtilInternal::random(255));
         }
 
         vector<shared_ptr<promise<void>>> completed;

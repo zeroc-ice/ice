@@ -147,8 +147,8 @@ IcePatch2Internal::bytesToString(const ByteSeq& bytes)
 
     for (unsigned int i = 0; i < bytes.size(); ++i)
     {
-        s[i * 2] = toHex[(bytes[i] >> 4) & 0xf];
-        s[i * 2 + 1] = toHex[bytes[i] & 0xf];
+        s[i * 2] = toHex[static_cast<char>(bytes[i] >> 4) & 0xf];
+        s[i * 2 + 1] = toHex[static_cast<char>(bytes[i]) & 0xf];
     }
 
     return s;
@@ -193,7 +193,7 @@ IcePatch2Internal::stringToBytes(const string& str)
             }
         }
 
-        bytes.push_back(static_cast<uint8_t>(byte));
+        bytes.push_back(static_cast<std::byte>(byte));
     }
 
     return bytes;
@@ -593,7 +593,7 @@ IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, i
     BZ2_bzWrite(
         &bzError,
         bzFile,
-        const_cast<uint8_t*>(&bytes[static_cast<size_t>(pos)]),
+        const_cast<byte*>(&bytes[static_cast<size_t>(pos)]),
         static_cast<int>(bytes.size()) - pos);
     if (bzError != BZ_OK)
     {
@@ -817,16 +817,16 @@ namespace
                 info.executable = false;
 
                 ByteSeq bytes(relPath.size());
-                copy(relPath.begin(), relPath.end(), bytes.begin());
+                std::transform(relPath.begin(), relPath.end(), bytes.begin(), [](char c) { return std::byte(c); });
 
                 ByteSeq bytesSHA(20);
                 if (!bytes.empty())
                 {
-                    IceInternal::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
+                    IceInternal::sha1(&bytes[0], bytes.size(), bytesSHA);
                 }
                 else
                 {
-                    fill(bytesSHA.begin(), bytesSHA.end(), uint8_t(0));
+                    fill(bytesSHA.begin(), bytesSHA.end(), byte{0});
                 }
                 info.checksum.swap(bytesSHA);
 
@@ -888,7 +888,7 @@ namespace
                 if (relPath.size() == 0 && buf.st_size == 0)
                 {
                     bytesSHA.resize(20);
-                    fill(bytesSHA.begin(), bytesSHA.end(), uint8_t(0));
+                    fill(bytesSHA.begin(), bytesSHA.end(), byte{0});
                 }
                 else
                 {
@@ -963,7 +963,7 @@ namespace
                                 BZ2_bzWrite(
                                     &bzError,
                                     bzFile,
-                                    const_cast<uint8_t*>(&bytes[0]),
+                                    reinterpret_cast<uint8_t*>(&bytes[0]),
                                     static_cast<int>(bytes.size()));
                                 if (bzError != BZ_OK)
                                 {
@@ -1231,19 +1231,16 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
         for (LargeFileInfoSeq::const_iterator p = tree1.files.begin(); p != tree1.files.end(); ++p, c1 += 21)
         {
             copy(p->checksum.begin(), p->checksum.end(), c1);
-            *(c1 + 20) = p->executable;
+            *(c1 + 20) = byte{p->executable};
         }
 
         if (!allChecksums1.empty())
         {
-            IceInternal::sha1(
-                reinterpret_cast<unsigned char*>(&allChecksums1[0]),
-                allChecksums1.size(),
-                tree1.checksum);
+            IceInternal::sha1(&allChecksums1[0], allChecksums1.size(), tree1.checksum);
         }
         else
         {
-            fill(tree1.checksum.begin(), tree1.checksum.end(), uint8_t(0));
+            fill(tree1.checksum.begin(), tree1.checksum.end(), byte{0});
         }
 
         copy(tree1.checksum.begin(), tree1.checksum.end(), c0);
@@ -1251,10 +1248,10 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
 
     if (!allChecksums0.empty())
     {
-        IceInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
+        IceInternal::sha1(&allChecksums0[0], allChecksums0.size(), tree0.checksum);
     }
     else
     {
-        fill(tree0.checksum.begin(), tree0.checksum.end(), uint8_t(0));
+        fill(tree0.checksum.begin(), tree0.checksum.end(), byte{0});
     }
 }

@@ -1355,7 +1355,6 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     string scope = fixKwd(p->scope());
     TypePtr type = p->type();
     TypeContext typeCtx = _useWstring;
-    string s = typeToString(type, false, scope, p->typeMetaData(), typeCtx);
     StringList metaData = p->getMetaData();
 
     string seqType = findMetaData(metaData, _useWstring);
@@ -1368,7 +1367,16 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        H << nl << "using " << name << " = ::std::vector<" << s << ">;";
+        auto builtin = dynamic_pointer_cast<Builtin>(type);
+        if (builtin && builtin->kind() == Builtin::KindByte)
+        {
+            H << nl << "using " << name << " = ::std::vector<std::byte>;";
+        }
+        else
+        {
+            string s = typeToString(type, false, scope, p->typeMetaData(), typeCtx);
+            H << nl << "using " << name << " = ::std::vector<" << s << ">;";
+        }
     }
 }
 

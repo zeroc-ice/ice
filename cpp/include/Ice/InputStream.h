@@ -67,7 +67,7 @@ namespace Ice
          * You can supply a communicator later by calling initialize().
          * @param bytes The encoded data.
          */
-        InputStream(const std::vector<std::uint8_t>& bytes);
+        InputStream(const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the latest encoding version but without a communicator.
@@ -76,7 +76,7 @@ namespace Ice
          * You can supply a communicator later by calling initialize().
          * @param bytes The encoded data.
          */
-        InputStream(const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
+        InputStream(const std::pair<const std::byte*, const std::byte*>& bytes);
 
         /// \cond INTERNAL
         InputStream(IceInternal::Buffer&, bool = false);
@@ -93,16 +93,14 @@ namespace Ice
          * @param communicator The communicator to use for unmarshaling tasks.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator, const std::vector<std::uint8_t>& bytes);
+        InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the communicator's default encoding version.
          * @param communicator The communicator to use for unmarshaling tasks.
          * @param bytes The encoded data.
          */
-        InputStream(
-            const CommunicatorPtr& communicator,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
+        InputStream(const CommunicatorPtr& communicator, const std::pair<const std::byte*, const std::byte*>& bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
@@ -125,7 +123,7 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const EncodingVersion& version, const std::vector<std::uint8_t>& bytes);
+        InputStream(const EncodingVersion& version, const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the given encoding version but without a communicator.
@@ -135,7 +133,7 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const EncodingVersion& version, const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
+        InputStream(const EncodingVersion& version, const std::pair<const std::byte*, const std::byte*>& bytes);
 
         /// \cond INTERNAL
         InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -157,7 +155,7 @@ namespace Ice
         InputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::vector<std::uint8_t>& bytes);
+            const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the given communicator and encoding version.
@@ -168,7 +166,7 @@ namespace Ice
         InputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
+            const std::pair<const std::byte*, const std::byte*>& bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -473,7 +471,7 @@ namespace Ice
          * @param sz The number of bytes in the encapsulation.
          * @return encoding The encapsulation's encoding version.
          */
-        EncodingVersion readEncapsulation(const std::uint8_t*& v, std::int32_t& sz)
+        EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz)
         {
             EncodingVersion encoding;
             v = i;
@@ -601,7 +599,7 @@ namespace Ice
         {
             if (sz > 0)
             {
-                v = reinterpret_cast<std::byte*>(i);
+                v = i;
                 if (static_cast<Container::size_type>(b.end() - i) < sz)
                 {
                     throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -610,7 +608,7 @@ namespace Ice
             }
             else
             {
-                v = reinterpret_cast<std::byte*>(i);
+                v = i;
             }
         }
 
@@ -747,7 +745,7 @@ namespace Ice
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            v = static_cast<std::byte>(*i++);
+            v = *i++;
         }
 
         /**
@@ -760,21 +758,21 @@ namespace Ice
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            v = *i++;
+            v = static_cast<std::uint8_t>(*i++);
         }
 
         /**
          * Reads a sequence of bytes from the stream.
          * @param v A vector to hold a copy of the bytes.
          */
-        void read(std::vector<std::uint8_t>& v);
+        void read(std::vector<std::byte>& v);
 
         /**
          * Reads a sequence of bytes from the stream.
          * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
          * sequence elements.
          */
-        void read(std::pair<const std::uint8_t*, const std::uint8_t*>& v);
+        void read(std::pair<const std::byte*, const std::byte*>& v);
 
         /**
          * Reads a bool from the stream.
@@ -786,7 +784,7 @@ namespace Ice
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            v = (0 != *i++);
+            v = (std::byte{0} != *i++);
         }
 
         /**

@@ -109,7 +109,7 @@ allTests(Test::TestHelper* helper)
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 
-    vector<uint8_t> data;
+    vector<byte> data;
 
     //
     // Test the stream API.
@@ -117,7 +117,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing primitive types... " << flush;
 
     {
-        vector<uint8_t> byte;
+        vector<byte> byte;
         Ice::InputStream in(communicator, byte);
     }
 
@@ -127,9 +127,9 @@ allTests(Test::TestHelper* helper)
         out.write(true);
         out.endEncapsulation();
         out.finished(data);
-        pair<const uint8_t*, const uint8_t*> d = out.finished();
+        pair<const byte*, const byte*> d = out.finished();
         test(d.second - d.first == static_cast<int>(data.size()));
-        test(vector<uint8_t>(d.first, d.second) == data);
+        test(vector<byte>(d.first, d.second) == data);
 
         Ice::InputStream in(communicator, data);
         in.startEncapsulation();
@@ -140,7 +140,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        vector<uint8_t> byte;
+        vector<byte> byte;
         Ice::InputStream in(communicator, byte);
         try
         {
@@ -352,10 +352,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::ByteSeq arr;
-        arr.push_back(0x01);
-        arr.push_back(0x11);
-        arr.push_back(0x12);
-        arr.push_back(0x22);
+        arr.push_back(byte{0x01});
+        arr.push_back(byte{0x11});
+        arr.push_back(byte{0x12});
+        arr.push_back(byte{0x22});
 
         Ice::OutputStream out(communicator);
         out.write(arr);
@@ -646,10 +646,10 @@ allTests(Test::TestHelper* helper)
             c->seq1.push_back(true);
             c->seq1.push_back(false);
 
-            c->seq2.push_back(1);
-            c->seq2.push_back(2);
-            c->seq2.push_back(3);
-            c->seq2.push_back(4);
+            c->seq2.push_back(byte{1});
+            c->seq2.push_back(byte{2});
+            c->seq2.push_back(byte{3});
+            c->seq2.push_back(byte{4});
 
             c->seq3.push_back(1);
             c->seq3.push_back(2);
@@ -826,10 +826,10 @@ allTests(Test::TestHelper* helper)
         c->seq1.push_back(true);
         c->seq1.push_back(false);
 
-        c->seq2.push_back(1);
-        c->seq2.push_back(2);
-        c->seq2.push_back(3);
-        c->seq2.push_back(4);
+        c->seq2.push_back(byte{1});
+        c->seq2.push_back(byte{2});
+        c->seq2.push_back(byte{3});
+        c->seq2.push_back(byte{4});
 
         c->seq3.push_back(1);
         c->seq3.push_back(2);
@@ -1072,30 +1072,30 @@ allTests(Test::TestHelper* helper)
     // Test marshaling to user-supplied buffer.
     //
     {
-        uint8_t buf[128];
-        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
+        byte buf[128];
+        pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<uint8_t> v;
+        vector<byte> v;
         v.resize(127);
         out.write(v);
         test(out.pos() == 128);     // 127 bytes + leading size (1 byte)
         test(out.b.begin() == buf); // Verify the stream hasn't reallocated.
     }
     {
-        uint8_t buf[128];
-        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
+        byte buf[128];
+        pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<uint8_t> v;
+        vector<byte> v;
         v.resize(127);
         ::memset(&v[0], 0xFF, v.size());
         out.write(v);
-        out.write(uint8_t(0xFF));   // This extra byte should make the stream reallocate.
+        out.write(byte(0xFF));      // This extra byte should make the stream reallocate.
         test(out.pos() == 129);     // 127 bytes + leading size (1 byte) + 1 byte
         test(out.b.begin() != buf); // Verify the stream was reallocated.
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-        vector<uint8_t> v2;
+        vector<byte> v2;
         in.read(v2);
         test(v2.size() == 127);
         test(v == v2); // Make sure the original buffer was preserved.
