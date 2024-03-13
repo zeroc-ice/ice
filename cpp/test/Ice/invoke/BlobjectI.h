@@ -16,10 +16,7 @@ public:
 class BlobjectArrayI final : public Ice::BlobjectArray
 {
 public:
-    bool ice_invoke(
-        std::pair<const std::byte*, const std::byte*>,
-        std::vector<std::byte>&,
-        const Ice::Current&) final;
+    bool ice_invoke(std::pair<const std::byte*, const std::byte*>, std::vector<std::byte>&, const Ice::Current&) final;
 };
 
 class BlobjectAsyncI final : public Ice::BlobjectAsync

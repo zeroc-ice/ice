@@ -353,9 +353,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if (str != 0 && len != 0)
                 {
-                    vector<byte> vtmp(
-                        reinterpret_cast<const byte*>(str),
-                        reinterpret_cast<const byte*>(str + len));
+                    vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 

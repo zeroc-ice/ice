@@ -445,11 +445,7 @@ IcePHP::TypedInvocation::prepareRequest(
 }
 
 void
-IcePHP::TypedInvocation::unmarshalResults(
-    int argc,
-    zval* args,
-    zval* ret,
-    const pair<const byte*, const byte*>& bytes)
+IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, const pair<const byte*, const byte*>& bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 

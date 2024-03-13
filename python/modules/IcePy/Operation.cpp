@@ -2109,10 +2109,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
 }
 
 void
-IcePy::AsyncTypedInvocation::handleResponse(
-    PyObject* future,
-    bool ok,
-    const pair<const byte*, const byte*>& results)
+IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, const pair<const byte*, const byte*>& results)
 {
     try
     {
@@ -2340,10 +2337,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
 }
 
 void
-IcePy::AsyncBlobjectInvocation::handleResponse(
-    PyObject* future,
-    bool ok,
-    const pair<const byte*, const byte*>& results)
+IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok, const pair<const byte*, const byte*>& results)
 {
     // Prepare the args as a tuple of the bool and out param buffer.
     PyObjectHandle args = PyTuple_New(2);
