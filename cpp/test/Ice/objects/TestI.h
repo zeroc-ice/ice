@@ -117,7 +117,7 @@ private:
 class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
-    bool ice_invoke(std::vector<std::uint8_t>, std::vector<std::uint8_t>&, const Ice::Current&) final;
+    bool ice_invoke(std::vector<std::byte>, std::vector<std::byte>&, const Ice::Current&) final;
 };
 using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExceptionTestI>;
 

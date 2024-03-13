@@ -104,7 +104,7 @@ Incoming::writeEmptyParams()
 }
 
 void
-Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
+Incoming::writeParamEncaps(const byte* v, int32_t sz, bool ok)
 {
     if (!ok)
     {

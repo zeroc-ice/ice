@@ -67,8 +67,8 @@ namespace Ice
             void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
 
         private:
-            std::uint8_t* _readStreamPos;
-            std::uint8_t* _writeStreamPos;
+            std::byte* _readStreamPos;
+            std::byte* _writeStreamPos;
         };
 
     public:

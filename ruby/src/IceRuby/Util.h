@@ -92,10 +92,10 @@ namespace IceRuby
     VALUE stringSeqToArray(const std::vector<std::string>&);
 
     //
-    // Convert a vector of std::uint8_t into a Ruby array of numbers.
+    // Convert a vector of std::byte into a Ruby array of numbers.
     // May raise RubyException.
     //
-    VALUE createNumSeq(const std::vector<std::uint8_t>&);
+    VALUE createNumSeq(const std::vector<std::byte>&);
 
     //
     // Convert a Ruby hash to Ice::Context. Returns true on success

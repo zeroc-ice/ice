@@ -17,8 +17,8 @@ namespace IceGrid
         RegistryServerAdminRouter(const std::shared_ptr<Database>&);
 
         void ice_invokeAsync(
-            std::pair<const std::uint8_t*, const std::uint8_t*>,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::pair<const std::byte*, const std::byte*>,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 
@@ -32,8 +32,8 @@ namespace IceGrid
         RegistryNodeAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
         void ice_invokeAsync(
-            std::pair<const std::uint8_t*, const std::uint8_t*>,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::pair<const std::byte*, const std::byte*>,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 
@@ -48,8 +48,8 @@ namespace IceGrid
         RegistryReplicaAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
         void ice_invokeAsync(
-            std::pair<const std::uint8_t*, const std::uint8_t*>,
-            std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
+            std::pair<const std::byte*, const std::byte*>,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 

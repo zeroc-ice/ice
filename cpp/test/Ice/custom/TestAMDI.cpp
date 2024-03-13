@@ -33,8 +33,8 @@ TestIntfI::opBoolArrayAsync(
 
 void
 TestIntfI::opByteArrayAsync(
-    pair<const uint8_t*, const uint8_t*> in,
-    function<void(const pair<const uint8_t*, const uint8_t*>&, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> in,
+    function<void(const pair<const byte*, const byte*>&, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
@@ -74,8 +74,8 @@ TestIntfI::opBoolListAsync(
 
 void
 TestIntfI::opByteSeqAsync(
-    deque<uint8_t> in,
-    function<void(const deque<uint8_t>&, const deque<uint8_t>&)> response,
+    deque<byte> in,
+    function<void(const deque<byte>&, const deque<byte>&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
@@ -245,7 +245,7 @@ TestIntfI::opCListAsync(
 void
 TestIntfI::opOutArrayByteSeqAsync(
     ByteSeq in,
-    function<void(const pair<const uint8_t*, const uint8_t*>&)> response,
+    function<void(const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {

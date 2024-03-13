@@ -38,8 +38,7 @@ namespace
         {
         }
 
-        bool
-        ice_invoke(pair<const uint8_t*, const uint8_t*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
+        bool ice_invoke(pair<const byte*, const byte*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
         {
             // The publish call does a cached read.
             EventData event = {current.operation, current.mode, Ice::ByteSeq(), current.ctx};

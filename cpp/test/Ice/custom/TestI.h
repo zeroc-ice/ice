@@ -15,7 +15,7 @@ public:
     Test::BoolSeq opBoolArray(std::pair<const bool*, const bool*>, Test::BoolSeq&, const Ice::Current&) final;
 
     Test::ByteList
-    opByteArray(std::pair<const std::uint8_t*, const std::uint8_t*>, Test::ByteList&, const Ice::Current&) final;
+    opByteArray(std::pair<const std::byte*, const std::byte*>, Test::ByteList&, const Ice::Current&) final;
 
     Test::VariableList opVariableArray(
         std::pair<const Test::Variable*, const Test::Variable*>,
@@ -33,9 +33,9 @@ public:
         Test::BoolDequeList&,
         const Ice::Current&) final;
 
-    std::deque<std::uint8_t> opByteSeq(std::deque<std::uint8_t>, std::deque<std::uint8_t>&, const Ice::Current&) final;
+    std::deque<std::byte> opByteSeq(std::deque<std::byte>, std::deque<std::byte>&, const Ice::Current&) final;
 
-    std::list<std::uint8_t> opByteList(std::list<std::uint8_t>, std::list<std::uint8_t>&, const Ice::Current&) final;
+    std::list<std::byte> opByteList(std::list<std::byte>, std::list<std::byte>&, const Ice::Current&) final;
 
     MyByteSeq opMyByteSeq(MyByteSeq, MyByteSeq&, const Ice::Current&) final;
 

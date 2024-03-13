@@ -25,8 +25,8 @@ namespace
         // ice_invokeAsync completes, so we have to make a copy of the in parameters
         //
         QueuedDispatch(
-            pair<const uint8_t*, const uint8_t*> p,
-            function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>&& r,
+            pair<const byte*, const byte*> p,
+            function<void(bool, const pair<const byte*, const byte*>&)>&& r,
             function<void(exception_ptr)>&& e,
             const Current& c)
             : inParams(p.first, p.second),
@@ -41,8 +41,8 @@ namespace
         // Make sure we don't copy this struct by accident
         QueuedDispatch(const QueuedDispatch&) = delete;
 
-        const vector<uint8_t> inParams;
-        function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response;
+        const vector<byte> inParams;
+        function<void(bool, const pair<const byte*, const byte*>&)> response;
         function<void(exception_ptr)> error;
         const Current current;
     };
@@ -95,16 +95,16 @@ namespace
 
         void closed(const shared_ptr<Connection>&);
         void dispatch(
-            pair<const uint8_t*, const uint8_t*>,
-            function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>,
+            pair<const byte*, const byte*>,
+            function<void(bool, const pair<const byte*, const byte*>&)>,
             function<void(exception_ptr)>,
             const Current&);
 
     private:
         void send(
             const shared_ptr<Connection>&,
-            pair<const uint8_t*, const uint8_t*>,
-            function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>,
+            pair<const byte*, const byte*>,
+            function<void(bool, const pair<const byte*, const byte*>&)>,
             function<void(exception_ptr)>,
             const Current& current);
 
@@ -134,8 +134,8 @@ namespace
         BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrx target);
 
         void ice_invokeAsync(
-            pair<const uint8_t*, const uint8_t*> inEncaps,
-            function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+            pair<const byte*, const byte*> inEncaps,
+            function<void(bool, const pair<const byte*, const byte*>&)> response,
             function<void(exception_ptr)> error,
             const Current& current) final;
 
@@ -304,8 +304,8 @@ BridgeConnection::closed(const shared_ptr<Connection>& con)
 
 void
 BridgeConnection::dispatch(
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> error,
     const Current& current)
 {
@@ -341,8 +341,8 @@ BridgeConnection::dispatch(
 void
 BridgeConnection::send(
     const shared_ptr<Connection>& dest,
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> error,
     const Current& current)
 {
@@ -397,8 +397,8 @@ BridgeI::BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrx target)
 
 void
 BridgeI::ice_invokeAsync(
-    pair<const uint8_t*, const uint8_t*> inParams,
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
     function<void(exception_ptr)> error,
     const Current& current)
 {

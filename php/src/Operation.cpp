@@ -106,9 +106,9 @@ namespace IcePHP
     protected:
         OperationIPtr _op;
 
-        bool prepareRequest(int, zval*, Ice::OutputStream*, pair<const uint8_t*, const uint8_t*>&);
-        void unmarshalResults(int, zval*, zval*, const pair<const uint8_t*, const uint8_t*>&);
-        void unmarshalException(zval*, const pair<const uint8_t*, const uint8_t*>&);
+        bool prepareRequest(int, zval*, Ice::OutputStream*, pair<const byte*, const byte*>&);
+        void unmarshalResults(int, zval*, zval*, const pair<const byte*, const byte*>&);
+        void unmarshalException(zval*, const pair<const byte*, const byte*>&);
         bool validateException(const ExceptionInfoPtr&) const;
         void checkTwowayOnly(const Ice::ObjectPrx&) const;
     };
@@ -355,7 +355,7 @@ IcePHP::TypedInvocation::prepareRequest(
     int argc,
     zval* args,
     Ice::OutputStream* os,
-    pair<const uint8_t*, const uint8_t*>& params)
+    pair<const byte*, const byte*>& params)
 {
     // Verify that the expected number of arguments are supplied. The context argument is optional.
     if (argc != _op->numParams && argc != _op->numParams + 1)
@@ -449,7 +449,7 @@ IcePHP::TypedInvocation::unmarshalResults(
     int argc,
     zval* args,
     zval* ret,
-    const pair<const uint8_t*, const uint8_t*>& bytes)
+    const pair<const byte*, const byte*>& bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
@@ -533,7 +533,7 @@ IcePHP::TypedInvocation::unmarshalResults(
 }
 
 void
-IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const uint8_t*, const uint8_t*>& bytes)
+IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const byte*, const byte*>& bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
@@ -627,7 +627,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     }
 
     Ice::OutputStream os(_prx->ice_getCommunicator());
-    pair<const uint8_t*, const uint8_t*> params;
+    pair<const byte*, const byte*> params;
     if (!prepareRequest(ZEND_NUM_ARGS(), args, &os, params))
     {
         return;
@@ -649,7 +649,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         checkTwowayOnly(_prx);
 
         // Invoke the operation.
-        vector<uint8_t> result;
+        vector<byte> result;
         bool status;
         {
             if (hasCtx)
@@ -668,7 +668,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             if (!status)
             {
                 // Unmarshal a user exception.
-                pair<const uint8_t*, const uint8_t*> rb(0, 0);
+                pair<const byte*, const byte*> rb(0, 0);
                 if (!result.empty())
                 {
                     rb.first = &result[0];
@@ -686,7 +686,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             else if (!_op->outParams.empty() || _op->returnType)
             {
                 // Unmarshal the results.
-                pair<const uint8_t*, const uint8_t*> rb(0, 0);
+                pair<const byte*, const byte*> rb(0, 0);
                 if (!result.empty())
                 {
                     rb.first = &result[0];

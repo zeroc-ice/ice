@@ -61,21 +61,21 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
     string pa,
     int64_t pos,
     int32_t num,
-    function<void(const pair<const ::uint8_t*, const ::uint8_t*>& returnValue)> response,
+    function<void(const pair<const byte*, const byte*>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Current&) const
 {
     try
     {
-        vector<uint8_t> buffer;
+        vector<byte> buffer;
         getFileCompressedInternal(std::move(pa), pos, num, buffer, true);
         if (buffer.empty())
         {
-            response(make_pair<const uint8_t*, const uint8_t*>(0, 0));
+            response(make_pair<const byte*, const byte*>(0, 0));
         }
         else
         {
-            response(make_pair<const uint8_t*, const uint8_t*>(&buffer[0], &buffer[0] + buffer.size()));
+            response(make_pair<const byte*, const byte*>(&buffer[0], &buffer[0] + buffer.size()));
         }
     }
     catch (const std::exception&)
@@ -89,7 +89,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(
     std::string pa,
     int64_t pos,
     int32_t num,
-    vector<uint8_t>& buffer,
+    vector<byte>& buffer,
     bool largeFile) const
 {
     if (IceUtilInternal::isAbsolutePath(pa))

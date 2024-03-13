@@ -131,10 +131,10 @@ public:
         const Ice::Current&) final;
 
     void opByteSeqAsync(
-        std::optional<std::pair<const std::uint8_t*, const std::uint8_t*>>,
+        std::optional<std::pair<const std::byte*, const std::byte*>>,
         std::function<void(
-            const std::optional<std::pair<const std::uint8_t*, const std::uint8_t*>>&,
-            const std::optional<std::pair<const std::uint8_t*, const std::uint8_t*>>&)>,
+            const std::optional<std::pair<const std::byte*, const std::byte*>>&,
+            const std::optional<std::pair<const std::byte*, const std::byte*>>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

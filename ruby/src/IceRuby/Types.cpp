@@ -353,9 +353,9 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if (str != 0 && len != 0)
                 {
-                    vector<uint8_t> vtmp(
-                        reinterpret_cast<const uint8_t*>(str),
-                        reinterpret_cast<const uint8_t*>(str + len));
+                    vector<byte> vtmp(
+                        reinterpret_cast<const byte*>(str),
+                        reinterpret_cast<const byte*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
@@ -1413,7 +1413,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 }
                 else
                 {
-                    os->write(reinterpret_cast<const uint8_t*>(s), reinterpret_cast<const uint8_t*>(s + len));
+                    os->write(reinterpret_cast<const byte*>(s), reinterpret_cast<const byte*>(s + len));
                 }
             }
             else
@@ -1427,7 +1427,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                     {
                         throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
                     }
-                    seq[static_cast<size_t>(i)] = static_cast<uint8_t>(val);
+                    seq[static_cast<size_t>(i)] = static_cast<byte>(val);
                 }
                 os->write(seq);
             }

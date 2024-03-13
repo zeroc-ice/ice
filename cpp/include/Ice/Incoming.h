@@ -40,7 +40,7 @@ namespace IceInternal
         Ice::OutputStream* startWriteParams();
         void endWriteParams();
         void writeEmptyParams();
-        void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
+        void writeParamEncaps(const std::byte*, std::int32_t, bool ok);
         void setMarshaledResult(Ice::MarshaledResult&&);
 
         void setFormat(Ice::FormatType format) { _format = format; }
@@ -49,6 +49,7 @@ namespace IceInternal
 
         // Inlined for speed optimization.
         void skipReadParams() { _current.encoding = _is->skipEncapsulation(); }
+
         Ice::InputStream* startReadParams()
         {
             //
@@ -58,9 +59,12 @@ namespace IceInternal
             _current.encoding = _is->startEncapsulation();
             return _is;
         }
+
         void endReadParams() const { _is->endEncapsulation(); }
+
         void readEmptyParams() { _current.encoding = _is->skipEmptyEncapsulation(); }
-        void readParamEncaps(const std::uint8_t*& v, std::int32_t& sz)
+
+        void readParamEncaps(const std::byte*& v, std::int32_t& sz)
         {
             _current.encoding = _is->readEncapsulation(v, sz);
         }

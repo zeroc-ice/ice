@@ -11,6 +11,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+    // Convert a byte array to a string
+    string bytesToString(const byte* begin, const byte* end)
+    {
+        return string(reinterpret_cast<const char*>(begin), reinterpret_cast<const char*>(end));
+    }
+}
+
 IceInternal::WebSocketException::WebSocketException(const string& r) : reason(r) {}
 
 IceInternal::HttpParser::HttpParser()
@@ -22,10 +31,10 @@ IceInternal::HttpParser::HttpParser()
 {
 }
 
-const uint8_t*
-IceInternal::HttpParser::isCompleteMessage(const uint8_t* begin, const uint8_t* end) const
+const byte*
+IceInternal::HttpParser::isCompleteMessage(const byte* begin, const byte* end) const
 {
-    const uint8_t* p = begin;
+    const byte* p = begin;
 
     //
     // Skip any leading CR-LF characters.
@@ -68,10 +77,10 @@ IceInternal::HttpParser::isCompleteMessage(const uint8_t* begin, const uint8_t* 
 }
 
 bool
-IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
+IceInternal::HttpParser::parse(const byte* begin, const byte* end)
 {
-    const uint8_t* p = begin;
-    const uint8_t* start = 0;
+    const byte* p = begin;
+    const byte* start = 0;
     const string::value_type CR = '\r';
     const string::value_type LF = '\n';
 
@@ -249,7 +258,7 @@ IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
                         }
                         HeaderFields::iterator q = _headers.find(_headerName);
                         assert(q != _headers.end());
-                        q->second.second = q->second.second + " " + string(start, p);
+                        q->second.second = q->second.second + " " + bytesToString(start, p);
                         _state = c == CR ? StateHeaderFieldLF : StateHeaderFieldStart;
                     }
                     else
@@ -288,14 +297,14 @@ IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
             {
                 if (_headerName.empty())
                 {
-                    _headerName = IceUtilInternal::toLower(string(start, p));
+                    _headerName = IceUtilInternal::toLower(bytesToString(start, p));
                     HeaderFields::iterator q = _headers.find(_headerName);
                     //
                     // Add a placeholder entry if necessary.
                     //
                     if (q == _headers.end())
                     {
-                        _headers[_headerName] = make_pair(string(start, p), "");
+                        _headers[_headerName] = make_pair(bytesToString(start, p), "");
                     }
                 }
 
@@ -357,11 +366,11 @@ IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
                     }
                     else if (q->second.second.empty())
                     {
-                        q->second.second = string(start, p);
+                        q->second.second = bytesToString(start, p);
                     }
                     else
                     {
-                        q->second.second = q->second.second + ", " + string(start, p);
+                        q->second.second = q->second.second + ", " + bytesToString(start, p);
                     }
                 }
 
@@ -580,7 +589,7 @@ IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
                 {
                     if (p > start)
                     {
-                        _reason = string(start, p);
+                        _reason = bytesToString(start, p);
                     }
                     _state = c == CR ? StateResponseLF : StateHeaderFieldStart;
                 }

@@ -29,7 +29,7 @@ namespace Ice
         /**
          * The encoded bytes for this slice, including the leading size integer.
          */
-        std::vector<std::uint8_t> bytes;
+        std::vector<std::byte> bytes;
 
         /**
          * The class instances referenced by this slice.
