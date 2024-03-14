@@ -265,7 +265,7 @@ IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, cons
     // Null observers are ignored
     if (observer)
     {
-        addObserver(*observer);
+        addObserver(*std::move(observer));
     }
 }
 

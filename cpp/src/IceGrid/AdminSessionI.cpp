@@ -330,7 +330,7 @@ AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& c
 {
     return addFileIterator(
         name == _replicaName ? _database->getReplicaCache().getInternalRegistry()
-                             : _database->getReplicaCache().getInternalRegistry(),
+                             : _database->getReplica(std::move(name))->getProxy(),
         "stdout",
         nLines,
         current);
