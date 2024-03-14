@@ -171,7 +171,12 @@ namespace
             ostr.write(exceptionMessage);
         }
 
-        return OutgoingResponse{replyStatus, std::move(exceptionId), std::move(exceptionMessage), ostr, current};
+        return OutgoingResponse{
+            replyStatus,
+            std::move(exceptionId),
+            std::move(exceptionMessage),
+            std::move(ostr),
+            current};
     }
 } // anonymous namespace
 
@@ -179,34 +184,14 @@ OutgoingResponse::OutgoingResponse(
     ReplyStatus replyStatus,
     string exceptionId,
     string exceptionMessage,
-    OutputStream& outputStream,
+    OutputStream outputStream,
     const Current& current) noexcept
     : _current(current),
       _exceptionId(std::move(exceptionId)),
       _exceptionMessage(std::move(exceptionMessage)),
+      _outputStream(std::move(outputStream)),
       _replyStatus(replyStatus)
 {
-    _outputStream.swap(outputStream);
-}
-
-OutgoingResponse::OutgoingResponse(OutgoingResponse&& other) noexcept
-    : _current(std::move(other._current)),
-      _exceptionId(std::move(other._exceptionId)),
-      _exceptionMessage(std::move(other._exceptionMessage)),
-      _replyStatus(other._replyStatus)
-{
-    _outputStream.swap(other._outputStream);
-}
-
-OutgoingResponse&
-OutgoingResponse::operator=(OutgoingResponse&& other) noexcept
-{
-    _current = std::move(other._current);
-    _replyStatus = other._replyStatus;
-    _exceptionId = std::move(other._exceptionId);
-    _exceptionMessage = std::move(other._exceptionMessage);
-    _outputStream.swap(other._outputStream);
-    return *this;
 }
 
 int32_t
@@ -233,7 +218,7 @@ Ice::makeOutgoingResponse(
             ostr.startEncapsulation(current.encoding, format);
             marshal(&ostr);
             ostr.endEncapsulation();
-            return OutgoingResponse{ostr, current};
+            return OutgoingResponse{std::move(ostr), current};
         }
         catch (...)
         {
@@ -244,7 +229,7 @@ Ice::makeOutgoingResponse(
     {
         // A oneway request cannot have a return or out params.
         assert(0);
-        return OutgoingResponse{ostr, current};
+        return OutgoingResponse{std::move(ostr), current};
     }
 }
 
@@ -266,7 +251,7 @@ Ice::makeEmptyOutgoingResponse(const Current& current) noexcept
             return makeOutgoingResponse(current_exception(), current);
         }
     }
-    return OutgoingResponse{ostr, current};
+    return OutgoingResponse{std::move(ostr), current};
 }
 
 OutgoingResponse
@@ -296,7 +281,7 @@ Ice::makeOutgoingResponse(bool ok, const pair<const byte*, const byte*>& encapsu
             return makeOutgoingResponse(current_exception(), current);
         }
     }
-    return OutgoingResponse{ostr, current};
+    return OutgoingResponse{std::move(ostr), current};
 }
 
 OutgoingResponse

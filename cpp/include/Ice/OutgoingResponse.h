@@ -45,39 +45,37 @@ namespace Ice
          * @param replyStatus The status of the response.
          * @param exceptionId The ID of the exception, when the response carries an exception.
          * @param exceptionMessage The exception message, when the response carries an exception.
-         * @param outputStream The output stream that holds the response. Its underlying buffer is adopted by the new
-         * response.
+         * @param outputStream The output stream that holds the response.
          * @param current A reference to the current object of the request.
          */
         OutgoingResponse(
             ReplyStatus replyStatus,
             std::string exceptionId,
             std::string exceptionMessage,
-            OutputStream& outputStream,
+            OutputStream outputStream,
             const Current& current) noexcept;
 
         /**
          * Construct an OutgoingResponse object with the Ok reply status.
-         * @param outputStream The output stream that holds the response. Its underlying buffer is adopted by the new
-         * response.
+         * @param outputStream The output stream that holds the response.
          * @param current A reference to the current object of the request.
          */
-        OutgoingResponse(OutputStream& outputStream, const Current& current) noexcept
-            : OutgoingResponse(ReplyStatus::Ok, "", "", outputStream, current)
+        OutgoingResponse(OutputStream outputStream, const Current& current) noexcept
+            : OutgoingResponse(ReplyStatus::Ok, "", "", std::move(outputStream), current)
         {
         }
 
         /**
          * Move constructor.
-         * @param source The response to move into this new response.
+         * @param other The response to move into this new response.
          */
-        OutgoingResponse(OutgoingResponse&& source) noexcept;
+        OutgoingResponse(OutgoingResponse&& other) noexcept = default;
 
         /**
          * Move assignment operator.
-         * @param source The response to move into this response.
+         * @param other The response to move into this response.
          */
-        OutgoingResponse& operator=(OutgoingResponse&& source) noexcept;
+        OutgoingResponse& operator=(OutgoingResponse&& other) noexcept = default;
 
         OutgoingResponse(const OutgoingResponse&) = delete;
         OutgoingResponse& operator=(const OutgoingResponse&) = delete;

@@ -5,11 +5,11 @@
 #ifndef ICE_BUFFER_H
 #define ICE_BUFFER_H
 
-#include <Ice/Config.h>
+#include "Config.h"
 
 namespace IceInternal
 {
-    class ICE_API Buffer : private IceUtil::noncopyable
+    class Buffer
     {
     public:
         Buffer() : i(b.begin()) {}
@@ -17,9 +17,29 @@ namespace IceInternal
         Buffer(const std::vector<std::byte>& v) : b(v), i(b.begin()) {}
         Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) {}
 
-        void swapBuffer(Buffer&);
+        Buffer(Buffer&& other) noexcept : b(std::move(other.b)), i(other.i) { other.i = other.b.begin(); }
 
-        class ICE_API Container : private IceUtil::noncopyable
+        Buffer& operator=(Buffer&& other) noexcept
+        {
+            if (this != &other)
+            {
+                b = std::move(other.b);
+                i = other.i;
+                other.i = other.b.begin();
+            }
+            return *this;
+        }
+
+        Buffer(const Buffer&) = delete;
+        Buffer& operator=(const Buffer&) = delete;
+
+        void swapBuffer(Buffer& other)
+        {
+            b.swap(other.b);
+            std::swap(i, other.i);
+        }
+
+        class ICE_API Container
         {
         public:
             //
@@ -33,10 +53,16 @@ namespace IceInternal
             using pointer = std::byte*;
             using size_type = size_t;
 
-            Container();
-            Container(const_iterator, const_iterator);
-            Container(const std::vector<value_type>&);
-            Container(Container&, bool);
+            Container() noexcept;
+            Container(const_iterator, const_iterator) noexcept;
+            Container(const std::vector<value_type>&) noexcept;
+            Container(Container&, bool) noexcept;
+
+            Container(Container&&) noexcept;
+            Container& operator=(Container&&) noexcept;
+
+            Container(const Container&) = delete;
+            Container& operator=(const Container&) = delete;
 
             ~Container();
 
@@ -111,8 +137,6 @@ namespace IceInternal
             }
 
         private:
-            Container(const Container&);
-            void operator=(const Container&);
             void reserve(size_type);
 
             pointer _buf;

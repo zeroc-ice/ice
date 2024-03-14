@@ -9,16 +9,16 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void
-IceInternal::Buffer::swapBuffer(Buffer& other)
+IceInternal::Buffer::Container::Container() noexcept
+    : _buf(nullptr),
+      _size(0),
+      _capacity(0),
+      _shrinkCounter(0),
+      _owned(true)
 {
-    b.swap(other.b);
-    std::swap(i, other.i);
 }
 
-IceInternal::Buffer::Container::Container() : _buf(0), _size(0), _capacity(0), _shrinkCounter(0), _owned(true) {}
-
-IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end)
+IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end) noexcept
     : _buf(const_cast<iterator>(beg)),
       _size(static_cast<size_t>(end - beg)),
       _capacity(static_cast<size_t>(end - beg)),
@@ -27,7 +27,7 @@ IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end
 {
 }
 
-IceInternal::Buffer::Container::Container(const vector<value_type>& v) : _shrinkCounter(0)
+IceInternal::Buffer::Container::Container(const vector<value_type>& v) noexcept : _shrinkCounter(0)
 {
     if (v.empty())
     {
@@ -45,7 +45,7 @@ IceInternal::Buffer::Container::Container(const vector<value_type>& v) : _shrink
     }
 }
 
-IceInternal::Buffer::Container::Container(Container& other, bool adopt)
+IceInternal::Buffer::Container::Container(Container& other, bool adopt) noexcept
 {
     if (adopt)
     {
@@ -69,6 +69,42 @@ IceInternal::Buffer::Container::Container(Container& other, bool adopt)
         _shrinkCounter = 0;
         _owned = false;
     }
+}
+
+IceInternal::Buffer::Container::Container(Container&& other) noexcept
+    : _buf(other._buf),
+      _size(other._size),
+      _capacity(other._capacity),
+      _shrinkCounter(other._shrinkCounter),
+      _owned(other._owned)
+{
+    // Reset other to default state.
+    other._buf = nullptr;
+    other._size = 0;
+    other._capacity = 0;
+    other._shrinkCounter = 0;
+    other._owned = true;
+}
+
+IceInternal::Buffer::Container&
+IceInternal::Buffer::Container::operator=(Container&& other) noexcept
+{
+    if (this != &other)
+    {
+        _buf = other._buf;
+        _size = other._size;
+        _capacity = other._capacity;
+        _shrinkCounter = other._shrinkCounter;
+        _owned = other._owned;
+
+        // Reset other to default state.
+        other._buf = nullptr;
+        other._size = 0;
+        other._capacity = 0;
+        other._shrinkCounter = 0;
+        other._owned = true;
+    }
+    return *this;
 }
 
 IceInternal::Buffer::Container::~Container()
@@ -97,7 +133,7 @@ IceInternal::Buffer::Container::clear()
         ::free(_buf);
     }
 
-    _buf = 0;
+    _buf = nullptr;
     _size = 0;
     _capacity = 0;
     _shrinkCounter = 0;

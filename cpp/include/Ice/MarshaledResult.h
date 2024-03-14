@@ -34,7 +34,7 @@ namespace Ice
 
         /// \cond INTERNAL
 
-        OutputStream& outputStream() noexcept { return _ostr; }
+        OutputStream&& outputStream() && noexcept { return std::move(_ostr); }
 
     protected:
         /**
