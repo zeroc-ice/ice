@@ -166,8 +166,8 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -196,8 +196,8 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
             IceInternal::escapeString(fromNSString(string), fromNSString(special), instance->toStringMode()));
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }

@@ -157,8 +157,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
             }
         }
         catch (...)
-    {
-        throwException(current_exception());
+        {
+            throwException(current_exception());
             RETURN_NULL();
         }
     }
@@ -694,8 +694,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
             }
         }
         catch (...)
-    {
-        throwException(current_exception());
+        {
+            throwException(current_exception());
             RETURN_NULL();
         }
     }

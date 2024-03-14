@@ -53,11 +53,6 @@ namespace IceUtil
         virtual const char* what() const noexcept;
 
         /**
-         * Throws this exception.
-         */
-        virtual void ice_throw() const = 0;
-
-        /**
          * Returns the name of the file where this exception was constructed.
          * @return The file name.
          */
@@ -85,40 +80,25 @@ namespace IceUtil
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
 
     /**
-     * Helper template for the implementation of Ice::Exception.
-     * It implements ice_throw.
-     * \headerfile Ice/Ice.h
-     */
-    // We generate a text graph, because the inheritance graph for this type has too many nodes.
-    /// \inheritancegraph{TEXT}
-    template<typename E, typename B = Exception> class ExceptionHelper : public B
-    {
-    public:
-        using B::B;
-
-        virtual void ice_throw() const override { throw static_cast<const E&>(*this); }
-    };
-
-    /**
      * This exception indicates that a function was called with an illegal parameter
      * value. It is used only by the Slice to C++98 mapping; std::invalid_argument is
      * used by the Slice to C++11 mapping.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IllegalArgumentException : public ExceptionHelper<IllegalArgumentException>
+    class ICE_API IllegalArgumentException : public Exception
     {
     public:
-        IllegalArgumentException(const char*, int);
-        IllegalArgumentException(const char*, int, const std::string&);
+        using Exception::Exception;
+        IllegalArgumentException(const char*, int, std::string) noexcept;
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
         /**
          * Provides the reason this exception was thrown.
          * @return The reason.
          */
-        std::string reason() const;
+        std::string reason() const noexcept;
 
     private:
         const std::string _reason;
@@ -128,20 +108,20 @@ namespace IceUtil
      * This exception indicates the failure of a string conversion.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IllegalConversionException : public ExceptionHelper<IllegalConversionException>
+    class ICE_API IllegalConversionException : public Exception
     {
     public:
-        IllegalConversionException(const char*, int);
-        IllegalConversionException(const char*, int, const std::string&);
+        using Exception::Exception;
+        IllegalConversionException(const char*, int, std::string) noexcept;
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
         /**
          * Provides the reason this exception was thrown.
          * @return The reason.
          */
-        std::string reason() const;
+        std::string reason() const noexcept;
 
     private:
         const std::string _reason;
@@ -151,25 +131,27 @@ namespace IceUtil
      * This exception indicates the failure to lock a file.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API FileLockException : public ExceptionHelper<FileLockException>
+    class ICE_API FileLockException : public Exception
     {
     public:
-        FileLockException(const char*, int, int, const std::string&);
+        using Exception::Exception;
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        FileLockException(const char*, int, int, std::string) noexcept;
+
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
         /**
          * Returns the path to the file.
          * @return The file path.
          */
-        std::string path() const;
+        const std::string& path() const noexcept;
 
         /**
          * Returns the error number for the failed locking attempt.
          * @return The error number.
          */
-        int error() const;
+        int error() const noexcept;
 
     private:
         const int _error;

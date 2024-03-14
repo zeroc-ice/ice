@@ -16,11 +16,11 @@ using namespace IceXML;
 //
 // ParserException
 //
-IceXML::ParserException::ParserException(const string& reason) : _reason(reason) {}
+IceXML::ParserException::ParserException(string reason) noexcept : _reason(std::move(reason)) {}
 
-IceXML::ParserException::ParserException(const char* file, int line, const string& reason)
-    : IceUtil::ExceptionHelper<ParserException>(file, line),
-      _reason(reason)
+IceXML::ParserException::ParserException(const char* file, int line, string reason) noexcept
+    : Exception(file, line),
+      _reason(std::move(reason))
 {
 }
 
@@ -45,7 +45,7 @@ IceXML::ParserException::ice_print(std::ostream& out) const
 }
 
 string
-IceXML::ParserException::reason() const
+IceXML::ParserException::reason() const noexcept
 {
     return _reason;
 }

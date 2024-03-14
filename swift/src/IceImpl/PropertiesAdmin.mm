@@ -20,8 +20,8 @@
         return toNSString(self.propertiesAdmin->getProperty(fromNSString(key), Ice::Current{}));
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -34,8 +34,8 @@
         return toNSDictionary(self.propertiesAdmin->getPropertiesForPrefix(fromNSString(prefix), Ice::Current{}));
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -51,8 +51,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }

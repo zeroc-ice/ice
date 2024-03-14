@@ -36,8 +36,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -104,8 +104,8 @@
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -120,8 +120,8 @@
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -136,8 +136,8 @@
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -193,8 +193,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -215,8 +215,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -228,8 +228,8 @@
         return self.objectAdapter->getDispatchQueue();
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }

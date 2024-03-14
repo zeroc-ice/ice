@@ -2017,7 +2017,8 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
     {
         if (_defaultFactory->getDelegate())
         {
-            throwException(make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
+            throwException(
+                make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
             return false;
         }
 
@@ -2028,7 +2029,8 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
         FactoryMap::iterator p = _factories.find(id);
         if (p != _factories.end())
         {
-            throwException(make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
+            throwException(
+                make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
             return false;
         }
         _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, shared_from_this())));

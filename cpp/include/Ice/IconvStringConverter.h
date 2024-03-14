@@ -35,34 +35,36 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException : public IceUtil::ExceptionHelper<IconvInitializationException>
+    class ICE_API IconvInitializationException : public IceUtil::Exception
     {
     public:
+        using IceUtil::Exception::Exception;
+
         /**
          * Constructs the exception with a reason. The file and line number are required.
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason More detail about the failure.
          */
-        IconvInitializationException(const char* file, int line, const std::string& reason);
+        IconvInitializationException(const char* file, int line, std::string reason) noexcept;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        virtual std::string ice_id() const;
+        std::string ice_id() const override;
 
         /**
          * Prints a description of this exception to the given stream.
          * @param str The output stream.
          */
-        virtual void ice_print(std::ostream& str) const;
+        void ice_print(std::ostream& str) const override;
 
         /**
          * Obtains the reason for the failure.
          * @return The reason.
          */
-        std::string reason() const;
+        std::string reason() const noexcept;
 
     private:
         std::string _reason;

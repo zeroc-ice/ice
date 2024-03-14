@@ -10,9 +10,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceUtil;
 
-IconvInitializationException::IconvInitializationException(const char* file, int line, const string& reason)
-    : ExceptionHelper<IconvInitializationException>(file, line),
-      _reason(reason)
+IconvInitializationException::IconvInitializationException(const char* file, int line, string reason) noexcept
+    : Exception(file, line),
+      _reason(std::move(reason))
 {
 }
 
@@ -30,7 +30,7 @@ IconvInitializationException::ice_id() const
 }
 
 string
-IconvInitializationException::reason() const
+IconvInitializationException::reason() const noexcept
 {
     return _reason;
 }

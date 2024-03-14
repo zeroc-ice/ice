@@ -54,8 +54,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -98,8 +98,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -120,8 +120,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -139,8 +139,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -158,8 +158,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -177,8 +177,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -196,8 +196,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -215,8 +215,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -262,8 +262,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -295,8 +295,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -325,8 +325,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -420,8 +420,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -434,8 +434,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -455,8 +455,8 @@
         return connection ? connection : [NSNull null];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -504,8 +504,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -552,8 +552,8 @@
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -589,8 +589,8 @@
         }
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -660,8 +660,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -694,8 +694,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }

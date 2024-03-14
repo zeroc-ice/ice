@@ -77,8 +77,8 @@
         return [NSNull null];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -98,8 +98,8 @@
         return [ICEObjectAdapter getHandle:oa];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -114,8 +114,8 @@
         return [ICEObjectAdapter getHandle:oa];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -133,8 +133,8 @@
         return [ICEObjectAdapter getHandle:oa];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -185,8 +185,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -217,8 +217,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -231,8 +231,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -282,8 +282,8 @@
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -296,8 +296,8 @@
         return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx.value()] : [NSNull null];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -311,8 +311,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -325,8 +325,8 @@
         return [self facetToFacade:self.communicator->removeAdminFacet(fromNSString(facet))];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -346,8 +346,8 @@
         return [self facetToFacade:servant];
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -366,8 +366,8 @@
         return facets;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -385,8 +385,8 @@
         return self.communicator->getClientDispatchQueue();
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -398,8 +398,8 @@
         return self.communicator->getServerDispatchQueue();
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -474,8 +474,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }

@@ -562,14 +562,9 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
     return out;
 }
 
-IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line)
-    : ExceptionHelper<IllegalArgumentException>(file, line)
-{
-}
-
-IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, const string& r)
-    : ExceptionHelper<IllegalArgumentException>(file, line),
-      _reason(r)
+IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      _reason(std::move(r))
 {
 }
 
@@ -587,7 +582,7 @@ IceUtil::IllegalArgumentException::ice_id() const
 }
 
 string
-IceUtil::IllegalArgumentException::reason() const
+IceUtil::IllegalArgumentException::reason() const noexcept
 {
     return _reason;
 }
@@ -595,14 +590,10 @@ IceUtil::IllegalArgumentException::reason() const
 //
 // IllegalConversionException
 //
-IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line)
-    : ExceptionHelper<IllegalConversionException>(file, line)
-{
-}
 
-IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line, const string& reason)
-    : ExceptionHelper<IllegalConversionException>(file, line),
-      _reason(reason)
+IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line, string reason) noexcept
+    : Exception(file, line),
+      _reason(std::move(reason))
 {
 }
 
@@ -620,15 +611,15 @@ IceUtil::IllegalConversionException::ice_id() const
 }
 
 string
-IceUtil::IllegalConversionException::reason() const
+IceUtil::IllegalConversionException::reason() const noexcept
 {
     return _reason;
 }
 
-IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path)
-    : ExceptionHelper<FileLockException>(file, line),
+IceUtil::FileLockException::FileLockException(const char* file, int line, int err, string path) noexcept
+    : Exception(file, line),
       _error(err),
-      _path(path)
+      _path(std::move(path))
 {
 }
 
@@ -650,7 +641,7 @@ IceUtil::FileLockException::ice_id() const
 }
 
 int
-IceUtil::FileLockException::error() const
+IceUtil::FileLockException::error() const noexcept
 {
     return _error;
 }

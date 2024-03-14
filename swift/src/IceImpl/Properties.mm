@@ -58,8 +58,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -80,8 +80,8 @@
         return toNSArray(self.properties->parseCommandLineOptions(fromNSString(prefix), s));
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -95,8 +95,8 @@
         return toNSArray(self.properties->parseIceCommandLineOptions(s));
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -109,8 +109,8 @@
         return YES;
     }
     catch (...)
-{
-     *error = convertException(std::current_exception());
+    {
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
