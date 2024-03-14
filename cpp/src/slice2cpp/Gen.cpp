@@ -610,7 +610,6 @@ Slice::Gen::Gen(
     const string& dir)
     : _base(base),
       _headerExtension(headerExtension),
-      _implHeaderExtension(headerExtension),
       _sourceExtension(sourceExtension),
       _extraHeaders(extraHeaders),
       _include(include),
@@ -638,8 +637,6 @@ Slice::Gen::~Gen()
 
     H.close();
     C.close();
-    implH.close();
-    implC.close();
 }
 
 void
