@@ -637,25 +637,25 @@ namespace IcePy
     //
     // ExceptionWriter wraps a Python user exception for marshaling.
     //
-    class ExceptionWriter : public Ice::UserException
+    class ExceptionWriter final : public Ice::UserException
     {
     public:
-        ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0);
+        ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0) noexcept;
         ~ExceptionWriter();
 
         ExceptionWriter(const ExceptionWriter&) = default;
 
-        virtual std::string ice_id() const;
-        virtual void ice_throw() const;
+        std::string ice_id() const final;
+        void ice_throw() const final;
 
-        virtual void _write(Ice::OutputStream*) const;
-        virtual void _read(Ice::InputStream*);
+        void _write(Ice::OutputStream*) const final;
+        void _read(Ice::InputStream*) final;
 
         virtual bool _usesClasses() const;
 
     protected:
-        virtual void _writeImpl(Ice::OutputStream*) const {}
-        virtual void _readImpl(Ice::InputStream*) {}
+        void _writeImpl(Ice::OutputStream*) const final {}
+        void _readImpl(Ice::InputStream*) final {}
 
     private:
         PyObjectHandle _ex;
@@ -666,27 +666,27 @@ namespace IcePy
     //
     // ExceptionReader creates a Python user exception and unmarshals it.
     //
-    class ExceptionReader : public Ice::UserException
+    class ExceptionReader final : public Ice::UserException
     {
     public:
-        ExceptionReader(const ExceptionInfoPtr&);
+        ExceptionReader(const ExceptionInfoPtr&) noexcept;
         ~ExceptionReader();
 
         ExceptionReader(const ExceptionReader&) = default;
 
-        virtual std::string ice_id() const;
-        virtual void ice_throw() const;
+        std::string ice_id() const final;
+        void ice_throw() const final;
 
-        virtual void _write(Ice::OutputStream*) const;
-        virtual void _read(Ice::InputStream*);
+        void _write(Ice::OutputStream*) const final;
+        void _read(Ice::InputStream*) final;
 
-        virtual bool _usesClasses() const;
+        bool _usesClasses() const final;
 
         PyObject* getException() const; // Borrowed reference.
 
     protected:
-        virtual void _writeImpl(Ice::OutputStream*) const {}
-        virtual void _readImpl(Ice::InputStream*) {}
+        void _writeImpl(Ice::OutputStream*) const final {}
+        void _readImpl(Ice::InputStream*) final {}
 
     private:
         ExceptionInfoPtr _info;

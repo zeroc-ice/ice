@@ -23,9 +23,9 @@ extern "C"
         {
             return createResultValue(createStringMap(deref<Ice::ImplicitContext>(self)->getContext()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -37,9 +37,9 @@ extern "C"
             getStringMap(newContext, ctx);
             deref<Ice::ImplicitContext>(self)->setContext(ctx);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -51,9 +51,9 @@ extern "C"
             return createResultValue(
                 createBool(deref<Ice::ImplicitContext>(self)->containsKey(getStringFromUTF16(key))));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -64,9 +64,9 @@ extern "C"
             return createResultValue(
                 createStringFromUTF8(deref<Ice::ImplicitContext>(self)->get(getStringFromUTF16(key))));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -78,9 +78,9 @@ extern "C"
             string v = getStringFromUTF16(value);
             return createResultValue(createStringFromUTF8(deref<Ice::ImplicitContext>(self)->put(k, v)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -91,9 +91,9 @@ extern "C"
             string k = getStringFromUTF16(key);
             return createResultValue(createStringFromUTF8(deref<Ice::ImplicitContext>(self)->remove(k)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 }

@@ -110,9 +110,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         }
         return [ICECommunicator getHandle:communicator];
     }
-    catch (const std::exception& err)
+    catch (...)
     {
-        *error = convertException(err);
+        *error = convertException(std::current_exception());
     }
     return nil;
 }
@@ -145,9 +145,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         }
         return [ICEProperties getHandle:props];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
     }
 
     return nil;
@@ -165,9 +165,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         *category = toNSString(ident.category);
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -195,9 +195,9 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         return toNSString(
             IceInternal::escapeString(fromNSString(string), fromNSString(special), instance->toStringMode()));
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }

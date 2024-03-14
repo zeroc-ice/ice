@@ -34,7 +34,7 @@ namespace IceMatlab
     void getProtocolVersion(mxArray*, Ice::ProtocolVersion&);
     mxArray* createEncodingVersion(const Ice::EncodingVersion&);
     void getEncodingVersion(mxArray*, Ice::EncodingVersion&);
-    mxArray* convertException(const std::exception&);
+    mxArray* convertException(std::exception_ptr);
     mxArray* createResultValue(mxArray*);
     mxArray* createResultException(mxArray*);
     mxArray* createOptionalValue(bool, mxArray*);

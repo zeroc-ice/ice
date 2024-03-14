@@ -55,9 +55,9 @@ ZEND_METHOD(Ice_Properties, __toString)
         }
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -85,9 +85,9 @@ ZEND_METHOD(Ice_Properties, getProperty)
         string val = _this->getProperty(propName);
         RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -124,9 +124,9 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
         string val = _this->getPropertyWithDefault(propName, defaultValue);
         RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -154,9 +154,9 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
         int32_t val = _this->getPropertyAsInt(propName);
         RETURN_LONG(static_cast<long>(val));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -191,9 +191,9 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
         int32_t val = _this->getPropertyAsIntWithDefault(propName, static_cast<int32_t>(def));
         RETURN_LONG(val);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -224,9 +224,9 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -269,9 +269,9 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -307,9 +307,9 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -345,9 +345,9 @@ ZEND_METHOD(Ice_Properties, setProperty)
     {
         _this->setProperty(propName, propValue);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -370,9 +370,9 @@ ZEND_METHOD(Ice_Properties, getCommandLineOptions)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -415,9 +415,9 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -456,9 +456,9 @@ ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -486,9 +486,9 @@ ZEND_METHOD(Ice_Properties, load)
     {
         _this->load(file);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -512,9 +512,9 @@ ZEND_METHOD(Ice_Properties, clone)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -613,9 +613,9 @@ ZEND_FUNCTION(Ice_createProperties)
             }
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }

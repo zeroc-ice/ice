@@ -469,7 +469,7 @@ namespace IceRuby
     //
     // Create the Ruby equivalent of an Ice local exception.
     //
-    VALUE convertLocalException(const Ice::LocalException&);
+    VALUE convertLocalException(std::exception_ptr);
 }
 
 //
@@ -494,7 +494,7 @@ ice_start:                                                                      
 
 #define ICE_RUBY_CATCH                                                                                                 \
     catch (const ::IceRuby::RubyException& ex) { ICE_RUBY_RETHROW(ex.ex); }                                            \
-    catch (const ::Ice::LocalException& ex) { ICE_RUBY_RETHROW(convertLocalException(ex)); }                           \
+    catch (const ::Ice::LocalException&) { ICE_RUBY_RETHROW(convertLocalException(current_exception())); }             \
     catch (const ::Ice::Exception& ex)                                                                                 \
     {                                                                                                                  \
         string msg_ = "unknown Ice exception: " + ex.ice_id();                                                         \

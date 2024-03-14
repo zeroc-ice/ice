@@ -8,7 +8,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/Exception.h>
+#include "UserException.h"
 
 #include <iterator>
 

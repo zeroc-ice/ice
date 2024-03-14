@@ -331,13 +331,17 @@ IceMatlab::getProtocolVersion(mxArray* p, Ice::ProtocolVersion& v)
 }
 
 mxArray*
-IceMatlab::convertException(const std::exception& exc)
+IceMatlab::convertException(const std::exception_ptr exc)
 {
     mxArray* ex;
-    if (dynamic_cast<const Ice::LocalException*>(&exc))
+
+    try
     {
-        auto iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
-        auto typeId = iceEx->ice_id();
+        rethrow_exception(exc);
+    }
+    catch (const Ice::LocalException& iceEx)
+    {
+        auto typeId = iceEx.ice_id();
         //
         // The exception ID uses single colon separators.
         //
@@ -354,7 +358,7 @@ IceMatlab::convertException(const std::exception& exc)
 
         try
         {
-            iceEx->ice_throw();
+            rethrow_exception(exc);
         }
         catch (const Ice::InitializationException& e)
         {
@@ -498,18 +502,25 @@ IceMatlab::convertException(const std::exception& exc)
         params[1] = createStringFromUTF8(msg);
         mexCallMATLAB(1, &ex, idx, params, cls.c_str());
     }
-    else if (dynamic_cast<const std::invalid_argument*>(&exc))
+    catch (const std::invalid_argument& e)
     {
         mxArray* params[2];
         params[0] = createStringFromUTF8("Ice:InvalidArgumentException");
-        params[1] = createStringFromUTF8(exc.what());
+        params[1] = createStringFromUTF8(e.what());
         mexCallMATLAB(1, &ex, 2, params, "MException");
     }
-    else
+    catch (const std::exception& e)
     {
         mxArray* params[2];
         params[0] = createStringFromUTF8("Ice:CppException");
-        params[1] = createStringFromUTF8(exc.what());
+        params[1] = createStringFromUTF8(e.what());
+        mexCallMATLAB(1, &ex, 2, params, "MException");
+    }
+    catch (...)
+    {
+        mxArray* params[2];
+        params[0] = createStringFromUTF8("Ice:CppException");
+        params[1] = createStringFromUTF8("unknown c++ exception");
         mexCallMATLAB(1, &ex, 2, params, "MException");
     }
     return ex;

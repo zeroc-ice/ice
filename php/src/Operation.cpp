@@ -434,9 +434,9 @@ IcePHP::TypedInvocation::prepareRequest(
         {
             return false;
         }
-        catch (const Ice::Exception& ex)
+        catch (...)
         {
-            throwException(ex);
+            throwException(current_exception());
             return false;
         }
     }
@@ -569,8 +569,7 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const byte*, c
         {
             ostringstream os;
             os << "operation raised undeclared exception `" << info->id << "'";
-            Ice::UnknownUserException uue(__FILE__, __LINE__, os.str());
-            convertException(zex, uue);
+            convertException(zex, make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, os.str()}));
             return;
         }
     }
@@ -578,8 +577,7 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const byte*, c
     // Getting here should be impossible: we can get here only if the sender has marshaled a sequence of type IDs, none
     // of which we have a factory for. This means that sender and receiver disagree about the Slice definitions they
     // use.
-    Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
-    convertException(zex, uue);
+    convertException(zex, make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, "unknown exception"}));
 }
 
 bool
@@ -695,9 +693,9 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     catch (const AbortMarshaling&)
     {
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
     }
 }
 

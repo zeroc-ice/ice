@@ -17,7 +17,6 @@ namespace IceSSL
 }
 
 NSError* convertException(std::exception_ptr);
-NSError* convertException(const std::exception&);
 std::exception_ptr convertException(ICERuntimeException*);
 
 inline NSString*

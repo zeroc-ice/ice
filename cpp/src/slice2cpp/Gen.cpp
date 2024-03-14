@@ -2109,23 +2109,20 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseDataMembers = base->allDataMembers();
     }
 
-    string helperClass = getUnqualified("::Ice::UserExceptionHelper", scope);
     string baseClass =
         base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::UserException", scope);
-    string templateParameters = name + ", " + baseClass;
+    string baseName = base ? fixKwd(base->name()) : "UserException";
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << name << " : public " << helperClass << "<" << templateParameters << ">";
+    H << nl << "class " << _dllClassExport << name << " : public " << baseClass;
     H << sb;
 
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    H << sp << nl << name << "() noexcept = default;";
-    // Default copy ctor
-    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << nl << "using " << baseClass << "::" << baseName << ";";
 
     if (!allDataMembers.empty())
     {
@@ -2155,7 +2152,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H.inc();
         if (base || !baseDataMembers.empty())
         {
-            H << nl << helperClass << "<" << templateParameters << ">" << "(";
+            H << nl << baseClass << "(";
 
             for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
             {
@@ -2192,12 +2189,15 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << eb;
     }
 
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains a tuple containing all of the exception's data members.";
-    H << nl << " * @return The data members in a tuple.";
-    H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
+    if (!dataMembers.empty())
+    {
+        H << sp;
+        H << nl << "/**";
+        H << nl << " * Obtains a tuple containing all of the exception's data members.";
+        H << nl << " * @return The data members in a tuple.";
+        H << nl << " */";
+        writeIceTuple(H, p->allDataMembers(), _useWstring);
+    }
 
     H << sp;
     H << nl << "/**";
@@ -2219,8 +2219,20 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << " * Prints this exception to the given stream.";
         H << nl << " * @param stream The target stream.";
         H << nl << " */";
-        H << nl << _dllMemberExport << "virtual void ice_print(::std::ostream& stream) const override;";
+        H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
     }
+
+    H << sp << nl << _dllMemberExport << "::std::string ice_id() const override;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    C << sb;
+    C << nl << "return ::std::string{ice_staticId()};";
+    C << eb;
+
+    H << sp << nl << _dllMemberExport << "void ice_throw() const override;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_throw() const";
+    C << sb;
+    C << nl << "throw *this;";
+    C << eb;
 
     if (p->usesClasses(false))
     {
@@ -2228,7 +2240,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             H << sp;
             H << nl << "/// \\cond STREAM";
-            H << nl << _dllMemberExport << "virtual bool _usesClasses() const override;";
+            H << nl << _dllMemberExport << "bool _usesClasses() const override;";
             H << nl << "/// \\endcond";
 
             C << sp;
@@ -2255,8 +2267,46 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
+    DataMemberList dataMembers = p->dataMembers();
 
     ExceptionPtr base = p->base();
+    string baseClass =
+        base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::UserException", scope);
+
+    H.dec();
+    H << sp << nl << "protected:";
+    H.inc();
+
+    H << nl << _dllMemberExport << "void _writeImpl(::Ice::OutputStream*) const override;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_writeImpl(::Ice::OutputStream* ostr) const";
+    C << sb;
+    // lastSlice is true or false.
+    C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
+    if (!dataMembers.empty())
+    {
+        C << nl << "::Ice::StreamWriter<" << name << ", ::Ice::OutputStream>::write(ostr, *this);";
+    }
+    C << nl << "ostr->endSlice();";
+    if (base)
+    {
+        C << nl << baseClass << "::_writeImpl(ostr);";
+    }
+    C << eb;
+
+    H << sp << nl << _dllMemberExport << "void _readImpl(::Ice::InputStream*) override;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_readImpl(::Ice::InputStream* istr)";
+    C << sb;
+    C << nl << "istr->startSlice();";
+    if (!dataMembers.empty())
+    {
+        C << nl << "::Ice::StreamReader<" << name << ", ::Ice::InputStream>::read(istr, *this);";
+    }
+    C << nl << "istr->endSlice();";
+    if (base)
+    {
+        C << nl << baseClass << "::_readImpl(istr);";
+    }
+    C << eb;
 
     H << eb << ';';
 

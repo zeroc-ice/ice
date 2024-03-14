@@ -6,23 +6,8 @@
 #define __IceBox_Service_h__
 
 #include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <Ice/Proxy.h>
-#include <Ice/Object.h>
-#include <Ice/Value.h>
-#include <Ice/FactoryTableInit.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/BuiltinSequences.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/PropertiesF.h>
-#include <IceUtil/UndefSysMacros.h>
-#include <IceBox/Config.h>
+#include "Ice/Ice.h"
+#include "Config.h"
 
 #ifndef ICEBOX_API
 #    if defined(ICE_STATIC_LIBS)
@@ -78,8 +63,6 @@ namespace IceBox
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The reason for the failure.

@@ -546,6 +546,9 @@
     <ClCompile Include="..\..\ServantLocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\UserException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\ValueFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

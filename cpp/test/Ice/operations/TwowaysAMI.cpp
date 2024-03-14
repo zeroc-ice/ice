@@ -966,17 +966,22 @@ namespace
 
         void opDerived() { called(); }
 
-        void exCB(const Exception& ex)
+        void exCB(std::exception_ptr ex)
         {
             try
             {
-                ex.ice_throw();
+                rethrow_exception(ex);
             }
             catch (const OperationNotExistException&)
             {
                 called();
             }
-            catch (const Exception&)
+            catch (const std::exception& e)
+            {
+                cerr << e.what() << endl;
+                test(false);
+            }
+            catch (...)
             {
                 test(false);
             }
@@ -991,17 +996,7 @@ namespace
 function<void(exception_ptr)>
 makeExceptionClosure(CallbackPtr& cb)
 {
-    return [&](exception_ptr e)
-    {
-        try
-        {
-            rethrow_exception(e);
-        }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
-    };
+    return [&](exception_ptr e) { cb->exCB(e); };
 }
 
 void
@@ -2146,14 +2141,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->ping();
         }
-        catch (const Exception& ex)
+        catch (...)
         {
-            cb->exCB(ex);
-        }
-        catch (const exception& ex)
-        {
-            cerr << ex.what() << endl;
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2165,13 +2155,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->isA(f.get());
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2183,13 +2169,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->id(f.get());
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2201,13 +2183,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             cb->ids(f.get());
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2220,13 +2198,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opVoid();
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2239,13 +2213,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByte(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2258,13 +2228,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBool(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2277,13 +2243,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntLong(get<0>(r), get<1>(r), get<2>(r), get<3>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2296,13 +2258,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDouble(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2315,13 +2273,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opString(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2334,13 +2288,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnum(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2353,13 +2303,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyClass(*get<0>(r), *get<1>(r), *get<2>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2381,13 +2327,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStruct(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2413,13 +2355,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2441,13 +2379,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBoolS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2477,13 +2411,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntLongS(get<0>(r), get<1>(r), get<2>(r), get<3>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2506,13 +2436,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDoubleS(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2534,13 +2460,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2567,13 +2489,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteSS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2598,13 +2516,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opFloatDoubleSS(get<0>(r), get<1>(r), get<2>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2628,13 +2542,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringSS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2655,13 +2565,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteBoolD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2682,13 +2588,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2709,13 +2611,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongFloatD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2736,13 +2634,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2763,13 +2657,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringMyEnumD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2795,13 +2685,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyStructMyEnumD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2834,13 +2720,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteBoolDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2872,13 +2754,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortIntDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2910,13 +2788,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongFloatDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2948,13 +2822,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -2986,13 +2856,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringMyEnumDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3022,13 +2888,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnumStringDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3066,13 +2928,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyStructMyEnumDS(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3102,13 +2960,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opByteByteSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3137,13 +2991,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opBoolBoolSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3175,13 +3025,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opShortShortSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3213,13 +3059,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opIntIntSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3251,13 +3093,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opLongLongSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3289,13 +3127,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringFloatSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3327,13 +3161,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringDoubleSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3367,13 +3197,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opStringStringSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3405,13 +3231,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             auto r = f.get();
             cb->opMyEnumMyEnumSD(get<0>(r), get<1>(r));
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3432,13 +3254,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             {
                 cb->opIntS(f.get());
             }
-            catch (const Exception& ex)
-            {
-                cb->exCB(ex);
-            }
             catch (...)
             {
-                test(false);
+                cb->exCB(current_exception());
             }
             cb->check();
         }
@@ -3454,13 +3272,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opDoubleMarshaling();
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3473,13 +3287,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opIdempotent();
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3492,13 +3302,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opNonmutating();
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }
@@ -3512,13 +3318,9 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             f.get();
             cb->opDerived();
         }
-        catch (const Exception& ex)
-        {
-            cb->exCB(ex);
-        }
         catch (...)
         {
-            test(false);
+            cb->exCB(current_exception());
         }
         cb->check();
     }

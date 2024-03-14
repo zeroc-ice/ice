@@ -3232,7 +3232,7 @@ IcePHP::ExceptionReader::ice_id() const
 void
 IcePHP::ExceptionReader::ice_throw() const
 {
-    throw *this;
+    assert(false);
 }
 
 void

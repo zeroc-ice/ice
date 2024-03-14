@@ -10,9 +10,9 @@
 using namespace std;
 using namespace IceUtil;
 
-IceUtilInternal::APIException::APIException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<APIException>(file, line),
-      reason(r)
+IceUtilInternal::APIException::APIException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      reason(std::move(r))
 {
 }
 
@@ -39,9 +39,9 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& e
     return out;
 }
 
-IceUtilInternal::BadOptException::BadOptException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<BadOptException>(file, line),
-      reason(r)
+IceUtilInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      reason(std::move(r))
 {
 }
 

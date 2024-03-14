@@ -5,21 +5,8 @@
 #ifndef __IceStorm_Instrumentation_h__
 #define __IceStorm_Instrumentation_h__
 
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <Ice/Proxy.h>
-#include <Ice/Object.h>
-#include <Ice/Value.h>
-#include <Ice/FactoryTableInit.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/Instrumentation.h>
-#include <IceStorm/IceStorm.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/Ice.h"
+#include "IceStorm/IceStorm.h"
 
 namespace IceStorm
 {
@@ -29,7 +16,6 @@ namespace IceStorm
         class SubscriberObserver;
         class ObserverUpdater;
         class TopicManagerObserver;
-
     }
 }
 

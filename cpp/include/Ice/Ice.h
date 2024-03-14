@@ -12,13 +12,13 @@
 #include <Ice/Proxy.h>
 #include <Ice/Current.h>
 #include <Ice/LocalException.h>
+#include <Ice/UserException.h>
 #include <optional>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
 #include <Ice/MarshaledResult.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
-#include <Ice/ExceptionHelpers.h> // temporary
 
 #ifndef ICE_BUILDING_GENERATED_CODE
 
