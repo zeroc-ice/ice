@@ -136,10 +136,6 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
     {
         _results.push_back(adapter->getProxy("", true)->getDirectProxyAsync());
     }
-    catch (const SynchronizationException&)
-    {
-        _results.push_back(nullopt);
-    }
     catch (const Ice::Exception&)
     {
         _results.push_back(nullopt);
@@ -430,7 +426,7 @@ ServerAdapterEntry::getAdapterInfoAsync() const
     return result;
 }
 
-AdapterPrxPtr
+optional<AdapterPrx>
 ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if (replicaGroupId.empty())

@@ -19,7 +19,7 @@ namespace IceGrid
     {
     public:
         AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
-        Ice::ObjectPrxPtr getProxy() const;
+        Ice::ObjectPrx getProxy() const;
         std::string getType() const;
 
         bool canRemove();
@@ -44,7 +44,7 @@ namespace IceGrid
     public:
         ObjectAllocationRequest(const std::shared_ptr<SessionI>& session) : AllocationRequest(session) {}
 
-        virtual void response(const Ice::ObjectPrxPtr&) = 0;
+        virtual void response(const Ice::ObjectPrx&) = 0;
         virtual void exception(std::exception_ptr) = 0;
 
     private:

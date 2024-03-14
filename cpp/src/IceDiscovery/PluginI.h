@@ -24,8 +24,8 @@ namespace IceDiscovery
         Ice::ObjectAdapterPtr _replyAdapter;
         Ice::ObjectAdapterPtr _locatorAdapter;
         LookupIPtr _lookup;
-        Ice::LocatorPrxPtr _locator;
-        Ice::LocatorPrxPtr _defaultLocator;
+        std::optional<Ice::LocatorPrx> _locator;
+        std::optional<Ice::LocatorPrx> _defaultLocator;
     };
 
 };

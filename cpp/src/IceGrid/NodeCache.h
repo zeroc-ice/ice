@@ -30,13 +30,13 @@ namespace IceGrid
         void removeServer(const std::shared_ptr<ServerEntry>&);
         void setSession(const std::shared_ptr<NodeSessionI>&);
 
-        NodePrxPtr getProxy() const;
+        NodePrx getProxy() const;
         std::shared_ptr<InternalNodeInfo> getInfo() const;
         ServerEntrySeq getServers() const;
         LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
         std::shared_ptr<NodeSessionI> getSession() const;
 
-        Ice::ObjectPrxPtr getAdminProxy() const;
+        Ice::ObjectPrx getAdminProxy() const;
 
         bool canRemove();
 
@@ -53,7 +53,7 @@ namespace IceGrid
         getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
         void checkSession(std::unique_lock<std::mutex>&) const;
-        void setProxy(const NodePrxPtr&);
+        void setProxy(NodePrx);
         void finishedRegistration();
         void finishedRegistration(std::exception_ptr);
 
@@ -70,7 +70,7 @@ namespace IceGrid
         std::map<std::string, NodeDescriptor> _descriptors;
 
         mutable bool _registering;
-        mutable NodePrxPtr _proxy;
+        mutable std::optional<NodePrx> _proxy;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _condVar;

@@ -45,30 +45,30 @@ namespace IceGrid
         std::mutex _mutex;
     };
 
-    class NodeSessionI : public NodeSession, public std::enable_shared_from_this<NodeSessionI>
+    class NodeSessionI final : public NodeSession, public std::enable_shared_from_this<NodeSessionI>
     {
     public:
         static std::shared_ptr<NodeSessionI> create(
             const std::shared_ptr<Database>&,
-            const NodePrxPtr&,
+            NodePrx,
             const std::shared_ptr<InternalNodeInfo>&,
             std::chrono::seconds,
             const LoadInfo&);
 
-        void keepAlive(LoadInfo, const Ice::Current&) override;
-        void setReplicaObserver(ReplicaObserverPrxPtr, const Ice::Current&) override;
-        int getTimeout(const Ice::Current&) const override;
-        NodeObserverPrxPtr getObserver(const Ice::Current&) const override;
+        void keepAlive(LoadInfo, const Ice::Current&) final;
+        void setReplicaObserver(std::optional<ReplicaObserverPrx>, const Ice::Current&) final;
+        int getTimeout(const Ice::Current&) const final;
+        std::optional<NodeObserverPrx> getObserver(const Ice::Current&) const final;
         void loadServersAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
-            const override;
-        Ice::StringSeq getServers(const Ice::Current&) const override;
+            const final;
+        Ice::StringSeq getServers(const Ice::Current&) const final;
         void waitForApplicationUpdateAsync(
             std::string,
             int,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) const override;
-        void destroy(const Ice::Current&) override;
+            const Ice::Current&) const final;
+        void destroy(const Ice::Current&) final;
 
         std::chrono::steady_clock::time_point timestamp() const;
         void shutdown();
@@ -79,10 +79,10 @@ namespace IceGrid
             const std::shared_ptr<InternalDistributionDescriptor>&,
             bool);
 
-        const NodePrxPtr& getNode() const;
+        const NodePrx& getNode() const;
         const std::shared_ptr<InternalNodeInfo>& getInfo() const;
         const LoadInfo& getLoadInfo() const;
-        NodeSessionPrxPtr getProxy() const;
+        NodeSessionPrx getProxy() const;
 
         bool isDestroyed() const;
         void removeFeedback(const std::shared_ptr<PatcherFeedback>&, const Ice::Identity&);
@@ -90,9 +90,10 @@ namespace IceGrid
     private:
         NodeSessionI(
             const std::shared_ptr<Database>&,
-            const NodePrxPtr&,
+            NodePrx,
             const std::shared_ptr<InternalNodeInfo>&,
             std::chrono::seconds,
+            NodeSessionPrx,
             const LoadInfo&);
 
         void destroyImpl(bool);
@@ -100,11 +101,11 @@ namespace IceGrid
         const std::shared_ptr<Database> _database;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::string _name;
-        const NodePrxPtr _node;
+        const NodePrx _node;
         const std::shared_ptr<InternalNodeInfo> _info;
         const std::chrono::seconds _timeout;
-        NodeSessionPrxPtr _proxy;
-        ReplicaObserverPrxPtr _replicaObserver;
+        NodeSessionPrx _proxy;
+        std::optional<ReplicaObserverPrx> _replicaObserver;
         std::chrono::steady_clock::time_point _timestamp;
         LoadInfo _load;
         bool _destroy;

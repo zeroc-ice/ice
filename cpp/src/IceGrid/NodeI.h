@@ -32,13 +32,13 @@ namespace IceGrid
         public:
             using UpdateFunction = std::function<void(std::function<void()>, std::function<void(std::exception_ptr)>)>;
 
-            Update(UpdateFunction, const std::shared_ptr<NodeI>&, const NodeObserverPrxPtr&);
+            Update(UpdateFunction, const std::shared_ptr<NodeI>&, const std::optional<NodeObserverPrx>&);
             bool send();
 
         private:
             UpdateFunction _func;
             std::shared_ptr<NodeI> _node;
-            NodeObserverPrxPtr _observer;
+            std::optional<NodeObserverPrx> _observer;
         };
 
         NodeI(
@@ -47,22 +47,22 @@ namespace IceGrid
             const std::shared_ptr<Activator>&,
             const IceUtil::TimerPtr&,
             const std::shared_ptr<TraceLevels>&,
-            const NodePrxPtr&,
+            NodePrx,
             const std::string&,
-            const UserAccountMapperPrxPtr&,
+            const std::optional<UserAccountMapperPrx>&,
             const std::string&);
 
         void loadServerAsync(
             std::shared_ptr<InternalServerDescriptor>,
             std::string,
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(const std::optional<ServerPrx>&, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
 
         void loadServerWithoutRestartAsync(
             std::shared_ptr<InternalServerDescriptor>,
             std::string,
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(const std::optional<ServerPrx>&, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
 
@@ -85,7 +85,7 @@ namespace IceGrid
             const ::Ice::Current& current) override;
 
         void patchAsync(
-            PatcherFeedbackPrxPtr feedback,
+            std::optional<PatcherFeedbackPrx> feedback,
             std::string application,
             std::string server,
             std::shared_ptr<InternalDistributionDescriptor> appDistrib,
@@ -94,11 +94,11 @@ namespace IceGrid
             std::function<void(std::exception_ptr)> exception,
             const Ice::Current&) override;
 
-        void registerWithReplica(InternalRegistryPrxPtr, const Ice::Current&) override;
+        void registerWithReplica(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
         void replicaInit(InternalRegistryPrxSeq, const Ice::Current&) override;
-        void replicaAdded(InternalRegistryPrxPtr, const Ice::Current&) override;
-        void replicaRemoved(InternalRegistryPrxPtr, const Ice::Current&) override;
+        void replicaAdded(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
+        void replicaRemoved(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
         std::string getName(const Ice::Current&) const override;
         std::string getHostname(const Ice::Current&) const override;
@@ -116,10 +116,10 @@ namespace IceGrid
         std::shared_ptr<Ice::ObjectAdapter> getAdapter() const;
         std::shared_ptr<Activator> getActivator() const;
         std::shared_ptr<TraceLevels> getTraceLevels() const;
-        UserAccountMapperPrxPtr getUserAccountMapper() const;
+        std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
         PlatformInfo& getPlatformInfo();
         std::shared_ptr<FileCache> getFileCache() const;
-        NodePrxPtr getProxy() const;
+        NodePrx getProxy() const;
         const PropertyDescriptorSeq& getPropertiesOverride() const;
         const std::string& getInstanceName() const;
 
@@ -127,17 +127,17 @@ namespace IceGrid
         bool getRedirectErrToOut() const;
         bool allowEndpointsOverride() const;
 
-        NodeSessionPrxPtr registerWithRegistry(const InternalRegistryPrxPtr&);
-        void checkConsistency(const NodeSessionPrxPtr&);
-        NodeSessionPrxPtr getMasterNodeSession() const;
+        std::optional<NodeSessionPrx> registerWithRegistry(const InternalRegistryPrx&);
+        void checkConsistency(const NodeSessionPrx&);
+        std::optional<NodeSessionPrx> getMasterNodeSession() const;
 
-        void addObserver(const NodeSessionPrxPtr&, const NodeObserverPrxPtr&);
-        void removeObserver(const NodeSessionPrxPtr&);
+        void addObserver(NodeSessionPrx, NodeObserverPrx);
+        void removeObserver(const NodeSessionPrx&);
         void observerUpdateServer(const ServerDynamicInfo&);
         void observerUpdateAdapter(const AdapterDynamicInfo&);
 
-        void queueUpdate(const NodeObserverPrxPtr&, Update::UpdateFunction);
-        void dequeueUpdate(const NodeObserverPrxPtr&, const std::shared_ptr<Update>&, bool);
+        void queueUpdate(const std::optional<NodeObserverPrx>&, Update::UpdateFunction);
+        void dequeueUpdate(const std::optional<NodeObserverPrx>&, const std::shared_ptr<Update>&, bool);
 
         void addServer(const std::shared_ptr<ServerI>&, const std::string&);
         void removeServer(const std::shared_ptr<ServerI>&, const std::string&);
@@ -158,7 +158,7 @@ namespace IceGrid
             std::shared_ptr<InternalServerDescriptor>,
             std::string,
             bool,
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>&&,
+            std::function<void(const std::optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&&,
             std::function<void(std::exception_ptr)>&&,
             const Ice::Current&);
 
@@ -179,13 +179,13 @@ namespace IceGrid
         const IceUtil::TimerPtr _timer;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::string _name;
-        const NodePrxPtr _proxy;
+        const NodePrx _proxy;
         const std::string _outputDir;
         const bool _redirectErrToOut;
         const bool _allowEndpointsOverride;
         const int _waitTime;
         const std::string _instanceName;
-        const UserAccountMapperPrxPtr _userAccountMapper;
+        const std::optional<UserAccountMapperPrx> _userAccountMapper;
         PlatformInfo _platform;
         const std::string _dataDir;
         const std::string _serversDir;
@@ -197,11 +197,11 @@ namespace IceGrid
         bool _consistencyCheckDone;
 
         std::mutex _observerMutex;
-        std::map<NodeSessionPrxPtr, NodeObserverPrxPtr> _observers;
+        std::map<NodeSessionPrx, NodeObserverPrx> _observers;
         std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
         std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
 
-        std::map<NodeObserverPrxPtr, std::deque<std::shared_ptr<Update>>> _observerUpdates;
+        std::map<std::optional<NodeObserverPrx>, std::deque<std::shared_ptr<Update>>> _observerUpdates;
 
         mutable std::mutex _serversMutex;
         std::map<std::string, std::set<std::shared_ptr<ServerI>>> _serversByApplication;

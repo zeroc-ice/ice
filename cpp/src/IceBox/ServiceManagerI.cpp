@@ -107,8 +107,6 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     }
 }
 
-IceBox::ServiceManagerI::~ServiceManagerI() {}
-
 void
 IceBox::ServiceManagerI::startService(string name, const Current&)
 {
@@ -262,14 +260,22 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
 }
 
 void
-IceBox::ServiceManagerI::addObserver(ServiceObserverPrxPtr observer, const Current&)
+IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, const Current&)
 {
-    //
-    // Null observers and duplicate registrations are ignored
-    //
+    // Null observers are ignored
+    if (observer)
+    {
+        addObserver(*observer);
+    }
+}
+
+void
+IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer)
+{
+    // Duplicate registrations are ignored
 
     lock_guard<mutex> lock(_mutex);
-    if (observer && _observers.insert(observer).second)
+    if (_observers.insert(observer).second)
     {
         if (_traceServiceObserver >= 1)
         {
@@ -811,10 +817,10 @@ IceBox::ServiceManagerI::stopAll()
 }
 
 function<void(exception_ptr)>
-IceBox::ServiceManagerI::makeObserverCompletedCallback(const ServiceObserverPrxPtr& observer)
+IceBox::ServiceManagerI::makeObserverCompletedCallback(ServiceObserverPrx observer)
 {
     weak_ptr<ServiceManagerI> self = shared_from_this();
-    return [self, observer](exception_ptr ex)
+    return [self, observer = std::move(observer)](exception_ptr ex)
     {
         auto s = self.lock();
         if (s)
@@ -824,7 +830,7 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(const ServiceObserverPrxP
     };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
+IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
     if (services.size() > 0)
     {
@@ -836,7 +842,7 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
+IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
     if (services.size() > 0)
     {
@@ -848,7 +854,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrxPtr& observer, exception_ptr err)
+IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, exception_ptr err)
 {
     if (_traceServiceObserver >= 1)
     {
@@ -858,11 +864,8 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrxPtr& observer, 
         }
         catch (const CommunicatorDestroyedException&)
         {
-            //
-            // CommunicatorDestroyedException may occur during shutdown. The observer notification has
-            // been sent, but the communicator was destroyed before the reply was received. We do not
-            // log a message for this exception.
-            //
+            // Can occur during shutdown. The observer notification has been sent, but the communicator was destroyed
+            // before the reply was received. We do not log a message for this exception.
         }
         catch (const exception& ex)
         {
@@ -906,19 +909,16 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 }
 
 void
-ServiceManagerI::observerCompleted(const ServiceObserverPrxPtr& observer, exception_ptr ex)
+ServiceManagerI::observerCompleted(const ServiceObserverPrx& observer, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
-    //
     // It's possible to remove several times the same observer, e.g. multiple concurrent
     // requests that fail
-    //
     auto p = _observers.find(observer);
     if (p != _observers.end())
     {
-        auto found = *p;
         _observers.erase(p);
-        observerRemoved(found, ex);
+        observerRemoved(observer, ex);
     }
 }
 

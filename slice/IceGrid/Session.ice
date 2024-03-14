@@ -36,7 +36,7 @@ module IceGrid
         /// Allocate an object. Depending on the allocation timeout, this operation might hang until the object is
         /// available or until the timeout is reached.
         /// @param id The identity of the object to allocate.
-        /// @return The proxy of the allocated object.
+        /// @return The proxy of the allocated object. The returned proxy is never null.
         /// @throws ObjectNotRegisteredException Raised if the object with the given identity is not registered with
         /// the registry.
         /// @throws AllocationException Raised if the object can't be allocated.
@@ -48,7 +48,7 @@ module IceGrid
         /// Allocate an object with the given type. Depending on the allocation timeout, this operation can block until
         /// an object becomes available or until the timeout is reached.
         /// @param type The type of the object.
-        /// @return The proxy of the allocated object.
+        /// @return The proxy of the allocated object. The returned proxy is never null.
         /// @throws AllocationException Raised if the object could not be allocated.
         /// @see #setAllocationTimeout
         /// @see #releaseObject

@@ -178,13 +178,14 @@ namespace
 shared_ptr<Database>
 Database::create(
     const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
     const RegistryInfo& info,
     bool readonly)
 {
-    shared_ptr<Database> db(new Database(registryAdapter, topicManager, instanceName, traceLevels, info, readonly));
+    shared_ptr<Database> db(
+        new Database(registryAdapter, std::move(topicManager), instanceName, traceLevels, info, readonly));
 
     db->_pluginFacade->setDatabase(db);
 
@@ -193,19 +194,19 @@ Database::create(
 
 Database::Database(
     const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
     const RegistryInfo& info,
     bool readonly)
     : _communicator(registryAdapter->getCommunicator()),
       _internalAdapter(registryAdapter),
-      _topicManager(topicManager),
+      _topicManager(std::move(topicManager)),
       _instanceName(instanceName),
       _traceLevels(traceLevels),
       _master(info.name == "Master"),
       _readonly(readonly || !_master),
-      _replicaCache(_communicator, topicManager),
+      _replicaCache(_communicator, _topicManager),
       _nodeCache(_communicator, _replicaCache, _readonly && _master ? string("Master (read-only)") : info.name),
       _adapterCache(_communicator),
       _objectCache(_communicator),
@@ -1018,7 +1019,7 @@ void
 Database::setAdapterDirectProxy(
     const string& adapterId,
     const string& replicaGroupId,
-    const Ice::ObjectPrxPtr& proxy,
+    const optional<Ice::ObjectPrx>& proxy,
     int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
@@ -1039,7 +1040,7 @@ Database::setAdapterDirectProxy(
                 "can be member of this replica group");
         }
 
-        AdapterInfo info = {adapterId, proxy, replicaGroupId};
+        AdapterInfo info = {adapterId, std::move(proxy), replicaGroupId};
 
         bool updated = false;
         try
@@ -1048,7 +1049,7 @@ Database::setAdapterDirectProxy(
 
             AdapterInfo oldInfo;
             bool found = _adapters.get(txn, adapterId, oldInfo);
-            if (proxy)
+            if (info.proxy)
             {
                 updated = found;
 
@@ -1083,7 +1084,7 @@ Database::setAdapterDirectProxy(
         if (_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-            out << (proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
+            out << (info.proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
             if (!replicaGroupId.empty())
             {
                 out << " with replica group `" << replicaGroupId << "'";
@@ -1091,15 +1092,15 @@ Database::setAdapterDirectProxy(
             out << " (serial = `" << dbSerial << "')";
         }
 
-        if (proxy)
+        if (info.proxy)
         {
             if (updated)
             {
-                serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
+                serial = _adapterObserverTopic->adapterUpdated(dbSerial, std::move(info));
             }
             else
             {
-                serial = _adapterObserverTopic->adapterAdded(dbSerial, info);
+                serial = _adapterObserverTopic->adapterAdded(dbSerial, std::move(info));
             }
         }
         else
@@ -1110,7 +1111,7 @@ Database::setAdapterDirectProxy(
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getAdapterDirectProxy(
     const string& id,
     const Ice::EncodingVersion& encoding,
@@ -1182,11 +1183,12 @@ Database::removeAdapter(const string& adapterId)
                 {
                     throw AdapterNotExistException(adapterId);
                 }
-                for (AdapterInfoSeq::iterator p = infos.begin(); p != infos.end(); ++p)
+
+                for (AdapterInfo& p : infos)
                 {
-                    _adaptersByGroupId.del(txn, p->replicaGroupId, p->id);
-                    p->replicaGroupId.clear();
-                    addAdapter(txn, *p);
+                    _adaptersByGroupId.del(txn, p.replicaGroupId, p.id);
+                    p.replicaGroupId.clear();
+                    addAdapter(txn, p);
                 }
             }
             dbSerial = updateSerial(txn, adaptersDbName);
@@ -1216,16 +1218,16 @@ Database::removeAdapter(const string& adapterId)
         }
         else
         {
-            for (AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+            for (const AdapterInfo& info : infos)
             {
-                serial = _adapterObserverTopic->adapterUpdated(dbSerial, *p);
+                serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
             }
         }
     }
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-AdapterPrxPtr
+optional<AdapterPrx>
 Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
     lock_guard lock(_mutex); // Make sure this isn't call during an update.
@@ -1310,6 +1312,7 @@ Database::getAdapterInfo(const string& id)
     catch (const AdapterNotExistException&)
     {
     }
+
     if (result)
     {
         return result->get(); // Don't hold the database lock while waiting for the endpoints
@@ -1638,7 +1641,7 @@ Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
 }
 
 void
-Database::updateObject(const Ice::ObjectPrxPtr& proxy)
+Database::updateObject(Ice::ObjectPrx proxy)
 {
     assert(_master);
 
@@ -1665,7 +1668,7 @@ Database::updateObject(const Ice::ObjectPrxPtr& proxy)
             {
                 throw ObjectNotRegisteredException(id);
             }
-            info.proxy = proxy;
+            info.proxy = std::move(proxy);
             addObject(txn, info, false);
             dbSerial = updateSerial(txn, objectsDbName);
 
@@ -1742,14 +1745,12 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     return _objectObserverTopic->wellKnownObjectsRemoved(objects);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
     {
-        //
         // Only return proxies for non allocatable objects.
-        //
         return _objectCache.get(id)->getProxy();
     }
     catch (const ObjectNotRegisteredException&)
@@ -1762,10 +1763,11 @@ Database::getObjectProxy(const Ice::Identity& id)
     {
         throw ObjectNotRegisteredException(id);
     }
-    return info.proxy;
+    assert(info.proxy);
+    return *info.proxy;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
@@ -1776,7 +1778,7 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
     return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 Database::getObjectByTypeOnLeastLoadedNode(
     const string& type,
     LoadSample sample,
@@ -1790,7 +1792,7 @@ Database::getObjectByTypeOnLeastLoadedNode(
     }
 
     IceUtilInternal::shuffle(objs.begin(), objs.end());
-    vector<pair<Ice::ObjectPrxPtr, float>> objectsWithLoad;
+    vector<pair<optional<Ice::ObjectPrx>, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for (const auto& obj : objs)
     {

@@ -17,12 +17,12 @@ namespace IceGrid
     {
     public:
         MasterDatabaseObserverI(
-            const shared_ptr<ReplicaSessionManager::Thread>& thread,
-            const shared_ptr<Database>& database,
-            const ReplicaSessionPrxPtr& session)
-            : _thread(thread),
-              _database(database),
-              _session(session)
+            shared_ptr<ReplicaSessionManager::Thread> thread,
+            shared_ptr<Database> database,
+            ReplicaSessionPrx session)
+            : _thread(std::move(thread)),
+              _database(std::move(database)),
+              _session(std::move(session))
         {
         }
 
@@ -99,6 +99,7 @@ namespace IceGrid
 
         void adapterAdded(AdapterInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -115,6 +116,7 @@ namespace IceGrid
 
         void adapterUpdated(AdapterInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -153,6 +155,7 @@ namespace IceGrid
 
         void objectAdded(ObjectInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -171,6 +174,7 @@ namespace IceGrid
 
         void objectUpdated(ObjectInfo info, const Ice::Current& current) override
         {
+            Ice::checkNotNull(info.proxy, __FILE__, __LINE__, current);
             int serial = 0;
             string failure;
             try
@@ -258,7 +262,7 @@ namespace IceGrid
 
         const shared_ptr<ReplicaSessionManager::Thread> _thread;
         const shared_ptr<Database> _database;
-        const ReplicaSessionPrxPtr _session;
+        const ReplicaSessionPrx _session;
     };
 
 };
@@ -269,14 +273,14 @@ ReplicaSessionManager::create(
     const shared_ptr<InternalReplicaInfo>& info,
     const shared_ptr<Database>& database,
     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-    const InternalRegistryPrxPtr& internalRegistry)
+    InternalRegistryPrx internalRegistry)
 {
     {
         lock_guard lock(_mutex);
 
         _name = name;
         _info = info;
-        _internalRegistry = internalRegistry;
+        _internalRegistry = std::move(internalRegistry);
         _database = database;
         _wellKnownObjects = wellKnownObjects;
         _traceLevels = _database->getTraceLevels();
@@ -290,7 +294,7 @@ ReplicaSessionManager::create(
 }
 
 void
-ReplicaSessionManager::create(const InternalRegistryPrxPtr& replica)
+ReplicaSessionManager::create(InternalRegistryPrx replica)
 {
     {
         unique_lock lock(_mutex);
@@ -377,7 +381,7 @@ ReplicaSessionManager::registerAllWellKnownObjects()
     {
         try
         {
-            _wellKnownObjects->registerAll(session);
+            _wellKnownObjects->registerAll(*session);
             return;
         }
         catch (const Ice::LocalException&)
@@ -386,10 +390,10 @@ ReplicaSessionManager::registerAllWellKnownObjects()
     }
 }
 
-InternalRegistryPrxPtr
+optional<InternalRegistryPrx>
 ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 {
-    vector<future<Ice::ObjectPrxPtr>> results;
+    vector<future<optional<Ice::ObjectPrx>>> results;
     for (const auto& obj : findAllQueryObjects(true))
     {
         results.push_back(obj->findObjectByIdAsync(id));
@@ -399,7 +403,9 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
     {
         try
         {
-            return Ice::checkedCast<InternalRegistryPrx>(result.get());
+            auto prx = result.get();
+            assert(prx);
+            return InternalRegistryPrx{*prx};
         }
         catch (const Ice::Exception&)
         {
@@ -410,7 +416,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 }
 
 bool
-ReplicaSessionManager::keepAlive(const ReplicaSessionPrxPtr& session)
+ReplicaSessionManager::keepAlive(const ReplicaSessionPrx& session)
 {
     try
     {
@@ -434,10 +440,10 @@ ReplicaSessionManager::keepAlive(const ReplicaSessionPrxPtr& session)
     }
 }
 
-ReplicaSessionPrxPtr
-ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
+std::optional<ReplicaSessionPrx>
+ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seconds& timeout)
 {
-    ReplicaSessionPrxPtr session;
+    std::optional<ReplicaSessionPrx> session;
     string exceptionMsg = "";
     try
     {
@@ -447,7 +453,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
             out << "trying to establish session with master replica";
         }
 
-        set<InternalRegistryPrxPtr> used;
+        set<InternalRegistryPrx> used;
         if (!registry->ice_getEndpoints().empty())
         {
             try
@@ -458,13 +464,13 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
             {
                 exceptionMsg = ex.what();
                 used.insert(registry);
-                registry = Ice::uncheckedCast<InternalRegistryPrx>(registry->ice_endpoints({}));
+                registry = registry->ice_endpoints({});
             }
         }
 
         if (!session)
         {
-            vector<future<Ice::ObjectPrxPtr>> results;
+            vector<future<optional<Ice::ObjectPrx>>> results;
             for (const auto& obj : findAllQueryObjects(false))
             {
                 results.push_back(obj->findObjectByIdAsync(registry->ice_getIdentity()));
@@ -477,15 +483,14 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
                     break;
                 }
 
-                InternalRegistryPrxPtr newRegistry;
+                optional<InternalRegistryPrx> newRegistry;
                 try
                 {
-                    auto obj = result.get();
-                    newRegistry = Ice::uncheckedCast<InternalRegistryPrx>(obj);
-                    if (newRegistry && used.find(newRegistry) == used.end())
+                    newRegistry = optional<InternalRegistryPrx>(result.get());
+                    if (newRegistry && used.find(*newRegistry) == used.end())
                     {
-                        session = createSessionImpl(newRegistry, timeout);
-                        registry = newRegistry;
+                        session = createSessionImpl(*newRegistry, timeout);
+                        registry = *newRegistry;
                         break;
                     }
                 }
@@ -494,7 +499,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
                     exceptionMsg = ex.what();
                     if (newRegistry)
                     {
-                        used.insert(newRegistry);
+                        used.insert(*newRegistry);
                     }
                 }
             }
@@ -531,16 +536,12 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
 
     if (session)
     {
-        //
         // Register all the well-known objects with the replica session.
-        //
-        _wellKnownObjects->registerAll(session);
+        _wellKnownObjects->registerAll(*session);
     }
     else
     {
-        //
         // Re-register all the well known objects with the local database.
-        //
         _wellKnownObjects->registerAll();
     }
 
@@ -567,10 +568,10 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
     return session;
 }
 
-ReplicaSessionPrxPtr
-ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
+ReplicaSessionPrx
+ReplicaSessionManager::createSessionImpl(InternalRegistryPrx registry, chrono::seconds& timeout)
 {
-    ReplicaSessionPrxPtr session;
+    std::optional<ReplicaSessionPrx> session;
     try
     {
         session = registry->registerReplica(_info, _internalRegistry);
@@ -585,46 +586,46 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry,
         // to the session so that it can subscribe it. This call only
         // returns once the observer is subscribed and initialized.
         //
-        auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, session);
-        _observer = Ice::uncheckedCast<DatabaseObserverPrx>(_database->getInternalAdapter()->addWithUUID(servant));
+        auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, *session);
+        _observer = DatabaseObserverPrx(_database->getInternalAdapter()->addWithUUID(servant));
         StringLongDict serials = _database->getSerials();
         optional<StringLongDict> serialsOpt;
         if (!serials.empty())
         {
             serialsOpt = serials; // Don't provide serials parameter if serials aren't supported.
         }
-        session->setDatabaseObserver(_observer, serialsOpt);
-        return session;
+        session->setDatabaseObserver(*_observer, serialsOpt);
+        return *session;
     }
     catch (const Ice::Exception&)
     {
-        destroySession(session);
+        if (session)
+        {
+            destroySession(*session);
+        }
         throw;
     }
 }
 
 void
-ReplicaSessionManager::destroySession(const ReplicaSessionPrxPtr& session)
+ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
 {
-    if (session)
+    try
     {
-        try
-        {
-            session->destroy();
+        session->destroy();
 
-            if (_traceLevels && _traceLevels->replica > 0)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "destroyed master replica session";
-            }
-        }
-        catch (const Ice::LocalException& ex)
+        if (_traceLevels && _traceLevels->replica > 0)
         {
-            if (_traceLevels && _traceLevels->replica > 1)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "couldn't destroy master replica session:\n" << ex;
-            }
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+            out << "destroyed master replica session";
+        }
+    }
+    catch (const Ice::LocalException& ex)
+    {
+        if (_traceLevels && _traceLevels->replica > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+            out << "couldn't destroy master replica session:\n" << ex;
         }
     }
 

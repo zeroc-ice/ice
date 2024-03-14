@@ -40,7 +40,7 @@ namespace IceGrid
     class Parser
     {
     public:
-        Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrxPtr, AdminPrxPtr, bool);
+        Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrx, std::optional<AdminPrx>, bool);
 
         void usage();
         void usage(const std::string&, const std::string& = std::string());
@@ -147,8 +147,8 @@ namespace IceGrid
 
         std::string _commands;
         std::shared_ptr<Ice::Communicator> _communicator;
-        AdminSessionPrxPtr _session;
-        AdminPrxPtr _admin;
+        AdminSessionPrx _session;
+        std::optional<AdminPrx> _admin;
         bool _continue;
         bool _interrupted;
         int _errors;

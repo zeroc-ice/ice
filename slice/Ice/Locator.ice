@@ -87,7 +87,7 @@ interface LocatorRegistry
     /// Set the adapter endpoints with the locator registry.
     /// @param id The adapter id.
     /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the
-    /// adapter endpoints.
+    /// adapter endpoints. The proxy is never null.
     /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
     /// registered adapters to set their active proxy and the adapter is not registered with the locator.
     /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
@@ -97,19 +97,19 @@ interface LocatorRegistry
     /// Set the adapter endpoints with the locator registry.
     /// @param adapterId The adapter id.
     /// @param replicaGroupId The replica group id.
-    /// @param p The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the adapter
-    /// endpoints.
+    /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the adapter
+    /// endpoints. The proxy is never null.
     /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
     /// registered adapters to set their active proxy and the adapter is not registered with the locator.
     /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
     /// @throws InvalidReplicaGroupIdException Raised if the given replica group doesn't match the one registered with
     /// the locator registry for this object adapter.
-    ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
+    ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
         throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
     /// Set the process proxy for a server.
     /// @param id The server id.
-    /// @param proxy The process proxy.
+    /// @param proxy The process proxy. The proxy is never null.
     /// @throws ServerNotFoundException Raised if the server cannot be found.
     ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
         throws ServerNotFoundException;

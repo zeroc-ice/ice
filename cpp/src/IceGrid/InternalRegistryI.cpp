@@ -43,18 +43,24 @@ InternalRegistryI::InternalRegistryI(
     _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireReplicaCertCN", 0);
 }
 
-NodeSessionPrxPtr
+optional<NodeSessionPrx>
 InternalRegistryI::registerNode(
     shared_ptr<InternalNodeInfo> info,
-    NodePrxPtr node,
+    optional<NodePrx> node,
     LoadInfo load,
     const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
-    if (!info || !node)
+
+    Ice::checkNotNull(node, __FILE__, __LINE__, current);
+
+    if (!info)
     {
-        return nullopt;
+        std::ostringstream os;
+        os << "null node info passed to " << current.operation << " on object "
+           << current.adapter->getCommunicator()->identityToString(current.id);
+        throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
     }
 
     if (_requireNodeCertCN)
@@ -101,7 +107,7 @@ InternalRegistryI::registerNode(
 
     try
     {
-        auto session = NodeSessionI::create(_database, node, info, _nodeSessionTimeout, load);
+        auto session = NodeSessionI::create(_database, std::move(*node), info, _nodeSessionTimeout, load);
         _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
         return session->getProxy();
     }
@@ -111,10 +117,10 @@ InternalRegistryI::registerNode(
     }
 }
 
-ReplicaSessionPrxPtr
+optional<ReplicaSessionPrx>
 InternalRegistryI::registerReplica(
     shared_ptr<InternalReplicaInfo> info,
-    InternalRegistryPrxPtr prx,
+    optional<InternalRegistryPrx> prx,
     const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
@@ -168,7 +174,7 @@ InternalRegistryI::registerReplica(
 
     try
     {
-        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
+        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, std::move(*prx), _replicaSessionTimeout);
         _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
         return s->getProxy();
     }
@@ -179,19 +185,20 @@ InternalRegistryI::registerReplica(
 }
 
 void
-InternalRegistryI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
+InternalRegistryI::registerWithReplica(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _session.create(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _session.create(std::move(*replica));
 }
 
 NodePrxSeq
 InternalRegistryI::getNodes(const Ice::Current&) const
 {
     NodePrxSeq nodes;
-    Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
-    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
-        nodes.push_back(Ice::uncheckedCast<NodePrx>(*p));
+        assert(proxy);
+        nodes.push_back(NodePrx(*proxy));
     }
     return nodes;
 }
@@ -200,10 +207,10 @@ InternalRegistryPrxSeq
 InternalRegistryI::getReplicas(const Ice::Current&) const
 {
     InternalRegistryPrxSeq replicas;
-    Ice::ObjectProxySeq proxies = _database->getObjectsByType(string{InternalRegistry::ice_staticId()});
-    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (const auto& proxy : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
-        replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*p));
+        assert(proxy);
+        replicas.push_back(InternalRegistryPrx(*proxy));
     }
     return replicas;
 }
