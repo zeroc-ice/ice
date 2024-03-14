@@ -10,7 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)initializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 + (NSError*)pluginInitializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
-+ (NSError*)collocationOptimizationException:(NSString*)file line:(size_t)line;
 + (NSError*)alreadyRegisteredException:(NSString*)kindOfObject id:(NSString*)id file:(NSString*)file line:(size_t)line;
 + (NSError*)notRegisteredException:(NSString*)kindOfObject id:(NSString*)id file:(NSString*)file line:(size_t)line;
 + (NSError*)twowayOnlyException:(NSString*)operation file:(NSString*)file line:(size_t)line;

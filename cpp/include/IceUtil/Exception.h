@@ -86,7 +86,7 @@ namespace IceUtil
 
     /**
      * Helper template for the implementation of Ice::Exception.
-     * It implements ice_clone and ice_throw.
+     * It implements ice_throw.
      * \headerfile Ice/Ice.h
      */
     // We generate a text graph, because the inheritance graph for this type has too many nodes.

@@ -81,30 +81,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_CollocationOptimizationException;
-    class CollocationOptimizationException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::CollocationOptimizationException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_CollocationOptimizationException;
-            return IcePHP_stringifyException($this, $Ice__t_CollocationOptimizationException);
-        }
-    }
-
-    $Ice__t_CollocationOptimizationException = IcePHP_defineException('::Ice::CollocationOptimizationException', '\\Ice\\CollocationOptimizationException', null, null);
-}
-
-namespace Ice
-{
     global $Ice__t_AlreadyRegisteredException;
     class AlreadyRegisteredException extends \Ice\LocalException
     {

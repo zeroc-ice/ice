@@ -90,38 +90,6 @@ if "PluginInitializationException" not in _M_Ice.__dict__:
     _M_Ice.PluginInitializationException = PluginInitializationException
     del PluginInitializationException
 
-if "CollocationOptimizationException" not in _M_Ice.__dict__:
-    _M_Ice.CollocationOptimizationException = Ice.createTempClass()
-
-    class CollocationOptimizationException(Ice.LocalException):
-        """
-        This exception is raised if a feature is requested that is not supported with collocation optimization.
-        """
-
-        def __init__(self):
-            pass
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::CollocationOptimizationException"
-
-    _M_Ice._t_CollocationOptimizationException = IcePy.defineException(
-        "::Ice::CollocationOptimizationException",
-        CollocationOptimizationException,
-        (),
-        None,
-        (),
-    )
-    CollocationOptimizationException._ice_type = (
-        _M_Ice._t_CollocationOptimizationException
-    )
-
-    _M_Ice.CollocationOptimizationException = CollocationOptimizationException
-    del CollocationOptimizationException
-
 if "AlreadyRegisteredException" not in _M_Ice.__dict__:
     _M_Ice.AlreadyRegisteredException = Ice.createTempClass()
 

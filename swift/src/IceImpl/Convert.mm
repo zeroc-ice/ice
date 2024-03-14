@@ -46,10 +46,6 @@ convertException(const std::exception& exc)
                                                      file:toNSString(e.ice_file())
                                                      line:e.ice_line()];
         }
-        catch (const Ice::CollocationOptimizationException& e)
-        {
-            return [factory collocationOptimizationException:toNSString(e.ice_file()) line:e.ice_line()];
-        }
         catch (const Ice::AlreadyRegisteredException& e)
         {
             return [factory alreadyRegisteredException:toNSString(e.kindOfObject)
