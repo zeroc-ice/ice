@@ -164,9 +164,9 @@ extern "C"
         {
             return createResultValue(createBool(restoreProxy(self) == restoreProxy(other)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -188,9 +188,9 @@ extern "C"
             in.read(proxy);
             *r = createProxy(std::move(proxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -217,9 +217,9 @@ extern "C"
             assert(p.second > p.first);
             return createResultValue(createByteArray(p.first, p.second));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -247,9 +247,9 @@ extern "C"
             }
             return createResultValue(createInvokeResultValue(createBool(ok), results));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
         return 0;
     }
@@ -275,9 +275,9 @@ extern "C"
             }
             return createResultValue(createInvokeResultValue(createBool(ok), results));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
         return 0;
     }
@@ -321,9 +321,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -363,9 +363,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -390,9 +390,9 @@ extern "C"
             auto newProxy = proxy->ice_identity(ident);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -412,9 +412,9 @@ extern "C"
             auto newProxy = proxy->ice_context(ctx);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -432,9 +432,9 @@ extern "C"
             auto newProxy = proxy->ice_facet(f);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -452,9 +452,9 @@ extern "C"
             auto newProxy = proxy->ice_adapterId(id);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -465,9 +465,9 @@ extern "C"
         {
             return createResultValue(createInt(static_cast<int>(restoreProxy(self)->ice_getEndpoints().size())));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -482,9 +482,9 @@ extern "C"
             }
             *r = createShared<Ice::Endpoint>(endpoints[idx]);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -510,9 +510,9 @@ extern "C"
             }
             (*v)[idx] = deref<Ice::Endpoint>(e);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -532,9 +532,9 @@ extern "C"
             auto newProxy = proxy->ice_endpoints(tmp);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -552,9 +552,9 @@ extern "C"
             auto newProxy = proxy->ice_locatorCacheTimeout(t);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -572,9 +572,9 @@ extern "C"
             auto newProxy = proxy->ice_invocationTimeout(t);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -593,9 +593,9 @@ extern "C"
             auto newProxy = proxy->ice_connectionId(id);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -613,9 +613,9 @@ extern "C"
             auto newProxy = proxy->ice_connectionCached(v == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -626,9 +626,9 @@ extern "C"
         {
             return createResultValue(createInt(static_cast<int>(restoreProxy(self)->ice_getEndpointSelection())));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
     }
 
@@ -641,9 +641,9 @@ extern "C"
                 static_cast<Ice::EndpointSelectionType>(getEnumerator(type, "Ice.EndpointSelectionType")));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -663,9 +663,9 @@ extern "C"
             auto newProxy = proxy->ice_encodingVersion(ev);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -686,9 +686,9 @@ extern "C"
             auto newProxy = proxy->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(router));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -709,9 +709,9 @@ extern "C"
             auto newProxy = proxy->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -729,9 +729,9 @@ extern "C"
             auto newProxy = proxy->ice_secure(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -749,9 +749,9 @@ extern "C"
             auto newProxy = proxy->ice_preferSecure(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -769,9 +769,9 @@ extern "C"
             auto newProxy = proxy->ice_twoway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -789,9 +789,9 @@ extern "C"
             auto newProxy = proxy->ice_oneway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -809,9 +809,9 @@ extern "C"
             auto newProxy = proxy->ice_batchOneway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -829,9 +829,9 @@ extern "C"
             auto newProxy = proxy->ice_datagram();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -849,9 +849,9 @@ extern "C"
             auto newProxy = proxy->ice_batchDatagram();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -864,9 +864,9 @@ extern "C"
             auto newProxy = proxy->ice_compress(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -892,9 +892,9 @@ extern "C"
             auto newProxy = proxy->ice_timeout(t);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -921,9 +921,9 @@ extern "C"
             auto newProxy = proxy->ice_fixed(deref<Ice::Connection>(connection));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -944,9 +944,9 @@ extern "C"
                 *r = new shared_ptr<Ice::Connection>(move(conn));
             }
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -965,9 +965,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<GetConnectionFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -983,9 +983,9 @@ extern "C"
                 *r = new shared_ptr<Ice::Connection>(move(conn));
             }
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -996,9 +996,9 @@ extern "C"
         {
             restoreProxy(self)->ice_flushBatchRequests();
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -1016,9 +1016,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -1055,9 +1055,9 @@ extern "C"
             bool b = deref<InvocationFuture>(self)->waitForState(state, timeout);
             return createResultValue(createBool(b));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -1067,18 +1067,8 @@ extern "C"
         if (!f->waitForState(Future::State::Finished, -1))
         {
             assert(f->getException());
-            try
-            {
-                rethrow_exception(f->getException());
-            }
-            catch (const std::exception& ex)
-            {
-                //
-                // The C++ object won't be used after this.
-                //
-                delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
-                return createResultException(convertException(ex));
-            }
+            delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
+            return createResultException(f->getException());
         }
 
         bool ok;
@@ -1115,18 +1105,11 @@ extern "C"
         if (!f->waitForState(Future::State::Finished, -1))
         {
             assert(f->getException());
-            try
-            {
-                rethrow_exception(f->getException());
-            }
-            catch (const std::exception& ex)
-            {
-                //
-                // The C++ object won't be used after this.
-                //
-                delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
-                return convertException(ex);
-            }
+            //
+            // The C++ object won't be used after this.
+            //
+            delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
+            return convertException(f->getException());
         }
 
         //
@@ -1163,9 +1146,9 @@ extern "C"
             bool b = deref<GetConnectionFuture>(self)->waitForState(state, timeout);
             return createResultValue(createBool(b));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -1175,18 +1158,9 @@ extern "C"
         if (!f->waitForState(Future::State::Finished, -1))
         {
             assert(f->getException());
-            try
-            {
-                rethrow_exception(f->getException());
-            }
-            catch (const std::exception& ex)
-            {
-                //
-                // The C++ object won't be used after this.
-                //
-                delete reinterpret_cast<shared_ptr<GetConnectionFuture>*>(self);
-                return convertException(ex);
-            }
+            // The C++ object won't be used after this.
+            delete reinterpret_cast<shared_ptr<GetConnectionFuture>*>(self);
+            return convertException(f->getException());
         }
 
         auto c = f->getConnection();

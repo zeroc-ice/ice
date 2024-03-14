@@ -160,9 +160,9 @@ extern "C"
             bool b = deref<SimpleFuture>(self)->waitForState(s, timeout);
             return createResultValue(createBool(b));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -183,18 +183,11 @@ extern "C"
         if (!f->waitForState(Future::State::Finished, -1))
         {
             assert(f->getException());
-            try
-            {
-                rethrow_exception(f->getException());
-            }
-            catch (const std::exception& ex)
-            {
-                //
-                // The C++ object won't be used after this.
-                //
-                delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
-                return convertException(ex);
-            }
+            //
+            // The C++ object won't be used after this.
+            //
+            delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
+            return convertException(f->getException());
         }
 
         //
