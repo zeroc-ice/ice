@@ -498,7 +498,12 @@ namespace
 
 IceUtil::Exception::Exception() noexcept : _file(0), _line(0), _stackFrames(getStackFrames()) {}
 
-IceUtil::Exception::Exception(const char* file, int line) noexcept : _file(file), _line(line), _stackFrames(getStackFrames()) {}
+IceUtil::Exception::Exception(const char* file, int line) noexcept
+    : _file(file),
+      _line(line),
+      _stackFrames(getStackFrames())
+{
+}
 
 void
 IceUtil::Exception::ice_print(ostream& out) const

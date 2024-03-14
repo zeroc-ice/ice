@@ -797,10 +797,7 @@ extern "C"
         cancel = (*self->communicator)
                      ->flushBatchRequestsAsync(
                          compress,
-                         [callback](exception_ptr ex)
-                         {
-                            callback->exception(ex);
-                         },
+                         [callback](exception_ptr ex) { callback->exception(ex); },
                          [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
     catch (...)

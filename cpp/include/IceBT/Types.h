@@ -2,19 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceBT_Types_h__
-#define __IceBT_Types_h__
+#ifndef ICE_BT_TYPES_H
+#define ICE_BT_TYPES_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/LocalException.h"
 
 #ifndef ICEBT_API
 #    if defined(ICE_STATIC_LIBS)
@@ -24,6 +15,14 @@
 #    else
 #        define ICEBT_API ICE_DECLSPEC_IMPORT
 #    endif
+#endif
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace IceBT
@@ -61,10 +60,7 @@ namespace IceBT
          * @return The fully-scoped type ID.
          */
         static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
+
         void ice_print(std::ostream& stream) const override;
 
         std::string ice_id() const override;
@@ -78,5 +74,10 @@ namespace IceBT
     };
 }
 
-#include <IceUtil/PopDisableWarnings.h>
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

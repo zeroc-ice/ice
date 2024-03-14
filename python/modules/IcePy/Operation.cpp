@@ -653,7 +653,7 @@ extern "C"
         auto callbackWrapper = make_shared<CallbackWrapper>(callback);
         (*self->communicator)->postToClientThreadPool([callbackWrapper]() { callbackWrapper->run(); });
     }
-    catch (const Ice::CommunicatorDestroyedException& ex)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         setPythonException(current_exception());
         return 0;
@@ -1825,7 +1825,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
         //
         // TwowayOnlyException can propagate directly.
         //
-       setPythonException(current_exception());
+        setPythonException(current_exception());
         return 0;
     }
     catch (...)
@@ -2092,10 +2092,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
         _op->sendMode,
         params,
         [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
-        [self](exception_ptr ex)
-        {
-            self->exception(ex);
-        },
+        [self](exception_ptr ex) { self->exception(ex); },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         pyctx == Py_None ? Ice::noExplicitContext : context);
 }
@@ -2313,10 +2310,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
         sendMode,
         params,
         [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
-        [self](exception_ptr ex)
-        {
-            self->exception(ex);
-        },
+        [self](exception_ptr ex) { self->exception(ex); },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         (ctx == 0 || ctx == Py_None) ? Ice::noExplicitContext : context);
 }

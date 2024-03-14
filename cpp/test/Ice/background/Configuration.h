@@ -62,11 +62,11 @@ private:
     std::exception_ptr _connectException;
     IceInternal::SocketOperation _initializeSocketOperation;
     int _initializeResetCount;
-    std::exception_ptr  _initializeException;
+    std::exception_ptr _initializeException;
     int _readReadyCount;
-    std::exception_ptr  _readException;
+    std::exception_ptr _readException;
     int _writeReadyCount;
-    std::exception_ptr  _writeException;
+    std::exception_ptr _writeException;
     bool _buffered;
     std::mutex _mutex;
     static ConfigurationPtr _instance;

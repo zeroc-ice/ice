@@ -1763,10 +1763,7 @@ extern "C"
         cancel = (*self->proxy)
                      ->ice_getConnectionAsync(
                          [callback](const Ice::ConnectionPtr& connection) { callback->response(connection); },
-                         [callback](exception_ptr ex)
-                         {
-                            callback->exception(ex);
-                         });
+                         [callback](exception_ptr ex) { callback->exception(ex); });
     }
     catch (...)
     {
@@ -1857,10 +1854,7 @@ extern "C"
     {
         cancel = (*self->proxy)
                      ->ice_flushBatchRequestsAsync(
-                         [callback](exception_ptr ex)
-                         {
-                            callback->exception(ex);
-                         },
+                         [callback](exception_ptr ex) { callback->exception(ex); },
                          [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
     catch (...)

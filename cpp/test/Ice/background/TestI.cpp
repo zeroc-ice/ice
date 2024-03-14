@@ -71,7 +71,8 @@ BackgroundControllerI::initializeSocketOperation(int status, const Current&)
 void
 BackgroundControllerI::initializeException(bool enable, const Current&)
 {
-    _configuration->initializeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : exception_ptr{});
+    _configuration->initializeException(
+        enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : exception_ptr{});
 }
 
 void
