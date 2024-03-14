@@ -58,9 +58,9 @@
         }
         return [NSNull null];
     }
-    catch (const std::exception& e)
+    catch (...)
     {
-        *error = convertException(e);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -76,9 +76,9 @@
         }
         return [NSNull null];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -97,9 +97,9 @@
         auto oa = self.communicator->createObjectAdapter(fromNSString(name));
         return [ICEObjectAdapter getHandle:oa];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -113,9 +113,9 @@
         auto oa = self.communicator->createObjectAdapterWithEndpoints(fromNSString(name), fromNSString(endpoints));
         return [ICEObjectAdapter getHandle:oa];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -132,9 +132,9 @@
             Ice::uncheckedCast<Ice::RouterPrx>([router prx]).value());
         return [ICEObjectAdapter getHandle:oa];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -184,9 +184,9 @@
         self.communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(r));
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -216,9 +216,9 @@
         self.communicator->setDefaultLocator((Ice::uncheckedCast<Ice::LocatorPrx>(l)));
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -230,9 +230,9 @@
         self.communicator->flushBatchRequests(Ice::CompressBatch(compress));
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -260,12 +260,12 @@
                 }
             });
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 
@@ -281,9 +281,9 @@
         auto prx = self.communicator->createAdmin(adapter, ident);
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -295,9 +295,9 @@
         auto adminPrx = self.communicator->getAdmin();
         return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx.value()] : [NSNull null];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -310,9 +310,9 @@
         self.communicator->addAdminFacet(servant, fromNSString(facet));
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -324,9 +324,9 @@
         // servant can either be a Swift wrapped facet or a builtin admin facet
         return [self facetToFacade:self.communicator->removeAdminFacet(fromNSString(facet))];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -345,9 +345,9 @@
 
         return [self facetToFacade:servant];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -365,9 +365,9 @@
 
         return facets;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -384,9 +384,9 @@
     {
         return self.communicator->getClientDispatchQueue();
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -397,9 +397,9 @@
     {
         return self.communicator->getServerDispatchQueue();
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -473,9 +473,9 @@
         self.communicator->getPluginManager()->initializePlugins();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }

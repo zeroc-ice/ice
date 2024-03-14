@@ -140,9 +140,9 @@ extern "C"
         {
             return createResultValue(createBool(deref<Ice::Connection>(self) == deref<Ice::Connection>(other)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -153,9 +153,9 @@ extern "C"
             auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
             deref<Ice::Connection>(self)->close(mode);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -194,9 +194,9 @@ extern "C"
             Ice::ObjectPrx proxy = deref<Ice::Connection>(self)->createProxy(ident);
             *r = createProxy(std::move(proxy));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -208,9 +208,9 @@ extern "C"
             auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
             deref<Ice::Connection>(self)->flushBatchRequests(mode);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -230,9 +230,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -243,9 +243,9 @@ extern "C"
         {
             *endpoint = createShared<Ice::Endpoint>(deref<Ice::Connection>(self)->getEndpoint());
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -256,9 +256,9 @@ extern "C"
         {
             deref<Ice::Connection>(self)->heartbeat();
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -276,9 +276,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -313,9 +313,9 @@ extern "C"
             }
             deref<Ice::Connection>(self)->setACM(timeout, close, heartbeat);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -333,9 +333,9 @@ extern "C"
             mexCallMATLAB(1, &r, 3, params, "Ice.ACM");
             return createResultValue(r);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -345,9 +345,9 @@ extern "C"
         {
             return createResultValue(createStringFromUTF8(deref<Ice::Connection>(self)->type()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -357,9 +357,9 @@ extern "C"
         {
             return createResultValue(createInt(deref<Ice::Connection>(self)->timeout()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -369,9 +369,9 @@ extern "C"
         {
             return createResultValue(createStringFromUTF8(deref<Ice::Connection>(self)->toString()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -382,9 +382,9 @@ extern "C"
             shared_ptr<Ice::ConnectionInfo> info = deref<Ice::Connection>(self)->getInfo();
             return createResultValue(createInfo(info));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -394,9 +394,9 @@ extern "C"
         {
             deref<Ice::Connection>(self)->setBufferSize(rcvSize, sndSize);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -407,9 +407,9 @@ extern "C"
         {
             deref<Ice::Connection>(self)->throwException();
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }

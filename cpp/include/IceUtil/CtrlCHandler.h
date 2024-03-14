@@ -69,11 +69,12 @@ namespace IceUtil
      *
      * \headerfile Ice/Ice.h
      */
-    class ICE_API CtrlCHandlerException : public ExceptionHelper<CtrlCHandlerException>
+    class ICE_API CtrlCHandlerException final : public Exception
     {
     public:
-        CtrlCHandlerException(const char*, int);
-        virtual std::string ice_id() const;
+        using Exception::Exception;
+
+        std::string ice_id() const final;
     };
 }
 

@@ -26,11 +26,6 @@ namespace
     mutex globalMutex;
 }
 
-CtrlCHandlerException::CtrlCHandlerException(const char* file, int line)
-    : ExceptionHelper<CtrlCHandlerException>(file, line)
-{
-}
-
 string
 CtrlCHandlerException::ice_id() const
 {

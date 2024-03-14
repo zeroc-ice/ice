@@ -13,25 +13,27 @@
 
 namespace IceUtilInternal
 {
-    class ICE_API APIException : public IceUtil::ExceptionHelper<APIException>
+    class ICE_API APIException : public IceUtil::Exception
     {
     public:
-        APIException(const char*, int, const ::std::string&);
-        virtual ::std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
-        ::std::string reason;
+        using IceUtil::Exception::Exception;
+        APIException(const char*, int, std::string) noexcept;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
+        std::string reason;
     };
 
     ICE_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
 
-    class ICE_API BadOptException : public IceUtil::ExceptionHelper<BadOptException>
+    class ICE_API BadOptException : public IceUtil::Exception
     {
     public:
-        BadOptException(const char*, int, const ::std::string&);
-        virtual ::std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        using IceUtil::Exception::Exception;
+        BadOptException(const char*, int, std::string) noexcept;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
-        ::std::string reason;
+        std::string reason;
     };
 
     ICE_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);

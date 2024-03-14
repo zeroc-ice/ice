@@ -137,9 +137,9 @@ extern "C"
             return createResultValue(
                 createBool(Ice::targetEqualTo(deref<Ice::Endpoint>(self), deref<Ice::Endpoint>(other))));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -149,9 +149,9 @@ extern "C"
         {
             return createResultValue(createStringFromUTF8(deref<Ice::Endpoint>(self)->toString()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -162,9 +162,9 @@ extern "C"
             shared_ptr<Ice::EndpointInfo> info = deref<Ice::Endpoint>(self)->getInfo();
             return createResultValue(createInfo(info));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 }

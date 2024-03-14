@@ -22,7 +22,5 @@ namespace IceGrid
         static ::std::string_view ice_staticId() noexcept;
 
         std::string ice_id() const override;
-
-        void ice_throw() const override;
     };
 }

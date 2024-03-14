@@ -77,8 +77,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The reason for the failure.
          */
@@ -122,8 +120,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The reason for the failure.
@@ -177,8 +173,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
@@ -240,8 +234,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
@@ -294,8 +286,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The name of the operation that was invoked.
          */
@@ -323,8 +313,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -367,8 +355,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * This field is set to the textual representation of the unknown exception if available.
          */
@@ -397,8 +383,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -423,8 +407,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -445,8 +427,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -468,8 +448,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -511,8 +489,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * Name of the adapter.
@@ -559,8 +535,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * Adapter ID.
          */
@@ -604,8 +578,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The stringified proxy for which no suitable endpoint is available.
@@ -651,8 +623,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
@@ -696,8 +666,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
@@ -743,8 +711,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
@@ -788,8 +754,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
@@ -835,8 +799,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
@@ -861,8 +823,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -902,8 +862,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * Describes why this servant is illegal.
@@ -963,8 +921,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The identity of the Ice Object to which the request was sent.
          */
@@ -998,8 +954,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1021,8 +975,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1043,8 +995,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1091,8 +1041,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The error number describing the system exception. For C++ and Unix, this is equivalent to <code>errno</code>.
          * For C++ and Windows, this is the value returned by <code>GetLastError()</code> or
@@ -1119,8 +1067,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1161,8 +1107,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The domain of the error.
@@ -1208,8 +1152,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The path of the file responsible for the error.
          */
@@ -1234,8 +1176,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1256,8 +1196,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1278,8 +1216,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1322,8 +1258,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The error number describing the DNS problem. For C++ and Unix, this is equivalent to <code>h_errno</code>.
          * For C++ and Windows, this is the value returned by <code>WSAGetLastError()</code>.
@@ -1353,8 +1287,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1375,8 +1307,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1397,8 +1327,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1419,8 +1347,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1441,8 +1367,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1463,8 +1387,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1485,8 +1407,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1526,8 +1446,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The reason for the failure.
@@ -1573,8 +1491,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * A sequence containing the first four bytes of the incorrect message.
@@ -1630,8 +1546,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The version of the unsupported protocol.
@@ -1692,8 +1606,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The version of the unsupported encoding.
          */
@@ -1722,8 +1634,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1744,8 +1654,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1766,8 +1674,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1788,8 +1694,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1813,8 +1717,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1857,8 +1759,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * True if the connection was closed gracefully, false otherwise.
          */
@@ -1883,8 +1783,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1905,8 +1803,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1928,8 +1824,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1950,8 +1844,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1972,8 +1864,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -1994,8 +1884,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -2040,8 +1928,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The Slice type ID of the class instance for which no factory could be found.
@@ -2101,8 +1987,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The Slice type ID of the class instance that was unmarshaled.
          */
@@ -2131,8 +2015,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -2153,8 +2035,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -2175,8 +2055,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 
     /**
@@ -2216,8 +2094,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
 
         /**
          * The name of the unsupported feature.
@@ -2263,8 +2139,6 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The reason for the failure.
          */
@@ -2289,8 +2163,6 @@ namespace Ice
         std::string ice_id() const override;
 
         void ice_print(std::ostream& stream) const override;
-
-        void ice_throw() const override;
     };
 }
 

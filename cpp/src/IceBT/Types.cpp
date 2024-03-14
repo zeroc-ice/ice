@@ -12,12 +12,6 @@ IceBT::BluetoothException::ice_id() const
     return string{ice_staticId()};
 }
 
-void
-IceBT::BluetoothException::ice_throw() const
-{
-    throw *this;
-}
-
 std::string_view
 IceBT::BluetoothException::ice_staticId() noexcept
 {

@@ -149,12 +149,14 @@ namespace IceSSL
      * Thrown if the certificate cannot be read.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API CertificateReadException : public IceUtil::ExceptionHelper<CertificateReadException>
+    class ICESSL_API CertificateReadException : public Ice::Exception
     {
     public:
-        CertificateReadException(const char*, int, const std::string&);
+        using Ice::Exception::Exception;
 
-        virtual std::string ice_id() const;
+        CertificateReadException(const char*, int, std::string) noexcept;
+
+        std::string ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;
@@ -167,12 +169,14 @@ namespace IceSSL
      * Thrown if the certificate cannot be encoded.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API CertificateEncodingException : public IceUtil::ExceptionHelper<CertificateEncodingException>
+    class ICESSL_API CertificateEncodingException : public Ice::Exception
     {
     public:
-        CertificateEncodingException(const char*, int, const std::string&);
+        using Ice::Exception::Exception;
 
-        virtual std::string ice_id() const;
+        CertificateEncodingException(const char*, int, std::string) noexcept;
+
+        std::string ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;
@@ -185,12 +189,14 @@ namespace IceSSL
      * This exception is thrown if a distinguished name cannot be parsed.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API ParseException : public IceUtil::ExceptionHelper<ParseException>
+    class ICESSL_API ParseException : public Ice::Exception
     {
     public:
-        ParseException(const char*, int, const std::string&);
+        using Ice::Exception::Exception;
 
-        virtual std::string ice_id() const;
+        ParseException(const char*, int, std::string) noexcept;
+
+        std::string ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;

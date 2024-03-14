@@ -10,30 +10,18 @@
 
 namespace Ice
 {
-    class LocalException;
-
     /**
-     * Helper template for the implementation of Ice::LocalException. It implements ice_id.
+     * Helper template for the implementation of Ice::UserException. It implements ice_id and ice_throw.
      * \headerfile Ice/Ice.h
      */
-    template<typename T, typename B> class LocalExceptionHelper : public IceUtil::ExceptionHelper<T, B>
+    template<typename T, typename B> class UserExceptionHelper : public B
     {
     public:
-        using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
+        using B::B;
 
         std::string ice_id() const override { return std::string{T::ice_staticId()}; }
-    };
 
-    /**
-     * Helper template for the implementation of Ice::UserException. It implements ice_id.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T, typename B> class UserExceptionHelper : public IceUtil::ExceptionHelper<T, B>
-    {
-    public:
-        using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
-
-        std::string ice_id() const override { return std::string{T::ice_staticId()}; }
+        void ice_throw() const override { throw static_cast<const T&>(*this); }
 
     protected:
         /// \cond STREAM

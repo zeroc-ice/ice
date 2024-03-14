@@ -31,6 +31,11 @@ namespace Ice
          */
         static std::string_view ice_staticId() noexcept;
 
+        /**
+         * Throws this exception.
+         */
+        virtual void ice_throw() const = 0;
+
         /// \cond STREAM
         virtual void _write(::Ice::OutputStream*) const;
         virtual void _read(::Ice::InputStream*);

@@ -53,9 +53,9 @@ ZEND_METHOD(Ice_Endpoint, __toString)
         string str = _this->toString();
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -114,9 +114,9 @@ ZEND_METHOD(Ice_EndpointInfo, type)
         short type = static_cast<short>(_this->type());
         RETURN_LONG(type);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -135,9 +135,9 @@ ZEND_METHOD(Ice_EndpointInfo, datagram)
     {
         RETURN_BOOL(_this->datagram() ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -156,9 +156,9 @@ ZEND_METHOD(Ice_EndpointInfo, secure)
     {
         RETURN_BOOL(_this->secure() ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }

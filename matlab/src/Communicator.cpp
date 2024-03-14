@@ -57,9 +57,9 @@ extern "C"
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->stringToProxy(s));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -72,9 +72,9 @@ extern "C"
             auto p = restoreProxy(proxy);
             return createResultValue(createStringFromUTF8(deref<Ice::Communicator>(self)->proxyToString(p)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -84,9 +84,9 @@ extern "C"
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->propertyToProxy(prop));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -100,9 +100,9 @@ extern "C"
             auto d = deref<Ice::Communicator>(self)->proxyToProperty(p, prop);
             return createResultValue(createStringMap(d));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -114,9 +114,9 @@ extern "C"
             getIdentity(id, ident);
             return createResultValue(createStringFromUTF8(deref<Ice::Communicator>(self)->identityToString(ident)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -127,9 +127,9 @@ extern "C"
             auto p = deref<Ice::Communicator>(self)->getImplicitContext();
             *ctx = createShared<Ice::ImplicitContext>(p);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -141,9 +141,9 @@ extern "C"
             auto p = deref<Ice::Communicator>(self)->getProperties();
             *props = new shared_ptr<Ice::Properties>(move(p));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -155,9 +155,9 @@ extern "C"
             auto l = deref<Ice::Communicator>(self)->getLogger();
             *logger = createShared<Ice::Logger>(l);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -168,9 +168,9 @@ extern "C"
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultRouter());
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -182,9 +182,9 @@ extern "C"
             optional<Ice::RouterPrx> p = Ice::uncheckedCast<Ice::RouterPrx>(restoreNullableProxy(proxy));
             deref<Ice::Communicator>(self)->setDefaultRouter(p);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -195,9 +195,9 @@ extern "C"
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultLocator());
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -209,9 +209,9 @@ extern "C"
             optional<Ice::LocatorPrx> p = Ice::uncheckedCast<Ice::LocatorPrx>(restoreNullableProxy(proxy));
             deref<Ice::Communicator>(self)->setDefaultLocator(p);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -223,9 +223,9 @@ extern "C"
             auto m = static_cast<Ice::CompressBatch>(getEnumerator(mode, "Ice.CompressBatch"));
             deref<Ice::Communicator>(self)->flushBatchRequests(m);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -245,9 +245,9 @@ extern "C"
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }

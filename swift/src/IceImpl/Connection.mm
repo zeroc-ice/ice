@@ -28,9 +28,9 @@
         auto prx = self.connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -42,9 +42,9 @@
         self.connection->setAdapter(oa == nil ? nullptr : [oa objectAdapter]);
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -69,9 +69,9 @@
         self.connection->flushBatchRequests(Ice::CompressBatch(compress));
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -99,12 +99,12 @@
                 }
             });
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 
@@ -131,9 +131,9 @@
         }
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -166,9 +166,9 @@
         self.connection->heartbeat();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -193,12 +193,12 @@
                 }
             });
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 
@@ -256,9 +256,9 @@
         auto info = self.connection->getInfo();
         return createConnectionInfo(info);
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -270,9 +270,9 @@
         self.connection->setBufferSize(rcvSize, sndSize);
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -284,9 +284,9 @@
         self.connection->throwException();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }

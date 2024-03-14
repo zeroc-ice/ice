@@ -65,8 +65,6 @@ namespace IceBT
 
         std::string ice_id() const override;
 
-        void ice_throw() const override;
-
         /**
          * Provides more information about the failure.
          */

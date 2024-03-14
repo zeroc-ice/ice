@@ -79,8 +79,6 @@ namespace IceBox
 
         void ice_print(std::ostream& stream) const override;
 
-        void ice_throw() const override;
-
         /**
          * The reason for the failure.
          */
