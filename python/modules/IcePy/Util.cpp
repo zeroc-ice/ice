@@ -904,6 +904,10 @@ convertLocalException(std::exception_ptr ex, PyObject* p)
         // Nothing to do.
         //
     }
+    catch (...)
+    {
+        assert(false);
+    }
 }
 
 PyObject*
@@ -988,7 +992,7 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (...)
     {
-        string_view str = "unknown c++ exception";
+        static constexpr string_view str = "unknown c++ exception";
 
         type = lookupType("Ice.UnknownException");
         assert(type);

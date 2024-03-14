@@ -8,31 +8,14 @@
 #import "Convert.h"
 
 NSError*
-convertException(std::exception_ptr excPtr)
+convertException(std::exception_ptr exc)
 {
-    try
-    {
-        std::rethrow_exception(excPtr);
-    }
-    catch (const std::exception& exc)
-    {
-        return convertException(exc);
-    }
-    assert(false);
-}
-
-NSError*
-convertException(const std::exception& exc)
-{
-    Class<ICEExceptionFactory> factory = [ICEUtil exceptionFactory];
-
-    if (dynamic_cast<const Ice::LocalException*>(&exc))
-    {
-        auto iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
+        assert(exc);
+        Class<ICEExceptionFactory> factory = [ICEUtil exceptionFactory];
 
         try
         {
-            iceEx->ice_throw();
+            rethrow_exception(exc);
         }
         catch (const Ice::InitializationException& e)
         {
@@ -387,13 +370,14 @@ convertException(const std::exception& exc)
         {
             return [factory localException:toNSString(e.ice_file()) line:e.ice_line()];
         }
-    }
-    else
-    {
-        return [factory runtimeError:toNSString(exc.what())];
-    }
-
-    return nil;
+        catch (const std::exception& e)
+        {
+            return [factory runtimeError:toNSString(e.what())];
+        }
+        catch (...)
+        {
+            return [factory runtimeError:toNSString("unknown c++ exception")];
+        }
 }
 
 std::exception_ptr

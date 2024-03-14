@@ -57,9 +57,9 @@
         self.properties->setProperty(fromNSString(key), fromNSString(value));
         return YES;
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -79,9 +79,9 @@
         fromNSArray(options, s);
         return toNSArray(self.properties->parseCommandLineOptions(fromNSString(prefix), s));
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -94,9 +94,9 @@
         fromNSArray(options, s);
         return toNSArray(self.properties->parseIceCommandLineOptions(s));
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -108,9 +108,9 @@
         self.properties->load(fromNSString(file));
         return YES;
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return NO;
     }
 }

@@ -19,9 +19,9 @@
         // This function does not use current so we do not pass it from Swift
         return toNSString(self.propertiesAdmin->getProperty(fromNSString(key), Ice::Current{}));
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -33,9 +33,9 @@
         // This function does not use current so we do not pass it from Swift
         return toNSDictionary(self.propertiesAdmin->getPropertiesForPrefix(fromNSString(prefix), Ice::Current{}));
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -50,9 +50,9 @@
         self.propertiesAdmin->setProperties(props, Ice::Current{});
         return YES;
     }
-    catch (const std::exception& ex)
-    {
-        *error = convertException(ex);
+    catch (...)
+{
+     *error = convertException(std::current_exception());
         return NO;
     }
 }

@@ -550,6 +550,10 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     catch (const Ice::LocalException&)
     {
     }
+    catch (...)
+    {
+        assert(false);
+    }
 
     return true;
 }
@@ -557,14 +561,13 @@ convertLocalException(std::exception_ptr ex, zval* zex)
 void
 IcePHP::convertException(zval* zex, std::exception_ptr ex)
 {
-    ostringstream ostr;
-
     try
     {
         rethrow_exception(ex);
     }
     catch (const Ice::LocalException& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -595,6 +598,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     }
     catch (const Ice::UserException& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -609,6 +613,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     }
     catch (const Ice::Exception& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -623,8 +628,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     }
     catch (const std::exception& e)
     {
-        ostr << e.what();
-        string str = ostr.str();
+        string str = e.what();
 
         zend_class_entry* cls = idToClass("Ice::UnknownException");
         assert(cls);
@@ -637,8 +641,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     }
     catch (...)
     {
-        ostr << "unknown c++ exception";
-        string str = ostr.str();
+        string str = "unknown c++ exception";
 
         zend_class_entry* cls = idToClass("Ice::UnknownException");
         assert(cls);
