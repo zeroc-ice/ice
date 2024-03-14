@@ -489,10 +489,11 @@ run(const Ice::StringSeq& args)
                 // The locator local registry isn't the registry we want to connect to.
                 try
                 {
-                    registry = checkedCast<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
+                    registry = optional<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
                     if (!registry)
                     {
                         consoleErr << args[0] << ": could not contact an IceGrid registry" << endl;
+                        return 1;
                     }
                 }
                 catch (const Ice::ObjectNotFoundException&)
@@ -527,6 +528,7 @@ run(const Ice::StringSeq& args)
                     }
                 }
             }
+            assert(registry);
 
             //
             // If the registry to use is the locator local registry, we install a default router
