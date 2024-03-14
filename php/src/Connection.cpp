@@ -58,9 +58,9 @@ ZEND_METHOD(Ice_Connection, __toString)
         string str = _this->toString();
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -91,9 +91,9 @@ ZEND_METHOD(Ice_Connection, close)
     {
         _this->close(cc);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -115,9 +115,9 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -148,9 +148,9 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     {
         _this->flushBatchRequests(cb);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -169,9 +169,9 @@ ZEND_METHOD(Ice_Connection, heartbeat)
     {
         _this->heartbeat();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -233,9 +233,9 @@ ZEND_METHOD(Ice_Connection, setACM)
     {
         _this->setACM(timeout, close, heartbeat);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -266,9 +266,9 @@ ZEND_METHOD(Ice_Connection, getACM)
         add_property_long(return_value, "close", static_cast<long>(acm.close));
         add_property_long(return_value, "heartbeat", static_cast<long>(acm.heartbeat));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -287,9 +287,9 @@ ZEND_METHOD(Ice_Connection, type)
         string str = _this->type();
         RETURN_STRINGL(str.c_str(), str.length());
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -308,9 +308,9 @@ ZEND_METHOD(Ice_Connection, timeout)
         int32_t timeout = _this->timeout();
         ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -334,9 +334,9 @@ ZEND_METHOD(Ice_Connection, getInfo)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -365,9 +365,9 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     {
         _this->setBufferSize(rcvSize, sndSize);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -385,9 +385,9 @@ ZEND_METHOD(Ice_Connection, throwException)
     {
         _this->throwException();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }

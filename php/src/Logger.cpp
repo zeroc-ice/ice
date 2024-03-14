@@ -60,9 +60,9 @@ ZEND_METHOD(Ice_Logger, print)
     {
         _this->print(msg);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -93,9 +93,9 @@ ZEND_METHOD(Ice_Logger, trace)
     {
         _this->trace(category, msg);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -122,9 +122,9 @@ ZEND_METHOD(Ice_Logger, warning)
     {
         _this->warning(msg);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -151,9 +151,9 @@ ZEND_METHOD(Ice_Logger, error)
     {
         _this->error(msg);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -182,9 +182,9 @@ ZEND_METHOD(Ice_Logger, cloneWithPrefix)
     {
         clone = _this->cloneWithPrefix(prefix);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 

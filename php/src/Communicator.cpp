@@ -242,9 +242,9 @@ ZEND_METHOD(Ice_Communicator, shutdown)
     {
         _this->getCommunicator()->shutdown();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
     }
 }
 
@@ -257,9 +257,9 @@ ZEND_METHOD(Ice_Communicator, isShutdown)
     {
         RETURN_BOOL(_this->getCommunicator()->isShutdown() ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -273,9 +273,9 @@ ZEND_METHOD(Ice_Communicator, waitForShutdown)
     {
         _this->getCommunicator()->waitForShutdown();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
     }
 }
 
@@ -345,9 +345,9 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -383,9 +383,9 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         }
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -422,9 +422,9 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -473,9 +473,9 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
             array_init(return_value);
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -508,9 +508,9 @@ ZEND_METHOD(Ice_Communicator, identityToString)
         string str = _this->getCommunicator()->identityToString(id);
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -539,9 +539,9 @@ ZEND_METHOD(Ice_Communicator, getValueFactoryManager)
         assert(!obj->ptr);
         obj->ptr = new ValueFactoryManagerPtr(vfm);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -566,9 +566,9 @@ ZEND_METHOD(Ice_Communicator, getProperties)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -591,9 +591,9 @@ ZEND_METHOD(Ice_Communicator, getLogger)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -629,9 +629,9 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -672,9 +672,9 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
         }
         _this->getCommunicator()->setDefaultRouter(router);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -710,9 +710,9 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -753,9 +753,9 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         }
         _this->getCommunicator()->setDefaultLocator(locator);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -786,9 +786,9 @@ ZEND_METHOD(Ice_Communicator, flushBatchRequests)
     {
         _this->getCommunicator()->flushBatchRequests(cb);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -966,9 +966,9 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 
         return info;
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         return 0;
     }
 }
@@ -1009,9 +1009,9 @@ initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::
 
         return info;
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         return 0;
     }
 }
@@ -1405,9 +1405,9 @@ ZEND_FUNCTION(Ice_identityToString)
         string str = Ice::identityToString(id, static_cast<Ice::ToStringMode>(mode));
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1430,9 +1430,9 @@ ZEND_FUNCTION(Ice_stringToIdentity)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -2017,10 +2017,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
     {
         if (_defaultFactory->getDelegate())
         {
-            Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "value factory";
-            ex.id = id;
-            throwException(ex);
+            throwException(make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
             return false;
         }
 
@@ -2031,10 +2028,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
         FactoryMap::iterator p = _factories.find(id);
         if (p != _factories.end())
         {
-            Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "value factory";
-            ex.id = id;
-            throwException(ex);
+            throwException(make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
             return false;
         }
         _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, shared_from_this())));

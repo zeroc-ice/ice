@@ -92,9 +92,9 @@ ZEND_METHOD(Ice_ObjectPrx, __toString)
         string str = _this->proxy->ice_toString();
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -156,9 +156,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
                 RETURN_NULL();
             }
         }
-        catch (const IceUtil::Exception& ex)
-        {
-            throwException(ex);
+        catch (...)
+    {
+        throwException(current_exception());
             RETURN_NULL();
         }
     }
@@ -209,9 +209,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_context)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -231,9 +231,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getFacet)
         string facet = _this->proxy->ice_getFacet();
         ZVAL_STRINGL(return_value, facet.c_str(), static_cast<int>(facet.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -262,9 +262,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_facet)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -284,9 +284,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getAdapterId)
         string id = _this->proxy->ice_getAdapterId();
         ZVAL_STRINGL(return_value, id.c_str(), static_cast<int>(id.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -315,9 +315,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_adapterId)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -349,9 +349,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
             add_index_zval(return_value, idx++, &elem);
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -401,9 +401,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpoints)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -423,9 +423,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocatorCacheTimeout)
         int32_t timeout = _this->proxy->ice_getLocatorCacheTimeout();
         ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -445,9 +445,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
         string connectionId = _this->proxy->ice_getConnectionId();
         ZVAL_STRINGL(return_value, connectionId.c_str(), static_cast<int>(connectionId.length()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -474,9 +474,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -496,9 +496,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isConnectionCached)
         bool b = _this->proxy->ice_isConnectionCached();
         ZVAL_BOOL(return_value, b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -525,9 +525,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionCached)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -547,9 +547,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpointSelection)
         Ice::EndpointSelectionType type = _this->proxy->ice_getEndpointSelection();
         ZVAL_LONG(return_value, type == Ice::EndpointSelectionType::Random ? 0 : 1);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -583,9 +583,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -605,9 +605,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isSecure)
         bool b = _this->proxy->ice_isSecure();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -634,9 +634,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_secure)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -658,9 +658,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEncodingVersion)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -693,9 +693,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
                 RETURN_NULL();
             }
         }
-        catch (const IceUtil::Exception& ex)
-        {
-            throwException(ex);
+        catch (...)
+    {
+        throwException(current_exception());
             RETURN_NULL();
         }
     }
@@ -716,9 +716,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isPreferSecure)
         bool b = _this->proxy->ice_isPreferSecure();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -745,9 +745,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_preferSecure)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -785,9 +785,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -832,9 +832,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -870,9 +870,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -917,9 +917,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -941,9 +941,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_twoway)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -963,9 +963,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isTwoway)
         bool b = _this->proxy->ice_isTwoway();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -987,9 +987,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_oneway)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1009,9 +1009,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isOneway)
         bool b = _this->proxy->ice_isOneway();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -1033,9 +1033,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_batchOneway)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1055,9 +1055,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isBatchOneway)
         bool b = _this->proxy->ice_isBatchOneway();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -1079,9 +1079,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_datagram)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1101,9 +1101,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isDatagram)
         bool b = _this->proxy->ice_isDatagram();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -1125,9 +1125,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_batchDatagram)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1147,9 +1147,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isBatchDatagram)
         bool b = _this->proxy->ice_isBatchDatagram();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -1176,9 +1176,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_compress)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1205,9 +1205,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
             assignUnset(return_value);
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1234,9 +1234,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1263,9 +1263,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
             assignUnset(return_value);
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1292,9 +1292,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1313,9 +1313,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
     {
         ZVAL_LONG(return_value, static_cast<long>(_this->proxy->ice_getInvocationTimeout()));
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1342,9 +1342,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1377,9 +1377,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1399,9 +1399,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isFixed)
         bool b = _this->proxy->ice_isFixed();
         RETURN_BOOL(b ? 1 : 0);
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_FALSE;
     }
 }
@@ -1424,9 +1424,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnection)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1449,9 +1449,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCachedConnection)
             RETURN_NULL();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1470,9 +1470,9 @@ ZEND_METHOD(Ice_ObjectPrx, ice_flushBatchRequests)
     {
         _this->proxy->ice_flushBatchRequests();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -1573,9 +1573,9 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     {
         // Ignore.
     }
-    catch (const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETVAL_FALSE;
     }
 }

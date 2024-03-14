@@ -150,9 +150,9 @@ namespace
             string str = IceInternal::versionToString<T>(v);
             ZVAL_STRINGL(s, str.c_str(), static_cast<int>(str.length()));
         }
-        catch (const IceUtil::Exception& ex)
+        catch (...)
         {
-            throwException(ex);
+            throwException(current_exception());
             return false;
         }
 
@@ -166,9 +166,9 @@ namespace
             T v = IceInternal::stringToVersion<T>(s);
             return createVersion<T>(zv, v, type);
         }
-        catch (const IceUtil::Exception& ex)
+        catch (...)
         {
-            throwException(ex);
+            throwException(current_exception());
         }
 
         return false;
@@ -395,7 +395,7 @@ IcePHP::extractEncodingVersion(zval* zv, Ice::EncodingVersion& v)
 }
 
 static bool
-convertLocalException(const Ice::LocalException& ex, zval* zex)
+convertLocalException(std::exception_ptr ex, zval* zex)
 {
     zend_class_entry* cls = Z_OBJCE_P(zex);
     assert(cls);
@@ -403,7 +403,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
     // Transfer data members from Ice exception to PHP object.
     try
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
     catch (const Ice::InitializationException& e)
     {
@@ -555,18 +555,19 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
 }
 
 void
-IcePHP::convertException(zval* zex, const Ice::Exception& ex)
+IcePHP::convertException(zval* zex, std::exception_ptr ex)
 {
     ostringstream ostr;
-    ostr << ex;
-    string str = ostr.str();
 
     try
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
     catch (const Ice::LocalException& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
         zend_class_entry* cls = idToClass(e.ice_id());
         if (cls)
         {
@@ -575,7 +576,7 @@ IcePHP::convertException(zval* zex, const Ice::Exception& ex)
                 runtimeError("unable to create exception %s", cls->name->val);
                 return;
             }
-            if (!convertLocalException(e, zex))
+            if (!convertLocalException(ex, zex))
             {
                 return;
             }
@@ -592,8 +593,11 @@ IcePHP::convertException(zval* zex, const Ice::Exception& ex)
             setStringMember(zex, "unknown", str);
         }
     }
-    catch (const Ice::UserException&)
+    catch (const Ice::UserException& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
         zend_class_entry* cls = idToClass("Ice::UnknownUserException");
         assert(cls);
         if (object_init_ex(zex, cls) != SUCCESS)
@@ -603,8 +607,39 @@ IcePHP::convertException(zval* zex, const Ice::Exception& ex)
         }
         setStringMember(zex, "unknown", str);
     }
-    catch (const Ice::Exception&)
+    catch (const Ice::Exception& e)
     {
+        ostr << e;
+        string str = ostr.str();
+
+        zend_class_entry* cls = idToClass("Ice::UnknownException");
+        assert(cls);
+        if (object_init_ex(zex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create exception %s", cls->name->val);
+            return;
+        }
+        setStringMember(zex, "unknown", str);
+    }
+    catch (const std::exception& e)
+    {
+        ostr << e.what();
+        string str = ostr.str();
+
+        zend_class_entry* cls = idToClass("Ice::UnknownException");
+        assert(cls);
+        if (object_init_ex(zex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create exception %s", cls->name->val);
+            return;
+        }
+        setStringMember(zex, "unknown", str);
+    }
+    catch (...)
+    {
+        ostr << "unknown c++ exception";
+        string str = ostr.str();
+
         zend_class_entry* cls = idToClass("Ice::UnknownException");
         assert(cls);
         if (object_init_ex(zex, cls) != SUCCESS)
@@ -619,7 +654,7 @@ IcePHP::convertException(zval* zex, const Ice::Exception& ex)
 }
 
 void
-IcePHP::throwException(const Ice::Exception& ex)
+IcePHP::throwException(std::exception_ptr ex)
 {
     zval zex;
     convertException(&zex, ex);

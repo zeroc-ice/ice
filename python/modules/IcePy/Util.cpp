@@ -720,14 +720,14 @@ IcePy::createExceptionInstance(PyObject* type)
 }
 
 static void
-convertLocalException(const Ice::LocalException& ex, PyObject* p)
+convertLocalException(std::exception_ptr ex, PyObject* p)
 {
     //
     // Transfer data members from Ice exception to Python exception.
     //
     try
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
     catch (const Ice::InitializationException& e)
     {
@@ -928,7 +928,7 @@ IcePy::convertException(std::exception_ptr ex)
             p = createExceptionInstance(type);
             if (p.get())
             {
-                convertLocalException(e, p.get());
+                convertLocalException(ex, p.get());
             }
         }
         else
