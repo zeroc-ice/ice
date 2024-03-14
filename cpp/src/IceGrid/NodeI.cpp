@@ -333,7 +333,7 @@ NodeI::patchAsync(
     std::shared_ptr<InternalDistributionDescriptor> appDistrib,
     bool shutdown,
     std::function<void()> response,
-    std::function<void(exception_ptr)>,
+    std::function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
     try
