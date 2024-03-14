@@ -23,9 +23,9 @@ extern "C"
         {
             deref<Ice::Logger>(self)->print(getStringFromUTF16(message));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -36,9 +36,9 @@ extern "C"
         {
             deref<Ice::Logger>(self)->trace(getStringFromUTF16(category), getStringFromUTF16(message));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -49,9 +49,9 @@ extern "C"
         {
             deref<Ice::Logger>(self)->warning(getStringFromUTF16(message));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -62,9 +62,9 @@ extern "C"
         {
             deref<Ice::Logger>(self)->error(getStringFromUTF16(message));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -75,9 +75,9 @@ extern "C"
         {
             return createResultValue(createStringFromUTF8(deref<Ice::Logger>(self)->getPrefix()));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -89,9 +89,9 @@ extern "C"
             auto newLogger = logger->cloneWithPrefix(getStringFromUTF16(prefix));
             *r = newLogger == logger ? 0 : new shared_ptr<Ice::Logger>(move(newLogger));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }

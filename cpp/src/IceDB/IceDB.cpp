@@ -25,12 +25,6 @@ LMDBException::ice_print(ostream& out) const
     out << ": " << mdb_strerror(_error);
 }
 
-void
-LMDBException::ice_throw() const
-{
-    throw *this;
-}
-
 int
 LMDBException::error() const
 {
@@ -61,12 +55,6 @@ KeyTooLongException::ice_print(ostream& out) const
     out << "Max size = " << maxKeySize;
 }
 
-void
-KeyTooLongException::ice_throw() const
-{
-    throw *this;
-}
-
 BadEnvException::BadEnvException(const char* file, int line, size_t size) : IceUtil::Exception(file, line), _size(size)
 {
 }
@@ -83,12 +71,6 @@ BadEnvException::ice_print(ostream& out) const
     IceUtil::Exception::ice_print(out);
     out << ": LMDB env max key size = " << _size;
     out << ", IceDB max key size = " << maxKeySize;
-}
-
-void
-BadEnvException::ice_throw() const
-{
-    throw *this;
 }
 
 Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxReaders)

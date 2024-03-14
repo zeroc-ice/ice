@@ -49,7 +49,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual void ice_throw() const;
 
         int error() const;
 
@@ -69,7 +68,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual void ice_throw() const;
 
     private:
         const size_t _size;
@@ -87,7 +85,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual void ice_throw() const;
 
     private:
         const size_t _size;

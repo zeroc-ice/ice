@@ -59,9 +59,9 @@ extern "C"
             *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, id));
             return createResultValue(createStringList(a));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -71,9 +71,9 @@ extern "C"
         {
             return createResultValue(createIdentity(Ice::stringToIdentity(getStringFromUTF16(s))));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -86,9 +86,9 @@ extern "C"
             getIdentity(id, ident);
             return createResultValue(createStringFromUTF8(Ice::identityToString(ident, m)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 

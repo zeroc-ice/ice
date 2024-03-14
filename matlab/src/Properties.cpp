@@ -31,9 +31,9 @@ extern "C"
             *r = new shared_ptr<Ice::Properties>(move(props));
             return createResultValue(createStringList(a));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -49,9 +49,9 @@ extern "C"
         {
             return createResultValue(createStringFromUTF8(deref<Ice::Properties>(self)->getProperty(key)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -62,9 +62,9 @@ extern "C"
             return createResultValue(
                 createStringFromUTF8(deref<Ice::Properties>(self)->getPropertyWithDefault(key, dflt)));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -74,9 +74,9 @@ extern "C"
         {
             *r = deref<Ice::Properties>(self)->getPropertyAsInt(key);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -87,9 +87,9 @@ extern "C"
         {
             *r = deref<Ice::Properties>(self)->getPropertyAsIntWithDefault(key, dflt);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -101,9 +101,9 @@ extern "C"
             auto l = deref<Ice::Properties>(self)->getPropertyAsList(key);
             return createResultValue(createStringList(l));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -116,9 +116,9 @@ extern "C"
             Ice::StringSeq l = deref<Ice::Properties>(self)->getPropertyAsListWithDefault(key, d);
             return createResultValue(createStringList(l));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -129,9 +129,9 @@ extern "C"
             auto d = deref<Ice::Properties>(self)->getPropertiesForPrefix(prefix);
             return createResultValue(createStringMap(d));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -141,9 +141,9 @@ extern "C"
         {
             deref<Ice::Properties>(self)->setProperty(key, value);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -155,9 +155,9 @@ extern "C"
             auto opts = deref<Ice::Properties>(self)->getCommandLineOptions();
             return createResultValue(createStringList(opts));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -170,9 +170,9 @@ extern "C"
             Ice::StringSeq rem = deref<Ice::Properties>(self)->parseCommandLineOptions(prefix, opts);
             return createResultValue(createStringList(rem));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -185,9 +185,9 @@ extern "C"
             Ice::StringSeq rem = deref<Ice::Properties>(self)->parseIceCommandLineOptions(opts);
             return createResultValue(createStringList(rem));
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return createResultException(convertException(ex));
+            return createResultException(convertException(std::current_exception()));
         }
     }
 
@@ -197,9 +197,9 @@ extern "C"
         {
             deref<Ice::Properties>(self)->load(file);
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }
@@ -210,9 +210,9 @@ extern "C"
         {
             *r = new shared_ptr<Ice::Properties>(deref<Ice::Properties>(self)->clone());
         }
-        catch (const std::exception& ex)
+        catch (...)
         {
-            return convertException(ex);
+            return convertException(std::current_exception());
         }
         return 0;
     }

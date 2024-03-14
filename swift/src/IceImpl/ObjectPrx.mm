@@ -53,9 +53,9 @@
         auto prx = _prx->ice_identity(Ice::Identity{fromNSString(name), fromNSString(category)});
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -97,9 +97,9 @@
         auto prx = _prx->ice_adapterId(fromNSString(id));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -119,9 +119,9 @@
         auto prx = _prx->ice_endpoints(endpts);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -138,9 +138,9 @@
         auto prx = _prx->ice_locatorCacheTimeout(timeout);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -157,9 +157,9 @@
         auto prx = _prx->ice_invocationTimeout(timeout);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -176,9 +176,9 @@
         auto prx = _prx->ice_connectionId(fromNSString(connectionId));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -195,9 +195,9 @@
         auto prx = _prx->ice_connectionCached(cached);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -214,9 +214,9 @@
         auto prx = _prx->ice_endpointSelection(Ice::EndpointSelectionType(type));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -261,9 +261,9 @@
         auto prx = _prx->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(r));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -294,9 +294,9 @@
         auto prx = _prx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -324,9 +324,9 @@
         auto prx = _prx->ice_preferSecure(b);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -419,9 +419,9 @@
         auto prx = _prx->ice_timeout(timeout);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -433,9 +433,9 @@
         auto prx = _prx->ice_fixed([connection connection]);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -454,9 +454,9 @@
 
         return connection ? connection : [NSNull null];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -481,12 +481,12 @@
                 }
             });
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 
@@ -503,9 +503,9 @@
         _prx->ice_flushBatchRequests();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -530,12 +530,12 @@
                 }
             });
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 
@@ -551,9 +551,9 @@
         auto prx = _prx->ice_collocationOptimized(collocated);
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -588,9 +588,9 @@
             return [NSNull null];
         }
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -659,9 +659,9 @@
         p.get_future().get();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -693,9 +693,9 @@
             context ? ctx : Ice::noExplicitContext);
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -754,12 +754,12 @@
             },
             context ? ctx : Ice::noExplicitContext);
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
         // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
-        exception(convertException(ex));
+        exception(convertException(std::current_exception()));
     }
 }
 

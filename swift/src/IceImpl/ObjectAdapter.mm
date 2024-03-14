@@ -35,9 +35,9 @@
         self.objectAdapter->activate();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -103,9 +103,9 @@
         auto prx = self.objectAdapter->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -119,9 +119,9 @@
         auto prx = self.objectAdapter->createDirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -135,9 +135,9 @@
         auto prx = self.objectAdapter->createIndirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
@@ -192,9 +192,9 @@
         self.objectAdapter->refreshPublishedEndpoints();
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -214,9 +214,9 @@
         self.objectAdapter->setPublishedEndpoints(endpts);
         return YES;
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
@@ -227,9 +227,9 @@
     {
         return self.objectAdapter->getDispatchQueue();
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }

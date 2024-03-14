@@ -40,9 +40,9 @@ const CertificateOID IceSSL::certificateOIDS[] = {
     {"0.9.2342.19200300.100.1.25", "DC"}};
 const int IceSSL::certificateOIDSSize = sizeof(IceSSL::certificateOIDS) / sizeof(CertificateOID);
 
-CertificateReadException::CertificateReadException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<CertificateReadException>(file, line),
-      reason(r)
+CertificateReadException::CertificateReadException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      reason(std::move(r))
 {
 }
 
@@ -52,9 +52,9 @@ CertificateReadException::ice_id() const
     return "::IceSSL::CertificateReadException";
 }
 
-CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<CertificateEncodingException>(file, line),
-      reason(r)
+CertificateEncodingException::CertificateEncodingException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      reason(std::move(r))
 {
 }
 
@@ -64,9 +64,9 @@ CertificateEncodingException::ice_id() const
     return "::IceSSL::CertificateEncodingException";
 }
 
-ParseException::ParseException(const char* file, int line, const string& r)
-    : IceUtil::ExceptionHelper<ParseException>(file, line),
-      reason(r)
+ParseException::ParseException(const char* file, int line, string r) noexcept
+    : Exception(file, line),
+      reason(std::move(r))
 {
 }
 
