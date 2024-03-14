@@ -73,6 +73,7 @@ Gen::~Gen()
     if (_out.isOpen())
     {
         _out << nl;
+        _out.close();
     }
 }
 
@@ -99,12 +100,6 @@ Gen::generate(const UnitPtr& p)
 
     ObjectExtVisitor objectExtVisitor(_out);
     p->visit(&objectExtVisitor, false);
-}
-
-void
-Gen::closeOutput()
-{
-    _out.close();
 }
 
 void

@@ -102,7 +102,6 @@ namespace Slice
         ~Gen();
 
         void generate(const UnitPtr&);
-        void closeOutput();
 
     private:
         IceUtilInternal::Output _out;

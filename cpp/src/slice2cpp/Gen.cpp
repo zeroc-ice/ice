@@ -635,6 +635,11 @@ Slice::Gen::~Gen()
     H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
     H << "\n#endif\n";
     C << '\n';
+
+    H.close();
+    C.close();
+    implH.close();
+    implC.close();
 }
 
 void
@@ -845,15 +850,6 @@ Slice::Gen::generate(const UnitPtr& p)
         StreamVisitor streamVisitor(H);
         p->visit(&streamVisitor, false);
     }
-}
-
-void
-Slice::Gen::closeOutput()
-{
-    H.close();
-    C.close();
-    implH.close();
-    implC.close();
 }
 
 void

@@ -1885,6 +1885,7 @@ Slice::Gen::~Gen()
     if (_out.isOpen())
     {
         _out << '\n';
+        _out.close();
     }
 }
 
@@ -1926,12 +1927,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     DispatcherVisitor dispatcherVisitor(_out, _tie);
     p->visit(&dispatcherVisitor, false);
-}
-
-void
-Slice::Gen::closeOutput()
-{
-    _out.close();
 }
 
 void
