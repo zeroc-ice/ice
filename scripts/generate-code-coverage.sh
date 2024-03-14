@@ -60,6 +60,12 @@ if [ -e default.profdata ]; then
 else
     echo "Building with code coverage..."
     make clean
+
+    if [ -z "$MAKEFLAGS" ]; then
+        ncpu=$(sysctl -n hw.ncpu)
+        export MAKEFLAGS="-j$ncpu"
+    fi
+
     make
 
     echo "Running tests..."
