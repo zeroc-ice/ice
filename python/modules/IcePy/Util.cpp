@@ -912,14 +912,13 @@ IcePy::convertException(std::exception_ptr ex)
     PyObjectHandle p;
     PyObject* type;
 
-    ostringstream ostr;
-
     try
     {
         rethrow_exception(ex);
     }
     catch (const Ice::LocalException& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -946,6 +945,7 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (const Ice::UserException& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -960,6 +960,7 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (const Ice::Exception& e)
     {
+        ostringstream ostr;
         ostr << e;
         string str = ostr.str();
 
@@ -974,8 +975,7 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (const std::exception& e)
     {
-        ostr << e.what();
-        string str = ostr.str();
+        string_view str = e.what();
 
         type = lookupType("Ice.UnknownException");
         assert(type);
@@ -988,8 +988,7 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (...)
     {
-        ostr << "unknown c++ exception";
-        string str = ostr.str();
+        string_view str = "unknown c++ exception";
 
         type = lookupType("Ice.UnknownException");
         assert(type);
