@@ -35,7 +35,7 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException : public IceUtil::Exception
+    class ICE_API IconvInitializationException final : public IceUtil::Exception
     {
     public:
         using IceUtil::Exception::Exception;
@@ -52,19 +52,13 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        std::string ice_id() const override;
+        std::string ice_id() const final;
 
         /**
          * Prints a description of this exception to the given stream.
          * @param str The output stream.
          */
-        void ice_print(std::ostream& str) const override;
-
-        /**
-         * Obtains the reason for the failure.
-         * @return The reason.
-         */
-        std::string reason() const noexcept;
+        void ice_print(std::ostream& str) const final;
 
     private:
         std::string _reason;

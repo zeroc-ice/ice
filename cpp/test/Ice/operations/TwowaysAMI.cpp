@@ -976,9 +976,9 @@ namespace
             {
                 called();
             }
-            catch (const std::exception& ex)
+            catch (const std::exception& e)
             {
-                cerr << ex.what() << endl;
+                cerr << e.what() << endl;
                 test(false);
             }
             catch (...)

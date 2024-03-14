@@ -1068,7 +1068,7 @@ extern "C"
         {
             assert(f->getException());
             delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
-            return createResultException(f->getException());
+            return createResultException(convertException(f->getException()));
         }
 
         bool ok;

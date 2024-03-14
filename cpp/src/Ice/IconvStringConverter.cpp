@@ -29,9 +29,4 @@ IconvInitializationException::ice_id() const
     return "::Ice::IconvInitializationException";
 }
 
-string
-IconvInitializationException::reason() const noexcept
-{
-    return _reason;
-}
 #endif
