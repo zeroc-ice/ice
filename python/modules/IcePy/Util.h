@@ -183,14 +183,14 @@ namespace IcePy
     PyObject* createExceptionInstance(PyObject*);
 
     //
-    // Converts an Ice exception into a Python exception.
+    // Converts a C++ exception into a Python exception.
     //
-    PyObject* convertException(const Ice::Exception&);
+    PyObject* convertException(std::exception_ptr);
 
     //
-    // Converts an Ice exception into a Python exception and sets it in the Python environment.
+    // Converts a C++ exception into a Python exception and sets it in the Python environment.
     //
-    void setPythonException(const Ice::Exception&);
+    void setPythonException(std::exception_ptr);
 
     //
     // Sets an exception in the Python environment.

@@ -646,7 +646,6 @@ namespace IcePy
         ExceptionWriter(const ExceptionWriter&) = default;
 
         virtual std::string ice_id() const;
-        virtual Ice::UserException* ice_cloneImpl() const;
         virtual void ice_throw() const;
 
         virtual void _write(Ice::OutputStream*) const;
@@ -676,7 +675,6 @@ namespace IcePy
         ExceptionReader(const ExceptionReader&) = default;
 
         virtual std::string ice_id() const;
-        virtual Ice::UserException* ice_cloneImpl() const;
         virtual void ice_throw() const;
 
         virtual void _write(Ice::OutputStream*) const;

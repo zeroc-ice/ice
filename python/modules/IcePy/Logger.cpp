@@ -154,9 +154,9 @@ extern "C"
     {
         (*self->logger)->print(message);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -193,9 +193,9 @@ extern "C"
     {
         (*self->logger)->trace(category, message);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -226,9 +226,9 @@ extern "C"
     {
         (*self->logger)->warning(message);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -259,9 +259,9 @@ extern "C"
     {
         (*self->logger)->error(message);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -282,9 +282,9 @@ extern "C"
     {
         prefix = (*self->logger)->getPrefix();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -316,9 +316,9 @@ extern "C"
     {
         clone = (*self->logger)->cloneWithPrefix(prefix);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -460,9 +460,9 @@ IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
     {
         logger = Ice::getProcessLogger();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        IcePy::setPythonException(ex);
+        IcePy::setPythonException(current_exception());
         return 0;
     }
 
@@ -501,9 +501,9 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
     {
         Ice::setProcessLogger(wrapper);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        IcePy::setPythonException(ex);
+        IcePy::setPythonException(current_exception());
         return 0;
     }
 

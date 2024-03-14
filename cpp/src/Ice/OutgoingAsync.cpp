@@ -740,24 +740,23 @@ OutgoingAsync::response()
                 string operation;
                 _is.read(operation, false);
 
-                unique_ptr<RequestFailedException> ex;
                 switch (replyStatus)
                 {
                     case replyObjectNotExist:
                     {
-                        ex.reset(new ObjectNotExistException(__FILE__, __LINE__));
+                        throw ObjectNotExistException{__FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 
                     case replyFacetNotExist:
                     {
-                        ex.reset(new FacetNotExistException(__FILE__, __LINE__));
+                        throw FacetNotExistException{__FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 
                     case replyOperationNotExist:
                     {
-                        ex.reset(new OperationNotExistException(__FILE__, __LINE__));
+                        throw OperationNotExistException{__FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 
@@ -767,11 +766,6 @@ OutgoingAsync::response()
                         break;
                     }
                 }
-
-                ex->id = ident;
-                ex->facet = facet;
-                ex->operation = operation;
-                ex->ice_throw();
                 break;
             }
 
@@ -782,24 +776,23 @@ OutgoingAsync::response()
                 string unknown;
                 _is.read(unknown, false);
 
-                unique_ptr<UnknownException> ex;
                 switch (replyStatus)
                 {
                     case replyUnknownException:
                     {
-                        ex.reset(new UnknownException(__FILE__, __LINE__));
+                        throw UnknownException{__FILE__, __LINE__, unknown};
                         break;
                     }
 
                     case replyUnknownLocalException:
                     {
-                        ex.reset(new UnknownLocalException(__FILE__, __LINE__));
+                        throw UnknownLocalException{__FILE__, __LINE__, unknown};
                         break;
                     }
 
                     case replyUnknownUserException:
                     {
-                        ex.reset(new UnknownUserException(__FILE__, __LINE__));
+                        throw UnknownUserException{__FILE__, __LINE__, unknown};
                         break;
                     }
 
@@ -809,9 +802,6 @@ OutgoingAsync::response()
                         break;
                     }
                 }
-
-                ex->unknown = unknown;
-                ex->ice_throw();
                 break;
             }
 

@@ -49,7 +49,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual IceUtil::Exception* ice_cloneImpl() const;
         virtual void ice_throw() const;
 
         int error() const;
@@ -70,7 +69,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual IceUtil::Exception* ice_cloneImpl() const;
         virtual void ice_throw() const;
 
     private:
@@ -89,7 +87,6 @@ namespace IceDB
 
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual IceUtil::Exception* ice_cloneImpl() const;
         virtual void ice_throw() const;
 
     private:

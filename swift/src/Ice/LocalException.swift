@@ -73,26 +73,6 @@ open class PluginInitializationException: LocalException {
     }
 }
 
-/// This exception is raised if a feature is requested that is not supported with collocation optimization.
-///
-/// ## Deprecated
-/// This exception is no longer used by the Ice run time
-open class CollocationOptimizationException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `Swift.String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> Swift.String {
-        return "::Ice::CollocationOptimizationException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `Swift.String` - The string representaton of this exception.
-    override open func ice_print() -> Swift.String {
-        return _CollocationOptimizationExceptionDescription
-    }
-}
-
 /// An attempt was made to register something more than once with the Ice run time. This exception is raised if an
 /// attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
 /// user exception factory more than once for the same ID.

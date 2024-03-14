@@ -103,9 +103,9 @@ extern "C"
         string str = (*self->endpoint)->toString();
         return createString(str);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -131,9 +131,9 @@ extern "C"
         Ice::EndpointInfoPtr info = (*self->endpoint)->getInfo();
         return createEndpointInfo(info);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }

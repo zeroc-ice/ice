@@ -300,7 +300,7 @@ namespace
     }
 #endif
 
-    vector<void*> getStackFrames()
+    vector<void*> getStackFrames() noexcept
     {
         vector<void*> stackFrames;
 
@@ -496,9 +496,14 @@ namespace
     }
 }
 
-IceUtil::Exception::Exception() : _file(0), _line(0), _stackFrames(getStackFrames()) {}
+IceUtil::Exception::Exception() noexcept : _file(0), _line(0), _stackFrames(getStackFrames()) {}
 
-IceUtil::Exception::Exception(const char* file, int line) : _file(file), _line(line), _stackFrames(getStackFrames()) {}
+IceUtil::Exception::Exception(const char* file, int line) noexcept
+    : _file(file),
+      _line(line),
+      _stackFrames(getStackFrames())
+{
+}
 
 void
 IceUtil::Exception::ice_print(ostream& out) const
@@ -533,13 +538,13 @@ IceUtil::Exception::what() const noexcept
 }
 
 const char*
-IceUtil::Exception::ice_file() const
+IceUtil::Exception::ice_file() const noexcept
 {
     return _file;
 }
 
 int
-IceUtil::Exception::ice_line() const
+IceUtil::Exception::ice_line() const noexcept
 {
     return _line;
 }
@@ -550,11 +555,6 @@ IceUtil::Exception::ice_stackTrace() const
     return getStackTrace(_stackFrames);
 }
 
-unique_ptr<IceUtil::Exception>
-IceUtil::Exception::ice_clone() const
-{
-    return unique_ptr<Exception>(ice_cloneImpl());
-}
 ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 {

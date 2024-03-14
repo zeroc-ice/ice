@@ -21,16 +21,16 @@ namespace IceUtil
     {
     public:
         /**
-         * Constructs the exception. Equivalent to Exception(nullptr, 0).
+         * Default constructor. Equivalent to Exception(nullptr, 0).
          */
-        Exception();
+        Exception() noexcept;
 
         /**
          * Constructs the exception.
          * @param file The file where this exception is constructed.
          * @param line The line where this exception is constructed.
          */
-        Exception(const char* file, int line);
+        Exception(const char* file, int line) noexcept;
 
         /**
          * Returns the type ID of this exception. This corresponds to the Slice
@@ -53,12 +53,6 @@ namespace IceUtil
         virtual const char* what() const noexcept;
 
         /**
-         * Returns a shallow polymorphic copy of this exception.
-         * @return A unique_ptr to the new shallow copy.
-         */
-        std::unique_ptr<Exception> ice_clone() const;
-
-        /**
          * Throws this exception.
          */
         virtual void ice_throw() const = 0;
@@ -67,24 +61,19 @@ namespace IceUtil
          * Returns the name of the file where this exception was constructed.
          * @return The file name.
          */
-        const char* ice_file() const;
+        const char* ice_file() const noexcept;
 
         /**
          * Returns the line number where this exception was constructed.
          * @return The line number.
          */
-        int ice_line() const;
+        int ice_line() const noexcept;
 
         /**
          * Returns the stack trace at the point this exception was constructed
          * @return The stack trace as a string.
          */
         std::string ice_stackTrace() const;
-
-    protected:
-        /// \cond INTERNAL
-        virtual Exception* ice_cloneImpl() const = 0;
-        /// \endcond
 
     private:
         const char* _file;
@@ -97,7 +86,7 @@ namespace IceUtil
 
     /**
      * Helper template for the implementation of Ice::Exception.
-     * It implements ice_clone and ice_throw.
+     * It implements ice_throw.
      * \headerfile Ice/Ice.h
      */
     // We generate a text graph, because the inheritance graph for this type has too many nodes.
@@ -107,14 +96,7 @@ namespace IceUtil
     public:
         using B::B;
 
-        std::unique_ptr<E> ice_clone() const { return std::unique_ptr<E>(static_cast<E*>(ice_cloneImpl())); }
-
         virtual void ice_throw() const override { throw static_cast<const E&>(*this); }
-
-    protected:
-        /// \cond INTERNAL
-        virtual Exception* ice_cloneImpl() const override { return new E(static_cast<const E&>(*this)); }
-        /// \endcond
     };
 
     /**

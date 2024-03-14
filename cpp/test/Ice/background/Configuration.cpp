@@ -33,36 +33,36 @@ Configuration::init()
 Configuration::~Configuration() { _instance = nullptr; }
 
 void
-Configuration::connectorsException(Ice::LocalException* ex)
+Configuration::connectorsException(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _connectorsException.reset(ex);
+    _connectorsException = ex;
 }
 
 void
 Configuration::checkConnectorsException()
 {
     lock_guard lock(_mutex);
-    if (_connectorsException.get())
+    if (_connectorsException)
     {
-        _connectorsException->ice_throw();
+        rethrow_exception(_connectorsException);
     }
 }
 
 void
-Configuration::connectException(Ice::LocalException* ex)
+Configuration::connectException(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _connectException.reset(ex);
+    _connectException = ex;
 }
 
 void
 Configuration::checkConnectException()
 {
     lock_guard lock(_mutex);
-    if (_connectException.get())
+    if (_connectException)
     {
-        _connectException->ice_throw();
+        rethrow_exception(_connectException);
     }
 }
 
@@ -80,10 +80,10 @@ Configuration::initializeSocketOperation(IceInternal::SocketOperation status)
 }
 
 void
-Configuration::initializeException(Ice::LocalException* ex)
+Configuration::initializeException(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _initializeException.reset(ex);
+    _initializeException = ex;
 }
 
 IceInternal::SocketOperation
@@ -102,9 +102,9 @@ void
 Configuration::checkInitializeException()
 {
     lock_guard lock(_mutex);
-    if (_initializeException.get())
+    if (_initializeException)
     {
-        _initializeException->ice_throw();
+        rethrow_exception(_initializeException);
     }
 }
 
@@ -116,10 +116,10 @@ Configuration::readReady(bool ready)
 }
 
 void
-Configuration::readException(Ice::LocalException* ex)
+Configuration::readException(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _readException.reset(ex);
+    _readException = ex;
 }
 
 bool
@@ -138,9 +138,9 @@ void
 Configuration::checkReadException()
 {
     lock_guard lock(_mutex);
-    if (_readException.get())
+    if (_readException)
     {
-        _readException->ice_throw();
+        rethrow_exception(_readException);
     }
 }
 
@@ -152,10 +152,10 @@ Configuration::writeReady(bool ready)
 }
 
 void
-Configuration::writeException(Ice::LocalException* ex)
+Configuration::writeException(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _writeException.reset(ex);
+    _writeException = ex;
 }
 
 bool
@@ -174,9 +174,9 @@ void
 Configuration::checkWriteException()
 {
     lock_guard lock(_mutex);
-    if (_writeException.get())
+    if (_writeException)
     {
-        _writeException->ice_throw();
+        rethrow_exception(_writeException);
     }
 }
 

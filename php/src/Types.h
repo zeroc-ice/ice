@@ -510,7 +510,6 @@ namespace IcePHP
         ExceptionReader(const ExceptionReader&) = default;
 
         std::string ice_id() const final;
-        ExceptionReader* ice_cloneImpl() const final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;

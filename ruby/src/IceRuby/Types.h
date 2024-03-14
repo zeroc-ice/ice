@@ -503,7 +503,6 @@ namespace IceRuby
         ~ExceptionReader();
 
         std::string ice_id() const final;
-        Ice::UserException* ice_cloneImpl() const final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;

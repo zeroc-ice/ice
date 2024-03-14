@@ -42,9 +42,9 @@ extern "C"
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->call)();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

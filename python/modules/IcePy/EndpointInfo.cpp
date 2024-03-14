@@ -52,9 +52,9 @@ extern "C"
         int16_t type = (*self->endpointInfo)->type();
         return PyLong_FromLong(type);
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 }
@@ -74,9 +74,9 @@ extern "C"
     {
         b = (*self->endpointInfo)->datagram() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 
@@ -99,9 +99,9 @@ extern "C"
     {
         b = (*self->endpointInfo)->secure() ? getTrue() : getFalse();
     }
-    catch (const Ice::Exception& ex)
+    catch (...)
     {
-        setPythonException(ex);
+        setPythonException(current_exception());
         return 0;
     }
 

@@ -45,23 +45,10 @@ namespace IceBox
      * during initialization, or the service manager being unable to load a service executable.
      * \headerfile IceBox/IceBox.h
      */
-    class ICE_CLASS(ICEBOX_API) FailureException
-        : public ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>
+    class ICEBOX_API FailureException : public Ice::LocalException
     {
     public:
-        ICE_MEMBER(ICEBOX_API) virtual ~FailureException();
-
-        FailureException(const FailureException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        FailureException(const char* file, int line)
-            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -70,9 +57,9 @@ namespace IceBox
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        FailureException(const char* file, int line, const ::std::string& reason)
-            : ::Ice::LocalExceptionHelper<FailureException, ::Ice::LocalException>(file, line),
-              reason(reason)
+        FailureException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -80,18 +67,19 @@ namespace IceBox
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const ::std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICEBOX_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICEBOX_API) virtual void ice_print(::std::ostream& stream) const override;
+        static ::std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The reason for the failure.

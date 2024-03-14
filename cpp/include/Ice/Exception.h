@@ -16,36 +16,7 @@ namespace Ice
     class OutputStream;
     class InputStream;
 
-    typedef IceUtil::Exception Exception;
-
-    /**
-     * Base class for all Ice run-time exceptions.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API LocalException : public IceUtil::Exception
-    {
-    public:
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        LocalException(const char* file, int line);
-        LocalException(const LocalException&) = default;
-        virtual ~LocalException();
-
-        /**
-         * Polymorphically clones this exception.
-         * @return A shallow copy of this exception.
-         */
-        std::unique_ptr<LocalException> ice_clone() const;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-    };
+    using Exception = IceUtil::Exception;
 
     /**
      * Base class for all Ice user exceptions.
@@ -54,12 +25,6 @@ namespace Ice
     class ICE_API UserException : public IceUtil::Exception
     {
     public:
-        /**
-         * Polymorphically clones this exception.
-         * @return A shallow copy of this exception.
-         */
-        std::unique_ptr<UserException> ice_clone() const;
-
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.

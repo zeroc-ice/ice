@@ -53,19 +53,6 @@ module ::Ice
         T_PluginInitializationException = ::Ice::__defineException('::Ice::PluginInitializationException', PluginInitializationException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
-    if not defined?(::Ice::CollocationOptimizationException)
-        class CollocationOptimizationException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::CollocationOptimizationException'
-            end
-        end
-
-        T_CollocationOptimizationException = ::Ice::__defineException('::Ice::CollocationOptimizationException', CollocationOptimizationException, nil, [])
-    end
-
     if not defined?(::Ice::AlreadyRegisteredException)
         class AlreadyRegisteredException < Ice::LocalException
             def initialize(kindOfObject='', id='')

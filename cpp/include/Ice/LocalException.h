@@ -2,56 +2,51 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_LocalException_h__
-#define __Ice_LocalException_h__
+#ifndef ICE_LOCAL_EXCEPTION_H
+#define ICE_LOCAL_EXCEPTION_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/Identity.h>
-#include <Ice/Version.h>
-#include <Ice/BuiltinSequences.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Exception.h"
+#include "Ice/BuiltinSequences.h"
+#include "Ice/Identity.h"
+#include "Protocol.h"
 
-#ifndef ICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_API /**/
-#    elif defined(ICE_API_EXPORTS)
-#        define ICE_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
+#include <string>
+#include <utility>
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace Ice
 {
     /**
+     * Abstract base class for all Ice run-time exceptions.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API LocalException : public Exception
+    {
+    public:
+        using Exception::Exception;
+
+        /**
+         * Obtains the Slice type ID of this exception.
+         * @return The fully-scoped type ID.
+         */
+        static std::string_view ice_staticId() noexcept;
+    };
+
+    /**
      * This exception is raised when a failure occurs during initialization.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) InitializationException
-        : public LocalExceptionHelper<InitializationException, LocalException>
+    class ICE_API InitializationException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~InitializationException();
-
-        InitializationException(const InitializationException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        InitializationException(const char* file, int line)
-            : LocalExceptionHelper<InitializationException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -60,9 +55,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        InitializationException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<InitializationException, LocalException>(file, line),
-              reason(reason)
+        InitializationException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -70,46 +65,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
+        std::string reason;
     };
 
     /**
      * This exception indicates that a failure occurred while initializing a plug-in.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) PluginInitializationException
-        : public LocalExceptionHelper<PluginInitializationException, LocalException>
+    class ICE_API PluginInitializationException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~PluginInitializationException();
-
-        PluginInitializationException(const PluginInitializationException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        PluginInitializationException(const char* file, int line)
-            : LocalExceptionHelper<PluginInitializationException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -118,9 +101,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        PluginInitializationException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<PluginInitializationException, LocalException>(file, line),
-              reason(reason)
+        PluginInitializationException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -128,65 +111,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
-    };
-
-    /**
-     * This exception is raised if a feature is requested that is not supported with collocation optimization.
-     *
-     * @deprecated This exception is no longer used by the Ice run time
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_CLASS(ICE_API) CollocationOptimizationException
-        : public LocalExceptionHelper<CollocationOptimizationException, LocalException>
-    {
-    public:
-        ICE_MEMBER(ICE_API) virtual ~CollocationOptimizationException();
-
-        CollocationOptimizationException(const CollocationOptimizationException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CollocationOptimizationException(const char* file, int line)
-            : LocalExceptionHelper<CollocationOptimizationException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        std::string reason;
     };
 
     /**
@@ -195,23 +137,10 @@ namespace Ice
      * user exception factory more than once for the same ID.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) AlreadyRegisteredException
-        : public LocalExceptionHelper<AlreadyRegisteredException, LocalException>
+    class ICE_API AlreadyRegisteredException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~AlreadyRegisteredException();
-
-        AlreadyRegisteredException(const AlreadyRegisteredException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        AlreadyRegisteredException(const char* file, int line)
-            : LocalExceptionHelper<AlreadyRegisteredException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -223,14 +152,10 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that is registered already.
          */
-        AlreadyRegisteredException(
-            const char* file,
-            int line,
-            const ::std::string& kindOfObject,
-            const ::std::string& id)
-            : LocalExceptionHelper<AlreadyRegisteredException, LocalException>(file, line),
-              kindOfObject(kindOfObject),
-              id(id)
+        AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
+            : LocalException(file, line),
+              kindOfObject(std::move(kindOfObject)),
+              id(std::move(id))
         {
         }
 
@@ -238,29 +163,33 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::std::string&> ice_tuple() const { return std::tie(kindOfObject, id); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
+        {
+            return std::tie(kindOfObject, id);
+        }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
          * group".
          */
-        ::std::string kindOfObject;
+        std::string kindOfObject;
         /**
          * The ID (or name) of the object that is registered already.
          */
-        ::std::string id;
+        std::string id;
     };
 
     /**
@@ -270,23 +199,10 @@ namespace Ice
      * the Ice locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter
      * is activated. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) NotRegisteredException
-        : public LocalExceptionHelper<NotRegisteredException, LocalException>
+    class ICE_API NotRegisteredException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~NotRegisteredException();
-
-        NotRegisteredException(const NotRegisteredException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        NotRegisteredException(const char* file, int line)
-            : LocalExceptionHelper<NotRegisteredException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -298,10 +214,10 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that could not be removed.
          */
-        NotRegisteredException(const char* file, int line, const ::std::string& kindOfObject, const ::std::string& id)
-            : LocalExceptionHelper<NotRegisteredException, LocalException>(file, line),
-              kindOfObject(kindOfObject),
-              id(id)
+        NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
+            : LocalException(file, line),
+              kindOfObject(std::move(kindOfObject)),
+              id(std::move(id))
         {
         }
 
@@ -309,29 +225,33 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::std::string&> ice_tuple() const { return std::tie(kindOfObject, id); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
+        {
+            return std::tie(kindOfObject, id);
+        }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
          * group".
          */
-        ::std::string kindOfObject;
+        std::string kindOfObject;
         /**
          * The ID (or name) of the object that could not be removed.
          */
-        ::std::string id;
+        std::string id;
     };
 
     /**
@@ -340,22 +260,10 @@ namespace Ice
      * <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception
      * specification. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) TwowayOnlyException : public LocalExceptionHelper<TwowayOnlyException, LocalException>
+    class ICE_API TwowayOnlyException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~TwowayOnlyException();
-
-        TwowayOnlyException(const TwowayOnlyException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        TwowayOnlyException(const char* file, int line)
-            : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -364,8 +272,8 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param operation The name of the operation that was invoked.
          */
-        TwowayOnlyException(const char* file, int line, ::std::string operation)
-            : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
+        TwowayOnlyException(const char* file, int line, std::string operation) noexcept
+            : LocalException(file, line),
               operation(std::move(operation))
         {
         }
@@ -374,23 +282,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(operation); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(operation); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The name of the operation that was invoked.
          */
-        ::std::string operation;
+        std::string operation;
     };
 
     /**
@@ -400,40 +309,22 @@ namespace Ice
      * operation (C++ only).
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CloneNotImplementedException
-        : public LocalExceptionHelper<CloneNotImplementedException, LocalException>
+    class ICE_API CloneNotImplementedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CloneNotImplementedException();
-
-        CloneNotImplementedException(const CloneNotImplementedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CloneNotImplementedException(const char* file, int line)
-            : LocalExceptionHelper<CloneNotImplementedException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -442,22 +333,10 @@ namespace Ice
      * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownException : public LocalExceptionHelper<UnknownException, LocalException>
+    class ICE_API UnknownException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownException();
-
-        UnknownException(const UnknownException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownException(const char* file, int line)
-            : LocalExceptionHelper<UnknownException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -466,9 +345,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param unknown This field is set to the textual representation of the unknown exception if available.
          */
-        UnknownException(const char* file, int line, const ::std::string& unknown)
-            : LocalExceptionHelper<UnknownException, LocalException>(file, line),
-              unknown(unknown)
+        UnknownException(const char* file, int line, std::string unknown) noexcept
+            : LocalException(file, line),
+              unknown(std::move(unknown))
         {
         }
 
@@ -476,23 +355,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(unknown); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unknown); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * This field is set to the textual representation of the unknown exception if available.
          */
-        ::std::string unknown;
+        std::string unknown;
     };
 
     /**
@@ -503,52 +383,22 @@ namespace Ice
      * <code>local</code>.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownLocalException
-        : public LocalExceptionHelper<UnknownLocalException, UnknownException>
+    class ICE_API UnknownLocalException : public UnknownException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownLocalException();
-
-        UnknownLocalException(const UnknownLocalException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownLocalException(const char* file, int line)
-            : LocalExceptionHelper<UnknownLocalException, UnknownException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownLocalException(const char* file, int line, const ::std::string& unknown)
-            : LocalExceptionHelper<UnknownLocalException, UnknownException>(file, line, unknown)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(unknown); }
+        using UnknownException::UnknownException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -559,91 +409,44 @@ namespace Ice
      * signature: Only local exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownUserException : public LocalExceptionHelper<UnknownUserException, UnknownException>
+    class ICE_API UnknownUserException : public UnknownException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownUserException();
-
-        UnknownUserException(const UnknownUserException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownUserException(const char* file, int line)
-            : LocalExceptionHelper<UnknownUserException, UnknownException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownUserException(const char* file, int line, const ::std::string& unknown)
-            : LocalExceptionHelper<UnknownUserException, UnknownException>(file, line, unknown)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(unknown); }
+        using UnknownException::UnknownException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if the Ice library version does not match the version in the Ice header files.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) VersionMismatchException
-        : public LocalExceptionHelper<VersionMismatchException, LocalException>
+    class ICE_API VersionMismatchException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~VersionMismatchException();
-
-        VersionMismatchException(const VersionMismatchException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        VersionMismatchException(const char* file, int line)
-            : LocalExceptionHelper<VersionMismatchException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -651,40 +454,22 @@ namespace Ice
      * @see Communicator#destroy
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CommunicatorDestroyedException
-        : public LocalExceptionHelper<CommunicatorDestroyedException, LocalException>
+    class ICE_API CommunicatorDestroyedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CommunicatorDestroyedException();
-
-        CommunicatorDestroyedException(const CommunicatorDestroyedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CommunicatorDestroyedException(const char* file, int line)
-            : LocalExceptionHelper<CommunicatorDestroyedException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -693,23 +478,10 @@ namespace Ice
      * @see Communicator#shutdown
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ObjectAdapterDeactivatedException
-        : public LocalExceptionHelper<ObjectAdapterDeactivatedException, LocalException>
+    class ICE_API ObjectAdapterDeactivatedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ObjectAdapterDeactivatedException();
-
-        ObjectAdapterDeactivatedException(const ObjectAdapterDeactivatedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ObjectAdapterDeactivatedException(const char* file, int line)
-            : LocalExceptionHelper<ObjectAdapterDeactivatedException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -718,9 +490,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param name Name of the adapter.
          */
-        ObjectAdapterDeactivatedException(const char* file, int line, const ::std::string& name)
-            : LocalExceptionHelper<ObjectAdapterDeactivatedException, LocalException>(file, line),
-              name(name)
+        ObjectAdapterDeactivatedException(const char* file, int line, std::string name) noexcept
+            : LocalException(file, line),
+              name(std::move(name))
         {
         }
 
@@ -728,23 +500,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(name); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(name); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Name of the adapter.
          */
-        ::std::string name;
+        std::string name;
     };
 
     /**
@@ -752,23 +525,10 @@ namespace Ice
      * detects another active {@link ObjectAdapter} with the same adapter id.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ObjectAdapterIdInUseException
-        : public LocalExceptionHelper<ObjectAdapterIdInUseException, LocalException>
+    class ICE_API ObjectAdapterIdInUseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ObjectAdapterIdInUseException();
-
-        ObjectAdapterIdInUseException(const ObjectAdapterIdInUseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ObjectAdapterIdInUseException(const char* file, int line)
-            : LocalExceptionHelper<ObjectAdapterIdInUseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -777,9 +537,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param id Adapter ID.
          */
-        ObjectAdapterIdInUseException(const char* file, int line, const ::std::string& id)
-            : LocalExceptionHelper<ObjectAdapterIdInUseException, LocalException>(file, line),
-              id(id)
+        ObjectAdapterIdInUseException(const char* file, int line, std::string id) noexcept
+            : LocalException(file, line),
+              id(std::move(id))
         {
         }
 
@@ -787,45 +547,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(id); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(id); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Adapter ID.
          */
-        ::std::string id;
+        std::string id;
     };
 
     /**
      * This exception is raised if no suitable endpoint is available.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) NoEndpointException : public LocalExceptionHelper<NoEndpointException, LocalException>
+    class ICE_API NoEndpointException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~NoEndpointException();
-
-        NoEndpointException(const NoEndpointException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        NoEndpointException(const char* file, int line)
-            : LocalExceptionHelper<NoEndpointException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -834,9 +583,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param proxy The stringified proxy for which no suitable endpoint is available.
          */
-        NoEndpointException(const char* file, int line, const ::std::string& proxy)
-            : LocalExceptionHelper<NoEndpointException, LocalException>(file, line),
-              proxy(proxy)
+        NoEndpointException(const char* file, int line, std::string proxy) noexcept
+            : LocalException(file, line),
+              proxy(std::move(proxy))
         {
         }
 
@@ -844,46 +593,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(proxy); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(proxy); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The stringified proxy for which no suitable endpoint is available.
          */
-        ::std::string proxy;
+        std::string proxy;
     };
 
     /**
      * This exception is raised if there was an error while parsing an endpoint.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) EndpointParseException
-        : public LocalExceptionHelper<EndpointParseException, LocalException>
+    class ICE_API EndpointParseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~EndpointParseException();
-
-        EndpointParseException(const EndpointParseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        EndpointParseException(const char* file, int line)
-            : LocalExceptionHelper<EndpointParseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -892,9 +629,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        EndpointParseException(const char* file, int line, const ::std::string& str)
-            : LocalExceptionHelper<EndpointParseException, LocalException>(file, line),
-              str(str)
+        EndpointParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -902,46 +639,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
-        ::std::string str;
+        std::string str;
     };
 
     /**
      * This exception is raised if there was an error while parsing an endpoint selection type.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) EndpointSelectionTypeParseException
-        : public LocalExceptionHelper<EndpointSelectionTypeParseException, LocalException>
+    class ICE_API EndpointSelectionTypeParseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~EndpointSelectionTypeParseException();
-
-        EndpointSelectionTypeParseException(const EndpointSelectionTypeParseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        EndpointSelectionTypeParseException(const char* file, int line)
-            : LocalExceptionHelper<EndpointSelectionTypeParseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -950,9 +675,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        EndpointSelectionTypeParseException(const char* file, int line, const ::std::string& str)
-            : LocalExceptionHelper<EndpointSelectionTypeParseException, LocalException>(file, line),
-              str(str)
+        EndpointSelectionTypeParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -960,45 +685,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
-        ::std::string str;
+        std::string str;
     };
 
     /**
      * This exception is raised if there was an error while parsing a version.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) VersionParseException : public LocalExceptionHelper<VersionParseException, LocalException>
+    class ICE_API VersionParseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~VersionParseException();
-
-        VersionParseException(const VersionParseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        VersionParseException(const char* file, int line)
-            : LocalExceptionHelper<VersionParseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1007,9 +721,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        VersionParseException(const char* file, int line, const ::std::string& str)
-            : LocalExceptionHelper<VersionParseException, LocalException>(file, line),
-              str(str)
+        VersionParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -1017,46 +731,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
-        ::std::string str;
+        std::string str;
     };
 
     /**
      * This exception is raised if there was an error while parsing a stringified identity.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IdentityParseException
-        : public LocalExceptionHelper<IdentityParseException, LocalException>
+    class ICE_API IdentityParseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IdentityParseException();
-
-        IdentityParseException(const IdentityParseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        IdentityParseException(const char* file, int line)
-            : LocalExceptionHelper<IdentityParseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1065,9 +767,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        IdentityParseException(const char* file, int line, const ::std::string& str)
-            : LocalExceptionHelper<IdentityParseException, LocalException>(file, line),
-              str(str)
+        IdentityParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -1075,45 +777,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
-        ::std::string str;
+        std::string str;
     };
 
     /**
      * This exception is raised if there was an error while parsing a stringified proxy.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ProxyParseException : public LocalExceptionHelper<ProxyParseException, LocalException>
+    class ICE_API ProxyParseException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ProxyParseException();
-
-        ProxyParseException(const ProxyParseException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ProxyParseException(const char* file, int line)
-            : LocalExceptionHelper<ProxyParseException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1122,9 +813,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param str Describes the failure and includes the string that could not be parsed.
          */
-        ProxyParseException(const char* file, int line, const ::std::string& str)
-            : LocalExceptionHelper<ProxyParseException, LocalException>(file, line),
-              str(str)
+        ProxyParseException(const char* file, int line, std::string str) noexcept
+            : LocalException(file, line),
+              str(std::move(str))
         {
         }
 
@@ -1132,86 +823,56 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(str); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes the failure and includes the string that could not be parsed.
          */
-        ::std::string str;
+        std::string str;
     };
 
     /**
      * This exception is raised if an illegal identity is encountered.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IllegalIdentityException
-        : public LocalExceptionHelper<IllegalIdentityException, LocalException>
+    class ICE_API IllegalIdentityException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IllegalIdentityException();
-
-        IllegalIdentityException(const IllegalIdentityException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        IllegalIdentityException(const char* file, int line)
-            : LocalExceptionHelper<IllegalIdentityException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised to reject an illegal servant (typically a null servant).
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IllegalServantException
-        : public LocalExceptionHelper<IllegalServantException, LocalException>
+    class ICE_API IllegalServantException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IllegalServantException();
-
-        IllegalServantException(const IllegalServantException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        IllegalServantException(const char* file, int line)
-            : LocalExceptionHelper<IllegalServantException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1220,9 +881,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason Describes why this servant is illegal.
          */
-        IllegalServantException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<IllegalServantException, LocalException>(file, line),
-              reason(reason)
+        IllegalServantException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -1230,23 +891,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * Describes why this servant is illegal.
          */
-        ::std::string reason;
+        std::string reason;
     };
 
     /**
@@ -1255,23 +917,10 @@ namespace Ice
      * <code>local</code>.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) RequestFailedException
-        : public LocalExceptionHelper<RequestFailedException, LocalException>
+    class ICE_API RequestFailedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~RequestFailedException();
-
-        RequestFailedException(const RequestFailedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        RequestFailedException(const char* file, int line)
-            : LocalExceptionHelper<RequestFailedException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1285,13 +934,13 @@ namespace Ice
         RequestFailedException(
             const char* file,
             int line,
-            const Identity& id,
-            const ::std::string& facet,
-            const ::std::string& operation)
-            : LocalExceptionHelper<RequestFailedException, LocalException>(file, line),
-              id(id),
-              facet(facet),
-              operation(operation)
+            Identity id,
+            std::string facet,
+            std::string operation) noexcept
+            : LocalException(file, line),
+              id(std::move(id)),
+              facet(std::move(facet)),
+              operation(std::move(operation))
         {
         }
 
@@ -1299,7 +948,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::Ice::Identity&, const ::std::string&, const ::std::string&> ice_tuple() const
+        std::tuple<const Identity&, const std::string&, const std::string&> ice_tuple() const noexcept
         {
             return std::tie(id, facet, operation);
         }
@@ -1308,25 +957,26 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The identity of the Ice Object to which the request was sent.
          */
-        ::Ice::Identity id;
+        Identity id;
         /**
          * The facet to which the request was sent.
          */
-        ::std::string facet;
+        std::string facet;
         /**
          * The operation name of the request.
          */
-        ::std::string operation;
+        std::string operation;
     };
 
     /**
@@ -1334,62 +984,22 @@ namespace Ice
      * exist.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ObjectNotExistException
-        : public LocalExceptionHelper<ObjectNotExistException, RequestFailedException>
+    class ICE_API ObjectNotExistException : public RequestFailedException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ObjectNotExistException();
-
-        ObjectNotExistException(const ObjectNotExistException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ObjectNotExistException(const char* file, int line)
-            : LocalExceptionHelper<ObjectNotExistException, RequestFailedException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        ObjectNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const ::std::string& facet,
-            const ::std::string& operation)
-            : LocalExceptionHelper<ObjectNotExistException, RequestFailedException>(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const ::std::string&, const ::std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
+        using RequestFailedException::RequestFailedException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -1397,124 +1007,44 @@ namespace Ice
      * exists.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) FacetNotExistException
-        : public LocalExceptionHelper<FacetNotExistException, RequestFailedException>
+    class ICE_API FacetNotExistException : public RequestFailedException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~FacetNotExistException();
-
-        FacetNotExistException(const FacetNotExistException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        FacetNotExistException(const char* file, int line)
-            : LocalExceptionHelper<FacetNotExistException, RequestFailedException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        FacetNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const ::std::string& facet,
-            const ::std::string& operation)
-            : LocalExceptionHelper<FacetNotExistException, RequestFailedException>(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const ::std::string&, const ::std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
+        using RequestFailedException::RequestFailedException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if an operation for a given object does not exist on the server. Typically this is
      * caused by either the client or the server using an outdated Slice specification. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) OperationNotExistException
-        : public LocalExceptionHelper<OperationNotExistException, RequestFailedException>
+    class ICE_API OperationNotExistException : public RequestFailedException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~OperationNotExistException();
-
-        OperationNotExistException(const OperationNotExistException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        OperationNotExistException(const char* file, int line)
-            : LocalExceptionHelper<OperationNotExistException, RequestFailedException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        OperationNotExistException(
-            const char* file,
-            int line,
-            const Identity& id,
-            const ::std::string& facet,
-            const ::std::string& operation)
-            : LocalExceptionHelper<OperationNotExistException, RequestFailedException>(file, line, id, facet, operation)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::Ice::Identity&, const ::std::string&, const ::std::string&> ice_tuple() const
-        {
-            return std::tie(id, facet, operation);
-        }
+        using RequestFailedException::RequestFailedException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -1522,20 +1052,19 @@ namespace Ice
      * causes for such a system exception. For details on the cause, {@link SyscallException#error} should be inspected.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) SyscallException : public LocalExceptionHelper<SyscallException, LocalException>
+    class ICE_API SyscallException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~SyscallException();
-
-        SyscallException(const SyscallException&) = default;
+        using LocalException::LocalException;
 
         /**
+         * Construct a SyscallException.
          * The file and line number are required for all local exceptions.
          * The error code is filled automatically with the value of the current error code.
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
-        ICE_MEMBER(ICE_API) SyscallException(const char* file, int line);
+        SyscallException(const char* file, int line) noexcept;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1544,28 +1073,25 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param error The error number describing the system exception.
          */
-        SyscallException(const char* file, int line, int error)
-            : LocalExceptionHelper<SyscallException, LocalException>(file, line),
-              error(error)
-        {
-        }
+        SyscallException(const char* file, int line, int error) noexcept : LocalException(file, line), error(error) {}
 
         /**
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        std::tuple<const int&> ice_tuple() const noexcept { return std::tie(error); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The error number describing the system exception. For C++ and Unix, this is equivalent to <code>errno</code>.
@@ -1579,73 +1105,32 @@ namespace Ice
      * This exception indicates socket errors.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) SocketException : public LocalExceptionHelper<SocketException, SyscallException>
+    class ICE_API SocketException : public SyscallException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~SocketException();
-
-        SocketException(const SocketException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        SocketException(const char* file, int line)
-            : LocalExceptionHelper<SocketException, SyscallException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        SocketException(const char* file, int line, int error)
-            : LocalExceptionHelper<SocketException, SyscallException>(file, line, error)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        using SyscallException::SyscallException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates CFNetwork errors.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CFNetworkException : public LocalExceptionHelper<CFNetworkException, SocketException>
+    class ICE_API CFNetworkException : public SocketException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CFNetworkException();
-
-        CFNetworkException(const CFNetworkException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CFNetworkException(const char* file, int line)
-            : LocalExceptionHelper<CFNetworkException, SocketException>(file, line)
-        {
-        }
+        using SocketException::SocketException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1655,9 +1140,9 @@ namespace Ice
          * @param error The error number describing the system exception.
          * @param domain The domain of the error.
          */
-        CFNetworkException(const char* file, int line, int error, const ::std::string& domain)
-            : LocalExceptionHelper<CFNetworkException, SocketException>(file, line, error),
-              domain(domain)
+        CFNetworkException(const char* file, int line, int error, std::string domain) noexcept
+            : SocketException(file, line, error),
+              domain(std::move(domain))
         {
         }
 
@@ -1665,35 +1150,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const ::std::string&> ice_tuple() const { return std::tie(error, domain); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, domain); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The domain of the error.
          */
-        ::std::string domain;
+        std::string domain;
     };
 
     /**
      * This exception indicates file errors.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) FileException : public LocalExceptionHelper<FileException, SyscallException>
+    class ICE_API FileException : public SyscallException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~FileException();
-
-        FileException(const FileException&) = default;
+        using SyscallException::SyscallException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1702,9 +1186,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param path The path of the file responsible for the error.
          */
-        FileException(const char* file, int line, const ::std::string& path)
-            : LocalExceptionHelper<FileException, SyscallException>(file, line),
-              path(path)
+        FileException(const char* file, int line, std::string path) noexcept
+            : SyscallException(file, line),
+              path(std::move(path))
         {
         }
 
@@ -1712,198 +1196,100 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const ::std::string&> ice_tuple() const { return std::tie(error, path); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, path); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The path of the file responsible for the error.
          */
-        ::std::string path;
+        std::string path;
     };
 
     /**
      * This exception indicates connection failures.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectFailedException
-        : public LocalExceptionHelper<ConnectFailedException, SocketException>
+    class ICE_API ConnectFailedException : public SocketException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectFailedException();
-
-        ConnectFailedException(const ConnectFailedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectFailedException(const char* file, int line)
-            : LocalExceptionHelper<ConnectFailedException, SocketException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectFailedException(const char* file, int line, int error)
-            : LocalExceptionHelper<ConnectFailedException, SocketException>(file, line, error)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        using SocketException::SocketException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a connection failure for which the server host actively refuses a connection.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionRefusedException
-        : public LocalExceptionHelper<ConnectionRefusedException, ConnectFailedException>
+    class ICE_API ConnectionRefusedException : public ConnectFailedException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionRefusedException();
-
-        ConnectionRefusedException(const ConnectionRefusedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectionRefusedException(const char* file, int line)
-            : LocalExceptionHelper<ConnectionRefusedException, ConnectFailedException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectionRefusedException(const char* file, int line, int error)
-            : LocalExceptionHelper<ConnectionRefusedException, ConnectFailedException>(file, line, error)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        using ConnectFailedException::ConnectFailedException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a lost connection.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionLostException
-        : public LocalExceptionHelper<ConnectionLostException, SocketException>
+    class ICE_API ConnectionLostException : public SocketException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionLostException();
-
-        ConnectionLostException(const ConnectionLostException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectionLostException(const char* file, int line)
-            : LocalExceptionHelper<ConnectionLostException, SocketException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param error The error number describing the system exception.
-         */
-        ConnectionLostException(const char* file, int line, int error)
-            : LocalExceptionHelper<ConnectionLostException, SocketException>(file, line, error)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const { return std::tie(error); }
+        using SocketException::SocketException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) DNSException : public LocalExceptionHelper<DNSException, LocalException>
+    class ICE_API DNSException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~DNSException();
-
-        DNSException(const DNSException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        DNSException(const char* file, int line) : LocalExceptionHelper<DNSException, LocalException>(file, line) {}
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -1913,10 +1299,10 @@ namespace Ice
          * @param error The error number describing the DNS problem.
          * @param host The host name that could not be resolved.
          */
-        DNSException(const char* file, int line, int error, const ::std::string& host)
-            : LocalExceptionHelper<DNSException, LocalException>(file, line),
+        DNSException(const char* file, int line, int error, std::string host) noexcept
+            : LocalException(file, line),
               error(error),
-              host(host)
+              host(std::move(host))
         {
         }
 
@@ -1924,18 +1310,19 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const ::std::string&> ice_tuple() const { return std::tie(error, host); }
+        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, host); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The error number describing the DNS problem. For C++ and Unix, this is equivalent to <code>h_errno</code>.
@@ -1945,308 +1332,171 @@ namespace Ice
         /**
          * The host name that could not be resolved.
          */
-        ::std::string host;
+        std::string host;
     };
 
     /**
      * This exception indicates a request was interrupted.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) OperationInterruptedException
-        : public LocalExceptionHelper<OperationInterruptedException, LocalException>
+    class ICE_API OperationInterruptedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~OperationInterruptedException();
-
-        OperationInterruptedException(const OperationInterruptedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        OperationInterruptedException(const char* file, int line)
-            : LocalExceptionHelper<OperationInterruptedException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a timeout condition.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) TimeoutException : public LocalExceptionHelper<TimeoutException, LocalException>
+    class ICE_API TimeoutException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~TimeoutException();
-
-        TimeoutException(const TimeoutException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        TimeoutException(const char* file, int line)
-            : LocalExceptionHelper<TimeoutException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a connection establishment timeout condition.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectTimeoutException
-        : public LocalExceptionHelper<ConnectTimeoutException, TimeoutException>
+    class ICE_API ConnectTimeoutException : public TimeoutException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectTimeoutException();
-
-        ConnectTimeoutException(const ConnectTimeoutException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectTimeoutException(const char* file, int line)
-            : LocalExceptionHelper<ConnectTimeoutException, TimeoutException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using TimeoutException::TimeoutException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a connection closure timeout condition.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CloseTimeoutException
-        : public LocalExceptionHelper<CloseTimeoutException, TimeoutException>
+    class ICE_API CloseTimeoutException : public TimeoutException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CloseTimeoutException();
-
-        CloseTimeoutException(const CloseTimeoutException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CloseTimeoutException(const char* file, int line)
-            : LocalExceptionHelper<CloseTimeoutException, TimeoutException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using TimeoutException::TimeoutException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates that a connection has been shut down because it has been idle for some time.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionTimeoutException
-        : public LocalExceptionHelper<ConnectionTimeoutException, TimeoutException>
+    class ICE_API ConnectionTimeoutException : public TimeoutException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionTimeoutException();
-
-        ConnectionTimeoutException(const ConnectionTimeoutException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectionTimeoutException(const char* file, int line)
-            : LocalExceptionHelper<ConnectionTimeoutException, TimeoutException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using TimeoutException::TimeoutException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates that an invocation failed because it timed out.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) InvocationTimeoutException
-        : public LocalExceptionHelper<InvocationTimeoutException, TimeoutException>
+    class ICE_API InvocationTimeoutException : public TimeoutException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~InvocationTimeoutException();
-
-        InvocationTimeoutException(const InvocationTimeoutException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        InvocationTimeoutException(const char* file, int line)
-            : LocalExceptionHelper<InvocationTimeoutException, TimeoutException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using TimeoutException::TimeoutException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) InvocationCanceledException
-        : public LocalExceptionHelper<InvocationCanceledException, LocalException>
+    class ICE_API InvocationCanceledException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~InvocationCanceledException();
-
-        InvocationCanceledException(const InvocationCanceledException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        InvocationCanceledException(const char* file, int line)
-            : LocalExceptionHelper<InvocationCanceledException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * A generic exception base for all kinds of protocol error conditions.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ProtocolException : public LocalExceptionHelper<ProtocolException, LocalException>
+    class ICE_API ProtocolException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ProtocolException();
-
-        ProtocolException(const ProtocolException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ProtocolException(const char* file, int line)
-            : LocalExceptionHelper<ProtocolException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -2255,9 +1505,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        ProtocolException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<ProtocolException, LocalException>(file, line),
-              reason(reason)
+        ProtocolException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -2265,45 +1515,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
+        std::string reason;
     };
 
     /**
      * This exception indicates that a message did not start with the expected magic number ('I', 'c', 'e', 'P').
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) BadMagicException : public LocalExceptionHelper<BadMagicException, ProtocolException>
+    class ICE_API BadMagicException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~BadMagicException();
-
-        BadMagicException(const BadMagicException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        BadMagicException(const char* file, int line)
-            : LocalExceptionHelper<BadMagicException, ProtocolException>(file, line)
-        {
-        }
+        using ProtocolException::ProtocolException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -2313,9 +1552,9 @@ namespace Ice
          * @param reason The reason for the failure.
          * @param badMagic A sequence containing the first four bytes of the incorrect message.
          */
-        BadMagicException(const char* file, int line, const ::std::string& reason, const ByteSeq& badMagic)
-            : LocalExceptionHelper<BadMagicException, ProtocolException>(file, line, reason),
-              badMagic(badMagic)
+        BadMagicException(const char* file, int line, std::string reason, ByteSeq badMagic) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              badMagic(std::move(badMagic))
         {
         }
 
@@ -2323,46 +1562,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::Ice::ByteSeq&> ice_tuple() const { return std::tie(reason, badMagic); }
+        std::tuple<const std::string&, const ByteSeq&> ice_tuple() const noexcept { return std::tie(reason, badMagic); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * A sequence containing the first four bytes of the incorrect message.
          */
-        ::Ice::ByteSeq badMagic;
+        ByteSeq badMagic;
     };
 
     /**
      * This exception indicates an unsupported protocol version.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnsupportedProtocolException
-        : public LocalExceptionHelper<UnsupportedProtocolException, ProtocolException>
+    class ICE_API UnsupportedProtocolException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnsupportedProtocolException();
-
-        UnsupportedProtocolException(const UnsupportedProtocolException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnsupportedProtocolException(const char* file, int line)
-            : LocalExceptionHelper<UnsupportedProtocolException, ProtocolException>(file, line)
-        {
-        }
+        using ProtocolException::ProtocolException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -2376,12 +1603,12 @@ namespace Ice
         UnsupportedProtocolException(
             const char* file,
             int line,
-            const ::std::string& reason,
-            const ProtocolVersion& bad,
-            const ProtocolVersion& supported)
-            : LocalExceptionHelper<UnsupportedProtocolException, ProtocolException>(file, line, reason),
-              bad(bad),
-              supported(supported)
+            std::string reason,
+            ProtocolVersion bad,
+            ProtocolVersion supported) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              bad(std::move(bad)),
+              supported(std::move(supported))
         {
         }
 
@@ -2389,7 +1616,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::Ice::ProtocolVersion&, const ::Ice::ProtocolVersion&> ice_tuple() const
+        std::tuple<const std::string&, const ProtocolVersion&, const ProtocolVersion&> ice_tuple() const noexcept
         {
             return std::tie(reason, bad, supported);
         }
@@ -2398,44 +1625,32 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The version of the unsupported protocol.
          */
-        ::Ice::ProtocolVersion bad;
+        ProtocolVersion bad;
         /**
          * The version of the protocol that is supported.
          */
-        ::Ice::ProtocolVersion supported;
+        ProtocolVersion supported;
     };
 
     /**
      * This exception indicates an unsupported data encoding version.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnsupportedEncodingException
-        : public LocalExceptionHelper<UnsupportedEncodingException, ProtocolException>
+    class ICE_API UnsupportedEncodingException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnsupportedEncodingException();
-
-        UnsupportedEncodingException(const UnsupportedEncodingException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnsupportedEncodingException(const char* file, int line)
-            : LocalExceptionHelper<UnsupportedEncodingException, ProtocolException>(file, line)
-        {
-        }
+        using ProtocolException::ProtocolException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -2449,12 +1664,12 @@ namespace Ice
         UnsupportedEncodingException(
             const char* file,
             int line,
-            const ::std::string& reason,
-            const EncodingVersion& bad,
-            const EncodingVersion& supported)
-            : LocalExceptionHelper<UnsupportedEncodingException, ProtocolException>(file, line, reason),
-              bad(bad),
-              supported(supported)
+            std::string reason,
+            EncodingVersion bad,
+            EncodingVersion supported) noexcept
+            : ProtocolException(file, line, std::move(reason)),
+              bad(std::move(bad)),
+              supported(std::move(supported))
         {
         }
 
@@ -2462,7 +1677,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::Ice::EncodingVersion&, const ::Ice::EncodingVersion&> ice_tuple() const
+        std::tuple<const std::string&, const EncodingVersion&, const EncodingVersion&> ice_tuple() const noexcept
         {
             return std::tie(reason, bad, supported);
         }
@@ -2471,229 +1686,110 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The version of the unsupported encoding.
          */
-        ::Ice::EncodingVersion bad;
+        EncodingVersion bad;
         /**
          * The version of the encoding that is supported.
          */
-        ::Ice::EncodingVersion supported;
+        EncodingVersion supported;
     };
 
     /**
      * This exception indicates that an unknown protocol message has been received.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownMessageException
-        : public LocalExceptionHelper<UnknownMessageException, ProtocolException>
+    class ICE_API UnknownMessageException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownMessageException();
-
-        UnknownMessageException(const UnknownMessageException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownMessageException(const char* file, int line)
-            : LocalExceptionHelper<UnknownMessageException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownMessageException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<UnknownMessageException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if a message is received over a connection that is not yet validated.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionNotValidatedException
-        : public LocalExceptionHelper<ConnectionNotValidatedException, ProtocolException>
+    class ICE_API ConnectionNotValidatedException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionNotValidatedException();
-
-        ConnectionNotValidatedException(const ConnectionNotValidatedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectionNotValidatedException(const char* file, int line)
-            : LocalExceptionHelper<ConnectionNotValidatedException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        ConnectionNotValidatedException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<ConnectionNotValidatedException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates that a response for an unknown request ID has been received.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownRequestIdException
-        : public LocalExceptionHelper<UnknownRequestIdException, ProtocolException>
+    class ICE_API UnknownRequestIdException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownRequestIdException();
-
-        UnknownRequestIdException(const UnknownRequestIdException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownRequestIdException(const char* file, int line)
-            : LocalExceptionHelper<UnknownRequestIdException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownRequestIdException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<UnknownRequestIdException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates that an unknown reply status has been received.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnknownReplyStatusException
-        : public LocalExceptionHelper<UnknownReplyStatusException, ProtocolException>
+    class ICE_API UnknownReplyStatusException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnknownReplyStatusException();
-
-        UnknownReplyStatusException(const UnknownReplyStatusException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnknownReplyStatusException(const char* file, int line)
-            : LocalExceptionHelper<UnknownReplyStatusException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnknownReplyStatusException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<UnknownReplyStatusException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -2703,52 +1799,22 @@ namespace Ice
      * upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception
      * is propagated to the application code. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CloseConnectionException
-        : public LocalExceptionHelper<CloseConnectionException, ProtocolException>
+    class ICE_API CloseConnectionException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CloseConnectionException();
-
-        CloseConnectionException(const CloseConnectionException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CloseConnectionException(const char* file, int line)
-            : LocalExceptionHelper<CloseConnectionException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        CloseConnectionException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<CloseConnectionException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -2757,23 +1823,10 @@ namespace Ice
      * @see Connection#close
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionManuallyClosedException
-        : public LocalExceptionHelper<ConnectionManuallyClosedException, LocalException>
+    class ICE_API ConnectionManuallyClosedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionManuallyClosedException();
-
-        ConnectionManuallyClosedException(const ConnectionManuallyClosedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ConnectionManuallyClosedException(const char* file, int line)
-            : LocalExceptionHelper<ConnectionManuallyClosedException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -2782,8 +1835,8 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param graceful True if the connection was closed gracefully, false otherwise.
          */
-        ConnectionManuallyClosedException(const char* file, int line, bool graceful)
-            : LocalExceptionHelper<ConnectionManuallyClosedException, LocalException>(file, line),
+        ConnectionManuallyClosedException(const char* file, int line, bool graceful) noexcept
+            : LocalException(file, line),
               graceful(graceful)
         {
         }
@@ -2792,18 +1845,19 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const bool&> ice_tuple() const { return std::tie(graceful); }
+        std::tuple<const bool&> ice_tuple() const noexcept { return std::tie(graceful); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * True if the connection was closed gracefully, false otherwise.
@@ -2815,103 +1869,44 @@ namespace Ice
      * This exception indicates that a message size is less than the minimum required size.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IllegalMessageSizeException
-        : public LocalExceptionHelper<IllegalMessageSizeException, ProtocolException>
+    class ICE_API IllegalMessageSizeException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IllegalMessageSizeException();
-
-        IllegalMessageSizeException(const IllegalMessageSizeException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        IllegalMessageSizeException(const char* file, int line)
-            : LocalExceptionHelper<IllegalMessageSizeException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        IllegalMessageSizeException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<IllegalMessageSizeException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a problem with compressing or uncompressing data.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CompressionException : public LocalExceptionHelper<CompressionException, ProtocolException>
+    class ICE_API CompressionException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CompressionException();
-
-        CompressionException(const CompressionException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        CompressionException(const char* file, int line)
-            : LocalExceptionHelper<CompressionException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        CompressionException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<CompressionException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -2919,207 +1914,88 @@ namespace Ice
      * receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) DatagramLimitException
-        : public LocalExceptionHelper<DatagramLimitException, ProtocolException>
+    class ICE_API DatagramLimitException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~DatagramLimitException();
-
-        DatagramLimitException(const DatagramLimitException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        DatagramLimitException(const char* file, int line)
-            : LocalExceptionHelper<DatagramLimitException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        DatagramLimitException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<DatagramLimitException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised for errors during marshaling or unmarshaling data.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) MarshalException : public LocalExceptionHelper<MarshalException, ProtocolException>
+    class ICE_API MarshalException : public ProtocolException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~MarshalException();
-
-        MarshalException(const MarshalException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        MarshalException(const char* file, int line)
-            : LocalExceptionHelper<MarshalException, ProtocolException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        MarshalException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<MarshalException, ProtocolException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using ProtocolException::ProtocolException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if inconsistent data is received while unmarshaling a proxy.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ProxyUnmarshalException
-        : public LocalExceptionHelper<ProxyUnmarshalException, MarshalException>
+    class ICE_API ProxyUnmarshalException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ProxyUnmarshalException();
-
-        ProxyUnmarshalException(const ProxyUnmarshalException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        ProxyUnmarshalException(const char* file, int line)
-            : LocalExceptionHelper<ProxyUnmarshalException, MarshalException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        ProxyUnmarshalException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<ProxyUnmarshalException, MarshalException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using MarshalException::MarshalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if an out-of-bounds condition occurs during unmarshaling.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnmarshalOutOfBoundsException
-        : public LocalExceptionHelper<UnmarshalOutOfBoundsException, MarshalException>
+    class ICE_API UnmarshalOutOfBoundsException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnmarshalOutOfBoundsException();
-
-        UnmarshalOutOfBoundsException(const UnmarshalOutOfBoundsException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnmarshalOutOfBoundsException(const char* file, int line)
-            : LocalExceptionHelper<UnmarshalOutOfBoundsException, MarshalException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        UnmarshalOutOfBoundsException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<UnmarshalOutOfBoundsException, MarshalException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using MarshalException::MarshalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
@@ -3130,23 +2006,10 @@ namespace Ice
      * @see ValueFactoryManager#find
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) NoValueFactoryException
-        : public LocalExceptionHelper<NoValueFactoryException, MarshalException>
+    class ICE_API NoValueFactoryException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~NoValueFactoryException();
-
-        NoValueFactoryException(const NoValueFactoryException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        NoValueFactoryException(const char* file, int line)
-            : LocalExceptionHelper<NoValueFactoryException, MarshalException>(file, line)
-        {
-        }
+        using MarshalException::MarshalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -3156,9 +2019,9 @@ namespace Ice
          * @param reason The reason for the failure.
          * @param type The Slice type ID of the class instance for which no factory could be found.
          */
-        NoValueFactoryException(const char* file, int line, const ::std::string& reason, const ::std::string& type)
-            : LocalExceptionHelper<NoValueFactoryException, MarshalException>(file, line, reason),
-              type(type)
+        NoValueFactoryException(const char* file, int line, std::string reason, std::string type) noexcept
+            : MarshalException(file, line, std::move(reason)),
+              type(std::move(type))
         {
         }
 
@@ -3166,23 +2029,24 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::std::string&> ice_tuple() const { return std::tie(reason, type); }
+        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept { return std::tie(reason, type); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The Slice type ID of the class instance for which no factory could be found.
          */
-        ::std::string type;
+        std::string type;
     };
 
     /**
@@ -3192,23 +2056,10 @@ namespace Ice
      * IceStorm is used to send Slice class instances and an operation is subscribed to the wrong topic. \headerfile
      * Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UnexpectedObjectException
-        : public LocalExceptionHelper<UnexpectedObjectException, MarshalException>
+    class ICE_API UnexpectedObjectException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UnexpectedObjectException();
-
-        UnexpectedObjectException(const UnexpectedObjectException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        UnexpectedObjectException(const char* file, int line)
-            : LocalExceptionHelper<UnexpectedObjectException, MarshalException>(file, line)
-        {
-        }
+        using MarshalException::MarshalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -3222,12 +2073,12 @@ namespace Ice
         UnexpectedObjectException(
             const char* file,
             int line,
-            const ::std::string& reason,
-            const ::std::string& type,
-            const ::std::string& expectedType)
-            : LocalExceptionHelper<UnexpectedObjectException, MarshalException>(file, line, reason),
-              type(type),
-              expectedType(expectedType)
+            std::string reason,
+            std::string type,
+            std::string expectedType) noexcept
+            : MarshalException(file, line, std::move(reason)),
+              type(std::move(type)),
+              expectedType(std::move(expectedType))
         {
         }
 
@@ -3235,7 +2086,7 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&, const ::std::string&, const ::std::string&> ice_tuple() const
+        std::tuple<const std::string&, const std::string&, const std::string&> ice_tuple() const noexcept
         {
             return std::tie(reason, type, expectedType);
         }
@@ -3244,199 +2095,98 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The Slice type ID of the class instance that was unmarshaled.
          */
-        ::std::string type;
+        std::string type;
         /**
          * The Slice type ID that was expected by the receiving operation.
          */
-        ::std::string expectedType;
+        std::string expectedType;
     };
 
     /**
      * This exception is raised when Ice receives a request or reply message whose size exceeds the limit specified by
      * the <code>Ice.MessageSizeMax</code> property. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) MemoryLimitException : public LocalExceptionHelper<MemoryLimitException, MarshalException>
+    class ICE_API MemoryLimitException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~MemoryLimitException();
-
-        MemoryLimitException(const MemoryLimitException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        MemoryLimitException(const char* file, int line)
-            : LocalExceptionHelper<MemoryLimitException, MarshalException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        MemoryLimitException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<MemoryLimitException, MarshalException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using MarshalException::MarshalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) StringConversionException
-        : public LocalExceptionHelper<StringConversionException, MarshalException>
+    class ICE_API StringConversionException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~StringConversionException();
-
-        StringConversionException(const StringConversionException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        StringConversionException(const char* file, int line)
-            : LocalExceptionHelper<StringConversionException, MarshalException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        StringConversionException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<StringConversionException, MarshalException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using MarshalException::MarshalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception indicates a malformed data encapsulation.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) EncapsulationException
-        : public LocalExceptionHelper<EncapsulationException, MarshalException>
+    class ICE_API EncapsulationException : public MarshalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~EncapsulationException();
-
-        EncapsulationException(const EncapsulationException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        EncapsulationException(const char* file, int line)
-            : LocalExceptionHelper<EncapsulationException, MarshalException>(file, line)
-        {
-        }
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param reason The reason for the failure.
-         */
-        EncapsulationException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<EncapsulationException, MarshalException>(file, line, reason)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        using MarshalException::MarshalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 
     /**
      * This exception is raised if an unsupported feature is used. The unsupported feature string contains the name of
      * the unsupported feature. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) FeatureNotSupportedException
-        : public LocalExceptionHelper<FeatureNotSupportedException, LocalException>
+    class ICE_API FeatureNotSupportedException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~FeatureNotSupportedException();
-
-        FeatureNotSupportedException(const FeatureNotSupportedException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        FeatureNotSupportedException(const char* file, int line)
-            : LocalExceptionHelper<FeatureNotSupportedException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -3445,9 +2195,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param unsupportedFeature The name of the unsupported feature.
          */
-        FeatureNotSupportedException(const char* file, int line, const ::std::string& unsupportedFeature)
-            : LocalExceptionHelper<FeatureNotSupportedException, LocalException>(file, line),
-              unsupportedFeature(unsupportedFeature)
+        FeatureNotSupportedException(const char* file, int line, std::string unsupportedFeature) noexcept
+            : LocalException(file, line),
+              unsupportedFeature(std::move(unsupportedFeature))
         {
         }
 
@@ -3455,45 +2205,34 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(unsupportedFeature); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unsupportedFeature); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The name of the unsupported feature.
          */
-        ::std::string unsupportedFeature;
+        std::string unsupportedFeature;
     };
 
     /**
      * This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) SecurityException : public LocalExceptionHelper<SecurityException, LocalException>
+    class ICE_API SecurityException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~SecurityException();
-
-        SecurityException(const SecurityException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        SecurityException(const char* file, int line)
-            : LocalExceptionHelper<SecurityException, LocalException>(file, line)
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -3502,9 +2241,9 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          * @param reason The reason for the failure.
          */
-        SecurityException(const char* file, int line, const ::std::string& reason)
-            : LocalExceptionHelper<SecurityException, LocalException>(file, line),
-              reason(reason)
+        SecurityException(const char* file, int line, std::string reason) noexcept
+            : LocalException(file, line),
+              reason(std::move(reason))
         {
         }
 
@@ -3512,70 +2251,53 @@ namespace Ice
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
 
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
+        std::string reason;
     };
 
     /**
      * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) FixedProxyException : public LocalExceptionHelper<FixedProxyException, LocalException>
+    class ICE_API FixedProxyException : public LocalException
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~FixedProxyException();
-
-        FixedProxyException(const FixedProxyException&) = default;
-
-        /**
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         */
-        FixedProxyException(const char* file, int line)
-            : LocalExceptionHelper<FixedProxyException, LocalException>(file, line)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<> ice_tuple() const { return std::tie(); }
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        ICE_MEMBER(ICE_API) static ::std::string_view ice_staticId() noexcept;
-        /**
-         * Prints this exception to the given stream.
-         * @param stream The target stream.
-         */
-        ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        void ice_throw() const override;
     };
 }
 
-/// \cond STREAM
-namespace Ice
-{
-}
-/// \endcond
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-#include <IceUtil/PopDisableWarnings.h>
 #endif
