@@ -134,8 +134,6 @@ namespace IceUtil
     class ICE_API FileLockException : public Exception
     {
     public:
-        using Exception::Exception;
-
         FileLockException(const char*, int, int, std::string) noexcept;
 
         std::string ice_id() const override;
