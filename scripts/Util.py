@@ -4296,7 +4296,7 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLine(self, current, process, exe, args):
-        # The MATLAB_CMD environment variable can be used to specify the MATLAB command
+        # The MATLAB_COMMAND environment variable can be used to specify the MATLAB command
         # This is currently used for GitHub Actions to specify the path to a custom MATLAB executable
         # which is required to run the tests and does not need any additional arguments.
         matlabCmd = os.getenv("MATLAB_COMMAND")

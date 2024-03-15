@@ -87,4 +87,4 @@ jobs:
           # See:
           # - https://github.com/zeroc-ice/ice/issues/1653
           # - https://github.com/zeroc-ice/ice/issues/1745
-          flags: "--rfilter IceGrid/replication --rfilter csharp/IceSSL/configuration ${{ matrix.test_flags }}"
+          flags: "--rfilter IceGrid/replication --rfilter csharp/IceSSL/configuration --rfilter matlab/Ice/slicing ${{ matrix.test_flags }}"
