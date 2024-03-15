@@ -92,7 +92,6 @@
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
-    <ClCompile Include="..\..\InputUtil.cpp" />
     <ClCompile Include="..\..\Options.cpp" />
     <ClCompile Include="..\..\Random.cpp" />
     <ClCompile Include="..\..\StringUtil.cpp" />
@@ -106,7 +105,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />

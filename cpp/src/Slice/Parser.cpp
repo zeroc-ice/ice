@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
@@ -2687,7 +2686,7 @@ Slice::Container::validateConstant(
         {
             case Builtin::KindByte:
             {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                int64_t l = std::stoll(value, nullptr, 0);
                 if (l < ByteMin || l > ByteMax)
                 {
                     ostringstream os;
@@ -2700,7 +2699,7 @@ Slice::Container::validateConstant(
             }
             case Builtin::KindShort:
             {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                int64_t l = std::stoll(value, nullptr, 0);
                 if (l < Int16Min || l > Int16Max)
                 {
                     ostringstream os;
@@ -2713,7 +2712,7 @@ Slice::Container::validateConstant(
             }
             case Builtin::KindInt:
             {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                int64_t l = std::stoll(value, nullptr, 0);
                 if (l < Int32Min || l > Int32Max)
                 {
                     ostringstream os;

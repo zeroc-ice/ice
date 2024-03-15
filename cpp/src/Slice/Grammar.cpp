@@ -114,7 +114,6 @@
 /* First part of user prologue.  */
 #line 66 "src/Slice/Grammar.y"
 
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/UUID.h>
 #include <cstring>
 
@@ -2043,7 +2042,7 @@ yyreduce:
                 auto b = dynamic_pointer_cast<Builtin>(constant->type());
                 if (b && b->isIntegralType())
                 {
-                    IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+                    int64_t l = std::stoll(constant->value(), nullptr, 0);
                     if (l < 0 || l > Int32Max)
                     {
                         currentUnit->error("tag is out of range");
@@ -2169,7 +2168,7 @@ yyreduce:
                 auto b = dynamic_pointer_cast<Builtin>(constant->type());
                 if (b && b->isIntegralType())
                 {
-                    IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+                    int64_t l = std::stoll(constant->value(), nullptr, 0);
                     if (l < 0 || l > Int32Max)
                     {
                         currentUnit->error("tag is out of range");
@@ -2341,7 +2340,7 @@ yyreduce:
         case 74: /* class_id: ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'  */
 #line 809 "src/Slice/Grammar.y"
         {
-            IceUtil::Int64 id = dynamic_pointer_cast<IntegerTok>(yyvsp[-1])->v;
+            std::int64_t id = dynamic_pointer_cast<IntegerTok>(yyvsp[-1])->v;
             if (id < 0)
             {
                 currentUnit->error("invalid compact id for class: id must be a positive integer");
@@ -2428,7 +2427,7 @@ yyreduce:
                 auto b = dynamic_pointer_cast<Builtin>(constant->type());
                 if (b && b->isIntegralType())
                 {
-                    IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+                    int64_t l = std::stoll(constant->value(), nullptr, 0);
                     if (l < 0 || l > Int32Max)
                     {
                         currentUnit->error("compact id for class is out of range");
@@ -3470,12 +3469,15 @@ yyreduce:
                     auto b = dynamic_pointer_cast<Builtin>(constant->type());
                     if (b && b->isIntegralType())
                     {
-                        IceUtil::Int64 v;
-                        if (IceUtilInternal::stringToInt64(constant->value(), v))
+                        try
                         {
+                            std::int64_t v = std::stoll(constant->value(), nullptr, 0);
                             tok = make_shared<IntegerTok>();
                             tok->v = v;
                             tok->literal = constant->value();
+                        }
+                        catch (const std::exception&)
+                        {
                         }
                     }
                 }

@@ -950,7 +950,6 @@ char* yytext;
 
 #include <Slice/GrammarUtil.h>
 #include <Slice/Grammar.h>
-#include <IceUtil/InputUtil.h>
 
 #include <iomanip>
 
@@ -1480,7 +1479,7 @@ YY_DECL
                     YY_RULE_SETUP
 #line 185 "src/Slice/Scanner.l"
                     {
-                        IceUtil::Int64 value = strtoull((yytext + 1), 0, 8);
+                        std::int64_t value = std::stoll((yytext + 1), 0, 8);
                         if (value > 255)
                         {
                             currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
@@ -1496,7 +1495,7 @@ YY_DECL
                     YY_RULE_SETUP
 #line 198 "src/Slice/Scanner.l"
                     {
-                        IceUtil::Int64 value = strtoull((yytext + 2), 0, 16);
+                        std::int64_t value = std::stoll((yytext + 2), 0, 16);
                         assert(value <= 255);
 
                         StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1521,7 +1520,7 @@ YY_DECL
                     YY_RULE_SETUP
 #line 216 "src/Slice/Scanner.l"
                     {
-                        IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
+                        std::int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
                         if (codePoint <= 0xdfff && codePoint >= 0xd800)
                         {
                             currentUnit->error(
@@ -1621,10 +1620,19 @@ YY_DECL
                         IntegerTokPtr itp = make_shared<IntegerTok>();
                         itp->literal = string(yytext);
                         *yylval = itp;
-                        if (!IceUtilInternal::stringToInt64(string(yytext), itp->v))
+                        try
                         {
-                            assert(itp->v != 0);
+                            itp->v = std::stoll(string(yytext), nullptr, 0);
+                        }
+                        catch (const std::out_of_range&)
+                        {
                             currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+                            itp->v = INT64_MAX;
+                        }
+                        catch (const std::invalid_argument&)
+                        {
+                            currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+                            itp->v = INT64_MAX;
                         }
                         return ICE_INTEGER_LITERAL;
                     }

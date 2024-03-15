@@ -189,7 +189,7 @@ namespace
 #endif
             tzone = mktime(&localTime) - mktime(&gmTime);
         }
-        return chrono::system_clock::time_point(chrono::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone));
+        return chrono::system_clock::time_point(chrono::seconds(mktime(&tm) - int64_t{offset} * 60 + tzone));
     }
 
     class OpenSSLX509ExtensionI : public IceSSL::X509Extension
