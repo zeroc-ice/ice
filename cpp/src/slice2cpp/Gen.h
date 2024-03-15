@@ -27,7 +27,6 @@ namespace Slice
         Gen(const Gen&) = delete;
 
         void generate(const UnitPtr&);
-        void closeOutput();
 
         static TypeContext setUseWstring(ContainedPtr, std::list<TypeContext>&, TypeContext);
         static TypeContext resetUseWstring(std::list<TypeContext>&);
@@ -50,12 +49,8 @@ namespace Slice
         ::IceUtilInternal::Output H;
         ::IceUtilInternal::Output C;
 
-        ::IceUtilInternal::Output implH;
-        ::IceUtilInternal::Output implC;
-
         std::string _base;
         std::string _headerExtension;
-        std::string _implHeaderExtension;
         std::string _sourceExtension;
         std::vector<std::string> _extraHeaders;
         std::string _include;

@@ -337,7 +337,7 @@ interface Admin
 
     /// Get a proxy to the server's admin object.
     /// @param id The server id.
-    /// @return A proxy to the server's admin object
+    /// @return A proxy to the server's admin object. The returned proxy is never null.
     /// @throws ServerNotExistException Raised if the server doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
     /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
@@ -445,7 +445,7 @@ interface Admin
         throws ObjectNotRegisteredException, DeploymentException;
 
     /// Add an object to the object registry and explicitly specify its type.
-    /// @param obj The object to be added to the registry.
+    /// @param obj The object to be added to the registry. The proxy is never null.
     /// @param type The object type.
     /// @throws ObjectExistsException Raised if the object is already registered.
     /// @throws DeploymentException Raised if application deployment failed.
@@ -504,7 +504,7 @@ interface Admin
 
     /// Get a proxy to the IceGrid node's admin object.
     /// @param name The IceGrid node name
-    /// @return A proxy to the IceGrid node's admin object
+    /// @return A proxy to the IceGrid node's admin object. The returned proxy is never null.
     /// @throws NodeNotExistException Raised if the node doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
     ["cpp:const"] idempotent Object* getNodeAdmin(string name)
@@ -556,7 +556,7 @@ interface Admin
 
     /// Get a proxy to the IceGrid registry's admin object.
     /// @param name The registry name
-    /// @return A proxy to the IceGrid registry's admin object
+    /// @return A proxy to the IceGrid registry's admin object. The returned proxy is never null.
     /// @throws RegistryNotExistException Raised if the registry doesn't exist.
     ["cpp:const"] idempotent Object* getRegistryAdmin(string name)
         throws RegistryNotExistException;
@@ -619,7 +619,7 @@ struct AdapterDynamicInfo
     /// The id of the adapter.
     string id;
 
-    /// The direct proxy containing the adapter endpoints.
+    /// The direct proxy containing the adapter endpoints. This proxy is never null.
     Object* proxy;
 }
 
@@ -771,7 +771,7 @@ interface AdminSession extends Glacier2::Session
     idempotent void keepAlive();
 
     /// Get the admin interface. The admin object returned by this operation can only be accessed by the session.
-    /// @return The admin interface proxy.
+    /// @return The admin interface proxy. The returned proxy is never null.
     ["nonmutating", "cpp:const"] idempotent Admin* getAdmin();
 
     /// Get a "template" proxy for admin callback objects. An Admin client uses this proxy to set the category of its
@@ -786,8 +786,12 @@ interface AdminSession extends Glacier2::Session
     /// @param adptObs The adapter observer.
     /// @param objObs The object observer.
     /// @throws ObserverAlreadyRegisteredException Raised if an observer is already registered with this registry.
-    idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs, ApplicationObserver* appObs,
-                                 AdapterObserver* adptObs, ObjectObserver* objObs)
+    idempotent void setObservers(
+        RegistryObserver* registryObs,
+        NodeObserver* nodeObs,
+        ApplicationObserver* appObs,
+        AdapterObserver* adptObs,
+        ObjectObserver* objObs)
         throws ObserverAlreadyRegisteredException;
 
     /// Set the observer identities that receive notifications the state of the registry or nodes changes. This
@@ -798,8 +802,12 @@ interface AdminSession extends Glacier2::Session
     /// @param adptObs The adapter observer.
     /// @param objObs The object observer.
     /// @throws ObserverAlreadyRegisteredException Raised if an observer is already registered with this registry.
-    idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs, Ice::Identity appObs,
-                                           Ice::Identity adptObs, Ice::Identity objObs)
+    idempotent void setObserversByIdentity(
+        Ice::Identity registryObs,
+        Ice::Identity nodeObs,
+        Ice::Identity appObs,
+        Ice::Identity adptObs,
+        Ice::Identity objObs)
         throws ObserverAlreadyRegisteredException;
 
     /// Acquires an exclusive lock to start updating the registry applications.
@@ -824,7 +832,7 @@ interface AdminSession extends Glacier2::Session
     /// deployment descriptor.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws ServerNotExistException Raised if the server doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -836,7 +844,7 @@ interface AdminSession extends Glacier2::Session
     /// @param id The server id.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws ServerNotExistException Raised if the server doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -848,7 +856,7 @@ interface AdminSession extends Glacier2::Session
     /// @param id The server id.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining.
     /// If 0 or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     ///  @throws ServerNotExistException Raised if the server doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -860,7 +868,7 @@ interface AdminSession extends Glacier2::Session
     /// @param name The node name.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws NodeNotExistException Raised if the node doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -871,7 +879,7 @@ interface AdminSession extends Glacier2::Session
     /// @param name The node name.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws NodeNotExistException Raised if the node doesn't exist.
     /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -882,7 +890,7 @@ interface AdminSession extends Glacier2::Session
     /// @param name The registry name.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws RegistryNotExistException Raised if the registry doesn't exist.
     /// @throws RegistryUnreachableException Raised if the registry could not be reached.
@@ -893,7 +901,7 @@ interface AdminSession extends Glacier2::Session
     /// @param name The registry name.
     /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If 0
     /// or positive, the file is read from the last <code>count</code> lines.
-    /// @return An iterator to read the file.
+    /// @return An iterator to read the file. The returned proxy is never null.
     /// @throws FileNotAvailableException Raised if the file can't be read.
     /// @throws RegistryNotExistException Raised if the registry doesn't exist.
     /// @throws RegistryUnreachableException Raised if the registry could not be reached.

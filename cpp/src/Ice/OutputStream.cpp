@@ -62,8 +62,8 @@ namespace
 }
 
 Ice::OutputStream::OutputStream()
-    : _instance(0),
-      _closure(0),
+    : _instance(nullptr),
+      _closure(nullptr),
       _encoding(currentEncoding),
       _format(FormatType::CompactFormat),
       _currentEncaps(0)
@@ -97,6 +97,52 @@ Ice::OutputStream::OutputStream(
 Ice::OutputStream::OutputStream(Instance* instance, const EncodingVersion& encoding) : _closure(0), _currentEncaps(0)
 {
     initialize(instance, encoding);
+}
+
+Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
+    : Buffer(std::move(other)),
+      _instance(other._instance),
+      _closure(other._closure),
+      _encoding(std::move(other._encoding)),
+      _format(other._format),
+      _currentEncaps(other._currentEncaps)
+{
+    // Reset other to its default state.
+    other._instance = nullptr;
+    other._closure = nullptr;
+    other._encoding = currentEncoding;
+    other._format = FormatType::CompactFormat;
+    other._currentEncaps = nullptr;
+    other._preAllocatedEncaps.reset();
+
+    // Reset in the unusual case where other held a "failed" encapsulation.
+    resetEncapsulation();
+}
+
+Ice::OutputStream&
+Ice::OutputStream::operator=(OutputStream&& other) noexcept
+{
+    if (this != &other)
+    {
+        Buffer::operator=(std::move(other));
+        _instance = other._instance;
+        _closure = other._closure;
+        _encoding = std::move(other._encoding);
+        _format = other._format;
+        _currentEncaps = other._currentEncaps;
+
+        // Reset other to its default state.
+        other._instance = nullptr;
+        other._closure = nullptr;
+        other._encoding = currentEncoding;
+        other._format = FormatType::CompactFormat;
+        other._currentEncaps = nullptr;
+        other._preAllocatedEncaps.reset();
+
+        // Reset in the unusual case where other held a "failed" encapsulation.
+        resetEncapsulation();
+    }
+    return *this;
 }
 
 void

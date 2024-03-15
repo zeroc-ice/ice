@@ -24,7 +24,7 @@ namespace
     public:
         DescriptorHandler(const string&, const shared_ptr<Ice::Communicator>&);
 
-        void setAdmin(const IceGrid::AdminPrxPtr&);
+        void setAdmin(IceGrid::AdminPrx);
         void setVariables(const map<string, string>&, const vector<string>&);
 
         void startElement(const string&, const IceXML::Attributes&, int, int) override;
@@ -42,7 +42,7 @@ namespace
         bool isTargetDeployable(const string&) const;
 
         const shared_ptr<Ice::Communicator> _communicator;
-        IceGrid::AdminPrxPtr _admin;
+        std::optional<IceGrid::AdminPrx> _admin;
         string _filename;
         map<string, string> _overrides;
         vector<string> _targets;
@@ -80,7 +80,7 @@ namespace
     {
     }
 
-    void DescriptorHandler::setAdmin(const AdminPrxPtr& admin) { _admin = admin; }
+    void DescriptorHandler::setAdmin(AdminPrx admin) { _admin = std::move(admin); }
 
     void DescriptorHandler::setVariables(const map<string, string>& variables, const vector<string>& targets)
     {
@@ -812,11 +812,11 @@ DescriptorParser::parseDescriptor(
     const Ice::StringSeq& targets,
     const map<string, string>& variables,
     const shared_ptr<Ice::Communicator>& communicator,
-    const IceGrid::AdminPrxPtr& admin)
+    IceGrid::AdminPrx admin)
 {
     string filename = IcePatch2Internal::simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
-    handler.setAdmin(admin);
+    handler.setAdmin(std::move(admin));
     handler.setVariables(variables, targets);
     IceXML::Parser::parse(filename, handler);
     return handler.getApplicationDescriptor();

@@ -50,7 +50,7 @@ namespace IceGrid
             const Ice::StringSeq&,
             const Ice::StringSeq&,
             const std::shared_ptr<ServerI>&);
-        void deactivate(const std::string&, const Ice::ProcessPrxPtr&);
+        void deactivate(const std::string&, const std::optional<Ice::ProcessPrx>&);
         void kill(const std::string&);
         void sendSignal(const std::string&, const std::string&);
 

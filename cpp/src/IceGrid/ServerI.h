@@ -61,7 +61,7 @@ namespace IceGrid
 #    pragma clang diagnostic pop
 #endif
 
-        ServerI(const std::shared_ptr<NodeI>&, const ServerPrxPtr&, const std::string&, const std::string&, int);
+        ServerI(const std::shared_ptr<NodeI>&, std::optional<ServerPrx>, const std::string&, const std::string&, int);
 
         void waitForApplicationUpdateCompleted();
 
@@ -76,7 +76,7 @@ namespace IceGrid
         void setEnabled(bool, const Ice::Current&) override;
         bool isEnabled(const Ice::Current&) const override;
         void setProcessAsync(
-            Ice::ProcessPrxPtr,
+            std::optional<Ice::ProcessPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
@@ -95,7 +95,7 @@ namespace IceGrid
             const std::shared_ptr<InternalServerDescriptor>&,
             const std::string&,
             bool,
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(ServerPrx, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>);
         bool checkUpdate(std::shared_ptr<InternalServerDescriptor>, bool, const Ice::Current&) override;
         void checkRemove(bool, const Ice::Current&);
@@ -121,7 +121,7 @@ namespace IceGrid
         //
         // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
         //
-        Ice::ObjectPrxPtr getProcess() const;
+        std::optional<Ice::ObjectPrx> getProcess() const;
 
         PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);
 
@@ -148,7 +148,7 @@ namespace IceGrid
         std::string getFilePath(const std::string&) const;
 
         const std::shared_ptr<NodeI> _node;
-        const ServerPrxPtr _this;
+        const std::optional<ServerPrx> _this;
         const std::string _id;
         const std::chrono::seconds _waitTime;
         const std::string _serverDir;
@@ -166,7 +166,7 @@ namespace IceGrid
         using ServerAdapterDict = std::map<std::string, std::shared_ptr<ServerAdapterI>>;
         ServerAdapterDict _adapters;
         std::set<std::string> _serverLifetimeAdapters;
-        Ice::ProcessPrxPtr _process;
+        std::optional<Ice::ProcessPrx> _process;
         std::set<std::string> _activatedAdapters;
         std::optional<std::chrono::steady_clock::time_point> _failureTime;
         ServerActivation _previousActivation;
@@ -313,16 +313,16 @@ namespace IceGrid
         bool clearDir() const;
         std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
         void addCallback(
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(ServerPrx, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>);
-        void startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr&);
-        bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&, const Ice::ObjectPrxPtr&);
+        void startRuntimePropertiesUpdate(Ice::ObjectPrx);
+        bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&, Ice::ObjectPrx);
         void failed(std::exception_ptr);
-        void finished(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
+        void finished(ServerPrx, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 
     private:
         std::vector<std::pair<
-            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(ServerPrx, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>>>
             _loadCB;
         bool _clearDir;

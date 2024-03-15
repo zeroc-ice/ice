@@ -673,11 +673,13 @@ Slice::Gen::~Gen()
     if (_jsout.isOpen() || _useStdout)
     {
         _jsout << '\n';
+        _jsout.close();
     }
 
     if (_tsout.isOpen() || _useStdout)
     {
         _tsout << '\n';
+        _tsout.close();
     }
 }
 
@@ -823,20 +825,6 @@ Slice::Gen::generate(const UnitPtr& p)
             _tsout << "/** slice2js: generated end **/";
             _tsout << "\n";
         }
-    }
-}
-
-void
-Slice::Gen::closeOutput()
-{
-    if (_jsout.isOpen())
-    {
-        _jsout.close();
-    }
-
-    if (_tsout.isOpen())
-    {
-        _tsout.close();
     }
 }
 

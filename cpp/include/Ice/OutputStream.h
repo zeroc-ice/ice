@@ -60,6 +60,18 @@ namespace Ice
             const EncodingVersion& version,
             const std::pair<const std::byte*, const std::byte*>& bytes);
 
+        /**
+         * Move constructor.
+         * @param other The output stream to move into this output stream.
+         */
+        OutputStream(OutputStream&& other) noexcept;
+
+        /**
+         * Move assignment operator.
+         * @param other The output stream to move into this output stream.
+         */
+        OutputStream& operator=(OutputStream&& other) noexcept;
+
         ~OutputStream()
         {
             // Inlined for performance reasons.

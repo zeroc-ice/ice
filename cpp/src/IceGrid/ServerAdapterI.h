@@ -19,17 +19,17 @@ namespace IceGrid
             const std::shared_ptr<NodeI>&,
             ServerI*,
             const std::string&,
-            const AdapterPrxPtr&,
+            AdapterPrx,
             const std::string&,
             bool);
         ~ServerAdapterI() override;
 
         void activateAsync(
-            std::function<void(const Ice::ObjectPrxPtr&)>, // TODO: pass by value!
+            std::function<void(const std::optional<Ice::ObjectPrx>&)>, // TODO: pass by value!
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
-        Ice::ObjectPrxPtr getDirectProxy(const Ice::Current&) const override;
-        void setDirectProxy(Ice::ObjectPrxPtr, const ::Ice::Current&) override;
+        std::optional<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) const override;
+        void setDirectProxy(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
 
         void destroy();
         void updateEnabled();
@@ -37,19 +37,19 @@ namespace IceGrid
         void activationFailed(const std::string&);
         void activationCompleted();
 
-        AdapterPrxPtr getProxy() const;
+        AdapterPrx getProxy() const;
 
     private:
         const std::shared_ptr<NodeI> _node;
-        const AdapterPrxPtr _this;
+        const AdapterPrx _this;
         const std::string _serverId;
         const std::string _id;
         const std::string _replicaId;
         ServerI* _server;
 
-        Ice::ObjectPrxPtr _proxy;
+        std::optional<Ice::ObjectPrx> _proxy;
         bool _enabled;
-        std::vector<std::function<void(const Ice::ObjectPrxPtr&)>> _activateCB;
+        std::vector<std::function<void(const std::optional<Ice::ObjectPrx>&)>> _activateCB;
         bool _activateAfterDeactivating;
 
         mutable std::mutex _mutex;

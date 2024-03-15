@@ -12,25 +12,31 @@
 using namespace std;
 using namespace IceGrid;
 
+namespace
+{
+    IceStorm::TopicPrx createOrRetrieveReplicaObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
+    {
+        optional<IceStorm::TopicPrx> topic;
+        try
+        {
+            topic = topicManager->create("ReplicaObserverTopic");
+        }
+        catch (const IceStorm::TopicExists&)
+        {
+            topic = topicManager->retrieve("ReplicaObserverTopic");
+        }
+
+        return topic.value()->ice_endpoints(Ice::EndpointSeq());
+    }
+}
+
 ReplicaCache::ReplicaCache(
     const shared_ptr<Ice::Communicator>& communicator,
-    const IceStorm::TopicManagerPrxPtr& topicManager)
-    : _communicator(communicator)
+    const IceStorm::TopicManagerPrx& topicManager)
+    : _communicator(communicator),
+      _topic(createOrRetrieveReplicaObserverTopic(topicManager)),
+      _observers(_topic->getPublisher().value()->ice_endpoints(Ice::EndpointSeq()))
 {
-    IceStorm::TopicPrxPtr t;
-    try
-    {
-        t = topicManager->create("ReplicaObserverTopic");
-    }
-    catch (const IceStorm::TopicExists&)
-    {
-        t = topicManager->retrieve("ReplicaObserverTopic");
-    }
-
-    const_cast<IceStorm::TopicPrxPtr&>(_topic) =
-        Ice::uncheckedCast<IceStorm::TopicPrx>(t->ice_endpoints(Ice::EndpointSeq()));
-    const_cast<ReplicaObserverPrxPtr&>(_observers) =
-        Ice::uncheckedCast<ReplicaObserverPrx>(_topic->getPublisher()->ice_endpoints(Ice::EndpointSeq()));
 }
 
 shared_ptr<ReplicaEntry>
@@ -161,7 +167,7 @@ ReplicaCache::get(const string& name) const
 }
 
 void
-ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
+ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
 {
     try
     {
@@ -175,7 +181,13 @@ ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
         auto publisher = _topic->subscribeAndGetPublisher(qos, observer->ice_twoway());
-        Ice::uncheckedCast<ReplicaObserverPrx>(publisher)->replicaInit(replicas);
+        if (!publisher)
+        {
+            ostringstream os;
+            os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
+        ReplicaObserverPrx(*publisher)->replicaInit(replicas);
     }
     catch (const Ice::NoEndpointException&)
     {
@@ -197,7 +209,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
 }
 
 void
-ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
+ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
 {
     try
     {
@@ -222,8 +234,8 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
     }
 }
 
-Ice::ObjectPrxPtr
-ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrxPtr& proxy) const
+Ice::ObjectPrx
+ReplicaCache::getEndpoints(const string& name, const optional<Ice::ObjectPrx>& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
@@ -244,25 +256,22 @@ ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrxPtr& proxy) c
         }
     }
 
-    return _communicator->stringToProxy("dummy")->ice_endpoints(endpoints);
+    return Ice::ObjectPrx(_communicator, "dummy")->ice_endpoints(endpoints);
 }
 
 void
-ReplicaCache::setInternalRegistry(const InternalRegistryPrxPtr& proxy)
+ReplicaCache::setInternalRegistry(InternalRegistryPrx proxy)
 {
-    //
     // Setup this replica internal registry proxy.
-    //
-    _self = proxy;
+    _self = std::optional<InternalRegistryPrx>(std::move(proxy));
 }
 
-InternalRegistryPrxPtr
+InternalRegistryPrx
 ReplicaCache::getInternalRegistry() const
 {
-    //
     // This replica internal registry proxy.
-    //
-    return _self;
+    assert(_self);
+    return *_self;
 }
 
 ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session)
@@ -283,17 +292,15 @@ ReplicaEntry::getInfo() const
     return _session->getInfo();
 }
 
-InternalRegistryPrxPtr
+InternalRegistryPrx
 ReplicaEntry::getProxy() const
 {
     return _session->getInternalRegistry();
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 ReplicaEntry::getAdminProxy() const
 {
-    auto prx = getProxy();
-    assert(prx);
-    Ice::Identity adminId = {"RegistryAdmin-" + _name, prx->ice_getIdentity().category};
-    return prx->ice_identity(std::move(adminId));
+    InternalRegistryPrx prx = getProxy();
+    return prx->ice_identity(Ice::Identity{"RegistryAdmin-" + _name, prx->ice_getIdentity().category});
 }

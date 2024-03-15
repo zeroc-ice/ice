@@ -40,8 +40,8 @@ namespace IceGrid
         };
 
     public:
-        SessionKeepAliveThread(const InternalRegistryPrxPtr& registry, const std::shared_ptr<Ice::Logger>& logger)
-            : _registry(registry),
+        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const std::shared_ptr<Ice::Logger>& logger)
+            : _registry(std::move(registry)),
               _logger(logger),
               _state(InProgress),
               _nextAction(None),
@@ -55,7 +55,7 @@ namespace IceGrid
         {
             using namespace std::chrono_literals;
             std::optional<TPrx> session;
-            InternalRegistryPrxPtr registry;
+            std::optional<InternalRegistryPrx> registry;
             std::chrono::seconds timeout = 10s;
             Action action = Connect;
 
@@ -78,7 +78,8 @@ namespace IceGrid
                         _session = session;
                         if (_session)
                         {
-                            _registry = registry;
+                            assert(registry);
+                            _registry = *registry;
                         }
 
                         if (_nextAction == Connect && _state == Connected)
@@ -95,10 +96,7 @@ namespace IceGrid
                         }
                         _condVar.notify_all();
 
-                        //
-                        // Wait if there's nothing to do and if we are
-                        // connected or if we've just tried to connect.
-                        //
+                        // Wait if there's nothing to do and if we are connected or if we've just tried to connect.
                         if (_nextAction == None)
                         {
                             if (_state == Connected || action == Connect || action == KeepAlive)
@@ -128,8 +126,7 @@ namespace IceGrid
                         assert(timeout != 0s);
                         using namespace std::chrono;
 
-                        registry =
-                            Ice::uncheckedCast<InternalRegistryPrx>(_registry->ice_timeout(secondsToInt(timeout)));
+                        registry = _registry->ice_timeout(secondsToInt(timeout));
                         _nextAction = None;
                         _state = InProgress;
                         _condVar.notify_all();
@@ -140,19 +137,21 @@ namespace IceGrid
                         case Connect:
                             assert(!session);
                             {
-                                session = createSession(registry, timeout);
+                                assert(registry);
+                                session = createSession(*registry, timeout);
                             }
                             break;
                         case Disconnect:
                             assert(session);
-                            destroySession(session);
+                            destroySession(*session);
                             session = std::nullopt;
                             break;
                         case KeepAlive:
                             assert(session);
-                            if (!keepAlive(session))
+                            if (!keepAlive(*session))
                             {
-                                session = createSession(registry, timeout);
+                                assert(registry);
+                                session = createSession(*registry, timeout);
                             }
                             break;
                         case None:
@@ -166,7 +165,7 @@ namespace IceGrid
                 //
                 if (_nextAction == Disconnect && session)
                 {
-                    destroySession(session);
+                    destroySession(*session);
                 }
             }
             catch (const std::exception& ex)
@@ -288,24 +287,24 @@ namespace IceGrid
             return _session;
         }
 
-        void setRegistry(const InternalRegistryPrxPtr& registry)
+        void setRegistry(InternalRegistryPrx registry)
         {
             std::lock_guard<std::mutex> lock(_mutex);
-            _registry = registry;
+            _registry = std::move(registry);
         }
 
-        InternalRegistryPrxPtr getRegistry() const
+        std::optional<InternalRegistryPrx> getRegistry() const
         {
             std::lock_guard<std::mutex> lock(_mutex);
             return _registry;
         }
 
-        virtual std::optional<TPrx> createSession(InternalRegistryPrxPtr&, std::chrono::seconds&) = 0;
-        virtual void destroySession(const std::optional<TPrx>&) = 0;
-        virtual bool keepAlive(const std::optional<TPrx>&) = 0;
+        virtual std::optional<TPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&) = 0;
+        virtual void destroySession(const TPrx&) = 0;
+        virtual bool keepAlive(const TPrx&) = 0;
 
     protected:
-        InternalRegistryPrxPtr _registry;
+        std::optional<InternalRegistryPrx> _registry;
         std::shared_ptr<Ice::Logger> _logger;
         std::optional<TPrx> _session;
         State _state;
@@ -325,12 +324,12 @@ namespace IceGrid
         virtual bool isDestroyed() = 0;
 
     protected:
-        std::vector<IceGrid::QueryPrxPtr> findAllQueryObjects(bool);
+        std::vector<IceGrid::QueryPrx> findAllQueryObjects(bool);
 
         std::shared_ptr<Ice::Communicator> _communicator;
         std::string _instanceName;
-        InternalRegistryPrxPtr _master;
-        std::vector<IceGrid::QueryPrxPtr> _queryObjects;
+        std::optional<InternalRegistryPrx> _master;
+        std::vector<IceGrid::QueryPrx> _queryObjects;
 
         std::mutex _mutex;
         std::condition_variable _condVar;

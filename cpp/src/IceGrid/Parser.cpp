@@ -308,7 +308,11 @@ namespace IceGrid
     Parser* parser;
 }
 
-Parser::Parser(shared_ptr<Communicator> communicator, AdminSessionPrxPtr session, AdminPrxPtr admin, bool interactive)
+Parser::Parser(
+    shared_ptr<Communicator> communicator,
+    AdminSessionPrx session,
+    optional<AdminPrx> admin,
+    bool interactive)
     : _communicator(std::move(communicator)),
       _session(std::move(session)),
       _admin(std::move(admin)),
@@ -473,10 +477,9 @@ Parser::addApplication(const list<string>& origArgs)
             }
         }
 
-        //
         // Add the application.
-        //
-        ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
+        assert(_admin);
+        ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, *_admin);
         _admin->addApplication(app);
 
         if (!opts.isSet("no-patch"))
@@ -601,7 +604,8 @@ Parser::diffApplication(const list<string>& origArgs)
             }
         }
 
-        ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
+        assert(_admin);
+        ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, *_admin);
         ApplicationInfo origApp = _admin->getApplicationInfo(newApp.name);
 
         ApplicationHelper newAppHelper(_communicator, newApp);
@@ -717,7 +721,8 @@ Parser::updateApplication(const list<string>& origArgs)
             }
         }
 
-        ApplicationDescriptor desc = DescriptorParser::parseDescriptor(xml, targets, vars, _communicator, _admin);
+        assert(_admin);
+        ApplicationDescriptor desc = DescriptorParser::parseDescriptor(xml, targets, vars, _communicator, *_admin);
         if (opts.isSet("no-restart"))
         {
             _admin->syncApplicationWithoutRestart(desc);
@@ -1784,15 +1789,12 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
 
         auto admin = _admin->getServerAdmin(server);
-        Ice::PropertiesAdminPrxPtr propAdmin;
-        if (getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
-        {
-            propAdmin = Ice::PropertiesAdminPrx{admin->ice_facet("IceBox.SharedCommunicator.Properties")};
-        }
-        else
-        {
-            propAdmin = Ice::PropertiesAdminPrx{admin->ice_facet("IceBox.Service." + service + ".Properties")};
-        }
+
+        const bool useSharedCommunicator =
+            getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0;
+        Ice::PropertiesAdminPrx propAdmin{
+            useSharedCommunicator ? admin->ice_facet("IceBox.SharedCommunicator.Properties")
+                                  : admin->ice_facet("IceBox.Service." + service + ".Properties")};
 
         if (single)
         {
@@ -1801,10 +1803,9 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
         else
         {
-            Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
-            for (Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+            for (const auto& [key, value] : propAdmin->getPropertiesForPrefix(""))
             {
-                consoleOut << p->first << "=" << p->second << endl;
+                consoleOut << key << "=" << value << endl;
             }
         }
     }
@@ -2201,8 +2202,7 @@ Parser::showFile(
 {
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
-    FileIteratorPrxPtr it;
-
+    optional<FileIteratorPrx> it;
     try
     {
         if (reader == "node")
@@ -2327,7 +2327,7 @@ Parser::showFile(
     }
     catch (...)
     {
-        if (it != nullopt)
+        if (it)
         {
             try
             {
@@ -2346,7 +2346,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 {
     outputNewline();
 
-    Ice::ObjectPrxPtr admin;
+    optional<Ice::ObjectPrx> admin;
 
     if (reader == "server")
     {
@@ -2361,28 +2361,13 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         admin = _admin->getRegistryAdmin(id);
     }
 
-    if (admin == nullopt)
+    if (!admin)
     {
         error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
         return;
     }
 
-    Ice::LoggerAdminPrxPtr loggerAdmin;
-
-    try
-    {
-        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin, "Logger");
-    }
-    catch (const Ice::Exception&)
-    {
-    }
-
-    if (loggerAdmin == nullopt)
-    {
-        error("cannot retrieve Logger admin facet for " + reader + " `" + id + "'");
-        return;
-    }
-
+    Ice::LoggerAdminPrx loggerAdmin{admin->ice_facet("Logger")};
     if (follow)
     {
         auto adminCallbackTemplate = _session->getAdminCallbackTemplate();

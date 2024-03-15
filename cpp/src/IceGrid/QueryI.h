@@ -17,16 +17,16 @@ namespace IceGrid
     public:
         QueryI(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<Database>&);
 
-        Ice::ObjectPrxPtr findObjectById(Ice::Identity, const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
 
-        Ice::ObjectPrxPtr findObjectByType(std::string, const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx> findObjectByType(std::string, const Ice::Current&) const override;
 
-        Ice::ObjectPrxPtr
+        std::optional<Ice::ObjectPrx>
         findObjectByTypeOnLeastLoadedNode(std::string, LoadSample, const Ice::Current&) const override;
 
         Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
 
-        Ice::ObjectProxySeq findAllReplicas(Ice::ObjectPrxPtr, const Ice::Current&) const override;
+        Ice::ObjectProxySeq findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
 
     private:
         const std::shared_ptr<Ice::Communicator> _communicator;

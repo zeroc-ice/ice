@@ -38,18 +38,14 @@ WellKnownObjectsManager::finish()
 }
 
 void
-WellKnownObjectsManager::registerAll(const ReplicaSessionPrxPtr& session)
+WellKnownObjectsManager::registerAll(const ReplicaSessionPrx& session)
 {
     if (!initialized())
     {
         return;
     }
 
-    assert(session);
-
-    //
     // If initialized, the endpoints and well known objects are immutable.
-    //
     try
     {
         session->setEndpoints(_endpoints);
@@ -69,9 +65,7 @@ WellKnownObjectsManager::registerAll()
         return;
     }
 
-    //
     // If initialized, the endpoints and well known objects are immutable.
-    //
     updateReplicatedWellKnownObjects();
     _database->addOrUpdateRegistryWellKnownObjects(_wellKnownObjects);
 }
@@ -84,9 +78,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
         return;
     }
 
-    //
     // Update replicated objects.
-    //
     Ice::Identity id;
     id.category = _database->getInstanceName();
     ObjectInfo info;
@@ -121,28 +113,28 @@ WellKnownObjectsManager::initialized() const
     return _initialized;
 }
 
-Ice::ObjectPrxPtr
+std::optional<Ice::ObjectPrx>
 WellKnownObjectsManager::getEndpoints(const string& name)
 {
     lock_guard lock(_mutex);
     return _endpoints[name];
 }
 
-LocatorPrxPtr
+LocatorPrx
 WellKnownObjectsManager::getLocator()
 {
-    Ice::Identity id = {"Locator", _database->getInstanceName()};
-    return Ice::uncheckedCast<LocatorPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Client"));
+    return LocatorPrx{
+        getWellKnownObjectReplicatedProxy(Ice::Identity{"Locator", _database->getInstanceName()}, "Client")};
 }
 
-Ice::LocatorRegistryPrxPtr
+Ice::LocatorRegistryPrx
 WellKnownObjectsManager::getLocatorRegistry()
 {
-    Ice::Identity id = {"LocatorRegistry", _database->getInstanceName()};
-    return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Server"));
+    return Ice::LocatorRegistryPrx{
+        getWellKnownObjectReplicatedProxy({"LocatorRegistry", _database->getInstanceName()}, "Server")};
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& id, const string& endpt)
 {
     try
@@ -150,10 +142,7 @@ WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& 
         auto proxy = _database->getObjectProxy(id);
         Ice::EndpointSeq registryEndpoints = getEndpoints(endpt)->ice_getEndpoints();
 
-        //
-        // Re-order the endpoints to return first the endpoint for this
-        // registry replica.
-        //
+        // Re-order the endpoints to return first the endpoint for this registry replica.
         Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
         Ice::EndpointSeq newEndpoints = registryEndpoints;
         for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
@@ -167,11 +156,8 @@ WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& 
     }
     catch (const ObjectNotRegisteredException&)
     {
-        //
-        // If for some reasons the object isn't registered, we compute
-        // the endpoints with the replica cache. For slaves, this will
-        // however only return the slave endpoints.
-        //
+        // If for some reasons the object isn't registered, we compute the endpoints with the replica cache. For
+        // slaves, this will however only return the slave endpoints.
         return _database->getReplicaCache().getEndpoints(endpt, getEndpoints(endpt))->ice_identity(id);
     }
 }
