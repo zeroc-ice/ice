@@ -16,7 +16,14 @@ namespace IcePy
 
     bool initValueFactoryManager(PyObject*);
 
-    class FactoryWrapper final : public Ice::ValueFactory
+    class ValueFactory
+    {
+    public:
+        virtual std::shared_ptr<Ice::Value> create(std::string_view) = 0;
+    };
+    using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
+
+    class FactoryWrapper final : public ValueFactory
     {
     public:
         FactoryWrapper(PyObject*);
@@ -33,20 +40,20 @@ namespace IcePy
 
     using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
-    class DefaultValueFactory final : public Ice::ValueFactory
+    class DefaultValueFactory final : public ValueFactory
     {
     public:
         std::shared_ptr<Ice::Value> create(std::string_view) final;
 
-        void setDelegate(const Ice::ValueFactoryPtr&);
-        Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
+        void setDelegate(const ValueFactoryPtr&);
+        ValueFactoryPtr getDelegate() const { return _delegate; }
 
         PyObject* getValueFactory() const;
 
         void destroy();
 
     private:
-        Ice::ValueFactoryPtr _delegate;
+        ValueFactoryPtr _delegate;
     };
 
     using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
@@ -59,7 +66,7 @@ namespace IcePy
         ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
-        void add(Ice::ValueFactoryPtr, std::string_view) final;
+        void add(ValueFactoryPtr, std::string_view);
         Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
         void add(PyObject*, std::string_view);
@@ -70,10 +77,10 @@ namespace IcePy
         void destroy();
 
     private:
-        typedef std::map<std::string, Ice::ValueFactoryPtr, std::less<>> FactoryMap;
+        typedef std::map<std::string, ValueFactoryPtr, std::less<>> FactoryMap;
 
         ValueFactoryManager();
-        Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
+        ValueFactoryPtr findCore(std::string_view) const noexcept;
 
         PyObject* _self;
         FactoryMap _factories;

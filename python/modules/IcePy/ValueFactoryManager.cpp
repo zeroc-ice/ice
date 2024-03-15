@@ -65,7 +65,7 @@ IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 }
 
 void
-IcePy::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
+IcePy::ValueFactoryManager::add(ValueFactoryPtr f, string_view id)
 {
     std::lock_guard lock(_mutex);
 
@@ -93,7 +93,7 @@ IcePy::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
 Ice::ValueFactoryFunc
 IcePy::ValueFactoryManager::find(string_view id) const noexcept
 {
-    Ice::ValueFactoryPtr factory = findCore(id);
+    ValueFactoryPtr factory = findCore(id);
 
     if (factory)
     {
@@ -121,7 +121,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 PyObject*
 IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 {
-    Ice::ValueFactoryPtr factory = findCore(id);
+    ValueFactoryPtr factory = findCore(id);
     if (factory)
     {
         auto w = dynamic_pointer_cast<FactoryWrapper>(factory);
@@ -179,12 +179,12 @@ IcePy::ValueFactoryManager::destroy()
     _defaultFactory->destroy();
 }
 
-Ice::ValueFactoryPtr
+ValueFactoryPtr
 IcePy::ValueFactoryManager::findCore(string_view id) const noexcept
 {
     std::lock_guard lock(_mutex);
 
-    Ice::ValueFactoryPtr factory;
+    ValueFactoryPtr factory;
 
     if (id.empty())
     {
@@ -298,7 +298,7 @@ IcePy::DefaultValueFactory::create(std::string_view id)
 }
 
 void
-IcePy::DefaultValueFactory::setDelegate(const Ice::ValueFactoryPtr& d)
+IcePy::DefaultValueFactory::setDelegate(const ValueFactoryPtr& d)
 {
     _delegate = d;
 }

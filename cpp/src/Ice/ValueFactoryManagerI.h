@@ -5,7 +5,7 @@
 #ifndef ICE_VALUE_FACTORY_MANAGER_I_H
 #define ICE_VALUE_FACTORY_MANAGER_I_H
 
-#include <Ice/ValueFactory.h>
+#include "Ice/ValueFactory.h"
 
 #include <list>
 #include <mutex>
@@ -18,7 +18,6 @@ namespace IceInternal
         ValueFactoryManagerI();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
-        void add(Ice::ValueFactoryPtr, std::string_view) final;
         Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
     private:
