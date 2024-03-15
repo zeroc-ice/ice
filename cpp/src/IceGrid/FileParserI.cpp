@@ -21,7 +21,7 @@ FileParserI::parse(string file, optional<AdminPrx> admin, const Ice::Current& cu
             Ice::StringSeq(),
             map<string, string>(),
             current.adapter->getCommunicator(),
-            std::move(*admin));
+            *std::move(admin));
     }
     catch (const IceXML::ParserException& e)
     {
