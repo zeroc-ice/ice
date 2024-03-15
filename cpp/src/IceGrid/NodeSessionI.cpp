@@ -327,14 +327,12 @@ NodeSessionI::patch(
     const shared_ptr<InternalDistributionDescriptor>& dist,
     bool shutdown)
 {
-    Ice::Identity id;
-    id.category = _database->getInstanceName();
-    id.name = Ice::generateUUID();
+    Ice::Identity id{Ice::generateUUID(), _database->getInstanceName()};
 
     auto obj = make_shared<PatcherFeedbackI>(_info->name, shared_from_this(), id, aggregator);
     try
     {
-        auto feedback = Ice::uncheckedCast<PatcherFeedbackPrx>(_database->getInternalAdapter()->add(obj, id));
+        PatcherFeedbackPrx feedback{_database->getInternalAdapter()->add(obj, id)};
         _node->patch(feedback, application, server, dist, shutdown);
 
         lock_guard lock(_mutex);
