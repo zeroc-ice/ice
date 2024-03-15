@@ -109,6 +109,8 @@ runs:
       shell: bash
       if: matrix.language == 'matlab' && runner.os == 'Linux'
 
+    # Windows is currently not working. We get an error: "'matlab' executable not found on the system path"
+    # Is GITHUB_PATH set correctly?
     - name: Get run-matlab-command
       run: |
         wget -O C:\Windows\System32\run-matlab-command.exe https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe
