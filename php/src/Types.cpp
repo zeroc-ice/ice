@@ -1865,7 +1865,6 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
             {
                 zval val;
                 // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-                // TODO: can we remove this now
                 if (sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
                 {
                     string str = std::to_string(*p);
