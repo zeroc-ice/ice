@@ -152,7 +152,7 @@ GetAdapterInfoResult::get()
         {
             if (*p)
             {
-                q->proxy = Ice::uncheckedCast<AdapterPrx>((*p)->get());
+                q->proxy = optional<AdapterPrx>((*p)->get());
             }
         }
         catch (const Ice::Exception&)
