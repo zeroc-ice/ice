@@ -588,7 +588,8 @@ namespace IceInternal
         virtual void disableMetricsView(std::string, const ::Ice::Current&);
         virtual Ice::MX::MetricsView getMetricsView(std::string, std::int64_t&, const ::Ice::Current&);
         virtual Ice::MX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
-        virtual Ice::MX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
+        virtual Ice::MX::MetricsFailures
+        getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
         std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
         const Ice::LoggerPtr& getLogger() const;
