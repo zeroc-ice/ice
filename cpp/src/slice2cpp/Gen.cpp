@@ -2357,12 +2357,12 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     H << nl << name << "() = default;";
-    H << nl << name << "(const " << name << "&) = default;";
-    H << nl << name << "(" << name << "&&) = default;";
-    H << nl << name << "& operator=(const " << name << "&) = default;";
-    H << nl << name << "& operator=(" << name << "&&) = default;";
 
     emitOneShotConstructor(p);
+
+    H << sp;
+    H << nl << "::std::shared_ptr<" << name << "> ice_clone() const { return ::std::static_pointer_cast <"
+        << name << ">(_iceCloneImpl()); }";
 
     H << sp;
     H << nl << "/**";
@@ -2383,6 +2383,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
+    string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     ClassDefPtr base = p->base();
@@ -2438,22 +2439,30 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(*q);
     }
 
+    if (!inProtected)
+    {
+        H.dec();
+        H << sp << nl << "protected:";
+        H.inc();
+        inProtected = true;
+    }
+
     if (generateFriend)
     {
-        if (!inProtected)
-        {
-            H.dec();
-            H << sp << nl << "protected:";
-            H.inc();
-            inProtected = true;
-        }
-
         H << sp;
         H << nl << "template<typename T, typename S>";
         H << nl << "friend struct Ice::StreamWriter;";
         H << nl << "template<typename T, typename S>";
         H << nl << "friend struct Ice::StreamReader;";
     }
+
+    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << sp << nl << _dllMemberExport << "::std::shared_ptr<::Ice::Value> _iceCloneImpl() const override;";
+    C << sp;
+    C << nl << "::std::shared_ptr<::Ice::Value>" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
+    C << sb;
+    C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
+    C << eb;
 
     H << eb << ';';
 
