@@ -6,6 +6,8 @@
 #include "Ice/AsyncResponseHandler.h"
 #include "Ice/LocalException.h"
 #include "Ice/SlicedData.h"
+#include "Ice/InputStream.h"
+#include "Ice/OutputStream.h"
 
 using namespace std;
 using namespace Ice;

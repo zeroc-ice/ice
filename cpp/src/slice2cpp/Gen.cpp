@@ -2332,8 +2332,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << name << " : public " << getUnqualified("::Ice::ValueHelper", scope) << "<"
-      << name << ", ";
+    H << nl << "class " << _dllClassExport << name << " : public ";
 
     if (!base)
     {
@@ -2343,7 +2342,6 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         H << getUnqualified(fixKwd(base->scoped()), scope);
     }
-    H << ">";
     H << sb;
     H.dec();
     H << nl << "public:" << sp;
@@ -2357,19 +2355,8 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     H << nl << name << "() = default;";
-    H << nl << name << "(const " << name << "&) = default;";
-    H << nl << name << "(" << name << "&&) = default;";
-    H << nl << name << "& operator=(const " << name << "&) = default;";
-    H << nl << name << "& operator=(" << name << "&&) = default;";
 
     emitOneShotConstructor(p);
-
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains a tuple containing all of the value's data members.";
-    H << nl << " * @return The data members in a tuple.";
-    H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
 
     H << sp;
     H << nl << "/**";
@@ -2377,12 +2364,38 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
     H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
+
+    H << sp << nl << _dllMemberExport << "::std::string ice_id() const override;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    C << sb;
+    C << nl << "return ::std::string{ice_staticId()};";
+    C << eb;
+
+    if (!dataMembers.empty())
+    {
+        H << sp;
+        H << nl << "/**";
+        H << nl << " * Obtains a tuple containing all of the value's data members.";
+        H << nl << " * @return The data members in a tuple.";
+        H << nl << " */";
+        writeIceTuple(H, p->allDataMembers(), _useWstring);
+    }
+
+    H << sp;
+    H << nl << "/**";
+    H << nl << " * Creates a shallow polymorphic copy of this instance.";
+    H << nl << " * @return The cloned value.";
+    H << nl << " */";
+    H << nl << "::std::shared_ptr<" << name << "> ice_clone() const { return ::std::static_pointer_cast <" << name
+      << ">(_iceCloneImpl()); }";
+
     return true;
 }
 
 void
 Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
+    string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     ClassDefPtr base = p->base();
@@ -2438,22 +2451,63 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(*q);
     }
 
+    if (!inProtected)
+    {
+        H.dec();
+        H << sp << nl << "protected:";
+        H.inc();
+        inProtected = true;
+    }
+
     if (generateFriend)
     {
-        if (!inProtected)
-        {
-            H.dec();
-            H << sp << nl << "protected:";
-            H.inc();
-            inProtected = true;
-        }
-
         H << sp;
         H << nl << "template<typename T, typename S>";
         H << nl << "friend struct Ice::StreamWriter;";
         H << nl << "template<typename T, typename S>";
         H << nl << "friend struct Ice::StreamReader;";
     }
+
+    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << sp << nl << _dllMemberExport << "::std::shared_ptr<::Ice::Value> _iceCloneImpl() const override;";
+    C << sp;
+    C << nl << "::std::shared_ptr<::Ice::Value>" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
+    C << sb;
+    C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
+    C << eb;
+
+    string baseClass = base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::Value", scope);
+
+    H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(::Ice::OutputStream* ostr) const";
+    C << sb;
+    // lastSlice is true or false.
+    C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
+    if (!dataMembers.empty())
+    {
+        C << nl << "::Ice::StreamWriter<" << name << ", ::Ice::OutputStream>::write(ostr, *this);";
+    }
+    C << nl << "ostr->endSlice();";
+    if (base)
+    {
+        C << nl << baseClass << "::_iceWriteImpl(ostr);";
+    }
+    C << eb;
+
+    H << sp << nl << _dllMemberExport << "void _iceReadImpl(::Ice::InputStream*) override;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceReadImpl(::Ice::InputStream* istr)";
+    C << sb;
+    C << nl << "istr->startSlice();";
+    if (!dataMembers.empty())
+    {
+        C << nl << "::Ice::StreamReader<" << name << ", ::Ice::InputStream>::read(istr, *this);";
+    }
+    C << nl << "istr->endSlice();";
+    if (base)
+    {
+        C << nl << baseClass << "::_iceReadImpl(istr);";
+    }
+    C << eb;
 
     H << eb << ';';
 
@@ -2504,9 +2558,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     }
     upcall += ")";
 
-    H << nl << "Ice::ValueHelper<" << getUnqualified(fixKwd(p->scoped()), scope) << ", "
-      << getUnqualified(fixKwd(base->scoped()), scope) << ">" << upcall;
-
+    H << nl << getUnqualified(fixKwd(base->scoped()), scope) << upcall;
     return true;
 }
 

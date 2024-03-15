@@ -16,6 +16,8 @@
 #include <optional>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
+#include <Ice/InputStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/MarshaledResult.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
