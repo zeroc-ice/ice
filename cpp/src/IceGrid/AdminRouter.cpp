@@ -46,7 +46,7 @@ IceGrid::AdminRouter::invokeOnTarget(
                 }
             }
 
-            response(std::move(ok), std::move(bytes));
+            response(ok, std::move(bytes));
         },
         [exception, operation = current.operation, traceLevels = _traceLevels, target](exception_ptr exptr)
         {

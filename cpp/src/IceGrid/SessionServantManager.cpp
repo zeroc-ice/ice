@@ -141,9 +141,7 @@ SessionServantManager::setSessionControl(
     // Allow invocations on server admin objects.
     if (!p->second.category.empty() && _serverAdminRouter)
     {
-        Ice::StringSeq seq;
-        seq.push_back(_serverAdminCategory);
-        ctl->categories()->add(seq);
+        ctl->categories()->add(Ice::StringSeq{_serverAdminCategory});
     }
 }
 

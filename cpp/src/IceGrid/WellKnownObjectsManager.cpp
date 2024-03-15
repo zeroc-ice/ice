@@ -79,31 +79,21 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     }
 
     // Update replicated objects.
-    Ice::Identity id;
-    id.category = _database->getInstanceName();
-    ObjectInfo info;
-    ObjectInfoSeq objects;
-
     lock_guard lock(_mutex);
 
     auto replicatedClientProxy = _database->getReplicaCache().getEndpoints("Client", _endpoints["Client"]);
-
-    id.name = "Query";
-    info.type = Query::ice_staticId();
-    info.proxy = replicatedClientProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "Locator";
-    info.type = Ice::Locator::ice_staticId();
-    info.proxy = replicatedClientProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "LocatorRegistry";
-    info.type = Ice::LocatorRegistry::ice_staticId();
-    info.proxy = _database->getReplicaCache().getEndpoints("Server", _endpoints["Server"])->ice_identity(id);
-    objects.push_back(info);
-
-    _database->addOrUpdateRegistryWellKnownObjects(objects);
+    _database->addOrUpdateRegistryWellKnownObjects(
+        {ObjectInfo{
+             replicatedClientProxy->ice_identity(Ice::Identity{"Query", _database->getInstanceName()}),
+             string{Query::ice_staticId()}},
+         ObjectInfo{
+             replicatedClientProxy->ice_identity(Ice::Identity{"Locator", _database->getInstanceName()}),
+             string{Ice::Locator::ice_staticId()}},
+         ObjectInfo{
+             _database->getReplicaCache()
+                 .getEndpoints("Server", _endpoints["Server"])
+                 ->ice_identity(Ice::Identity{"LocatorRegistry", _database->getInstanceName()}),
+             string{Ice::LocatorRegistry::ice_staticId()}}});
 }
 
 bool

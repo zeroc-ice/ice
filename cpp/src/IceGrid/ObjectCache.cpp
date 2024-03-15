@@ -122,12 +122,8 @@ vector<shared_ptr<ObjectEntry>>
 ObjectCache::getObjectsByType(const string& type)
 {
     lock_guard lock(_mutex);
-    map<string, TypeEntry>::const_iterator p = _types.find(type);
-    if (p == _types.end())
-    {
-        return vector<shared_ptr<ObjectEntry>>();
-    }
-    return p->second.getObjects();
+    auto p = _types.find(type);
+    return p == _types.end() ? vector<shared_ptr<ObjectEntry>>{} : p->second.getObjects();
 }
 
 ObjectInfoSeq

@@ -343,7 +343,7 @@ ServerEntry::sync()
 void
 ServerEntry::waitForSync(chrono::seconds timeout)
 {
-    waitImpl(std::move(timeout));
+    waitImpl(timeout);
 }
 
 void

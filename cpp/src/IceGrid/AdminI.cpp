@@ -29,11 +29,22 @@ namespace
     class ServerProxyWrapper
     {
     public:
-        ServerProxyWrapper(const shared_ptr<Database>& database, const string& id) : _id(id)
+        static ServerProxyWrapper create(const shared_ptr<Database>& database, string id)
         {
             try
             {
-                _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node, false, 5s);
+                chrono::seconds activationTimeout;
+                chrono::seconds deactivationTimeout;
+                string node;
+                ServerPrx proxy =
+                    database->getServer(id)->getProxy(activationTimeout, deactivationTimeout, node, false, 5s);
+
+                return ServerProxyWrapper(
+                    std::move(id),
+                    std::move(proxy),
+                    activationTimeout,
+                    deactivationTimeout,
+                    std::move(node));
             }
             catch (const SynchronizationException&)
             {
@@ -41,7 +52,7 @@ namespace
             }
         }
 
-        ServerProxyWrapper(const ServerProxyWrapper& wrapper) = default;
+        ServerProxyWrapper(const ServerProxyWrapper& wrapper) = delete;
 
         template<typename Func, typename... Args> auto invoke(Func&& f, Args&&... args)
         {
@@ -63,22 +74,21 @@ namespace
         template<typename Func>
         auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
         {
-            auto exceptionWrapper = [this, exception = std::move(exception)](exception_ptr ex)
-            {
-                try
-                {
-                    handleException(ex);
-                }
-                catch (const std::exception&)
-                {
-                    exception(current_exception());
-                }
-            };
             return std::invoke(
                 std::forward<Func>(f),
                 _proxy,
                 std::move(response),
-                std::move(exceptionWrapper),
+                [this, exception = std::move(exception)](exception_ptr ex)
+                {
+                    try
+                    {
+                        handleException(ex);
+                    }
+                    catch (...)
+                    {
+                        exception(current_exception());
+                    }
+                },
                 nullptr,
                 Ice::noExplicitContext);
         }
@@ -95,17 +105,7 @@ namespace
             _proxy = _proxy->ice_invocationTimeout(timeout);
         }
 
-        ServerPrx* operator->()
-        {
-            if (_proxy)
-            {
-                return &_proxy.value();
-            }
-            else
-            {
-                return nullptr;
-            }
-        }
+        ServerPrx* operator->() { return &_proxy; }
 
         void handleException(exception_ptr ex) const
         {
@@ -128,8 +128,22 @@ namespace
         }
 
     private:
+        ServerProxyWrapper(
+            const string id,
+            ServerPrx proxy,
+            chrono::seconds activationTimeout,
+            chrono::seconds deactivationTimeout,
+            string node)
+            : _id(std::move(id)),
+              _proxy(std::move(proxy)),
+              _activationTimeout(activationTimeout),
+              _deactivationTimeout(deactivationTimeout),
+              _node(std::move(node))
+        {
+        }
+
         string _id;
-        optional<ServerPrx> _proxy;
+        ServerPrx _proxy;
         chrono::seconds _activationTimeout;
         chrono::seconds _deactivationTimeout;
         string _node;
@@ -316,7 +330,7 @@ AdminI::patchApplicationAsync(
 ApplicationInfo
 AdminI::getApplicationInfo(string name, const Current&) const
 {
-    return _database->getApplicationInfo(std::move(name));
+    return _database->getApplicationInfo(name);
 }
 
 ApplicationDescriptor
@@ -382,20 +396,20 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(string id, const Current&) const
 {
-    return _database->getServer(std::move(id))->getInfo(true);
+    return _database->getServer(id)->getInfo(true);
 }
 
 ServerState
 AdminI::getServerState(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getState);
 }
 
 int
 AdminI::getServerPid(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getPid);
 }
 
@@ -408,7 +422,7 @@ AdminI::getServerAdminCategory(const Current&) const
 optional<ObjectPrx>
 AdminI::getServerAdmin(string id, const Current& current) const
 {
-    ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
+    auto proxy = ServerProxyWrapper::create(_database, id); // Ensure that the server exists and loaded on the node.
 
     return current.adapter->createProxy({id, _registry->getServerAdminCategory()});
 }
@@ -416,7 +430,7 @@ AdminI::getServerAdmin(string id, const Current& current) const
 void
 AdminI::startServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.useActivationTimeout();
 
     proxy.invokeAsync(
@@ -428,7 +442,7 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
 void
 AdminI::stopServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.useDeactivationTimeout();
 
     //
@@ -519,7 +533,7 @@ AdminI::patchServerAsync(
 void
 AdminI::sendSignal(string id, string signal, const Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.invoke(&ServerPrx::sendSignal, std::move(signal));
 }
 
@@ -532,14 +546,14 @@ AdminI::getAllServerIds(const Current&) const
 void
 AdminI::enableServer(string id, bool enable, const Ice::Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
-    proxy.invoke(&ServerPrx::setEnabled, std::move(enable));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
+    proxy.invoke(&ServerPrx::setEnabled, enable);
 }
 
 bool
 AdminI::isServerEnabled(string id, const Ice::Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::isEnabled);
 }
 

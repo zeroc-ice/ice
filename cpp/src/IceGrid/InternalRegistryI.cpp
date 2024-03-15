@@ -125,9 +125,15 @@ InternalRegistryI::registerReplica(
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
-    if (!info || !prx)
+
+    Ice::checkNotNull(prx, __FILE__, __LINE__, current);
+
+    if (!info)
     {
-        return nullopt;
+        std::ostringstream os;
+        os << "null replica info passed to " << current.operation << " on object "
+           << current.adapter->getCommunicator()->identityToString(current.id);
+        throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
     }
 
     if (_requireReplicaCertCN)

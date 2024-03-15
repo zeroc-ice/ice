@@ -103,10 +103,7 @@ RegistryServerAdminRouter::ice_invokeAsync(
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database)
@@ -155,9 +152,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
         }
     }
 
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const shared_ptr<Database>& database)
@@ -203,8 +198,5 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
 
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
