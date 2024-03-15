@@ -41,7 +41,7 @@ namespace
 class ReuseConnectionRouter final : public Ice::Router
 {
 public:
-    ReuseConnectionRouter(optional<Ice::ObjectPrx> proxy) : _clientProxy(std::move(proxy)) {}
+    ReuseConnectionRouter(Ice::ObjectPrx proxy) : _clientProxy(std::move(proxy)) {}
 
     optional<Ice::ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
@@ -54,7 +54,7 @@ public:
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override { return Ice::ObjectProxySeq(); }
 
 private:
-    const optional<Ice::ObjectPrx> _clientProxy;
+    const Ice::ObjectPrx _clientProxy;
 };
 
 int run(const Ice::StringSeq&);
