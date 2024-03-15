@@ -3620,7 +3620,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 {
                     v = std::stoll(serialVersionUID, nullptr, 0);
                 }
-                catch (const std::exception& e)
+                catch (const std::exception&)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped()

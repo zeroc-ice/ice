@@ -1627,10 +1627,12 @@ YY_DECL
                         catch (const std::out_of_range&)
                         {
                             currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+                            itp->v = INT64_MAX;
                         }
                         catch (const std::invalid_argument&)
                         {
                             currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+                            itp->v = INT64_MAX;
                         }
                         return ICE_INTEGER_LITERAL;
                     }
