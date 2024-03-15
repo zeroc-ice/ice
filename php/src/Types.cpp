@@ -793,6 +793,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
                 catch (const std::exception&)
                 {
                     assert(false); // validate() should have caught this.
+                    throw;
                 }
             }
             os->write(static_cast<int64_t>(val));
@@ -1699,6 +1700,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
                     catch (const std::exception&)
                     {
                         assert(false); // validate() should have caught this.
+                        throw;
                     }
                 }
                 seq[i++] = l;

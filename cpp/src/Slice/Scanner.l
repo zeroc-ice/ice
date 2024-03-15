@@ -287,15 +287,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     *yylval = itp;
     try
     {
-      itp->v = std::stoll(string(yytext), nullptr, 0);
+        itp->v = std::stoll(string(yytext), nullptr, 0);
     }
     catch (const std::out_of_range&)
     {
-      currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
     }
     catch (const std::invalid_argument&)
     {
-      currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+        currentUnit->error("invalid integer constant `" + string(yytext) + "'");
     }
     return ICE_INTEGER_LITERAL;
 }
