@@ -113,7 +113,7 @@ runs:
       run: |
         wget -O C:\Windows\System32\run-matlab-command.exe https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe
         echo "MATLAB_COMMAND=C:\Windows\System32\run-matlab-command.exe" >> $env:GITHUB_ENV
-        echo "${env:MATLAB_HOME}\bin" >> $env:GITHUB_PATH
+        echo "$env:MATLAB_HOME" >> $env:GITHUB_PATH
       shell: powershell
       if: matrix.language == 'matlab' && runner.os == 'Windows'
 
