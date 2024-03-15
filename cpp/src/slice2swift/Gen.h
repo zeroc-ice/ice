@@ -19,7 +19,6 @@ namespace Slice
         ~Gen();
 
         void generate(const UnitPtr&);
-        void closeOutput();
         void printHeader();
 
     private:
