@@ -80,7 +80,7 @@ namespace
             bool,
             const std::string&,
             const std::string&);
-        void shutdown() override;
+        void shutdown() final;
 
     private:
         shared_ptr<Activator> _activator;
@@ -386,7 +386,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
     string mapperPropertyValue = properties->getProperty(mapperProperty);
-    UserAccountMapperPrxPtr mapper;
+    optional<UserAccountMapperPrx> mapper;
     if (!mapperPropertyValue.empty())
     {
         try
@@ -442,24 +442,18 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     _sessions = make_unique<NodeSessionManager>(communicator(), instanceName);
 
-    //
-    // Create the server factory. The server factory creates persistent objects
-    // for the server and server adapter. It also takes care of installing the
-    // evictors and object factories necessary to store these objects.
-    //
-    Identity id = stringToIdentity(instanceName + "/Node-" + name);
-    NodePrx nodeProxy{_adapter->createProxy(id)};
+    // Create the server factory. The server factory creates persistent objects for the server and server adapter. It
+    // also takes care of installing the evictors and object factories necessary to store these objects.
+    NodePrx nodeProxy{_adapter->createProxy(stringToIdentity(instanceName + "/Node-" + name))};
     _node = make_shared<
         NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), _node->getServerAdminCategory());
 
-    //
     // Keep the old default servant for backward compatibility with IceGrid registries 3.5 that
     // still forward requests to this category. This can be removed when we decide to break
     // backward compatibility with 3.5 registries.
-    //
     _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), instanceName + "-NodeRouter");
 
     //
@@ -549,7 +543,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
-            AdminSessionPrxPtr session;
+            optional<AdminSessionPrx> session;
             if (communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();
@@ -577,8 +571,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             assert(session);
 
             auto admin = session->getAdmin();
+            assert(admin);
             map<string, string> vars;
-            auto app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
+            auto app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), *admin);
 
             try
             {

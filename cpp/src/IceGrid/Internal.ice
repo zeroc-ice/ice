@@ -236,23 +236,23 @@ interface PatcherFeedback
 interface Node extends FileReader, ReplicaObserver
 {
     /// Load the given server. If the server resources weren't already created (database environment directories,
-    /// property files, etc), they will be created.
-    ["amd"] idempotent Server* loadServer(InternalServerDescriptor svr,
-                                                 string replicaName,
-                                                 out AdapterPrxDict adapters,
-                                                 out int actTimeout,
-                                                 out int deactTimeout)
-        throws DeploymentException;
+    /// property files, etc), they will be created. The returned proxy is never null.
+    ["amd"] idempotent Server* loadServer(
+        InternalServerDescriptor svr,
+        string replicaName,
+        out AdapterPrxDict adapters,
+        out int activateTimeout,
+        out int deactivateTimeout) throws DeploymentException;
 
     /// Load the given server and ensure the server won't be restarted. If the server resources weren't already created
     /// (database environment directories, property files, etc), they will be created. If the server can't be updated
-    /// without a restart, a DeploymentException is raised.
-    ["amd"] idempotent Server* loadServerWithoutRestart(InternalServerDescriptor svr,
-                                                        string replicaName,
-                                                        out AdapterPrxDict adapters,
-                                                        out int actTimeout,
-                                                        out int deactTimeout)
-        throws DeploymentException;
+    /// without a restart, a DeploymentException is raised. The returned proxy is never null.
+    ["amd"] idempotent Server* loadServerWithoutRestart(
+        InternalServerDescriptor svr,
+        string replicaName,
+        out AdapterPrxDict adapters,
+        out int activateTimeout,
+        out int deactivateTimeout) throws DeploymentException;
 
     /// Destroy the given server.
     ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)

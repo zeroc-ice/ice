@@ -15,27 +15,25 @@ namespace IceBox
     class ServiceManagerI;
     using ServiceManagerIPtr = std::shared_ptr<ServiceManagerI>;
 
-    class ServiceManagerI : public ServiceManager, public std::enable_shared_from_this<ServiceManagerI>
+    class ServiceManagerI final : public ServiceManager, public std::enable_shared_from_this<ServiceManagerI>
     {
     public:
         // Temporary: use public ctor once the implementation uses only the new mapping.
         static ServiceManagerIPtr create(Ice::CommunicatorPtr, int&, char*[]);
 
-        virtual ~ServiceManagerI();
+        void startService(std::string, const ::Ice::Current&) final;
+        void stopService(std::string, const ::Ice::Current&) final;
 
-        virtual void startService(std::string, const ::Ice::Current&);
-        virtual void stopService(std::string, const ::Ice::Current&);
+        void addObserver(std::optional<ServiceObserverPrx>, const Ice::Current&) final;
 
-        virtual void addObserver(ServiceObserverPrxPtr, const Ice::Current&);
-
-        virtual void shutdown(const ::Ice::Current&);
+        void shutdown(const Ice::Current&) final;
 
         int run();
 
         bool start();
         void stop();
 
-        void observerCompleted(const ServiceObserverPrxPtr&, std::exception_ptr);
+        void observerCompleted(const ServiceObserverPrx&, std::exception_ptr);
 
     private:
         enum ServiceStatus
@@ -61,10 +59,11 @@ namespace IceBox
         void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
         void stopAll();
 
-        void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
-        void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
-        std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const ServiceObserverPrxPtr&);
-        void observerRemoved(const ServiceObserverPrxPtr&, std::exception_ptr);
+        void addObserver(ServiceObserverPrx);
+        void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
+        void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
+        std::function<void(std::exception_ptr)> makeObserverCompletedCallback(ServiceObserverPrx);
+        void observerRemoved(const ServiceObserverPrx&, std::exception_ptr);
 
         Ice::PropertiesPtr createServiceProperties(const std::string&);
         void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
@@ -81,7 +80,7 @@ namespace IceBox
         std::vector<ServiceInfo> _services;
         bool _pendingStatusChanges;
 
-        std::set<ServiceObserverPrxPtr> _observers;
+        std::set<ServiceObserverPrx> _observers;
         int _traceServiceObserver;
 
         std::mutex _mutex;

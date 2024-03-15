@@ -21,7 +21,9 @@ namespace IceGrid
         return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
     }
 
-    bool compareObjectLoadCI(const pair<Ice::ObjectPrxPtr, float>& lhs, const pair<Ice::ObjectPrxPtr, float>& rhs)
+    bool compareObjectLoadCI(
+        const pair<optional<Ice::ObjectPrx>, float>& lhs,
+        const pair<optional<Ice::ObjectPrx>, float>& rhs)
     {
         return lhs.second < rhs.second;
     }
@@ -31,18 +33,14 @@ namespace IceGrid
 void
 ObjectCache::TypeEntry::add(const shared_ptr<ObjectEntry>& obj)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, compareObjectEntryCI), obj);
 }
 
 bool
 ObjectCache::TypeEntry::remove(const shared_ptr<ObjectEntry>& obj)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     auto q = lower_bound(_objects.begin(), _objects.end(), obj, compareObjectEntryCI);
     assert(q->get() == obj.get());
     _objects.erase(q);
@@ -173,10 +171,11 @@ ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, cons
 {
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 ObjectEntry::getProxy() const
 {
-    return _info.proxy;
+    assert(_info.proxy);
+    return *_info.proxy;
 }
 
 string

@@ -491,7 +491,7 @@ ServerEntry::getId() const
     return _id;
 }
 
-ServerPrxPtr
+ServerPrx
 ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 {
     //
@@ -504,7 +504,7 @@ ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
     return getProxy(actTimeout, deactTimeout, node, upToDate, timeout);
 }
 
-ServerPrxPtr
+ServerPrx
 ServerEntry::getProxy(
     chrono::seconds& activationTimeout,
     chrono::seconds& deactivationTimeout,
@@ -520,15 +520,16 @@ ServerEntry::getProxy(
     {
         {
             lock_guard lock(_mutex);
-            if (_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
+            if (_loaded || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
-                assert(_loaded.get() || _load.get() || _destroy.get());
+                assert(_loaded || _load || _destroy);
                 activationTimeout = _activationTimeout;
                 deactivationTimeout = _deactivationTimeout;
-                node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
-                return _proxy;
+                node = _loaded ? _loaded->node : (_load ? _load->node : _destroy->node);
+                assert(_proxy);
+                return *_proxy;
             }
-            else if (!_load.get() && !_destroy.get())
+            else if (!_load && !_destroy)
             {
                 throw ServerNotExistException(_id);
             }
@@ -539,7 +540,7 @@ ServerEntry::getProxy(
     }
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 ServerEntry::getAdminProxy()
 {
     //
@@ -548,7 +549,7 @@ ServerEntry::getAdminProxy()
     return getProxy(true)->ice_identity({_id, _cache.getInstanceName() + "-NodeServerAdminRouter"});
 }
 
-AdapterPrxPtr
+AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
     //
@@ -560,7 +561,7 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
     return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
 }
 
-AdapterPrxPtr
+AdapterPrx
 ServerEntry::getAdapter(
     chrono::seconds& activationTimeout,
     chrono::seconds& deactivationTimeout,
@@ -583,7 +584,7 @@ ServerEntry::getAdapter(
                     assert(p->second);
                     activationTimeout = _activationTimeout;
                     deactivationTimeout = _deactivationTimeout;
-                    return p->second;
+                    return *p->second;
                 }
                 else
                 {
@@ -608,12 +609,12 @@ ServerEntry::getLoad(LoadSample sample) const
     string node;
     {
         lock_guard lock(_mutex);
-        if (_loaded.get())
+        if (_loaded)
         {
             application = _loaded->application;
             node = _loaded->node;
         }
-        else if (_load.get())
+        else if (_load)
         {
             application = _load->application;
             node = _load->node;
@@ -656,7 +657,7 @@ ServerEntry::syncImpl()
             return;
         }
 
-        if (!_load.get() && !_destroy.get())
+        if (!_load && !_destroy)
         {
             _load.reset(_loaded.release()); // Re-load the current server.
         }
@@ -664,12 +665,12 @@ ServerEntry::syncImpl()
         _updated = false;
         _exception = nullptr;
 
-        if (_destroy.get())
+        if (_destroy)
         {
             destroy = *_destroy;
             timeout = _deactivationTimeout;
         }
-        else if (_load.get())
+        else if (_load)
         {
             load = *_load;
             session = _allocationSession;
@@ -811,8 +812,8 @@ ServerEntry::synchronized(exception_ptr ex)
 
 void
 ServerEntry::loadCallback(
-    const ServerPrxPtr& proxy,
-    const AdapterPrxDict& adpts,
+    ServerPrx proxy,
+    const AdapterPrxDict& adapters,
     chrono::seconds activationTimeout,
     chrono::seconds deactivationTimeout)
 {
@@ -827,17 +828,13 @@ ServerEntry::loadCallback(
         lock_guard lock(_mutex);
         if (!_updated)
         {
-            //
-            // Set timeout on server and adapter proxies. Most of the
-            // calls on the proxies shouldn't block for longer than the
-            // node session timeout. Calls that might block for a longer
-            // time should set the correct timeout before invoking on the
-            // proxy (e.g.: server start/stop, adapter activate).
-            //
-            assert(_load.get());
+            // Set timeout on server and adapter proxies. Most of the calls on the proxies shouldn't block for longer
+            // than the node session timeout. Calls that might block for a longer time should set the correct timeout
+            // before invoking on the proxy (e.g.: server start/stop, adapter activate).
+            assert(_load);
             _loaded.reset(_load.release());
-            _proxy = proxy;
-            _adapters = adpts;
+            _proxy = std::move(proxy);
+            _adapters = adapters;
             _activationTimeout = activationTimeout;
             _deactivationTimeout = deactivationTimeout;
 
@@ -1046,7 +1043,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         throw NodeUnreachableException(info.node, "node is not active");
     }
 
-    ServerPrxPtr server;
+    optional<ServerPrx> server;
     try
     {
         server = getProxy(true, 5s);
@@ -1062,8 +1059,8 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     {
         if (noRestart)
         {
-            // If the server can't be loaded and no restart is required, we throw
-            // to indicate that the server update can't be checked.
+            // If the server can't be loaded and no restart is required, we throw to indicate that the server update
+            // can't be checked.
             throw;
         }
         else
@@ -1073,17 +1070,15 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         }
     }
 
-    //
-    // Provide a null descriptor if the server is to be removed from
-    // the node. In this case, the check just ensures that the server
-    // is stopped.
-    //
+    // Provide a null descriptor if the server is to be removed from the node. In this case, the check just ensures
+    // that the server is stopped.
     shared_ptr<InternalServerDescriptor> desc;
     if (info.node == oldInfo.node && info.descriptor)
     {
         desc = node->getInternalServerDescriptor(info, session); // The new descriptor
     }
 
+    assert(server);
     return make_shared<CheckUpdateResult>(
         _id,
         oldInfo.node,

@@ -1301,8 +1301,6 @@ void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << p->name() << "Prx;";
-    // TODO: temporary PrxPtr
-    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 void

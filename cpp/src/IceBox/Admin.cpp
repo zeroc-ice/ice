@@ -136,15 +136,11 @@ run(const Ice::StringSeq& args)
             managerProxy = "\"" + communicator->identityToString(managerIdentity) + "\" @" + managerAdapterId;
         }
 
-        base = communicator->stringToProxy(managerProxy);
+        base = Ice::ObjectPrx(communicator, managerProxy);
     }
+    assert(base);
 
-    IceBox::ServiceManagerPrxPtr manager = Ice::checkedCast<IceBox::ServiceManagerPrx>(base.value());
-    if (!manager)
-    {
-        consoleErr << args[0] << ": `" << base.value() << "' is not an IceBox::ServiceManager" << endl;
-        return 1;
-    }
+    IceBox::ServiceManagerPrx manager{*base};
 
     for (vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {

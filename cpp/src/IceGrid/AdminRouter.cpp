@@ -11,14 +11,12 @@ IceGrid::AdminRouter::AdminRouter(const shared_ptr<TraceLevels>& traceLevels) : 
 
 void
 IceGrid::AdminRouter::invokeOnTarget(
-    const Ice::ObjectPrxPtr& target,
+    const Ice::ObjectPrx& target,
     const pair<const byte*, const byte*>& inParams,
     function<void(bool, const pair<const byte*, const byte*>&)>&& response,
     function<void(exception_ptr)>&& exception,
     const Ice::Current& current)
 {
-    assert(target);
-
     if (_traceLevels->admin > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);

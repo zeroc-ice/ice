@@ -19,7 +19,7 @@ namespace
     Ice::EncodingVersion encodings[] = {{1, 0}, {1, 1}};
 }
 
-ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, const string& name, int64_t dbSerial)
+ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, const string& name, int64_t dbSerial)
     : _logger(topicManager->ice_getCommunicator()->getLogger()),
       _serial(0),
       _dbSerial(dbSerial)
@@ -28,14 +28,20 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, c
     {
         ostringstream os;
         os << name << "-" << Ice::encodingVersionToString(encodings[i]);
-        IceStorm::TopicPrxPtr t;
+
+        optional<IceStorm::TopicPrx> topic;
         try
         {
-            t = topicManager->create(os.str());
+            topic = topicManager->create(os.str());
         }
         catch (const IceStorm::TopicExists&)
         {
-            t = topicManager->retrieve(os.str());
+            topic = topicManager->retrieve(os.str());
+        }
+
+        if (!topic)
+        {
+            throw Ice::MarshalException(__FILE__, __LINE__, "failed to create or retrieve topic `" + os.str() + "'");
         }
 
         //
@@ -43,13 +49,24 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, c
         // topic because the subscribe() method is given a fixed proxy
         // which can't be marshalled.
         //
-        _topics[encodings[i]] = t;
-        _basePublishers.push_back(t->getPublisher()->ice_encodingVersion(encodings[i]));
+        _topics.insert({encodings[i], *topic});
+
+        optional<Ice::ObjectPrx> publisher = topic->getPublisher();
+
+        if (!publisher)
+        {
+            throw Ice::MarshalException(
+                __FILE__,
+                __LINE__,
+                "failed to get publisher for topic `" + topic->ice_toString() + "'");
+        }
+
+        _basePublishers.push_back((*publisher)->ice_encodingVersion(encodings[i]));
     }
 }
 
 int
-ObserverTopic::subscribe(const Ice::ObjectPrxPtr& obsv, const string& name)
+ObserverTopic::subscribe(const Ice::ObjectPrx& observer, const string& name)
 {
     lock_guard lock(_mutex);
     if (_topics.empty())
@@ -57,24 +74,30 @@ ObserverTopic::subscribe(const Ice::ObjectPrxPtr& obsv, const string& name)
         return -1;
     }
 
-    assert(obsv);
     try
     {
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
-        Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(obsv->ice_getEncodingVersion());
+        Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
         auto p = _topics.find(v);
         if (p == _topics.end())
         {
             Ice::Warning out(_logger);
-            out << "unsupported encoding version for observer `" << obsv << "'";
+            out << "unsupported encoding version for observer `" << observer << "'";
             return -1;
         }
-        initObserver(p->second->subscribeAndGetPublisher(qos, obsv->ice_twoway()));
+        auto publisher = p->second->subscribeAndGetPublisher(qos, observer->ice_twoway());
+        if (!publisher)
+        {
+            ostringstream os;
+            os << "topic: `" << p->second->ice_toString() << "' returned null publisher proxy.";
+            throw Ice::MarshalException(__FILE__, __LINE__, os.str());
+        }
+        initObserver(*publisher);
     }
     catch (const IceStorm::AlreadySubscribed&)
     {
-        throw ObserverAlreadyRegisteredException(obsv->ice_getIdentity());
+        throw ObserverAlreadyRegisteredException(observer->ice_getIdentity());
     }
 
     if (!name.empty())
@@ -88,7 +111,7 @@ ObserverTopic::subscribe(const Ice::ObjectPrxPtr& obsv, const string& name)
 }
 
 void
-ObserverTopic::unsubscribe(const Ice::ObjectPrxPtr& observer, const string& name)
+ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
 {
     lock_guard lock(_mutex);
     Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
@@ -104,8 +127,6 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrxPtr& observer, const string& name
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-
-    assert(observer);
 
     if (!name.empty())
     {
@@ -271,10 +292,10 @@ ObserverTopic::getContext(int serial, int64_t dbSerial) const
     return context;
 }
 
-RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager)
-    : ObserverTopic(topicManager, "RegistryObserver")
+RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
+    : ObserverTopic(topicManager, "RegistryObserver"),
+      _publishers(getPublishers<RegistryObserverPrx>())
 {
-    _publishers = getPublishers<RegistryObserverPrx>();
 }
 
 void
@@ -332,41 +353,32 @@ RegistryObserverTopic::registryDown(const string& name)
 }
 
 void
-RegistryObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
+RegistryObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    auto observer = Ice::uncheckedCast<RegistryObserverPrx>(obsv);
+    RegistryObserverPrx registryObserver{std::move(observer)};
     RegistryInfoSeq registries;
     registries.reserve(_registries.size());
     for (const auto& registry : _registries)
     {
         registries.push_back(registry.second);
     }
-    observer->registryInit(registries, getContext(_serial));
+    registryObserver->registryInit(registries, getContext(_serial));
 }
 
 shared_ptr<NodeObserverTopic>
-NodeObserverTopic::create(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
-    const shared_ptr<Ice::ObjectAdapter>& adapter)
+NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const shared_ptr<Ice::ObjectAdapter>& adapter)
 {
-    shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager));
-
-    try
-    {
-        const_cast<NodeObserverPrxPtr&>(topic->_externalPublisher) =
-            Ice::uncheckedCast<NodeObserverPrx>(adapter->addWithUUID(topic));
-    }
-    catch (const Ice::LocalException&)
-    {
-    }
-
+    Ice::Identity id{Ice::generateUUID(), ""};
+    shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager, NodeObserverPrx{adapter->createProxy(id)}));
+    adapter->add(topic, std::move(id));
     return topic;
 }
 
-NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager)
-    : ObserverTopic(topicManager, "NodeObserver")
+NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager, NodeObserverPrx externalPublisher)
+    : ObserverTopic(topicManager, "NodeObserver"),
+      _externalPublisher(std::move(externalPublisher)),
+      _publishers(getPublishers<NodeObserverPrx>())
 {
-    _publishers = getPublishers<NodeObserverPrx>();
 }
 
 void
@@ -569,16 +581,16 @@ NodeObserverTopic::nodeDown(const string& name)
 }
 
 void
-NodeObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
+NodeObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    auto observer = Ice::uncheckedCast<NodeObserverPrx>(obsv);
+    NodeObserverPrx nodeObserver{std::move(observer)};
     NodeDynamicInfoSeq nodes;
     nodes.reserve(_nodes.size());
     for (const auto& node : _nodes)
     {
         nodes.push_back(node.second);
     }
-    observer->nodeInit(nodes, getContext(_serial));
+    nodeObserver->nodeInit(nodes, getContext(_serial));
 }
 
 bool
@@ -601,13 +613,13 @@ NodeObserverTopic::isServerEnabled(const string& server) const
 }
 
 ApplicationObserverTopic::ApplicationObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<string, ApplicationInfo>& applications,
     int64_t serial)
     : ObserverTopic(topicManager, "ApplicationObserver", serial),
+      _publishers(getPublishers<ApplicationObserverPrx>()),
       _applications(applications)
 {
-    _publishers = getPublishers<ApplicationObserverPrx>();
 }
 
 int
@@ -750,25 +762,25 @@ ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const Application
 }
 
 void
-ApplicationObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
+ApplicationObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    auto observer = Ice::uncheckedCast<ApplicationObserverPrx>(obsv);
+    ApplicationObserverPrx applicationObserver{std::move(observer)};
     ApplicationInfoSeq applications;
     for (const auto& application : _applications)
     {
         applications.push_back(application.second);
     }
-    observer->applicationInit(_serial, applications, getContext(_serial, _dbSerial));
+    applicationObserver->applicationInit(_serial, applications, getContext(_serial, _dbSerial));
 }
 
 AdapterObserverTopic::AdapterObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<string, AdapterInfo>& adapters,
     int64_t serial)
     : ObserverTopic(topicManager, "AdapterObserver", serial),
+      _publishers(getPublishers<AdapterObserverPrx>()),
       _adapters(adapters)
 {
-    _publishers = getPublishers<AdapterObserverPrx>();
 }
 
 int
@@ -880,25 +892,25 @@ AdapterObserverTopic::adapterRemoved(int64_t dbSerial, const string& id)
 }
 
 void
-AdapterObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
+AdapterObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    auto observer = Ice::uncheckedCast<AdapterObserverPrx>(obsv);
+    AdapterObserverPrx adapterObserver{std::move(observer)};
     AdapterInfoSeq adapters;
     for (const auto& adapter : _adapters)
     {
         adapters.push_back(adapter.second);
     }
-    observer->adapterInit(adapters, getContext(_serial, _dbSerial));
+    adapterObserver->adapterInit(adapters, getContext(_serial, _dbSerial));
 }
 
 ObjectObserverTopic::ObjectObserverTopic(
-    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const IceStorm::TopicManagerPrx& topicManager,
     const map<Ice::Identity, ObjectInfo>& objects,
     int64_t serial)
     : ObserverTopic(topicManager, "ObjectObserver", serial),
+      _publishers(getPublishers<ObjectObserverPrx>()),
       _objects(objects)
 {
-    _publishers = getPublishers<ObjectObserverPrx>();
 }
 
 int
@@ -1101,13 +1113,13 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
 }
 
 void
-ObjectObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
+ObjectObserverTopic::initObserver(Ice::ObjectPrx observer)
 {
-    auto observer = Ice::uncheckedCast<ObjectObserverPrx>(obsv);
+    ObjectObserverPrx objectObserver{std::move(observer)};
     ObjectInfoSeq objects;
     for (const auto& object : _objects)
     {
         objects.push_back(object.second);
     }
-    observer->objectInit(objects, getContext(_serial, _dbSerial));
+    objectObserver->objectInit(objects, getContext(_serial, _dbSerial));
 }

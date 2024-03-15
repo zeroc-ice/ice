@@ -25,7 +25,7 @@ namespace IceGrid
     struct LocatorAdapterInfo
     {
         std::string id;
-        AdapterPrxPtr proxy;
+        std::optional<AdapterPrx> proxy;
         std::chrono::seconds activationTimeout;
         std::chrono::seconds deactivationTimeout;
     };
@@ -39,7 +39,7 @@ namespace IceGrid
 
     private:
         AdapterInfoSeq _adapters;
-        std::vector<std::optional<std::future<Ice::ObjectPrxPtr>>> _results;
+        std::vector<std::optional<std::future<std::optional<Ice::ObjectPrx>>>> _results;
     };
 
     class AdapterEntry
@@ -59,7 +59,7 @@ namespace IceGrid
         virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
         virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
         virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const = 0;
-        virtual AdapterPrxPtr getProxy(const std::string&, bool) const = 0;
+        virtual std::optional<AdapterPrx> getProxy(const std::string&, bool) const = 0;
 
         virtual bool canRemove();
 
@@ -83,16 +83,16 @@ namespace IceGrid
             int,
             const std::shared_ptr<ServerEntry>&);
 
-        bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) override;
+        bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) final;
 
         void
         getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&)
-            override;
+            final;
 
-        float getLeastLoadedNodeLoad(LoadSample) const override;
-        AdapterInfoSeq getAdapterInfoNoEndpoints() const override;
-        std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const override;
-        AdapterPrxPtr getProxy(const std::string&, bool) const override;
+        float getLeastLoadedNodeLoad(LoadSample) const final;
+        AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
+        std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
+        std::optional<AdapterPrx> getProxy(const std::string&, bool) const final;
 
         void getLocatorAdapterInfo(LocatorAdapterInfoSeq&) const;
         const std::string& getReplicaGroupId() const { return _replicaGroupId; }
@@ -117,14 +117,15 @@ namespace IceGrid
             const std::shared_ptr<LoadBalancingPolicy>&,
             const std::string&);
 
-        virtual bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&);
+        bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) final;
 
-        virtual void
-        getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&);
-        virtual float getLeastLoadedNodeLoad(LoadSample) const;
-        virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const;
-        virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const;
-        virtual AdapterPrxPtr getProxy(const std::string&, bool) const { return std::nullopt; }
+        void
+        getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&)
+            final;
+        float getLeastLoadedNodeLoad(LoadSample) const final;
+        AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
+        std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
+        std::optional<AdapterPrx> getProxy(const std::string&, bool) const final { return std::nullopt; }
 
         void addReplica(const std::string&, const std::shared_ptr<ServerAdapterEntry>&);
         bool removeReplica(const std::string&);

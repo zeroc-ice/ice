@@ -20,7 +20,7 @@ namespace IceGrid
         function<void(exception_ptr)> exceptionCb,
         const shared_ptr<TraceLevels>& traceLevels,
         const string& id,
-        const Ice::ObjectPrxPtr& proxy)
+        const optional<Ice::ObjectPrx>& proxy)
     {
         auto response = [traceLevels, id, proxy, responseCb = std::move(responseCb)]()
         {
@@ -55,18 +55,15 @@ namespace IceGrid
             catch (const AdapterActiveException&)
             {
                 exceptionCb(make_exception_ptr(Ice::AdapterAlreadyActiveException()));
-                return;
             }
             catch (const Ice::ObjectNotExistException&)
             {
                 exceptionCb(
                     make_exception_ptr(Ice::AdapterNotFoundException())); // Expected if the adapter was destroyed).
-                return;
             }
             catch (const Ice::Exception&)
             {
                 exceptionCb(make_exception_ptr(Ice::AdapterNotFoundException()));
-                return;
             }
         };
 
@@ -82,13 +79,13 @@ namespace IceGrid
             function<void(exception_ptr)> exception,
             const string& adapterId,
             const string& replicaGroupId,
-            const Ice::ObjectPrxPtr& proxy)
+            optional<Ice::ObjectPrx> proxy)
             : _registry(registry),
               _response(std::move(response)),
               _exception(std::move(exception)),
               _adapterId(adapterId),
               _replicaGroupId(replicaGroupId),
-              _proxy(proxy)
+              _proxy(std::move(proxy))
         {
         }
 
@@ -112,7 +109,7 @@ namespace IceGrid
         const function<void(exception_ptr)> _exception;
         const string _adapterId;
         const string _replicaGroupId;
-        const Ice::ObjectPrxPtr _proxy;
+        const optional<Ice::ObjectPrx> _proxy;
     };
 
     class SetServerProcessProxyCallback final : public SynchronizationCallback
@@ -123,12 +120,12 @@ namespace IceGrid
             const function<void()> response,
             const function<void(exception_ptr)> exception,
             const string& id,
-            const Ice::ProcessPrxPtr& proxy)
+            Ice::ProcessPrx proxy)
             : _registry(registry),
               _response(std::move(response)),
               _exception(std::move(exception)),
               _id(id),
-              _proxy(proxy)
+              _proxy(std::move(proxy))
         {
         }
 
@@ -171,9 +168,8 @@ namespace IceGrid
         const function<void()> _response;
         const function<void(exception_ptr)> _exception;
         const string _id;
-        const Ice::ProcessPrxPtr _proxy;
+        const Ice::ProcessPrx _proxy;
     };
-
 };
 
 LocatorRegistryI::LocatorRegistryI(
@@ -191,7 +187,7 @@ LocatorRegistryI::LocatorRegistryI(
 void
 LocatorRegistryI::setAdapterDirectProxyAsync(
     string adapterId,
-    Ice::ObjectPrxPtr proxy,
+    optional<Ice::ObjectPrx> proxy,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Ice::Current&)
@@ -206,7 +202,7 @@ void
 LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
     string adapterId,
     string replicaGroupId,
-    Ice::ObjectPrxPtr proxy,
+    optional<Ice::ObjectPrx> proxy,
     function<void()> response,
     function<void(exception_ptr)> exception,
     const Ice::Current&)
@@ -219,22 +215,21 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
 void
 LocatorRegistryI::setServerProcessProxyAsync(
     string id,
-    Ice::ProcessPrxPtr proxy,
+    optional<Ice::ProcessPrx> proxy,
     function<void()> response,
     function<void(exception_ptr)> exception,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
     try
     {
-        //
+        Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+
         // Get the server from the registry and set its process proxy.
         //
-        // NOTE: We pass false to the getServer call to indicate that
-        // we don't necessarily want an up-to-date adapter proxy. This
-        // is needed for the session activation mode for cases where
-        // the server is released during the server startup.
-        //
-        ServerPrxPtr server;
+        // NOTE: We pass false to the getServer call to indicate that we don't necessarily want an up-to-date adapter
+        // proxy. This is needed for the session activation mode for cases where the server is released during the
+        // server startup.
+        optional<ServerPrx> server;
         while (true)
         {
             try
@@ -244,9 +239,12 @@ LocatorRegistryI::setServerProcessProxyAsync(
             }
             catch (const SynchronizationException&)
             {
-                auto cb =
-                    make_shared<SetServerProcessProxyCallback>(shared_from_this(), response, exception, id, proxy);
-                if (_database->getServer(id)->addSyncCallback(std::move(cb)))
+                if (_database->getServer(id)->addSyncCallback(make_shared<SetServerProcessProxyCallback>(
+                        shared_from_this(),
+                        response,
+                        exception,
+                        id,
+                        *proxy)))
                 {
                     return;
                 }
@@ -260,8 +258,7 @@ LocatorRegistryI::setServerProcessProxyAsync(
                 if (traceLevels->locator > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "registered server `" << id << "' process proxy: `";
-                    out << (proxy ? proxy->ice_toString() : string("")) << "'";
+                    out << "registered server `" << id << "' process proxy: `" << proxy->ice_toString() << "'";
                 }
                 response();
             },
@@ -317,13 +314,11 @@ void
 LocatorRegistryI::setAdapterDirectProxy(
     string adapterId,
     string replicaGroupId,
-    Ice::ObjectPrxPtr proxy,
+    optional<Ice::ObjectPrx> proxy,
     function<void()> response,
     function<void(exception_ptr)> exception)
 {
-    //
     // Ignore request with empty adapter id.
-    //
     if (adapterId.empty())
     {
         response();
@@ -335,10 +330,8 @@ LocatorRegistryI::setAdapterDirectProxy(
     {
         try
         {
-            //
             // Get the adapter from the registry and set its direct proxy.
-            //
-            AdapterPrxPtr adapter;
+            optional<AdapterPrx> adapter;
             while (true)
             {
                 try

@@ -263,10 +263,11 @@ AllocatableObjectEntry::AllocatableObjectEntry(
     assert(_server);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 AllocatableObjectEntry::getProxy() const
 {
-    return _info.proxy;
+    assert(_info.proxy);
+    return *_info.proxy;
 }
 
 string
