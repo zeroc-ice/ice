@@ -231,7 +231,7 @@ ReplicaSessionI::setAdapterDirectProxy(
     {
         throw AdapterNotExistException();
     }
-    _database->setAdapterDirectProxy(adapterId, replicaGroupId, std::move(*proxy));
+    _database->setAdapterDirectProxy(adapterId, replicaGroupId, *std::move(proxy));
 }
 
 void

@@ -136,7 +136,7 @@ ProcessI::shutdown(const Current&)
 void
 ProcessI::writeMessage(string message, int fd, const Current& current)
 {
-    _origProcess->writeMessage(std::move(message), std::move(fd), current);
+    _origProcess->writeMessage(std::move(message), fd, current);
 }
 
 bool

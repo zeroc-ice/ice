@@ -38,7 +38,7 @@ TraceLevels::TraceLevels(const shared_ptr<Ice::Communicator>& communicator, cons
 {
     auto properties = communicator->getProperties();
 
-    string keyBase = prefix + ".Trace.";
+    const string keyBase = prefix + ".Trace.";
     const_cast<int&>(admin) = properties->getPropertyAsInt(keyBase + adminCat);
     const_cast<int&>(application) = properties->getPropertyAsInt(keyBase + applicationCat);
     const_cast<int&>(node) = properties->getPropertyAsInt(keyBase + nodeCat);

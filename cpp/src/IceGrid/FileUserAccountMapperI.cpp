@@ -70,7 +70,7 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 string
 FileUserAccountMapperI::getUserAccount(string user, const Ice::Current&)
 {
-    map<string, string>::const_iterator p = _accounts.find(std::move(user));
+    map<string, string>::const_iterator p = _accounts.find(user);
     if (p == _accounts.end())
     {
         throw UserAccountNotFoundException();
