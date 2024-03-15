@@ -41,23 +41,6 @@
     </Otherwise>
   </Choose>
 
-  <!--
-      Define IceConfiguration for C++ builds. This allows us to define common
-      settings for different debug configurations such as "Debug" and "Cpp11-Debug".
-  -->
-  <Choose>
-    <When Condition="'$(UseDebugLibraries)' == 'true'">
-      <PropertyGroup>
-        <IceConfiguration>Debug</IceConfiguration>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <IceConfiguration>Release</IceConfiguration>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
       <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
@@ -99,7 +82,7 @@
   <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\cpp11\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
