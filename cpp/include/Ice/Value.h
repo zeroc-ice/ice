@@ -5,21 +5,16 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-#include <Ice/ValueF.h>
-#include <Ice/SlicedDataF.h>
-#include "InputStream.h"
-#include "OutputStream.h"
+#include "ValueF.h"
+#include "SlicedDataF.h"
 
 namespace Ice
 {
     class OutputStream;
     class InputStream;
-}
 
-namespace Ice
-{
     /**
-     * The base class for instances of Slice classes.
+     * The base class for instances of Slice-defined classes.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Value
@@ -59,7 +54,7 @@ namespace Ice
         static std::string_view ice_staticId() noexcept;
 
         /**
-         * Returns a shallow copy of the object.
+         * Creates a shallow polymorphic copy of this instance.
          * @return The cloned value.
          */
         std::shared_ptr<Value> ice_clone() const { return _iceCloneImpl(); }
@@ -98,36 +93,6 @@ namespace Ice
     private:
         SlicedDataPtr _slicedData;
     };
-
-    /// \cond INTERNAL
-    template<typename T, typename Base> class ValueHelper : public Base
-    {
-    public:
-        using Base::Base;
-
-        ValueHelper() = default;
-
-        std::string ice_id() const override { return std::string{T::ice_staticId()}; }
-
-    protected:
-
-        virtual void _iceWriteImpl(Ice::OutputStream* os) const override
-        {
-            os->startSlice(T::ice_staticId(), -1, std::is_same<Base, Ice::Value>::value ? true : false);
-            Ice::StreamWriter<T, Ice::OutputStream>::write(os, static_cast<const T&>(*this));
-            os->endSlice();
-            Base::_iceWriteImpl(os);
-        }
-
-        virtual void _iceReadImpl(Ice::InputStream* is) override
-        {
-            is->startSlice();
-            Ice::StreamReader<T, Ice::InputStream>::read(is, static_cast<T&>(*this));
-            is->endSlice();
-            Base::_iceReadImpl(is);
-        }
-    };
-    /// \endcond
 }
 
 #endif

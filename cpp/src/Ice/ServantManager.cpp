@@ -8,6 +8,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
 #include <Ice/StringUtil.h>
+#include "Ice/InputStream.h"
 
 using namespace std;
 using namespace Ice;

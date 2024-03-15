@@ -15,7 +15,7 @@ using namespace Test;
 using namespace Test::Sub;
 using namespace Test2::Sub2;
 
-class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
+class TestObjectWriter : public Ice::Value
 {
 public:
     TestObjectWriter(const MyClassPtr& p)
@@ -36,7 +36,7 @@ public:
     bool called;
 };
 
-class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
+class TestObjectReader : public Ice::Value
 {
 public:
     TestObjectReader() { called = false; }
@@ -53,27 +53,6 @@ public:
     MyClassPtr obj;
     bool called;
 };
-
-// Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
-namespace Ice
-{
-    template<class S> struct StreamWriter<TestObjectWriter, S>
-    {
-        static void write(S*, const TestObjectWriter&) { assert(false); }
-    };
-    template<class S> struct StreamReader<TestObjectWriter, S>
-    {
-        static void read(S*, TestObjectWriter&) { assert(false); }
-    };
-    template<class S> struct StreamWriter<TestObjectReader, S>
-    {
-        static void write(S*, const TestObjectReader&) { assert(false); }
-    };
-    template<class S> struct StreamReader<TestObjectReader, S>
-    {
-        static void read(S*, TestObjectReader&) { assert(false); }
-    };
-}
 
 void
 patchObject(void* addr, const shared_ptr<Ice::Value>& v)

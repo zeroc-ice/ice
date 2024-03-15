@@ -10,6 +10,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/HashUtil.h>
 #include <Ice/NetworkProxy.h>
+#include "Ice/InputStream.h"
 
 using namespace std;
 using namespace Ice;
