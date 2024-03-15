@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
+public class MetricsMap<T extends com.zeroc.Ice.MX.Metrics>
 {
     public class Entry
     {
@@ -29,8 +29,8 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         }
 
         @SuppressWarnings("unchecked")
-        public <S extends com.zeroc.IceMX.Metrics> MetricsMap<S>.Entry
-        getMatching(String mapName, com.zeroc.IceMX.MetricsHelper<S> helper, Class<S> cl)
+        public <S extends com.zeroc.Ice.MX.Metrics> MetricsMap<S>.Entry
+        getMatching(String mapName, com.zeroc.Ice.MX.MetricsHelper<S> helper, Class<S> cl)
         {
             SubMap<S> m;
             synchronized(MetricsMap.this)
@@ -67,7 +67,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         }
 
         public void
-        execute(com.zeroc.IceMX.Observer.MetricsUpdate<T> func)
+        execute(com.zeroc.Ice.MX.Observer.MetricsUpdate<T> func)
         {
             synchronized(MetricsMap.this)
             {
@@ -81,21 +81,21 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
             return MetricsMap.this;
         }
 
-        private com.zeroc.IceMX.MetricsFailures
+        private com.zeroc.Ice.MX.MetricsFailures
         getFailures()
         {
             if(_failures == null)
             {
                 return null;
             }
-            com.zeroc.IceMX.MetricsFailures f = new com.zeroc.IceMX.MetricsFailures();
+            com.zeroc.Ice.MX.MetricsFailures f = new com.zeroc.Ice.MX.MetricsFailures();
             f.id = _object.id;
             f.failures = new java.util.HashMap<>(_failures);
             return f;
         }
 
         private void
-        attach(com.zeroc.IceMX.MetricsHelper<T> helper)
+        attach(com.zeroc.Ice.MX.MetricsHelper<T> helper)
         {
             ++_object.total;
             ++_object.current;
@@ -110,7 +110,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
 
         @Override
         @SuppressWarnings("unchecked")
-        public com.zeroc.IceMX.Metrics
+        public com.zeroc.Ice.MX.Metrics
         clone()
         {
             T metrics = (T)_object.clone();
@@ -129,7 +129,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         private java.util.Map<String, SubMap<?>> _subMaps;
     }
 
-    static class SubMap<S extends com.zeroc.IceMX.Metrics>
+    static class SubMap<S extends com.zeroc.Ice.MX.Metrics>
     {
         public
         SubMap(MetricsMap<S> map, java.lang.reflect.Field field)
@@ -139,13 +139,13 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         }
 
         public MetricsMap<S>.Entry
-        getMatching(com.zeroc.IceMX.MetricsHelper<S> helper)
+        getMatching(com.zeroc.Ice.MX.MetricsHelper<S> helper)
         {
             return _map.getMatching(helper, null);
         }
 
         public void
-        addSubMapToMetrics(com.zeroc.IceMX.Metrics metrics)
+        addSubMapToMetrics(com.zeroc.Ice.MX.Metrics metrics)
         {
             try
             {
@@ -161,7 +161,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         final private java.lang.reflect.Field _field;
     }
 
-    static class SubMapCloneFactory<S extends com.zeroc.IceMX.Metrics>
+    static class SubMapCloneFactory<S extends com.zeroc.Ice.MX.Metrics>
     {
         public SubMapCloneFactory(MetricsMap<S> map, java.lang.reflect.Field field)
         {
@@ -179,7 +179,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         final private java.lang.reflect.Field _field;
     }
 
-    static class SubMapFactory<S extends com.zeroc.IceMX.Metrics>
+    static class SubMapFactory<S extends com.zeroc.Ice.MX.Metrics>
     {
         SubMapFactory(Class<S> cl, java.lang.reflect.Field field)
         {
@@ -300,10 +300,10 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         return _properties;
     }
 
-    synchronized com.zeroc.IceMX.Metrics[]
+    synchronized com.zeroc.Ice.MX.Metrics[]
     getMetrics()
     {
-        com.zeroc.IceMX.Metrics[] metrics = new com.zeroc.IceMX.Metrics[_objects.size()];
+        com.zeroc.Ice.MX.Metrics[] metrics = new com.zeroc.Ice.MX.Metrics[_objects.size()];
         int i = 0;
         for(Entry e : _objects.values())
         {
@@ -312,22 +312,22 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
         return metrics;
     }
 
-    synchronized com.zeroc.IceMX.MetricsFailures[]
+    synchronized com.zeroc.Ice.MX.MetricsFailures[]
     getFailures()
     {
-        java.util.List<com.zeroc.IceMX.MetricsFailures> failures = new java.util.ArrayList<>();
+        java.util.List<com.zeroc.Ice.MX.MetricsFailures> failures = new java.util.ArrayList<>();
         for(Entry e : _objects.values())
         {
-            com.zeroc.IceMX.MetricsFailures f = e.getFailures();
+            com.zeroc.Ice.MX.MetricsFailures f = e.getFailures();
             if(f != null)
             {
                 failures.add(f);
             }
         }
-        return failures.toArray(new com.zeroc.IceMX.MetricsFailures[failures.size()]);
+        return failures.toArray(new com.zeroc.Ice.MX.MetricsFailures[failures.size()]);
     }
 
-    synchronized com.zeroc.IceMX.MetricsFailures
+    synchronized com.zeroc.Ice.MX.MetricsFailures
     getFailures(String id)
     {
         Entry e = _objects.get(id);
@@ -339,7 +339,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
     }
 
     @SuppressWarnings("unchecked")
-    public <S extends com.zeroc.IceMX.Metrics> SubMap<S>
+    public <S extends com.zeroc.Ice.MX.Metrics> SubMap<S>
     createSubMap(String subMapName, Class<S> cl)
     {
         if(_subMaps == null)
@@ -355,7 +355,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
     }
 
     public Entry
-    getMatching(com.zeroc.IceMX.MetricsHelper<T> helper, Entry previous)
+    getMatching(com.zeroc.Ice.MX.MetricsHelper<T> helper, Entry previous)
     {
         //
         // Check the accept and reject filters.
@@ -485,7 +485,7 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
     }
 
     private boolean
-    match(String attribute, java.util.regex.Pattern regex, com.zeroc.IceMX.MetricsHelper<T> helper, boolean reject)
+    match(String attribute, java.util.regex.Pattern regex, com.zeroc.Ice.MX.MetricsHelper<T> helper, boolean reject)
     {
         String value;
         try

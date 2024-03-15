@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceMX;
+package com.zeroc.Ice.MX;
 
 public class ObserverFactoryWithDelegate<T extends Metrics,
                                          OImpl extends ObserverWithDelegate<T, O>,

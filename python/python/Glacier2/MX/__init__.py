@@ -2,10 +2,9 @@
 #
 
 import Ice
-Ice.updateModule("Ice")
+Ice.updateModule("Glacier2.MX")
 
 # Modules:
-import Ice.Metrics_ice
+import Glacier2.Metrics_ice
 
 # Submodules:
-from . import MX

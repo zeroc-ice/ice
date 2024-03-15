@@ -39,7 +39,7 @@ namespace IceInternal
 
 };
 
-namespace IceMX
+namespace Ice::MX
 {
     /// \cond INTERNAL
     template<class T, typename Y, typename Func> struct ApplyOnMember

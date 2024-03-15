@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.IceMX.*;
+import com.zeroc.Ice.MX.*;
 
 public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.CommunicatorObserver
 {

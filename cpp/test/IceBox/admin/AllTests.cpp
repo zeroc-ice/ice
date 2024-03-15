@@ -80,7 +80,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing metrics admin facet... " << flush;
     {
-        IceMX::MetricsAdminPrx ma(admin->ice_facet("IceBox.Service.TestService.Metrics"));
+        Ice::MX::MetricsAdminPrx ma(admin->ice_facet("IceBox.Service.TestService.Metrics"));
         Ice::PropertiesAdminPrx pa(admin->ice_facet("IceBox.Service.TestService.Properties"));
         Ice::StringSeq views;
         Ice::StringSeq disabledViews;
@@ -88,9 +88,9 @@ allTests(Test::TestHelper* helper)
         test(views.empty());
 
         Ice::PropertyDict setProps;
-        setProps["IceMX.Metrics.Debug.GroupBy"] = "id";
-        setProps["IceMX.Metrics.All.GroupBy"] = "none";
-        setProps["IceMX.Metrics.Parent.GroupBy"] = "parent";
+        setProps["Ice::MX.Metrics.Debug.GroupBy"] = "id";
+        setProps["Ice::MX.Metrics.All.GroupBy"] = "none";
+        setProps["Ice::MX.Metrics.Parent.GroupBy"] = "parent";
         pa->setProperties(setProps);
         pa->setProperties(Ice::PropertyDict());
 
@@ -98,7 +98,7 @@ allTests(Test::TestHelper* helper)
         test(views.size() == 3);
 
         // Make sure that the IceBox communicator metrics admin is a separate instance.
-        test(IceMX::MetricsAdminPrx(admin->ice_facet("Metrics"))->getMetricsViewNames(disabledViews).empty());
+        test(Ice::MX::MetricsAdminPrx(admin->ice_facet("Metrics"))->getMetricsViewNames(disabledViews).empty());
     }
     cout << "ok" << endl;
 }

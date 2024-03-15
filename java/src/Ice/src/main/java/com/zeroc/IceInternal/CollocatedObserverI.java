@@ -5,7 +5,7 @@
 package com.zeroc.IceInternal;
 
 public class CollocatedObserverI
-    extends com.zeroc.IceMX.ObserverWithDelegate<com.zeroc.IceMX.CollocatedMetrics,
+    extends com.zeroc.Ice.MX.ObserverWithDelegate<com.zeroc.Ice.MX.CollocatedMetrics,
                                                  com.zeroc.Ice.Instrumentation.CollocatedObserver>
     implements com.zeroc.Ice.Instrumentation.CollocatedObserver
 {
@@ -13,10 +13,10 @@ public class CollocatedObserverI
     public void
     reply(final int size)
     {
-        forEach(new MetricsUpdate<com.zeroc.IceMX.CollocatedMetrics>()
+        forEach(new MetricsUpdate<com.zeroc.Ice.MX.CollocatedMetrics>()
                 {
                     @Override
-                    public void update(com.zeroc.IceMX.CollocatedMetrics v)
+                    public void update(com.zeroc.Ice.MX.CollocatedMetrics v)
                     {
                         v.replySize += size;
                     }

@@ -84,8 +84,8 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            IceMX.MetricsAdminPrx ma =
-                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Metrics");
+            Ice.MX.MetricsAdminPrx ma =
+                Ice.MX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
             Ice.PropertiesAdminPrx pa =
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
@@ -106,7 +106,7 @@ public class AllTests : Test.AllTests
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin,
+            test(Ice.MX.MetricsAdminPrxHelper.checkedCast(admin,
                                                          "Metrics").getMetricsViewNames(out disabledViews).Length == 0);
         }
         Console.Out.WriteLine("ok");

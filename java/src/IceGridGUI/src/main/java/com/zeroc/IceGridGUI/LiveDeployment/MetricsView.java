@@ -58,7 +58,7 @@ class MetricsView extends TreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    MetricsView(TreeNode parent, String name, com.zeroc.IceMX.MetricsAdminPrx admin, boolean enabled)
+    MetricsView(TreeNode parent, String name, com.zeroc.Ice.MX.MetricsAdminPrx admin, boolean enabled)
     {
         super(parent, name);
         _name = name;
@@ -170,7 +170,7 @@ class MetricsView extends TreeNode
         return _name;
     }
 
-    com.zeroc.IceMX.MetricsAdminPrx getMetricsAdmin()
+    com.zeroc.Ice.MX.MetricsAdminPrx getMetricsAdmin()
     {
         return _admin;
     }
@@ -191,7 +191,7 @@ class MetricsView extends TreeNode
         return _popup;
     }
 
-    public java.util.concurrent.CompletableFuture<com.zeroc.IceMX.MetricsFailures> fetchMetricsFailures(String map,
+    public java.util.concurrent.CompletableFuture<com.zeroc.Ice.MX.MetricsFailures> fetchMetricsFailures(String map,
                                                                                                         String id)
     {
         if(_admin != null)
@@ -262,7 +262,7 @@ class MetricsView extends TreeNode
     }
 
     private String _name;
-    private com.zeroc.IceMX.MetricsAdminPrx _admin;
+    private com.zeroc.Ice.MX.MetricsAdminPrx _admin;
     private MetricsViewEditor _editor;
     private boolean _enabled;
     static private JPopupMenu _popup;

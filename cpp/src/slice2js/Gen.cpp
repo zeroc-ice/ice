@@ -941,7 +941,7 @@ namespace
 {
     bool iceBuiltinModule(const string& name)
     {
-        return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
+        return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "Ice::MX" || name == "IceStorm";
     }
 }
 

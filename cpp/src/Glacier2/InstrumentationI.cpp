@@ -12,7 +12,8 @@
 using namespace std;
 using namespace Glacier2;
 using namespace Glacier2::Instrumentation;
-using namespace IceMX;
+using namespace Ice::MX;
+using namespace Glacier2::MX;
 
 namespace
 {

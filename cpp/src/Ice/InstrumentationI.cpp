@@ -15,7 +15,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 using namespace Ice::Instrumentation;
-using namespace IceMX;
+using namespace Ice::MX;
 
 #define ICE_OBJECT_PRX Ice::ObjectPrx
 

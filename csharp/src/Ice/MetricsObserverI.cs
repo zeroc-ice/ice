@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceMX
+namespace Ice.MX
 {
     using IceInternal;
     using System;
