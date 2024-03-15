@@ -121,7 +121,7 @@ namespace
             }
             else if (bp && bp->kind() == Builtin::KindLong)
             {
-                out << value << "LL";
+                out << "INT64_C(" << value << ")";
             }
             else if (bp && bp->kind() == Builtin::KindFloat)
             {
