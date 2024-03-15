@@ -77,7 +77,7 @@ def val(v, quoteValue=True):
         return str(v)
 
 
-illegalXMLChars = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]")
+illegalXMLChars = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]")
 
 
 def escapeXml(s, attribute=False):
@@ -1775,9 +1775,9 @@ class EchoServer(Server):
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props[
-            "Ice.MessageSizeMax"
-        ] = 8192  # Don't limit the amount of data to transmit between client/server
+        props["Ice.MessageSizeMax"] = (
+            8192  # Don't limit the amount of data to transmit between client/server
+        )
         return props
 
     def getCommandLine(self, current, args=""):
@@ -3157,6 +3157,7 @@ class BrowserProcessController(RemoteProcessController):
 
     def getControllerIdentity(self, current):
         import Ice
+
         #
         # Load the controller page each time we're asked for the controller and if we're running
         # another testcase, the controller page will connect to the process controller registry
@@ -4295,23 +4296,29 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLine(self, current, process, exe, args):
-        matlabHome = os.getenv("MATLAB_HOME")
-        # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
-        return (
-            "{0} -nodesktop -nosplash{1} -r \"cd '{2}', runTest {3} {4} {5}\"".format(
+        # The MATLAB_CMD environment variable can be used to specify the MATLAB command
+        # This is currently used for GitHub Actions to specify the path to a custom MATLAB executable
+        # which is required to run the tests and does not need any additional arguments.
+        matlabCmd = os.getenv("MATLAB_COMMAND")
+
+        if not matlabCmd:
+            matlabHome = os.getenv("MATLAB_HOME")
+            # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
+            matlabCmd = "{0} -nodesktop -nosplash {1} -r".format(
                 "matlab"
                 if matlabHome is None
                 else os.path.join(matlabHome, "bin", "matlab"),
                 " -wait -log -minimize" if isinstance(platform, Windows) else "",
-                os.path.abspath(
-                    os.path.join(
-                        os.path.dirname(__file__), "..", "matlab", "test", "lib"
-                    )
-                ),
-                self.getTestCwd(process, current),
-                current.driver.getComponent().getLibDir(process, self, current),
-                args,
             )
+
+        return "{0} \"cd '{1}', runTest {2} {3} {4}\"".format(
+            matlabCmd,
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")
+            ),
+            self.getTestCwd(process, current),
+            current.driver.getComponent().getLibDir(process, self, current),
+            args,
         )
 
     def getServerMapping(self, testId=None):

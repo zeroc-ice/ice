@@ -3,7 +3,7 @@ name: Build and test
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["matlab"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
@@ -18,45 +18,50 @@ jobs:
     name: ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
     strategy:
       matrix:
-        language: [cpp]
-        os: [macos-14, ubuntu-latest, windows-latest]
-        name: [""]
-        make_flags: [""]
-        test_flags: [""]
-        include:
-          - os: macos-14
-            language: swift
-          - os: macos-14
-            language: python
-          - os: macos-14
-            language: php
-          - os: macos-14
-            language: ruby
-          - os: macos-14
-            language: cpp
-            name: "xcodesdk"
-            make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
-            test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+        language: [matlab]
+        os: [ubuntu-latest, windows-latest]
 
-          - os: ubuntu-latest
-            language: csharp
-          - os: ubuntu-latest
-            language: java
-          - os: ubuntu-latest
-            language: php
-          - os: ubuntu-latest
-            language: ruby
-          - os: ubuntu-latest
-            language: python
-          - os: ubuntu-latest
-            language: js
-          - os: ubuntu-latest
-            language: matlab
+      # strategy:
+      #   matrix:
+      #     language: [cpp]
+      #     os: [macos-14, ubuntu-latest, windows-latest]
+      #     name: [""]
+      #     make_flags: [""]
+      #     test_flags: [""]
+      #     include:
+      #       - os: macos-14
+      #         language: swift
+      #       - os: macos-14
+      #         language: python
+      #       - os: macos-14
+      #         language: php
+      #       - os: macos-14
+      #         language: ruby
+      #       - os: macos-14
+      #         language: cpp
+      #         name: "xcodesdk"
+      #         make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
+      #         test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
 
-          - os: windows-latest
-            language: python
-          - os: windows-latest
-            language: matlab
+      #       - os: ubuntu-latest
+      #         language: csharp
+      #       - os: ubuntu-latest
+      #         language: java
+      #       - os: ubuntu-latest
+      #         language: php
+      #       - os: ubuntu-latest
+      #         language: ruby
+      #       - os: ubuntu-latest
+      #         language: python
+      #       - os: ubuntu-latest
+      #         language: js
+      #       - os: ubuntu-latest
+      #         language: matlab
+
+      #       - os: windows-latest
+      #         language: python
+      #       - os: windows-latest
+      #         language: matlab
 
       fail-fast: false
 
