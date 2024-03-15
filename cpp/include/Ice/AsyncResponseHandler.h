@@ -39,7 +39,7 @@ namespace IceInternal
         {
             if (!_responseSent.test_and_set())
             {
-                _sendResponse(Ice::OutgoingResponse{marshaledResult.outputStream(), _current});
+                _sendResponse(Ice::OutgoingResponse{std::move(marshaledResult).outputStream(), _current});
             }
             // else we ignore this call.
         }
