@@ -564,6 +564,7 @@ run(const Ice::StringSeq& args)
                     if(!registry)
                     {
                         consoleErr << args[0] << ": could not contact an IceGrid registry" << endl;
+                        return 1;
                     }
                 }
                 catch(const Ice::ObjectNotFoundException&)
