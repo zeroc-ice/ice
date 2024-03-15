@@ -14,7 +14,6 @@ using namespace Test;
 class SessionControlServer final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

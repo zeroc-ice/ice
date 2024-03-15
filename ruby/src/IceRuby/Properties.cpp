@@ -12,30 +12,28 @@ using namespace IceRuby;
 
 static VALUE _propertiesClass;
 
-extern "C"
-void
+extern "C" void
 IceRuby_Properties_free(Ice::PropertiesPtr* p)
 {
     assert(p);
     delete p;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
         Ice::StringSeq seq;
-        if(argc >= 1 && !NIL_P(argv[0]) && !arrayToStringSeq(argv[0], seq))
+        if (argc >= 1 && !NIL_P(argv[0]) && !arrayToStringSeq(argv[0], seq))
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::createProperties");
         }
 
         Ice::PropertiesPtr defaults;
-        if(argc == 2)
+        if (argc == 2)
         {
-            if(!NIL_P(argv[1]) && callRuby(rb_obj_is_instance_of, argv[1], _propertiesClass) == Qfalse)
+            if (!NIL_P(argv[1]) && callRuby(rb_obj_is_instance_of, argv[1], _propertiesClass) == Qfalse)
             {
                 throw RubyException(rb_eTypeError, "invalid properties argument to Ice::createProperties");
             }
@@ -50,7 +48,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
         seq.insert(seq.begin(), getString(progName));
 
         Ice::PropertiesPtr obj;
-        if(argc >= 1)
+        if (argc >= 1)
         {
             obj = Ice::createProperties(seq, defaults);
         }
@@ -62,14 +60,14 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
         //
         // Replace the contents of the given argument list with the filtered arguments.
         //
-        if(argc > 0 && !NIL_P(argv[0]))
+        if (argc > 0 && !NIL_P(argv[0]))
         {
             callRuby(rb_ary_clear, argv[0]);
 
             //
             // We start at index 1 in order to skip the element that we inserted earlier.
             //
-            for(Ice::StringSeq::size_type i = 1; i < seq.size(); ++i)
+            for (Ice::StringSeq::size_type i = 1; i < seq.size(); ++i)
             {
                 volatile VALUE str = createString(seq[i]);
                 callRuby(rb_ary_push, argv[0], str);
@@ -82,8 +80,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getProperty(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
@@ -97,8 +94,7 @@ IceRuby_Properties_getProperty(VALUE self, VALUE key)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertyWithDefault(VALUE self, VALUE key, VALUE def)
 {
     ICE_RUBY_TRY
@@ -113,8 +109,7 @@ IceRuby_Properties_getPropertyWithDefault(VALUE self, VALUE key, VALUE def)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertyAsInt(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
@@ -128,8 +123,7 @@ IceRuby_Properties_getPropertyAsInt(VALUE self, VALUE key)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
 {
     ICE_RUBY_TRY
@@ -144,8 +138,7 @@ IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertyAsList(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
@@ -159,8 +152,7 @@ IceRuby_Properties_getPropertyAsList(VALUE self, VALUE key)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertyAsListWithDefault(VALUE self, VALUE key, VALUE def)
 {
     ICE_RUBY_TRY
@@ -168,7 +160,7 @@ IceRuby_Properties_getPropertyAsListWithDefault(VALUE self, VALUE key, VALUE def
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
         Ice::StringSeq d;
-        if(!arrayToStringSeq(def, d))
+        if (!arrayToStringSeq(def, d))
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::getPropertyAsListWithDefault");
         }
@@ -179,8 +171,7 @@ IceRuby_Properties_getPropertyAsListWithDefault(VALUE self, VALUE key, VALUE def
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getPropertiesForPrefix(VALUE self, VALUE prefix)
 {
     ICE_RUBY_TRY
@@ -189,7 +180,7 @@ IceRuby_Properties_getPropertiesForPrefix(VALUE self, VALUE prefix)
         string pfx = getString(prefix);
         Ice::PropertyDict dict = p->getPropertiesForPrefix(pfx);
         volatile VALUE result = callRuby(rb_hash_new);
-        for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
+        for (Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
         {
             volatile VALUE key = createString(q->first);
             volatile VALUE value = createString(q->second);
@@ -201,8 +192,7 @@ IceRuby_Properties_getPropertiesForPrefix(VALUE self, VALUE prefix)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_setProperty(VALUE self, VALUE key, VALUE value)
 {
     ICE_RUBY_TRY
@@ -216,8 +206,7 @@ IceRuby_Properties_setProperty(VALUE self, VALUE key, VALUE value)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_getCommandLineOptions(VALUE self)
 {
     ICE_RUBY_TRY
@@ -230,8 +219,7 @@ IceRuby_Properties_getCommandLineOptions(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_parseCommandLineOptions(VALUE self, VALUE prefix, VALUE options)
 {
     ICE_RUBY_TRY
@@ -239,7 +227,7 @@ IceRuby_Properties_parseCommandLineOptions(VALUE self, VALUE prefix, VALUE optio
         Ice::PropertiesPtr p = getProperties(self);
         string pfx = getString(prefix);
         Ice::StringSeq seq;
-        if(!arrayToStringSeq(options, seq))
+        if (!arrayToStringSeq(options, seq))
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::parseCommandLineOptions");
         }
@@ -250,15 +238,14 @@ IceRuby_Properties_parseCommandLineOptions(VALUE self, VALUE prefix, VALUE optio
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_parseIceCommandLineOptions(VALUE self, VALUE options)
 {
     ICE_RUBY_TRY
     {
         Ice::PropertiesPtr p = getProperties(self);
         Ice::StringSeq seq;
-        if(!arrayToStringSeq(options, seq))
+        if (!arrayToStringSeq(options, seq))
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::parseIceCommandLineOptions");
         }
@@ -269,8 +256,7 @@ IceRuby_Properties_parseIceCommandLineOptions(VALUE self, VALUE options)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_load(VALUE self, VALUE file)
 {
     ICE_RUBY_TRY
@@ -283,8 +269,7 @@ IceRuby_Properties_load(VALUE self, VALUE file)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_clone(VALUE self)
 {
     ICE_RUBY_TRY
@@ -297,8 +282,7 @@ IceRuby_Properties_clone(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Properties_to_s(VALUE self)
 {
     ICE_RUBY_TRY
@@ -306,9 +290,9 @@ IceRuby_Properties_to_s(VALUE self)
         Ice::PropertiesPtr p = getProperties(self);
         Ice::PropertyDict dict = p->getPropertiesForPrefix("");
         string str;
-        for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
+        for (Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
         {
-            if(q != dict.begin())
+            if (q != dict.begin())
             {
                 str.append("\n");
             }
@@ -328,23 +312,44 @@ IceRuby::initProperties(VALUE iceModule)
     _propertiesClass = rb_define_class_under(iceModule, "PropertiesI", rb_cObject);
     rb_undef_alloc_func(_propertiesClass);
     rb_define_method(_propertiesClass, "getProperty", CAST_METHOD(IceRuby_Properties_getProperty), 1);
-    rb_define_method(_propertiesClass, "getPropertyWithDefault",
-                     CAST_METHOD(IceRuby_Properties_getPropertyWithDefault), 2);
+    rb_define_method(
+        _propertiesClass,
+        "getPropertyWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyWithDefault),
+        2);
     rb_define_method(_propertiesClass, "getPropertyAsInt", CAST_METHOD(IceRuby_Properties_getPropertyAsInt), 1);
-    rb_define_method(_propertiesClass, "getPropertyAsIntWithDefault",
-                     CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault), 2);
+    rb_define_method(
+        _propertiesClass,
+        "getPropertyAsIntWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault),
+        2);
     rb_define_method(_propertiesClass, "getPropertyAsList", CAST_METHOD(IceRuby_Properties_getPropertyAsList), 1);
-    rb_define_method(_propertiesClass, "getPropertyAsListWithDefault",
-                     CAST_METHOD(IceRuby_Properties_getPropertyAsListWithDefault), 2);
-    rb_define_method(_propertiesClass, "getPropertiesForPrefix",
-                     CAST_METHOD(IceRuby_Properties_getPropertiesForPrefix), 1);
+    rb_define_method(
+        _propertiesClass,
+        "getPropertyAsListWithDefault",
+        CAST_METHOD(IceRuby_Properties_getPropertyAsListWithDefault),
+        2);
+    rb_define_method(
+        _propertiesClass,
+        "getPropertiesForPrefix",
+        CAST_METHOD(IceRuby_Properties_getPropertiesForPrefix),
+        1);
     rb_define_method(_propertiesClass, "setProperty", CAST_METHOD(IceRuby_Properties_setProperty), 2);
-    rb_define_method(_propertiesClass, "getCommandLineOptions", CAST_METHOD(IceRuby_Properties_getCommandLineOptions),
-                     0);
-    rb_define_method(_propertiesClass, "parseCommandLineOptions",
-                     CAST_METHOD(IceRuby_Properties_parseCommandLineOptions), 2);
-    rb_define_method(_propertiesClass, "parseIceCommandLineOptions",
-                     CAST_METHOD(IceRuby_Properties_parseIceCommandLineOptions), 1);
+    rb_define_method(
+        _propertiesClass,
+        "getCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_getCommandLineOptions),
+        0);
+    rb_define_method(
+        _propertiesClass,
+        "parseCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_parseCommandLineOptions),
+        2);
+    rb_define_method(
+        _propertiesClass,
+        "parseIceCommandLineOptions",
+        CAST_METHOD(IceRuby_Properties_parseIceCommandLineOptions),
+        1);
     rb_define_method(_propertiesClass, "load", CAST_METHOD(IceRuby_Properties_load), 1);
     rb_define_method(_propertiesClass, "clone", CAST_METHOD(IceRuby_Properties_clone), 0);
     rb_define_method(_propertiesClass, "to_s", CAST_METHOD(IceRuby_Properties_to_s), 0);

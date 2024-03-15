@@ -13,7 +13,6 @@ using namespace Test;
 class Control final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -21,7 +20,7 @@ void
 Control::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv);
-    if(argc < 2)
+    if (argc < 2)
     {
         ostringstream os;
         os << "Usage: " << argv[0] << " proxy";

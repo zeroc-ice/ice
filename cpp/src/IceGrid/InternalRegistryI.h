@@ -10,57 +10,59 @@
 
 namespace IceGrid
 {
+    class Database;
+    class FileCache;
+    class ReapThread;
+    class RegistryI;
+    class ReplicaSessionManager;
+    class WellKnownObjectsManager;
 
-class Database;
-class FileCache;
-class ReapThread;
-class RegistryI;
-class ReplicaSessionManager;
-class WellKnownObjectsManager;
+    class InternalRegistryI final : public InternalRegistry
+    {
+    public:
+        InternalRegistryI(
+            const std::shared_ptr<RegistryI>&,
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<ReapThread>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            ReplicaSessionManager&);
 
-class InternalRegistryI : public InternalRegistry
-{
-public:
+        std::optional<NodeSessionPrx>
+        registerNode(std::shared_ptr<InternalNodeInfo>, std::optional<NodePrx>, LoadInfo, const Ice::Current&) final;
 
-    InternalRegistryI(const std::shared_ptr<RegistryI>&, const std::shared_ptr<Database>&,
-                      const std::shared_ptr<ReapThread>&, const std::shared_ptr<WellKnownObjectsManager>&,
-                      ReplicaSessionManager&);
+        std::optional<ReplicaSessionPrx> registerReplica(
+            std::shared_ptr<InternalReplicaInfo>,
+            std::optional<InternalRegistryPrx>,
+            const Ice::Current&) final;
 
-    NodeSessionPrxPtr registerNode(std::shared_ptr<InternalNodeInfo>, NodePrxPtr, LoadInfo,
-                                                 const Ice::Current&) override;
-    ReplicaSessionPrxPtr registerReplica(std::shared_ptr<InternalReplicaInfo>,
-                                                       InternalRegistryPrxPtr,
-                                                       const Ice::Current&) override;
+        void registerWithReplica(std::optional<InternalRegistryPrx>, const Ice::Current&) final;
 
-    void registerWithReplica(InternalRegistryPrxPtr, const Ice::Current&) override;
+        NodePrxSeq getNodes(const Ice::Current&) const final;
+        InternalRegistryPrxSeq getReplicas(const Ice::Current&) const final;
 
-    NodePrxSeq getNodes(const Ice::Current&) const override;
-    InternalRegistryPrxSeq getReplicas(const Ice::Current&) const override;
+        ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const final;
+        AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const final;
+        ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) const final;
 
-    ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const override;
-    AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const override;
-    ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) const override;
+        void shutdown(const Ice::Current&) const final;
 
-    void shutdown(const Ice::Current&) const override;
+        std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const final;
+        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const final;
 
-    std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-    bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
+    private:
+        std::string getFilePath(const std::string&) const;
 
-private:
-
-    std::string getFilePath(const std::string&) const;
-
-    const std::shared_ptr<RegistryI> _registry;
-    const std::shared_ptr<Database> _database;
-    const std::shared_ptr<ReapThread> _reaper;
-    const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
-    const std::shared_ptr<FileCache> _fileCache;
-    ReplicaSessionManager& _session;
-    std::chrono::seconds _nodeSessionTimeout;
-    std::chrono::seconds _replicaSessionTimeout;
-    bool _requireNodeCertCN;
-    bool _requireReplicaCertCN;
-};
+        const std::shared_ptr<RegistryI> _registry;
+        const std::shared_ptr<Database> _database;
+        const std::shared_ptr<ReapThread> _reaper;
+        const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
+        const std::shared_ptr<FileCache> _fileCache;
+        ReplicaSessionManager& _session;
+        std::chrono::seconds _nodeSessionTimeout;
+        std::chrono::seconds _replicaSessionTimeout;
+        bool _requireNodeCertCN;
+        bool _requireReplicaCertCN;
+    };
 
 };
 

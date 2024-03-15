@@ -7,40 +7,40 @@
 
 @implementation ICEPropertiesAdmin
 
--(std::shared_ptr<Ice::PropertiesAdmin>) propertiesAdmin
+- (std::shared_ptr<Ice::PropertiesAdmin>)propertiesAdmin
 {
     return std::static_pointer_cast<Ice::PropertiesAdmin>(self.cppObject);
 }
 
--(nullable NSString*) getProperty:(NSString*)key error:(NSError**)error
+- (nullable NSString*)getProperty:(NSString*)key error:(NSError**)error
 {
     try
     {
         // This function does not use current so we do not pass it from Swift
         return toNSString(self.propertiesAdmin->getProperty(fromNSString(key), Ice::Current{}));
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
 
--(nullable NSDictionary<NSString*, NSString*>*) getPropertiesForPrefix:(NSString*)prefix error:(NSError**)error
+- (nullable NSDictionary<NSString*, NSString*>*)getPropertiesForPrefix:(NSString*)prefix error:(NSError**)error
 {
     try
     {
         // This function does not use current so we do not pass it from Swift
         return toNSDictionary(self.propertiesAdmin->getPropertiesForPrefix(fromNSString(prefix), Ice::Current{}));
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
 }
 
--(BOOL) setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError**)error
+- (BOOL)setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError**)error
 {
     try
     {
@@ -50,28 +50,23 @@
         self.propertiesAdmin->setProperties(props, Ice::Current{});
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
 
--(void (^)(void)) addUpdateCallback:(void (^)(NSDictionary<NSString*, NSString*>*))cb
+- (void (^)(void))addUpdateCallback:(void (^)(NSDictionary<NSString*, NSString*>*))cb
 {
     auto facet = std::dynamic_pointer_cast<Ice::NativePropertiesAdmin>(self.propertiesAdmin);
     assert(facet);
 
-    auto removeCb = facet->addUpdateCallback([cb] (const Ice::PropertyDict& props)
-                                             {
-                                                 cb(toNSDictionary(props));
-                                             });
+    auto removeCb = facet->addUpdateCallback([cb](const Ice::PropertyDict& props) { cb(toNSDictionary(props)); });
 
-    return ^
-    {
-        removeCb();
+    return ^{
+      removeCb();
     };
-
 }
 
 @end

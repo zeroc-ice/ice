@@ -16,7 +16,6 @@ using namespace Test;
 class AttackClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -48,11 +47,11 @@ AttackClient::run(int argc, char** argv)
     set<optional<BackendPrx>> backends;
 
     string msg;
-    for(int i = 1; i <= 10000; ++i)
+    for (int i = 1; i <= 10000; ++i)
     {
-        if(i % 100 == 0)
+        if (i % 100 == 0)
         {
-            if(!msg.empty())
+            if (!msg.empty())
             {
                 cout << string(msg.size(), '\b');
             }
@@ -67,13 +66,13 @@ AttackClient::run(int argc, char** argv)
         random_device rd;
 
         ident.name.resize(1);
-        for(p = ident.name.begin(); p != ident.name.end(); ++p)
+        for (p = ident.name.begin(); p != ident.name.end(); ++p)
         {
             *p = static_cast<char>('A' + rd() % 26);
         }
 
         ident.category.resize(rd() % 2);
-        for(p = ident.category.begin(); p != ident.category.end(); ++p)
+        for (p = ident.category.begin(); p != ident.category.end(); ++p)
         {
             *p = static_cast<char>('a' + rd() % 26);
         }
@@ -82,7 +81,7 @@ AttackClient::run(int argc, char** argv)
 
         auto q = backends.find(newBackend);
 
-        if(q == backends.end())
+        if (q == backends.end())
         {
             backends.insert(newBackend);
             backend = newBackend;
@@ -107,7 +106,7 @@ AttackClient::run(int argc, char** argv)
         process->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }

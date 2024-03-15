@@ -33,7 +33,7 @@ ImplicitContext::get(const string& key) const
 {
     lock_guard lock(_mutex);
     Context::const_iterator p = _context.find(key);
-    if(p == _context.end())
+    if (p == _context.end())
     {
         return "";
     }
@@ -56,7 +56,7 @@ ImplicitContext::remove(const string& key)
 {
     lock_guard lock(_mutex);
     Context::iterator p = _context.find(key);
-    if(p == _context.end())
+    if (p == _context.end())
     {
         return "";
     }
@@ -72,11 +72,11 @@ void
 ImplicitContext::write(const Context& contex, ::Ice::OutputStream* os) const
 {
     unique_lock lock(_mutex);
-    if(contex.size() == 0)
+    if (contex.size() == 0)
     {
         os->write(_context);
     }
-    else if(_context.size() == 0)
+    else if (_context.size() == 0)
     {
         lock.unlock();
         os->write(contex);
@@ -94,11 +94,11 @@ void
 ImplicitContext::combine(const Context& context, Context& combined) const
 {
     lock_guard lock(_mutex);
-    if(context.size() == 0)
+    if (context.size() == 0)
     {
         combined = _context;
     }
-    else if(_context.size() == 0)
+    else if (_context.size() == 0)
     {
         combined = context;
     }

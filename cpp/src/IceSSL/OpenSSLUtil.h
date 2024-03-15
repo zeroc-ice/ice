@@ -14,44 +14,40 @@
 
 namespace IceSSL
 {
-
-namespace OpenSSL
-{
-
+    namespace OpenSSL
+    {
 #ifndef OPENSSL_NO_DH
 
-class DHParams
-{
-public:
+        class DHParams
+        {
+        public:
+            DHParams();
+            ~DHParams();
 
-    DHParams();
-    ~DHParams();
+            bool add(int, const std::string&);
+            DH* get(int);
 
-    bool add(int, const std::string&);
-    DH* get(int);
+        private:
+            typedef std::pair<int, DH*> KeyParamPair;
+            typedef std::list<KeyParamPair> ParamList;
+            ParamList _params;
+            std::mutex _mutex;
 
-private:
-
-    typedef std::pair<int, DH*> KeyParamPair;
-    typedef std::list<KeyParamPair> ParamList;
-    ParamList _params;
-    std::mutex _mutex;
-
-    DH* _dh512;
-    DH* _dh1024;
-    DH* _dh2048;
-    DH* _dh4096;
-};
-using DHParamsPtr = std::shared_ptr<DHParams>;
+            DH* _dh512;
+            DH* _dh1024;
+            DH* _dh2048;
+            DH* _dh4096;
+        };
+        using DHParamsPtr = std::shared_ptr<DHParams>;
 
 #endif
 
-//
-// Accumulate the OpenSSL error stack into a string.
-//
-std::string getSslErrors(bool);
+        //
+        // Accumulate the OpenSSL error stack into a string.
+        //
+        std::string getSslErrors(bool);
 
-} // OpenSSL namespace end
+    } // OpenSSL namespace end
 
 } // IceSSL namespace end
 

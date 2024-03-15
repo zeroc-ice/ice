@@ -16,9 +16,9 @@
 #include <compile.h>
 // Use ceval.h instead of eval.h with Pyhthon 3.11 and greater
 #if PY_VERSION_HEX >= 0x030B0000
-#   include <ceval.h>
+#    include <ceval.h>
 #else
-#   include <eval.h>
+#    include <eval.h>
 #endif
 
 using namespace std;
@@ -27,13 +27,12 @@ using namespace Slice;
 using namespace Slice::Python;
 using namespace IceUtilInternal;
 
-extern "C"
-PyObject*
+extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
     PyObject* list = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &cmd, &PyList_Type, &list))
+    if (!PyArg_ParseTuple(args, STRCAST("s|O!"), &cmd, &PyList_Type, &list))
     {
         return 0;
     }
@@ -43,20 +42,20 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         argSeq = IceUtilInternal::Options::split(cmd);
     }
-    catch(const IceUtilInternal::BadOptException& ex)
+    catch (const IceUtilInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch(const IceUtilInternal::APIException& ex)
+    catch (const IceUtilInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
 
-    if(list)
+    if (list)
     {
-        if(!listToStringSeq(list, argSeq))
+        if (!listToStringSeq(list, argSeq))
         {
             return 0;
         }
@@ -74,18 +73,18 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
         files = opts.parse(argSeq);
-        if(files.empty())
+        if (files.empty())
         {
             PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
             return 0;
         }
     }
-    catch(const IceUtilInternal::BadOptException& ex)
+    catch (const IceUtilInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch(const IceUtilInternal::APIException& ex)
+    catch (const IceUtilInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
@@ -95,26 +94,26 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     Ice::StringSeq includePaths;
     bool debug = false;
     bool all = false;
-    if(opts.isSet("D"))
+    if (opts.isSet("D"))
     {
         vector<string> optargs = opts.argVec("D");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
             cppArgs.push_back("-D" + *i);
         }
     }
-    if(opts.isSet("U"))
+    if (opts.isSet("U"))
     {
         vector<string> optargs = opts.argVec("U");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
             cppArgs.push_back("-U" + *i);
         }
     }
-    if(opts.isSet("I"))
+    if (opts.isSet("I"))
     {
         includePaths = opts.argVec("I");
-        for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+        for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
         {
             cppArgs.push_back("-I" + *i);
         }
@@ -124,13 +123,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     bool keepComments = true;
 
-    for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
+    for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         string file = *p;
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
         FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
 
-        if(cppHandle == 0)
+        if (cppHandle == 0)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice preprocessing failed for `%s'", cmd);
             return 0;
@@ -139,7 +138,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         UnitPtr u = Slice::Unit::createUnit(all);
         int parseStatus = u->parse(file, cppHandle, debug);
 
-        if(!icecpp->close() || parseStatus == EXIT_FAILURE)
+        if (!icecpp->close() || parseStatus == EXIT_FAILURE)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
             u->destroy();
@@ -169,22 +168,22 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         //
         code += "\nIce.updateModules()\n";
 
-        PyObjectHandle src = Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()),
-                                              Py_file_input);
-        if(!src.get())
+        PyObjectHandle src =
+            Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()), Py_file_input);
+        if (!src.get())
         {
             return 0;
         }
 
         PyObjectHandle globals = PyDict_New();
-        if(!globals.get())
+        if (!globals.get())
         {
             return 0;
         }
 
         PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
         PyObjectHandle val = PyEval_EvalCode(src.get(), globals.get(), 0);
-        if(!val.get())
+        if (!val.get())
         {
             return 0;
         }
@@ -194,20 +193,19 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     return Py_None;
 }
 
-extern "C"
-PyObject*
+extern "C" PyObject*
 IcePy_compile(PyObject* /*self*/, PyObject* args)
 {
     PyObject* list = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &list))
+    if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &list))
     {
         return 0;
     }
 
     vector<string> argSeq;
-    if(list)
+    if (list)
     {
-        if(!listToStringSeq(list, argSeq))
+        if (!listToStringSeq(list, argSeq))
         {
             return 0;
         }
@@ -218,12 +216,12 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
     {
         rc = Slice::Python::compile(argSeq);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
         consoleErr << argSeq[0] << ": error:" << "unknown exception" << endl;
         rc = EXIT_FAILURE;

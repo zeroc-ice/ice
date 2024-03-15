@@ -16,13 +16,11 @@ using namespace IceXML;
 //
 // ParserException
 //
-IceXML::ParserException::ParserException(const string& reason) :
-    _reason(reason)
-{
-}
+IceXML::ParserException::ParserException(string reason) noexcept : _reason(std::move(reason)) {}
 
-IceXML::ParserException::ParserException(const char* file, int line, const string& reason) :
-    IceUtil::ExceptionHelper<ParserException>(file, line), _reason(reason)
+IceXML::ParserException::ParserException(const char* file, int line, string reason) noexcept
+    : Exception(file, line),
+      _reason(std::move(reason))
 {
 }
 
@@ -36,7 +34,7 @@ void
 IceXML::ParserException::ice_print(std::ostream& out) const
 {
     Exception::ice_print(out);
-    if(!_reason.empty())
+    if (!_reason.empty())
     {
         out << "\n" << _reason;
     }
@@ -47,7 +45,7 @@ IceXML::ParserException::ice_print(std::ostream& out) const
 }
 
 string
-IceXML::ParserException::reason() const
+IceXML::ParserException::reason() const noexcept
 {
     return _reason;
 }
@@ -55,8 +53,12 @@ IceXML::ParserException::reason() const
 //
 // Node
 //
-IceXML::Node::Node(const shared_ptr<Node>& parent, const string& name, const string& value, int line, int column) :
-    _parent(parent), _name(name), _value(value), _line(line), _column(column)
+IceXML::Node::Node(const shared_ptr<Node>& parent, const string& name, const string& value, int line, int column)
+    : _parent(parent),
+      _name(name),
+      _value(value),
+      _line(line),
+      _column(column)
 {
 }
 
@@ -123,9 +125,14 @@ IceXML::Node::getColumn() const
 //
 // Element
 //
-IceXML::Element::Element(const shared_ptr<Node>& parent, const string& name, const Attributes& attributes, int line,
-                         int column) :
-    Node(parent, name, "", line, column), _attributes(attributes)
+IceXML::Element::Element(
+    const shared_ptr<Node>& parent,
+    const string& name,
+    const Attributes& attributes,
+    int line,
+    int column)
+    : Node(parent, name, "", line, column),
+      _attributes(attributes)
 {
 }
 
@@ -145,7 +152,7 @@ string
 IceXML::Element::getAttribute(const string& name) const
 {
     Attributes::const_iterator p = _attributes.find(name);
-    if(p != _attributes.end())
+    if (p != _attributes.end())
     {
         return p->second;
     }
@@ -163,7 +170,7 @@ void
 IceXML::Element::destroy()
 {
     Node::destroy();
-    for(NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
+    for (NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
     {
         (*p)->destroy();
     }
@@ -172,18 +179,15 @@ IceXML::Element::destroy()
 //
 // Text
 //
-IceXML::Text::Text(const shared_ptr<Node>& parent, const string& value, int line, int column) :
-    Node(parent, "", value, line, column)
+IceXML::Text::Text(const shared_ptr<Node>& parent, const string& value, int line, int column)
+    : Node(parent, "", value, line, column)
 {
 }
 
 //
 // Document
 //
-IceXML::Document::Document() :
-    Node(0, "", "", 0, 0)
-{
-}
+IceXML::Document::Document() : Node(0, "", "", 0, 0) {}
 
 IceXML::NodeList
 IceXML::Document::getChildren() const
@@ -202,7 +206,7 @@ void
 IceXML::Document::destroy()
 {
     Node::destroy();
-    for(NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
+    for (NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
     {
         (*p)->destroy();
     }
@@ -211,9 +215,7 @@ IceXML::Document::destroy()
 //
 // Handler
 //
-IceXML::Handler::~Handler()
-{
-}
+IceXML::Handler::~Handler() {}
 
 void
 IceXML::Handler::error(const string& msg, int line, int column)
@@ -228,25 +230,21 @@ IceXML::Handler::error(const string& msg, int line, int column)
 //
 namespace IceXML
 {
+    class DocumentBuilder : public Handler
+    {
+    public:
+        DocumentBuilder();
 
-class DocumentBuilder : public Handler
-{
-public:
+        virtual void startElement(const string&, const Attributes&, int, int);
+        virtual void endElement(const string&, int, int);
+        virtual void characters(const string&, int, int);
 
-    DocumentBuilder();
+        shared_ptr<Document> getDocument() const;
 
-    virtual void startElement(const string&, const Attributes&, int, int);
-    virtual void endElement(const string&, int, int);
-    virtual void characters(const string&, int, int);
-
-    shared_ptr<Document> getDocument() const;
-
-private:
-
-    list<shared_ptr<Node>> _nodeStack;
-    shared_ptr<Document> _document;
-};
-
+    private:
+        list<shared_ptr<Node>> _nodeStack;
+        shared_ptr<Document> _document;
+    };
 }
 
 IceXML::DocumentBuilder::DocumentBuilder()
@@ -302,43 +300,38 @@ struct CallbackData
 
 extern "C"
 {
-
-static void
-startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
-{
-    CallbackData* cb = static_cast<CallbackData*>(data);
-
-    Attributes attributes;
-    for(int i = 0; attr[i]; i += 2)
+    static void startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
     {
-        attributes[attr[i]] = attr[i + 1];
+        CallbackData* cb = static_cast<CallbackData*>(data);
+
+        Attributes attributes;
+        for (int i = 0; attr[i]; i += 2)
+        {
+            attributes[attr[i]] = attr[i + 1];
+        }
+
+        int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+        int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+        cb->handler->startElement(name, attributes, line, column);
     }
 
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
-    cb->handler->startElement(name, attributes, line, column);
-}
+    static void endElementHandler(void* data, const XML_Char* name)
+    {
+        CallbackData* cb = static_cast<CallbackData*>(data);
+        int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+        int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+        cb->handler->endElement(name, line, column);
+    }
 
-static void
-endElementHandler(void* data, const XML_Char* name)
-{
-    CallbackData* cb = static_cast<CallbackData*>(data);
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
-    cb->handler->endElement(name, line, column);
-}
+    static void characterDataHandler(void* data, const XML_Char* s, int len)
+    {
+        CallbackData* cb = static_cast<CallbackData*>(data);
 
-static void
-characterDataHandler(void* data, const XML_Char* s, int len)
-{
-    CallbackData* cb = static_cast<CallbackData*>(data);
-
-    string str(s, static_cast<size_t>(len));
-    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
-    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
-    cb->handler->characters(str, line, column);
-}
-
+        string str(s, static_cast<size_t>(len));
+        int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+        int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
+        cb->handler->characters(str, line, column);
+    }
 }
 
 //
@@ -364,7 +357,7 @@ void
 IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
 {
     ifstream in(IceUtilInternal::streamFilename(file).c_str());
-    if(!in.good())
+    if (!in.good())
     {
         ostringstream out;
         out << "unable to open file `" << file << "'";
@@ -388,23 +381,24 @@ IceXML::Parser::parse(istream& in, Handler& handler)
     {
         char buff[1024];
         int isFinal = 0;
-        while(!isFinal)
+        while (!isFinal)
         {
             in.read(buff, 1024);
-            if(in.gcount() < 1024)
+            if (in.gcount() < 1024)
             {
                 isFinal = 1;
             }
-            if(XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
+            if (XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
             {
-                handler.error(XML_ErrorString(XML_GetErrorCode(parser)),
-                              static_cast<int>(XML_GetCurrentLineNumber(parser)),
-                              static_cast<int>(XML_GetCurrentColumnNumber(parser)));
+                handler.error(
+                    XML_ErrorString(XML_GetErrorCode(parser)),
+                    static_cast<int>(XML_GetCurrentLineNumber(parser)),
+                    static_cast<int>(XML_GetCurrentColumnNumber(parser)));
                 return;
             }
         }
     }
-    catch(...)
+    catch (...)
     {
         XML_ParserFree(parser);
         throw;

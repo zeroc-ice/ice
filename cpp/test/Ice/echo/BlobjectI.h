@@ -10,7 +10,6 @@
 class BlobjectI final : public Ice::BlobjectAsync
 {
 public:
-
     BlobjectI();
 
     void startBatch();
@@ -18,13 +17,12 @@ public:
     void setConnection(const Ice::ConnectionPtr&);
 
     void ice_invokeAsync(
-        std::vector<std::uint8_t>,
-        std::function<void(bool, const std::vector<std::uint8_t>&)>,
+        std::vector<std::byte>,
+        std::function<void(bool, const std::vector<std::byte>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
 private:
-
     Ice::ConnectionPtr getConnection(const Ice::Current&);
 
     bool _startBatch;

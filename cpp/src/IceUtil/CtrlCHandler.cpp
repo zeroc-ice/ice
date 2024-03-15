@@ -11,7 +11,7 @@
 #include <mutex>
 
 #ifndef _WIN32
-#   include <signal.h>
+#    include <signal.h>
 #endif
 
 using namespace std;
@@ -19,18 +19,11 @@ using namespace IceUtil;
 
 namespace
 {
+    CtrlCHandlerCallback _callback = nullptr;
 
-CtrlCHandlerCallback _callback = nullptr;
+    const CtrlCHandler* _handler = 0;
 
-const CtrlCHandler* _handler = 0;
-
-mutex globalMutex;
-
-}
-
-CtrlCHandlerException::CtrlCHandlerException(const char* file, int line) :
-    ExceptionHelper<CtrlCHandlerException>(file, line)
-{
+    mutex globalMutex;
 }
 
 string
@@ -57,18 +50,19 @@ CtrlCHandler::getCallback() const
 
 #ifdef _WIN32
 
-static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
+static BOOL WINAPI
+handlerRoutine(DWORD dwCtrlType)
 {
     CtrlCHandlerCallback callback;
     {
         lock_guard lock(globalMutex);
-        if(!_handler) // The handler is destroyed.
+        if (!_handler) // The handler is destroyed.
         {
             return FALSE;
         }
         callback = _callback;
     }
-    if(callback)
+    if (callback)
     {
         callback(dwCtrlType);
     }
@@ -80,7 +74,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     unique_lock lock(globalMutex);
     bool handler = _handler != 0;
 
-    if(handler)
+    if (handler)
     {
         throw CtrlCHandlerException(__FILE__, __LINE__);
     }
@@ -108,58 +102,53 @@ CtrlCHandler::~CtrlCHandler()
 
 extern "C"
 {
-
-static void*
-sigwaitThread(void*)
-{
-    sigset_t ctrlCLikeSignals;
-    sigemptyset(&ctrlCLikeSignals);
-    sigaddset(&ctrlCLikeSignals, SIGHUP);
-    sigaddset(&ctrlCLikeSignals, SIGINT);
-    sigaddset(&ctrlCLikeSignals, SIGTERM);
-
-    //
-    // Run until the handler is destroyed (_handler == 0)
-    //
-    for(;;)
+    static void* sigwaitThread(void*)
     {
-        int signal = 0;
-        int rc = sigwait(&ctrlCLikeSignals, &signal);
-        if(rc == EINTR)
-        {
-            //
-            // Some sigwait() implementations incorrectly return EINTR
-            // when interrupted by an unblocked caught signal
-            //
-            continue;
-        }
-        assert(rc == 0);
+        sigset_t ctrlCLikeSignals;
+        sigemptyset(&ctrlCLikeSignals);
+        sigaddset(&ctrlCLikeSignals, SIGHUP);
+        sigaddset(&ctrlCLikeSignals, SIGINT);
+        sigaddset(&ctrlCLikeSignals, SIGTERM);
 
-        CtrlCHandlerCallback callback;
+        //
+        // Run until the handler is destroyed (_handler == 0)
+        //
+        for (;;)
         {
-            lock_guard lock(globalMutex);
-            if(!_handler) // The handler is destroyed.
+            int signal = 0;
+            int rc = sigwait(&ctrlCLikeSignals, &signal);
+            if (rc == EINTR)
             {
-                return 0;
+                //
+                // Some sigwait() implementations incorrectly return EINTR
+                // when interrupted by an unblocked caught signal
+                //
+                continue;
             }
-            callback = _callback;
-        }
+            assert(rc == 0);
 
-        if(callback)
-        {
-            callback(signal);
+            CtrlCHandlerCallback callback;
+            {
+                lock_guard lock(globalMutex);
+                if (!_handler) // The handler is destroyed.
+                {
+                    return 0;
+                }
+                callback = _callback;
+            }
+
+            if (callback)
+            {
+                callback(signal);
+            }
         }
+        return 0;
     }
-    return 0;
-}
-
 }
 
 namespace
 {
-
-pthread_t _tid;
-
+    pthread_t _tid;
 }
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
@@ -167,7 +156,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     unique_lock lock(globalMutex);
     bool handler = _handler != 0;
 
-    if(handler)
+    if (handler)
     {
         throw CtrlCHandlerException(__FILE__, __LINE__);
     }
@@ -188,19 +177,19 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         sigaddset(&ctrlCLikeSignals, SIGINT);
         sigaddset(&ctrlCLikeSignals, SIGTERM);
 
-#ifndef NDEBUG
+#    ifndef NDEBUG
         int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
         assert(rc == 0);
 
         // Joinable thread
         rc = pthread_create(&_tid, 0, sigwaitThread, 0);
         assert(rc == 0);
-#else
+#    else
         pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
 
         // Joinable thread
         pthread_create(&_tid, 0, sigwaitThread, 0);
-#endif
+#    endif
     }
 }
 
@@ -219,15 +208,15 @@ CtrlCHandler::~CtrlCHandler()
     // Signal the sigwaitThread and join it.
     //
     void* status = 0;
-#ifndef NDEBUG
+#    ifndef NDEBUG
     int rc = pthread_kill(_tid, SIGTERM);
     assert(rc == 0);
     rc = pthread_join(_tid, &status);
     assert(rc == 0);
-#else
+#    else
     pthread_kill(_tid, SIGTERM);
     pthread_join(_tid, &status);
-#endif
+#    endif
 }
 
 #endif

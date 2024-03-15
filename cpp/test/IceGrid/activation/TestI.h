@@ -10,7 +10,6 @@
 class TestI final : public Test::TestIntf
 {
 public:
-
     TestI();
 
     virtual void fail(const Ice::Current&);
@@ -19,7 +18,6 @@ public:
     bool isFailed() const;
 
 private:
-
     bool _failed;
 };
 using TestIPtr = std::shared_ptr<TestI>;

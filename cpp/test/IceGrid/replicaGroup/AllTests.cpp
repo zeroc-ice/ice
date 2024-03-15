@@ -17,9 +17,13 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const optional<AdminPrx>& admin, const string& templ, const string& node,
-                  const map<string, string>& params,
-                  const string& application = string("Test"), bool startServer = true)
+instantiateServer(
+    const optional<AdminPrx>& admin,
+    const string& templ,
+    const string& node,
+    const map<string, string>& params,
+    const string& application = string("Test"),
+    bool startServer = true)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
@@ -34,28 +38,28 @@ instantiateServer(const optional<AdminPrx>& admin, const string& templ, const st
     {
         admin->updateApplication(update);
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);
     }
 
-    if(startServer)
+    if (startServer)
     {
         assert(params.find("id") != params.end());
         try
         {
             admin->startServer(params.find("id")->second);
         }
-        catch(const NodeUnreachableException&)
+        catch (const NodeUnreachableException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -71,13 +75,13 @@ removeServer(const optional<AdminPrx>& admin, const string& id)
         admin->enableServer(id, false); // Makes sure the server isn't activated on-demand after the stop.
         admin->stopServer(id);
     }
-    catch(const ServerStopException&)
+    catch (const ServerStopException&)
     {
     }
-    catch(const NodeUnreachableException&)
+    catch (const NodeUnreachableException&)
     {
     }
-    catch(const Ice::UserException& ex)
+    catch (const Ice::UserException& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -95,7 +99,7 @@ removeServer(const optional<AdminPrx>& admin, const string& id)
     {
         admin->updateApplication(update);
     }
-    catch(const DeploymentException& ex)
+    catch (const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -106,16 +110,12 @@ void
 allTests(Test::TestHelper* helper)
 {
     auto comm = helper->communicator();
-    IceGrid::RegistryPrx registry(
-        comm,
-        comm->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+    IceGrid::RegistryPrx registry(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     IceGrid::QueryPrx query(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Query");
     auto session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     auto admin = session->getAdmin();
     test(admin);
@@ -204,7 +204,7 @@ allTests(Test::TestHelper* helper)
                 obj->getReplicaId();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
 
@@ -214,12 +214,12 @@ allTests(Test::TestHelper* helper)
 
             set<string> adapterIds;
             string previousId;
-            while(adapterIds.size() != 3)
+            while (adapterIds.size() != 3)
             {
                 string id = obj->getReplicaId();
                 adapterIds.insert(id);
 
-                if(adapterIds.size() == 1)
+                if (adapterIds.size() == 1)
                 {
                     previousId = id;
                 }
@@ -231,9 +231,9 @@ allTests(Test::TestHelper* helper)
             }
 
             int i;
-            for(i = 0; i < 3; i++)
+            for (i = 0; i < 3; i++)
             {
-                if(obj->getReplicaId() == "Server3.ReplicatedAdapter")
+                if (obj->getReplicaId() == "Server3.ReplicatedAdapter")
                 {
                     break;
                 }
@@ -248,7 +248,7 @@ allTests(Test::TestHelper* helper)
             test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -272,7 +272,7 @@ allTests(Test::TestHelper* helper)
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -303,7 +303,7 @@ allTests(Test::TestHelper* helper)
             admin->enableServer("Server3", false);
             test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -326,7 +326,7 @@ allTests(Test::TestHelper* helper)
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -349,13 +349,13 @@ allTests(Test::TestHelper* helper)
         obj = obj->ice_locatorCacheTimeout(0);
         obj = obj->ice_connectionCached(false);
         set<string> replicaIds = serverReplicaIds;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -375,7 +375,7 @@ allTests(Test::TestHelper* helper)
             obj->getReplicaId();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -384,13 +384,13 @@ allTests(Test::TestHelper* helper)
         admin->enableServer("Server3", true);
 
         replicaIds = serverReplicaIds;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaIdAndShutdown());
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -410,16 +410,16 @@ allTests(Test::TestHelper* helper)
         obj = obj->ice_locatorCacheTimeout(0);
         obj = obj->ice_connectionCached(false);
         set<string> replicaIds = svcReplicaIds;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::ConnectionRefusedException&)
+            catch (const Ice::ConnectionRefusedException&)
             {
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -443,13 +443,13 @@ allTests(Test::TestHelper* helper)
         obj = obj->ice_locatorCacheTimeout(0);
         obj = obj->ice_connectionCached(false);
         set<string> replicaIds = serverReplicaIds;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -468,16 +468,16 @@ allTests(Test::TestHelper* helper)
         obj = obj->ice_locatorCacheTimeout(0);
         obj = obj->ice_connectionCached(false);
         set<string> replicaIds = svcReplicaIds;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::ConnectionRefusedException&)
+            catch (const Ice::ConnectionRefusedException&)
             {
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -515,7 +515,7 @@ allTests(Test::TestHelper* helper)
             ctx["server"] = "Server2";
             test(obj->ice_locator(locator->ice_context(ctx))->getReplicaId() == "Server2.ReplicatedAdapter");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -530,7 +530,7 @@ allTests(Test::TestHelper* helper)
             ctx["server"] = "Server2";
             test(query->ice_context(ctx)->findAllReplicas(obj)[0]->ice_getAdapterId() == "Server2.ReplicatedAdapter");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -539,36 +539,48 @@ allTests(Test::TestHelper* helper)
         try
         {
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server2.ReplicatedAdapter");
 
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
-                     "::Test::TestIntf2", LoadSample::LoadSample5)->ice_getAdapterId() == "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
-                     "::Test::TestIntf2", LoadSample::LoadSample5)->ice_getAdapterId() == "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
-                     "::Test::TestIntf2", LoadSample::LoadSample5)->ice_getAdapterId() == "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server2.ReplicatedAdapter");
 
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server2.ReplicatedAdapter");
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -603,7 +615,7 @@ allTests(Test::TestHelper* helper)
             obj->getReplicaId();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -615,7 +627,7 @@ allTests(Test::TestHelper* helper)
             obj->ice_locator(locator->ice_context(ctx))->getReplicaId();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
         try
@@ -625,7 +637,7 @@ allTests(Test::TestHelper* helper)
             obj->ice_locator(locator->ice_context(ctx))->getReplicaId();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -647,7 +659,7 @@ allTests(Test::TestHelper* helper)
             obj->ice_ping();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -666,7 +678,7 @@ allTests(Test::TestHelper* helper)
             replicaIds.insert("Server1.ReplicatedAdapter");
             replicaIds.insert("Server2.ReplicatedAdapter");
             expected = replicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 string replicaId = obj->getReplicaId();
                 test(expected.find(replicaId) != expected.end());
@@ -676,7 +688,7 @@ allTests(Test::TestHelper* helper)
             replicaIds.insert("Server2.ReplicatedAdapter");
             replicaIds.insert("Server3.ReplicatedAdapter");
             expected = replicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 string replicaId = obj->getReplicaId();
                 test(expected.find(replicaId) != expected.end());
@@ -686,7 +698,7 @@ allTests(Test::TestHelper* helper)
             replicaIds.insert("Server3.ReplicatedAdapter");
             replicaIds.insert("Server1.ReplicatedAdapter");
             expected = replicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 string replicaId = obj->getReplicaId();
                 test(expected.find(replicaId) != expected.end());
@@ -699,13 +711,13 @@ allTests(Test::TestHelper* helper)
 
             obj->ice_locatorCacheTimeout(0)->ice_ping();
             int nRetry = 500;
-            while(replicaIds.size() != 2 && --nRetry > 0)
+            while (replicaIds.size() != 2 && --nRetry > 0)
             {
                 replicaIds.insert(obj->getReplicaId());
             }
             test(replicaIds.size() == 2);
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -713,7 +725,6 @@ allTests(Test::TestHelper* helper)
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
         removeServer(admin, "Server3");
-
     }
     {
         TestIntfPrx obj(comm, "RoundRobin-All");
@@ -724,7 +735,7 @@ allTests(Test::TestHelper* helper)
             obj->ice_ping();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -744,7 +755,7 @@ allTests(Test::TestHelper* helper)
             replicaIds.insert("Server2.ReplicatedAdapter");
             replicaIds.insert("Server3.ReplicatedAdapter");
             expected = replicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 string replicaId = obj->getReplicaId();
                 test(expected.find(replicaId) != expected.end());
@@ -755,14 +766,14 @@ allTests(Test::TestHelper* helper)
             replicaIds.insert("Server2.ReplicatedAdapter");
             replicaIds.insert("Server3.ReplicatedAdapter");
             expected = replicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 string replicaId = obj->getReplicaId();
                 test(expected.find(replicaId) != expected.end());
                 replicaIds.erase(replicaId);
             }
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -770,7 +781,6 @@ allTests(Test::TestHelper* helper)
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
         removeServer(admin, "Server3");
-
     }
     cout << "ok" << endl;
 
@@ -789,7 +799,8 @@ allTests(Test::TestHelper* helper)
         //
         // Also make sure that findObjectByTypeOnLeastLoadedNode still work.
         //
-        obj = TestIntfPrx(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample::LoadSample1).value());
+        obj =
+            TestIntfPrx(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample::LoadSample1).value());
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 
         removeServer(admin, "Server1");
@@ -842,7 +853,7 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // The Random replica goup is used by Server1!
         }
@@ -859,7 +870,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(app.descriptor);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -872,7 +883,7 @@ allTests(Test::TestHelper* helper)
             admin->removeApplication("Test");
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Test has a replica group referenced by the Test1 application.
         }
@@ -883,13 +894,13 @@ allTests(Test::TestHelper* helper)
         set<string> replicaIds;
         replicaIds.insert("Server1.ReplicatedAdapter");
         replicaIds.insert("Server2.ReplicatedAdapter");
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -911,7 +922,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
@@ -926,7 +937,7 @@ allTests(Test::TestHelper* helper)
             admin->removeApplication("Test1");
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // ReplicatedAdapterFromTest1 used by server from Test
         }
@@ -939,7 +950,7 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // ReplicatedAdapterFromTest1 used by server from Test
         }
@@ -950,7 +961,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -966,7 +977,7 @@ allTests(Test::TestHelper* helper)
         loadBalancings.push_back("Random");
         loadBalancings.push_back("RoundRobin");
         loadBalancings.push_back("RoundRobin-All");
-        for(vector<string>::const_iterator p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
+        for (vector<string>::const_iterator p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
         {
             map<string, string> params;
             params["replicaGroup"] = *p;
@@ -984,20 +995,20 @@ allTests(Test::TestHelper* helper)
             obj = obj->ice_locatorCacheTimeout(0);
             obj = obj->ice_connectionCached(false);
 
-            for(int i = 0; i < 30; ++i)
+            for (int i = 0; i < 30; ++i)
             {
                 test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
             }
 
             obj = obj->ice_encodingVersion(Ice::Encoding_1_0);
             set<string> replicaIds = serverReplicaIds;
-            while(!replicaIds.empty())
+            while (!replicaIds.empty())
             {
                 try
                 {
                     replicaIds.erase(obj->getReplicaId());
                 }
-                catch(const Ice::LocalException& ex)
+                catch (const Ice::LocalException& ex)
                 {
                     cerr << ex << endl;
                     test(false);
@@ -1031,7 +1042,7 @@ allTests(Test::TestHelper* helper)
         replicaIds.erase("Server3.ReplicatedAdapter"); // Only supports encoding 1.0
         test(replicaIds.size() == 2);
         int nRetry = 20;
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
@@ -1039,15 +1050,15 @@ allTests(Test::TestHelper* helper)
                 test(replicaId != "Server3.ReplicatedAdapter");
                 replicaIds.erase(replicaId);
             }
-            catch(const Ice::NotRegisteredException&)
+            catch (const Ice::NotRegisteredException&)
             {
-                if(--nRetry == 0)
+                if (--nRetry == 0)
                 {
                     throw;
                 }
                 this_thread::sleep_for(chrono::milliseconds(100));
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -1057,13 +1068,13 @@ allTests(Test::TestHelper* helper)
 
         replicaIds = serverReplicaIds;
         obj = obj->ice_encodingVersion(Ice::Encoding_1_0);
-        while(!replicaIds.empty())
+        while (!replicaIds.empty())
         {
             try
             {
                 replicaIds.erase(obj->getReplicaId());
             }
-            catch(const Ice::LocalException& ex)
+            catch (const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -1077,65 +1088,64 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing dynamic and deployed replica groups... " << flush;
+    {{map<string, string> params;
+    params["replicaGroup"] = "Random";
+    params["id"] = "Server1";
+    instantiateServer(admin, "Server", "localnode", params);
+
+    params["replicaGroup"] = "Random";
+    params["id"] = "Server2";
+    instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params, "Test", false);
+
+    try
     {
-        {
-            map<string, string> params;
-            params["replicaGroup"] = "Random";
-            params["id"] = "Server1";
-            instantiateServer(admin, "Server", "localnode", params);
+        admin->startServer("Server2");
+        test(false);
+    }
+    catch (const ServerStartException&)
+    {
+        // Server should fail to start because it can't regsiter dynamically an OA
+        // with a deployed replica group.
+    }
+    catch (const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
 
-            params["replicaGroup"] = "Random";
-            params["id"] = "Server2";
-            instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params, "Test", false);
+    removeServer(admin, "Server1");
+    removeServer(admin, "Server2");
+}
+{
+    map<string, string> params;
+    params["replicaGroup"] = "DynamicRandomRG";
+    params["id"] = "Server1";
+    instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
 
-            try
-            {
-                admin->startServer("Server2");
-                test(false);
-            }
-            catch(const ServerStartException&)
-            {
-                // Server should fail to start because it can't regsiter dynamically an OA
-                // with a deployed replica group.
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
+    ApplicationInfo app = admin->getApplicationInfo("Test");
+    app.descriptor.name = "Test1";
+    app.descriptor.replicaGroups.clear();
+    app.descriptor.nodes.clear();
+    ReplicaGroupDescriptor replicaGroup;
+    replicaGroup.id = "DynamicRandomRG";
+    replicaGroup.loadBalancing = make_shared<RandomLoadBalancingPolicy>("1");
+    app.descriptor.replicaGroups.push_back(replicaGroup);
+    try
+    {
+        admin->addApplication(app.descriptor);
+        test(false);
+    }
+    catch (const DeploymentException&)
+    {
+        // Expected, can't register a replica group if it has been registered
+        // with dynamic registration.
+    }
 
-            removeServer(admin, "Server1");
-            removeServer(admin, "Server2");
-        }
-        {
-            map<string, string> params;
-            params["replicaGroup"] = "DynamicRandomRG";
-            params["id"] = "Server1";
-            instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
+    removeServer(admin, "Server1");
+}
+}
+;
+cout << "ok" << endl;
 
-            ApplicationInfo app = admin->getApplicationInfo("Test");
-            app.descriptor.name = "Test1";
-            app.descriptor.replicaGroups.clear();
-            app.descriptor.nodes.clear();
-            ReplicaGroupDescriptor replicaGroup;
-            replicaGroup.id = "DynamicRandomRG";
-            replicaGroup.loadBalancing = make_shared<RandomLoadBalancingPolicy>("1");
-            app.descriptor.replicaGroups.push_back(replicaGroup);
-            try
-            {
-                admin->addApplication(app.descriptor);
-                test(false);
-            }
-            catch(const DeploymentException&)
-            {
-                // Expected, can't register a replica group if it has been registered
-                // with dynamic registration.
-            }
-
-            removeServer(admin, "Server1");
-        }
-    };
-    cout << "ok" << endl;
-
-    session->destroy();
+session->destroy();
 }

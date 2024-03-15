@@ -10,7 +10,6 @@
 class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
-
     MyDerivedClassI();
 
     virtual void echoAsync(
@@ -19,10 +18,8 @@ public:
         ::std::function<void(::std::exception_ptr)>,
         const Ice::Current&);
 
-    virtual void shutdownAsync(
-        ::std::function<void()>,
-        ::std::function<void(::std::exception_ptr)>,
-        const Ice::Current&);
+    virtual void
+    shutdownAsync(::std::function<void()>, ::std::function<void(::std::exception_ptr)>, const Ice::Current&);
 
     virtual void getContextAsync(
         ::std::function<void(const Ice::Context&)>,
@@ -30,8 +27,8 @@ public:
         const Ice::Current&);
 
     virtual bool ice_isA(std::string, const Ice::Current&) const;
-private:
 
+private:
     mutable Ice::Context _ctx;
 };
 

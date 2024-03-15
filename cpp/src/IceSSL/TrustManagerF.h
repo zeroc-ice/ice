@@ -9,10 +9,8 @@
 
 namespace IceSSL
 {
-
-class TrustManager;
-using TrustManagerPtr = std::shared_ptr<TrustManager>;
-
+    class TrustManager;
+    using TrustManagerPtr = std::shared_ptr<TrustManager>;
 }
 
 #endif

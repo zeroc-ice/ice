@@ -13,7 +13,7 @@ void
 IceMatlab::Future::token(function<void()> t)
 {
     lock_guard<mutex> lock(_mutex);
-    if(stateImpl() != State::Finished)
+    if (stateImpl() != State::Finished)
     {
         _token = std::move(t);
     }
@@ -23,16 +23,16 @@ bool
 IceMatlab::Future::waitForState(State state, double timeout)
 {
     unique_lock<mutex> lock(_mutex);
-    if(timeout < 0)
+    if (timeout < 0)
     {
-        _cond.wait(lock, [this, state]{ return state == this->stateImpl(); });
+        _cond.wait(lock, [this, state] { return state == this->stateImpl(); });
         return !_exception;
     }
     else
     {
         auto now = chrono::system_clock::now();
         auto stop = now + chrono::milliseconds(static_cast<long long>(timeout * 1000));
-        bool b = _cond.wait_until(lock, stop, [this, state]{ return state == this->stateImpl(); });
+        bool b = _cond.wait_until(lock, stop, [this, state] { return state == this->stateImpl(); });
         return b && !_exception;
     }
 }
@@ -41,15 +41,15 @@ bool
 IceMatlab::Future::waitForState(const string& s, double timeout)
 {
     State state;
-    if(s == "running")
+    if (s == "running")
     {
         state = State::Running;
     }
-    else if(s == "sent")
+    else if (s == "sent")
     {
         state = State::Sent;
     }
-    else if(s == "finished")
+    else if (s == "finished")
     {
         state = State::Finished;
     }
@@ -86,7 +86,7 @@ IceMatlab::Future::state() const
 {
     lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     string st;
-    switch(stateImpl())
+    switch (stateImpl())
     {
         case State::Running:
             st = "running";
@@ -105,7 +105,7 @@ void
 IceMatlab::Future::cancel()
 {
     lock_guard<mutex> lock(_mutex);
-    if(_token)
+    if (_token)
     {
         _token();
         _token = nullptr;
@@ -115,10 +115,7 @@ IceMatlab::Future::cancel()
 //
 // SimpleFuture
 //
-IceMatlab::SimpleFuture::SimpleFuture() :
-    _state(State::Running)
-{
-}
+IceMatlab::SimpleFuture::SimpleFuture() : _state(State::Running) {}
 
 void
 IceMatlab::SimpleFuture::done()
@@ -131,7 +128,7 @@ IceMatlab::SimpleFuture::done()
 IceMatlab::Future::State
 IceMatlab::SimpleFuture::stateImpl() const
 {
-    if(_exception)
+    if (_exception)
     {
         return State::Finished;
     }
@@ -143,76 +140,61 @@ IceMatlab::SimpleFuture::stateImpl() const
 
 extern "C"
 {
-
-mxArray*
-Ice_SimpleFuture_unref(void* self)
-{
-    delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
-    return 0;
-}
-
-mxArray*
-Ice_SimpleFuture_wait(void* self)
-{
-    bool b = deref<SimpleFuture>(self)->waitForState("finished", -1);
-    return createResultValue(createBool(b));
-}
-
-mxArray*
-Ice_SimpleFuture_waitState(void* self, mxArray* st, double timeout)
-{
-    try
+    mxArray* Ice_SimpleFuture_unref(void* self)
     {
-        string s = getStringFromUTF16(st);
-        bool b = deref<SimpleFuture>(self)->waitForState(s, timeout);
+        delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
+        return 0;
+    }
+
+    mxArray* Ice_SimpleFuture_wait(void* self)
+    {
+        bool b = deref<SimpleFuture>(self)->waitForState("finished", -1);
         return createResultValue(createBool(b));
     }
-    catch(const std::exception& ex)
+
+    mxArray* Ice_SimpleFuture_waitState(void* self, mxArray* st, double timeout)
     {
-        return createResultException(convertException(ex));
-    }
-}
-
-mxArray*
-Ice_SimpleFuture_state(void* self)
-{
-    return createResultValue(createStringFromUTF8(deref<SimpleFuture>(self)->state()));
-}
-
-mxArray*
-Ice_SimpleFuture_cancel(void* self)
-{
-    deref<SimpleFuture>(self)->cancel();
-    return 0;
-}
-
-mxArray*
-Ice_SimpleFuture_check(void* self)
-{
-    auto f = deref<SimpleFuture>(self);
-    if(!f->waitForState(Future::State::Finished, -1))
-    {
-        assert(f->getException());
         try
         {
-            rethrow_exception(f->getException());
+            string s = getStringFromUTF16(st);
+            bool b = deref<SimpleFuture>(self)->waitForState(s, timeout);
+            return createResultValue(createBool(b));
         }
-        catch(const std::exception& ex)
+        catch (...)
         {
+            return createResultException(convertException(std::current_exception()));
+        }
+    }
+
+    mxArray* Ice_SimpleFuture_state(void* self)
+    {
+        return createResultValue(createStringFromUTF8(deref<SimpleFuture>(self)->state()));
+    }
+
+    mxArray* Ice_SimpleFuture_cancel(void* self)
+    {
+        deref<SimpleFuture>(self)->cancel();
+        return 0;
+    }
+
+    mxArray* Ice_SimpleFuture_check(void* self)
+    {
+        auto f = deref<SimpleFuture>(self);
+        if (!f->waitForState(Future::State::Finished, -1))
+        {
+            assert(f->getException());
             //
             // The C++ object won't be used after this.
             //
             delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
-            return convertException(ex);
+            return convertException(f->getException());
         }
+
+        //
+        // The C++ object won't be used after this.
+        //
+        delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
+
+        return 0;
     }
-
-    //
-    // The C++ object won't be used after this.
-    //
-    delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
-
-    return 0;
-}
-
 }

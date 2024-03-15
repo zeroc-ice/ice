@@ -11,7 +11,6 @@ using namespace std;
 class Server final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -25,9 +24,9 @@ Server::run(int argc, char** argv)
     properties->setProperty("Ice.ThreadPool.Server.Serialize", "1");
 
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
-    communicatorHolder->getProperties()->setProperty("TestAdapter.Endpoints",
-                                                     getTestEndpoint() + ":" +
-                                                     getTestEndpoint("udp"));
+    communicatorHolder->getProperties()->setProperty(
+        "TestAdapter.Endpoints",
+        getTestEndpoint() + ":" + getTestEndpoint("udp"));
     auto adapter = communicatorHolder->createObjectAdapter("TestAdapter");
     adapter->add(make_shared<MyClassI>(), Ice::stringToIdentity("test"));
     adapter->activate();

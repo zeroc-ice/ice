@@ -1,16 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\AllTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Collocated.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\TestI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Dispatcher.cpp">
+    <ClCompile Include="..\..\Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Test.cpp">
@@ -27,58 +24,58 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{aee0c7a0-abeb-4f8e-a49f-3e17b2ad5ae8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{9e85597e-8cf0-49e6-a4e7-9c778cd8744b}</UniqueIdentifier>
+      <UniqueIdentifier>{b9e87dbb-c804-479d-b949-420ebf58cc43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5690c6ea-de57-49ce-a998-0111287b41e9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Slice Files">
-      <UniqueIdentifier>{84f99a0a-0ca3-4300-b1b3-242d277c7538}</UniqueIdentifier>
+      <UniqueIdentifier>{631f33d9-9e94-41ed-b397-80b1c94e735c}</UniqueIdentifier>
       <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{093a2357-e211-4dcd-93d1-99e1d788cd42}</UniqueIdentifier>
+      <UniqueIdentifier>{f087ba95-2f1a-4a5c-bfcc-bb51ed6ee2f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64">
-      <UniqueIdentifier>{885ab2c2-9fa1-4a0c-bfd0-df96764df6bf}</UniqueIdentifier>
+      <UniqueIdentifier>{29788b93-089e-4887-aa64-9bf4b3392896}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{2ae84329-b1ea-480a-91d6-77cafe2b8412}</UniqueIdentifier>
+      <UniqueIdentifier>{98afe211-747d-4c02-8c3d-6c898403dbe8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32">
-      <UniqueIdentifier>{742a5fae-91fd-486d-8674-e9f27766f666}</UniqueIdentifier>
+      <UniqueIdentifier>{5a8c0c83-5253-47de-ba1a-fb287c1a7126}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{2f62796e-f8ba-4436-8433-49def0092f71}</UniqueIdentifier>
+      <UniqueIdentifier>{510749e2-b9d2-4a36-85df-32a33f3aeb94}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Debug">
-      <UniqueIdentifier>{e8ee5ec4-83db-4952-9440-8fdf83d99369}</UniqueIdentifier>
+      <UniqueIdentifier>{8d158974-38be-455e-894b-65357d8c628b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Debug">
-      <UniqueIdentifier>{a5b062d6-0cfd-4119-8974-20c7df6ed99e}</UniqueIdentifier>
+      <UniqueIdentifier>{37e73980-fccb-44a8-9ca8-f706ede401c0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Debug">
-      <UniqueIdentifier>{5d143775-261d-49d7-ab29-c2b55b6fc662}</UniqueIdentifier>
+      <UniqueIdentifier>{c9ec1640-2d2f-4f2a-b99e-ffd5d5b72962}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{e3cc8211-f499-469b-bf76-a9306afe521e}</UniqueIdentifier>
+      <UniqueIdentifier>{a6fed86b-a088-44bc-8750-dc88a454baee}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Release">
-      <UniqueIdentifier>{5656df30-b2b0-4df2-ac50-817f1787147d}</UniqueIdentifier>
+      <UniqueIdentifier>{7b715b4e-a1b8-4d42-9b0d-d61ccc517f04}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Release">
-      <UniqueIdentifier>{4e81e6cb-aef1-4c3e-ad09-26f467a405fa}</UniqueIdentifier>
+      <UniqueIdentifier>{5408d5ad-939d-40f4-a3fa-5b016cf64b8b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Release">
-      <UniqueIdentifier>{b7422207-2891-4d7e-9618-da453ed33e53}</UniqueIdentifier>
+      <UniqueIdentifier>{8f35a987-e85a-4448-80ab-7042c0f2b36b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\TestI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Dispatcher.h">
+    <ClInclude Include="..\..\Executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">

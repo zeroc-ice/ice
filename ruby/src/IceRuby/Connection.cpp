@@ -23,8 +23,7 @@ static VALUE _sslConnectionInfoClass;
 
 // Connection
 
-extern "C"
-void
+extern "C" void
 IceRuby_Connection_free(Ice::ConnectionPtr* p)
 {
     assert(p);
@@ -37,8 +36,7 @@ IceRuby::createConnection(const Ice::ConnectionPtr& p)
     return Data_Wrap_Struct(_connectionClass, 0, IceRuby_Connection_free, new Ice::ConnectionPtr(p));
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_close(VALUE self, VALUE mode)
 {
     ICE_RUBY_TRY
@@ -47,9 +45,10 @@ IceRuby_Connection_close(VALUE self, VALUE mode)
         assert(p);
 
         volatile VALUE type = callRuby(rb_path2class, "Ice::ConnectionClose");
-        if(callRuby(rb_obj_is_instance_of, mode, type) != Qtrue)
+        if (callRuby(rb_obj_is_instance_of, mode, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
+            throw RubyException(
+                rb_eTypeError,
                 "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
         }
         volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
@@ -61,8 +60,7 @@ IceRuby_Connection_close(VALUE self, VALUE mode)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_flushBatchRequests(VALUE self, VALUE compress)
 {
     ICE_RUBY_TRY
@@ -71,9 +69,10 @@ IceRuby_Connection_flushBatchRequests(VALUE self, VALUE compress)
         assert(p);
 
         volatile VALUE type = callRuby(rb_path2class, "Ice::CompressBatch");
-        if(callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
+        if (callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
+            throw RubyException(
+                rb_eTypeError,
                 "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
         }
         volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
@@ -85,8 +84,7 @@ IceRuby_Connection_flushBatchRequests(VALUE self, VALUE compress)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_heartbeat(VALUE self)
 {
     ICE_RUBY_TRY
@@ -100,8 +98,7 @@ IceRuby_Connection_heartbeat(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
 {
     ICE_RUBY_TRY
@@ -113,17 +110,18 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
         optional<Ice::ACMClose> close;
         optional<Ice::ACMHeartbeat> heartbeat;
 
-        if(t != Unset)
+        if (t != Unset)
         {
             timeout = static_cast<int32_t>(getInteger(t));
         }
 
-        if(c != Unset)
+        if (c != Unset)
         {
             volatile VALUE type = callRuby(rb_path2class, "Ice::ACMClose");
-            if(callRuby(rb_obj_is_instance_of, c, type) != Qtrue)
+            if (callRuby(rb_obj_is_instance_of, c, type) != Qtrue)
             {
-                throw RubyException(rb_eTypeError,
+                throw RubyException(
+                    rb_eTypeError,
                     "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
             }
             volatile VALUE closeValue = callRuby(rb_funcall, c, rb_intern("to_i"), 0);
@@ -131,12 +129,13 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
             close = static_cast<Ice::ACMClose>(FIX2LONG(closeValue));
         }
 
-        if(h != Unset)
+        if (h != Unset)
         {
             volatile VALUE type = callRuby(rb_path2class, "Ice::ACMHeartbeat");
-            if(callRuby(rb_obj_is_instance_of, h, type) != Qtrue)
+            if (callRuby(rb_obj_is_instance_of, h, type) != Qtrue)
             {
-                throw RubyException(rb_eTypeError,
+                throw RubyException(
+                    rb_eTypeError,
                     "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
             }
             volatile VALUE heartbeatValue = callRuby(rb_funcall, h, rb_intern("to_i"), 0);
@@ -148,7 +147,7 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
         {
             (*p)->setACM(timeout, close, heartbeat);
         }
-        catch(const IceUtil::IllegalArgumentException& ex)
+        catch (const IceUtil::IllegalArgumentException& ex)
         {
             throw RubyException(rb_eArgError, ex.reason().c_str());
         }
@@ -157,8 +156,7 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_getACM(VALUE self)
 {
     ICE_RUBY_TRY
@@ -191,8 +189,7 @@ IceRuby_Connection_getACM(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_type(VALUE self)
 {
     ICE_RUBY_TRY
@@ -207,8 +204,7 @@ IceRuby_Connection_type(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_timeout(VALUE self)
 {
     ICE_RUBY_TRY
@@ -223,8 +219,7 @@ IceRuby_Connection_timeout(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_getInfo(VALUE self)
 {
     ICE_RUBY_TRY
@@ -239,8 +234,7 @@ IceRuby_Connection_getInfo(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_getEndpoint(VALUE self)
 {
     ICE_RUBY_TRY
@@ -255,8 +249,7 @@ IceRuby_Connection_getEndpoint(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_setBufferSize(VALUE self, VALUE r, VALUE s)
 {
     ICE_RUBY_TRY
@@ -273,8 +266,7 @@ IceRuby_Connection_setBufferSize(VALUE self, VALUE r, VALUE s)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_throwException(VALUE self)
 {
     ICE_RUBY_TRY
@@ -288,8 +280,7 @@ IceRuby_Connection_throwException(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_toString(VALUE self)
 {
     ICE_RUBY_TRY
@@ -304,17 +295,16 @@ IceRuby_Connection_toString(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Connection_equals(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
-        if(NIL_P(other))
+        if (NIL_P(other))
         {
             return Qfalse;
         }
-        if(callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
+        if (callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
         {
             throw RubyException(rb_eTypeError, "argument must be a connection");
         }
@@ -328,8 +318,7 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
 
 // ConnectionInfo
 
-extern "C"
-void
+extern "C" void
 IceRuby_ConnectionInfo_free(Ice::ConnectionInfoPtr* p)
 {
     assert(p);
@@ -339,19 +328,19 @@ IceRuby_ConnectionInfo_free(Ice::ConnectionInfoPtr* p)
 VALUE
 IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
 {
-    if(!p)
+    if (!p)
     {
         return Qnil;
     }
 
     VALUE info;
-    if(dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
+    if (dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
         Ice::WSConnectionInfoPtr ws = dynamic_pointer_cast<Ice::WSConnectionInfo>(p);
         volatile VALUE result = callRuby(rb_hash_new);
-        for(Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
+        for (Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
         {
             volatile VALUE key = createString(q->first);
             volatile VALUE value = createString(q->second);
@@ -359,7 +348,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         }
         rb_ivar_set(info, rb_intern("@headers"), result);
     }
-    else if(dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_tcpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
@@ -367,7 +356,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(tcp->rcvSize));
         rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(tcp->sndSize));
     }
-    else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_udpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
@@ -377,7 +366,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(udp->rcvSize));
         rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(udp->sndSize));
     }
-    else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    else if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
@@ -385,7 +374,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@cipher"), createString(ssl->cipher));
 
         Ice::StringSeq encoded;
-        for(vector<IceSSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
+        for (vector<IceSSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
         {
             encoded.push_back((*i)->encode());
         }
@@ -393,17 +382,16 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(encoded));
         rb_ivar_set(info, rb_intern("@verified"), ssl->verified ? Qtrue : Qfalse);
     }
-    else if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_ipConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
-
     }
     else
     {
         info = Data_Wrap_Struct(_connectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
     }
 
-    if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
+    if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         Ice::IPConnectionInfoPtr ip = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@localAddress"), createString(ip->localAddress));

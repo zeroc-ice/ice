@@ -79,5 +79,7 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 90
         with:
-          flags: ${{ matrix.test_flags }}
+          # See:
+          # - https://github.com/zeroc-ice/ice/issues/1745
+          flags: "--rfilter csharp/IceSSL/configuration ${{ matrix.test_flags }}"
         if: ${{ matrix.language != 'matlab' }}

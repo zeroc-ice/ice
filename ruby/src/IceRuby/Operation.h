@@ -12,22 +12,19 @@
 
 namespace IceRuby
 {
+    class Operation
+    {
+    public:
+        virtual ~Operation();
 
-class Operation
-{
-public:
+        virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) = 0;
+        virtual void deprecate(const std::string&) = 0;
+    };
+    using OperationPtr = std::shared_ptr<Operation>;
 
-    virtual ~Operation();
+    bool initOperation(VALUE);
 
-    virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) = 0;
-    virtual void deprecate(const std::string&) = 0;
-};
-using OperationPtr = std::shared_ptr<Operation>;
-
-bool initOperation(VALUE);
-
-OperationPtr getOperation(VALUE);
-
+    OperationPtr getOperation(VALUE);
 }
 
 #endif

@@ -35,9 +35,9 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
 
     ostringstream ostr;
     ostr << '`' << protocol() << " ";
-    for(vector<string>::iterator p = args.begin(); p != args.end(); ++p)
+    for (vector<string>::iterator p = args.begin(); p != args.end(); ++p)
     {
-        if(p->find_first_of(" \t\n\r") != string::npos)
+        if (p->find_first_of(" \t\n\r") != string::npos)
         {
             ostr << " \"" << *p << "\"";
         }
@@ -49,25 +49,25 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
     ostr << "'";
     const string str = ostr.str();
 
-    for(vector<string>::size_type n = 0; n < args.size(); ++n)
+    for (vector<string>::size_type n = 0; n < args.size(); ++n)
     {
         string option = args[n];
-        if(option.length() < 2 || option[0] != '-')
+        if (option.length() < 2 || option[0] != '-')
         {
             unknown.push_back(option);
             continue;
         }
 
         string argument;
-        if(n + 1 < args.size() && args[n + 1][0] != '-')
+        if (n + 1 < args.size() && args[n + 1][0] != '-')
         {
             argument = args[++n];
         }
 
-        if(!checkOption(option, argument, str))
+        if (!checkOption(option, argument, str))
         {
             unknown.push_back(option);
-            if(!argument.empty())
+            if (!argument.empty())
             {
                 unknown.push_back(argument);
             }

@@ -10,19 +10,17 @@
 
 namespace Ice
 {
+    struct SliceInfo;
+    using SliceInfoPtr = std::shared_ptr<SliceInfo>;
 
-struct SliceInfo;
-using SliceInfoPtr = std::shared_ptr<SliceInfo>;
+    /** The slices of unknown types. */
+    using SliceInfoSeq = std::vector<SliceInfoPtr>;
 
-/** The slices of unknown types. */
-using SliceInfoSeq = std::vector<SliceInfoPtr>;
+    class SlicedData;
+    using SlicedDataPtr = std::shared_ptr<SlicedData>;
 
-class SlicedData;
-using SlicedDataPtr = std::shared_ptr<SlicedData>;
-
-class UnknownSlicedValue;
-using UnknownSlicedValuePtr = std::shared_ptr<UnknownSlicedValue>;
-
+    class UnknownSlicedValue;
+    using UnknownSlicedValuePtr = std::shared_ptr<UnknownSlicedValue>;
 }
 
 #endif

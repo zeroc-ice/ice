@@ -26,21 +26,15 @@ Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress)
     auto promise = std::make_shared<std::promise<void>>();
     flushBatchRequestsAsync(
         compress,
-        [promise](std::exception_ptr ex)
-        {
-            promise->set_exception(ex);
-        },
-        [promise](bool)
-        {
-            promise->set_value();
-        });
+        [promise](std::exception_ptr ex) { promise->set_exception(ex); },
+        [promise](bool) { promise->set_value(); });
     return promise->get_future();
 }
 
 void
 Ice::Communicator::destroy() noexcept
 {
-    if(_instance)
+    if (_instance)
     {
         _instance->destroy();
     }
@@ -53,7 +47,7 @@ Ice::Communicator::shutdown() noexcept
     {
         _instance->objectAdapterFactory()->shutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         // Ignore
     }
@@ -66,7 +60,7 @@ Ice::Communicator::waitForShutdown() noexcept
     {
         _instance->objectAdapterFactory()->waitForShutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         // Ignore
     }
@@ -79,7 +73,7 @@ Ice::Communicator::isShutdown() const noexcept
     {
         return _instance->objectAdapterFactory()->isShutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         return true;
     }
@@ -125,7 +119,7 @@ ObjectAdapterPtr
 Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
     string oaName = name;
-    if(oaName.empty())
+    if (oaName.empty())
     {
         oaName = Ice::generateUUID();
     }
@@ -138,13 +132,13 @@ ObjectAdapterPtr
 Ice::Communicator::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
 {
     string oaName = name;
-    if(oaName.empty())
+    if (oaName.empty())
     {
         oaName = Ice::generateUUID();
     }
 
     PropertyDict properties = proxyToProperty(router, oaName + ".Router");
-    for(PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    for (PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
         getProperties()->setProperty(p->first, p->second);
     }
@@ -231,22 +225,24 @@ Ice::Communicator::getServerDispatchQueue() const
 void
 Ice::Communicator::postToClientThreadPool(function<void()> call)
 {
-    _instance->clientThreadPool()->dispatch(call);
+    _instance->clientThreadPool()->execute(call);
 }
 
 ::std::function<void()>
-Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress,
-                                            function<void(exception_ptr)> ex,
-                                            function<void(bool)> sent)
+Ice::Communicator::flushBatchRequestsAsync(
+    CompressBatch compress,
+    function<void(exception_ptr)> ex,
+    function<void(bool)> sent)
 {
     class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {
     public:
-
-        CommunicatorFlushBatchLambda(const InstancePtr& instance,
-                                     std::function<void(std::exception_ptr)> ex,
-                                     std::function<void(bool)> sent) :
-            CommunicatorFlushBatchAsync(instance), LambdaInvoke(std::move(ex), std::move(sent))
+        CommunicatorFlushBatchLambda(
+            const InstancePtr& instance,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
+            : CommunicatorFlushBatchAsync(instance),
+              LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
     };
@@ -300,7 +296,7 @@ Ice::Communicator::create(const InitializationData& initData)
     {
         const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
     }
-    catch(...)
+    catch (...)
     {
         communicator->destroy();
         throw;
@@ -310,7 +306,7 @@ Ice::Communicator::create(const InitializationData& initData)
 
 Ice::Communicator::~Communicator()
 {
-    if(_instance && !_instance->destroyed())
+    if (_instance && !_instance->destroyed())
     {
         Warning out(_instance->initializationData().logger);
         out << "Ice::Communicator::destroy() has not been called";
@@ -324,7 +320,7 @@ Ice::Communicator::finishSetup(int& argc, const char* argv[])
     {
         _instance->finishSetup(argc, argv, shared_from_this());
     }
-    catch(...)
+    catch (...)
     {
         destroy();
         throw;

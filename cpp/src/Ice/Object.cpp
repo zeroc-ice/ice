@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Object.h"
-#include "Ice/Incoming.h"
+#include "Ice/AsyncResponseHandler.h"
 #include "Ice/LocalException.h"
 #include "Ice/SlicedData.h"
 
@@ -13,7 +13,7 @@ using namespace IceInternal;
 
 namespace Ice
 {
-const Current emptyCurrent = Current();
+    const Current emptyCurrent = Current();
 }
 
 bool
@@ -32,7 +32,7 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    static const vector<string> allTypeIds = { "::Ice::Object" };
+    static const vector<string> allTypeIds = {"::Ice::Object"};
     return allTypeIds;
 }
 
@@ -43,143 +43,139 @@ Ice::Object::ice_id(const Current&) const
 }
 
 string_view
-Ice::Object::ice_staticId()
+Ice::Object::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::Ice::Object";
     return typeId;
 }
 
-bool
-Ice::Object::_iceD_ice_isA(Incoming& incoming)
+void
+Ice::Object::_iceD_ice_isA(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
 {
-    InputStream* istr = incoming.startReadParams();
+    InputStream* istr = &request.inputStream();
+    istr->startEncapsulation();
     string iceP_id;
     istr->read(iceP_id, false);
-    incoming.endReadParams();
-    bool ret = ice_isA(std::move(iceP_id), incoming.current());
-    OutputStream* ostr = incoming.startWriteParams();
-    ostr->write(ret);
-    incoming.endWriteParams();
-    return true;
+    istr->endEncapsulation();
+
+    bool ret = ice_isA(std::move(iceP_id), request.current());
+    sendResponse(makeOutgoingResponse([&](OutputStream* ostr) { ostr->write(ret); }, request.current()));
 }
 
-bool
-Ice::Object::_iceD_ice_ping(Incoming& incoming)
+void
+Ice::Object::_iceD_ice_ping(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
 {
-    incoming.readEmptyParams();
-    ice_ping(incoming.current());
-    incoming.writeEmptyParams();
-    return true;
+    request.inputStream().skipEmptyEncapsulation();
+    ice_ping(request.current());
+    sendResponse(makeEmptyOutgoingResponse(request.current()));
 }
 
-bool
-Ice::Object::_iceD_ice_ids(Incoming& incoming)
+void
+Ice::Object::_iceD_ice_ids(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
 {
-    incoming.readEmptyParams();
-    vector<string> ret = ice_ids(incoming.current());
-    OutputStream* ostr = incoming.startWriteParams();
-    if(ret.empty())
-    {
-        ostr->write(ret);
-    }
-    else
-    {
-        ostr->write(&ret[0], &ret[0] + ret.size(), false);
-    }
-    incoming.endWriteParams();
-    return true;
+    request.inputStream().skipEmptyEncapsulation();
+    vector<string> ret = ice_ids(request.current());
+
+    sendResponse(makeOutgoingResponse(
+        [&](OutputStream* ostr)
+        {
+            if (ret.empty())
+            {
+                ostr->write(ret);
+            }
+            else
+            {
+                ostr->write(&ret[0], &ret[0] + ret.size(), false);
+            }
+        },
+        request.current()));
 }
 
-bool
-Ice::Object::_iceD_ice_id(Incoming& incoming)
+void
+Ice::Object::_iceD_ice_id(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
 {
-    incoming.readEmptyParams();
-    string ret = ice_id(incoming.current());
-    OutputStream* ostr = incoming.startWriteParams();
-    ostr->write(ret, false);
-    incoming.endWriteParams();
-    return true;
+    request.inputStream().skipEmptyEncapsulation();
+    string ret = ice_id(request.current());
+
+    sendResponse(makeOutgoingResponse([&](OutputStream* ostr) { ostr->write(ret, false); }, request.current()));
 }
 
-bool
-Ice::Object::_iceDispatch(Incoming& incoming)
+void
+Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    static constexpr string_view allOperations[] =
-    {
-        "ice_id",
-        "ice_ids",
-        "ice_isA",
-        "ice_ping"
-    };
+    static constexpr string_view allOperations[] = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
 
-    const Current& current = incoming.current();
+    const Current& current = request.current();
 
     pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
 
-    if(r.first == r.second)
+    if (r.first == r.second)
     {
-        throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        sendResponse(makeOutgoingResponse(make_exception_ptr(OperationNotExistException(__FILE__, __LINE__)), current));
+        return;
     }
 
-    switch(r.first - allOperations)
+    switch (r.first - allOperations)
     {
         case 0:
         {
-            return _iceD_ice_id(incoming);
+            _iceD_ice_id(request, std::move(sendResponse));
+            break;
         }
         case 1:
         {
-            return _iceD_ice_ids(incoming);
+            _iceD_ice_ids(request, std::move(sendResponse));
+            break;
         }
         case 2:
         {
-            return _iceD_ice_isA(incoming);
+            _iceD_ice_isA(request, std::move(sendResponse));
+            break;
         }
         case 3:
         {
-            return _iceD_ice_ping(incoming);
+            _iceD_ice_ping(request, std::move(sendResponse));
+            break;
         }
         default:
         {
             assert(false);
-            throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            sendResponse(
+                makeOutgoingResponse(make_exception_ptr(OperationNotExistException(__FILE__, __LINE__)), current));
         }
     }
 }
 
 namespace
 {
-
-string
-operationModeToString(OperationMode mode)
-{
-    switch(mode)
+    string operationModeToString(OperationMode mode)
     {
-    case OperationMode::Normal:
-        return "::Ice::Normal";
+        switch (mode)
+        {
+            case OperationMode::Normal:
+                return "::Ice::Normal";
 
-    case OperationMode::Nonmutating:
-        return "::Ice::Nonmutating";
+            case OperationMode::Nonmutating:
+                return "::Ice::Nonmutating";
 
-    case OperationMode::Idempotent:
-        return "::Ice::Idempotent";
+            case OperationMode::Idempotent:
+                return "::Ice::Idempotent";
+        }
+        //
+        // This could not happen with C++11 strong type enums
+        //
+        assert(false);
+        return "";
     }
-    //
-    // This could not happen with C++11 strong type enums
-    //
-    assert(false);
-    return "";
-}
-
 }
 
 void
 Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
-    if(expected != received)
+    if (expected != received)
     {
         assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
-        if(expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
+        if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
@@ -188,108 +184,104 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         else
         {
             std::ostringstream reason;
-            reason << "unexpected operation mode. expected = "
-                   << operationModeToString(expected)
-                   << " received = "
-                   << operationModeToString(received);
+            reason << "unexpected operation mode. expected = " << operationModeToString(expected)
+                   << " received = " << operationModeToString(received);
             throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
         }
     }
 }
 
-bool
-Ice::Blobject::_iceDispatch(Incoming& incoming)
+void
+Ice::Blobject::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    const Current& current = incoming.current();
-    const uint8_t* inEncaps;
+    const Current& current = request.current();
+    const byte* inEncaps;
     int32_t sz;
-    incoming.readParamEncaps(inEncaps, sz);
-    vector<uint8_t> outEncaps;
-    bool ok = ice_invoke(vector<uint8_t>(inEncaps, inEncaps + sz), outEncaps, current);
-    if(outEncaps.empty())
+    request.inputStream().readEncapsulation(inEncaps, sz);
+    vector<byte> outEncaps;
+    bool ok = ice_invoke(vector<byte>(inEncaps, inEncaps + sz), outEncaps, current);
+
+    if (outEncaps.empty())
     {
-        incoming.writeParamEncaps(0, 0, ok);
+        sendResponse(makeOutgoingResponse(ok, {nullptr, nullptr}, current));
     }
     else
     {
-        incoming.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+        sendResponse(makeOutgoingResponse(ok, {outEncaps.data(), outEncaps.data() + outEncaps.size()}, current));
     }
-    return true;
 }
 
-bool
-Ice::BlobjectArray::_iceDispatch(Incoming& incoming)
+void
+Ice::BlobjectArray::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    const Current& current = incoming.current();
-    pair<const uint8_t*, const uint8_t*> inEncaps;
+    const Current& current = request.current();
+    pair<const byte*, const byte*> inEncaps;
     int32_t sz;
-    incoming.readParamEncaps(inEncaps.first, sz);
+    request.inputStream().readEncapsulation(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
-    if(outEncaps.empty())
+
+    if (outEncaps.empty())
     {
-        incoming.writeParamEncaps(0, 0, ok);
+        sendResponse(makeOutgoingResponse(ok, {nullptr, nullptr}, current));
     }
     else
     {
-        incoming.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+        sendResponse(makeOutgoingResponse(ok, {outEncaps.data(), outEncaps.data() + outEncaps.size()}, current));
     }
-    return true;
 }
 
-bool
-Ice::BlobjectAsync::_iceDispatch(Incoming& incoming)
+void
+Ice::BlobjectAsync::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    const uint8_t* inEncaps;
+    const byte* inEncaps;
     int32_t sz;
-    incoming.readParamEncaps(inEncaps, sz);
-    auto incomingPtr = make_shared<Incoming>(std::move(incoming));
+    request.inputStream().readEncapsulation(inEncaps, sz);
+    auto responseHandler = make_shared<AsyncResponseHandler>(std::move(sendResponse), request.current());
     try
     {
-        ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
-                        [incomingPtr](bool ok, const vector<uint8_t>& outEncaps)
-                        {
-                            if(outEncaps.empty())
-                            {
-                                incomingPtr->writeParamEncaps(0, 0, ok);
-                            }
-                            else
-                            {
-                                incomingPtr->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
-                            }
-                            incomingPtr->completed();
-                        },
-                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+        ice_invokeAsync(
+            vector<byte>{inEncaps, inEncaps + sz},
+            [responseHandler](bool ok, const vector<byte>& outEncaps)
+            {
+                if (outEncaps.empty())
+                {
+                    responseHandler->sendResponse(ok, {nullptr, nullptr});
+                }
+                else
+                {
+                    responseHandler->sendResponse(ok, {outEncaps.data(), outEncaps.data() + outEncaps.size()});
+                }
+            },
+            [responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); },
+            responseHandler->current());
     }
     catch (...)
     {
-        incomingPtr->failed(std::current_exception());
+        responseHandler->sendException(std::current_exception());
     }
-    return false;
 }
 
-bool
-Ice::BlobjectArrayAsync::_iceDispatch(Incoming& incoming)
+void
+Ice::BlobjectArrayAsync::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    pair<const uint8_t*, const uint8_t*> inEncaps;
+    pair<const byte*, const byte*> inEncaps;
     int32_t sz;
-    incoming.readParamEncaps(inEncaps.first, sz);
+    request.inputStream().readEncapsulation(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-    auto incomingPtr = make_shared<Incoming>(std::move(incoming));
+    auto responseHandler = make_shared<AsyncResponseHandler>(std::move(sendResponse), request.current());
     try
     {
-        ice_invokeAsync(inEncaps,
-                        [incomingPtr](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
-                        {
-                            incomingPtr->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
-                            incomingPtr->completed();
-                        },
-                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
+        ice_invokeAsync(
+            inEncaps,
+            [responseHandler](bool ok, const pair<const byte*, const byte*>& outEncaps)
+            { responseHandler->sendResponse(ok, outEncaps); },
+            [responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); },
+            responseHandler->current());
     }
     catch (...)
     {
-        incomingPtr->failed(std::current_exception());
+        responseHandler->sendException(std::current_exception());
     }
-    return false;
 }

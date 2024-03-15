@@ -11,161 +11,141 @@
 
 namespace IceInternal
 {
+    std::string getExceptionId(std::exception_ptr);
 
-std::string getExceptionId(std::exception_ptr);
-
-template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
-{
-public:
-
-    using TPtr = ::std::shared_ptr<T>;
-
-    ObserverHelperT()
+    template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
     {
-    }
+    public:
+        using TPtr = ::std::shared_ptr<T>;
 
-    ~ObserverHelperT()
-    {
-        if(_observer)
+        ObserverHelperT() {}
+
+        ~ObserverHelperT()
         {
-            _observer->detach();
+            if (_observer)
+            {
+                _observer->detach();
+            }
         }
-    }
 
-    operator bool() const
-    {
-        return _observer != nullptr;
-    }
+        operator bool() const { return _observer != nullptr; }
 
-    T* operator->() const
-    {
-        return _observer.get();
-    }
+        T* operator->() const { return _observer.get(); }
 
-    void
-    attach(const TPtr& o)
-    {
-        //
-        // Don't detach the existing observer. The observer is being
-        // replaced and the observed object is still being observed!
-        //
-        // if(_observer)
-        // {
-        //     _observer->detach();
-        // }
-        _observer = o;
-        if(_observer)
+        void attach(const TPtr& o)
         {
-            _observer->attach();
+            //
+            // Don't detach the existing observer. The observer is being
+            // replaced and the observed object is still being observed!
+            //
+            // if(_observer)
+            // {
+            //     _observer->detach();
+            // }
+            _observer = o;
+            if (_observer)
+            {
+                _observer->attach();
+            }
         }
-    }
-    TPtr get() const
-    {
-        return _observer;
-    }
+        TPtr get() const { return _observer; }
 
-    void adopt(ObserverHelperT& other)
-    {
-        _observer = other._observer;
-        other._observer = 0;
-    }
-
-    void detach()
-    {
-        if(_observer)
+        void adopt(ObserverHelperT& other)
         {
-            _observer->detach();
-            _observer = 0;
+            _observer = other._observer;
+            other._observer = 0;
         }
-    }
 
-    void failed(const std::string& reason)
-    {
-        if(_observer)
+        void detach()
         {
-            _observer->failed(reason);
+            if (_observer)
+            {
+                _observer->detach();
+                _observer = 0;
+            }
         }
-    }
 
-protected:
-
-    TPtr _observer;
-};
-
-class ICE_API DispatchObserver : public ObserverHelperT<Ice::Instrumentation::DispatchObserver>
-{
-public:
-
-    void userException()
-    {
-        if(_observer)
+        void failed(const std::string& reason)
         {
-            _observer->userException();
+            if (_observer)
+            {
+                _observer->failed(reason);
+            }
         }
-    }
 
-    void reply(std::int32_t size)
+    protected:
+        TPtr _observer;
+    };
+
+    class ICE_API DispatchObserver : public ObserverHelperT<Ice::Instrumentation::DispatchObserver>
     {
-        if(_observer)
+    public:
+        void userException()
         {
-            _observer->reply(size);
+            if (_observer)
+            {
+                _observer->userException();
+            }
         }
-    }
-};
 
-class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
-{
-public:
+        void reply(std::int32_t size)
+        {
+            if (_observer)
+            {
+                _observer->reply(size);
+            }
+        }
+    };
 
-    InvocationObserver(const Ice::ObjectPrx& proxy, std::string_view operation, const Ice::Context& context);
-    InvocationObserver(Instance* instance, std::string_view operation);
-    InvocationObserver() = default;
-
-    void attach(const Ice::ObjectPrx&, std::string_view operation, const Ice::Context&);
-    void attach(Instance*, std::string_view operation);
-
-    void retried()
+    class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
     {
-        if(_observer)
+    public:
+        InvocationObserver(const Ice::ObjectPrx& proxy, std::string_view operation, const Ice::Context& context);
+        InvocationObserver(Instance* instance, std::string_view operation);
+        InvocationObserver() = default;
+
+        void attach(const Ice::ObjectPrx&, std::string_view operation, const Ice::Context&);
+        void attach(Instance*, std::string_view operation);
+
+        void retried()
         {
-            _observer->retried();
+            if (_observer)
+            {
+                _observer->retried();
+            }
         }
-    }
 
-    ::Ice::Instrumentation::ChildInvocationObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt, int requestId, int size)
-    {
-        if(_observer)
+        ::Ice::Instrumentation::ChildInvocationObserverPtr
+        getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt, int requestId, int size)
         {
-            return _observer->getRemoteObserver(con, endpt, requestId, size);
+            if (_observer)
+            {
+                return _observer->getRemoteObserver(con, endpt, requestId, size);
+            }
+            return nullptr;
         }
-        return nullptr;
-    }
 
-    ::Ice::Instrumentation::ChildInvocationObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size)
-    {
-        if(_observer)
+        ::Ice::Instrumentation::ChildInvocationObserverPtr
+        getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size)
         {
-            return _observer->getCollocatedObserver(adapter, requestId, size);
+            if (_observer)
+            {
+                return _observer->getCollocatedObserver(adapter, requestId, size);
+            }
+            return nullptr;
         }
-        return nullptr;
-    }
 
-    void
-    userException()
-    {
-        if(_observer)
+        void userException()
         {
-            _observer->userException();
+            if (_observer)
+            {
+                _observer->userException();
+            }
         }
-    }
 
-private:
-
-    using ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach;
-};
-
+    private:
+        using ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach;
+    };
 }
 
 #endif

@@ -17,31 +17,21 @@ using namespace Test;
 class ControllerI final : public Controller
 {
 public:
-
-    void stop(const Ice::Current& c) override
-    {
-        c.adapter->getCommunicator()->shutdown();
-    }
+    void stop(const Ice::Current& c) override { c.adapter->getCommunicator()->shutdown(); }
 };
 
 class PublishThread final
 {
 public:
-
-    explicit PublishThread(SinglePrx single) :
-        _single(std::move(single)),
-        _published(0),
-        _destroy(false)
-    {
-    }
+    explicit PublishThread(SinglePrx single) : _single(std::move(single)), _published(0), _destroy(false) {}
 
     void run()
     {
-        while(true)
+        while (true)
         {
             {
                 lock_guard<mutex> log(_mutex);
-                if(_destroy)
+                if (_destroy)
                 {
                     cout << _published << endl;
                     break;
@@ -52,7 +42,7 @@ public:
                 _single->event(_published);
                 this_thread::sleep_for(1ms);
             }
-            catch(const Ice::UnknownException&)
+            catch (const Ice::UnknownException&)
             {
                 // This is expected if we publish to a replica that is
                 // going down.
@@ -69,7 +59,6 @@ public:
     }
 
 private:
-
     const SinglePrx _single;
     int _published;
     bool _destroy;
@@ -79,7 +68,6 @@ private:
 class Publisher final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -90,7 +78,7 @@ Publisher::run(int argc, char** argv)
     auto communicator = ich.communicator();
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -113,7 +101,7 @@ Publisher::run(int argc, char** argv)
     cout << communicator->proxyToString(controller) << endl;
 
     PublishThread pt(std::move(single));
-    auto fut = std::async(launch::async, [&pt]{ pt.run(); });
+    auto fut = std::async(launch::async, [&pt] { pt.run(); });
 
     communicator->waitForShutdown();
 

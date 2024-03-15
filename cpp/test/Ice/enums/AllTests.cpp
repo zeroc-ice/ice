@@ -91,8 +91,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing enum sequences operations... " << flush;
 
     {
-        ByteEnum values[] =
-        {
+        ByteEnum values[] = {
             ByteEnum::benum1,
             ByteEnum::benum2,
             ByteEnum::benum3,
@@ -103,14 +102,13 @@ allTests(Test::TestHelper* helper)
             ByteEnum::benum8,
             ByteEnum::benum9,
             ByteEnum::benum10,
-            ByteEnum::benum11
-        };
+            ByteEnum::benum11};
         ByteEnumSeq b1(&values[0], &values[0] + sizeof(values) / sizeof(ByteEnum));
 
         ByteEnumSeq b2;
         ByteEnumSeq b3 = proxy->opByteSeq(b1, b2);
 
-        for(size_t i = 0; i < b1.size(); ++i)
+        for (size_t i = 0; i < b1.size(); ++i)
         {
             test(b1[i] == b2[i]);
             test(b1[i] == b3[i]);
@@ -118,8 +116,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        ShortEnum values[] =
-        {
+        ShortEnum values[] = {
             ShortEnum::senum1,
             ShortEnum::senum2,
             ShortEnum::senum3,
@@ -130,14 +127,13 @@ allTests(Test::TestHelper* helper)
             ShortEnum::senum8,
             ShortEnum::senum9,
             ShortEnum::senum10,
-            ShortEnum::senum11
-        };
+            ShortEnum::senum11};
         ShortEnumSeq s1(&values[0], &values[0] + sizeof(values) / sizeof(ShortEnum));
 
         ShortEnumSeq s2;
         ShortEnumSeq s3 = proxy->opShortSeq(s1, s2);
 
-        for(size_t i = 0; i < s1.size(); ++i)
+        for (size_t i = 0; i < s1.size(); ++i)
         {
             test(s1[i] == s2[i]);
             test(s1[i] == s3[i]);
@@ -145,8 +141,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        IntEnum values[] =
-        {
+        IntEnum values[] = {
             IntEnum::ienum1,
             IntEnum::ienum2,
             IntEnum::ienum3,
@@ -157,14 +152,13 @@ allTests(Test::TestHelper* helper)
             IntEnum::ienum8,
             IntEnum::ienum9,
             IntEnum::ienum10,
-            IntEnum::ienum11
-        };
+            IntEnum::ienum11};
         IntEnumSeq i1(&values[0], &values[0] + sizeof(values) / sizeof(IntEnum));
 
         IntEnumSeq i2;
         IntEnumSeq i3 = proxy->opIntSeq(i1, i2);
 
-        for(size_t i = 0; i < i1.size(); ++i)
+        for (size_t i = 0; i < i1.size(); ++i)
         {
             test(i1[i] == i2[i]);
             test(i1[i] == i3[i]);
@@ -172,18 +166,13 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        SimpleEnum values[] =
-        {
-            SimpleEnum::red,
-            SimpleEnum::green,
-            SimpleEnum::blue
-        };
+        SimpleEnum values[] = {SimpleEnum::red, SimpleEnum::green, SimpleEnum::blue};
         SimpleEnumSeq s1(&values[0], &values[0] + sizeof(values) / sizeof(SimpleEnum));
 
         SimpleEnumSeq s2;
         SimpleEnumSeq s3 = proxy->opSimpleSeq(s1, s2);
 
-        for(size_t i = 0; i < s1.size(); ++i)
+        for (size_t i = 0; i < s1.size(); ++i)
         {
             test(s1[i] == s2[i]);
             test(s1[i] == s3[i]);
@@ -199,7 +188,7 @@ allTests(Test::TestHelper* helper)
         proxy->opByte(static_cast<ByteEnum>(-1), byteEnum); // Negative enumerators are not supported
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 
@@ -208,7 +197,7 @@ allTests(Test::TestHelper* helper)
         proxy->opByte(static_cast<ByteEnum>(127), byteEnum); // Invalid enumerator
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 
@@ -217,7 +206,7 @@ allTests(Test::TestHelper* helper)
         proxy->opShort(static_cast<ShortEnum>(-1), shortEnum); // Negative enumerators are not supported
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 
@@ -226,7 +215,7 @@ allTests(Test::TestHelper* helper)
         proxy->opShort(static_cast<ShortEnum>(0), shortEnum); // Invalid enumerator
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 
@@ -235,7 +224,7 @@ allTests(Test::TestHelper* helper)
         proxy->opShort(static_cast<ShortEnum>(32767), shortEnum); // Invalid enumerator
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 
@@ -244,7 +233,7 @@ allTests(Test::TestHelper* helper)
         proxy->opInt(static_cast<IntEnum>(-1), intEnum); // Negative enumerators are not supported
         test(false);
     }
-    catch(const Ice::MarshalException&)
+    catch (const Ice::MarshalException&)
     {
     }
 

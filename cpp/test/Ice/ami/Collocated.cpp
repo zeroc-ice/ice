@@ -11,7 +11,6 @@ using namespace std;
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -32,10 +31,10 @@ Collocated::run(int argc, char** argv)
 
     adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->add(make_shared<TestIntfII>(), Ice::stringToIdentity("test2"));
-    //adapter->activate(); // Collocated test doesn't need to activate the OA
+    // adapter->activate(); // Collocated test doesn't need to activate the OA
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));
-    //adapter2->activate(); // Collocated test doesn't need to activate the OA
+    // adapter2->activate(); // Collocated test doesn't need to activate the OA
 
     void allTests(Test::TestHelper*, bool);
     allTests(this, true);

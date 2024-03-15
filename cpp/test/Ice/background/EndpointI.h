@@ -15,7 +15,6 @@ using EndpointIPtr = std::shared_ptr<EndpointI>;
 class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
 {
 public:
-
     static std::int16_t TYPE_BASE;
 
     EndpointI(const IceInternal::EndpointIPtr&);
@@ -58,7 +57,6 @@ public:
     using IceInternal::EndpointI::connectionId;
 
 private:
-
     friend class EndpointFactory;
 
     const IceInternal::EndpointIPtr _endpoint;

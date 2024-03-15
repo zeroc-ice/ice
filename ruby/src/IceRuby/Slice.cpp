@@ -14,13 +14,12 @@ using namespace IceRuby;
 using namespace Slice;
 using namespace Slice::Ruby;
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
-        if(argc < 1 || argc > 2)
+        if (argc < 1 || argc > 2)
         {
             throw RubyException(rb_eArgError, "wrong number of arguments");
         }
@@ -31,18 +30,18 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         {
             argSeq = IceUtilInternal::Options::split(cmd);
         }
-        catch(const IceUtilInternal::BadOptException& ex)
+        catch (const IceUtilInternal::BadOptException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
-        catch(const IceUtilInternal::APIException& ex)
+        catch (const IceUtilInternal::APIException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
 
-        if(argc > 1)
+        if (argc > 1)
         {
-            if(!arrayToStringSeq(argv[1], argSeq))
+            if (!arrayToStringSeq(argv[1], argSeq))
             {
                 throw RubyException(rb_eTypeError, "argument 2 is not an array");
             }
@@ -60,16 +59,16 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         {
             argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
             files = opts.parse(argSeq);
-            if(files.empty())
+            if (files.empty())
             {
                 throw RubyException(rb_eArgError, "no Slice files specified in `%s'", cmd.c_str());
             }
         }
-        catch(const IceUtilInternal::BadOptException& ex)
+        catch (const IceUtilInternal::BadOptException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
-        catch(const IceUtilInternal::APIException& ex)
+        catch (const IceUtilInternal::APIException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
@@ -78,26 +77,26 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         vector<string> includePaths;
         bool debug = false;
         bool all = false;
-        if(opts.isSet("D"))
+        if (opts.isSet("D"))
         {
             vector<string> optargs = opts.argVec("D");
-            for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+            for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
             {
                 cppArgs.push_back("-D" + *i);
             }
         }
-        if(opts.isSet("U"))
+        if (opts.isSet("U"))
         {
             vector<string> optargs = opts.argVec("U");
-            for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+            for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
             {
                 cppArgs.push_back("-U" + *i);
             }
         }
-        if(opts.isSet("I"))
+        if (opts.isSet("I"))
         {
             includePaths = opts.argVec("I");
-            for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+            for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
             {
                 cppArgs.push_back("-I" + *i);
             }
@@ -105,13 +104,13 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         debug = opts.isSet("d") || opts.isSet("debug");
         all = opts.isSet("all");
 
-        for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
+        for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
             string file = *p;
             Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
@@ -119,7 +118,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             UnitPtr u = Slice::Unit::createUnit(all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
-            if(!icecpp->close() || parseStatus == EXIT_FAILURE)
+            if (!icecpp->close() || parseStatus == EXIT_FAILURE)
             {
                 u->destroy();
                 throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
@@ -147,19 +146,18 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_compile(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
-        if(argc != 1)
+        if (argc != 1)
         {
             throw RubyException(rb_eArgError, "wrong number of arguments");
         }
 
         vector<string> argSeq;
-        if(!arrayToStringSeq(argv[0], argSeq))
+        if (!arrayToStringSeq(argv[0], argSeq))
         {
             throw RubyException(rb_eTypeError, "argument is not an array");
         }
@@ -171,12 +169,12 @@ IceRuby_compile(int argc, VALUE* argv, VALUE /*self*/)
         {
             rc = Slice::Ruby::compile(argSeq);
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             cerr << argSeq[0] << ": error:" << ex.what() << endl;
             rc = EXIT_FAILURE;
         }
-        catch(...)
+        catch (...)
         {
             cerr << argSeq[0] << ": error:" << "unknown exception" << endl;
             rc = EXIT_FAILURE;

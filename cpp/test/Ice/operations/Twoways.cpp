@@ -11,17 +11,17 @@
 // Visual C++ defines min and max as macros
 //
 #ifdef min
-#   undef min
+#    undef min
 #endif
 #ifdef max
-#   undef max
+#    undef max
 #endif
 
 //
 // Work-around for GCC warning bug
 //
 #if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#    pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
 using namespace std;
@@ -29,30 +29,23 @@ using namespace Test;
 
 namespace
 {
-
-class PerThreadContextInvokeThread final
-{
-public:
-
-    PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) :
-        _proxy(proxy)
+    class PerThreadContextInvokeThread final
     {
-    }
+    public:
+        PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) : _proxy(proxy) {}
 
-    void run()
-    {
-        Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
-        test(ctx.empty());
-        ctx["one"] = "UN";
-        _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
-        test(_proxy->opContext() == ctx);
-    }
+        void run()
+        {
+            Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
+            test(ctx.empty());
+            ctx["one"] = "UN";
+            _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
+            test(_proxy->opContext() == ctx);
+        }
 
-private:
-
-    Test::MyClassPrx _proxy;
-};
-
+    private:
+        Test::MyClassPrx _proxy;
+    };
 }
 
 void
@@ -60,79 +53,46 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 {
     Test::StringS literals = p->opStringLiterals();
 
-    test(Test::s0 == "\\" &&
-         Test::s0 == Test::sw0 &&
-         Test::s0 == literals[0] &&
-         Test::s0 == literals[11]);
+    test(Test::s0 == "\\" && Test::s0 == Test::sw0 && Test::s0 == literals[0] && Test::s0 == literals[11]);
 
-    test(Test::s1 == "A" &&
-         Test::s1 == Test::sw1 &&
-         Test::s1 == literals[1] &&
-         Test::s1 == literals[12]);
+    test(Test::s1 == "A" && Test::s1 == Test::sw1 && Test::s1 == literals[1] && Test::s1 == literals[12]);
 
-    test(Test::s2 == "Ice" &&
-         Test::s2 == Test::sw2 &&
-         Test::s2 == literals[2] &&
-         Test::s2 == literals[13]);
+    test(Test::s2 == "Ice" && Test::s2 == Test::sw2 && Test::s2 == literals[2] && Test::s2 == literals[13]);
 
-    test(Test::s3 == "A21" &&
-         Test::s3 == Test::sw3 &&
-         Test::s3 == literals[3] &&
-         Test::s3 == literals[14]);
+    test(Test::s3 == "A21" && Test::s3 == Test::sw3 && Test::s3 == literals[3] && Test::s3 == literals[14]);
 
-    test(Test::s4 == "\\u0041 \\U00000041" &&
-         Test::s4 == Test::sw4 &&
-         Test::s4 == literals[4] &&
-         Test::s4 == literals[15]);
+    test(
+        Test::s4 == "\\u0041 \\U00000041" && Test::s4 == Test::sw4 && Test::s4 == literals[4] &&
+        Test::s4 == literals[15]);
 
-    test(Test::s5 == "\xc3\xbf" &&
-         Test::s5 == Test::sw5 &&
-         Test::s5 == literals[5] &&
-         Test::s5 == literals[16]);
+    test(Test::s5 == "\xc3\xbf" && Test::s5 == Test::sw5 && Test::s5 == literals[5] && Test::s5 == literals[16]);
 
-    test(Test::s6 == "\xcf\xbf" &&
-         Test::s6 == Test::sw6 &&
-         Test::s6 == literals[6] &&
-         Test::s6 == literals[17]);
+    test(Test::s6 == "\xcf\xbf" && Test::s6 == Test::sw6 && Test::s6 == literals[6] && Test::s6 == literals[17]);
 
-    test(Test::s7 == "\xd7\xb0" &&
-         Test::s7 == Test::sw7 &&
-         Test::s7 == literals[7] &&
-         Test::s7 == literals[18]);
+    test(Test::s7 == "\xd7\xb0" && Test::s7 == Test::sw7 && Test::s7 == literals[7] && Test::s7 == literals[18]);
 
-    test(Test::s8 == "\xf0\x90\x80\x80" &&
-         Test::s8 == Test::sw8 &&
-         Test::s8 == literals[8] &&
-         Test::s8 == literals[19]);
+    test(
+        Test::s8 == "\xf0\x90\x80\x80" && Test::s8 == Test::sw8 && Test::s8 == literals[8] && Test::s8 == literals[19]);
 
-    test(Test::s9 == "\xf0\x9f\x8d\x8c" &&
-         Test::s9 == Test::sw9 &&
-         Test::s9 == literals[9] &&
-         Test::s9 == literals[20]);
+    test(
+        Test::s9 == "\xf0\x9f\x8d\x8c" && Test::s9 == Test::sw9 && Test::s9 == literals[9] && Test::s9 == literals[20]);
 
-    test(Test::s10 == "\xe0\xb6\xa7" &&
-         Test::s10 == Test::sw10 &&
-         Test::s10 == literals[10] &&
-         Test::s10 == literals[21]);
+    test(
+        Test::s10 == "\xe0\xb6\xa7" && Test::s10 == Test::sw10 && Test::s10 == literals[10] &&
+        Test::s10 == literals[21]);
 
     test(Test::s11 == "\xe2\x82\xac\xe2\x82\xac\xe2\x82\xac");
     test(Test::s12 == "\\101");
 
-    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" &&
-         Test::ss0 == Test::ss1 &&
-         Test::ss0 == Test::ss2 &&
-         Test::ss0 == literals[22] &&
-         Test::ss0 == literals[23] &&
-         Test::ss0 == literals[24]);
+    test(
+        Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" && Test::ss0 == Test::ss1 && Test::ss0 == Test::ss2 &&
+        Test::ss0 == literals[22] && Test::ss0 == literals[23] && Test::ss0 == literals[24]);
 
-    test(Test::ss3 == "\\\\U\\u\\" &&
-         Test::ss3 == literals[25]);
+    test(Test::ss3 == "\\\\U\\u\\" && Test::ss3 == literals[25]);
 
-    test(Test::ss4 == "\\A\\" &&
-         Test::ss4 == literals[26]);
+    test(Test::ss4 == "\\A\\" && Test::ss4 == literals[26]);
 
-    test(Test::ss5 == "\\u0041\\" &&
-         Test::ss5 == literals[27]);
+    test(Test::ss5 == "\\u0041\\" && Test::ss5 == literals[27]);
 
     test(Test::su0 == Test::su1);
     test(Test::su0 == Test::su2);
@@ -145,82 +105,49 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     //
     Test::WStringS wliterals = p->opWStringLiterals();
 
-    test(Test::ws0 == L"\\" &&
-         Test::ws0 == Test::wsw0 &&
-         Test::ws0 == wliterals[0] &&
-         Test::ws0 == wliterals[11]);
+    test(Test::ws0 == L"\\" && Test::ws0 == Test::wsw0 && Test::ws0 == wliterals[0] && Test::ws0 == wliterals[11]);
 
-    test(Test::ws1 == L"A" &&
-         Test::ws1 == Test::wsw1 &&
-         Test::ws1 == wliterals[1] &&
-         Test::ws1 == wliterals[12]);
+    test(Test::ws1 == L"A" && Test::ws1 == Test::wsw1 && Test::ws1 == wliterals[1] && Test::ws1 == wliterals[12]);
 
-    test(Test::ws2 == L"Ice" &&
-         Test::ws2 == Test::wsw2 &&
-         Test::ws2 == wliterals[2] &&
-         Test::ws2 == wliterals[13]);
+    test(Test::ws2 == L"Ice" && Test::ws2 == Test::wsw2 && Test::ws2 == wliterals[2] && Test::ws2 == wliterals[13]);
 
-    test(Test::ws3 == L"A21" &&
-         Test::ws3 == Test::wsw3 &&
-         Test::ws3 == wliterals[3] &&
-         Test::ws3 == wliterals[14]);
+    test(Test::ws3 == L"A21" && Test::ws3 == Test::wsw3 && Test::ws3 == wliterals[3] && Test::ws3 == wliterals[14]);
 
-    test(Test::ws4 == L"\\u0041 \\U00000041" &&
-         Test::ws4 == Test::wsw4 &&
-         Test::ws4 == wliterals[4] &&
-         Test::ws4 == wliterals[15]);
+    test(
+        Test::ws4 == L"\\u0041 \\U00000041" && Test::ws4 == Test::wsw4 && Test::ws4 == wliterals[4] &&
+        Test::ws4 == wliterals[15]);
 
-    test(Test::ws5 == L"\u00FF" &&
-         Test::ws5 == Test::wsw5 &&
-         Test::ws5 == wliterals[5] &&
-         Test::ws5 == wliterals[16]);
+    test(Test::ws5 == L"\u00FF" && Test::ws5 == Test::wsw5 && Test::ws5 == wliterals[5] && Test::ws5 == wliterals[16]);
 
-    test(Test::ws6 == L"\u03FF" &&
-         Test::ws6 == Test::wsw6 &&
-         Test::ws6 == wliterals[6] &&
-         Test::ws6 == wliterals[17]);
+    test(Test::ws6 == L"\u03FF" && Test::ws6 == Test::wsw6 && Test::ws6 == wliterals[6] && Test::ws6 == wliterals[17]);
 
-    test(Test::ws7 == L"\u05F0" &&
-         Test::ws7 == Test::wsw7 &&
-         Test::ws7 == wliterals[7] &&
-         Test::ws7 == wliterals[18]);
+    test(Test::ws7 == L"\u05F0" && Test::ws7 == Test::wsw7 && Test::ws7 == wliterals[7] && Test::ws7 == wliterals[18]);
 
-    test(Test::ws8 == L"\U00010000" &&
-         Test::ws8 == Test::wsw8 &&
-         Test::ws8 == wliterals[8] &&
-         Test::ws8 == wliterals[19]);
+    test(
+        Test::ws8 == L"\U00010000" && Test::ws8 == Test::wsw8 && Test::ws8 == wliterals[8] &&
+        Test::ws8 == wliterals[19]);
 
-    test(Test::ws9 == L"\U0001F34C" &&
-         Test::ws9 == Test::wsw9 &&
-         Test::ws9 == wliterals[9] &&
-         Test::ws9 == wliterals[20]);
+    test(
+        Test::ws9 == L"\U0001F34C" && Test::ws9 == Test::wsw9 && Test::ws9 == wliterals[9] &&
+        Test::ws9 == wliterals[20]);
 
-    test(Test::ws10 == L"\u0DA7" &&
-         Test::ws10 == Test::wsw10 &&
-         Test::ws10 == wliterals[10] &&
-         Test::ws10 == wliterals[21]);
+    test(
+        Test::ws10 == L"\u0DA7" && Test::ws10 == Test::wsw10 && Test::ws10 == wliterals[10] &&
+        Test::ws10 == wliterals[21]);
 
-    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" &&
-         Test::wss0 == Test::wss1 &&
-         Test::wss0 == Test::wss2 &&
-         Test::wss0 == wliterals[22] &&
-         Test::wss0 == wliterals[23] &&
-         Test::wss0 == wliterals[24]);
+    test(
+        Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" && Test::wss0 == Test::wss1 && Test::wss0 == Test::wss2 &&
+        Test::wss0 == wliterals[22] && Test::wss0 == wliterals[23] && Test::wss0 == wliterals[24]);
 
-    test(Test::wss3 == L"\\\\U\\u\\" &&
-         Test::wss3 == wliterals[25]);
+    test(Test::wss3 == L"\\\\U\\u\\" && Test::wss3 == wliterals[25]);
 
-    test(Test::wss4 == L"\\A\\" &&
-         Test::wss4 == wliterals[26]);
+    test(Test::wss4 == L"\\A\\" && Test::wss4 == wliterals[26]);
 
-    test(Test::wss5 == L"\\u0041\\" &&
-         Test::wss5 == wliterals[27]);
+    test(Test::wss5 == L"\\u0041\\" && Test::wss5 == wliterals[27]);
 
-    test(Test::wsu0 == Test::wsu1 &&
-         Test::wsu0 == Test::wsu2 &&
-         Test::wsu0 == wliterals[28] &&
-         Test::wsu0 == wliterals[29] &&
-         Test::wsu0 == wliterals[30]);
+    test(
+        Test::wsu0 == Test::wsu1 && Test::wsu0 == Test::wsu2 && Test::wsu0 == wliterals[28] &&
+        Test::wsu0 == wliterals[29] && Test::wsu0 == wliterals[30]);
 
     {
         p->ice_ping();
@@ -281,15 +208,25 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(l == 12);
         test(r == 12);
 
-        r = p->opShortIntLong(numeric_limits<int16_t>::min(), numeric_limits<int32_t>::min(),
-                              numeric_limits<int64_t>::min(), s, i, l);
+        r = p->opShortIntLong(
+            numeric_limits<int16_t>::min(),
+            numeric_limits<int32_t>::min(),
+            numeric_limits<int64_t>::min(),
+            s,
+            i,
+            l);
         test(s == numeric_limits<int16_t>::min());
         test(i == numeric_limits<int32_t>::min());
         test(l == numeric_limits<int64_t>::min());
         test(r == numeric_limits<int64_t>::min());
 
-        r = p->opShortIntLong(numeric_limits<int16_t>::max(), numeric_limits<int32_t>::max(),
-                              numeric_limits<int64_t>::max(), s, i, l);
+        r = p->opShortIntLong(
+            numeric_limits<int16_t>::max(),
+            numeric_limits<int32_t>::max(),
+            numeric_limits<int64_t>::max(),
+            s,
+            i,
+            l);
         test(s == numeric_limits<int16_t>::max());
         test(i == numeric_limits<int32_t>::max());
         test(l == numeric_limits<int64_t>::max());
@@ -354,7 +291,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             c2->opVoid();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -390,34 +327,34 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteS bsi1;
         Test::ByteS bsi2;
 
-        bsi1.push_back(uint8_t(0x01));
-        bsi1.push_back(uint8_t(0x11));
-        bsi1.push_back(uint8_t(0x12));
-        bsi1.push_back(uint8_t(0x22));
+        bsi1.push_back(byte{0x01});
+        bsi1.push_back(byte{0x11});
+        bsi1.push_back(byte{0x12});
+        bsi1.push_back(byte{0x22});
 
-        bsi2.push_back(uint8_t(0xf1));
-        bsi2.push_back(uint8_t(0xf2));
-        bsi2.push_back(uint8_t(0xf3));
-        bsi2.push_back(uint8_t(0xf4));
+        bsi2.push_back(byte{0xf1});
+        bsi2.push_back(byte{0xf2});
+        bsi2.push_back(byte{0xf3});
+        bsi2.push_back(byte{0xf4});
 
         Test::ByteS bso;
         Test::ByteS rso;
 
         rso = p->opByteS(bsi1, bsi2, bso);
         test(bso.size() == 4);
-        test(bso[0] == uint8_t(0x22));
-        test(bso[1] == uint8_t(0x12));
-        test(bso[2] == uint8_t(0x11));
-        test(bso[3] == uint8_t(0x01));
+        test(bso[0] == byte{0x22});
+        test(bso[1] == byte{0x12});
+        test(bso[2] == byte{0x11});
+        test(bso[3] == byte{0x01});
         test(rso.size() == 8);
-        test(rso[0] == uint8_t(0x01));
-        test(rso[1] == uint8_t(0x11));
-        test(rso[2] == uint8_t(0x12));
-        test(rso[3] == uint8_t(0x22));
-        test(rso[4] == uint8_t(0xf1));
-        test(rso[5] == uint8_t(0xf2));
-        test(rso[6] == uint8_t(0xf3));
-        test(rso[7] == uint8_t(0xf4));
+        test(rso[0] == byte{0x01});
+        test(rso[1] == byte{0x11});
+        test(rso[2] == byte{0x12});
+        test(rso[3] == byte{0x22});
+        test(rso[4] == byte{0xf1});
+        test(rso[5] == byte{0xf2});
+        test(rso[6] == byte{0xf3});
+        test(rso[7] == byte{0xf4});
     }
 
     {
@@ -553,14 +490,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteSS bsi2;
         bsi2.resize(2);
 
-        bsi1[0].push_back(uint8_t(0x01));
-        bsi1[0].push_back(uint8_t(0x11));
-        bsi1[0].push_back(uint8_t(0x12));
-        bsi1[1].push_back(uint8_t(0xff));
+        bsi1[0].push_back(byte{0x01});
+        bsi1[0].push_back(byte{0x11});
+        bsi1[0].push_back(byte{0x12});
+        bsi1[1].push_back(byte{0xff});
 
-        bsi2[0].push_back(uint8_t(0x0e));
-        bsi2[1].push_back(uint8_t(0xf2));
-        bsi2[1].push_back(uint8_t(0xf1));
+        bsi2[0].push_back(byte{0x0e});
+        bsi2[1].push_back(byte{0xf2});
+        bsi2[1].push_back(byte{0xf1});
 
         Test::ByteSS bso;
         Test::ByteSS rso;
@@ -568,23 +505,23 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         rso = p->opByteSS(bsi1, bsi2, bso);
         test(bso.size() == 2);
         test(bso[0].size() == 1);
-        test(bso[0][0] == uint8_t(0xff));
+        test(bso[0][0] == byte{0xff});
         test(bso[1].size() == 3);
-        test(bso[1][0] == uint8_t(0x01));
-        test(bso[1][1] == uint8_t(0x11));
-        test(bso[1][2] == uint8_t(0x12));
+        test(bso[1][0] == byte{0x01});
+        test(bso[1][1] == byte{0x11});
+        test(bso[1][2] == byte{0x12});
         test(rso.size() == 4);
         test(rso[0].size() == 3);
-        test(rso[0][0] == uint8_t(0x01));
-        test(rso[0][1] == uint8_t(0x11));
-        test(rso[0][2] == uint8_t(0x12));
+        test(rso[0][0] == byte{0x01});
+        test(rso[0][1] == byte{0x11});
+        test(rso[0][2] == byte{0x12});
         test(rso[1].size() == 1);
-        test(rso[1][0] == uint8_t(0xff));
+        test(rso[1][0] == byte{0xff});
         test(rso[2].size() == 1);
-        test(rso[2][0] == uint8_t(0x0e));
+        test(rso[2][0] == byte{0x0e});
         test(rso[3].size() == 2);
-        test(rso[3][0] == uint8_t(0xf2));
-        test(rso[3][1] == uint8_t(0xf1));
+        test(rso[3][0] == byte{0xf2});
+        test(rso[3][1] == byte{0xf1});
     }
 
     {
@@ -926,14 +863,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        Test::MyStruct ms11 = { 1, 1 };
-        Test::MyStruct ms12 = { 1, 2 };
+        Test::MyStruct ms11 = {1, 1};
+        Test::MyStruct ms12 = {1, 2};
         Test::MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        Test::MyStruct ms22 = { 2, 2 };
-        Test::MyStruct ms23 = { 2, 3 };
+        Test::MyStruct ms22 = {2, 2};
+        Test::MyStruct ms23 = {2, 3};
         Test::MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
@@ -971,7 +908,8 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         dsi1[1] = di2;
         dsi2[0] = di3;
 
-        try {
+        try
+        {
             Test::ByteBoolDS _do;
             Test::ByteBoolDS ro = p->opByteBoolDS(dsi1, dsi2, _do);
 
@@ -996,7 +934,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2][11] == false);
             test(_do[2][101] == true);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1046,7 +984,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2][111] == -100);
             test(_do[2][1101] == 0);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1096,7 +1034,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2][999999120] == float(-100.4));
             test(_do[2][999999130] == float(0.5));
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1146,7 +1084,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2]["FOO"] == "abc -100.4");
             test(_do[2]["BAR"] == "abc 0.5");
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1196,7 +1134,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2]["qwerty"] == MyEnum::enum3);
             test(_do[2]["Hello!!"] == MyEnum::enum2);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1240,7 +1178,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2][MyEnum::enum2] == "Hello!!");
             test(_do[2][MyEnum::enum3] == "qwerty");
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1251,14 +1189,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::MyStructMyEnumDS dsi2;
         dsi2.resize(1);
 
-        Test::MyStruct ms11 = { 1, 1 };
-        Test::MyStruct ms12 = { 1, 2 };
+        Test::MyStruct ms11 = {1, 1};
+        Test::MyStruct ms12 = {1, 2};
         Test::MyStructMyEnumD di1;
         di1[ms11] = MyEnum::enum1;
         di1[ms12] = MyEnum::enum2;
 
-        Test::MyStruct ms22 = { 2, 2 };
-        Test::MyStruct ms23 = { 2, 3 };
+        Test::MyStruct ms22 = {2, 2};
+        Test::MyStruct ms23 = {2, 3};
         Test::MyStructMyEnumD di2;
         di2[ms11] = MyEnum::enum1;
         di2[ms22] = MyEnum::enum3;
@@ -1296,7 +1234,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do[2][ms22] == MyEnum::enum3);
             test(_do[2][ms23] == MyEnum::enum2);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1309,15 +1247,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::ByteS si2;
         Test::ByteS si3;
 
-        si1.push_back(uint8_t(0x01));
-        si1.push_back(uint8_t(0x11));
-        si2.push_back(uint8_t(0x12));
-        si3.push_back(uint8_t(0xf2));
-        si3.push_back(uint8_t(0xf3));
+        si1.push_back(byte{0x01});
+        si1.push_back(byte{0x11});
+        si2.push_back(byte{0x12});
+        si3.push_back(byte{0xf2});
+        si3.push_back(byte{0xf3});
 
-        sdi1[uint8_t(0x01)] = si1;
-        sdi1[uint8_t(0x22)] = si2;
-        sdi2[uint8_t(0xf1)] = si3;
+        sdi1[uint8_t{0x01}] = si1;
+        sdi1[uint8_t{0x22}] = si2;
+        sdi2[uint8_t{0xf1}] = si3;
 
         try
         {
@@ -1326,16 +1264,16 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
             test(_do == sdi2);
             test(ro.size() == 3);
-            test(ro[uint8_t(0x01)].size() == 2);
-            test(ro[uint8_t(0x01)][0] == uint8_t(0x01));
-            test(ro[uint8_t(0x01)][1] == uint8_t(0x11));
-            test(ro[uint8_t(0x22)].size() == 1);
-            test(ro[uint8_t(0x22)][0] == uint8_t(0x12));
-            test(ro[uint8_t(0xf1)].size() == 2);
-            test(ro[uint8_t(0xf1)][0] == uint8_t(0xf2));
-            test(ro[uint8_t(0xf1)][1] == uint8_t(0xf3));
+            test(ro[uint8_t{0x01}].size() == 2);
+            test(ro[uint8_t{0x01}][0] == byte{0x01});
+            test(ro[uint8_t{0x01}][1] == byte{0x11});
+            test(ro[uint8_t{0x22}].size() == 1);
+            test(ro[uint8_t{0x22}][0] == byte{0x12});
+            test(ro[uint8_t{0xf1}].size() == 2);
+            test(ro[uint8_t{0xf1}][0] == byte{0xf2});
+            test(ro[uint8_t{0xf1}][1] == byte{0xf3});
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1372,7 +1310,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[true][1] == true);
             test(ro[true][2] == true);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1415,7 +1353,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[4][0] == 6);
             test(ro[4][1] == 7);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1458,7 +1396,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[400][0] == 600);
             test(ro[400][1] == 700);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1501,7 +1439,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[999999992][0] == 999999110);
             test(ro[999999992][1] == 999999120);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1544,7 +1482,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro["aBc"][0] == float(-3.14));
             test(ro["aBc"][1] == float(3.14));
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1587,7 +1525,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[""][0] == double(1.6E10));
             test(ro[""][1] == double(1.7E10));
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1632,7 +1570,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro["ghi"][0] == "and");
             test(ro["ghi"][1] == "xor");
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -1675,24 +1613,24 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(ro[MyEnum::enum1][0] == MyEnum::enum3);
             test(ro[MyEnum::enum1][1] == MyEnum::enum3);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
 
     {
-        const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+        const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
             Test::IntS s;
-            for(int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < lengths[l]; ++i)
             {
                 s.push_back(i);
             }
             Test::IntS r = p->opIntS(s);
             test(r.size() == static_cast<size_t>(lengths[l]));
-            for(int j = 0; j < static_cast<int>(r.size()); ++j)
+            for (int j = 0; j < static_cast<int>(r.size()); ++j)
             {
                 test(r[static_cast<size_t>(j)] == -j);
             }
@@ -1725,14 +1663,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             }
         }
 
-        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        if (p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
             // Test implicit context propagation
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
@@ -1778,7 +1716,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 test(ic->getImplicitContext()->remove("one") == "ONE");
 
-                if(impls[i] == "PerThread")
+                if (impls[i] == "PerThread")
                 {
                     auto invoker = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
                     auto invokerThread = std::thread([invoker] { invoker->run(); });

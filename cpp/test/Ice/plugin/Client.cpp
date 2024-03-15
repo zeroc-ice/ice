@@ -9,78 +9,49 @@ using namespace std;
 
 namespace
 {
-
-class MyPlugin : public Ice::Plugin
-{
-
-public:
-
-    MyPlugin() :
-        _initialized(false),
-        _destroyed(false)
+    class MyPlugin : public Ice::Plugin
     {
-    }
+    public:
+        MyPlugin() : _initialized(false), _destroyed(false) {}
 
-    bool
-    isInitialized() const
-    {
-        return _initialized;
-    }
+        bool isInitialized() const { return _initialized; }
 
-    bool
-    isDestroyed() const
-    {
-        return _destroyed;
-    }
+        bool isDestroyed() const { return _destroyed; }
 
-    void
-    initialize()
-    {
-        _initialized = true;
-    }
+        void initialize() { _initialized = true; }
 
-    void
-    destroy()
-    {
-        _destroyed = true;
-    }
+        void destroy() { _destroyed = true; }
 
-    ~MyPlugin()
-    {
-        test(!_initialized || _destroyed); // If initialized, we must be destroyed too.
-    }
+        ~MyPlugin()
+        {
+            test(!_initialized || _destroyed); // If initialized, we must be destroyed too.
+        }
 
-private:
-
-    bool _initialized;
-    bool _destroyed;
-};
-using MyPluginPtr = std::shared_ptr<MyPlugin>;
-
+    private:
+        bool _initialized;
+        bool _destroyed;
+    };
+    using MyPluginPtr = std::shared_ptr<MyPlugin>;
 }
 
 extern "C"
 {
-
-Ice::Plugin*
-createMyPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&)
-{
-    return new MyPlugin();
-}
-
+    Ice::Plugin* createMyPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&)
+    {
+        return new MyPlugin();
+    }
 }
 
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
 void
 Client::run(int argc, char** argv)
 {
-    if(argc < 2)
+    if (argc < 2)
     {
         ostringstream os;
         os << "usage: " << argv[0] << " <plugindir>";
@@ -107,11 +78,11 @@ Client::run(int argc, char** argv)
         {
             communicator->getPluginManager()->getPlugin("Static2");
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
         }
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -127,7 +98,7 @@ Client::run(int argc, char** argv)
         plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static2"));
         test(plugin && plugin->isInitialized());
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -141,7 +112,7 @@ Client::run(int argc, char** argv)
         properties->setProperty("Ice.Plugin.Test", pluginDir + "TestPlugin:createPlugin");
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -155,11 +126,11 @@ Client::run(int argc, char** argv)
         ostringstream os;
         os << pluginDir << "TestPlugin,";
         os << majorVersion * 10 + minorVersion;
-        if(patchVersion >= 60)
+        if (patchVersion >= 60)
         {
             os << 'b' << (patchVersion - 60);
         }
-        else if(patchVersion >= 50)
+        else if (patchVersion >= 50)
         {
             os << 'a' << (patchVersion - 50);
         }
@@ -168,7 +139,7 @@ Client::run(int argc, char** argv)
         properties->setProperty("Ice.Plugin.Test", os.str());
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -181,7 +152,7 @@ Client::run(int argc, char** argv)
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         test(false);
     }
-    catch(const Ice::PluginInitializationException&)
+    catch (const Ice::PluginInitializationException&)
     {
     }
 
@@ -192,19 +163,20 @@ Client::run(int argc, char** argv)
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         test(false);
     }
-    catch(const Ice::PluginInitializationException&)
+    catch (const Ice::PluginInitializationException&)
     {
     }
 
     try
     {
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-        properties->setProperty("Ice.Plugin.Test",
-                                pluginDir + "TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "
-                                "'C:\\Program Files\\Application\\db'" );
+        properties->setProperty(
+            "Ice.Plugin.Test",
+            pluginDir + "TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "
+                        "'C:\\Program Files\\Application\\db'");
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -219,7 +191,7 @@ Client::run(int argc, char** argv)
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         test(false);
     }
-    catch(const Ice::PluginInitializationException& ex)
+    catch (const Ice::PluginInitializationException& ex)
     {
         test(ex.reason.find("PluginInitializeFailExeption") > 0);
     }
@@ -235,7 +207,7 @@ Client::run(int argc, char** argv)
         properties->setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -270,7 +242,7 @@ Client::run(int argc, char** argv)
 
         test(p4->isDestroyed());
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         test(false);
@@ -288,7 +260,7 @@ Client::run(int argc, char** argv)
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         test(false);
     }
-    catch(const Ice::PluginInitializationException& ex)
+    catch (const Ice::PluginInitializationException& ex)
     {
         test(ex.reason.find("PluginInitializeFailExeption") > 0);
     }

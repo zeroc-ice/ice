@@ -26,10 +26,7 @@ BackgroundI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) :
-    _controller(controller)
-{
-}
+BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
 
 void
 BackgroundControllerI::pauseCall(string opName, const Current&)
@@ -74,7 +71,7 @@ BackgroundControllerI::initializeSocketOperation(int status, const Current&)
 void
 BackgroundControllerI::initializeException(bool enable, const Current&)
 {
-    _configuration->initializeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->initializeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
 }
 
 void
@@ -86,7 +83,7 @@ BackgroundControllerI::readReady(bool enable, const Current&)
 void
 BackgroundControllerI::readException(bool enable, const Current&)
 {
-    _configuration->readException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->readException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
 }
 
 void
@@ -98,7 +95,7 @@ BackgroundControllerI::writeReady(bool enable, const Current&)
 void
 BackgroundControllerI::writeException(bool enable, const Current&)
 {
-    _configuration->writeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
+    _configuration->writeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
 }
 
 void
@@ -107,9 +104,8 @@ BackgroundControllerI::buffered(bool enable, const Current&)
     _configuration->buffered(enable);
 }
 
-BackgroundControllerI::BackgroundControllerI(const ObjectAdapterPtr& adapter,
-                                             const ConfigurationPtr& configuration) :
-    _adapter(adapter),
-    _configuration(configuration)
+BackgroundControllerI::BackgroundControllerI(const ObjectAdapterPtr& adapter, const ConfigurationPtr& configuration)
+    : _adapter(adapter),
+      _configuration(configuration)
 {
 }

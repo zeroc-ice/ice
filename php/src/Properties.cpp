@@ -13,7 +13,7 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // Class entries represent the PHP class implementations we have registered.
 namespace IcePHP
 {
-zend_class_entry* propertiesClassEntry = 0;
+    zend_class_entry* propertiesClassEntry = 0;
 }
 
 // Properties support.
@@ -21,9 +21,9 @@ static zend_object_handlers _handlers;
 
 extern "C"
 {
-static zend_object* handleAlloc(zend_class_entry*);
-static void handleFreeStorage(zend_object*);
-static zend_object* handleClone(zend_object*);
+    static zend_object* handleAlloc(zend_class_entry*);
+    static void handleFreeStorage(zend_object*);
+    static zend_object* handleClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Properties, __construct)
@@ -33,7 +33,7 @@ ZEND_METHOD(Ice_Properties, __construct)
 
 ZEND_METHOD(Ice_Properties, __toString)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -47,7 +47,7 @@ ZEND_METHOD(Ice_Properties, __toString)
         string str;
         for (Ice::PropertyDict::const_iterator p = val.begin(); p != val.end(); ++p)
         {
-            if(p != val.begin())
+            if (p != val.begin())
             {
                 str.append("\n");
             }
@@ -55,15 +55,15 @@ ZEND_METHOD(Ice_Properties, __toString)
         }
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getProperty_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getProperty)
@@ -71,7 +71,7 @@ ZEND_METHOD(Ice_Properties, getProperty)
     char* name;
     size_t nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -85,16 +85,16 @@ ZEND_METHOD(Ice_Properties, getProperty)
         string val = _this->getProperty(propName);
         RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyWithDefault_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, name)
-    ZEND_ARG_INFO(0, defaultValue)
+ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, defaultValue)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
@@ -104,8 +104,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     char* def;
     size_t defLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss!"), &name, &nameLen, &def, &defLen) ==
-        FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss!"), &name, &nameLen, &def, &defLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -115,7 +114,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
 
     string propName(name, nameLen);
     string defaultValue;
-    if(def)
+    if (def)
     {
         defaultValue = string(def, defLen);
     }
@@ -125,15 +124,15 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
         string val = _this->getPropertyWithDefault(propName, defaultValue);
         RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsInt_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsInt)
@@ -141,7 +140,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     char* name;
     size_t nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -155,16 +154,20 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
         int32_t val = _this->getPropertyAsInt(propName);
         RETURN_LONG(static_cast<long>(val));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsIntWithDefault_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, name)
-    ZEND_ARG_INFO(0, defaultValue)
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_getPropertyAsIntWithDefault_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(2))
+ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, defaultValue)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
@@ -173,7 +176,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     size_t nameLen;
     zend_long def;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sl"), &name, &nameLen, &def) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sl"), &name, &nameLen, &def) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -188,15 +191,15 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
         int32_t val = _this->getPropertyAsIntWithDefault(propName, static_cast<int32_t>(def));
         RETURN_LONG(val);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsList_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsList)
@@ -204,7 +207,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     char* name;
     size_t nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -216,24 +219,25 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     try
     {
         Ice::StringSeq val = _this->getPropertyAsList(propName);
-        if(!createStringArray(return_value, val))
+        if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsListWithDefault_arginfo,
-                       1,
-                       ZEND_RETURN_VALUE,
-                       static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, name)
-    ZEND_ARG_INFO(0, defaultValue)
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_getPropertyAsListWithDefault_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(2))
+ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, defaultValue)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
@@ -242,7 +246,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     size_t nameLen;
     zval* def;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sa!"), &name, &nameLen, &def) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sa!"), &name, &nameLen, &def) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -252,7 +256,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
 
     string propName(name, nameLen);
     Ice::StringSeq defaultValue;
-    if(def && !extractStringArray(def, defaultValue))
+    if (def && !extractStringArray(def, defaultValue))
     {
         RETURN_NULL();
     }
@@ -260,20 +264,20 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     try
     {
         Ice::StringSeq val = _this->getPropertyAsListWithDefault(propName, defaultValue);
-        if(!createStringArray(return_value, val))
+        if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertiesForPrefix_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, prefix)
+ZEND_ARG_INFO(0, prefix)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
@@ -281,7 +285,7 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
     char* p;
     size_t pLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!"), &p, &pLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!"), &p, &pLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -290,7 +294,7 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
     assert(_this);
 
     string prefix;
-    if(p)
+    if (p)
     {
         prefix = string(p, pLen);
     }
@@ -298,21 +302,21 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
     try
     {
         Ice::PropertyDict val = _this->getPropertiesForPrefix(prefix);
-        if(!createStringMap(return_value, val))
+        if (!createStringMap(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_setProperty_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, name)
-    ZEND_ARG_INFO(0, value)
+ZEND_ARG_INFO(0, name)
+ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, setProperty)
@@ -322,8 +326,7 @@ ZEND_METHOD(Ice_Properties, setProperty)
     char* val;
     size_t valLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss!"), &name, &nameLen, &val, &valLen) ==
-        FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss!"), &name, &nameLen, &val, &valLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -333,7 +336,7 @@ ZEND_METHOD(Ice_Properties, setProperty)
 
     string propName(name, nameLen);
     string propValue;
-    if(val)
+    if (val)
     {
         propValue = string(val, valLen);
     }
@@ -342,16 +345,16 @@ ZEND_METHOD(Ice_Properties, setProperty)
     {
         _this->setProperty(propName, propValue);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_METHOD(Ice_Properties, getCommandLineOptions)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if (ZEND_NUM_ARGS() != 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -362,21 +365,21 @@ ZEND_METHOD(Ice_Properties, getCommandLineOptions)
     try
     {
         Ice::StringSeq val = _this->getCommandLineOptions();
-        if(!createStringArray(return_value, val))
+        if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_parseCommandLineOptions_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, prefix)
-    ZEND_ARG_INFO(0, options)
+ZEND_ARG_INFO(0, prefix)
+ZEND_ARG_INFO(0, options)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
@@ -385,7 +388,7 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     size_t pLen;
     zval* opts;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!a!"), &p, &pLen, &opts) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!a!"), &p, &pLen, &opts) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -394,12 +397,12 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     assert(_this);
 
     string prefix;
-    if(p)
+    if (p)
     {
         prefix = string(p, pLen);
     }
     Ice::StringSeq options;
-    if(opts && !extractStringArray(opts, options))
+    if (opts && !extractStringArray(opts, options))
     {
         RETURN_NULL();
     }
@@ -407,30 +410,31 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     try
     {
         Ice::StringSeq val = _this->parseCommandLineOptions(prefix, options);
-        if(!createStringArray(return_value, val))
+        if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_parseIceCommandLineOptions_arginfo,
-                       1,
-                       ZEND_RETURN_VALUE,
-                       static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, options)
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_parseIceCommandLineOptions_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(1))
+ZEND_ARG_INFO(0, options)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
 {
     zval* opts;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("a!"), &opts) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("a!"), &opts) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -439,7 +443,7 @@ ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
     assert(_this);
 
     Ice::StringSeq options;
-    if(opts && !extractStringArray(opts, options))
+    if (opts && !extractStringArray(opts, options))
     {
         RETURN_NULL();
     }
@@ -447,20 +451,20 @@ ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
     try
     {
         Ice::StringSeq val = _this->parseIceCommandLineOptions(options);
-        if(!createStringArray(return_value, val))
+        if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_load_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, path)
+ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, load)
@@ -468,7 +472,7 @@ ZEND_METHOD(Ice_Properties, load)
     char* f;
     size_t fLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &f, &fLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &f, &fLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -482,16 +486,16 @@ ZEND_METHOD(Ice_Properties, load)
     {
         _this->load(file);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 ZEND_METHOD(Ice_Properties, clone)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -503,14 +507,14 @@ ZEND_METHOD(Ice_Properties, clone)
     {
         Ice::PropertiesPtr pclone = _this->clone();
 
-        if(!createProperties(return_value, pclone))
+        if (!createProperties(return_value, pclone))
         {
             RETURN_NULL();
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
@@ -554,10 +558,11 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* defaultsObj = 0;
 
     if (zend_parse_parameters(
-        ZEND_NUM_ARGS(),
-        const_cast<char*>("|a!O!"),
-        &arglist, &defaultsObj,
-        propertiesClassEntry) == FAILURE)
+            ZEND_NUM_ARGS(),
+            const_cast<char*>("|a!O!"),
+            &arglist,
+            &defaultsObj,
+            propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -608,47 +613,56 @@ ZEND_FUNCTION(Ice_createProperties)
             }
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (...)
     {
-        throwException(ex);
+        throwException(current_exception());
         RETURN_NULL();
     }
 }
 
 // Predefined methods for Properties.
-static zend_function_entry _interfaceMethods[] =
-{
-    {0, 0, 0}
-};
+static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
-static zend_function_entry _classMethods[] =
-{
-    ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Properties, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties,
-            getPropertyAsIntWithDefault,
-            Ice_Properties_getPropertyAsIntWithDefault_arginfo,
-            ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties,
-            getPropertyAsListWithDefault,
-            Ice_Properties_getPropertyAsListWithDefault_arginfo,
-            ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertiesForPrefix, Ice_Properties_getPropertiesForPrefix_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, parseCommandLineOptions, Ice_Properties_parseCommandLineOptions_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties,
-            parseIceCommandLineOptions,
-            Ice_Properties_parseIceCommandLineOptions_arginfo,
-            ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
+static zend_function_entry _classMethods[] = {
+    ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
+        Ice_Properties,
+        __toString,
+        ice_to_string_arginfo,
+        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
+        ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                Ice_Properties,
+                getPropertyAsIntWithDefault,
+                Ice_Properties_getPropertyAsIntWithDefault_arginfo,
+                ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(
+                        Ice_Properties,
+                        getPropertyAsListWithDefault,
+                        Ice_Properties_getPropertyAsListWithDefault_arginfo,
+                        ZEND_ACC_PUBLIC)
+                        ZEND_ME(
+                            Ice_Properties,
+                            getPropertiesForPrefix,
+                            Ice_Properties_getPropertiesForPrefix_arginfo,
+                            ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
+                                ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                    ZEND_ME(
+                                        Ice_Properties,
+                                        parseCommandLineOptions,
+                                        Ice_Properties_parseCommandLineOptions_arginfo,
+                                        ZEND_ACC_PUBLIC)
+                                        ZEND_ME(
+                                            Ice_Properties,
+                                            parseIceCommandLineOptions,
+                                            Ice_Properties_parseIceCommandLineOptions_arginfo,
+                                            ZEND_ACC_PUBLIC)
+                                            ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
+                                                ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){
+                                                    0,
+                                                    0,
+                                                    0}};
 
 bool
 IcePHP::propertiesInit(void)
@@ -678,7 +692,7 @@ IcePHP::propertiesInit(void)
 bool
 IcePHP::createProperties(zval* zv, const Ice::PropertiesPtr& p)
 {
-    if(object_init_ex(zv, propertiesClassEntry) != SUCCESS)
+    if (object_init_ex(zv, propertiesClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize properties object");
         return false;
@@ -694,15 +708,15 @@ IcePHP::createProperties(zval* zv, const Ice::PropertiesPtr& p)
 bool
 IcePHP::fetchProperties(zval* zv, Ice::PropertiesPtr& p)
 {
-    if(!ZVAL_IS_NULL(zv))
+    if (!ZVAL_IS_NULL(zv))
     {
-        if(Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != propertiesClassEntry)
+        if (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != propertiesClassEntry)
         {
             invalidArgument("value is not a properties object");
             return false;
         }
         p = Wrapper<Ice::PropertiesPtr>::value(zv);
-        if(!p)
+        if (!p)
         {
             runtimeError("unable to retrieve properties object from object store");
             return false;

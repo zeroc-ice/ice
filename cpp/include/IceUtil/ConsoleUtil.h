@@ -11,79 +11,69 @@
 
 namespace IceUtilInternal
 {
-
 #if defined(_WIN32)
 
-class ConsoleUtil;
-using ConsoleUtilPtr = std::shared_ptr<ConsoleUtil>;
+    class ConsoleUtil;
+    using ConsoleUtilPtr = std::shared_ptr<ConsoleUtil>;
 
-class ICE_API ConsoleUtil
-{
-public:
+    class ICE_API ConsoleUtil
+    {
+    public:
+        ConsoleUtil();
+        void output(const std::string&) const;
+        void error(const std::string&) const;
 
-    ConsoleUtil();
-    void output(const std::string&) const;
-    void error(const std::string&) const;
+    private:
+        std::string toConsoleEncoding(const std::string&) const;
+        IceUtil::StringConverterPtr _converter;
+        IceUtil::StringConverterPtr _consoleConverter;
+    };
 
-private:
+    const ICE_API ConsoleUtil& getConsoleUtil();
 
-    std::string toConsoleEncoding(const std::string&) const;
-    IceUtil::StringConverterPtr _converter;
-    IceUtil::StringConverterPtr _consoleConverter;
-};
+    class ICE_API ConsoleOut
+    {
+    public:
+        ConsoleOut& operator<<(ConsoleOut& (*pf)(ConsoleOut&));
+    };
 
-const ICE_API ConsoleUtil& getConsoleUtil();
+    class ICE_API ConsoleErr
+    {
+    public:
+        ConsoleErr& operator<<(ConsoleErr& (*pf)(ConsoleErr&));
+    };
 
-class ICE_API ConsoleOut
-{
-public:
+    template<typename T> ConsoleOut& operator<<(ConsoleOut& out, const T& val)
+    {
+        std::ostringstream s;
+        s << val;
+        getConsoleUtil().output(s.str());
+        return out;
+    }
 
-    ConsoleOut& operator<<(ConsoleOut& (*pf)(ConsoleOut&));
-};
+    ICE_API ConsoleOut& endl(ConsoleOut&);
+    ICE_API ConsoleOut& flush(ConsoleOut&);
 
-class ICE_API ConsoleErr
-{
-public:
+    template<typename T> ConsoleErr& operator<<(ConsoleErr& err, const T& val)
+    {
+        std::ostringstream s;
+        s << val;
+        getConsoleUtil().error(s.str());
+        return err;
+    }
 
-    ConsoleErr& operator<<(ConsoleErr& (*pf)(ConsoleErr&));
-};
+    ICE_API ConsoleErr& endl(ConsoleErr&);
+    ICE_API ConsoleErr& flush(ConsoleErr&);
 
-template<typename T>
-ConsoleOut&
-operator<<(ConsoleOut& out, const T& val)
-{
-    std::ostringstream s;
-    s << val;
-    getConsoleUtil().output(s.str());
-    return out;
-}
-
-ICE_API ConsoleOut& endl(ConsoleOut&);
-ICE_API ConsoleOut& flush(ConsoleOut&);
-
-template<typename T>
-ConsoleErr&
-operator<<(ConsoleErr& err, const T& val)
-{
-    std::ostringstream s;
-    s << val;
-    getConsoleUtil().error(s.str());
-    return err;
-}
-
-ICE_API ConsoleErr& endl(ConsoleErr&);
-ICE_API ConsoleErr& flush(ConsoleErr&);
-
-extern ICE_API ConsoleOut consoleOut;
-extern ICE_API ConsoleErr consoleErr;
+    extern ICE_API ConsoleOut consoleOut;
+    extern ICE_API ConsoleErr consoleErr;
 
 #else
 
-extern ICE_API std::ostream& consoleOut;
-extern ICE_API std::ostream& consoleErr;
+    extern ICE_API std::ostream& consoleOut;
+    extern ICE_API std::ostream& consoleErr;
 
 #endif
-
 }
 
 #endif

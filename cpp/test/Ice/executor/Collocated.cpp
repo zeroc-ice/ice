@@ -5,14 +5,13 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <TestI.h>
-#include <Dispatcher.h>
+#include "Executor.h"
 
 using namespace std;
 
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -21,11 +20,9 @@ Collocated::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    auto dispatcher = Dispatcher::create();
-    initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
-        {
-            dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
-        };
+    auto executor = Executor::create();
+    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    { executor->execute(make_shared<ExecutorCall>(call), conn); };
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -38,15 +35,15 @@ Collocated::run(int argc, char** argv)
     TestIntfControllerIPtr testController = make_shared<TestIntfControllerI>(adapter);
 
     adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
-    //adapter->activate(); // Don't activate OA to ensure collocation is used.
+    // adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));
-    //adapter2->activate(); // Don't activate OA to ensure collocation is used.
+    // adapter2->activate(); // Don't activate OA to ensure collocation is used.
 
     void allTests(Test::TestHelper*);
     allTests(this);
 
-    dispatcher->terminate();
+    executor->terminate();
 }
 
 DEFINE_TEST(Collocated)

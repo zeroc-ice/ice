@@ -20,9 +20,7 @@ static Ice::InitializationData initData;
 class AsyncCallback final
 {
 public:
-
-    void
-    response(int val)
+    void response(int val)
     {
         {
             lock_guard<mutex> lg(_mutex);
@@ -32,8 +30,7 @@ public:
         _condVar.notify_one();
     }
 
-    void
-    error(exception_ptr e)
+    void error(exception_ptr e)
     {
         {
             lock_guard<mutex> lg(_mutex);
@@ -43,15 +40,14 @@ public:
         _condVar.notify_one();
     }
 
-    int
-    waitResponse()
+    int waitResponse()
     {
         unique_lock<mutex> lock(_mutex);
-        while(!_haveResponse)
+        while (!_haveResponse)
         {
             _condVar.wait(lock);
         }
-        if(_exception)
+        if (_exception)
         {
             rethrow_exception(_exception);
         }
@@ -59,7 +55,6 @@ public:
     }
 
 private:
-
     bool _haveResponse = false;
     exception_ptr _exception = nullptr;
     int _response = -1;
@@ -70,10 +65,7 @@ private:
 class MisbehavedClient final
 {
 public:
-
-    explicit MisbehavedClient(int id) : _id(id)
-    {
-    }
+    explicit MisbehavedClient(int id) : _id(id) {}
 
     void run()
     {
@@ -100,9 +92,7 @@ public:
         Identity ident = {"callbackReceiver", category};
         CallbackReceiverPrx receiver(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base(
-            communicator,
-            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
+        ObjectPrx base(communicator, "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
         CallbackPrx callback(base);
 
@@ -136,31 +126,25 @@ public:
         {
             router->destroySession();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
         communicator->destroy();
     }
 
-    void
-    notifyWaitCallback()
-    {
-        _callbackReceiver->notifyWaitCallback();
-    }
+    void notifyWaitCallback() { _callbackReceiver->notifyWaitCallback(); }
 
-    void
-    waitForCallback()
+    void waitForCallback()
     {
         unique_lock<mutex> lock(_mutex);
-        while(!_callback)
+        while (!_callback)
         {
             _condVar.wait(lock);
         }
     }
 
 private:
-
     int _id;
     shared_ptr<CallbackReceiverI> _callbackReceiver;
     bool _callback = false;
@@ -171,10 +155,7 @@ private:
 class StressClient
 {
 public:
-
-    explicit StressClient(int id) : _id(id)
-    {
-    }
+    explicit StressClient(int id) : _id(id) {}
 
     void run()
     {
@@ -196,9 +177,9 @@ public:
         Identity ident = {"callbackReceiver", category};
         CallbackReceiverPrx receiver(adapter->add(_callbackReceiver, ident));
 
-        auto callback = CallbackPrx(
-            communicator,
-            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()))->ice_oneway();
+        auto callback =
+            CallbackPrx(communicator, "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()))
+                ->ice_oneway();
 
         {
             lock_guard<mutex> lg(_mutex);
@@ -208,7 +189,7 @@ public:
 
         {
             unique_lock<mutex> lock(_mutex);
-            while(!_notified)
+            while (!_notified)
             {
                 _condVar.wait(lock);
             }
@@ -223,12 +204,11 @@ public:
 
     virtual void stress(CallbackPrx callback, CallbackReceiverPrx) = 0;
 
-    void
-    notifyThread()
+    void notifyThread()
     {
         {
             unique_lock<mutex> lock(_mutex);
-            while(!_initialized)
+            while (!_initialized)
             {
                 _condVar.wait(lock);
             }
@@ -237,22 +217,21 @@ public:
         _condVar.notify_one();
     }
 
-    void
-    kill()
+    void kill()
     {
         try
         {
             _router->destroySession();
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
             // Expected if the thread invokes shortly after the session is destroyed.
             // In this case, Glacier2 closes forcefully the connection.
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -260,7 +239,6 @@ public:
     }
 
 protected:
-
     optional<Glacier2::RouterPrx> _router;
     int _id;
     shared_ptr<CallbackReceiverI> _callbackReceiver;
@@ -273,35 +251,31 @@ protected:
 class PingStressClient final : public StressClient
 {
 public:
+    explicit PingStressClient(int id) : StressClient(id) {}
 
-    explicit PingStressClient(int id) : StressClient(id)
-    {
-    }
-
-    void
-    stress(CallbackPrx callback, CallbackReceiverPrx) override
+    void stress(CallbackPrx callback, CallbackReceiverPrx) override
     {
         try
         {
             auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
-            while(true)
+            while (true)
             {
                 cb->ice_ping(context);
                 this_thread::sleep_for(1ms);
             }
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -312,40 +286,36 @@ public:
 class CallbackStressClient final : public StressClient
 {
 public:
+    explicit CallbackStressClient(int id) : StressClient(id) {}
 
-    explicit CallbackStressClient(int id) : StressClient(id)
-    {
-    }
-
-    void
-    stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
+    void stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
     {
         try
         {
             auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
-            while(true)
+            while (true)
             {
                 cb->initiateCallback(receiver, context);
                 _callbackReceiver->callbackOK();
                 this_thread::sleep_for(1ms);
             }
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
             // Session was destroyed.
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             // This might be raised by the CallbackI implementation if it can't invoke on the
             // callback receiver because the session is being destroyed concurrently.
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
             // This might happen if the retry fails because the communicator is destroyed.
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -356,40 +326,36 @@ public:
 class CallbackWithPayloadStressClient final : public StressClient
 {
 public:
+    explicit CallbackWithPayloadStressClient(int id) : StressClient(id) {}
 
-    explicit CallbackWithPayloadStressClient(int id) : StressClient(id)
-    {
-    }
-
-    void
-    stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
+    void stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
     {
         try
         {
             auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
-            while(true)
+            while (true)
             {
                 cb->initiateCallbackWithPayload(receiver, context);
                 _callbackReceiver->callbackWithPayloadOK();
                 this_thread::sleep_for(10ms);
             }
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
             // Session was destroyed.
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             // This might be raised by the CallbackI implementation if it can't invoke on the
             // callback receiver because the session is being destroyed concurrently.
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch (const Ice::CommunicatorDestroyedException&)
         {
             // This might happen if the retry fails because the communicator is destroyed.
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -400,7 +366,6 @@ public:
 class CallbackClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -447,7 +412,7 @@ CallbackClient::run(int argc, char** argv)
             base->ice_ping();
             test(false);
         }
-        catch(const ConnectionLostException&)
+        catch (const ConnectionLostException&)
         {
             cout << "ok" << endl;
         }
@@ -462,7 +427,7 @@ CallbackClient::run(int argc, char** argv)
             session = router->createSession("userid", "xxx");
             test(false);
         }
-        catch(const Glacier2::PermissionDeniedException&)
+        catch (const Glacier2::PermissionDeniedException&)
         {
             cout << "ok" << endl;
         }
@@ -475,7 +440,7 @@ CallbackClient::run(int argc, char** argv)
             router->destroySession();
             test(false);
         }
-        catch(const Glacier2::SessionNotExistException&)
+        catch (const Glacier2::SessionNotExistException&)
         {
             cout << "ok" << endl;
         }
@@ -488,7 +453,7 @@ CallbackClient::run(int argc, char** argv)
             session = router->createSession("userid", "abc123");
             cout << "ok" << endl;
         }
-        catch(const Glacier2::PermissionDeniedException& ex)
+        catch (const Glacier2::PermissionDeniedException& ex)
         {
             cerr << ex << ":\n" << ex.reason << endl;
             test(false);
@@ -502,7 +467,7 @@ CallbackClient::run(int argc, char** argv)
             router->createSession("userid", "abc123");
             test(false);
         }
-        catch(const Glacier2::CannotCreateSessionException&)
+        catch (const Glacier2::CannotCreateSessionException&)
         {
             cout << "ok" << endl;
         }
@@ -521,7 +486,7 @@ CallbackClient::run(int argc, char** argv)
         {
             baseC->ice_ping();
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         cout << "ok" << endl;
@@ -615,22 +580,31 @@ CallbackClient::run(int argc, char** argv)
         Context context;
         context["_fwd"] = "t";
         AsyncCallback cb0;
-        twoway->initiateConcurrentCallbackAsync(0, twowayR,
-                                                [&cb0](int val){ cb0.response(val); },
-                                                [&cb0](exception_ptr e){ cb0.error(e); },
-                                                nullptr, context);
+        twoway->initiateConcurrentCallbackAsync(
+            0,
+            twowayR,
+            [&cb0](int val) { cb0.response(val); },
+            [&cb0](exception_ptr e) { cb0.error(e); },
+            nullptr,
+            context);
 
         AsyncCallback cb1;
-        twoway->initiateConcurrentCallbackAsync(1, twowayR,
-                                                [&cb1](int val){ cb1.response(val); },
-                                                [&cb1](exception_ptr e){ cb1.error(e); },
-                                                nullptr, context);
+        twoway->initiateConcurrentCallbackAsync(
+            1,
+            twowayR,
+            [&cb1](int val) { cb1.response(val); },
+            [&cb1](exception_ptr e) { cb1.error(e); },
+            nullptr,
+            context);
 
         AsyncCallback cb2;
-        twoway->initiateConcurrentCallbackAsync(2, twowayR,
-                                                [&cb2](int val){ cb2.response(val); },
-                                                [&cb2](exception_ptr e){ cb2.error(e); },
-                                                nullptr, context);
+        twoway->initiateConcurrentCallbackAsync(
+            2,
+            twowayR,
+            [&cb2](int val) { cb2.response(val); },
+            [&cb2](exception_ptr e) { cb2.error(e); },
+            nullptr,
+            context);
 
         callbackReceiver->answerConcurrentCallbacks(3);
         test(cb0.waitResponse() == 0);
@@ -648,7 +622,7 @@ CallbackClient::run(int argc, char** argv)
             twoway->initiateCallbackEx(twowayR, context);
             test(false);
         }
-        catch(const CallbackException& ex)
+        catch (const CallbackException& ex)
         {
             test(ex.someValue == 3.14);
             test(ex.someString == "3.14");
@@ -666,7 +640,7 @@ CallbackClient::run(int argc, char** argv)
             twoway->initiateCallback(fakeTwowayR, context);
             test(false);
         }
-        catch(const ObjectNotExistException&)
+        catch (const ObjectNotExistException&)
         {
             cout << "ok" << endl;
         }
@@ -692,7 +666,7 @@ CallbackClient::run(int argc, char** argv)
             otherCategoryTwoway->initiateCallback(twowayR, context);
             test(false);
         }
-        catch(const ObjectNotExistException&)
+        catch (const ObjectNotExistException&)
         {
             cout << "ok" << endl;
         }
@@ -717,10 +691,10 @@ CallbackClient::run(int argc, char** argv)
         MisbehavedClient clients[] = {MisbehavedClient(0), MisbehavedClient(1), MisbehavedClient(2)};
         std::future<void> futures[3] = {};
         const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
-        for(int i = 0; i < nClients; ++i)
+        for (int i = 0; i < nClients; ++i)
         {
             auto& client = clients[i];
-            futures[i] = std::async(launch::async, [&client]{ client.run(); });
+            futures[i] = std::async(launch::async, [&client] { client.run(); });
             client.waitForCallback();
         }
 
@@ -747,7 +721,7 @@ CallbackClient::run(int argc, char** argv)
         twoway->initiateCallbackWithPayload(twowayR, context);
         callbackReceiver->callbackWithPayloadOK();
 
-        for(int i = 0; i < nClients; ++i)
+        for (int i = 0; i < nClients; ++i)
         {
             clients[i].notifyWaitCallback();
             futures[i].get();
@@ -762,27 +736,27 @@ CallbackClient::run(int argc, char** argv)
         vector<shared_ptr<StressClient>> clients;
         vector<future<void>> futures;
         random_device rd;
-        for(int i = 0; i < nClients; ++i)
+        for (int i = 0; i < nClients; ++i)
         {
-            switch(rd() % 3)
+            switch (rd() % 3)
             {
-            case 0:
-                clients.push_back(make_shared<PingStressClient>(i));
-                break;
-            case 1:
-                clients.push_back(make_shared<CallbackStressClient>(i));
-                break;
-            case 2:
-                clients.push_back(make_shared<CallbackWithPayloadStressClient>(i));
-                break;
-            default:
-                assert(false);
-                break;
+                case 0:
+                    clients.push_back(make_shared<PingStressClient>(i));
+                    break;
+                case 1:
+                    clients.push_back(make_shared<CallbackStressClient>(i));
+                    break;
+                case 2:
+                    clients.push_back(make_shared<CallbackWithPayloadStressClient>(i));
+                    break;
+                default:
+                    assert(false);
+                    break;
             }
             auto client = clients.back();
-            futures.push_back(std::async(launch::async, [client = std::move(client)]{ client->run(); }));
+            futures.push_back(std::async(launch::async, [client = std::move(client)] { client->run(); }));
         }
-        for(const auto& p: clients)
+        for (const auto& p : clients)
         {
             p->notifyThread();
         }
@@ -803,11 +777,11 @@ CallbackClient::run(int argc, char** argv)
         //
         // Kill the stress clients.
         //
-        for(const auto& p: clients)
+        for (const auto& p : clients)
         {
             p->kill();
         }
-        for(auto& f: futures)
+        for (auto& f : futures)
         {
             f.get();
         }
@@ -815,7 +789,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    if(argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
+    if (argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
     {
         cout << "testing server shutdown... " << flush;
         twoway->shutdown();
@@ -843,7 +817,7 @@ CallbackClient::run(int argc, char** argv)
         {
             router->destroySession();
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -858,13 +832,13 @@ CallbackClient::run(int argc, char** argv)
             base->ice_ping();
             test(false);
         }
-        catch(const ConnectionLostException&)
+        catch (const ConnectionLostException&)
         {
             cout << "ok" << endl;
         }
     }
 
-    if(argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
+    if (argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
     {
         {
             cout << "uninstalling router with communicator... " << flush;
@@ -881,7 +855,7 @@ CallbackClient::run(int argc, char** argv)
             process->ice_ping();
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             cout << "ok" << endl;
         }

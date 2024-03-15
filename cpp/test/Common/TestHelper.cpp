@@ -12,21 +12,18 @@ using namespace Test;
 
 namespace
 {
-
 #if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-Test::TestHelper* instance = 0;
+    Test::TestHelper* instance = 0;
 
-void
-shutdownOnInterruptCallback(int)
-{
-    if(instance)
+    void shutdownOnInterruptCallback(int)
     {
-        instance->shutdown();
+        if (instance)
+        {
+            instance->shutdown();
+        }
     }
-}
 
 #endif
-
 }
 
 #if TARGET_OS_IPHONE != 0
@@ -55,7 +52,7 @@ StreamHelper::setControllerHelper(ControllerHelper* controllerHelper)
     assert(_controllerHelper && !controllerHelper || !_controllerHelper && controllerHelper);
     _controllerHelper = controllerHelper;
 
-    if(_controllerHelper)
+    if (_controllerHelper)
     {
         _previousLogger = Ice::getProcessLogger();
         Ice::setProcessLogger(Ice::getProcessLogger()->cloneWithPrefix(_controllerHelper->loggerPrefix()));
@@ -75,7 +72,7 @@ void
 StreamHelper::newLine()
 {
     lock_guard lock(_mutex);
-    if(_controllerHelper)
+    if (_controllerHelper)
     {
         _controllerHelper->print("\n");
     }
@@ -87,7 +84,7 @@ StreamHelper::sync()
     std::streamsize n = pptr() - pbase();
     {
         lock_guard lock(_mutex);
-        if(_controllerHelper)
+        if (_controllerHelper)
         {
             _controllerHelper->print(std::string(pbase(), static_cast<size_t>(n)));
         }
@@ -100,7 +97,7 @@ int
 StreamHelper::overflow(int ch)
 {
     sync();
-    if(ch != EOF)
+    if (ch != EOF)
     {
         assert(pptr() != epptr());
         sputc(static_cast<char>(ch));
@@ -111,7 +108,7 @@ StreamHelper::overflow(int ch)
 int
 StreamHelper::sputc(char c)
 {
-    if(c == '\n')
+    if (c == '\n')
     {
         pubsync();
     }
@@ -120,25 +117,26 @@ StreamHelper::sputc(char c)
 
 #endif
 
-Test::TestHelper::TestHelper(bool registerPlugins) :
-    _controllerHelper(0)
+Test::TestHelper::TestHelper(bool registerPlugins)
+    : _controllerHelper(0)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-    , _ctrlCHandler(0)
+      ,
+      _ctrlCHandler(0)
 #endif
 {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     instance = this;
 #endif
 
-    if(registerPlugins)
+    if (registerPlugins)
     {
 #ifdef ICE_STATIC_LIBS
         Ice::registerIceSSL(false);
         Ice::registerIceWS(true);
         Ice::registerIceUDP(true);
-#   ifdef ICE_HAS_BT
+#    ifdef ICE_HAS_BT
         Ice::registerIceBT(false);
-#   endif
+#    endif
 #endif
     }
 
@@ -159,7 +157,7 @@ Test::TestHelper::TestHelper(bool registerPlugins) :
 Test::TestHelper::~TestHelper()
 {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-    if(_ctrlCHandler)
+    if (_ctrlCHandler)
     {
         delete _ctrlCHandler;
         _ctrlCHandler = 0;
@@ -193,20 +191,20 @@ Test::TestHelper::getTestEndpoint(const Ice::PropertiesPtr& properties, int num,
 {
     std::ostringstream ostr;
     std::string protocol = prot;
-    if(protocol.empty())
+    if (protocol.empty())
     {
         protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "default");
     }
 
     int basePort = properties->getPropertyAsIntWithDefault("Test.BasePort", 12010);
 
-    if(protocol == "bt")
+    if (protocol == "bt")
     {
         //
         // For Bluetooth, there's no need to specify a port (channel) number.
         // The client locates the server using its address and a UUID.
         //
-        switch(num)
+        switch (num)
         {
             case 0:
             {
@@ -298,7 +296,7 @@ Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], const Ice::InitializationData& initData)
 {
     _communicator = Ice::initialize(argc, argv, initData);
-    if(_controllerHelper)
+    if (_controllerHelper)
     {
         _controllerHelper->communicatorInitialized(_communicator);
     }
@@ -314,7 +312,7 @@ Test::TestHelper::communicator() const
 void
 Test::TestHelper::serverReady()
 {
-    if(_controllerHelper)
+    if (_controllerHelper)
     {
         _controllerHelper->serverReady();
     }
@@ -323,7 +321,7 @@ Test::TestHelper::serverReady()
 void
 Test::TestHelper::shutdown()
 {
-    if(_communicator)
+    if (_communicator)
     {
         _communicator->shutdown();
     }
@@ -339,7 +337,7 @@ void
 Test::TestHelper::shutdownOnInterrupt()
 {
     assert(!_ctrlCHandler);
-    if(_ctrlCHandler == 0)
+    if (_ctrlCHandler == 0)
     {
         _ctrlCHandler = new IceUtil::CtrlCHandler();
     }

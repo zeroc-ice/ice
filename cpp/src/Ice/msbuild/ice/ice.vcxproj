@@ -527,7 +527,10 @@
     <ClCompile Include="..\..\FactoryTableInit.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
-    <ClCompile Include="..\..\Incoming.cpp" />
+    <ClCompile Include="..\..\IncomingRequest.cpp" />
+    <ClCompile Include="..\..\OutgoingResponse.cpp" />
+    <ClCompile Include="..\..\LoggerMiddleware.cpp" />
+    <ClCompile Include="..\..\ObserverMiddleware.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
     <ClCompile Include="..\..\InputStream.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />
@@ -551,7 +554,6 @@
     <ClCompile Include="..\..\OutputStream.cpp" />
     <ClCompile Include="..\..\PluginManagerI.cpp" />
     <ClCompile Include="..\..\PropertiesAdminI.cpp" />
-    <ClCompile Include="..\..\PropertiesI.cpp" />
     <ClCompile Include="..\..\PropertyNames.cpp" />
     <ClCompile Include="..\..\Protocol.cpp" />
     <ClCompile Include="..\..\ProtocolInstance.cpp" />

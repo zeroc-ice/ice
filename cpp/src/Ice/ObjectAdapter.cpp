@@ -4,6 +4,4 @@
 
 #include "Ice/ObjectAdapter.h"
 
-Ice::ObjectAdapter::~ObjectAdapter()
-{
-}
+Ice::ObjectAdapter::~ObjectAdapter() {}

@@ -533,8 +533,6 @@ namespace Ice
         /// it first attempts to create a connection.
         /// </summary>
         /// <returns>The Connection for this proxy.</returns>
-        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
-        /// collocated object.</exception>
         Connection ice_getConnection();
 
         /// <summary>
@@ -552,8 +550,6 @@ namespace Ice
         /// </summary>
         /// <returns>The cached Connection for this proxy (null if the proxy does not have
         /// an established connection).</returns>
-        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
-        /// collocated object.</exception>
         Connection ice_getCachedConnection();
 
         /// <summary>
@@ -1645,8 +1641,6 @@ namespace Ice
         /// it first attempts to create a connection.
         /// </summary>
         /// <returns>The Connection for this proxy.</returns>
-        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
-        /// collocated object.</exception>
         public Connection ice_getConnection()
         {
             try
@@ -1690,8 +1684,6 @@ namespace Ice
         /// </summary>
         /// <returns>The cached Connection for this proxy (null if the proxy does not have
         /// an established connection).</returns>
-        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
-        /// collocated object.</exception>
         public Connection ice_getCachedConnection()
         {
             RequestHandler handler;

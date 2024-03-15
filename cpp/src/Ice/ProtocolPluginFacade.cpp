@@ -42,8 +42,8 @@ IceInternal::ProtocolPluginFacade::getEndpointFactory(int16_t type) const
     return _instance->endpointFactoryManager()->get(type);
 }
 
-IceInternal::ProtocolPluginFacade::ProtocolPluginFacade(const CommunicatorPtr& communicator) :
-    _instance(getInstance(communicator)),
-    _communicator(communicator)
+IceInternal::ProtocolPluginFacade::ProtocolPluginFacade(const CommunicatorPtr& communicator)
+    : _instance(getInstance(communicator)),
+      _communicator(communicator)
 {
 }

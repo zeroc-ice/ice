@@ -164,49 +164,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if a feature is requested that is not supported with collocation optimization.
-    ///
-    /// <para>This exception is no longer used by the Ice run time</para>
-    ///
-    /// </summary>
-
-    [global::System.Obsolete("This exception is no longer used by the Ice run time")]
-    [global::System.Runtime.InteropServices.ComVisible(false)]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1032")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1707")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1709")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1715")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1716")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1722")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724")]
-    public partial class CollocationOptimizationException : LocalException
-    {
-        #region Constructors
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public CollocationOptimizationException()
-        {
-        }
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public CollocationOptimizationException(global::System.Exception ex) : base(ex)
-        {
-        }
-
-        #endregion
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public override string ice_id()
-        {
-            return "::Ice::CollocationOptimizationException";
-        }
-    }
-
-    /// <summary>
     /// An attempt was made to register something more than once with the Ice run time.
     /// This exception is raised if an
     ///  attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
@@ -3860,45 +3817,6 @@ namespace Ice
         public override string ice_id()
         {
             return "::Ice::FixedProxyException";
-        }
-    }
-
-    /// <summary>
-    /// Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
-    /// </summary>
-
-    [global::System.Runtime.InteropServices.ComVisible(false)]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1032")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1707")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1709")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1715")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1716")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1722")]
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724")]
-    public partial class ResponseSentException : LocalException
-    {
-        #region Constructors
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public ResponseSentException()
-        {
-        }
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public ResponseSentException(global::System.Exception ex) : base(ex)
-        {
-        }
-
-        #endregion
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        public override string ice_id()
-        {
-            return "::Ice::ResponseSentException";
         }
     }
 }

@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class EventHandler;
-using EventHandlerPtr = ::std::shared_ptr<EventHandler>;
-
+    class EventHandler;
+    using EventHandlerPtr = ::std::shared_ptr<EventHandler>;
 }
 
 #endif

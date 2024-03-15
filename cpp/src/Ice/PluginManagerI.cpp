@@ -15,46 +15,43 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-const char * const Ice::PluginManagerI::_kindOfObject = "plugin";
+const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 namespace
 {
+    map<string, PluginFactory>* factories = 0;
+    vector<string>* loadOnInitialization = 0;
 
-map<string, PluginFactory>* factories = 0;
-vector<string>* loadOnInitialization = 0;
-
-class PluginFactoryDestroy
-{
-public:
-
-    ~PluginFactoryDestroy()
+    class PluginFactoryDestroy
     {
-        delete factories;
-        factories = 0;
+    public:
+        ~PluginFactoryDestroy()
+        {
+            delete factories;
+            factories = 0;
 
-        delete loadOnInitialization;
-        loadOnInitialization = 0;
-    }
-};
-PluginFactoryDestroy destroy;
-
+            delete loadOnInitialization;
+            loadOnInitialization = 0;
+        }
+    };
+    PluginFactoryDestroy destroy;
 }
 
 void
 Ice::PluginManagerI::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInit)
 {
-    if(factories == 0)
+    if (factories == 0)
     {
         factories = new map<string, PluginFactory>();
     }
 
     map<string, PluginFactory>::const_iterator p = factories->find(name);
-    if(p == factories->end())
+    if (p == factories->end())
     {
         factories->insert(make_pair(name, factory));
-        if(loadOnInit)
+        if (loadOnInit)
         {
-            if(loadOnInitialization == 0)
+            if (loadOnInitialization == 0)
             {
                 loadOnInitialization = new vector<string>();
             }
@@ -66,7 +63,7 @@ Ice::PluginManagerI::registerPluginFactory(const std::string& name, PluginFactor
 void
 Ice::PluginManagerI::initializePlugins()
 {
-    if(_initialized)
+    if (_initialized)
     {
         throw InitializationException(__FILE__, __LINE__, "plug-ins already initialized");
     }
@@ -77,23 +74,23 @@ Ice::PluginManagerI::initializePlugins()
     vector<PluginPtr> initializedPlugins;
     try
     {
-        for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+        for (PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
         {
             try
             {
                 p->plugin->initialize();
             }
-            catch(const Ice::PluginInitializationException&)
+            catch (const Ice::PluginInitializationException&)
             {
                 throw;
             }
-            catch(const std::exception& ex)
+            catch (const std::exception& ex)
             {
                 ostringstream os;
                 os << "plugin `" << p->name << "' initialization failed:\n" << ex.what();
                 throw PluginInitializationException(__FILE__, __LINE__, os.str());
             }
-            catch(...)
+            catch (...)
             {
                 ostringstream os;
                 os << "plugin `" << p->name << "' initialization failed:\nunknown exception";
@@ -102,19 +99,19 @@ Ice::PluginManagerI::initializePlugins()
             initializedPlugins.push_back(p->plugin);
         }
     }
-    catch(...)
+    catch (...)
     {
         //
         // Destroy the plug-ins that have been successfully initialized, in the
         // reverse order.
         //
-        for(vector<PluginPtr>::reverse_iterator p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
+        for (vector<PluginPtr>::reverse_iterator p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
         {
             try
             {
                 (*p)->destroy();
             }
-            catch(...)
+            catch (...)
             {
                 // Ignore.
             }
@@ -131,7 +128,7 @@ Ice::PluginManagerI::getPlugins() noexcept
     lock_guard lock(_mutex);
 
     StringSeq names;
-    for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
     {
         names.push_back(p->name);
     }
@@ -143,13 +140,13 @@ Ice::PluginManagerI::getPlugin(const string& name)
 {
     lock_guard lock(_mutex);
 
-    if(!_communicator)
+    if (!_communicator)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     PluginPtr p = findPlugin(name);
-    if(p)
+    if (p)
     {
         return p;
     }
@@ -162,12 +159,12 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 {
     lock_guard lock(_mutex);
 
-    if(!_communicator)
+    if (!_communicator)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(findPlugin(name))
+    if (findPlugin(name))
     {
         throw AlreadyRegisteredException(__FILE__, __LINE__, _kindOfObject, name);
     }
@@ -183,37 +180,36 @@ Ice::PluginManagerI::destroy() noexcept
 {
     lock_guard lock(_mutex);
 
-    if(_communicator)
+    if (_communicator)
     {
-        if(_initialized)
+        if (_initialized)
         {
-
             //
             // Destroy the plug-ins that have been successfully initialized, in the
             // reverse order.
             //
-            for(PluginInfoList::reverse_iterator p = _plugins.rbegin(); p != _plugins.rend(); ++p)
+            for (PluginInfoList::reverse_iterator p = _plugins.rbegin(); p != _plugins.rend(); ++p)
             {
                 try
                 {
                     p->plugin->destroy();
                 }
-                catch(const std::exception& ex)
+                catch (const std::exception& ex)
                 {
                     Warning out(getProcessLogger());
                     out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << ex.what();
                 }
-                catch(const std::string& str)
+                catch (const std::string& str)
                 {
                     Warning out(getProcessLogger());
                     out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << str;
                 }
-                catch(const char* msg)
+                catch (const char* msg)
                 {
                     Warning out(getProcessLogger());
                     out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << msg;
                 }
-                catch(...)
+                catch (...)
                 {
                     Warning out(getProcessLogger());
                     out << "unexpected exception raised by plug-in `" << p->name << "' destruction";
@@ -227,9 +223,9 @@ Ice::PluginManagerI::destroy() noexcept
     _plugins.clear();
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator) :
-    _communicator(communicator),
-    _initialized(false)
+Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
+    : _communicator(communicator),
+      _initialized(false)
 {
 }
 
@@ -251,13 +247,13 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // entryPoint will be ignored but the rest of the plugin
     // specification might be used.
     //
-    if(loadOnInitialization)
+    if (loadOnInitialization)
     {
-        for(vector<string>::const_iterator p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
+        for (vector<string>::const_iterator p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
         {
             string property = prefix + *p;
             PropertyDict::iterator r = plugins.find(property + ".cpp");
-            if(r == plugins.end())
+            if (r == plugins.end())
             {
                 r = plugins.find(property);
             }
@@ -266,7 +262,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
                 plugins.erase(property);
             }
 
-            if(r != plugins.end())
+            if (r != plugins.end())
             {
                 loadPlugin(*p, r->second, cmdArgs);
                 plugins.erase(r);
@@ -290,18 +286,18 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // remaining plug-ins.
     //
     StringSeq loadOrder = properties->getPropertyAsList("Ice.PluginLoadOrder");
-    for(StringSeq::const_iterator p = loadOrder.begin(); p != loadOrder.end(); ++p)
+    for (StringSeq::const_iterator p = loadOrder.begin(); p != loadOrder.end(); ++p)
     {
         string name = *p;
 
-        if(findPlugin(name))
+        if (findPlugin(name))
         {
             throw PluginInitializationException(__FILE__, __LINE__, "plug-in `" + name + "' already loaded");
         }
 
         string property = prefix + name;
         PropertyDict::iterator r = plugins.find(property + ".cpp");
-        if(r == plugins.end())
+        if (r == plugins.end())
         {
             r = plugins.find(property);
         }
@@ -310,7 +306,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
             plugins.erase(property);
         }
 
-        if(r != plugins.end())
+        if (r != plugins.end())
         {
             loadPlugin(name, r->second, cmdArgs);
             plugins.erase(r);
@@ -325,24 +321,24 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
     //
 
-    while(!plugins.empty())
+    while (!plugins.empty())
     {
         PropertyDict::iterator p = plugins.begin();
 
         string name = p->first.substr(prefix.size());
 
         size_t dotPos = name.find_last_of('.');
-        if(dotPos != string::npos)
+        if (dotPos != string::npos)
         {
             string suffix = name.substr(dotPos + 1);
-            if(suffix == "java" || suffix == "clr")
+            if (suffix == "java" || suffix == "clr")
             {
                 //
                 // Ignored
                 //
                 plugins.erase(p);
             }
-            else if(suffix == "cpp")
+            else if (suffix == "cpp")
             {
                 name = name.substr(0, dotPos);
                 loadPlugin(name, p->second, cmdArgs);
@@ -359,13 +355,13 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
             }
         }
 
-        if(dotPos == string::npos)
+        if (dotPos == string::npos)
         {
             //
             // Is there a .cpp entry?
             //
             PropertyDict::iterator q = plugins.find(prefix + name + ".cpp");
-            if(q != plugins.end())
+            if (q != plugins.end())
             {
                 plugins.erase(p);
                 p = q;
@@ -386,7 +382,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 
     string entryPoint;
     StringSeq args;
-    if(!pluginSpec.empty())
+    if (!pluginSpec.empty())
     {
         //
         // Split the entire property value into arguments. An entry point containing spaces
@@ -396,10 +392,12 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         {
             args = IceUtilInternal::Options::split(pluginSpec);
         }
-        catch(const IceUtilInternal::BadOptException& ex)
+        catch (const IceUtilInternal::BadOptException& ex)
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "invalid arguments for plug-in `" + name + "':\n" +
-                                                ex.reason);
+            throw PluginInitializationException(
+                __FILE__,
+                __LINE__,
+                "invalid arguments for plug-in `" + name + "':\n" + ex.reason);
         }
 
         assert(!args.empty());
@@ -427,10 +425,10 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // precedence over the entryPoint specified in the plugin
     // property value.
     //
-    if(factories)
+    if (factories)
     {
         map<string, PluginFactory>::const_iterator p = factories->find(name);
-        if(p != factories->end())
+        if (p != factories->end())
         {
             factory = p->second;
         }
@@ -440,17 +438,17 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // If we didn't find the factory, get the factory using the entry
     // point symbol.
     //
-    if(!factory)
+    if (!factory)
     {
         assert(!entryPoint.empty());
         DynamicLibrary library;
         DynamicLibrary::symbol_type sym = library.loadEntryPoint(entryPoint);
-        if(sym == 0)
+        if (sym == 0)
         {
             ostringstream os;
             string msg = library.getErrorMessage();
             os << "unable to load entry point `" << entryPoint << "'";
-            if(!msg.empty())
+            if (!msg.empty())
             {
                 os << ": " + msg;
             }
@@ -465,7 +463,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // by the factory function because it's declared extern "C".
     //
     PluginPtr plugin(factory(_communicator, name, args));
-    if(!plugin)
+    if (!plugin)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "failure in entry point `" + entryPoint + "'");
     }
@@ -479,9 +477,9 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 Ice::PluginPtr
 Ice::PluginManagerI::findPlugin(const string& name) const
 {
-    for(PluginInfoList::const_iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (PluginInfoList::const_iterator p = _plugins.begin(); p != _plugins.end(); ++p)
     {
-        if(name == p->name)
+        if (name == p->name)
         {
             return p->plugin;
         }

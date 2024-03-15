@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class ProtocolPluginFacade;
-using ProtocolPluginFacadePtr = std::shared_ptr<ProtocolPluginFacade>;
-
+    class ProtocolPluginFacade;
+    using ProtocolPluginFacadePtr = std::shared_ptr<ProtocolPluginFacade>;
 }
 
 #endif

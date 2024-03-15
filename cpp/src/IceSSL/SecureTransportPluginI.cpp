@@ -13,25 +13,23 @@ using namespace std;
 
 namespace
 {
+    class PluginI : public IceSSL::PluginI
+    {
+    public:
+        PluginI(const Ice::CommunicatorPtr&);
 
-class PluginI : public IceSSL::PluginI
-{
-public:
-
-    PluginI(const Ice::CommunicatorPtr&);
-
-    virtual IceSSL::CertificatePtr create(SecCertificateRef) const;
-    virtual IceSSL::CertificatePtr load(const std::string&) const;
-    virtual IceSSL::CertificatePtr decode(const std::string&) const;
-};
+        virtual IceSSL::CertificatePtr create(SecCertificateRef) const;
+        virtual IceSSL::CertificatePtr load(const std::string&) const;
+        virtual IceSSL::CertificatePtr decode(const std::string&) const;
+    };
 
 } // anonymous namespace end
 
 //
 // Plugin implementation.
 //
-PluginI::PluginI(const Ice::CommunicatorPtr& com) :
-    IceSSL::PluginI(com, make_shared<IceSSL::SecureTransport::SSLEngine>(com))
+PluginI::PluginI(const Ice::CommunicatorPtr& com)
+    : IceSSL::PluginI(com, make_shared<IceSSL::SecureTransport::SSLEngine>(com))
 {
 }
 

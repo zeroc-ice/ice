@@ -14,92 +14,94 @@
 
 namespace IceStorm
 {
+    // Forward declarations
+    class PersistentInstance;
+    class Subscriber;
 
-// Forward declarations
-class PersistentInstance;
-class Subscriber;
+    class TopicImpl
+    {
+    public:
+        static std::shared_ptr<TopicImpl> create(
+            std::shared_ptr<PersistentInstance>,
+            const std::string&,
+            const Ice::Identity&,
+            const SubscriberRecordSeq&);
 
-class TopicImpl
-{
-public:
+        std::string getName() const;
+        Ice::ObjectPrx getPublisher() const;
+        Ice::ObjectPrx getNonReplicatedPublisher() const;
+        std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
+        void unsubscribe(const Ice::ObjectPrx&);
+        TopicLinkPrx getLinkProxy();
+        void link(const TopicPrx&, int);
+        void unlink(const TopicPrx&);
+        LinkInfoSeq getLinkInfoSeq() const;
+        Ice::IdentitySeq getSubscribers() const;
+        void reap(const Ice::IdentitySeq&);
+        void destroy();
 
-    static std::shared_ptr<TopicImpl> create(std::shared_ptr<PersistentInstance>,
-                                             const std::string&,
-                                             const Ice::Identity&,
-                                             const SubscriberRecordSeq&);
+        IceStormElection::TopicContent getContent() const;
 
-    std::string getName() const;
-    Ice::ObjectPrx getPublisher() const;
-    Ice::ObjectPrx getNonReplicatedPublisher() const;
-    std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
-    void unsubscribe(const Ice::ObjectPrx&);
-    TopicLinkPrx getLinkProxy();
-    void link(const TopicPrx&, int);
-    void unlink(const TopicPrx&);
-    LinkInfoSeq getLinkInfoSeq() const;
-    Ice::IdentitySeq getSubscribers() const;
-    void reap(const Ice::IdentitySeq&);
-    void destroy();
+        void update(const SubscriberRecordSeq&);
 
-    IceStormElection::TopicContent getContent() const;
+        // Internal methods
+        bool destroyed() const;
+        Ice::Identity id() const;
+        TopicPrx proxy() const;
+        void shutdown();
+        void publish(bool, const EventDataSeq&);
 
-    void update(const SubscriberRecordSeq&);
+        // Observer methods.
+        void observerAddSubscriber(const IceStormElection::LogUpdate&, const SubscriberRecord&);
+        void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
+        void observerDestroyTopic(const IceStormElection::LogUpdate&);
 
-    // Internal methods
-    bool destroyed() const;
-    Ice::Identity id() const;
-    TopicPrx proxy() const;
-    void shutdown();
-    void publish(bool, const EventDataSeq&);
+        std::shared_ptr<Ice::Object> getServant() const;
 
-    // Observer methods.
-    void observerAddSubscriber(const IceStormElection::LogUpdate&, const SubscriberRecord&);
-    void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
-    void observerDestroyTopic(const IceStormElection::LogUpdate&);
+        void updateObserver();
+        void updateSubscriberObservers();
 
-    std::shared_ptr<Ice::Object> getServant() const;
+    private:
+        TopicImpl(
+            std::shared_ptr<PersistentInstance>,
+            const std::string&,
+            const Ice::Identity&,
+            const SubscriberRecordSeq&);
 
-    void updateObserver();
-    void updateSubscriberObservers();
+        IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
+        void removeSubscribers(const Ice::IdentitySeq&);
 
-private:
+        //
+        // Immutable members.
+        //
+        const std::shared_ptr<PersistentInstance> _instance;
+        const std::string _name; // The topic name
+        const Ice::Identity _id; // The topic identity
 
-    TopicImpl(std::shared_ptr<PersistentInstance>, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
+        IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
-    IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
-    void removeSubscribers(const Ice::IdentitySeq&);
+        std::optional<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
+        std::optional<TopicLinkPrx> _linkPrx;        // The link proxy.
 
-    //
-    // Immutable members.
-    //
-    const std::shared_ptr<PersistentInstance> _instance;
-    const std::string _name; // The topic name
-    const Ice::Identity _id; // The topic identity
+        std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
 
-    IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
+        // Mutex protecting the subscribers.
+        mutable std::mutex _subscribersMutex;
 
-    std::optional<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
-    std::optional<TopicLinkPrx> _linkPrx; // The link proxy.
+        //
+        // We keep a vector of subscribers since the optimized behaviour
+        // should be publishing events, not searching through the list of
+        // subscribers for a particular subscriber. I tested
+        // vector/list/map and although there was little difference vector
+        // was the fastest of the three.
+        //
+        std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
-    std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
+        bool _destroyed; // Has this Topic been destroyed?
 
-    // Mutex protecting the subscribers.
-    mutable std::mutex _subscribersMutex;
-
-    //
-    // We keep a vector of subscribers since the optimized behaviour
-    // should be publishing events, not searching through the list of
-    // subscribers for a particular subscriber. I tested
-    // vector/list/map and although there was little difference vector
-    // was the fastest of the three.
-    //
-    std::vector<std::shared_ptr<Subscriber>> _subscribers;
-
-    bool _destroyed; // Has this Topic been destroyed?
-
-    LLUMap _lluMap;
-    SubscriberMap _subscriberMap;
-};
+        LLUMap _lluMap;
+        SubscriberMap _subscriberMap;
+    };
 
 } // End namespace IceStorm
 

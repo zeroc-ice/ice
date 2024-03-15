@@ -9,12 +9,11 @@
 
 namespace IceInternal
 {
+    class IPEndpointI;
+    using IPEndpointIPtr = std::shared_ptr<IPEndpointI>;
 
-class IPEndpointI;
-using IPEndpointIPtr = std::shared_ptr<IPEndpointI>;
-
-class EndpointHostResolver;
-using EndpointHostResolverPtr = std::shared_ptr<EndpointHostResolver>;
+    class EndpointHostResolver;
+    using EndpointHostResolverPtr = std::shared_ptr<EndpointHostResolver>;
 }
 
 #endif

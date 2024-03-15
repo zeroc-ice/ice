@@ -17,26 +17,22 @@ using namespace IcePatch2Internal;
 
 struct FileInfoPathLess
 {
-    bool
-    operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
-    {
-        return lhs.path < rhs.path;
-    }
+    bool operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs) { return lhs.path < rhs.path; }
 };
 
 struct IFileInfoPathEqual
 {
-    bool
-    operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
+    bool operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
     {
-        if(lhs.path.size() != rhs.path.size())
+        if (lhs.path.size() != rhs.path.size())
         {
             return false;
         }
 
-        for(string::size_type i = 0; i < lhs.path.size(); ++i)
+        for (string::size_type i = 0; i < lhs.path.size(); ++i)
         {
-            if(::tolower(static_cast<unsigned char>(lhs.path[i])) != ::tolower(static_cast<unsigned char>(rhs.path[i])))
+            if (::tolower(static_cast<unsigned char>(lhs.path[i])) !=
+                ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
             }
@@ -48,17 +44,16 @@ struct IFileInfoPathEqual
 
 struct IFileInfoPathLess
 {
-    bool
-    operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
+    bool operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
     {
-        for(string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
+        for (string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
         {
-            if(::tolower(static_cast<unsigned char>(lhs.path[i])) < ::tolower(static_cast<unsigned char>(rhs.path[i])))
+            if (::tolower(static_cast<unsigned char>(lhs.path[i])) < ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return true;
             }
-            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) >
-                    ::tolower(static_cast<unsigned char>(rhs.path[i])))
+            else if (
+                ::tolower(static_cast<unsigned char>(lhs.path[i])) > ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
             }
@@ -70,7 +65,6 @@ struct IFileInfoPathLess
 class CalcCB final : public GetFileInfoSeqCB
 {
 public:
-
     bool remove(const string& path) final
     {
         consoleOut << "removing: " << path << endl;
@@ -94,15 +88,13 @@ void
 usage(const string& appName)
 {
     consoleErr << "Usage: " << appName << " [options] DIR [FILES...]\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help              Show this message.\n"
-        "-v, --version           Display the Ice version.\n"
-        "-z, --compress          Always compress files.\n"
-        "-Z, --no-compress       Never compress files.\n"
-        "-i, --case-insensitive  Files must not differ in case only.\n"
-        "-V, --verbose           Verbose mode.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help              Show this message.\n"
+                  "-v, --version           Display the Ice version.\n"
+                  "-z, --compress          Always compress files.\n"
+                  "-Z, --no-compress       Never compress files.\n"
+                  "-i, --case-insensitive  Files must not differ in case only.\n"
+                  "-V, --verbose           Verbose mode.\n";
 }
 
 #ifdef _WIN32
@@ -139,43 +131,43 @@ main(int argc, char* argv[])
     {
         args = opts.parse(originalArgs);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(appName);
         return EXIT_SUCCESS;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     bool doCompress = opts.isSet("compress");
     bool dontCompress = opts.isSet("no-compress");
-    if(doCompress && dontCompress)
+    if (doCompress && dontCompress)
     {
         consoleErr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
-    if(doCompress)
+    if (doCompress)
     {
         compress = 2;
     }
-    else if(dontCompress)
+    else if (dontCompress)
     {
         compress = 0;
     }
     verbose = opts.isSet("verbose");
     caseInsensitive = opts.isSet("case-insensitive");
 
-    if(args.empty())
+    if (args.empty())
     {
         consoleErr << appName << ": no data directory specified" << endl;
         usage(appName);
@@ -183,7 +175,7 @@ main(int argc, char* argv[])
     }
     dataDir = simplify(args[0]);
 
-    for(vector<string>::size_type i = 1; i < args.size(); ++i)
+    for (vector<string>::size_type i = 1; i < args.size(); ++i)
     {
         fileSeq.push_back(simplify(args[i]));
     }
@@ -193,19 +185,19 @@ main(int argc, char* argv[])
         string absDataDir = dataDir;
 
         string cwd;
-        if(IceUtilInternal::getcwd(cwd) != 0)
+        if (IceUtilInternal::getcwd(cwd) != 0)
         {
             throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
         }
 
-        if(!IceUtilInternal::isAbsolutePath(absDataDir))
+        if (!IceUtilInternal::isAbsolutePath(absDataDir))
         {
             absDataDir = simplify(cwd + '/' + absDataDir);
         }
 
-        for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        for (StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
-            if(!IceUtilInternal::isAbsolutePath(*p))
+            if (!IceUtilInternal::isAbsolutePath(*p))
             {
                 *p = cwd + '/' + *p;
             }
@@ -218,9 +210,9 @@ main(int argc, char* argv[])
         //
         string absDataDirWithSlash = simplify(absDataDir + '/');
 
-        for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        for (StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
-            if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
+            if (p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
             {
                 throw runtime_error("`" + *p + "' is not a path in `" + dataDir + "'");
             }
@@ -230,10 +222,10 @@ main(int argc, char* argv[])
 
         LargeFileInfoSeq infoSeq;
 
-        if(fileSeq.empty())
+        if (fileSeq.empty())
         {
             CalcCB calcCB;
-            if(!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
+            if (!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
             {
                 return EXIT_FAILURE;
             }
@@ -242,12 +234,12 @@ main(int argc, char* argv[])
         {
             loadFileInfoSeq(absDataDir, infoSeq);
 
-            for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+            for (StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
             {
                 LargeFileInfoSeq partialInfoSeq;
 
                 CalcCB calcCB;
-                if(!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
+                if (!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
                 {
                     return EXIT_FAILURE;
                 }
@@ -255,46 +247,47 @@ main(int argc, char* argv[])
                 LargeFileInfoSeq newInfoSeq;
                 newInfoSeq.reserve(infoSeq.size());
 
-                set_difference(infoSeq.begin(),
-                               infoSeq.end(),
-                               partialInfoSeq.begin(),
-                               partialInfoSeq.end(),
-                               back_inserter(newInfoSeq),
-                               FileInfoPathLess());
+                set_difference(
+                    infoSeq.begin(),
+                    infoSeq.end(),
+                    partialInfoSeq.begin(),
+                    partialInfoSeq.end(),
+                    back_inserter(newInfoSeq),
+                    FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
 
                 newInfoSeq.clear();
                 newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
 
-                set_union(infoSeq.begin(),
-                          infoSeq.end(),
-                          partialInfoSeq.begin(),
-                          partialInfoSeq.end(),
-                          back_inserter(newInfoSeq),
-                          FileInfoPathLess());
+                set_union(
+                    infoSeq.begin(),
+                    infoSeq.end(),
+                    partialInfoSeq.begin(),
+                    partialInfoSeq.end(),
+                    back_inserter(newInfoSeq),
+                    FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
             }
         }
 
-        if(caseInsensitive)
+        if (caseInsensitive)
         {
             LargeFileInfoSeq newInfoSeq = infoSeq;
             sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
             string reason;
             LargeFileInfoSeq::iterator p = newInfoSeq.begin();
-            while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
+            while ((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
             {
                 do
                 {
                     reason += '\n' + dataDir + '/' + p->path;
                     ++p;
-                }
-                while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
+                } while (p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
             }
 
-            if(!reason.empty())
+            if (!reason.empty())
             {
                 throw runtime_error("duplicate files:" + reason);
             }
@@ -302,7 +295,7 @@ main(int argc, char* argv[])
 
         saveFileInfoSeq(absDataDir, infoSeq);
     }
-    catch(const exception& ex)
+    catch (const exception& ex)
     {
         consoleErr << appName << ": " << ex.what() << endl;
         return EXIT_FAILURE;

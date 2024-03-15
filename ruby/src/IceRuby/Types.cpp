@@ -20,11 +20,11 @@
 // T_ZOMBIE is only defined in Ruby 1.9.
 //
 #ifndef T_ZOMBIE
-#   include "st.h"
+#    include "st.h"
 #endif
 
 #ifndef RHASH_SIZE
-#   define RHASH_SIZE(v) RHASH(v)->tbl->num_entries
+#    define RHASH_SIZE(v) RHASH(v)->tbl->num_entries
 #endif
 
 using namespace std;
@@ -55,50 +55,46 @@ IceRuby::resolveCompactId(int id)
 
 namespace IceRuby
 {
+    VALUE Unset;
 
-VALUE Unset;
-
-class InfoMapDestroyer
-{
-public:
-
-    ~InfoMapDestroyer();
-};
-static InfoMapDestroyer infoMapDestroyer;
-
-string
-escapeString(const string& str)
-{
-    static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                           "0123456789"
-                                           "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-    static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-    ostringstream out;
-
-    for(string::const_iterator c = str.begin(); c != str.end(); ++c)
+    class InfoMapDestroyer
     {
-        if(charSet.find(*c) == charSet.end())
+    public:
+        ~InfoMapDestroyer();
+    };
+    static InfoMapDestroyer infoMapDestroyer;
+
+    string escapeString(const string& str)
+    {
+        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                               "0123456789"
+                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+        ostringstream out;
+
+        for (string::const_iterator c = str.begin(); c != str.end(); ++c)
         {
-            unsigned char uc = static_cast<unsigned char>(*c); // char may be signed, so make it positive
-            ostringstream s;
-            s << "\\";                                         // Print as octal if not in basic source character set
-            s.width(3);
-            s.fill('0');
-            s << oct;
-            s << static_cast<unsigned>(uc);
-            out << s.str();
+            if (charSet.find(*c) == charSet.end())
+            {
+                unsigned char uc = static_cast<unsigned char>(*c); // char may be signed, so make it positive
+                ostringstream s;
+                s << "\\"; // Print as octal if not in basic source character set
+                s.width(3);
+                s.fill('0');
+                s << oct;
+                s << static_cast<unsigned>(uc);
+                out << s.str();
+            }
+            else
+            {
+                out << *c; // Print normally if in basic source character set
+            }
         }
-        else
-        {
-            out << *c;                              // Print normally if in basic source character set
-        }
+
+        return out.str();
     }
-
-    return out.str();
-}
-
 }
 
 //
@@ -112,9 +108,9 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
     // translated definitions and then dynamically load
     // duplicate definitions.
     //
-//    assert(_classInfoMap.find(id) == _classInfoMap.end());
+    //    assert(_classInfoMap.find(id) == _classInfoMap.end());
     ClassInfoMap::iterator p = _classInfoMap.find(id);
-    if(p != _classInfoMap.end())
+    if (p != _classInfoMap.end())
     {
         _classInfoMap.erase(p);
     }
@@ -132,9 +128,9 @@ addProxyInfo(const string& id, const ProxyInfoPtr& info)
     // translated definitions and then dynamically load
     // duplicate definitions.
     //
-//    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
+    //    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
     ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
-    if(p != _proxyInfoMap.end())
+    if (p != _proxyInfoMap.end())
     {
         _proxyInfoMap.erase(p);
     }
@@ -148,7 +144,7 @@ static IceRuby::ProxyInfoPtr
 lookupProxyInfo(string_view id)
 {
     ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
-    if(p != _proxyInfoMap.end())
+    if (p != _proxyInfoMap.end())
     {
         return p->second;
     }
@@ -166,7 +162,7 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
     // translated definitions and then dynamically load
     // duplicate definitions.
     //
-//    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
+    //    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
 }
 
@@ -176,19 +172,17 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
 VALUE IceRuby::StreamUtil::_sliceInfoType = Qnil;
 
-IceRuby::StreamUtil::StreamUtil()
-{
-}
+IceRuby::StreamUtil::StreamUtil() {}
 
 IceRuby::StreamUtil::~StreamUtil()
 {
     //
     // Make sure we break any cycles among the ValueReaders in preserved slices.
     //
-    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for (set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         Ice::SlicedDataPtr slicedData = (*p)->getSlicedData();
-        for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
+        for (Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
         {
             //
             // Don't just call (*q)->instances.clear(), as releasing references
@@ -218,7 +212,7 @@ IceRuby::StreamUtil::add(const shared_ptr<ValueReader>& reader)
 void
 IceRuby::StreamUtil::updateSlicedData()
 {
-    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for (set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
@@ -233,12 +227,12 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
 
     assert(slicedData);
 
-    if(_slicedDataType == Qnil)
+    if (_slicedDataType == Qnil)
     {
         _slicedDataType = callRuby(rb_path2class, "Ice::SlicedData");
         assert(!NIL_P(_slicedDataType));
     }
-    if(_sliceInfoType == Qnil)
+    if (_sliceInfoType == Qnil)
     {
         _sliceInfoType = callRuby(rb_path2class, "Ice::SliceInfo");
         assert(!NIL_P(_sliceInfoType));
@@ -254,7 +248,7 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
     // Translate each SliceInfo object into its Ruby equivalent.
     //
     int i = 0;
-    for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    for (vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
         volatile VALUE slice = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _sliceInfoType);
 
@@ -276,9 +270,10 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         //
         // bytes
         //
-        volatile VALUE bytes = callRuby(rb_str_new,
-                                        (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
-                                        static_cast<long>((*p)->bytes.size()));
+        volatile VALUE bytes = callRuby(
+            rb_str_new,
+            (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
+            static_cast<long>((*p)->bytes.size()));
         callRuby(rb_iv_set, slice, "@bytes", bytes);
 
         //
@@ -288,7 +283,7 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         callRuby(rb_iv_set, slice, "@instances", instances);
 
         int j = 0;
-        for(vector<shared_ptr<Ice::Value>>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for (vector<shared_ptr<Ice::Value>>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
             // Each element in the instances list is an instance of ValueReader that wraps a Ruby object.
@@ -325,11 +320,11 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 {
     Ice::SlicedDataPtr slicedData;
 
-    if(callRuby(rb_ivar_defined, obj, rb_intern("@_ice_slicedData")) == Qtrue)
+    if (callRuby(rb_ivar_defined, obj, rb_intern("@_ice_slicedData")) == Qtrue)
     {
         volatile VALUE sd = callRuby(rb_iv_get, obj, "@_ice_slicedData");
 
-        if(sd != Qnil)
+        if (sd != Qnil)
         {
             //
             // The "slices" member is an array of Ice::SliceInfo objects.
@@ -340,7 +335,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
             Ice::SliceInfoSeq slices;
 
             long sz = RARRAY_LEN(sl);
-            for(long i = 0; i < sz; ++i)
+            for (long i = 0; i < sz; ++i)
             {
                 volatile VALUE s = RARRAY_AREF(sl, i);
 
@@ -356,24 +351,23 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 assert(TYPE(bytes) == T_STRING);
                 const char* str = RSTRING_PTR(bytes);
                 const long len = RSTRING_LEN(bytes);
-                if(str != 0 && len != 0)
+                if (str != 0 && len != 0)
                 {
-                    vector<uint8_t> vtmp(reinterpret_cast<const uint8_t*>(str),
-                                           reinterpret_cast<const uint8_t*>(str + len));
+                    vector<byte> vtmp(reinterpret_cast<const byte*>(str), reinterpret_cast<const byte*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
                 volatile VALUE instances = callRuby(rb_iv_get, s, "@instances");
                 assert(TYPE(instances) == T_ARRAY);
                 long osz = RARRAY_LEN(instances);
-                for(long j = 0; j < osz; ++j)
+                for (long j = 0; j < osz; ++j)
                 {
                     VALUE o = RARRAY_AREF(instances, j);
 
                     shared_ptr<Ice::Value> writer;
 
                     ValueMap::iterator k = valueMap->find(o);
-                    if(k == valueMap->end())
+                    if (k == valueMap->end())
                     {
                         writer = make_shared<ValueWriter>(o, valueMap, nullptr);
                         valueMap->insert(ValueMap::value_type(o, writer));
@@ -405,16 +399,12 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 //
 // UnmarshalCallback implementation.
 //
-IceRuby::UnmarshalCallback::~UnmarshalCallback()
-{
-}
+IceRuby::UnmarshalCallback::~UnmarshalCallback() {}
 
 //
 // TypeInfo implementation.
 //
-IceRuby::TypeInfo::TypeInfo()
-{
-}
+IceRuby::TypeInfo::TypeInfo() {}
 
 bool
 IceRuby::TypeInfo::usesClasses() const
@@ -436,35 +426,31 @@ IceRuby::TypeInfo::destroy()
 //
 // PrimitiveInfo implementation.
 //
-IceRuby::PrimitiveInfo::PrimitiveInfo()
-{
-}
+IceRuby::PrimitiveInfo::PrimitiveInfo() {}
 
-IceRuby::PrimitiveInfo::PrimitiveInfo(Kind k) : kind(k)
-{
-}
+IceRuby::PrimitiveInfo::PrimitiveInfo(Kind k) : kind(k) {}
 
 string
 IceRuby::PrimitiveInfo::getId() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-        return "bool";
-    case KindByte:
-        return "byte";
-    case KindShort:
-        return "short";
-    case KindInt:
-        return "int";
-    case KindLong:
-        return "long";
-    case KindFloat:
-        return "float";
-    case KindDouble:
-        return "double";
-    case KindString:
-        return "string";
+        case KindBool:
+            return "bool";
+        case KindByte:
+            return "byte";
+        case KindShort:
+            return "short";
+        case KindInt:
+            return "int";
+        case KindLong:
+            return "long";
+        case KindFloat:
+            return "float";
+        case KindDouble:
+            return "double";
+        case KindString:
+            return "string";
     }
     assert(false);
     return string();
@@ -491,23 +477,23 @@ IceRuby::PrimitiveInfo::variableLength() const
 int
 IceRuby::PrimitiveInfo::wireSize() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-    case KindByte:
-        return 1;
-    case KindShort:
-        return 2;
-    case KindInt:
-        return 4;
-    case KindLong:
-        return 8;
-    case KindFloat:
-        return 4;
-    case KindDouble:
-        return 8;
-    case KindString:
-        return 1;
+        case KindBool:
+        case KindByte:
+            return 1;
+        case KindShort:
+            return 2;
+        case KindInt:
+            return 4;
+        case KindLong:
+            return 8;
+        case KindFloat:
+            return 4;
+        case KindDouble:
+            return 8;
+        case KindString:
+            return 1;
     }
     assert(false);
     return 0;
@@ -516,23 +502,23 @@ IceRuby::PrimitiveInfo::wireSize() const
 Ice::OptionalFormat
 IceRuby::PrimitiveInfo::optionalFormat() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-    case KindByte:
-        return Ice::OptionalFormat::F1;
-    case KindShort:
-        return Ice::OptionalFormat::F2;
-    case KindInt:
-        return Ice::OptionalFormat::F4;
-    case KindLong:
-        return Ice::OptionalFormat::F8;
-    case KindFloat:
-        return Ice::OptionalFormat::F4;
-    case KindDouble:
-        return Ice::OptionalFormat::F8;
-    case KindString:
-        return Ice::OptionalFormat::VSize;
+        case KindBool:
+        case KindByte:
+            return Ice::OptionalFormat::F1;
+        case KindShort:
+            return Ice::OptionalFormat::F2;
+        case KindInt:
+            return Ice::OptionalFormat::F4;
+        case KindLong:
+            return Ice::OptionalFormat::F8;
+        case KindFloat:
+            return Ice::OptionalFormat::F4;
+        case KindDouble:
+            return Ice::OptionalFormat::F8;
+        case KindString:
+            return Ice::OptionalFormat::VSize;
     }
 
     assert(false);
@@ -542,155 +528,159 @@ IceRuby::PrimitiveInfo::optionalFormat() const
 void
 IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
 {
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        os->write(static_cast<bool>(RTEST(p)));
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        long i = getInteger(p);
-        if(i >= 0 && i <= 255)
+        case PrimitiveInfo::KindBool:
         {
-            os->write(static_cast<uint8_t>(i));
+            os->write(static_cast<bool>(RTEST(p)));
             break;
         }
-        throw RubyException(rb_eTypeError, "value is out of range for a byte");
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        long i = getInteger(p);
-        if(i >= SHRT_MIN && i <= SHRT_MAX)
+        case PrimitiveInfo::KindByte:
         {
-            os->write(static_cast<int16_t>(i));
+            long i = getInteger(p);
+            if (i >= 0 && i <= 255)
+            {
+                os->write(static_cast<uint8_t>(i));
+                break;
+            }
+            throw RubyException(rb_eTypeError, "value is out of range for a byte");
+        }
+        case PrimitiveInfo::KindShort:
+        {
+            long i = getInteger(p);
+            if (i >= SHRT_MIN && i <= SHRT_MAX)
+            {
+                os->write(static_cast<int16_t>(i));
+                break;
+            }
+            throw RubyException(rb_eTypeError, "value is out of range for a short");
+        }
+        case PrimitiveInfo::KindInt:
+        {
+            long i = getInteger(p);
+            if (i >= INT_MIN && i <= INT_MAX)
+            {
+                os->write(static_cast<int32_t>(i));
+                break;
+            }
+            throw RubyException(rb_eTypeError, "value is out of range for an int");
+        }
+        case PrimitiveInfo::KindLong:
+        {
+            os->write(getLong(p));
             break;
         }
-        throw RubyException(rb_eTypeError, "value is out of range for a short");
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        long i = getInteger(p);
-        if(i >= INT_MIN && i <= INT_MAX)
+        case PrimitiveInfo::KindFloat:
         {
-            os->write(static_cast<int32_t>(i));
+            volatile VALUE val = callRuby(rb_Float, p);
+            if (NIL_P(val))
+            {
+                throw RubyException(rb_eTypeError, "unable to convert value to a float");
+            }
+            assert(TYPE(val) == T_FLOAT);
+            double d = static_cast<double>(RFLOAT_VALUE(val));
+            if (isfinite(d) && (d > numeric_limits<float>::max() || d < -numeric_limits<float>::max()))
+            {
+                throw RubyException(rb_eTypeError, "value is out of range for a float");
+            }
+            os->write(static_cast<float>(d));
             break;
         }
-        throw RubyException(rb_eTypeError, "value is out of range for an int");
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        os->write(getLong(p));
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        volatile VALUE val = callRuby(rb_Float, p);
-        if(NIL_P(val))
+        case PrimitiveInfo::KindDouble:
         {
-            throw RubyException(rb_eTypeError, "unable to convert value to a float");
+            volatile VALUE val = callRuby(rb_Float, p);
+            if (NIL_P(val))
+            {
+                throw RubyException(rb_eTypeError, "unable to convert value to a double");
+            }
+            assert(TYPE(val) == T_FLOAT);
+            os->write(static_cast<double>(RFLOAT_VALUE(val)));
+            break;
         }
-        assert(TYPE(val) == T_FLOAT);
-        double d = static_cast<double>(RFLOAT_VALUE(val));
-        if(isfinite(d) && (d > numeric_limits<float>::max() || d < -numeric_limits<float>::max()))
+        case PrimitiveInfo::KindString:
         {
-            throw RubyException(rb_eTypeError, "value is out of range for a float");
-        }
-        os->write(static_cast<float>(d));
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        volatile VALUE val = callRuby(rb_Float, p);
-        if(NIL_P(val))
-        {
-            throw RubyException(rb_eTypeError, "unable to convert value to a double");
-        }
-        assert(TYPE(val) == T_FLOAT);
-        os->write(static_cast<double>(RFLOAT_VALUE(val)));
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        string val = getString(p);
+            string val = getString(p);
 #ifdef HAVE_RUBY_ENCODING_H
-        os->write(val, false); // Bypass string conversion.
+            os->write(val, false); // Bypass string conversion.
 #else
-        os->write(val, true);
+            os->write(val, true);
 #endif
-        break;
-    }
+            break;
+        }
     }
 }
 
 void
-IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
-                                  void* closure, bool)
+IceRuby::PrimitiveInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool)
 {
     volatile VALUE val = Qnil;
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        bool b;
-        is->read(b);
-        val = b ? Qtrue : Qfalse;
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        uint8_t b;
-        is->read(b);
-        val = callRuby(rb_int2inum, b);
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        int16_t sh;
-        is->read(sh);
-        val = callRuby(rb_int2inum, sh);
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        int32_t i;
-        is->read(i);
-        val = callRuby(rb_int2inum, i);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        int64_t l;
-        is->read(l);
-        val = callRuby(rb_ll2inum, l);
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        float f;
-        is->read(f);
-        val = callRuby(rb_float_new, f);
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        double d;
-        is->read(d);
-        val = callRuby(rb_float_new, d);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        string str;
+        case PrimitiveInfo::KindBool:
+        {
+            bool b;
+            is->read(b);
+            val = b ? Qtrue : Qfalse;
+            break;
+        }
+        case PrimitiveInfo::KindByte:
+        {
+            uint8_t b;
+            is->read(b);
+            val = callRuby(rb_int2inum, b);
+            break;
+        }
+        case PrimitiveInfo::KindShort:
+        {
+            int16_t sh;
+            is->read(sh);
+            val = callRuby(rb_int2inum, sh);
+            break;
+        }
+        case PrimitiveInfo::KindInt:
+        {
+            int32_t i;
+            is->read(i);
+            val = callRuby(rb_int2inum, i);
+            break;
+        }
+        case PrimitiveInfo::KindLong:
+        {
+            int64_t l;
+            is->read(l);
+            val = callRuby(rb_ll2inum, l);
+            break;
+        }
+        case PrimitiveInfo::KindFloat:
+        {
+            float f;
+            is->read(f);
+            val = callRuby(rb_float_new, f);
+            break;
+        }
+        case PrimitiveInfo::KindDouble:
+        {
+            double d;
+            is->read(d);
+            val = callRuby(rb_float_new, d);
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            string str;
 #ifdef HAVE_RUBY_ENCODING_H
-        is->read(str, false); // Bypass string conversion.
+            is->read(str, false); // Bypass string conversion.
 #else
-        is->read(str, true);
+            is->read(str, true);
 #endif
-        val = createString(str);
-        break;
-    }
+            val = createString(str);
+            break;
+        }
     }
     cb->unmarshaled(val, target, closure);
 }
@@ -698,38 +688,38 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
 void
 IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        out << (RTEST(value) ? "true" : "false");
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    case PrimitiveInfo::KindShort:
-    case PrimitiveInfo::KindInt:
-    {
-        out << getInteger(value);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        int64_t l = getLong(value);
-        out << IceUtilInternal::int64ToString(l);
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    case PrimitiveInfo::KindDouble:
-    {
-        double d = toDouble(value);
-        out << d;
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        out << "'" << getString(value) << "'";
-        break;
-    }
+        case PrimitiveInfo::KindBool:
+        {
+            out << (RTEST(value) ? "true" : "false");
+            break;
+        }
+        case PrimitiveInfo::KindByte:
+        case PrimitiveInfo::KindShort:
+        case PrimitiveInfo::KindInt:
+        {
+            out << getInteger(value);
+            break;
+        }
+        case PrimitiveInfo::KindLong:
+        {
+            int64_t l = getLong(value);
+            out << IceUtilInternal::int64ToString(l);
+            break;
+        }
+        case PrimitiveInfo::KindFloat:
+        case PrimitiveInfo::KindDouble:
+        {
+            double d = toDouble(value);
+            out << d;
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            out << "'" << getString(value) << "'";
+            break;
+        }
     }
 }
 
@@ -737,7 +727,7 @@ double
 IceRuby::PrimitiveInfo::toDouble(VALUE v)
 {
     volatile VALUE val = callRuby(rb_Float, v);
-    if(NIL_P(val))
+    if (NIL_P(val))
     {
         throw RubyException(rb_eTypeError, "unable to convert value to a double");
     }
@@ -751,32 +741,28 @@ IceRuby::PrimitiveInfo::toDouble(VALUE v)
 
 namespace
 {
-struct EnumDefinitionIterator : public IceRuby::HashIterator
-{
-    EnumDefinitionIterator() :
-        maxValue(0)
+    struct EnumDefinitionIterator : public IceRuby::HashIterator
     {
-    }
+        EnumDefinitionIterator() : maxValue(0) {}
 
-    virtual void element(VALUE key, VALUE value)
-    {
-        const int32_t v = static_cast<int32_t>(getInteger(key));
-        assert(enumerators.find(v) == enumerators.end());
-        enumerators[v] = value;
-
-        if(v > maxValue)
+        virtual void element(VALUE key, VALUE value)
         {
-            maxValue = v;
-        }
-    }
+            const int32_t v = static_cast<int32_t>(getInteger(key));
+            assert(enumerators.find(v) == enumerators.end());
+            enumerators[v] = value;
 
-    int32_t maxValue;
-    IceRuby::EnumeratorMap enumerators;
-};
+            if (v > maxValue)
+            {
+                maxValue = v;
+            }
+        }
+
+        int32_t maxValue;
+        IceRuby::EnumeratorMap enumerators;
+    };
 }
 
-IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) :
-    rubyClass(t), maxValue(0)
+IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) : rubyClass(t), maxValue(0)
 {
     const_cast<string&>(id) = getString(ident);
 
@@ -827,7 +813,7 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
     //
     volatile VALUE val = callRuby(rb_iv_get, p, "@value");
     const int32_t ival = static_cast<int32_t>(getInteger(val));
-    if(enumerators.find(ival) == enumerators.end())
+    if (enumerators.find(ival) == enumerators.end())
     {
         throw RubyException(rb_eRangeError, "invalid enumerator %ld for enum %s", ival, id.c_str());
     }
@@ -836,13 +822,12 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
 }
 
 void
-IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
-                             bool)
+IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool)
 {
     int32_t val = is->readEnum(maxValue);
 
     EnumeratorMap::const_iterator p = enumerators.find(val);
-    if(p == enumerators.end())
+    if (p == enumerators.end())
     {
         ostringstream ostr;
         ostr << "invalid enumerator " << val << " for enum " << id;
@@ -855,7 +840,7 @@ IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
 void
 IceRuby::EnumInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -880,7 +865,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 
     volatile VALUE arr = callRuby(rb_check_array_type, members);
     assert(!NIL_P(arr));
-    for(long i = 0; i < RARRAY_LEN(arr); ++i)
+    for (long i = 0; i < RARRAY_LEN(arr); ++i)
     {
         volatile VALUE m = callRuby(rb_check_array_type, RARRAY_AREF(arr, i));
         assert(!NIL_P(m));
@@ -893,7 +878,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
         string s = "@" + member->name;
         member->rubyID = rb_intern(s.c_str());
 
-        if(allowOptional)
+        if (allowOptional)
         {
             member->optional = RTEST(RARRAY_AREF(m, 2));
             member->tag = static_cast<int>(getInteger(RARRAY_AREF(m, 3)));
@@ -904,7 +889,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
             member->tag = 0;
         }
 
-        if(member->optional)
+        if (member->optional)
         {
             optList.push_back(member);
         }
@@ -914,15 +899,12 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
         }
     }
 
-    if(allowOptional)
+    if (allowOptional)
     {
         class SortFn
         {
         public:
-            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-            {
-                return lhs->tag < rhs->tag;
-            }
+            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag < rhs->tag; }
         };
 
         optList.sort(SortFn::compare);
@@ -933,8 +915,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
 //
 // StructInfo implementation.
 //
-IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) :
-    rubyClass(t), _nullMarshalValue(Qnil)
+IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) : rubyClass(t), _nullMarshalValue(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
 
@@ -944,9 +925,9 @@ IceRuby::StructInfo::StructInfo(VALUE ident, VALUE t, VALUE m) :
 
     _variableLength = false;
     _wireSize = 0;
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if(!_variableLength && (*p)->type->variableLength())
+        if (!_variableLength && (*p)->type->variableLength())
         {
             _variableLength = true;
         }
@@ -987,9 +968,9 @@ IceRuby::StructInfo::optionalFormat() const
 bool
 IceRuby::StructInfo::usesClasses() const
 {
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->type->usesClasses())
+        if ((*p)->type->usesClasses())
         {
             return true;
         }
@@ -1003,9 +984,9 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
 {
     assert(NIL_P(p) || callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
 
-    if(NIL_P(p))
+    if (NIL_P(p))
     {
-        if(NIL_P(_nullMarshalValue))
+        if (NIL_P(_nullMarshalValue))
         {
             _nullMarshalValue = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
             rb_gc_register_address(&_nullMarshalValue); // Prevent garbage collection
@@ -1014,9 +995,9 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
     }
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             sizePos = os->startSize();
         }
@@ -1026,33 +1007,40 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
         }
     }
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         volatile VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
-        if(!member->type->validate(val))
+        if (!member->type->validate(val))
         {
-            throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
-                                member->name.c_str());
+            throw RubyException(
+                rb_eTypeError,
+                "invalid value for %s member `%s'",
+                const_cast<char*>(id.c_str()),
+                member->name.c_str());
         }
         member->type->marshal(val, os, valueMap, false);
     }
 
-    if(optional && _variableLength)
+    if (optional && _variableLength)
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IceRuby::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
-                               void* closure, bool optional)
+IceRuby::StructInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             is->skip(4);
         }
@@ -1062,7 +1050,7 @@ IceRuby::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         }
     }
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         member->type->unmarshal(is, member, obj, 0, false);
@@ -1074,24 +1062,24 @@ IceRuby::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
 void
 IceRuby::StructInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(NIL_P(value))
+    if (NIL_P(value))
     {
         out << "<nil>";
     }
     else
     {
         out.sb();
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
             out << nl << member->name << " = ";
-            if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+            if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
             {
                 out << "<not defined>";
             }
@@ -1108,12 +1096,12 @@ IceRuby::StructInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjec
 void
 IceRuby::StructInfo::destroy()
 {
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
-    if(!NIL_P(_nullMarshalValue))
+    if (!NIL_P(_nullMarshalValue))
     {
         rb_gc_unregister_address(&_nullMarshalValue); // Prevent garbage collection
         _nullMarshalValue = Qnil;
@@ -1141,14 +1129,14 @@ IceRuby::SequenceInfo::validate(VALUE val)
     //
     // Accept nil, an array, a string (for sequence<byte>), or any object that responds to to_ary.
     //
-    if(NIL_P(val) || TYPE(val) == T_ARRAY)
+    if (NIL_P(val) || TYPE(val) == T_ARRAY)
     {
         return true;
     }
-    if(TYPE(val) == T_STRING)
+    if (TYPE(val) == T_STRING)
     {
         PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-        if(pi && pi->kind == PrimitiveInfo::KindByte)
+        if (pi && pi->kind == PrimitiveInfo::KindByte)
         {
             return true;
         }
@@ -1189,28 +1177,28 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
     volatile VALUE arr = Qnil;
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(elementType->variableLength())
+        if (elementType->variableLength())
         {
             sizePos = os->startSize();
         }
-        else if(elementType->wireSize() > 1)
+        else if (elementType->wireSize() > 1)
         {
             //
             // Determine the sequence size.
             //
             int sz = 0;
-            if(!NIL_P(p))
+            if (!NIL_P(p))
             {
-                if(TYPE(p) == T_ARRAY)
+                if (TYPE(p) == T_ARRAY)
                 {
                     sz = static_cast<int>(RARRAY_LEN(p));
                 }
                 else
                 {
                     arr = callRuby(rb_Array, p);
-                    if(NIL_P(arr))
+                    if (NIL_P(arr))
                     {
                         throw RubyException(rb_eTypeError, "unable to convert value to an array");
                     }
@@ -1221,20 +1209,20 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
         }
     }
 
-    if(NIL_P(p))
+    if (NIL_P(p))
     {
         os->writeSize(0);
     }
-    else if(pi)
+    else if (pi)
     {
         marshalPrimitiveSequence(pi, p, os);
     }
     else
     {
-        if(NIL_P(arr))
+        if (NIL_P(arr))
         {
             arr = callRuby(rb_Array, p);
-            if(NIL_P(arr))
+            if (NIL_P(arr))
             {
                 throw RubyException(rb_eTypeError, "unable to convert value to an array");
             }
@@ -1242,18 +1230,21 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
 
         long sz = RARRAY_LEN(arr);
         os->writeSize(static_cast<int32_t>(sz));
-        for(long i = 0; i < sz; ++i)
+        for (long i = 0; i < sz; ++i)
         {
-            if(!elementType->validate(RARRAY_AREF(arr, i)))
+            if (!elementType->validate(RARRAY_AREF(arr, i)))
             {
-                throw RubyException(rb_eTypeError, "invalid value for element %ld of `%s'", i,
-                                    const_cast<char*>(id.c_str()));
+                throw RubyException(
+                    rb_eTypeError,
+                    "invalid value for element %ld of `%s'",
+                    i,
+                    const_cast<char*>(id.c_str()));
             }
             elementType->marshal(RARRAY_AREF(arr, i), os, valueMap, false);
         }
     }
 
-    if(optional && elementType->variableLength())
+    if (optional && elementType->variableLength())
     {
         os->endSize(sizePos);
     }
@@ -1267,20 +1258,20 @@ IceRuby::SequenceInfo::unmarshal(
     void* closure,
     bool optional)
 {
-    if(optional)
+    if (optional)
     {
-        if(elementType->variableLength())
+        if (elementType->variableLength())
         {
             is->skip(4);
         }
-        else if(elementType->wireSize() > 1)
+        else if (elementType->wireSize() > 1)
         {
             is->skipSize();
         }
     }
 
     PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-    if(pi)
+    if (pi)
     {
         unmarshalPrimitiveSequence(pi, is, cb, target, closure);
         return;
@@ -1289,7 +1280,7 @@ IceRuby::SequenceInfo::unmarshal(
     int32_t sz = is->readSize();
     volatile VALUE arr = createArray(sz);
 
-    for(int32_t i = 0; i < sz; ++i)
+    for (int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, shared_from_this(), arr, cl, false);
@@ -1312,22 +1303,22 @@ IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 void
 IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(NIL_P(value))
+    if (NIL_P(value))
     {
         out << "{}";
     }
     else
     {
-        if(TYPE(value) == T_STRING)
+        if (TYPE(value) == T_STRING)
         {
             PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-            if(pi && pi->kind == PrimitiveInfo::KindByte)
+            if (pi && pi->kind == PrimitiveInfo::KindByte)
             {
                 out << "'" << escapeString(getString(value)) << "'";
                 return;
@@ -1335,7 +1326,7 @@ IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObj
         }
 
         volatile VALUE arr = callRuby(rb_Array, value);
-        if(NIL_P(arr))
+        if (NIL_P(arr))
         {
             throw RubyException(rb_eTypeError, "unable to convert value to an array");
         }
@@ -1343,7 +1334,7 @@ IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObj
         long sz = RARRAY_LEN(arr);
 
         out.sb();
-        for(long i = 0; i < sz; ++i)
+        for (long i = 0; i < sz; ++i)
         {
             out << nl << '[' << i << "] = ";
             elementType->print(RARRAY_AREF(arr, i), out, history);
@@ -1355,7 +1346,7 @@ IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObj
 void
 IceRuby::SequenceInfo::destroy()
 {
-    if(elementType)
+    if (elementType)
     {
         elementType->destroy();
         const_cast<TypeInfoPtr&>(elementType) = 0;
@@ -1371,16 +1362,16 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
     //
     // Accept a string or an array for sequence<byte>.
     //
-    if(pi->kind == PrimitiveInfo::KindByte)
+    if (pi->kind == PrimitiveInfo::KindByte)
     {
-        if(TYPE(p) == T_STRING)
+        if (TYPE(p) == T_STRING)
         {
             str = p;
         }
         else
         {
             arr = callRuby(rb_Array, p);
-            if(NIL_P(arr))
+            if (NIL_P(arr))
             {
                 throw RubyException(rb_eTypeError, "argument is not a string or an array");
             }
@@ -1389,287 +1380,292 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
     else
     {
         arr = callRuby(rb_Array, p);
-        if(NIL_P(arr))
+        if (NIL_P(arr))
         {
             throw RubyException(rb_eTypeError, "unable to convert value to an array");
         }
     }
 
-    switch(pi->kind)
+    switch (pi->kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::BoolSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
+        case PrimitiveInfo::KindBool:
         {
-            seq[static_cast<size_t>(i)] = RTEST(RARRAY_AREF(arr, i));
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        if(!NIL_P(str))
-        {
-            const char* s = RSTRING_PTR(str);
-            const long len = RSTRING_LEN(str);
-            if(s == 0 || len == 0)
+            long sz = RARRAY_LEN(arr);
+            Ice::BoolSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
             {
-                os->write(int32_t(0));
+                seq[static_cast<size_t>(i)] = RTEST(RARRAY_AREF(arr, i));
+            }
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindByte:
+        {
+            if (!NIL_P(str))
+            {
+                const char* s = RSTRING_PTR(str);
+                const long len = RSTRING_LEN(str);
+                if (s == 0 || len == 0)
+                {
+                    os->write(int32_t(0));
+                }
+                else
+                {
+                    os->write(reinterpret_cast<const byte*>(s), reinterpret_cast<const byte*>(s + len));
+                }
             }
             else
             {
-                os->write(reinterpret_cast<const uint8_t*>(s), reinterpret_cast<const uint8_t*>(s + len));
+                long sz = RARRAY_LEN(arr);
+                Ice::ByteSeq seq(static_cast<size_t>(sz));
+                for (long i = 0; i < sz; ++i)
+                {
+                    long val = getInteger(RARRAY_AREF(arr, i));
+                    if (val < 0 || val > 255)
+                    {
+                        throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
+                    }
+                    seq[static_cast<size_t>(i)] = static_cast<byte>(val);
+                }
+                os->write(seq);
             }
+            break;
         }
-        else
+        case PrimitiveInfo::KindShort:
         {
             long sz = RARRAY_LEN(arr);
-            Ice::ByteSeq seq(static_cast<size_t>(sz));
-            for(long i = 0; i < sz; ++i)
+            Ice::ShortSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
             {
                 long val = getInteger(RARRAY_AREF(arr, i));
-                if(val < 0 || val > 255)
+                if (val < SHRT_MIN || val > SHRT_MAX)
                 {
-                    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
+                    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
                 }
-                seq[static_cast<size_t>(i)] = static_cast<uint8_t>(val);
+                seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
             }
             os->write(seq);
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::ShortSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
+        case PrimitiveInfo::KindInt:
         {
-            long val = getInteger(RARRAY_AREF(arr, i));
-            if(val < SHRT_MIN || val > SHRT_MAX)
+            long sz = RARRAY_LEN(arr);
+            Ice::IntSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
             {
-                throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
+                long val = getInteger(RARRAY_AREF(arr, i));
+                if (val < INT_MIN || val > INT_MAX)
+                {
+                    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
+                }
+                seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
             }
-            seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::IntSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
-        {
-            long val = getInteger(RARRAY_AREF(arr, i));
-            if(val < INT_MIN || val > INT_MAX)
-            {
-                throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
-            }
-            seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::LongSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
-        {
-            seq[static_cast<size_t>(i)] = getLong(RARRAY_AREF(arr, i));
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::FloatSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
-        {
-            volatile VALUE v = callRuby(rb_Float, RARRAY_AREF(arr, i));
-            if(NIL_P(v))
-            {
-                throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
-            }
-            assert(TYPE(v) == T_FLOAT);
-            seq[static_cast<size_t>(i)] = static_cast<float>(RFLOAT_VALUE(v));
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::DoubleSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
-        {
-            volatile VALUE v = callRuby(rb_Float, RARRAY_AREF(arr, i));
-            if(NIL_P(v))
-            {
-                throw RubyException(rb_eTypeError, "unable to convert array element %ld to a double", i);
-            }
-            assert(TYPE(v) == T_FLOAT);
-            seq[static_cast<size_t>(i)] = RFLOAT_VALUE(v);
-        }
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        long sz = RARRAY_LEN(arr);
-        Ice::StringSeq seq(static_cast<size_t>(sz));
-        for(long i = 0; i < sz; ++i)
-        {
-            seq[static_cast<size_t>(i)] = getString(RARRAY_AREF(arr, i));
-        }
-        if(seq.empty())
-        {
             os->write(seq);
+            break;
         }
-        else
+        case PrimitiveInfo::KindLong:
         {
+            long sz = RARRAY_LEN(arr);
+            Ice::LongSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
+            {
+                seq[static_cast<size_t>(i)] = getLong(RARRAY_AREF(arr, i));
+            }
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindFloat:
+        {
+            long sz = RARRAY_LEN(arr);
+            Ice::FloatSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
+            {
+                volatile VALUE v = callRuby(rb_Float, RARRAY_AREF(arr, i));
+                if (NIL_P(v))
+                {
+                    throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
+                }
+                assert(TYPE(v) == T_FLOAT);
+                seq[static_cast<size_t>(i)] = static_cast<float>(RFLOAT_VALUE(v));
+            }
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindDouble:
+        {
+            long sz = RARRAY_LEN(arr);
+            Ice::DoubleSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
+            {
+                volatile VALUE v = callRuby(rb_Float, RARRAY_AREF(arr, i));
+                if (NIL_P(v))
+                {
+                    throw RubyException(rb_eTypeError, "unable to convert array element %ld to a double", i);
+                }
+                assert(TYPE(v) == T_FLOAT);
+                seq[static_cast<size_t>(i)] = RFLOAT_VALUE(v);
+            }
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            long sz = RARRAY_LEN(arr);
+            Ice::StringSeq seq(static_cast<size_t>(sz));
+            for (long i = 0; i < sz; ++i)
+            {
+                seq[static_cast<size_t>(i)] = getString(RARRAY_AREF(arr, i));
+            }
+            if (seq.empty())
+            {
+                os->write(seq);
+            }
+            else
+            {
 #ifdef HAVE_RUBY_ENCODING_H
-            os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
+                os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
 #else
-            os->write(&seq[0], &seq[0] + seq.size(), true);
+                os->write(&seq[0], &seq[0] + seq.size(), true);
 #endif
+            }
+            break;
         }
-        break;
-    }
     }
 }
 
 void
-IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice::InputStream* is,
-                                                  const UnmarshalCallbackPtr& cb, VALUE target, void* closure)
+IceRuby::SequenceInfo::unmarshalPrimitiveSequence(
+    const PrimitiveInfoPtr& pi,
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure)
 {
     volatile VALUE result = Qnil;
 
-    switch(pi->kind)
+    switch (pi->kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        pair<const bool*, const bool*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
-
-        if(sz > 0)
+        case PrimitiveInfo::KindBool:
         {
-            for(long i = 0; i < sz; ++i)
-            {
-                RARRAY_ASET(result, i, p.first[i] ? Qtrue : Qfalse);
-            }
-        }
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        pair<const uint8_t*, const uint8_t*> p;
-        is->read(p);
-        result = callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        pair<const int16_t*, const int16_t*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
+            pair<const bool*, const bool*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
 
-        if(sz > 0)
-        {
-            for(long i = 0; i < sz; ++i)
+            if (sz > 0)
             {
-                RARRAY_ASET(result, i, INT2FIX(p.first[i]));
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, p.first[i] ? Qtrue : Qfalse);
+                }
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        pair<const int32_t*, const int32_t*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
+        case PrimitiveInfo::KindByte:
+        {
+            pair<const uint8_t*, const uint8_t*> p;
+            is->read(p);
+            result =
+                callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
+            break;
+        }
+        case PrimitiveInfo::KindShort:
+        {
+            pair<const int16_t*, const int16_t*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
 
-        if(sz > 0)
-        {
-            for(long i = 0; i < sz; ++i)
+            if (sz > 0)
             {
-                RARRAY_ASET(result, i, INT2FIX(p.first[i]));
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, INT2FIX(p.first[i]));
+                }
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        pair<const int64_t*, const int64_t*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
+        case PrimitiveInfo::KindInt:
+        {
+            pair<const int32_t*, const int32_t*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
 
-        if(sz > 0)
-        {
-            for(long i = 0; i < sz; ++i)
+            if (sz > 0)
             {
-                RARRAY_ASET(result, i, callRuby(rb_ll2inum, p.first[i]));
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, INT2FIX(p.first[i]));
+                }
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        pair<const float*, const float*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
+        case PrimitiveInfo::KindLong:
+        {
+            pair<const int64_t*, const int64_t*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
 
-        if(sz > 0)
-        {
-            for(long i = 0; i < sz; ++i)
+            if (sz > 0)
             {
-                RARRAY_ASET(result, i, callRuby(rb_float_new, p.first[i]));
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, callRuby(rb_ll2inum, p.first[i]));
+                }
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        pair<const double*, const double*> p;
-        is->read(p);
-        long sz = static_cast<long>(p.second - p.first);
-        result = createArray(sz);
+        case PrimitiveInfo::KindFloat:
+        {
+            pair<const float*, const float*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
 
-        if(sz > 0)
-        {
-            for(long i = 0; i < sz; ++i)
+            if (sz > 0)
             {
-                RARRAY_ASET(result, i, callRuby(rb_float_new, p.first[i]));
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, callRuby(rb_float_new, p.first[i]));
+                }
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        Ice::StringSeq seq;
+        case PrimitiveInfo::KindDouble:
+        {
+            pair<const double*, const double*> p;
+            is->read(p);
+            long sz = static_cast<long>(p.second - p.first);
+            result = createArray(sz);
+
+            if (sz > 0)
+            {
+                for (long i = 0; i < sz; ++i)
+                {
+                    RARRAY_ASET(result, i, callRuby(rb_float_new, p.first[i]));
+                }
+            }
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            Ice::StringSeq seq;
 #ifdef HAVE_RUBY_ENCODING_H
-        is->read(seq, false); // Bypass string conversion.
+            is->read(seq, false); // Bypass string conversion.
 #else
-        is->read(seq, true);
+            is->read(seq, true);
 #endif
-        long sz = static_cast<long>(seq.size());
-        result = createArray(sz);
+            long sz = static_cast<long>(seq.size());
+            result = createArray(sz);
 
-        for(long i = 0; i < sz; ++i)
-        {
-            RARRAY_ASET(result, i, createString(seq[static_cast<size_t>(i)]));
+            for (long i = 0; i < sz; ++i)
+            {
+                RARRAY_ASET(result, i, createString(seq[static_cast<size_t>(i)]));
+            }
+            break;
         }
-        break;
-    }
     }
     cb->unmarshaled(result, target, closure);
 }
@@ -1699,7 +1695,7 @@ IceRuby::DictionaryInfo::validate(VALUE val)
     //
     // Accept nil, a hash, or any object that responds to to_hash.
     //
-    if(NIL_P(val) || TYPE(val) == T_HASH)
+    if (NIL_P(val) || TYPE(val) == T_HASH)
     {
         return true;
     }
@@ -1733,22 +1729,21 @@ IceRuby::DictionaryInfo::usesClasses() const
 
 namespace
 {
-struct DictionaryMarshalIterator : public IceRuby::HashIterator
-{
-    DictionaryMarshalIterator(const IceRuby::DictionaryInfoPtr& d, Ice::OutputStream* o, IceRuby::ValueMap* m)
-        : dict(d), os(o), valueMap(m)
+    struct DictionaryMarshalIterator : public IceRuby::HashIterator
     {
-    }
+        DictionaryMarshalIterator(const IceRuby::DictionaryInfoPtr& d, Ice::OutputStream* o, IceRuby::ValueMap* m)
+            : dict(d),
+              os(o),
+              valueMap(m)
+        {
+        }
 
-    virtual void element(VALUE key, VALUE value)
-    {
-        dict->marshalElement(key, value, os, valueMap);
-    }
+        virtual void element(VALUE key, VALUE value) { dict->marshalElement(key, value, os, valueMap); }
 
-    IceRuby::DictionaryInfoPtr dict;
-    Ice::OutputStream* os;
-    IceRuby::ValueMap* valueMap;
-};
+        IceRuby::DictionaryInfoPtr dict;
+        Ice::OutputStream* os;
+        IceRuby::ValueMap* valueMap;
+    };
 }
 
 void
@@ -1756,25 +1751,25 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* value
 {
     volatile VALUE hash = Qnil;
 
-    if(!NIL_P(p))
+    if (!NIL_P(p))
     {
         hash = callRuby(rb_convert_type, p, T_HASH, "Hash", "to_hash");
-        if(NIL_P(hash))
+        if (NIL_P(hash))
         {
             throw RubyException(rb_eTypeError, "unable to convert value to a hash");
         }
     }
 
     int32_t sz = 0;
-    if(!NIL_P(hash))
+    if (!NIL_P(hash))
     {
         sz = static_cast<int32_t>(RHASH_SIZE(hash));
     }
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             sizePos = os->startSize();
         }
@@ -1784,21 +1779,21 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* value
         }
     }
 
-    if(NIL_P(hash))
+    if (NIL_P(hash))
     {
         os->writeSize(0);
     }
     else
     {
         os->writeSize(sz);
-        if(sz > 0)
+        if (sz > 0)
         {
             DictionaryMarshalIterator iter(shared_from_this(), os, valueMap);
             hashIterate(hash, iter);
         }
     }
 
-    if(optional && _variableLength)
+    if (optional && _variableLength)
     {
         os->endSize(sizePos);
     }
@@ -1807,12 +1802,12 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* value
 void
 IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, Ice::OutputStream* os, ValueMap* valueMap)
 {
-    if(!keyType->validate(key))
+    if (!keyType->validate(key))
     {
         throw RubyException(rb_eTypeError, "invalid key in `%s' element", const_cast<char*>(id.c_str()));
     }
 
-    if(!valueType->validate(value))
+    if (!valueType->validate(value))
     {
         throw RubyException(rb_eTypeError, "invalid value in `%s' element", const_cast<char*>(id.c_str()));
     }
@@ -1822,12 +1817,16 @@ IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, Ice::OutputStrea
 }
 
 void
-IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
-                                   void* closure, bool optional)
+IceRuby::DictionaryInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             is->skip(4);
         }
@@ -1843,7 +1842,7 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
     keyCB->key = Qnil;
 
     int32_t sz = is->readSize();
-    for(int32_t i = 0; i < sz; ++i)
+    for (int32_t i = 0; i < sz; ++i)
     {
         //
         // A dictionary key cannot be a class (or contain one), so the key must be
@@ -1883,46 +1882,45 @@ IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 
 namespace
 {
-struct DictionaryPrintIterator : public IceRuby::HashIterator
-{
-    DictionaryPrintIterator(const DictionaryInfoPtr& d, IceUtilInternal::Output& o, PrintObjectHistory* h) :
-        dict(d), out(o), history(h)
+    struct DictionaryPrintIterator : public IceRuby::HashIterator
     {
-    }
+        DictionaryPrintIterator(const DictionaryInfoPtr& d, IceUtilInternal::Output& o, PrintObjectHistory* h)
+            : dict(d),
+              out(o),
+              history(h)
+        {
+        }
 
-    virtual void element(VALUE key, VALUE value)
-    {
-        dict->printElement(key, value, out, history);
-    }
+        virtual void element(VALUE key, VALUE value) { dict->printElement(key, value, out, history); }
 
-    IceRuby::DictionaryInfoPtr dict;
-    IceUtilInternal::Output& out;
-    IceRuby::PrintObjectHistory* history;
-};
+        IceRuby::DictionaryInfoPtr dict;
+        IceUtilInternal::Output& out;
+        IceRuby::PrintObjectHistory* history;
+    };
 }
 
 void
 IceRuby::DictionaryInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(NIL_P(value))
+    if (NIL_P(value))
     {
         out << "{}";
     }
     else
     {
         volatile VALUE hash = callRuby(rb_convert_type, value, T_HASH, "Hash", "to_hash");
-        if(NIL_P(hash))
+        if (NIL_P(hash))
         {
             throw RubyException(rb_eTypeError, "unable to convert value to a hash");
         }
 
-        if(RHASH_SIZE(hash) == 0)
+        if (RHASH_SIZE(hash) == 0)
         {
             out << "{}";
             return;
@@ -1953,12 +1951,12 @@ IceRuby::DictionaryInfo::KeyCallback::unmarshaled(VALUE val, VALUE, void*)
 void
 IceRuby::DictionaryInfo::destroy()
 {
-    if(keyType)
+    if (keyType)
     {
         keyType->destroy();
         const_cast<TypeInfoPtr&>(keyType) = 0;
     }
-    if(valueType)
+    if (valueType)
     {
         valueType->destroy();
         const_cast<TypeInfoPtr&>(valueType) = 0;
@@ -1968,8 +1966,14 @@ IceRuby::DictionaryInfo::destroy()
 //
 // ClassInfo implementation.
 //
-IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
-    compactId(-1), isBase(false), isLocal(loc), interface(false), rubyClass(Qnil), typeObj(Qnil), defined(false)
+IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc)
+    : compactId(-1),
+      isBase(false),
+      isLocal(loc),
+      interface(false),
+      rubyClass(Qnil),
+      typeObj(Qnil),
+      defined(false)
 {
     const_cast<string&>(id) = getString(ident);
     if (isLocal)
@@ -1992,7 +1996,7 @@ IceRuby::ClassInfo::init()
 void
 IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE intf, VALUE b, VALUE m)
 {
-    if(!NIL_P(b))
+    if (!NIL_P(b))
     {
         const_cast<ClassInfoPtr&>(base) = dynamic_pointer_cast<ClassInfo>(getType(b));
         assert(base);
@@ -2014,7 +2018,7 @@ IceRuby::ClassInfo::getId() const
 bool
 IceRuby::ClassInfo::validate(VALUE val)
 {
-    if(NIL_P(val))
+    if (NIL_P(val))
     {
         return true;
     }
@@ -2059,12 +2063,12 @@ IceRuby::ClassInfo::usesClasses() const
 void
 IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, bool)
 {
-    if(!defined)
+    if (!defined)
     {
         throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
 
-    if(NIL_P(p))
+    if (NIL_P(p))
     {
         shared_ptr<Ice::Value> nil;
         os->write(nil);
@@ -2080,7 +2084,7 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
     shared_ptr<Ice::Value> writer;
     assert(valueMap);
     ValueMap::iterator q = valueMap->find(p);
-    if(q == valueMap->end())
+    if (q == valueMap->end())
     {
         writer = make_shared<ValueWriter>(p, valueMap, shared_from_this());
         valueMap->insert(ValueMap::value_type(p, writer));
@@ -2098,21 +2102,18 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
 
 namespace
 {
-
-void
-patchObject(void* addr, const shared_ptr<Ice::Value>& v)
-{
-    ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
-    assert(cb);
-    cb->invoke(v);
-}
-
+    void patchObject(void* addr, const shared_ptr<Ice::Value>& v)
+    {
+        ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
+        assert(cb);
+        cb->invoke(v);
+    }
 }
 
 void
 IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool)
 {
-    if(!defined)
+    if (!defined)
     {
         throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
@@ -2132,20 +2133,20 @@ IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
 void
 IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(NIL_P(value))
+    if (NIL_P(value))
     {
         out << "<nil>";
     }
     else
     {
         map<VALUE, int>::iterator q = history->objects.find(value);
-        if(q != history->objects.end())
+        if (q != history->objects.end())
         {
             out << "<object #" << q->second << ">";
         }
@@ -2171,11 +2172,11 @@ void
 IceRuby::ClassInfo::destroy()
 {
     const_cast<ClassInfoPtr&>(base) = 0;
-    if(!members.empty())
+    if (!members.empty())
     {
         DataMemberList ml = members;
         const_cast<DataMemberList&>(members).clear();
-        for(DataMemberList::iterator p = ml.begin(); p != ml.end(); ++p)
+        for (DataMemberList::iterator p = ml.begin(); p != ml.end(); ++p)
         {
             (*p)->type->destroy();
         }
@@ -2185,18 +2186,18 @@ IceRuby::ClassInfo::destroy()
 void
 IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(base)
+    if (base)
     {
         base->printMembers(value, out, history);
     }
 
     DataMemberList::const_iterator q;
 
-    for(q = members.begin(); q != members.end(); ++q)
+    for (q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
-        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
             out << "<not defined>";
         }
@@ -2207,18 +2208,18 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, Prin
         }
     }
 
-    for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
-        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
             out << "<not defined>";
         }
         else
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-            if(val == Unset)
+            if (val == Unset)
             {
                 out << "<unset>";
             }
@@ -2236,11 +2237,11 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
     //
     // Return true if this class has an is-a relationship with info.
     //
-    if(info->isBase && isLocal == info->isLocal)
+    if (info->isBase && isLocal == info->isLocal)
     {
         return true;
     }
-    else if(this == info.get())
+    else if (this == info.get())
     {
         return true;
     }
@@ -2251,8 +2252,7 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
 //
 // ProxyInfo implementation.
 //
-IceRuby::ProxyInfo::ProxyInfo(VALUE ident) :
-    isBase(false), rubyClass(Qnil), typeObj(Qnil)
+IceRuby::ProxyInfo::ProxyInfo(VALUE ident) : isBase(false), rubyClass(Qnil), typeObj(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
     const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
@@ -2267,7 +2267,7 @@ IceRuby::ProxyInfo::init()
 void
 IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
 {
-    if(!NIL_P(b))
+    if (!NIL_P(b))
     {
         const_cast<ProxyInfoPtr&>(base) = dynamic_pointer_cast<ProxyInfo>(getType(b));
         assert(base);
@@ -2275,7 +2275,7 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
 
     volatile VALUE arr = callRuby(rb_check_array_type, i);
     assert(!NIL_P(arr));
-    for(int n = 0; n < RARRAY_LEN(arr); ++n)
+    for (int n = 0; n < RARRAY_LEN(arr); ++n)
     {
         ProxyInfoPtr iface = dynamic_pointer_cast<ProxyInfo>(getType(RARRAY_AREF(arr, n)));
         assert(iface);
@@ -2294,9 +2294,9 @@ IceRuby::ProxyInfo::getId() const
 bool
 IceRuby::ProxyInfo::validate(VALUE val)
 {
-    if(!NIL_P(val))
+    if (!NIL_P(val))
     {
-        if(!checkProxy(val))
+        if (!checkProxy(val))
         {
             return false;
         }
@@ -2332,7 +2332,7 @@ void
 IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool optional)
 {
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
         sizePos = os->startSize();
     }
@@ -2346,17 +2346,21 @@ IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool opti
     }
     os->write(proxy);
 
-    if(optional)
+    if (optional)
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
-                              void* closure, bool optional)
+IceRuby::ProxyInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
-    if(optional)
+    if (optional)
     {
         is->skip(4);
     }
@@ -2364,13 +2368,13 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
     std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
-    if(!proxy)
+    if (!proxy)
     {
         cb->unmarshaled(Qnil, target, closure);
         return;
     }
 
-    if(NIL_P(rubyClass))
+    if (NIL_P(rubyClass))
     {
         throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
@@ -2382,13 +2386,13 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
 void
 IceRuby::ProxyInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(value))
+    if (!validate(value))
     {
         out << "<invalid value - expected " << getId() << ">";
         return;
     }
 
-    if(NIL_P(value))
+    if (NIL_P(value))
     {
         out << "<nil>";
     }
@@ -2404,23 +2408,23 @@ IceRuby::ProxyInfo::isA(const ProxyInfoPtr& info)
     //
     // Return true if this class has an is-a relationship with info.
     //
-    if(info->isBase)
+    if (info->isBase)
     {
         return true;
     }
-    else if(this == info.get())
+    else if (this == info.get())
     {
         return true;
     }
-    else if(base && base->isA(info))
+    else if (base && base->isA(info))
     {
         return true;
     }
-    else if(!interfaces.empty())
+    else if (!interfaces.empty())
     {
-        for(ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+        for (ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
         {
-            if((*p)->isA(info))
+            if ((*p)->isA(info))
             {
                 return true;
             }
@@ -2440,14 +2444,16 @@ IceRuby::ProxyInfo::destroy()
 //
 // ValueWriter implementation.
 //
-IceRuby::ValueWriter::ValueWriter(VALUE object, ValueMap* valueMap, const ClassInfoPtr& formal) :
-    _object(object), _map(valueMap), _formal(formal)
+IceRuby::ValueWriter::ValueWriter(VALUE object, ValueMap* valueMap, const ClassInfoPtr& formal)
+    : _object(object),
+      _map(valueMap),
+      _formal(formal)
 {
     //
     // Mark the object as in use for the lifetime of this wrapper.
     //
     rb_gc_register_address(&_object);
-    if(!_formal || !_formal->interface)
+    if (!_formal || !_formal->interface)
     {
         volatile VALUE cls = CLASS_OF(object);
         volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
@@ -2457,16 +2463,13 @@ IceRuby::ValueWriter::ValueWriter(VALUE object, ValueMap* valueMap, const ClassI
     }
 }
 
-IceRuby::ValueWriter::~ValueWriter()
-{
-    rb_gc_unregister_address(&_object);
-}
+IceRuby::ValueWriter::~ValueWriter() { rb_gc_unregister_address(&_object); }
 
 void
 IceRuby::ValueWriter::ice_preMarshal()
 {
     ID id = rb_intern("ice_preMarshal");
-    if(callRuby(rb_respond_to, _object, id))
+    if (callRuby(rb_respond_to, _object, id))
     {
         callRuby(rb_funcall, _object, id, 0);
     }
@@ -2481,7 +2484,7 @@ IceRuby::ValueWriter::_iceWrite(Ice::OutputStream* os) const
     Ice::SlicedDataPtr slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ValueMap*>(_map));
 
     os->startValue(slicedData);
-    if(_formal && _formal->interface)
+    if (_formal && _formal->interface)
     {
         ID op = rb_intern("ice_id");
         string id = getString(callRuby(rb_funcall, _object, op, 0));
@@ -2490,10 +2493,10 @@ IceRuby::ValueWriter::_iceWrite(Ice::OutputStream* os) const
     }
     else
     {
-        if(_info->id != "::Ice::UnknownSlicedValue")
+        if (_info->id != "::Ice::UnknownSlicedValue")
         {
             ClassInfoPtr info = _info;
-            while(info)
+            while (info)
             {
                 os->startSlice(info->id, info->compactId, !info->base);
 
@@ -2518,21 +2521,24 @@ IceRuby::ValueWriter::_iceRead(Ice::InputStream*)
 void
 IceRuby::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
 {
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
 
         volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 
-        if(member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        if (member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
 
-        if(!member->type->validate(val))
+        if (!member->type->validate(val))
         {
-            throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", _info->id.c_str(),
-                                member->name.c_str());
+            throw RubyException(
+                rb_eTypeError,
+                "invalid value for %s member `%s'",
+                _info->id.c_str(),
+                member->name.c_str());
         }
 
         member->type->marshal(val, os, _map, member->optional);
@@ -2542,8 +2548,7 @@ IceRuby::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
 //
 // ValueReader implementation.
 //
-IceRuby::ValueReader::ValueReader(VALUE object, const ClassInfoPtr& info) :
-    _object(object), _info(info)
+IceRuby::ValueReader::ValueReader(VALUE object, const ClassInfoPtr& info) : _object(object), _info(info)
 {
     //
     // Mark the object as in use for the lifetime of this wrapper.
@@ -2551,16 +2556,13 @@ IceRuby::ValueReader::ValueReader(VALUE object, const ClassInfoPtr& info) :
     rb_gc_register_address(&_object);
 }
 
-IceRuby::ValueReader::~ValueReader()
-{
-    rb_gc_unregister_address(&_object);
-}
+IceRuby::ValueReader::~ValueReader() { rb_gc_unregister_address(&_object); }
 
 void
 IceRuby::ValueReader::ice_postUnmarshal()
 {
     ID id = rb_intern("ice_postUnmarshal");
-    if(callRuby(rb_respond_to, _object, id))
+    if (callRuby(rb_respond_to, _object, id))
     {
         callRuby(rb_funcall, _object, id, 0);
     }
@@ -2582,16 +2584,16 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
     //
     // Unmarshal the slices of a user-defined class.
     //
-    if(!unknown && _info->id != Ice::Value::ice_staticId())
+    if (!unknown && _info->id != Ice::Value::ice_staticId())
     {
         ClassInfoPtr info = _info;
-        while(info)
+        while (info)
         {
             is->startSlice();
 
             DataMemberList::const_iterator p;
 
-            for(p = info->members.begin(); p != info->members.end(); ++p)
+            for (p = info->members.begin(); p != info->members.end(); ++p)
             {
                 DataMemberPtr member = *p;
                 member->type->unmarshal(is, member, _object, 0, false);
@@ -2600,10 +2602,10 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
             //
             // The optional members have already been sorted by tag.
             //
-            for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
+            for (p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOptional(member->tag, member->type->optionalFormat()))
+                if (is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true);
                 }
@@ -2621,7 +2623,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
 
     _slicedData = is->endValue();
 
-    if(_slicedData)
+    if (_slicedData)
     {
         StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
@@ -2630,7 +2632,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
         //
         // Define the "unknownTypeId" member for an instance of UnknownSlicedValue.
         //
-        if(unknown)
+        if (unknown)
         {
             assert(!_slicedData->slices.empty());
 
@@ -2647,10 +2649,7 @@ IceRuby::ValueReader::getInfo() const
 }
 
 VALUE
-IceRuby::ValueReader::getObject() const
-{
-    return _object;
-}
+IceRuby::ValueReader::getObject() const { return _object; }
 
 Ice::SlicedDataPtr
 IceRuby::ValueReader::getSlicedData() const
@@ -2664,13 +2663,13 @@ IceRuby::ValueReader::getSlicedData() const
 IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
 {
     {
-        for(ProxyInfoMap::iterator p = _proxyInfoMap.begin(); p != _proxyInfoMap.end(); ++p)
+        for (ProxyInfoMap::iterator p = _proxyInfoMap.begin(); p != _proxyInfoMap.end(); ++p)
         {
             p->second->destroy();
         }
     }
     {
-        for(ClassInfoMap::iterator p = _classInfoMap.begin(); p != _classInfoMap.end(); ++p)
+        for (ClassInfoMap::iterator p = _classInfoMap.begin(); p != _classInfoMap.end(); ++p)
         {
             p->second->destroy();
         }
@@ -2682,16 +2681,22 @@ IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
 //
 // ReadValueCallback implementation.
 //
-IceRuby::ReadValueCallback::ReadValueCallback(const ClassInfoPtr& info, const UnmarshalCallbackPtr& cb,
-                                                VALUE target, void* closure) :
-    _info(info), _cb(cb), _target(target), _closure(closure)
+IceRuby::ReadValueCallback::ReadValueCallback(
+    const ClassInfoPtr& info,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure)
+    : _info(info),
+      _cb(cb),
+      _target(target),
+      _closure(closure)
 {
 }
 
 void
 IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
 {
-    if(p)
+    if (p)
     {
         auto reader = dynamic_pointer_cast<ValueReader>(p);
         assert(reader);
@@ -2700,7 +2705,7 @@ IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
         // Verify that the unmarshaled object is compatible with the formal type.
         //
         volatile VALUE obj = reader->getObject();
-        if(!_info->interface && !_info->validate(obj))
+        if (!_info->interface && !_info->validate(obj))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
             ex.reason = "unmarshaled object is not an instance of " + _info->id;
@@ -2729,13 +2734,13 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
     ExceptionInfoPtr info = shared_from_this();
-    while(info)
+    while (info)
     {
         is->startSlice();
 
         DataMemberList::iterator q;
 
-        for(q = info->members.begin(); q != info->members.end(); ++q)
+        for (q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
             member->type->unmarshal(is, member, obj, 0, false);
@@ -2744,10 +2749,10 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
         //
         // The optional members have already been sorted by tag.
         //
-        for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
+        for (q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOptional(member->tag, member->type->optionalFormat()))
+            if (is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, obj, 0, true);
             }
@@ -2768,7 +2773,7 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
 void
 IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
 {
-    if(callRuby(rb_obj_is_kind_of, value, rubyClass) == Qfalse)
+    if (callRuby(rb_obj_is_kind_of, value, rubyClass) == Qfalse)
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -2786,18 +2791,18 @@ IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
 void
 IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(base)
+    if (base)
     {
         base->printMembers(value, out, history);
     }
 
     DataMemberList::const_iterator q;
 
-    for(q = members.begin(); q != members.end(); ++q)
+    for (q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
-        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
             out << "<not defined>";
         }
@@ -2808,18 +2813,18 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
         }
     }
 
-    for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
-        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
             out << "<not defined>";
         }
         else
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
-            if(val == Unset)
+            if (val == Unset)
             {
                 out << "<unset>";
             }
@@ -2834,34 +2839,19 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
 //
 // ExceptionReader implementation.
 //
-IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
-    _info(info)
-{
-}
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) : _info(info) {}
 
-IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) :
-    _info(reader._info),
-    _ex(reader._ex)
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) : _info(reader._info), _ex(reader._ex)
 {
     rb_gc_register_address(&_ex);
 }
 
-IceRuby::ExceptionReader::~ExceptionReader()
-{
-    rb_gc_unregister_address(&_ex);
-}
+IceRuby::ExceptionReader::~ExceptionReader() { rb_gc_unregister_address(&_ex); }
 
 string
 IceRuby::ExceptionReader::ice_id() const
 {
     return _info->id;
-}
-
-Ice::UserException*
-IceRuby::ExceptionReader::ice_cloneImpl() const
-{
-    assert(false);
-    return 0;
 }
 
 void
@@ -2892,13 +2882,9 @@ IceRuby::ExceptionReader::_usesClasses() const
 }
 
 VALUE
-IceRuby::ExceptionReader::getException() const
-{
-    return _ex;
-}
+IceRuby::ExceptionReader::getException() const { return _ex; }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_defineEnum(VALUE /*self*/, VALUE id, VALUE type, VALUE enumerators)
 {
     ICE_RUBY_TRY
@@ -2910,8 +2896,7 @@ IceRuby_defineEnum(VALUE /*self*/, VALUE id, VALUE type, VALUE enumerators)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
 {
     ICE_RUBY_TRY
@@ -2923,8 +2908,7 @@ IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_defineSequence(VALUE /*self*/, VALUE id, VALUE elementType)
 {
     ICE_RUBY_TRY
@@ -2936,8 +2920,7 @@ IceRuby_defineSequence(VALUE /*self*/, VALUE id, VALUE elementType)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_defineDictionary(VALUE /*self*/, VALUE id, VALUE keyType, VALUE valueType)
 {
     ICE_RUBY_TRY
@@ -2949,8 +2932,7 @@ IceRuby_defineDictionary(VALUE /*self*/, VALUE id, VALUE keyType, VALUE valueTyp
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_declareProxy(VALUE /*self*/, VALUE id)
 {
     ICE_RUBY_TRY
@@ -2959,7 +2941,7 @@ IceRuby_declareProxy(VALUE /*self*/, VALUE id)
         proxyId += "Prx";
 
         ProxyInfoPtr info = lookupProxyInfo(proxyId);
-        if(!info)
+        if (!info)
         {
             info = make_shared<ProxyInfo>(id);
             info->init();
@@ -2972,15 +2954,14 @@ IceRuby_declareProxy(VALUE /*self*/, VALUE id)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_declareClass(VALUE /*self*/, VALUE id)
 {
     ICE_RUBY_TRY
     {
         string idstr = getString(id);
         ClassInfoPtr info = lookupClassInfo(idstr);
-        if(!info)
+        if (!info)
         {
             info = make_shared<ClassInfo>(id, false);
             info->init();
@@ -2993,15 +2974,14 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
 {
     ICE_RUBY_TRY
     {
         string idstr = getString(id);
         ClassInfoPtr info = lookupClassInfo(idstr);
-        if(!info)
+        if (!info)
         {
             info = make_shared<ClassInfo>(id, true);
             info->init();
@@ -3014,8 +2994,7 @@ IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
@@ -3023,7 +3002,7 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
         ExceptionInfoPtr info = make_shared<ExceptionInfo>();
         info->id = getString(id);
 
-        if(!NIL_P(base))
+        if (!NIL_P(base))
         {
             info->base = dynamic_pointer_cast<ExceptionInfo>(getException(base));
             assert(info->base);
@@ -3036,9 +3015,9 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
         //
         // Only examine the required members to see if any use classes.
         //
-        for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
+        for (DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
         {
-            if(!info->usesClasses)
+            if (!info->usesClasses)
             {
                 info->usesClasses = (*p)->type->usesClasses();
             }
@@ -3054,8 +3033,7 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE base, VALUE interfaces)
 {
     ICE_RUBY_TRY
@@ -3071,8 +3049,7 @@ IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE base, VALUE interface
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE interface, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
@@ -3082,17 +3059,17 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE inte
 
         info->define(type, compactId, interface, base, members);
 
-        if(info->compactId != -1)
+        if (info->compactId != -1)
         {
             CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
-            if(q != _compactIdMap.end())
+            if (q != _compactIdMap.end())
             {
                 _compactIdMap.erase(q);
             }
             _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
         }
 
-        if(type != Qnil && !info->interface)
+        if (type != Qnil && !info->interface)
         {
             rb_define_const(type, "ICE_TYPE", self);
             rb_define_const(type, "ICE_ID", createString(info->id));
@@ -3102,8 +3079,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE inte
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
 {
     ICE_RUBY_TRY
@@ -3123,8 +3099,7 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_stringifyException(VALUE /*self*/, VALUE exc)
 {
     ICE_RUBY_TRY
@@ -3151,7 +3126,7 @@ IceRuby::ClassInfoPtr
 IceRuby::lookupClassInfo(string_view id)
 {
     ClassInfoMap::iterator p = _classInfoMap.find(id);
-    if(p != _classInfoMap.end())
+    if (p != _classInfoMap.end())
     {
         return p->second;
     }
@@ -3165,7 +3140,7 @@ IceRuby::ExceptionInfoPtr
 IceRuby::lookupExceptionInfo(string_view id)
 {
     ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
-    if(p != _exceptionInfoMap.end())
+    if (p != _exceptionInfoMap.end())
     {
         return p->second;
     }
@@ -3224,8 +3199,7 @@ IceRuby::getType(VALUE obj)
     return *p;
 }
 
-extern "C"
-void
+extern "C" void
 IceRuby_TypeInfo_free(TypeInfoPtr* p)
 {
     delete p;
@@ -3246,8 +3220,7 @@ IceRuby::getException(VALUE obj)
     return *p;
 }
 
-extern "C"
-void
+extern "C" void
 IceRuby_ExceptionInfo_free(ExceptionInfoPtr* p)
 {
     delete p;

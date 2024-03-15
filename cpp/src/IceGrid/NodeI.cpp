@@ -22,173 +22,156 @@ using namespace IceGrid;
 
 namespace
 {
-
-class LogPatcherFeedback : public IcePatch2::PatcherFeedback
-{
-public:
-
-    LogPatcherFeedback(const shared_ptr<TraceLevels>& traceLevels, const string& dest) :
-        _traceLevels(traceLevels),
-        _startedPatch(false),
-        _lastProgress(0),
-        _dest(dest)
+    class LogPatcherFeedback : public IcePatch2::PatcherFeedback
     {
-    }
-
-    void
-    setPatchingPath(const string& path)
-    {
-        _path = path;
-        _startedPatch = false;
-        _lastProgress = 0;
-    }
-
-    virtual bool
-    noFileSummary(const string& reason)
-    {
-        if(_traceLevels->patch > 0)
+    public:
+        LogPatcherFeedback(const shared_ptr<TraceLevels>& traceLevels, const string& dest)
+            : _traceLevels(traceLevels),
+              _startedPatch(false),
+              _lastProgress(0),
+              _dest(dest)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": can't load summary file (will perform a thorough patch):\n" << reason;
         }
-        return true;
-    }
 
-    virtual bool
-    checksumStart()
-    {
-        if(_traceLevels->patch > 0)
+        void setPatchingPath(const string& path)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": started checksum calculation";
+            _path = path;
+            _startedPatch = false;
+            _lastProgress = 0;
         }
-        return true;
-    }
 
-    virtual bool
-    checksumProgress(const string& path)
-    {
-        if(_traceLevels->patch > 2)
+        virtual bool noFileSummary(const string& reason)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": calculating checksum for " << getBasename(path);
-        }
-        return true;
-    }
-
-    virtual bool
-    checksumEnd()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": finished checksum calculation";
-        }
-        return true;
-    }
-
-    virtual bool
-    fileListStart()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": getting list of file to patch";
-        }
-        return true;
-    }
-
-    virtual bool
-    fileListProgress(int32_t /*percent*/)
-    {
-        return true;
-    }
-
-    virtual bool
-    fileListEnd()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": getting list of file to patch completed";
-        }
-        return true;
-    }
-
-    virtual bool
-    patchStart(const string& /*path*/, int64_t /*size*/, int64_t totalProgress, int64_t totalSize)
-    {
-        if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
-        {
-            int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
-            progress /= 5;
-            progress *= 5;
-            if(progress != _lastProgress)
-            {
-                _lastProgress = progress;
-                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                out << _dest << ": downloaded " << progress << "% (" << totalProgress << '/' << totalSize << ')';
-                if(!_path.empty())
-                {
-                    out << " of " << _path;
-                }
-            }
-        }
-        else if(_traceLevels->patch > 0)
-        {
-            if(!_startedPatch)
+            if (_traceLevels->patch > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
-                if(roundedSize == 0 && totalSize > 0)
+                out << _dest << ": can't load summary file (will perform a thorough patch):\n" << reason;
+            }
+            return true;
+        }
+
+        virtual bool checksumStart()
+        {
+            if (_traceLevels->patch > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": started checksum calculation";
+            }
+            return true;
+        }
+
+        virtual bool checksumProgress(const string& path)
+        {
+            if (_traceLevels->patch > 2)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": calculating checksum for " << getBasename(path);
+            }
+            return true;
+        }
+
+        virtual bool checksumEnd()
+        {
+            if (_traceLevels->patch > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": finished checksum calculation";
+            }
+            return true;
+        }
+
+        virtual bool fileListStart()
+        {
+            if (_traceLevels->patch > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": getting list of file to patch";
+            }
+            return true;
+        }
+
+        virtual bool fileListProgress(int32_t /*percent*/) { return true; }
+
+        virtual bool fileListEnd()
+        {
+            if (_traceLevels->patch > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": getting list of file to patch completed";
+            }
+            return true;
+        }
+
+        virtual bool patchStart(const string& /*path*/, int64_t /*size*/, int64_t totalProgress, int64_t totalSize)
+        {
+            if (_traceLevels->patch > 1 && totalSize > (1024 * 1024))
+            {
+                int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
+                progress /= 5;
+                progress *= 5;
+                if (progress != _lastProgress)
                 {
-                    roundedSize = 1;
+                    _lastProgress = progress;
+                    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                    out << _dest << ": downloaded " << progress << "% (" << totalProgress << '/' << totalSize << ')';
+                    if (!_path.empty())
+                    {
+                        out << " of " << _path;
+                    }
                 }
-                out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize
-                    << "KB ";
-                _startedPatch = true;
+            }
+            else if (_traceLevels->patch > 0)
+            {
+                if (!_startedPatch)
+                {
+                    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                    int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
+                    if (roundedSize == 0 && totalSize > 0)
+                    {
+                        roundedSize = 1;
+                    }
+                    out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize
+                        << "KB ";
+                    _startedPatch = true;
+                }
+            }
+
+            return true;
+        }
+
+        virtual bool
+        patchProgress(int64_t /*progress*/, int64_t /*size*/, int64_t /*totalProgress*/, int64_t /*totalSize*/)
+        {
+            return true;
+        }
+
+        virtual bool patchEnd() { return true; }
+
+        void finishPatch()
+        {
+            if (_traceLevels->patch > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": downloading completed";
             }
         }
 
-        return true;
-    }
-
-    virtual bool
-    patchProgress(int64_t /*progress*/, int64_t /*size*/, int64_t /*totalProgress*/, int64_t /*totalSize*/)
-    {
-        return true;
-    }
-
-    virtual bool
-    patchEnd()
-    {
-        return true;
-    }
-
-    void
-    finishPatch()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": downloading completed";
-        }
-    }
-
-private:
-
-    const shared_ptr<TraceLevels> _traceLevels;
-    bool _startedPatch;
-    int _lastProgress;
-    string _path;
-    string _dest;
-};
-
+    private:
+        const shared_ptr<TraceLevels> _traceLevels;
+        bool _startedPatch;
+        int _lastProgress;
+        string _path;
+        string _dest;
+    };
 }
 
-NodeI::Update::Update(UpdateFunction updateFunction, const shared_ptr<NodeI>& node,
-                      const NodeObserverPrxPtr& observer) : _func(std::move(updateFunction)),
-                                                                     _node(node), _observer(observer)
+NodeI::Update::Update(
+    UpdateFunction updateFunction,
+    const shared_ptr<NodeI>& node,
+    const optional<NodeObserverPrx>& observer)
+    : _func(std::move(updateFunction)),
+      _node(node),
+      _observer(observer)
 {
 }
 
@@ -198,43 +181,45 @@ NodeI::Update::send()
     auto self = shared_from_this();
     try
     {
-        _func([self] { self->_node->dequeueUpdate(self->_observer, self, false); },
-              [self](exception_ptr) { self->_node->dequeueUpdate(self->_observer, self, true); });
+        _func(
+            [self] { self->_node->dequeueUpdate(self->_observer, self, false); },
+            [self](exception_ptr) { self->_node->dequeueUpdate(self->_observer, self, true); });
 
         return true;
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         return false;
     }
 }
 
-NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
-             NodeSessionManager& sessions,
-             const shared_ptr<Activator>& activator,
-             const IceUtil::TimerPtr& timer,
-             const shared_ptr<TraceLevels>& traceLevels,
-             const NodePrxPtr& proxy,
-             const string& name,
-             const UserAccountMapperPrxPtr& mapper,
-             const string& instanceName) :
-    _communicator(adapter->getCommunicator()),
-    _adapter(adapter),
-    _sessions(sessions),
-    _activator(activator),
-    _timer(timer),
-    _traceLevels(traceLevels),
-    _name(name),
-    _proxy(proxy),
-    _redirectErrToOut(false),
-    _allowEndpointsOverride(false),
-    _waitTime(0),
-    _instanceName(instanceName),
-    _userAccountMapper(mapper),
-    _platform("IceGrid.Node", _communicator, _traceLevels),
-    _fileCache(make_shared<FileCache>(_communicator)),
-    _serial(1),
-    _consistencyCheckDone(false)
+NodeI::NodeI(
+    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    NodeSessionManager& sessions,
+    const shared_ptr<Activator>& activator,
+    const IceUtil::TimerPtr& timer,
+    const shared_ptr<TraceLevels>& traceLevels,
+    NodePrx proxy,
+    const string& name,
+    const optional<UserAccountMapperPrx>& mapper,
+    const string& instanceName)
+    : _communicator(adapter->getCommunicator()),
+      _adapter(adapter),
+      _sessions(sessions),
+      _activator(activator),
+      _timer(timer),
+      _traceLevels(traceLevels),
+      _name(name),
+      _proxy(std::move(proxy)),
+      _redirectErrToOut(false),
+      _allowEndpointsOverride(false),
+      _waitTime(0),
+      _instanceName(instanceName),
+      _userAccountMapper(mapper),
+      _platform("IceGrid.Node", _communicator, _traceLevels),
+      _fileCache(make_shared<FileCache>(_communicator)),
+      _serial(1),
+      _consistencyCheckDone(false)
 {
     auto props = _communicator->getProperties();
 
@@ -250,11 +235,11 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
     // Parse the properties override property.
     //
     vector<string> overrides = props->getPropertyAsList("IceGrid.Node.PropertiesOverride");
-    if(!overrides.empty())
+    if (!overrides.empty())
     {
-        for(vector<string>::iterator p = overrides.begin(); p != overrides.end(); ++p)
+        for (vector<string>::iterator p = overrides.begin(); p != overrides.end(); ++p)
         {
-            if(p->find("--") != 0)
+            if (p->find("--") != 0)
             {
                 *p = "--" + *p;
             }
@@ -263,66 +248,108 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
         auto p = Ice::createProperties();
         p->parseCommandLineOptions("", overrides);
         auto propDict = p->getPropertiesForPrefix("");
-        for(const auto& prop : propDict)
+        for (const auto& prop : propDict)
         {
-            _propertiesOverride.push_back({ prop.first, prop.second });
+            _propertiesOverride.push_back({prop.first, prop.second});
         }
     }
 }
 
 void
-NodeI::loadServerAsync(shared_ptr<InternalServerDescriptor> descriptor, string replicaName,
-                       function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
-                       function<void(exception_ptr)> exception, const Ice::Current& current)
+NodeI::loadServerAsync(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    loadServer(std::move(descriptor), std::move(replicaName), false, std::move(response), std::move(exception), current);
+    loadServer(
+        std::move(descriptor),
+        std::move(replicaName),
+        false,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
-NodeI::loadServerWithoutRestartAsync(shared_ptr<InternalServerDescriptor> descriptor,
-                                     string replicaName,
-                                     function<void(const ServerPrxPtr&,
-                                                   const AdapterPrxDict&, int, int)> response,
-                                     function<void(exception_ptr)> exception,
-                                    const Ice::Current& current)
+NodeI::loadServerWithoutRestartAsync(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     loadServer(std::move(descriptor), std::move(replicaName), true, std::move(response), std::move(exception), current);
 }
 
 void
-NodeI::destroyServerAsync(string serverId, string uuid, int revision, string replicaName,
-                          function<void()> response, function<void(exception_ptr)> exception,
-                          const Ice::Current& current)
+NodeI::destroyServerAsync(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    destroyServer(std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), false,
-                  std::move(response), std::move(exception), current);
+    destroyServer(
+        std::move(serverId),
+        std::move(uuid),
+        std::move(revision),
+        std::move(replicaName),
+        false,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
-NodeI::destroyServerWithoutRestartAsync(string serverId, string uuid, int revision, string replicaName,
-                                        function<void()> response, function<void(exception_ptr)> exception,
-                                        const Ice::Current& current)
+NodeI::destroyServerWithoutRestartAsync(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    destroyServer(std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), true,
-                  std::move(response), std::move(exception), current);
+    destroyServer(
+        std::move(serverId),
+        std::move(uuid),
+        std::move(revision),
+        std::move(replicaName),
+        true,
+        std::move(response),
+        std::move(exception),
+        current);
 }
 
 void
 NodeI::patchAsync(
-    PatcherFeedbackPrxPtr feedback,
+    optional<PatcherFeedbackPrx> feedback,
     std::string application,
     std::string server,
     std::shared_ptr<InternalDistributionDescriptor> appDistrib,
     bool shutdown,
     std::function<void()> response,
-    std::function<void(exception_ptr)>,
-    const Ice::Current&)
+    std::function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
+    try
+    {
+        Ice::checkNotNull(feedback, __FILE__, __LINE__, current);
+    }
+    catch (...)
+    {
+        exception(current_exception());
+        return;
+    }
     response();
 
     {
         unique_lock lock(_serversMutex);
-        while(_patchInProgress.find(application) != _patchInProgress.end())
+        while (_patchInProgress.find(application) != _patchInProgress.end())
         {
             _condVar.wait(lock);
         }
@@ -331,7 +358,7 @@ NodeI::patchAsync(
 
     set<shared_ptr<ServerI>> servers;
     bool patchApplication = !appDistrib->icepatch.empty();
-    if(server.empty())
+    if (server.empty())
     {
         //
         // Patch all the servers from the application.
@@ -345,13 +372,13 @@ NodeI::patchAsync(
         {
             svr = dynamic_pointer_cast<ServerI>(_adapter->find(createServerIdentity(server)));
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
         }
 
-        if(svr)
+        if (svr)
         {
-            if(appDistrib->icepatch.empty() || !svr->dependsOnApplicationDistrib())
+            if (appDistrib->icepatch.empty() || !svr->dependsOnApplicationDistrib())
             {
                 //
                 // Don't patch the application if the server doesn't
@@ -372,13 +399,13 @@ NodeI::patchAsync(
         }
     }
 
-    for(set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end();)
+    for (set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end();)
     {
-        if(!appDistrib->icepatch.empty() && (*s)->dependsOnApplicationDistrib())
+        if (!appDistrib->icepatch.empty() && (*s)->dependsOnApplicationDistrib())
         {
             ++s;
         }
-        else if((*s)->getDistribution() && (server.empty() || server == (*s)->getId()))
+        else if ((*s)->getDistribution() && (server.empty() || server == (*s)->getId()))
         {
             ++s;
         }
@@ -393,16 +420,16 @@ NodeI::patchAsync(
     }
 
     string failure;
-    if(!servers.empty())
+    if (!servers.empty())
     {
         try
         {
             vector<string> running;
-            for(set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end();)
+            for (set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end();)
             {
                 try
                 {
-                    if(!(*s)->startPatch(shutdown))
+                    if (!(*s)->startPatch(shutdown))
                     {
                         running.push_back((*s)->getId());
                         servers.erase(s++);
@@ -412,15 +439,15 @@ NodeI::patchAsync(
                         ++s;
                     }
                 }
-                catch(const Ice::ObjectNotExistException&)
+                catch (const Ice::ObjectNotExistException&)
                 {
                     servers.erase(s++);
                 }
             }
 
-            if(!running.empty())
+            if (!running.empty())
             {
-                if(running.size() == 1)
+                if (running.size() == 1)
                 {
                     throw runtime_error("server `" + toString(running) + "' is active");
                 }
@@ -438,7 +465,7 @@ NodeI::patchAsync(
             //
             // Patch the application.
             //
-            if(patchApplication)
+            if (patchApplication)
             {
                 assert(!appDistrib->icepatch.empty());
                 FileServerPrx icepatch(_communicator, appDistrib->icepatch);
@@ -448,27 +475,27 @@ NodeI::patchAsync(
             //
             // Patch the server(s).
             //
-            for(set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end(); ++s)
+            for (set<shared_ptr<ServerI>>::iterator s = servers.begin(); s != servers.end(); ++s)
             {
                 InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
-                if(dist && (server.empty() || (*s)->getId() == server))
+                if (dist && (server.empty() || (*s)->getId() == server))
                 {
                     FileServerPrx icepatch(_communicator, dist->icepatch);
                     patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
 
-                    if(!server.empty())
+                    if (!server.empty())
                     {
                         break; // No need to continue.
                     }
                 }
             }
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             failure = ex.what();
         }
 
-        for(set<shared_ptr<ServerI>>::const_iterator s = servers.begin(); s != servers.end(); ++s)
+        for (set<shared_ptr<ServerI>>::const_iterator s = servers.begin(); s != servers.end(); ++s)
         {
             (*s)->finishPatch();
         }
@@ -482,7 +509,7 @@ NodeI::patchAsync(
 
     try
     {
-        if(failure.empty())
+        if (failure.empty())
         {
             feedback->finished();
         }
@@ -491,33 +518,36 @@ NodeI::patchAsync(
             feedback->failed(failure);
         }
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
 }
 
 void
-NodeI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::registerWithReplica(std::optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.create(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.create(std::move(*replica));
 }
 
 void
-NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current&)
+NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current& current)
 {
-    _sessions.replicaInit(std::move(replicas));
+    _sessions.replicaInit(std::move(replicas), current);
 }
 
 void
-NodeI::replicaAdded(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::replicaAdded(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.replicaAdded(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.replicaAdded(std::move(*replica));
 }
 
 void
-NodeI::replicaRemoved(InternalRegistryPrxPtr replica, const Ice::Current&)
+NodeI::replicaRemoved(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
-    _sessions.replicaRemoved(std::move(replica));
+    Ice::checkNotNull(replica, __FILE__, __LINE__, current);
+    _sessions.replicaRemoved(std::move(*replica));
 }
 
 std::string
@@ -557,8 +587,7 @@ NodeI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 }
 
 bool
-NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
-            const Ice::Current&) const
+NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
@@ -567,9 +596,9 @@ void
 NodeI::shutdown()
 {
     lock_guard lock(_serversMutex);
-    for(const auto& servers : _serversByApplication)
+    for (const auto& servers : _serversByApplication)
     {
-        for(const auto& server : servers.second)
+        for (const auto& server : servers.second)
         {
             server->shutdown();
         }
@@ -607,7 +636,7 @@ NodeI::getTraceLevels() const
     return _traceLevels;
 }
 
-UserAccountMapperPrxPtr
+optional<UserAccountMapperPrx>
 NodeI::getUserAccountMapper() const
 {
     return _userAccountMapper;
@@ -625,7 +654,7 @@ NodeI::getFileCache() const
     return _fileCache;
 }
 
-NodePrxPtr
+NodePrx
 NodeI::getProxy() const
 {
     return _proxy;
@@ -661,20 +690,20 @@ NodeI::allowEndpointsOverride() const
     return _allowEndpointsOverride;
 }
 
-NodeSessionPrxPtr
-NodeI::registerWithRegistry(const InternalRegistryPrxPtr& registry)
+optional<NodeSessionPrx>
+NodeI::registerWithRegistry(const InternalRegistryPrx& registry)
 {
     return registry->registerNode(_platform.getInternalNodeInfo(), _proxy, _platform.getLoadInfo());
 }
 
 void
-NodeI::checkConsistency(const NodeSessionPrxPtr& session)
+NodeI::checkConsistency(const NodeSessionPrx& session)
 {
     //
     // Only do the consistency check on the startup. This ensures that servers can't
     // be removed by a bogus master when the master session is re-established.
     //
-    if(_consistencyCheckDone)
+    if (_consistencyCheckDone)
     {
         return;
     }
@@ -693,11 +722,11 @@ NodeI::checkConsistency(const NodeSessionPrxPtr& session)
     unsigned long serial = 0;
     Ice::StringSeq servers;
     vector<shared_ptr<ServerCommand>> commands;
-    while(true)
+    while (true)
     {
         {
             lock_guard lock(_mutex);
-            if(serial == _serial)
+            if (serial == _serial)
             {
                 _serial = 1; // We can reset the serial number.
                 commands = checkConsistencyNoSync(servers);
@@ -705,57 +734,58 @@ NodeI::checkConsistency(const NodeSessionPrxPtr& session)
             }
             serial = _serial;
         }
-        assert(session);
+
         try
         {
             servers = session->getServers();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             return; // The connection with the session was lost.
         }
         sort(servers.begin(), servers.end());
     }
 
-    for(const auto& command : commands)
+    for (const auto& command : commands)
     {
         command->execute();
     }
 }
 
 void
-NodeI::addObserver(const NodeSessionPrxPtr& session, const NodeObserverPrxPtr& observer)
+NodeI::addObserver(NodeSessionPrx session, NodeObserverPrx observer)
 {
     lock_guard observerLock(_observerMutex);
     assert(_observers.find(session) == _observers.end());
-    _observers.insert({ session, observer });
+    _observers.insert({std::move(session), observer});
 
     _observerUpdates.erase(observer); // Remove any updates from the previous session.
 
     ServerDynamicInfoSeq serverInfos;
     AdapterDynamicInfoSeq adapterInfos;
-    for(const auto& info : _serversDynamicInfo)
+    for (const auto& info : _serversDynamicInfo)
     {
-        assert(info.second.state != ServerState::Destroyed &&
-               (info.second.state != ServerState::Inactive || !info.second.enabled));
+        assert(
+            info.second.state != ServerState::Destroyed &&
+            (info.second.state != ServerState::Inactive || !info.second.enabled));
         serverInfos.push_back(info.second);
     }
 
-    for(const auto& info : _adaptersDynamicInfo)
+    for (const auto& info : _adaptersDynamicInfo)
     {
         assert(info.second.proxy);
         adapterInfos.push_back(info.second);
     }
 
-    NodeDynamicInfo info = { _platform.getNodeInfo(),  std::move(serverInfos),  std::move(adapterInfos) };
-    queueUpdate(observer, [observer, info = std::move(info)] (auto&& response, auto&& exception)
-        {
-            observer->nodeUpAsync(info, std::move(response), std::move(exception));
-        });
+    NodeDynamicInfo info = {_platform.getNodeInfo(), std::move(serverInfos), std::move(adapterInfos)};
+    queueUpdate(
+        observer,
+        [observer, info = std::move(info)](auto&& response, auto&& exception)
+        { observer->nodeUpAsync(info, std::move(response), std::move(exception)); });
 }
 
 void
-NodeI::removeObserver(const NodeSessionPrxPtr& session)
+NodeI::removeObserver(const NodeSessionPrx& session)
 {
     lock_guard observerLock(_observerMutex);
     _observers.erase(session);
@@ -766,7 +796,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
 {
     lock_guard observerLock(_observerMutex);
 
-    if(info.state == ServerState::Destroyed || (info.state == ServerState::Inactive && info.enabled))
+    if (info.state == ServerState::Destroyed || (info.state == ServerState::Inactive && info.enabled))
     {
         _serversDynamicInfo.erase(info.id);
     }
@@ -781,18 +811,15 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
     // registered twice if a replica is removed and added right away
     // after).
     //
-    set<NodeObserverPrxPtr> sent;
-    for(const auto& observer : _observers)
+    set<optional<NodeObserverPrx>> sent;
+    for (const auto& observer : _observers)
     {
-        if(sent.find(observer.second) == sent.end())
+        if (sent.find(observer.second) == sent.end())
         {
-
-            queueUpdate(observer.second,
-                        [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response,
-                                                                                              auto&& exception)
-                {
-                    observer->updateServerAsync(name, info, std::move(response), std::move(exception));
-                });
+            queueUpdate(
+                observer.second,
+                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                { observer->updateServerAsync(name, info, std::move(response), std::move(exception)); });
 
             sent.insert(observer.second);
         }
@@ -804,7 +831,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
 {
     lock_guard observerLock(_observerMutex);
 
-    if(info.proxy)
+    if (info.proxy)
     {
         _adaptersDynamicInfo[info.id] = info;
     }
@@ -819,32 +846,29 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
     // registered twice if a replica is removed and added right away
     // after).
     //
-    set<NodeObserverPrxPtr> sent;
-    for(const auto& observer : _observers)
+    set<optional<NodeObserverPrx>> sent;
+    for (const auto& observer : _observers)
     {
-        if(sent.find(observer.second) == sent.end())
+        if (sent.find(observer.second) == sent.end())
         {
-            queueUpdate(observer.second,
-                        [observer = observer.second, info, name = getName(Ice::emptyCurrent)] (
-                            auto&& response,
-                            auto&& exception)
-                {
-                    observer->updateAdapterAsync(name, info, std::move(response), std::move(exception));
-                });
+            queueUpdate(
+                observer.second,
+                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                { observer->updateAdapterAsync(name, info, std::move(response), std::move(exception)); });
             sent.insert(observer.second);
         }
     }
 }
 
 void
-NodeI::queueUpdate(const NodeObserverPrxPtr& proxy, Update::UpdateFunction updateFunction)
+NodeI::queueUpdate(const optional<NodeObserverPrx>& proxy, Update::UpdateFunction updateFunction)
 {
     // Must be called with mutex locked
     auto update = make_shared<Update>(std::move(updateFunction), shared_from_this(), proxy);
     auto p = _observerUpdates.find(proxy);
-    if(p == _observerUpdates.end())
+    if (p == _observerUpdates.end())
     {
-        if(update->send())
+        if (update->send())
         {
             _observerUpdates[proxy].push_back(update);
         }
@@ -856,23 +880,23 @@ NodeI::queueUpdate(const NodeObserverPrxPtr& proxy, Update::UpdateFunction updat
 }
 
 void
-NodeI::dequeueUpdate(const NodeObserverPrxPtr& proxy, const shared_ptr<Update>& update, bool all)
+NodeI::dequeueUpdate(const optional<NodeObserverPrx>& proxy, const shared_ptr<Update>& update, bool all)
 {
     lock_guard observerLock(_observerMutex);
     auto p = _observerUpdates.find(proxy);
-    if(p == _observerUpdates.end() || p->second.front().get() != update.get())
+    if (p == _observerUpdates.end() || p->second.front().get() != update.get())
     {
         return;
     }
 
     p->second.pop_front();
 
-    if(all || (!p->second.empty() && !p->second.front()->send()))
+    if (all || (!p->second.empty() && !p->second.front()->send()))
     {
         p->second.clear();
     }
 
-    if(p->second.empty())
+    if (p->second.empty())
     {
         _observerUpdates.erase(p);
     }
@@ -883,9 +907,9 @@ NodeI::addServer(const shared_ptr<ServerI>& server, const string& application)
 {
     lock_guard serversLock(_serversMutex);
     auto p = _serversByApplication.find(application);
-    if(p == _serversByApplication.end())
+    if (p == _serversByApplication.end())
     {
-        p = _serversByApplication.insert(p, { application, {} });
+        p = _serversByApplication.insert(p, {application, {}});
     }
     p->second.insert(server);
 }
@@ -895,21 +919,21 @@ NodeI::removeServer(const shared_ptr<ServerI>& server, const std::string& applic
 {
     lock_guard serversLock(_serversMutex);
     auto p = _serversByApplication.find(application);
-    if(p != _serversByApplication.end())
+    if (p != _serversByApplication.end())
     {
         p->second.erase(server);
-        if(p->second.empty())
+        if (p->second.empty())
         {
             _serversByApplication.erase(p);
 
             string appDir = _dataDir + "/distrib/" + application;
-            if(IceUtilInternal::directoryExists(appDir))
+            if (IceUtilInternal::directoryExists(appDir))
             {
                 try
                 {
                     IcePatch2Internal::removeRecursive(appDir);
                 }
-                catch(const exception& ex)
+                catch (const exception& ex)
                 {
                     Ice::Warning out(_traceLevels->logger);
                     out << "removing application directory `" << appDir << "' failed:\n" << ex.what();
@@ -922,7 +946,7 @@ NodeI::removeServer(const shared_ptr<ServerI>& server, const std::string& applic
 Ice::Identity
 NodeI::createServerIdentity(const string& name) const
 {
-    return { name, _instanceName + "-Server" };
+    return {name, _instanceName + "-Server"};
 }
 
 string
@@ -945,7 +969,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     {
         contents = readDirectory(_serversDir);
     }
-    catch(const exception& ex)
+    catch (const exception& ex)
     {
         Ice::Error out(_traceLevels->logger);
         out << "couldn't read directory `" << _serversDir << "':\n" << ex.what();
@@ -961,10 +985,10 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     try
     {
         auto p = remove.begin();
-        while(p != remove.end())
+        while (p != remove.end())
         {
             auto server = dynamic_pointer_cast<ServerI>(_adapter->find(createServerIdentity(*p)));
-            if(server)
+            if (server)
             {
                 //
                 // If the server is loaded, we invoke on it to destroy it.
@@ -972,19 +996,19 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                 try
                 {
                     auto command = server->destroy("", 0, "Master", false, nullptr);
-                    if(command)
+                    if (command)
                     {
                         commands.push_back(command);
                     }
                     p = remove.erase(p);
                     continue;
                 }
-                catch(const Ice::LocalException& ex)
+                catch (const Ice::LocalException& ex)
                 {
                     Ice::Error out(_traceLevels->logger);
                     out << "server `" << *p << "' destroy failed:\n" << ex;
                 }
-                catch(const exception&)
+                catch (const exception&)
                 {
                     assert(false);
                 }
@@ -992,7 +1016,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 
             try
             {
-                if(canRemoveServerDirectory(*p))
+                if (canRemoveServerDirectory(*p))
                 {
                     //
                     // If the server directory can be removed and we
@@ -1003,7 +1027,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                     continue;
                 }
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
                 out << "removing server directory `" << _serversDir << "/" << *p << "' failed:\n" << ex.what();
@@ -1013,7 +1037,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
             ++p;
         }
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         //
         // Just return the server commands, we'll finish the
@@ -1022,7 +1046,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
         return commands;
     }
 
-    if(!remove.empty())
+    if (!remove.empty())
     {
         Ice::Warning out(_traceLevels->logger);
         out << "server directories containing data not created or written by IceGrid were not removed:\n";
@@ -1031,7 +1055,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     return commands;
 }
 
-NodeSessionPrxPtr
+optional<NodeSessionPrx>
 NodeI::getMasterNodeSession() const
 {
     return _sessions.getMasterNodeSession();
@@ -1050,68 +1074,68 @@ NodeI::canRemoveServerDirectory(const string& name)
     contents.erase("revision");
     contents.erase("data");
     Ice::StringSeq serviceDataDirs;
-    for(set<string>::const_iterator p = contents.begin(); p != contents.end(); ++p)
+    for (set<string>::const_iterator p = contents.begin(); p != contents.end(); ++p)
     {
-        if(p->find("data_") != 0)
+        if (p->find("data_") != 0)
         {
             return false;
         }
         serviceDataDirs.push_back(*p);
     }
-    if(!contents.empty())
+    if (!contents.empty())
     {
         return false;
     }
 
     c = readDirectory(_serversDir + "/" + name + "/config");
-    for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
+    for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
     {
-        if(p->find("config") != 0)
+        if (p->find("config") != 0)
         {
             return false;
         }
     }
 
-    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
+    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
     {
         c = readDirectory(_serversDir + "/" + name + "/dbs");
-        for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
+        for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
         {
             try
             {
                 Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
                 files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
                 files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
-                if(!files.empty())
+                if (!files.empty())
                 {
                     return false;
                 }
             }
-            catch(const exception&)
+            catch (const exception&)
             {
                 return false;
             }
         }
     }
 
-    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
+    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
     {
-        if(!readDirectory(_serversDir + "/" + name + "/data").empty())
+        if (!readDirectory(_serversDir + "/" + name + "/data").empty())
         {
             return false;
         }
     }
 
-    for(Ice::StringSeq::const_iterator p = serviceDataDirs.begin(); p != serviceDataDirs.end(); ++p)
+    for (Ice::StringSeq::const_iterator p = serviceDataDirs.begin(); p != serviceDataDirs.end(); ++p)
     {
         try
         {
-            if(!readDirectory(_serversDir + "/" + name + "/" + *p).empty())
+            if (!readDirectory(_serversDir + "/" + name + "/" + *p).empty())
             {
                 return false;
             }
         }
-        catch(const exception&)
+        catch (const exception&)
         {
             return false;
         }
@@ -1163,7 +1187,7 @@ NodeI::getApplicationServers(const string& application) const
     lock_guard lock(_serversMutex);
     set<shared_ptr<ServerI>> servers;
     auto p = _serversByApplication.find(application);
-    if(p != _serversByApplication.end())
+    if (p != _serversByApplication.end())
     {
         servers = p->second;
     }
@@ -1174,18 +1198,18 @@ string
 NodeI::getFilePath(const string& filename) const
 {
     string file;
-    if(filename == "stderr")
+    if (filename == "stderr")
     {
         file = _communicator->getProperties()->getProperty("Ice.StdErr");
-        if(file.empty())
+        if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdErr configuration property is not set");
         }
     }
-    else if(filename == "stdout")
+    else if (filename == "stdout")
     {
         file = _communicator->getProperties()->getProperty("Ice.StdOut");
-        if(file.empty())
+        if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdOut configuration property is not set");
         }
@@ -1198,48 +1222,47 @@ NodeI::getFilePath(const string& filename) const
 }
 
 void
-NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor, string replicaName, bool noRestart,
-                  function<void(const ServerPrxPtr &, const AdapterPrxDict &, int, int)>&& response,
-                  function<void(exception_ptr)>&& exception,
-                  const Ice::Current& current)
+NodeI::loadServer(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    bool noRestart,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&& response,
+    function<void(exception_ptr)>&& exception,
+    const Ice::Current& current)
 {
     shared_ptr<ServerCommand> command;
     {
         lock_guard lock(_mutex);
         ++_serial;
 
-       auto id = createServerIdentity(descriptor->id);
+        auto id = createServerIdentity(descriptor->id);
 
-        //
-        // Check if we already have a servant for this server. If that's
-        // the case, the server is already loaded and we just need to
-        // update it.
-        //
-        while(true)
+        // Check if we already have a servant for this server. If that's the case, the server is already loaded and we
+        // just need to update it.
+        while (true)
         {
             bool added = false;
             shared_ptr<ServerI> server;
             try
             {
                 server = dynamic_pointer_cast<ServerI>(_adapter->find(id));
-                if(!server)
+                if (!server)
                 {
-                    auto proxy = Ice::uncheckedCast<ServerPrx>(_adapter->createProxy(id));
-                    server = make_shared<ServerI>(shared_from_this(), proxy, _serversDir, descriptor->id, _waitTime);
+                    server = make_shared<ServerI>(
+                        shared_from_this(),
+                        ServerPrx(_adapter->createProxy(id)),
+                        _serversDir,
+                        descriptor->id,
+                        _waitTime);
                     _adapter->add(server, id);
                     added = true;
                 }
             }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDeactivatedException&)
             {
-                //
-                // We throw an object not exist exception to avoid
-                // dispatch warnings. The registry will consider the
-                // node has being unreachable upon receival of this
-                // exception (like any other Ice::LocalException). We
-                // could also have disabled dispatch warnings but they
-                // can still useful to catch other issues.
-                //
+                // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
+                // node has being unreachable upon receival of this exception (like any other Ice::LocalException). We
+                // could also have disabled dispatch warnings but they can still useful to catch other issues.
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
             }
 
@@ -1248,20 +1271,20 @@ NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor, string replic
                 // Don't std::move response/exception as we may need to loop and call again load.
                 command = server->load(descriptor, replicaName, noRestart, response, exception);
             }
-            catch(const Ice::ObjectNotExistException&)
+            catch (const Ice::ObjectNotExistException&)
             {
                 assert(!added);
                 continue;
             }
-            catch(const Ice::Exception&)
+            catch (const Ice::Exception&)
             {
-                if(added)
+                if (added)
                 {
                     try
                     {
                         _adapter->remove(id);
                     }
-                    catch(const Ice::ObjectAdapterDeactivatedException&)
+                    catch (const Ice::ObjectAdapterDeactivatedException&)
                     {
                         // IGNORE
                     }
@@ -1271,17 +1294,22 @@ NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor, string replic
             break;
         }
     }
-    if(command)
+    if (command)
     {
         command->execute();
     }
 }
 
 void
-NodeI::destroyServer(string serverId, string uuid, int revision, string replicaName, bool noRestart,
-                    function<void()> response,
-                    function<void(exception_ptr)>,
-                     const Ice::Current& current)
+NodeI::destroyServer(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    bool noRestart,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -1293,39 +1321,32 @@ NodeI::destroyServer(string serverId, string uuid, int revision, string replicaN
         {
             server = dynamic_pointer_cast<ServerI>(_adapter->find(createServerIdentity(serverId)));
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
-            //
-            // We throw an object not exist exception to avoid
-            // dispatch warnings. The registry will consider the node
-            // has being unreachable upon receipt of this exception
-            // (like any other Ice::LocalException). We could also
-            // have disabled dispatch warnings but they can still
-            // useful to catch other issues.
-            //
+            // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
+            // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also
+            // have disabled dispatch warnings but they can still useful to catch other issues.
             throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
         }
 
-        if(!server)
+        if (!server)
         {
             server = make_shared<ServerI>(shared_from_this(), nullopt, _serversDir, serverId, _waitTime);
         }
 
-        //
         // Destroy the server object if it's loaded.
-        //
         try
         {
             // Don't std::move response as we may need to call it if there is an exception
             command = server->destroy(uuid, revision, replicaName, noRestart, response);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             response();
             return;
         }
     }
-    if(command)
+    if (command)
     {
         command->execute();
     }

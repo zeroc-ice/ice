@@ -9,15 +9,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-RetryException::RetryException(exception_ptr ex)
-{
-    _ex = ex;
-}
+RetryException::RetryException(exception_ptr ex) { _ex = ex; }
 
-RetryException::RetryException(const RetryException& ex)
-{
-    _ex = ex.get();
-}
+RetryException::RetryException(const RetryException& ex) { _ex = ex.get(); }
 
 exception_ptr
 RetryException::get() const
@@ -25,8 +19,8 @@ RetryException::get() const
     return _ex;
 }
 
-RequestHandler::RequestHandler(const ReferencePtr& reference) :
-    _reference(reference),
-    _response(reference->getMode() == Reference::ModeTwoway)
+RequestHandler::RequestHandler(const ReferencePtr& reference)
+    : _reference(reference),
+      _response(reference->getMode() == Reference::ModeTwoway)
 {
 }

@@ -81,30 +81,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_CollocationOptimizationException;
-    class CollocationOptimizationException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::CollocationOptimizationException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_CollocationOptimizationException;
-            return IcePHP_stringifyException($this, $Ice__t_CollocationOptimizationException);
-        }
-    }
-
-    $Ice__t_CollocationOptimizationException = IcePHP_defineException('::Ice::CollocationOptimizationException', '\\Ice\\CollocationOptimizationException', null, null);
-}
-
-namespace Ice
-{
     global $Ice__t_AlreadyRegisteredException;
     class AlreadyRegisteredException extends \Ice\LocalException
     {
@@ -1786,27 +1762,4 @@ namespace Ice
     $Ice__t_FixedProxyException = IcePHP_defineException('::Ice::FixedProxyException', '\\Ice\\FixedProxyException', null, null);
 }
 
-namespace Ice
-{
-    global $Ice__t_ResponseSentException;
-    class ResponseSentException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::ResponseSentException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_ResponseSentException;
-            return IcePHP_stringifyException($this, $Ice__t_ResponseSentException);
-        }
-    }
-
-    $Ice__t_ResponseSentException = IcePHP_defineException('::Ice::ResponseSentException', '\\Ice\\ResponseSentException', null, null);
-}
 ?>

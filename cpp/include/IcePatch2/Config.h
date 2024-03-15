@@ -10,11 +10,11 @@
 //
 
 #if !defined(ICE_BUILDING_ICE_PATCH2) && defined(ICEPATCH2_API_EXPORTS)
-#   define ICE_BUILDING_ICE_PATCH2
+#    define ICE_BUILDING_ICE_PATCH2
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_PATCH2)
-#   pragma comment(lib, ICE_LIBNAME("IcePatch2"))
+#    pragma comment(lib, ICE_LIBNAME("IcePatch2"))
 #endif
 
 #endif

@@ -13,23 +13,26 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance>instance,
-                                         shared_ptr<FilterManager> filters,
-                                         const Ice::Context& sslContext,
-                                         shared_ptr<RoutingTable>routingTable):
+Glacier2::ClientBlobject::ClientBlobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<FilterManager> filters,
+    const Ice::Context& sslContext,
+    shared_ptr<RoutingTable> routingTable)
+    :
 
-    Glacier2::Blobject(std::move(instance), nullptr, sslContext),
-    _routingTable(std::move(routingTable)),
-    _filters(std::move(filters)),
-    _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+      Glacier2::Blobject(std::move(instance), nullptr, sslContext),
+      _routingTable(std::move(routingTable)),
+      _filters(std::move(filters)),
+      _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
 
 void
-Glacier2::ClientBlobject::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
-                                          function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                          function<void(exception_ptr)> error,
-                                          const Current& current)
+Glacier2::ClientBlobject::ice_invokeAsync(
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     bool matched = false;
     bool hasFilters = false;
@@ -37,44 +40,42 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> i
 
     Ice::checkIdentity(current.id, __FILE__, __LINE__);
 
-    if(!_filters->categories()->empty())
+    if (!_filters->categories()->empty())
     {
         hasFilters = true;
-        if(_filters->categories()->match(current.id.category))
+        if (_filters->categories()->match(current.id.category))
         {
             matched = true;
         }
-        else if(_rejectTraceLevel >= 1)
+        else if (_rejectTraceLevel >= 1)
         {
-            if(rejectedFilters.size() != 0)
+            if (rejectedFilters.size() != 0)
             {
                 rejectedFilters += ", ";
-
             }
             rejectedFilters += "category filter";
         }
     }
 
-    if(!_filters->identities()->empty())
+    if (!_filters->identities()->empty())
     {
         hasFilters = true;
-        if(_filters->identities()->match(current.id))
+        if (_filters->identities()->match(current.id))
         {
             matched = true;
         }
-        else if(_rejectTraceLevel >= 1)
+        else if (_rejectTraceLevel >= 1)
         {
-            if(rejectedFilters.size() != 0)
+            if (rejectedFilters.size() != 0)
             {
                 rejectedFilters += ", ";
-
             }
             rejectedFilters += "identity filter";
         }
     }
 
     auto proxy = _routingTable->get(current.id);
-    if(!proxy)
+    if (!proxy)
     {
         //
         // We use a special operation name indicate to the client that
@@ -87,27 +88,26 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> i
 
     string adapterId = proxy->ice_getAdapterId();
 
-    if(!adapterId.empty() && !_filters->adapterIds()->empty())
+    if (!adapterId.empty() && !_filters->adapterIds()->empty())
     {
         hasFilters = true;
-        if(_filters->adapterIds()->match(adapterId))
+        if (_filters->adapterIds()->match(adapterId))
         {
             matched = true;
         }
-        else if(_rejectTraceLevel >= 1)
+        else if (_rejectTraceLevel >= 1)
         {
-            if(rejectedFilters.size() != 0)
+            if (rejectedFilters.size() != 0)
             {
                 rejectedFilters += ", ";
-
             }
             rejectedFilters += "adapter id filter";
         }
     }
 
-    if(hasFilters && !matched)
+    if (hasFilters && !matched)
     {
-        if(_rejectTraceLevel >= 1)
+        if (_rejectTraceLevel >= 1)
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "rejecting request: " << rejectedFilters << "\n";

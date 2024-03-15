@@ -9,15 +9,15 @@
 
 // Surpress various warnings emitted from including the PHP headers
 #if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wconversion"
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#   pragma clang diagnostic ignored "-Wdocumentation"
-#   pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic ignored "-Wconversion"
+#    pragma clang diagnostic ignored "-Wsign-conversion"
+#    pragma clang diagnostic ignored "-Wdocumentation"
+#    pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
-#   pragma GCC diagnostic warning "-Wsign-compare"
-#   pragma GCC diagnostic warning "-Wnarrowing"
-#   pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#   pragma GCC diagnostic ignored "-Wredundant-decls"
+#    pragma GCC diagnostic warning "-Wsign-compare"
+#    pragma GCC diagnostic warning "-Wnarrowing"
+#    pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#    pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
 // The php.h header defines/undefines NDEBUG based on how the PHP binary was built. As a result, asserts are always
@@ -25,7 +25,7 @@
 // extension when it's built without OPTIMIZE=yes. We save NDEBUG in a tmp macro here and explicitly re-include the
 // assert.h header with the saved NDEBUG macro after including php.h
 #ifndef NDEBUG
-#   define TMPDEBUG
+#    define TMPDEBUG
 #endif
 
 #include "php.h"
@@ -37,9 +37,9 @@
 // Enable asserts if the extension is built with debug. It's fine to include several times assert.h with a different
 // NDEBUG setting.
 #ifdef TMPDEBUG
-#   undef TMPDEBUG
-#   undef NDEBUG
-#   include <assert.h>
+#    undef TMPDEBUG
+#    undef NDEBUG
+#    include <assert.h>
 #endif
 
 extern zend_module_entry ice_module_entry;
@@ -47,7 +47,7 @@ extern zend_module_entry ice_module_entry;
 
 #ifdef ZTS
 //  If building for thread-safe enviroment, include the Thread Safe Resource Manager.
-#   include "TSRM.h"
+#    include "TSRM.h"
 #endif
 
 ZEND_MINIT_FUNCTION(ice);
@@ -57,13 +57,13 @@ ZEND_RSHUTDOWN_FUNCTION(ice);
 ZEND_MINFO_FUNCTION(ice);
 
 ZEND_BEGIN_MODULE_GLOBALS(ice)
-    void* communicatorMap;
-    void* idToClassInfoMap;
-    void* compactIdToClassInfoMap;
-    void* nameToClassInfoMap;
-    void* proxyInfoMap;
-    void* exceptionInfoMap;
-    zval* unset;
+void* communicatorMap;
+void* idToClassInfoMap;
+void* compactIdToClassInfoMap;
+void* nameToClassInfoMap;
+void* proxyInfoMap;
+void* exceptionInfoMap;
+zval* unset;
 ZEND_END_MODULE_GLOBALS(ice)
 
 // A void arginfo used for methods which do not take parameters.
@@ -81,20 +81,20 @@ ZEND_END_ARG_INFO()
 #endif
 
 #ifdef ZTS
-#   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
+#    define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
-#   define ICE_G(v) (ice_globals.v)
+#    define ICE_G(v) (ice_globals.v)
 #endif
 
 #ifndef Z_ADDREF_P
-#   ifndef ZVAL_ADDREF
-#       error "Unknown PHP version"
-#   endif
-#   define Z_ADDREF_P(zv) ZVAL_ADDREF(zv)
+#    ifndef ZVAL_ADDREF
+#        error "Unknown PHP version"
+#    endif
+#    define Z_ADDREF_P(zv) ZVAL_ADDREF(zv)
 #endif
 
 #ifndef ZEND_MN
-#   define ZEND_MN(name) ZEND_FN(name)
+#    define ZEND_MN(name) ZEND_FN(name)
 #endif
 
 #endif

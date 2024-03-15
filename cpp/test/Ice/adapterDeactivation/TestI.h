@@ -10,7 +10,6 @@
 class TestI : public Test::TestIntf
 {
 public:
-
     virtual void transient(const Ice::Current&);
     virtual void deactivate(const Ice::Current&);
 };
@@ -18,7 +17,6 @@ public:
 class Cookie
 {
 public:
-
     std::string message() const;
 };
 

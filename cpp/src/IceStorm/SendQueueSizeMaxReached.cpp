@@ -6,12 +6,16 @@
 
 #include "SendQueueSizeMaxReached.h"
 
-IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached()
+using namespace std;
+
+string
+IceStorm::SendQueueSizeMaxReached::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
 std::string_view
-IceStorm::SendQueueSizeMaxReached::ice_staticId()
+IceStorm::SendQueueSizeMaxReached::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::IceStorm::SendQueueSizeMaxReached";
     return typeId;

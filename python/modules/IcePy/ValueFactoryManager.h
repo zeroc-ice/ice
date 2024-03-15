@@ -12,85 +12,77 @@
 
 namespace IcePy
 {
+    extern PyTypeObject ValueFactoryManagerType;
 
-extern PyTypeObject ValueFactoryManagerType;
+    bool initValueFactoryManager(PyObject*);
 
-bool initValueFactoryManager(PyObject*);
+    class FactoryWrapper final : public Ice::ValueFactory
+    {
+    public:
+        FactoryWrapper(PyObject*);
+        ~FactoryWrapper();
 
-class FactoryWrapper final : public Ice::ValueFactory
-{
-public:
+        std::shared_ptr<Ice::Value> create(std::string_view) final;
 
-    FactoryWrapper(PyObject*);
-    ~FactoryWrapper();
+        PyObject* getValueFactory() const;
+        void destroy();
 
-    std::shared_ptr<Ice::Value> create(std::string_view) final;
+    protected:
+        PyObject* _valueFactory;
+    };
 
-    PyObject* getValueFactory() const;
-    void destroy();
+    using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
-protected:
+    class DefaultValueFactory final : public Ice::ValueFactory
+    {
+    public:
+        std::shared_ptr<Ice::Value> create(std::string_view) final;
 
-    PyObject* _valueFactory;
-};
+        void setDelegate(const Ice::ValueFactoryPtr&);
+        Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
 
-using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
+        PyObject* getValueFactory() const;
 
-class DefaultValueFactory final : public Ice::ValueFactory
-{
-public:
+        void destroy();
 
-    std::shared_ptr<Ice::Value> create(std::string_view) final;
+    private:
+        Ice::ValueFactoryPtr _delegate;
+    };
 
-    void setDelegate(const Ice::ValueFactoryPtr&);
-    Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
+    using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
-    PyObject* getValueFactory() const;
+    class ValueFactoryManager final : public Ice::ValueFactoryManager
+    {
+    public:
+        static std::shared_ptr<ValueFactoryManager> create();
 
-    void destroy();
+        ~ValueFactoryManager();
 
-private:
+        void add(Ice::ValueFactoryFunc, std::string_view) final;
+        void add(Ice::ValueFactoryPtr, std::string_view) final;
+        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
-    Ice::ValueFactoryPtr _delegate;
-};
+        void add(PyObject*, std::string_view);
+        PyObject* findValueFactory(std::string_view) const;
 
-using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
+        PyObject* getObject() const;
 
-class ValueFactoryManager final : public Ice::ValueFactoryManager
-{
-public:
+        void destroy();
 
-    static std::shared_ptr<ValueFactoryManager> create();
+    private:
+        typedef std::map<std::string, Ice::ValueFactoryPtr, std::less<>> FactoryMap;
 
-    ~ValueFactoryManager();
+        ValueFactoryManager();
+        Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
 
-    void add(Ice::ValueFactoryFunc, std::string_view) final;
-    void add(Ice::ValueFactoryPtr, std::string_view) final;
-    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+        PyObject* _self;
+        FactoryMap _factories;
+        DefaultValueFactoryPtr _defaultFactory;
 
-    void add(PyObject*, std::string_view);
-    PyObject* findValueFactory(std::string_view) const;
+        mutable std::mutex _mutex;
+    };
 
-    PyObject* getObject() const;
-
-    void destroy();
-
-private:
-
-    typedef std::map<std::string, Ice::ValueFactoryPtr, std::less<>> FactoryMap;
-
-    ValueFactoryManager();
-    Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
-
-    PyObject* _self;
-    FactoryMap _factories;
-    DefaultValueFactoryPtr _defaultFactory;
-
-    mutable std::mutex _mutex;
-};
-
-using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
-
+    using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 }
 
 #endif

@@ -27,21 +27,20 @@ MetricsI::opWithUserExceptionAsync(function<void()>, function<void(exception_ptr
     {
         throw Test::UserEx();
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
 }
 
 void
-MetricsI::opWithRequestFailedExceptionAsync(function<void()>, function<void(exception_ptr)> error,
-                                             const Ice::Current&)
+MetricsI::opWithRequestFailedExceptionAsync(function<void()>, function<void(exception_ptr)> error, const Ice::Current&)
 {
     try
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -54,7 +53,7 @@ MetricsI::opWithLocalExceptionAsync(function<void()>, function<void(exception_pt
     {
         throw Ice::SyscallException(__FILE__, __LINE__);
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -84,9 +83,7 @@ MetricsI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-{
-}
+ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
 void
 ControllerI::hold(const Ice::Current&)

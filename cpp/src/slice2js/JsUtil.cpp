@@ -12,20 +12,20 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#   include <direct.h>
+#    include <direct.h>
 #else
-#   include <unistd.h>
+#    include <unistd.h>
 #endif
 
 // TODO: fix this warning!
 #if defined(_MSC_VER)
-#   pragma warning(disable:4456) // shadow
-#   pragma warning(disable:4457) // shadow
-#   pragma warning(disable:4459) // shadow
+#    pragma warning(disable : 4456) // shadow
+#    pragma warning(disable : 4457) // shadow
+#    pragma warning(disable : 4459) // shadow
 #elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 using namespace std;
@@ -51,7 +51,7 @@ Slice::relativePath(const string& p1, const string& p2)
     vector<string>::const_iterator i1 = tokens1.begin();
     vector<string>::const_iterator i2 = tokens2.begin();
 
-    while(i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
+    while (i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
     {
         i1++;
         i2++;
@@ -60,13 +60,13 @@ Slice::relativePath(const string& p1, const string& p2)
     //
     // Different volumes, relative path not possible.
     //
-    if(i1 == tokens1.begin() && i2 == tokens2.begin())
+    if (i1 == tokens1.begin() && i2 == tokens2.begin())
     {
         return p1;
     }
 
     string newPath;
-    if(i2 == tokens2.end())
+    if (i2 == tokens2.end())
     {
         newPath += "./";
         for (; i1 != tokens1.end(); ++i1)
@@ -76,12 +76,12 @@ Slice::relativePath(const string& p1, const string& p2)
     }
     else
     {
-        for(vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
+        for (vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
         {
             newPath += "../";
         }
 
-        for(; i1 != tokens1.end(); ++i1)
+        for (; i1 != tokens1.end(); ++i1)
         {
             newPath += *i1 + "/";
         }
@@ -97,19 +97,19 @@ lookupKwd(const string& name)
     //
     // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const string keywordList[] =
-    {
-        "await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do",
-        "else", "enum", "export", "extends", "false", "finally", "for", "function", "if", "implements", "import",
-        "in", "instanceof", "interface", "let", "new", "null", "package", "private", "protected", "public", "return",
-        "static", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with",
-        "yield"
-    };
-    bool found = binary_search(&keywordList[0],
-                               &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                               name,
-                               Slice::CICompare());
-    if(found)
+    static const string keywordList[] = {
+        "await",     "break",  "case",     "catch",  "class",      "const",   "continue",  "debugger",
+        "default",   "delete", "do",       "else",   "enum",       "export",  "extends",   "false",
+        "finally",   "for",    "function", "if",     "implements", "import",  "in",        "instanceof",
+        "interface", "let",    "new",      "null",   "package",    "private", "protected", "public",
+        "return",    "static", "super",    "switch", "this",       "throw",   "true",      "try",
+        "typeof",    "var",    "void",     "while",  "with",       "yield"};
+    bool found = binary_search(
+        &keywordList[0],
+        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+        name,
+        Slice::CICompare());
+    if (found)
     {
         return "_" + name;
     }
@@ -121,7 +121,7 @@ static vector<string>
 fixIds(const vector<string>& ids)
 {
     vector<string> newIds;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
         newIds.push_back(lookupKwd(*i));
     }
@@ -133,7 +133,7 @@ Slice::JsGenerator::getDefinedIn(const ContainedPtr& p)
 {
     static const string prefix = "js:defined-in:";
     string definedIn;
-    if(findMetaData(prefix, p->getMetaData(), definedIn))
+    if (findMetaData(prefix, p->getMetaData(), definedIn))
     {
         string base = p->definitionContext()->filename();
         string::size_type pos = base.find_last_of("/\\");
@@ -147,23 +147,22 @@ Slice::JsGenerator::getDefinedIn(const ContainedPtr& p)
 string
 Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
 {
-    static const char* builtinModuleTable[] =
-    {
-        "",           // byte
-        "",           // bool
-        "",           // short
-        "",           // int
-        "ice",        // long
-        "",           // float
-        "",           // double
-        "",           // string
-        "ice",        // Ice.Value
-        "ice",        // Ice.ObjectPrx
-        "ice"         // Ice.Object
+    static const char* builtinModuleTable[] = {
+        "",    // byte
+        "",    // bool
+        "",    // short
+        "",    // int
+        "ice", // long
+        "",    // float
+        "",    // double
+        "",    // string
+        "ice", // Ice.Value
+        "ice", // Ice.ObjectPrx
+        "ice"  // Ice.Object
     };
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
         return builtinModuleTable[builtin->kind()];
     }
@@ -189,7 +188,7 @@ Slice::JsGenerator::isClassType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
-        dynamic_pointer_cast<ClassDecl>(type);
+           dynamic_pointer_cast<ClassDecl>(type);
 }
 
 //
@@ -201,11 +200,11 @@ Slice::JsGenerator::isClassType(const TypePtr& type)
 string
 Slice::JsGenerator::fixId(const string& name)
 {
-    if(name.empty())
+    if (name.empty())
     {
         return name;
     }
-    if(name[0] != ':')
+    if (name[0] != ':')
     {
         return lookupKwd(name);
     }
@@ -214,9 +213,9 @@ Slice::JsGenerator::fixId(const string& name)
     const vector<string> newIds = fixIds(ids);
 
     stringstream result;
-    for(vector<string>::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
+    for (vector<string>::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
     {
-        if(j != newIds.begin())
+        if (j != newIds.begin())
         {
             result << '.';
         }
@@ -232,26 +231,27 @@ Slice::JsGenerator::fixId(const ContainedPtr& cont)
 }
 
 string
-Slice::JsGenerator::importPrefix(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string> >& imports)
+Slice::JsGenerator::importPrefix(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
         return typeToString(type, toplevel, imports, true);
     }
-    else if(dynamic_pointer_cast<InterfaceDecl>(type))
+    else if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
         InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
         return importPrefix(dynamic_pointer_cast<Contained>(proxy), toplevel, imports);
     }
-    else if(dynamic_pointer_cast<Contained>(type))
+    else if (dynamic_pointer_cast<Contained>(type))
     {
         ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        if(cl)
+        if (cl)
         {
-            if(cl->definition())
+            if (cl->definition())
             {
                 return importPrefix(dynamic_pointer_cast<Contained>(cl->definition()), toplevel, imports);
             }
@@ -269,17 +269,18 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
 }
 
 string
-Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string> >& imports,
-                                 const string& definedIn)
+Slice::JsGenerator::importPrefix(
+    const ContainedPtr& contained,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports,
+    const string& definedIn)
 {
     string m1 = getModuleMetadata(contained);
     string m2 = getModuleMetadata(toplevel);
 
     string p;
 
-    if(m1.empty())
+    if (m1.empty())
     {
         string p1 = definedIn.empty() ? contained->definitionContext()->filename() : definedIn;
         string p2 = toplevel->definitionContext()->filename();
@@ -292,20 +293,20 @@ Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
             p.erase(pos);
         }
     }
-    else if(m1 == "ice" && m1 != m2)
+    else if (m1 == "ice" && m1 != m2)
     {
         return "iceNS0.";
     }
-    else if(m1 != m2)
+    else if (m1 != m2)
     {
         p = m1;
     }
 
-    if(!p.empty())
+    if (!p.empty())
     {
-        for(vector<pair<string, string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        for (vector<pair<string, string>>::const_iterator i = imports.begin(); i != imports.end(); ++i)
         {
-            if(i->first == p)
+            if (i->first == p)
             {
                 return i->second + ".";
             }
@@ -318,10 +319,10 @@ Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
 bool
 Slice::JsGenerator::findMetaData(const string& prefix, const StringList& metaData, string& value)
 {
-    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    for (StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
     {
         string s = *i;
-        if(s.find(prefix) == 0)
+        if (s.find(prefix) == 0)
         {
             value = s.substr(prefix.size());
             return true;
@@ -340,13 +341,13 @@ Slice::JsGenerator::importPrefix(const string& type, const ContainedPtr& topleve
 string
 Slice::JsGenerator::getUnqualified(const string& type, const string& scope, const string& importPrefix)
 {
-    if(importPrefix.empty())
+    if (importPrefix.empty())
     {
         const string localScope = getLocalScope(scope) + ".";
-        if(type.find(localScope) == 0)
+        if (type.find(localScope) == 0)
         {
             string t = type.substr(localScope.size());
-            if(t.find(".") == string::npos)
+            if (t.find(".") == string::npos)
             {
                 return t;
             }
@@ -356,55 +357,52 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string> >& imports,
-                                 bool typescript,
-                                 bool definition)
+Slice::JsGenerator::typeToString(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports,
+    bool typescript,
+    bool definition)
 {
-    if(!type)
+    if (!type)
     {
         return "void";
     }
 
-    static const char* typeScriptBuiltinTable[] =
-    {
-        "number",           // byte
-        "boolean",          // bool
-        "number",           // short
-        "number",           // int
-        "Ice.Long",         // long
-        "number",           // float
-        "number",           // double
+    static const char* typeScriptBuiltinTable[] = {
+        "number",   // byte
+        "boolean",  // bool
+        "number",   // short
+        "number",   // int
+        "Ice.Long", // long
+        "number",   // float
+        "number",   // double
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.Value"
-    };
+        "Ice.Value"};
 
-    static const char* javaScriptBuiltinTable[] =
-    {
-        "Number",           // byte
-        "Boolean",          // bool
-        "Number",           // short
-        "Number",           // int
-        "Ice.Long",         // long
-        "Number",           // float
-        "Number",           // double
+    static const char* javaScriptBuiltinTable[] = {
+        "Number",   // byte
+        "Boolean",  // bool
+        "Number",   // short
+        "Number",   // int
+        "Ice.Long", // long
+        "Number",   // float
+        "Number",   // double
         "String",
         "Ice.Value",
         "Ice.ObjectPrx",
-        "Ice.Value"
-    };
+        "Ice.Value"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        if(typescript)
+        if (typescript)
         {
             int kind = (builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
             ostringstream os;
-            if(getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
+            if (getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
             {
                 os << "iceNS0.";
             }
@@ -418,13 +416,13 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
         string prefix;
         ostringstream os;
-        if(typescript)
+        if (typescript)
         {
-            if(cl->definition())
+            if (cl->definition())
             {
                 prefix = importPrefix(dynamic_pointer_cast<Contained>(cl->definition()), toplevel, imports);
             }
@@ -434,7 +432,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             }
         }
         os << prefix;
-        if(!prefix.empty() && typescript)
+        if (!prefix.empty() && typescript)
         {
             os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
         }
@@ -446,18 +444,18 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
+    if (proxy)
     {
         ostringstream os;
 
         string prefix;
-        if(typescript)
+        if (typescript)
         {
             prefix = importPrefix(dynamic_pointer_cast<Contained>(proxy), toplevel, imports);
             os << prefix;
         }
 
-        if(prefix.empty() && typescript)
+        if (prefix.empty() && typescript)
         {
             os << getUnqualified(fixId(proxy->scoped() + "Prx"), toplevel->scope(), prefix);
         }
@@ -469,7 +467,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return os.str();
     }
 
-    if(!typescript || definition)
+    if (!typescript || definition)
     {
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
@@ -486,7 +484,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         }
 
         DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-        if(d)
+        if (d)
         {
             const TypePtr keyType = d->keyType();
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(keyType);
@@ -503,26 +501,25 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
 
             if (typescript)
             {
-                os << "<"
-                    << typeToString(keyType, toplevel, imports, true) << ", "
-                    << typeToString(d->valueType(), toplevel, imports, true) << ">";
+                os << "<" << typeToString(keyType, toplevel, imports, true) << ", "
+                   << typeToString(d->valueType(), toplevel, imports, true) << ">";
             }
             return os.str();
         }
     }
 
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-    if(contained)
+    if (contained)
     {
         ostringstream os;
         string prefix;
-        if(typescript)
+        if (typescript)
         {
             prefix = importPrefix(contained, toplevel, imports);
             os << prefix;
         }
 
-        if(prefix.empty() && typescript)
+        if (prefix.empty() && typescript)
         {
             os << getUnqualified(fixId(contained->scoped()), toplevel->scope(), prefix);
         }
@@ -537,15 +534,16 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const std::vector<std::pair<std::string, std::string> >& imports,
-                                 bool typeScript,
-                                 bool definition,
-                                 bool usealias)
+Slice::JsGenerator::typeToString(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const std::vector<std::pair<std::string, std::string>>& imports,
+    bool typeScript,
+    bool definition,
+    bool usealias)
 {
     string t = typeToString(type, toplevel, imports, typeScript, definition);
-    if(usealias)
+    if (usealias)
     {
         string m1 = getModuleMetadata(type);
         string m2 = getModuleMetadata(toplevel);
@@ -561,10 +559,10 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         // name prefix
         //
         string::size_type i = t.find(".");
-        if(p.empty() && i != string::npos)
+        if (p.empty() && i != string::npos)
         {
             const string scoped = fixId(toplevel->scoped()) + ".";
-            if(scoped.find("." + t.substr(0, i + 1)) != string::npos)
+            if (scoped.find("." + t.substr(0, i + 1)) != string::npos)
             {
                 replace(t.begin(), t.end(), '.', '_');
                 t = "iceA_" + t;
@@ -583,7 +581,7 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
     // Remove trailing "::" if present.
     //
     string fixedScope;
-    if(scope[scope.size() - 1] == ':')
+    if (scope[scope.size() - 1] == ':')
     {
         assert(scope[scope.size() - 2] == ':');
         fixedScope = scope.substr(0, scope.size() - 2);
@@ -593,7 +591,7 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
         fixedScope = scope;
     }
 
-    if(fixedScope.empty())
+    if (fixedScope.empty())
     {
         return "";
     }
@@ -603,9 +601,9 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
     // Return local scope for "::A::B::C" as A.B.C
     //
     stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
-        if(i != ids.begin())
+        if (i != ids.begin())
         {
             result << separator;
         }
@@ -615,21 +613,18 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
 }
 
 void
-Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
-                                              const TypePtr& type,
-                                              const string& param,
-                                              bool marshal)
+Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
 {
     string stream = marshal ? "ostr" : "istr";
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindByte:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeByte(" << param << ");";
                 }
@@ -641,7 +636,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindBool:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeBool(" << param << ");";
                 }
@@ -653,7 +648,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindShort:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeShort(" << param << ");";
                 }
@@ -665,7 +660,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindInt:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeInt(" << param << ");";
                 }
@@ -677,7 +672,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindLong:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeLong(" << param << ");";
                 }
@@ -689,7 +684,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindFloat:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeFloat(" << param << ");";
                 }
@@ -701,7 +696,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindDouble:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeDouble(" << param << ");";
                 }
@@ -713,7 +708,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindString:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeString(" << param << ");";
                 }
@@ -731,7 +726,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindObjectProxy:
             {
-                if(marshal)
+                if (marshal)
                 {
                     out << nl << stream << ".writeProxy(" << param << ");";
                 }
@@ -744,9 +739,9 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
     }
 
-    if(dynamic_pointer_cast<Enum>(type))
+    if (dynamic_pointer_cast<Enum>(type))
     {
-        if(marshal)
+        if (marshal)
         {
             out << nl << typeToString(type) << "._write(" << stream << ", " << param << ");";
         }
@@ -757,9 +752,9 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Struct>(type))
+    if (dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Struct>(type))
     {
-        if(marshal)
+        if (marshal)
         {
             out << nl << typeToString(type) << ".write(" << stream << ", " << param << ");";
         }
@@ -770,9 +765,9 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(isClassType(type))
+    if (isClassType(type))
     {
-        if(marshal)
+        if (marshal)
         {
             out << nl << stream << ".writeValue(" << param << ");";
         }
@@ -784,11 +779,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+    if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
-        if(marshal)
+        if (marshal)
         {
-            out << nl << getHelper(type) <<".write(" << stream << ", " << param << ");";
+            out << nl << getHelper(type) << ".write(" << stream << ", " << param << ");";
         }
         else
         {
@@ -801,17 +796,18 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
 }
 
 void
-Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
-                                                      const TypePtr& type,
-                                                      const string& param,
-                                                      int tag,
-                                                      bool marshal)
+Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
+    Output& out,
+    const TypePtr& type,
+    const string& param,
+    int tag,
+    bool marshal)
 {
     string stream = marshal ? "ostr" : "istr";
 
-    if(isClassType(type))
+    if (isClassType(type))
     {
-        if(marshal)
+        if (marshal)
         {
             out << nl << stream << ".writeOptionalValue(" << tag << ", " << param << ");";
         }
@@ -823,11 +819,11 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(dynamic_pointer_cast<Enum>(type))
+    if (dynamic_pointer_cast<Enum>(type))
     {
-        if(marshal)
+        if (marshal)
         {
-            out << nl << typeToString(type) <<"._writeOpt(" << stream << ", " << tag << ", " << param << ");";
+            out << nl << typeToString(type) << "._writeOpt(" << stream << ", " << tag << ", " << param << ");";
         }
         else
         {
@@ -836,9 +832,9 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(marshal)
+    if (marshal)
     {
-        out << nl << getHelper(type) <<".writeOptional(" << stream << ", " << tag << ", " << param << ");";
+        out << nl << getHelper(type) << ".writeOptional(" << stream << ", " << tag << ", " << param << ");";
     }
     else
     {
@@ -850,9 +846,9 @@ std::string
 Slice::JsGenerator::getHelper(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindByte:
             {
@@ -898,30 +894,30 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
         }
     }
 
-    if(dynamic_pointer_cast<Enum>(type))
+    if (dynamic_pointer_cast<Enum>(type))
     {
         return typeToString(type) + "._helper";
     }
 
-    if(dynamic_pointer_cast<Struct>(type))
+    if (dynamic_pointer_cast<Struct>(type))
     {
         return typeToString(type);
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(prx)
+    if (prx)
     {
         return typeToString(type);
     }
 
-    if(dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+    if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
         stringstream s;
         s << getLocalScope(dynamic_pointer_cast<Contained>(type)->scoped()) << "Helper";
         return s.str();
     }
 
-    if(dynamic_pointer_cast<ClassDecl>(type))
+    if (dynamic_pointer_cast<ClassDecl>(type))
     {
         return "Ice.ObjectHelper";
     }

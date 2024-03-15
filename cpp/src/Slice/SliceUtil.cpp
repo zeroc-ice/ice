@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #ifndef _MSC_VER
-#  include <unistd.h> // For readlink()
+#    include <unistd.h> // For readlink()
 #endif
 
 using namespace std;
@@ -22,64 +22,61 @@ using namespace IceUtilInternal;
 
 namespace
 {
+    string normalizePath(const string& path)
+    {
+        string result = path;
 
-string
-normalizePath(const string& path)
-{
-    string result = path;
+        replace(result.begin(), result.end(), '\\', '/');
 
-    replace(result.begin(), result.end(), '\\', '/');
-
-    string::size_type startReplace = 0;
+        string::size_type startReplace = 0;
 #ifdef _WIN32
-    //
-    // For UNC paths we need to ensure they are in the format that is
-    // returned by MCPP. IE. "//MACHINE/PATH"
-    //
-    if(result.find("//") == 0)
-    {
-        startReplace = 2;
-    }
+        //
+        // For UNC paths we need to ensure they are in the format that is
+        // returned by MCPP. IE. "//MACHINE/PATH"
+        //
+        if (result.find("//") == 0)
+        {
+            startReplace = 2;
+        }
 #endif
-    string::size_type pos;
-    while((pos = result.find("//", startReplace)) != string::npos)
-    {
-        result.replace(pos, 2, "/");
-    }
-    pos = 0;
-    while((pos = result.find("/./", pos)) != string::npos)
-    {
-        result.erase(pos, 2);
-    }
-    pos = 0;
-    while((pos = result.find("/..", pos)) != string::npos)
-    {
-        string::size_type last = result.find_last_of("/", pos - 1);
-        if(last != string::npos && result.substr(last, 4) != "/../")
+        string::size_type pos;
+        while ((pos = result.find("//", startReplace)) != string::npos)
         {
-            result.erase(last, pos - last + 3);
-            pos = last;
+            result.replace(pos, 2, "/");
         }
-        else
+        pos = 0;
+        while ((pos = result.find("/./", pos)) != string::npos)
         {
-            ++pos;
+            result.erase(pos, 2);
         }
-    }
+        pos = 0;
+        while ((pos = result.find("/..", pos)) != string::npos)
+        {
+            string::size_type last = result.find_last_of("/", pos - 1);
+            if (last != string::npos && result.substr(last, 4) != "/../")
+            {
+                result.erase(last, pos - last + 3);
+                pos = last;
+            }
+            else
+            {
+                ++pos;
+            }
+        }
 
-    if(result.size() > 1) // Remove trailing "/" or "/."
-    {
-        if(result[result.size() - 1] == '/')
+        if (result.size() > 1) // Remove trailing "/" or "/."
         {
-            result.erase(result.size() - 1);
+            if (result[result.size() - 1] == '/')
+            {
+                result.erase(result.size() - 1);
+            }
+            else if (result[result.size() - 2] == '/' && result[result.size() - 1] == '.')
+            {
+                result.erase(result.size() - (result.size() == 2 ? 1 : 2));
+            }
         }
-        else if(result[result.size() - 2] == '/' && result[result.size() - 1] == '.')
-        {
-            result.erase(result.size() - (result.size() == 2 ? 1 : 2));
-        }
+        return result;
     }
-    return result;
-}
-
 }
 
 string
@@ -98,10 +95,10 @@ Slice::fullPath(const string& path)
     //
 
     string result = path;
-    if(!IceUtilInternal::isAbsolutePath(result))
+    if (!IceUtilInternal::isAbsolutePath(result))
     {
         string cwd;
-        if(IceUtilInternal::getcwd(cwd) == 0)
+        if (IceUtilInternal::getcwd(cwd) == 0)
         {
             result = string(cwd) + '/' + result;
         }
@@ -119,7 +116,7 @@ Slice::fullPath(const string& path)
     {
         string subpath;
         next = result.find('/', beg + 1);
-        if(next == string::npos)
+        if (next == string::npos)
         {
             subpath = result;
         }
@@ -130,11 +127,11 @@ Slice::fullPath(const string& path)
 
         char buf[PATH_MAX + 1];
         int len = static_cast<int>(readlink(subpath.c_str(), buf, sizeof(buf)));
-        if(len > 0)
+        if (len > 0)
         {
             buf[len] = '\0';
             string linkpath = buf;
-            if(!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
+            if (!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
             {
                 string::size_type pos = subpath.rfind('/');
                 assert(pos != string::npos);
@@ -148,8 +145,7 @@ Slice::fullPath(const string& path)
         {
             beg = next;
         }
-    }
-    while(next != string::npos);
+    } while (next != string::npos);
     return result;
 #endif
 }
@@ -170,19 +166,19 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     // path
     //
     string canonicalPath = fullPath(path);
-    if(canonicalPath != path)
+    if (canonicalPath != path)
     {
         paths.push_back(canonicalPath);
     }
 
-    for(vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
+    for (vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
-        for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
+        for (vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
         {
-            if(i->compare(0, j->length(), *j) == 0)
+            if (i->compare(0, j->length(), *j) == 0)
             {
                 string s = i->substr(j->length() + 1); // + 1 for the '/'
-                if(s.size() < result.size())
+                if (s.size() < result.size())
                 {
                     result = s;
                 }
@@ -193,7 +189,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         // If the path has been already shortened no need to test
         // with canonical path.
         //
-        if(result != path)
+        if (result != path)
         {
             break;
         }
@@ -202,7 +198,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     result = normalizePath(result); // Normalize the result.
 
     string::size_type pos;
-    if((pos = result.rfind('.')) != string::npos)
+    if ((pos = result.rfind('.')) != string::npos)
     {
         result.erase(pos);
     }
@@ -213,10 +209,10 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
 void
 Slice::emitError(const string& file, int line, const string& message)
 {
-    if(!file.empty())
+    if (!file.empty())
     {
         consoleErr << file;
-        if(line != -1)
+        if (line != -1)
         {
             consoleErr << ':' << line;
         }
@@ -228,10 +224,10 @@ Slice::emitError(const string& file, int line, const string& message)
 void
 Slice::emitWarning(const string& file, int line, const string& message)
 {
-    if(!file.empty())
+    if (!file.empty())
     {
         consoleErr << file;
-        if(line != -1)
+        if (line != -1)
         {
             consoleErr << ':' << line;
         }
@@ -243,10 +239,10 @@ Slice::emitWarning(const string& file, int line, const string& message)
 void
 Slice::emitError(const string& file, const std::string& line, const string& message)
 {
-    if(!file.empty())
+    if (!file.empty())
     {
         consoleErr << file;
-        if(!line.empty())
+        if (!line.empty())
         {
             consoleErr << ':' << line;
         }
@@ -258,10 +254,10 @@ Slice::emitError(const string& file, const std::string& line, const string& mess
 void
 Slice::emitWarning(const string& file, const std::string& line, const string& message)
 {
-    if(!file.empty())
+    if (!file.empty())
     {
         consoleErr << file;
-        if(!line.empty())
+        if (!line.empty())
         {
             consoleErr << ':' << line;
         }
@@ -279,12 +275,7 @@ Slice::emitRaw(const char* message)
 vector<string>
 Slice::filterMcppWarnings(const string& message)
 {
-    static const char* messages[] =
-    {
-        "Converted [CR+LF] to [LF]",
-        "no newline, supplemented newline",
-        0
-    };
+    static const char* messages[] = {"Converted [CR+LF] to [LF]", "no newline, supplemented newline", 0};
 
     static const string warningPrefix = "warning:";
     static const string fromPrefix = "from";
@@ -293,22 +284,22 @@ Slice::filterMcppWarnings(const string& message)
     vector<string> in;
     string::size_type start = 0;
     string::size_type end;
-    while((end = message.find('\n', start)) != string::npos)
+    while ((end = message.find('\n', start)) != string::npos)
     {
         in.push_back(message.substr(start, end - start));
         start = end + 1;
     }
     vector<string> out;
     bool skipped;
-    for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
+    for (vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
     {
         skipped = false;
 
-        if(i->find(warningPrefix) != string::npos)
+        if (i->find(warningPrefix) != string::npos)
         {
-            for(int j = 0; messages[j] != 0; ++j)
+            for (int j = 0; messages[j] != 0; ++j)
             {
-                if(i->find(messages[j]) != string::npos)
+                if (i->find(messages[j]) != string::npos)
                 {
                     // This line should be skipped it contains the unwanted mcpp warning
                     // next line should also be skipped it contains the slice line that
@@ -319,15 +310,15 @@ Slice::filterMcppWarnings(const string& message)
                     // Check if next lines are still the same warning
                     //
                     i++;
-                    while(i != in.end())
+                    while (i != in.end())
                     {
                         string token = *i;
                         string::size_type index = token.find_first_not_of(separators);
-                        if(index != string::npos)
+                        if (index != string::npos)
                         {
                             token = token.substr(index);
                         }
-                        if(token.find(fromPrefix) != 0)
+                        if (token.find(fromPrefix) != 0)
                         {
                             //
                             // First line not of this warning
@@ -343,12 +334,12 @@ Slice::filterMcppWarnings(const string& message)
                     break;
                 }
             }
-            if(i == in.end())
+            if (i == in.end())
             {
                 break;
             }
         }
-        if(!skipped)
+        if (!skipped)
         {
             out.push_back(*i + "\n");
         }
@@ -364,7 +355,7 @@ Slice::printGeneratedHeader(IceUtilInternal::Output& out, const string& path, co
     //
     string file = path;
     size_t pos = file.find_last_of("/\\");
-    if(string::npos != pos)
+    if (string::npos != pos)
     {
         file = file.substr(pos + 1);
     }
@@ -382,14 +373,14 @@ Slice::printGeneratedHeader(IceUtilInternal::Output& out, const string& path, co
 void
 Slice::writeDependencies(const string& dependencies, const string& dependFile)
 {
-    if(dependFile.empty())
+    if (dependFile.empty())
     {
         consoleOut << dependencies << flush;
     }
     else
     {
         ofstream of(IceUtilInternal::streamFilename(dependFile).c_str()); // dependFile is a UTF-8 string
-        if(!of)
+        if (!of)
         {
             ostringstream os;
             os << "cannot open file `" << dependFile << "': " << IceUtilInternal::errorToString(errno);
@@ -405,7 +396,7 @@ vector<string>
 Slice::argvToArgs(int argc, wchar_t* argv[])
 {
     vector<string> args;
-    for(int i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         args.push_back(IceUtil::wstringToString(argv[i]));
     }
@@ -416,7 +407,7 @@ vector<string>
 Slice::argvToArgs(int argc, char* argv[])
 {
     vector<string> args;
-    for(int i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         args.push_back(argv[i]);
     }
@@ -424,40 +415,40 @@ Slice::argvToArgs(int argc, char* argv[])
 }
 #endif
 
- //
- // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
- //
- vector<string>
- Slice::splitScopedName(const string& scoped, bool allowEmpty)
- {
-     assert(scoped[0] == ':');
-     vector<string> ids;
-     string::size_type next = 0;
-     string::size_type pos;
-     while((pos = scoped.find("::", next)) != string::npos)
-     {
-         pos += 2;
-         if(pos != scoped.size())
-         {
-             string::size_type endpos = scoped.find("::", pos);
-             if(endpos != string::npos)
-             {
-                 ids.push_back(scoped.substr(pos, endpos - pos));
-             }
-         }
-         next = pos;
-     }
-     if(next != scoped.size())
-     {
-         ids.push_back(scoped.substr(next));
-     }
-     else if(allowEmpty)
-     {
-         ids.push_back("");
-     }
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+vector<string>
+Slice::splitScopedName(const string& scoped, bool allowEmpty)
+{
+    assert(scoped[0] == ':');
+    vector<string> ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while ((pos = scoped.find("::", next)) != string::npos)
+    {
+        pos += 2;
+        if (pos != scoped.size())
+        {
+            string::size_type endpos = scoped.find("::", pos);
+            if (endpos != string::npos)
+            {
+                ids.push_back(scoped.substr(pos, endpos - pos));
+            }
+        }
+        next = pos;
+    }
+    if (next != scoped.size())
+    {
+        ids.push_back(scoped.substr(next));
+    }
+    else if (allowEmpty)
+    {
+        ids.push_back("");
+    }
 
-     return ids;
- }
+    return ids;
+}
 
 string
 Slice::prependA(const string& s)
@@ -478,7 +469,7 @@ Slice::checkIdentifier(const string& id)
     size_t scopeIndex = id.rfind("::");
     bool isScoped = scopeIndex != string::npos;
     string name;
-    if(isScoped)
+    if (isScoped)
     {
         name = id.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
     }
@@ -489,10 +480,10 @@ Slice::checkIdentifier(const string& id)
 
     bool isValid = true;
     // check the identifier for reserved suffixes
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
+    for (size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
-        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        if (name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
             currentUnit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
             isValid = false;
@@ -502,17 +493,17 @@ Slice::checkIdentifier(const string& id)
 
     // check the identifier for illegal underscores
     size_t index = name.find('_');
-    if(index == 0)
+    if (index == 0)
     {
         currentUnit->error("illegal leading underscore in identifier `" + name + "'");
         isValid = false;
     }
-    else if(name.rfind('_') == (name.size() - 1))
+    else if (name.rfind('_') == (name.size() - 1))
     {
         currentUnit->error("illegal trailing underscore in identifier `" + name + "'");
         isValid = false;
     }
-    else if(name.find("__") != string::npos)
+    else if (name.find("__") != string::npos)
     {
         currentUnit->error("illegal double underscore in identifier `" + name + "'");
         isValid = false;

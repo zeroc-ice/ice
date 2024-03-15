@@ -9,13 +9,11 @@
 
 namespace Ice
 {
+    class Plugin;
+    using PluginPtr = std::shared_ptr<Plugin>;
 
-class Plugin;
-using PluginPtr = std::shared_ptr<Plugin>;
-
-class PluginManager;
-using PluginManagerPtr = std::shared_ptr<PluginManager>;
-
+    class PluginManager;
+    using PluginManagerPtr = std::shared_ptr<PluginManager>;
 }
 
 #endif

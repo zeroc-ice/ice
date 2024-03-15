@@ -15,7 +15,6 @@ using namespace Test;
 class PingReplyI final : public PingReply
 {
 public:
-
     void reply(const Ice::Current&) final
     {
         std::lock_guard lock(_mutex);
@@ -23,24 +22,16 @@ public:
         _condition.notify_one();
     }
 
-    void reset()
-    {
-         _replies = 0;
-    }
+    void reset() { _replies = 0; }
 
-    template<class Rep, class Period> bool
-    waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
+    template<class Rep, class Period> bool waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
     {
         unique_lock lock(_mutex);
-        _condition.wait_for(
-            lock,
-            timeout,
-            [this, expectedReplies] { return _replies == expectedReplies; });
+        _condition.wait_for(lock, timeout, [this, expectedReplies] { return _replies == expectedReplies; });
         return _replies == expectedReplies;
     }
 
 private:
-
     int _replies;
     std::mutex _mutex;
     std::condition_variable _condition;
@@ -63,14 +54,14 @@ allTests(Test::TestHelper* helper)
 
     int nRetry = 5;
     bool ret = false;
-    while(nRetry-- > 0)
+    while (nRetry-- > 0)
     {
         replyI->reset();
         obj->ping(reply);
         obj->ping(reply);
         obj->ping(reply);
         ret = replyI->waitReply(3, chrono::seconds(2));
-        if(ret)
+        if (ret)
         {
             break; // Success
         }
@@ -82,7 +73,7 @@ allTests(Test::TestHelper* helper)
     }
     test(ret);
 
-    if(communicator->getProperties()->getPropertyAsInt("Ice.Override.Compress") == 0)
+    if (communicator->getProperties()->getPropertyAsInt("Ice.Override.Compress") == 0)
     {
         //
         // Only run this test if compression is disabled, the test expect fixed message size
@@ -93,7 +84,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             seq.resize(1024);
-            while(true)
+            while (true)
             {
                 seq.resize(seq.size() * 2 + 10);
                 replyI->reset();
@@ -101,7 +92,7 @@ allTests(Test::TestHelper* helper)
                 replyI->waitReply(1, chrono::seconds(10));
             }
         }
-        catch(const DatagramLimitException&)
+        catch (const DatagramLimitException&)
         {
             test(seq.size() > 16384);
         }
@@ -114,7 +105,7 @@ allTests(Test::TestHelper* helper)
             obj->sendByteSeq(seq, reply);
             test(!replyI->waitReply(1, chrono::milliseconds(500)));
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -124,7 +115,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     ostringstream endpoint;
-    if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+    if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << helper->getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
@@ -144,18 +135,18 @@ allTests(Test::TestHelper* helper)
     cout << "testing udp multicast... " << flush;
 
     nRetry = 5;
-    while(nRetry-- > 0)
+    while (nRetry-- > 0)
     {
         replyI->reset();
         try
         {
             objMcast->ping(reply);
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
             // Multicast IPv6 not supported on the platform. This occurs for example
             // on AIX PVP clould VMs.
-            if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+            if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
             {
                 cout << "(not supported) ";
                 ret = true;
@@ -164,14 +155,14 @@ allTests(Test::TestHelper* helper)
             throw;
         }
         ret = replyI->waitReply(5, chrono::seconds(2));
-        if(ret)
+        if (ret)
         {
             break; // Success
         }
         replyI = std::make_shared<PingReplyI>();
         reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
     }
-    if(!ret)
+    if (!ret)
     {
         cout << "failed (is a firewall enabled?)" << endl;
     }
@@ -184,14 +175,14 @@ allTests(Test::TestHelper* helper)
     cout << "testing udp bi-dir connection... " << flush;
     obj->ice_getConnection()->setAdapter(adapter);
     nRetry = 5;
-    while(nRetry-- > 0)
+    while (nRetry-- > 0)
     {
         replyI->reset();
         obj->pingBiDir(reply->ice_getIdentity());
         obj->pingBiDir(reply->ice_getIdentity());
         obj->pingBiDir(reply->ice_getIdentity());
         ret = replyI->waitReply(3, chrono::seconds(2));
-        if(ret)
+        if (ret)
         {
             break; // Success
         }

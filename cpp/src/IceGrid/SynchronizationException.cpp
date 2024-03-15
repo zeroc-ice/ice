@@ -6,12 +6,16 @@
 
 #include "SynchronizationException.h"
 
-IceGrid::SynchronizationException::~SynchronizationException()
+using namespace std;
+
+string
+IceGrid::SynchronizationException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
 std::string_view
-IceGrid::SynchronizationException::ice_staticId()
+IceGrid::SynchronizationException::ice_staticId() noexcept
 {
     static constexpr std::string_view typeId = "::IceGrid::SynchronizationException";
     return typeId;

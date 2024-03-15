@@ -11,30 +11,27 @@
 
 namespace IceGrid
 {
+    //
+    // The AdminCallbackRouter routes callbacks from the servers, nodes etc. to the
+    // admin clients using the admin-client => registry connection.
+    //
 
-//
-// The AdminCallbackRouter routes callbacks from the servers, nodes etc. to the
-// admin clients using the admin-client => registry connection.
-//
+    class AdminCallbackRouter : public Ice::BlobjectArrayAsync
+    {
+    public:
+        void addMapping(const std::string&, const std::shared_ptr<Ice::Connection>&);
+        void removeMapping(const std::string&);
 
-class AdminCallbackRouter : public Ice::BlobjectArrayAsync
-{
-public:
+        void ice_invokeAsync(
+            std::pair<const std::byte*, const std::byte*>,
+            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current& current) override;
 
-    void addMapping(const std::string&, const std::shared_ptr<Ice::Connection>&);
-    void removeMapping(const std::string&);
-
-    void ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*>,
-                         std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
-                         std::function<void(std::exception_ptr)>,
-                         const Ice::Current& current) override;
-
-private:
-
-    std::mutex _mutex;
-    std::map<std::string, std::shared_ptr<Ice::Connection>> _categoryToConnection;
-};
-
+    private:
+        std::mutex _mutex;
+        std::map<std::string, std::shared_ptr<Ice::Connection>> _categoryToConnection;
+    };
 }
 
 #endif

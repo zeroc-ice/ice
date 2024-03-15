@@ -10,11 +10,7 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
-Observers::Observers(shared_ptr<TraceLevels> traceLevels) :
-    _traceLevels(std::move(traceLevels)),
-    _majority(0)
-{
-}
+Observers::Observers(shared_ptr<TraceLevels> traceLevels) : _traceLevels(std::move(traceLevels)), _majority(0) {}
 
 void
 Observers::setMajority(unsigned int majority)
@@ -27,18 +23,18 @@ Observers::check()
 {
     lock_guard<mutex> lg(_mutex);
 
-    if(_observers.size() >= _majority)
+    if (_observers.size() >= _majority)
     {
         auto p = _observers.begin();
-        while(p != _observers.end())
+        while (p != _observers.end())
         {
             try
             {
                 p->observer->ice_ping();
             }
-            catch(const Ice::Exception& ex)
+            catch (const Ice::Exception& ex)
             {
-                if(_traceLevels->replication > 0)
+                if (_traceLevels->replication > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                     out << "ice_ping failed: " << ex;
@@ -83,7 +79,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
 
     vector<ObserverInfo> observers;
 
-    for(const auto& slave : slaves)
+    for (const auto& slave : slaves)
     {
         try
         {
@@ -95,9 +91,9 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
 
             observers.push_back({slave.id, observer, std::move(future)});
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
-            if(_traceLevels->replication > 0)
+            if (_traceLevels->replication > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                 out << "error calling init on " << slave.id << ", exception: " << ex;
@@ -106,15 +102,15 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
         }
     }
 
-    for(auto& o : observers)
+    for (auto& o : observers)
     {
         try
         {
             o.future.get();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
-            if(_traceLevels->replication > 0)
+            if (_traceLevels->replication > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                 out << "init on " << o.id << " failed with exception " << ex;
@@ -129,7 +125,7 @@ void
 Observers::createTopic(const LogUpdate& llu, const string& name)
 {
     lock_guard<mutex> lg(_mutex);
-    for(auto& o : _observers)
+    for (auto& o : _observers)
     {
         o.future = o.observer->createTopicAsync(llu, name);
     }
@@ -140,7 +136,7 @@ void
 Observers::destroyTopic(const LogUpdate& llu, const string& id)
 {
     lock_guard<mutex> lg(_mutex);
-    for(auto& o : _observers)
+    for (auto& o : _observers)
     {
         o.future = o.observer->destroyTopicAsync(llu, id);
     }
@@ -151,7 +147,7 @@ void
 Observers::addSubscriber(const LogUpdate& llu, const string& name, const SubscriberRecord& rec)
 {
     lock_guard<mutex> lg(_mutex);
-    for(auto& o : _observers)
+    for (auto& o : _observers)
     {
         o.future = o.observer->addSubscriberAsync(llu, name, rec);
     }
@@ -162,7 +158,7 @@ void
 Observers::removeSubscriber(const LogUpdate& llu, const string& name, const Ice::IdentitySeq& id)
 {
     lock_guard<mutex> lg(_mutex);
-    for(auto& o : _observers)
+    for (auto& o : _observers)
     {
         o.future = o.observer->removeSubscriberAsync(llu, name, id);
     }
@@ -173,15 +169,15 @@ void
 Observers::wait(const string& op)
 {
     vector<ObserverInfo>::iterator p = _observers.begin();
-    while(p != _observers.end())
+    while (p != _observers.end())
     {
         try
         {
             p->future.get();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
-            if(_traceLevels->replication > 0)
+            if (_traceLevels->replication > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
                 out << op << ": " << ex;
@@ -197,7 +193,7 @@ Observers::wait(const string& op)
     }
 
     // If we now no longer have the majority of observers we raise.
-    if(_observers.size() < _majority)
+    if (_observers.size() < _majority)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
         out << "number of observers `" << _observers.size() << "' is less than the majority '" << _majority << "'";

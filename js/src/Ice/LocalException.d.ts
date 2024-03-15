@@ -44,15 +44,6 @@ export namespace Ice
     }
 
     /**
-     * This exception is raised if a feature is requested that is not supported with collocation optimization.
-     *
-     * @deprecated This exception is no longer used by the Ice run time
-     */
-    class CollocationOptimizationException extends LocalException
-    {
-    }
-
-    /**
      * An attempt was made to register something more than once with the Ice run time. This exception is raised if an
      * attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
      * user exception factory more than once for the same ID.
@@ -886,13 +877,6 @@ export namespace Ice
      * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
      */
     class FixedProxyException extends LocalException
-    {
-    }
-
-    /**
-     * Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
-     */
-    class ResponseSentException extends LocalException
     {
     }
 }

@@ -13,62 +13,63 @@ using namespace std;
 
 namespace
 {
-
-class SynchronizationCallbackI final : public SynchronizationCallback
-{
-public:
-
-    SynchronizationCallbackI(const shared_ptr<RegistryServerAdminRouter>& adminRouter,
-                             const pair<const uint8_t*, const uint8_t*>& inParams,
-                             function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                             function<void(exception_ptr)> exception,
-                             const Current& current) :
-        _adminRouter(adminRouter),
-        _response(std::move(response)),
-        _exception(std::move(exception)),
-        _inParams(inParams.first, inParams.second),
-        _current(current)
+    class SynchronizationCallbackI final : public SynchronizationCallback
     {
-    }
+    public:
+        SynchronizationCallbackI(
+            const shared_ptr<RegistryServerAdminRouter>& adminRouter,
+            const pair<const byte*, const byte*>& inParams,
+            function<void(bool, const pair<const byte*, const byte*>&)> response,
+            function<void(exception_ptr)> exception,
+            const Current& current)
+            : _adminRouter(adminRouter),
+              _response(std::move(response)),
+              _exception(std::move(exception)),
+              _inParams(inParams.first, inParams.second),
+              _current(current)
+        {
+        }
 
-    void synchronized()
-    {
-        //
-        // Retry to forward the call.
-        //
-        _adminRouter->ice_invokeAsync({ &_inParams[0], &_inParams[0] + _inParams.size() },
-                                      std::move(_response), std::move(_exception), _current);
-    }
+        void synchronized()
+        {
+            //
+            // Retry to forward the call.
+            //
+            _adminRouter->ice_invokeAsync(
+                {&_inParams[0], &_inParams[0] + _inParams.size()},
+                std::move(_response),
+                std::move(_exception),
+                _current);
+        }
 
-    void synchronized(exception_ptr)
-    {
-        _exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
-    }
+        void synchronized(exception_ptr)
+        {
+            _exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+        }
 
-private:
-
-    const shared_ptr<RegistryServerAdminRouter> _adminRouter;
-    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> _response;
-    function<void(exception_ptr)> _exception;
-    const vector<uint8_t> _inParams;
-    const Current _current;
-};
-
+    private:
+        const shared_ptr<RegistryServerAdminRouter> _adminRouter;
+        function<void(bool, const pair<const byte*, const byte*>&)> _response;
+        function<void(exception_ptr)> _exception;
+        const vector<byte> _inParams;
+        const Current _current;
+    };
 }
 
-RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>& database) :
-    AdminRouter(database->getTraceLevels()),
-    _database(database)
+RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>& database)
+    : AdminRouter(database->getTraceLevels()),
+      _database(database)
 {
 }
 
 void
-RegistryServerAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
-                                       function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                       function<void(exception_ptr)> exception,
-                                       const Ice::Current& current)
+RegistryServerAdminRouter::ice_invokeAsync(
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
     try
     {
@@ -77,49 +78,54 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> 
         {
             target = server->getAdminProxy();
         }
-        catch(const SynchronizationException&)
+        catch (const SynchronizationException&)
         {
-            server->addSyncCallback(make_shared<SynchronizationCallbackI>(shared_from_this(), inParams,
-                                                                          std::move(response), std::move(exception), current));
+            server->addSyncCallback(make_shared<SynchronizationCallbackI>(
+                shared_from_this(),
+                inParams,
+                std::move(response),
+                std::move(exception),
+                current));
             return; // Wait for the server synchronization to complete and retry.
         }
     }
-    catch(const ServerNotExistException&)
+    catch (const ServerNotExistException&)
     {
     }
-    catch(const NodeUnreachableException&)
+    catch (const NodeUnreachableException&)
     {
     }
-    catch(const DeploymentException&)
+    catch (const DeploymentException&)
     {
     }
 
-    if(target == nullopt)
+    if (target == nullopt)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }
 
-RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database) :
-    AdminRouter(database->getTraceLevels()),
-    _collocNodeName(collocNodeName),
-    _database(database)
+RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database)
+    : AdminRouter(database->getTraceLevels()),
+      _collocNodeName(collocNodeName),
+      _database(database)
 {
 }
 
 void
-RegistryNodeAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
-                                       function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                       function<void(exception_ptr)> exception,
-                                       const Ice::Current& current)
+RegistryNodeAdminRouter::ice_invokeAsync(
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
-    if(!_collocNodeName.empty() && current.id.name == _collocNodeName)
+    if (!_collocNodeName.empty() && current.id.name == _collocNodeName)
     {
         // Straight to the local Admin object
         target = current.adapter->getCommunicator()->getAdmin();
@@ -130,16 +136,16 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> in
         {
             target = _database->getNode(current.id.name)->getAdminProxy();
         }
-        catch(const NodeUnreachableException&)
+        catch (const NodeUnreachableException&)
         {
         }
-        catch(const NodeNotExistException&)
+        catch (const NodeNotExistException&)
         {
         }
 
-        if(target == nullopt)
+        if (target == nullopt)
         {
-            if(_traceLevels->admin > 0)
+            if (_traceLevels->admin > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
                 out << "could not find Admin proxy for node `" << current.id.name << "'";
@@ -151,26 +157,26 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> in
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }
 
-RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
-                                                       const shared_ptr<Database>& database) :
-    AdminRouter(database->getTraceLevels()),
-    _name(name),
-    _database(database)
+RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const shared_ptr<Database>& database)
+    : AdminRouter(database->getTraceLevels()),
+      _name(name),
+      _database(database)
 {
 }
 
 void
-RegistryReplicaAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
-                                       function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                       function<void(exception_ptr)> exception,
-                                       const Ice::Current& current)
+RegistryReplicaAdminRouter::ice_invokeAsync(
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    ObjectPrxPtr target;
+    optional<ObjectPrx> target;
 
-    if(current.id.name == _name)
+    if (current.id.name == _name)
     {
         // Straight to the local Admin object
         target = current.adapter->getCommunicator()->getAdmin();
@@ -182,14 +188,14 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*>
             // Forward to Admin object in remote replica
             target = _database->getReplica(current.id.name)->getAdminProxy();
         }
-        catch(const RegistryNotExistException&)
+        catch (const RegistryNotExistException&)
         {
         }
     }
 
-    if(target == nullopt)
+    if (target == nullopt)
     {
-        if(_traceLevels->admin > 0)
+        if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
             out << "could not find Admin proxy for replica `" << current.id.name << "'";
@@ -200,5 +206,5 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*>
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
 }

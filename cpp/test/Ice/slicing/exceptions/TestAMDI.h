@@ -10,23 +10,17 @@
 class TestI final : public Test::TestIntf
 {
 public:
-
     TestI();
 
-    void baseAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
+    void baseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&) final;
 
     void unknownDerivedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&) final;
 
-    void knownDerivedAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
+    void knownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&)
+        final;
 
     void knownDerivedAsKnownDerivedAsync(
         std::function<void()>,
@@ -78,10 +72,7 @@ public:
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&) final;
 
-    void shutdownAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&) final;
 };
 
 #endif

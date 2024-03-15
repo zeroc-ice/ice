@@ -2,745 +2,1477 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_API_EXPORTS
-#   define ICE_API_EXPORTS
+#include "Ice/LocalException.h"
+#include "Ice/StringUtil.h"
+#include "Network.h"
+
+#include <iomanip>
+
+using namespace std;
+using namespace Ice;
+using namespace IceInternal;
+
+namespace
+{
+    inline string socketErrorToString(int error)
+    {
+        if (error == 0)
+        {
+            return "unknown error";
+        }
+        return IceUtilInternal::errorToString(error);
+    }
+}
+
+std::string_view
+Ice::LocalException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::LocalException";
+    return typeId;
+}
+
+string
+Ice::InitializationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::InitializationException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::InitializationException";
+    return typeId;
+}
+
+string
+Ice::PluginInitializationException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::PluginInitializationException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::PluginInitializationException";
+    return typeId;
+}
+
+string
+Ice::AlreadyRegisteredException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::AlreadyRegisteredException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::AlreadyRegisteredException";
+    return typeId;
+}
+
+string
+Ice::NotRegisteredException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::NotRegisteredException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::NotRegisteredException";
+    return typeId;
+}
+
+string
+Ice::TwowayOnlyException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::TwowayOnlyException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::TwowayOnlyException";
+    return typeId;
+}
+
+string
+Ice::CloneNotImplementedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::CloneNotImplementedException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::CloneNotImplementedException";
+    return typeId;
+}
+
+string
+Ice::UnknownException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::UnknownException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::UnknownException";
+    return typeId;
+}
+
+string
+Ice::UnknownLocalException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::UnknownLocalException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::UnknownLocalException";
+    return typeId;
+}
+
+string
+Ice::UnknownUserException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::UnknownUserException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::UnknownUserException";
+    return typeId;
+}
+
+string
+Ice::VersionMismatchException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::VersionMismatchException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::VersionMismatchException";
+    return typeId;
+}
+
+string
+Ice::CommunicatorDestroyedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::CommunicatorDestroyedException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::CommunicatorDestroyedException";
+    return typeId;
+}
+
+string
+Ice::ObjectAdapterDeactivatedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ObjectAdapterDeactivatedException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ObjectAdapterDeactivatedException";
+    return typeId;
+}
+
+string
+Ice::ObjectAdapterIdInUseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ObjectAdapterIdInUseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ObjectAdapterIdInUseException";
+    return typeId;
+}
+
+string
+Ice::NoEndpointException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::NoEndpointException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::NoEndpointException";
+    return typeId;
+}
+
+string
+Ice::EndpointParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::EndpointParseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::EndpointParseException";
+    return typeId;
+}
+
+string
+Ice::EndpointSelectionTypeParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::EndpointSelectionTypeParseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::EndpointSelectionTypeParseException";
+    return typeId;
+}
+
+string
+Ice::VersionParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::VersionParseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::VersionParseException";
+    return typeId;
+}
+
+string
+Ice::IdentityParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::IdentityParseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::IdentityParseException";
+    return typeId;
+}
+
+string
+Ice::ProxyParseException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ProxyParseException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ProxyParseException";
+    return typeId;
+}
+
+string
+Ice::IllegalIdentityException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::IllegalIdentityException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::IllegalIdentityException";
+    return typeId;
+}
+
+string
+Ice::IllegalServantException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::IllegalServantException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::IllegalServantException";
+    return typeId;
+}
+
+string
+Ice::RequestFailedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::RequestFailedException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::RequestFailedException";
+    return typeId;
+}
+
+string
+Ice::ObjectNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ObjectNotExistException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ObjectNotExistException";
+    return typeId;
+}
+
+string
+Ice::FacetNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::FacetNotExistException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::FacetNotExistException";
+    return typeId;
+}
+
+string
+Ice::OperationNotExistException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::OperationNotExistException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::OperationNotExistException";
+    return typeId;
+}
+
+Ice::SyscallException::SyscallException(const char* file, int line) noexcept
+    : LocalException(file, line),
+#ifdef _WIN32
+      error(GetLastError())
+#else
+      error(errno)
 #endif
-#include <Ice/LocalException.h>
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/InputStream.h>
-#include <Ice/OutputStream.h>
-#include <IceUtil/PopDisableWarnings.h>
-
-#if defined(_MSC_VER)
-#   pragma warning(disable:4458) // declaration of ... hides class member
-#elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
-#endif
+{
+}
 
-Ice::InitializationException::~InitializationException()
+string
+Ice::SyscallException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::InitializationException::ice_staticId()
+string_view
+Ice::SyscallException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::InitializationException";
+    static constexpr string_view typeId = "::Ice::SyscallException";
     return typeId;
 }
 
-Ice::PluginInitializationException::~PluginInitializationException()
+string
+Ice::SocketException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::PluginInitializationException::ice_staticId()
+string_view
+Ice::SocketException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::PluginInitializationException";
+    static constexpr string_view typeId = "::Ice::SocketException";
     return typeId;
 }
 
-Ice::CollocationOptimizationException::~CollocationOptimizationException()
+string
+Ice::CFNetworkException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::CollocationOptimizationException::ice_staticId()
+string_view
+Ice::CFNetworkException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::CollocationOptimizationException";
+    static constexpr string_view typeId = "::Ice::CFNetworkException";
     return typeId;
 }
 
-Ice::AlreadyRegisteredException::~AlreadyRegisteredException()
+string
+Ice::FileException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::AlreadyRegisteredException::ice_staticId()
+string_view
+Ice::FileException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::AlreadyRegisteredException";
+    static constexpr string_view typeId = "::Ice::FileException";
     return typeId;
 }
 
-Ice::NotRegisteredException::~NotRegisteredException()
+string
+Ice::ConnectFailedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::NotRegisteredException::ice_staticId()
+string_view
+Ice::ConnectFailedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::NotRegisteredException";
+    static constexpr string_view typeId = "::Ice::ConnectFailedException";
     return typeId;
 }
 
-Ice::TwowayOnlyException::~TwowayOnlyException()
+string
+Ice::ConnectionRefusedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::TwowayOnlyException::ice_staticId()
+string_view
+Ice::ConnectionRefusedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::TwowayOnlyException";
+    static constexpr string_view typeId = "::Ice::ConnectionRefusedException";
     return typeId;
 }
 
-Ice::CloneNotImplementedException::~CloneNotImplementedException()
+string
+Ice::ConnectionLostException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::CloneNotImplementedException::ice_staticId()
+string_view
+Ice::ConnectionLostException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::CloneNotImplementedException";
+    static constexpr string_view typeId = "::Ice::ConnectionLostException";
     return typeId;
 }
 
-Ice::UnknownException::~UnknownException()
+string
+Ice::DNSException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::UnknownException::ice_staticId()
+string_view
+Ice::DNSException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownException";
+    static constexpr string_view typeId = "::Ice::DNSException";
     return typeId;
 }
 
-Ice::UnknownLocalException::~UnknownLocalException()
+string
+Ice::OperationInterruptedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::UnknownLocalException::ice_staticId()
+string_view
+Ice::OperationInterruptedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownLocalException";
+    static constexpr string_view typeId = "::Ice::OperationInterruptedException";
     return typeId;
 }
 
-Ice::UnknownUserException::~UnknownUserException()
+string
+Ice::TimeoutException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::UnknownUserException::ice_staticId()
+string_view
+Ice::TimeoutException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownUserException";
+    static constexpr string_view typeId = "::Ice::TimeoutException";
     return typeId;
 }
 
-Ice::VersionMismatchException::~VersionMismatchException()
+string
+Ice::ConnectTimeoutException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::VersionMismatchException::ice_staticId()
+string_view
+Ice::ConnectTimeoutException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::VersionMismatchException";
+    static constexpr string_view typeId = "::Ice::ConnectTimeoutException";
     return typeId;
 }
 
-Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException()
+string
+Ice::CloseTimeoutException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::CommunicatorDestroyedException::ice_staticId()
+string_view
+Ice::CloseTimeoutException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::CommunicatorDestroyedException";
+    static constexpr string_view typeId = "::Ice::CloseTimeoutException";
     return typeId;
 }
 
-Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException()
+string
+Ice::ConnectionTimeoutException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ObjectAdapterDeactivatedException::ice_staticId()
+string_view
+Ice::ConnectionTimeoutException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ObjectAdapterDeactivatedException";
+    static constexpr string_view typeId = "::Ice::ConnectionTimeoutException";
     return typeId;
 }
 
-Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException()
+string
+Ice::InvocationTimeoutException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ObjectAdapterIdInUseException::ice_staticId()
+string_view
+Ice::InvocationTimeoutException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ObjectAdapterIdInUseException";
+    static constexpr string_view typeId = "::Ice::InvocationTimeoutException";
     return typeId;
 }
 
-Ice::NoEndpointException::~NoEndpointException()
+string
+Ice::InvocationCanceledException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::NoEndpointException::ice_staticId()
+string_view
+Ice::InvocationCanceledException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::NoEndpointException";
+    static constexpr string_view typeId = "::Ice::InvocationCanceledException";
     return typeId;
 }
 
-Ice::EndpointParseException::~EndpointParseException()
+string
+Ice::ProtocolException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::EndpointParseException::ice_staticId()
+string_view
+Ice::ProtocolException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::EndpointParseException";
+    static constexpr string_view typeId = "::Ice::ProtocolException";
     return typeId;
 }
 
-Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException()
+string
+Ice::BadMagicException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::EndpointSelectionTypeParseException::ice_staticId()
+string_view
+Ice::BadMagicException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::EndpointSelectionTypeParseException";
+    static constexpr string_view typeId = "::Ice::BadMagicException";
     return typeId;
 }
 
-Ice::VersionParseException::~VersionParseException()
+string
+Ice::UnsupportedProtocolException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::VersionParseException::ice_staticId()
+string_view
+Ice::UnsupportedProtocolException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::VersionParseException";
+    static constexpr string_view typeId = "::Ice::UnsupportedProtocolException";
     return typeId;
 }
 
-Ice::IdentityParseException::~IdentityParseException()
+string
+Ice::UnsupportedEncodingException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::IdentityParseException::ice_staticId()
+string_view
+Ice::UnsupportedEncodingException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::IdentityParseException";
+    static constexpr string_view typeId = "::Ice::UnsupportedEncodingException";
     return typeId;
 }
 
-Ice::ProxyParseException::~ProxyParseException()
+string
+Ice::UnknownMessageException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ProxyParseException::ice_staticId()
+string_view
+Ice::UnknownMessageException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ProxyParseException";
+    static constexpr string_view typeId = "::Ice::UnknownMessageException";
     return typeId;
 }
 
-Ice::IllegalIdentityException::~IllegalIdentityException()
+string
+Ice::ConnectionNotValidatedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::IllegalIdentityException::ice_staticId()
+string_view
+Ice::ConnectionNotValidatedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::IllegalIdentityException";
+    static constexpr string_view typeId = "::Ice::ConnectionNotValidatedException";
     return typeId;
 }
 
-Ice::IllegalServantException::~IllegalServantException()
+string
+Ice::UnknownRequestIdException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::IllegalServantException::ice_staticId()
+string_view
+Ice::UnknownRequestIdException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::IllegalServantException";
+    static constexpr string_view typeId = "::Ice::UnknownRequestIdException";
     return typeId;
 }
 
-Ice::RequestFailedException::~RequestFailedException()
+string
+Ice::UnknownReplyStatusException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::RequestFailedException::ice_staticId()
+string_view
+Ice::UnknownReplyStatusException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::RequestFailedException";
+    static constexpr string_view typeId = "::Ice::UnknownReplyStatusException";
     return typeId;
 }
 
-Ice::ObjectNotExistException::~ObjectNotExistException()
+string
+Ice::CloseConnectionException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ObjectNotExistException::ice_staticId()
+string_view
+Ice::CloseConnectionException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ObjectNotExistException";
+    static constexpr string_view typeId = "::Ice::CloseConnectionException";
     return typeId;
 }
 
-Ice::FacetNotExistException::~FacetNotExistException()
+string
+Ice::ConnectionManuallyClosedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::FacetNotExistException::ice_staticId()
+string_view
+Ice::ConnectionManuallyClosedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::FacetNotExistException";
+    static constexpr string_view typeId = "::Ice::ConnectionManuallyClosedException";
     return typeId;
 }
 
-Ice::OperationNotExistException::~OperationNotExistException()
+string
+Ice::IllegalMessageSizeException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::OperationNotExistException::ice_staticId()
+string_view
+Ice::IllegalMessageSizeException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::OperationNotExistException";
+    static constexpr string_view typeId = "::Ice::IllegalMessageSizeException";
     return typeId;
 }
 
-Ice::SyscallException::~SyscallException()
+string
+Ice::CompressionException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::SyscallException::ice_staticId()
+string_view
+Ice::CompressionException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::SyscallException";
+    static constexpr string_view typeId = "::Ice::CompressionException";
     return typeId;
 }
 
-Ice::SocketException::~SocketException()
+string
+Ice::DatagramLimitException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::SocketException::ice_staticId()
+string_view
+Ice::DatagramLimitException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::SocketException";
+    static constexpr string_view typeId = "::Ice::DatagramLimitException";
     return typeId;
 }
 
-Ice::CFNetworkException::~CFNetworkException()
+string
+Ice::MarshalException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::CFNetworkException::ice_staticId()
+string_view
+Ice::MarshalException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::CFNetworkException";
+    static constexpr string_view typeId = "::Ice::MarshalException";
     return typeId;
 }
 
-Ice::FileException::~FileException()
+string
+Ice::ProxyUnmarshalException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::FileException::ice_staticId()
+string_view
+Ice::ProxyUnmarshalException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::FileException";
+    static constexpr string_view typeId = "::Ice::ProxyUnmarshalException";
     return typeId;
 }
 
-Ice::ConnectFailedException::~ConnectFailedException()
+string
+Ice::UnmarshalOutOfBoundsException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ConnectFailedException::ice_staticId()
+string_view
+Ice::UnmarshalOutOfBoundsException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectFailedException";
+    static constexpr string_view typeId = "::Ice::UnmarshalOutOfBoundsException";
     return typeId;
 }
 
-Ice::ConnectionRefusedException::~ConnectionRefusedException()
+string
+Ice::NoValueFactoryException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ConnectionRefusedException::ice_staticId()
+string_view
+Ice::NoValueFactoryException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectionRefusedException";
+    static constexpr string_view typeId = "::Ice::NoValueFactoryException";
     return typeId;
 }
 
-Ice::ConnectionLostException::~ConnectionLostException()
+string
+Ice::UnexpectedObjectException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ConnectionLostException::ice_staticId()
+string_view
+Ice::UnexpectedObjectException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectionLostException";
+    static constexpr string_view typeId = "::Ice::UnexpectedObjectException";
     return typeId;
 }
 
-Ice::DNSException::~DNSException()
+string
+Ice::MemoryLimitException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::DNSException::ice_staticId()
+string_view
+Ice::MemoryLimitException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::DNSException";
+    static constexpr string_view typeId = "::Ice::MemoryLimitException";
     return typeId;
 }
 
-Ice::OperationInterruptedException::~OperationInterruptedException()
+string
+Ice::StringConversionException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::OperationInterruptedException::ice_staticId()
+string_view
+Ice::StringConversionException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::OperationInterruptedException";
+    static constexpr string_view typeId = "::Ice::StringConversionException";
     return typeId;
 }
 
-Ice::TimeoutException::~TimeoutException()
+string
+Ice::EncapsulationException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::TimeoutException::ice_staticId()
+string_view
+Ice::EncapsulationException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::TimeoutException";
+    static constexpr string_view typeId = "::Ice::EncapsulationException";
     return typeId;
 }
 
-Ice::ConnectTimeoutException::~ConnectTimeoutException()
+string
+Ice::FeatureNotSupportedException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ConnectTimeoutException::ice_staticId()
+string_view
+Ice::FeatureNotSupportedException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectTimeoutException";
+    static constexpr string_view typeId = "::Ice::FeatureNotSupportedException";
     return typeId;
 }
 
-Ice::CloseTimeoutException::~CloseTimeoutException()
+string
+Ice::SecurityException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::CloseTimeoutException::ice_staticId()
+string_view
+Ice::SecurityException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::CloseTimeoutException";
+    static constexpr string_view typeId = "::Ice::SecurityException";
     return typeId;
 }
 
-Ice::ConnectionTimeoutException::~ConnectionTimeoutException()
+string
+Ice::FixedProxyException::ice_id() const
 {
+    return string{ice_staticId()};
 }
 
-std::string_view
-Ice::ConnectionTimeoutException::ice_staticId()
+string_view
+Ice::FixedProxyException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectionTimeoutException";
+    static constexpr string_view typeId = "::Ice::FixedProxyException";
     return typeId;
 }
+
+// ice_print for all exceptions
 
-Ice::InvocationTimeoutException::~InvocationTimeoutException()
+void
+Ice::InitializationException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\ninitialization exception";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::InvocationTimeoutException::ice_staticId()
+void
+Ice::UnknownException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::InvocationTimeoutException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nunknown exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
 }
 
-Ice::InvocationCanceledException::~InvocationCanceledException()
+void
+Ice::UnknownLocalException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
 }
 
-std::string_view
-Ice::InvocationCanceledException::ice_staticId()
+void
+Ice::UnknownUserException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::InvocationCanceledException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nunknown user exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
 }
 
-Ice::ProtocolException::~ProtocolException()
+void
+Ice::VersionMismatchException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nIce library version mismatch";
 }
 
-std::string_view
-Ice::ProtocolException::ice_staticId()
+void
+Ice::CommunicatorDestroyedException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::ProtocolException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\ncommunicator object destroyed";
 }
 
-Ice::BadMagicException::~BadMagicException()
+void
+Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nobject adapter `" << name << "' deactivated";
 }
 
-std::string_view
-Ice::BadMagicException::ice_staticId()
+void
+Ice::ObjectAdapterIdInUseException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::BadMagicException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nobject adapter with id `" << id << "' is already in use";
 }
 
-Ice::UnsupportedProtocolException::~UnsupportedProtocolException()
+void
+Ice::NoEndpointException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nno suitable endpoint available for proxy `" << proxy << "'";
 }
 
-std::string_view
-Ice::UnsupportedProtocolException::ice_staticId()
+void
+Ice::EndpointParseException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnsupportedProtocolException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nerror while parsing endpoint `" << str << "'";
 }
 
-Ice::UnsupportedEncodingException::~UnsupportedEncodingException()
+void
+Ice::EndpointSelectionTypeParseException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nerror while parsing endpoint selection type `" << str << "'";
 }
 
-std::string_view
-Ice::UnsupportedEncodingException::ice_staticId()
+void
+Ice::VersionParseException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnsupportedEncodingException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nerror while parsing version `" << str << "'";
 }
 
-Ice::UnknownMessageException::~UnknownMessageException()
+void
+Ice::IdentityParseException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nerror while parsing identity `" << str << "'";
 }
 
-std::string_view
-Ice::UnknownMessageException::ice_staticId()
+void
+Ice::ProxyParseException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownMessageException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nerror while parsing proxy `" << str << "'";
 }
 
-Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException()
+void
+Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nan identity with an empty name is not allowed";
 }
 
-std::string_view
-Ice::ConnectionNotValidatedException::ice_staticId()
+void
+Ice::IllegalServantException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectionNotValidatedException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nillegal servant: `" << reason << "'";
 }
 
-Ice::UnknownRequestIdException::~UnknownRequestIdException()
+static void
+printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
+    out << ":\nidentity: `" << identityToString(ex.id, ToStringMode::Unicode) << "'";
+    out << "\nfacet: " << ex.facet;
+    out << "\noperation: " << ex.operation;
 }
 
-std::string_view
-Ice::UnknownRequestIdException::ice_staticId()
+void
+Ice::RequestFailedException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownRequestIdException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nrequest failed";
+    printFailedRequestData(out, *this);
 }
 
-Ice::UnknownReplyStatusException::~UnknownReplyStatusException()
+void
+Ice::ObjectNotExistException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nobject does not exist";
+    printFailedRequestData(out, *this);
 }
 
-std::string_view
-Ice::UnknownReplyStatusException::ice_staticId()
+void
+Ice::FacetNotExistException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnknownReplyStatusException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nfacet does not exist";
+    printFailedRequestData(out, *this);
 }
 
-Ice::CloseConnectionException::~CloseConnectionException()
+void
+Ice::OperationNotExistException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\noperation does not exist";
+    printFailedRequestData(out, *this);
 }
 
-std::string_view
-Ice::CloseConnectionException::ice_staticId()
+void
+Ice::SyscallException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::CloseConnectionException";
-    return typeId;
+    Exception::ice_print(out);
+    if (error != 0)
+    {
+        out << ":\nsyscall exception: " << IceUtilInternal::errorToString(error);
+    }
 }
 
-Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException()
+void
+Ice::SocketException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nsocket exception: " << socketErrorToString(error);
 }
 
-std::string_view
-Ice::ConnectionManuallyClosedException::ice_staticId()
+void
+Ice::FileException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::ConnectionManuallyClosedException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nfile exception: ";
+    if (error == 0)
+    {
+        out << "couldn't open file";
+    }
+    else
+    {
+        out << IceUtilInternal::errorToString(error);
+    }
+    if (!path.empty())
+    {
+        out << "\npath: " << path;
+    }
 }
 
-Ice::IllegalMessageSizeException::~IllegalMessageSizeException()
+void
+Ice::ConnectFailedException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nconnect failed: " << socketErrorToString(error);
 }
 
-std::string_view
-Ice::IllegalMessageSizeException::ice_staticId()
+void
+Ice::ConnectionRefusedException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::IllegalMessageSizeException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nconnection refused: " << socketErrorToString(error);
 }
 
-Ice::CompressionException::~CompressionException()
+void
+Ice::ConnectionLostException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nconnection lost: ";
+    if (error == 0)
+    {
+        out << "recv() returned zero";
+    }
+    else
+    {
+        out << socketErrorToString(error);
+    }
 }
 
-std::string_view
-Ice::CompressionException::ice_staticId()
+void
+Ice::DNSException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::CompressionException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nDNS error: ";
+    out << errorToStringDNS(error);
+    out << "\nhost: " << host;
 }
 
-Ice::DatagramLimitException::~DatagramLimitException()
+void
+Ice::OperationInterruptedException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\noperation interrupted";
 }
 
-std::string_view
-Ice::DatagramLimitException::ice_staticId()
+void
+Ice::TimeoutException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::DatagramLimitException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\ntimeout while sending or receiving data";
 }
 
-Ice::MarshalException::~MarshalException()
+void
+Ice::ConnectTimeoutException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\ntimeout while establishing a connection";
 }
 
-std::string_view
-Ice::MarshalException::ice_staticId()
+void
+Ice::CloseTimeoutException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::MarshalException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\ntimeout while closing a connection";
 }
 
-Ice::ProxyUnmarshalException::~ProxyUnmarshalException()
+void
+Ice::ConnectionTimeoutException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nconnection has timed out";
 }
 
-std::string_view
-Ice::ProxyUnmarshalException::ice_staticId()
+void
+Ice::InvocationTimeoutException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::ProxyUnmarshalException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\ninvocation has timed out";
 }
 
-Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException()
+void
+Ice::InvocationCanceledException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\ninvocation canceled";
 }
 
-std::string_view
-Ice::UnmarshalOutOfBoundsException::ice_staticId()
+void
+Ice::ProtocolException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnmarshalOutOfBoundsException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol exception";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::NoValueFactoryException::~NoValueFactoryException()
+void
+Ice::BadMagicException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nunknown magic number: ";
+
+    ios_base::fmtflags originalFlags = out.flags(); // Save stream state
+    ostream::char_type originalFill = out.fill();
+
+    out.flags(ios_base::hex); // Change to hex
+    out.fill('0');            // Fill with leading zeros
+
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[0])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[1])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[2])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[3]));
+
+    out.fill(originalFill); // Restore stream state
+    out.flags(originalFlags);
+
+    if (!reason.empty())
+    {
+        out << "\n" << reason;
+    }
 }
 
-std::string_view
-Ice::NoValueFactoryException::ice_staticId()
+void
+Ice::UnsupportedProtocolException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::NoValueFactoryException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: unsupported protocol version: " << bad;
+    out << "\n(can only support protocols compatible with version " << supported << ")";
 }
 
-Ice::UnexpectedObjectException::~UnexpectedObjectException()
+void
+Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nencoding error: unsupported encoding version: " << bad;
+    out << "\n(can only support encodings compatible with version " << supported << ")";
+    if (!reason.empty())
+    {
+        out << "\n" << reason;
+    }
 }
 
-std::string_view
-Ice::UnexpectedObjectException::ice_staticId()
+void
+Ice::UnknownMessageException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::UnexpectedObjectException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: unknown message type";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::MemoryLimitException::~MemoryLimitException()
+void
+Ice::ConnectionNotValidatedException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: received message over unvalidated connection";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::MemoryLimitException::ice_staticId()
+void
+Ice::UnknownRequestIdException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::MemoryLimitException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: unknown request id";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::StringConversionException::~StringConversionException()
+void
+Ice::UnknownReplyStatusException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: unknown reply status";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::StringConversionException::ice_staticId()
+void
+Ice::CloseConnectionException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::StringConversionException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: connection closed";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::EncapsulationException::~EncapsulationException()
+void
+Ice::ConnectionManuallyClosedException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: connection manually closed (" << (graceful ? "gracefully" : "forcefully") << ")";
 }
 
-std::string_view
-Ice::EncapsulationException::ice_staticId()
+void
+Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::EncapsulationException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: illegal message size";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::FeatureNotSupportedException::~FeatureNotSupportedException()
+void
+Ice::CompressionException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: failed to compress or uncompress data";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::FeatureNotSupportedException::ice_staticId()
+void
+Ice::DatagramLimitException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::FeatureNotSupportedException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: maximum datagram payload size exceeded";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::SecurityException::~SecurityException()
+void
+Ice::MarshalException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: error during marshaling or unmarshaling";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::SecurityException::ice_staticId()
+void
+Ice::ProxyUnmarshalException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::SecurityException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::FixedProxyException::~FixedProxyException()
+void
+Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nprotocol error: out of bounds during unmarshaling";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::FixedProxyException::ice_staticId()
+void
+Ice::NoValueFactoryException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::FixedProxyException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: no suitable value factory found for `" << type << "'";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-Ice::ResponseSentException::~ResponseSentException()
+void
+Ice::UnexpectedObjectException::ice_print(ostream& out) const
 {
+    Exception::ice_print(out);
+    out << ":\nunexpected class instance of type `" << type << "'; expected instance of type `" << expectedType << "'";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
 }
 
-std::string_view
-Ice::ResponseSentException::ice_staticId()
+void
+Ice::MemoryLimitException::ice_print(ostream& out) const
 {
-    static constexpr std::string_view typeId = "::Ice::ResponseSentException";
-    return typeId;
+    Exception::ice_print(out);
+    out << ":\nprotocol error: memory limit exceeded";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}
+
+void
+Ice::StringConversionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: string conversion failed";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}
+
+void
+Ice::EncapsulationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: illegal encapsulation";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}
+
+void
+Ice::PluginInitializationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nplug-in initialization failed";
+    if (!reason.empty())
+    {
+        out << ": " << reason;
+    }
+}
+
+void
+Ice::AlreadyRegisteredException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n" << kindOfObject << " with id `" << id << "' is already registered";
+}
+
+void
+Ice::NotRegisteredException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nno " << kindOfObject << " with id `" << id << "' is registered";
+}
+
+void
+Ice::TwowayOnlyException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\noperation `" << operation << "' can only be invoked as a twoway request";
+}
+
+void
+Ice::CloneNotImplementedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nice_clone() must be implemented in classes derived from abstract base classes";
+}
+
+void
+Ice::FeatureNotSupportedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nfeature `" << unsupportedFeature << "' is not supported";
+}
+
+void
+Ice::SecurityException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nsecurity exception";
+    if (!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}
+
+void
+Ice::FixedProxyException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nfixed proxy exception";
+}
+
+void
+Ice::CFNetworkException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nnetwork exception: domain: " << domain << " error: " << error;
 }

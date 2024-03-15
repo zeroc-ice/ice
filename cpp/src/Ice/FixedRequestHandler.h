@@ -10,27 +10,23 @@
 
 namespace IceInternal
 {
+    // A request handler for a fixed reference.
+    class FixedRequestHandler final : public RequestHandler
+    {
+    public:
+        FixedRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
-// A request handler for a fixed reference.
-class FixedRequestHandler final : public RequestHandler
-{
-public:
+        AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
-    FixedRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
+        void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-    AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
+        Ice::ConnectionIPtr getConnection() final;
+        Ice::ConnectionIPtr waitForConnection() final;
 
-    void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
-
-    Ice::ConnectionIPtr getConnection() final;
-    Ice::ConnectionIPtr waitForConnection() final;
-
-private:
-
-    Ice::ConnectionIPtr _connection;
-    bool _compress;
-};
-
+    private:
+        Ice::ConnectionIPtr _connection;
+        bool _compress;
+    };
 }
 
 #endif

@@ -17,7 +17,6 @@ namespace IceSSL
 }
 
 NSError* convertException(std::exception_ptr);
-NSError* convertException(const std::exception&);
 std::exception_ptr convertException(ICERuntimeException*);
 
 inline NSString*
@@ -49,11 +48,12 @@ void fromObjC(id object, std::shared_ptr<Ice::Endpoint>& endpoint);
 
 NSObject* toObjC(const std::shared_ptr<IceSSL::Certificate>& cert);
 
-template<typename T> NSMutableArray*
+template<typename T>
+NSMutableArray*
 toNSArray(const std::vector<T>& seq)
 {
     NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:seq.size()];
-    for(typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for (typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
         NSObject* obj = toObjC(*p);
         [array addObject:obj];
@@ -61,15 +61,16 @@ toNSArray(const std::vector<T>& seq)
     return array;
 }
 
-template<typename T> std::vector<T>&
+template<typename T>
+std::vector<T>&
 fromNSArray(NSArray* array, std::vector<T>& seq)
 {
-    if(array != nil)
+    if (array != nil)
     {
         seq.reserve([array count]);
         NSEnumerator* enumerator = [array objectEnumerator];
         id obj = nil;
-        while((obj = [enumerator nextObject]))
+        while ((obj = [enumerator nextObject]))
         {
             T v;
             fromObjC(obj, v);
@@ -79,23 +80,25 @@ fromNSArray(NSArray* array, std::vector<T>& seq)
     return seq;
 }
 
-template<typename T> NSMutableData*
+template<typename T>
+NSMutableData*
 toNSData(const std::vector<T>& seq)
 {
     NSMutableData* array = [[NSMutableData alloc] initWithLength:seq.size() * sizeof(T)];
     T* target = (T*)[array bytes];
-    for(typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for (typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
         *target++ = *p;
     }
     return array;
 }
 
-template<typename K, typename V> NSMutableDictionary*
+template<typename K, typename V>
+NSMutableDictionary*
 toNSDictionary(const std::map<K, V>& dict)
 {
     NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:dict.size()];
-    for(typename std::map<K, V>::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    for (typename std::map<K, V>::const_iterator p = dict.begin(); p != dict.end(); ++p)
     {
         NSObject<NSCopying>* key = toObjC(p->first);
         NSObject* value = toObjC(p->second);
@@ -104,14 +107,15 @@ toNSDictionary(const std::map<K, V>& dict)
     return dictionary;
 }
 
-template<typename K, typename V> std::map<K, V>&
+template<typename K, typename V>
+std::map<K, V>&
 fromNSDictionary(NSDictionary* dictionary, std::map<K, V>& dict)
 {
-    if(dictionary != nil)
+    if (dictionary != nil)
     {
         NSEnumerator* enumerator = [dictionary keyEnumerator];
         id obj = nil;
-        while((obj = [enumerator nextObject]))
+        while ((obj = [enumerator nextObject]))
         {
             K k;
             fromObjC(obj, k);

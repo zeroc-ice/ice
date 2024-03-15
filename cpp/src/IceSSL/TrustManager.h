@@ -13,34 +13,30 @@
 
 namespace IceSSL
 {
+    class TrustManager
+    {
+    public:
+        TrustManager(const Ice::CommunicatorPtr&);
 
-class TrustManager
-{
-public:
+        bool verify(const ConnectionInfoPtr&, const std::string&);
 
-    TrustManager(const Ice::CommunicatorPtr&);
+    private:
+        bool match(const std::list<DistinguishedName>&, const DistinguishedName&) const;
+        void parse(const std::string&, std::list<DistinguishedName>&, std::list<DistinguishedName>&) const;
 
-    bool verify(const ConnectionInfoPtr&, const std::string&);
+        const Ice::CommunicatorPtr _communicator;
+        int _traceLevel;
 
-private:
+        std::list<DistinguishedName> _rejectAll;
+        std::list<DistinguishedName> _rejectClient;
+        std::list<DistinguishedName> _rejectAllServer;
+        std::map<std::string, std::list<DistinguishedName>> _rejectServer;
 
-    bool match(const std::list< DistinguishedName> &, const DistinguishedName&) const;
-    void parse(const std::string&, std::list<DistinguishedName>&, std::list<DistinguishedName>&) const;
-
-    const Ice::CommunicatorPtr _communicator;
-    int _traceLevel;
-
-    std::list<DistinguishedName> _rejectAll;
-    std::list<DistinguishedName> _rejectClient;
-    std::list<DistinguishedName> _rejectAllServer;
-    std::map<std::string, std::list<DistinguishedName> > _rejectServer;
-
-    std::list<DistinguishedName> _acceptAll;
-    std::list<DistinguishedName> _acceptClient;
-    std::list<DistinguishedName> _acceptAllServer;
-    std::map<std::string, std::list<DistinguishedName> > _acceptServer;
-};
-
+        std::list<DistinguishedName> _acceptAll;
+        std::list<DistinguishedName> _acceptClient;
+        std::list<DistinguishedName> _acceptAllServer;
+        std::map<std::string, std::list<DistinguishedName>> _acceptServer;
+    };
 }
 
 #endif

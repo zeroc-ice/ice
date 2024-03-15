@@ -13,266 +13,244 @@
 #include <Ice/UniqueRef.h>
 
 #if defined(ICE_USE_EPOLL)
-#   include <sys/epoll.h>
+#    include <sys/epoll.h>
 #elif defined(ICE_USE_KQUEUE)
-#   include <sys/event.h>
+#    include <sys/event.h>
 #elif defined(ICE_USE_IOCP)
 // Nothing to include
 #elif defined(ICE_USE_POLL)
-#   include <sys/poll.h>
+#    include <sys/poll.h>
 #endif
 
 #include <condition_variable>
 
 #if defined(ICE_USE_CFSTREAM)
-#   include <set>
+#    include <set>
 
 struct __CFRunLoop;
-typedef struct __CFRunLoop * CFRunLoopRef;
+typedef struct __CFRunLoop* CFRunLoopRef;
 
 struct __CFRunLoopSource;
-typedef struct __CFRunLoopSource * CFRunLoopSourceRef;
+typedef struct __CFRunLoopSource* CFRunLoopSourceRef;
 
 struct __CFSocket;
-typedef struct __CFSocket * CFSocketRef;
+typedef struct __CFSocket* CFSocketRef;
 #endif
 
 namespace IceInternal
 {
-
-//
-// Exception raised if select times out.
-//
-class SelectorTimeoutException
-{
-};
+    //
+    // Exception raised if select times out.
+    //
+    class SelectorTimeoutException
+    {
+    };
 
 #if defined(ICE_USE_IOCP)
 
-class Selector final
-{
-public:
+    class Selector final
+    {
+    public:
+        Selector(const InstancePtr&);
 
-    Selector(const InstancePtr&);
+        void setup(int);
+        void destroy();
 
-    void setup(int);
-    void destroy();
+        void initialize(EventHandler*);
+        void update(EventHandler*, SocketOperation, SocketOperation);
+        void finish(EventHandler*);
 
-    void initialize(EventHandler*);
-    void update(EventHandler*, SocketOperation, SocketOperation);
-    void finish(EventHandler*);
+        void ready(EventHandler*, SocketOperation, bool);
 
-    void ready(EventHandler*, SocketOperation, bool);
+        EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
 
-    EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
+        void completed(EventHandler*, SocketOperation);
 
-    void completed(EventHandler*, SocketOperation);
-
-private:
-
-    const InstancePtr _instance;
-    HANDLE _handle;
-};
+    private:
+        const InstancePtr _instance;
+        HANDLE _handle;
+    };
 
 #elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
 
-class Selector final
-{
-public:
-
-    Selector(const InstancePtr&);
-
-    void destroy();
-
-    void initialize(EventHandler*)
+    class Selector final
     {
-        // Nothing to do
-    }
-    void update(EventHandler*, SocketOperation, SocketOperation);
-    void enable(EventHandler*, SocketOperation);
-    void disable(EventHandler*, SocketOperation);
-    bool finish(EventHandler*, bool);
+    public:
+        Selector(const InstancePtr&);
 
-    void ready(EventHandler*, SocketOperation, bool);
+        void destroy();
 
-    void startSelect();
-    void finishSelect(std::vector<std::pair<EventHandler*, SocketOperation> >&);
-    void select(int);
-
-private:
-
-    void wakeup();
-    void checkReady(EventHandler*);
-    void updateSelector();
-    void updateSelectorForEventHandler(EventHandler*, SocketOperation, SocketOperation);
-
-    const InstancePtr _instance;
-
-    SOCKET _fdIntrRead;
-    SOCKET _fdIntrWrite;
-    bool _interrupted;
-    bool _selectNow;
-    int _count;
-    bool _selecting;
-    std::map<EventHandlerPtr, SocketOperation> _readyHandlers;
-
-#if defined(ICE_USE_EPOLL)
-    std::vector<struct epoll_event> _events;
-    int _queueFd;
-#elif defined(ICE_USE_KQUEUE)
-    std::vector<struct kevent> _events;
-    std::vector<struct kevent> _changes;
-    int _queueFd;
-#elif defined(ICE_USE_SELECT)
-    std::vector<std::pair<EventHandler*, SocketOperation> > _changes;
-    std::map<SOCKET, EventHandler*> _handlers;
-
-    fd_set _readFdSet;
-    fd_set _writeFdSet;
-    fd_set _errorFdSet;
-    fd_set _selectedReadFdSet;
-    fd_set _selectedWriteFdSet;
-    fd_set _selectedErrorFdSet;
-
-    fd_set*
-    fdSetCopy(fd_set& dest, fd_set& src)
-    {
-        if(src.fd_count > 0)
+        void initialize(EventHandler*)
         {
-            dest.fd_count = src.fd_count;
-            memcpy(dest.fd_array, src.fd_array, sizeof(SOCKET) * src.fd_count);
-            return &dest;
+            // Nothing to do
         }
-        return 0;
-    }
-#elif defined(ICE_USE_POLL)
-    std::vector<std::pair<EventHandler*, SocketOperation> > _changes;
-    std::map<SOCKET, EventHandler*> _handlers;
-    std::vector<struct pollfd> _pollFdSet;
-#endif
-};
+        void update(EventHandler*, SocketOperation, SocketOperation);
+        void enable(EventHandler*, SocketOperation);
+        void disable(EventHandler*, SocketOperation);
+        bool finish(EventHandler*, bool);
+
+        void ready(EventHandler*, SocketOperation, bool);
+
+        void startSelect();
+        void finishSelect(std::vector<std::pair<EventHandler*, SocketOperation>>&);
+        void select(int);
+
+    private:
+        void wakeup();
+        void checkReady(EventHandler*);
+        void updateSelector();
+        void updateSelectorForEventHandler(EventHandler*, SocketOperation, SocketOperation);
+
+        const InstancePtr _instance;
+
+        SOCKET _fdIntrRead;
+        SOCKET _fdIntrWrite;
+        bool _interrupted;
+        bool _selectNow;
+        int _count;
+        bool _selecting;
+        std::map<EventHandlerPtr, SocketOperation> _readyHandlers;
+
+#    if defined(ICE_USE_EPOLL)
+        std::vector<struct epoll_event> _events;
+        int _queueFd;
+#    elif defined(ICE_USE_KQUEUE)
+        std::vector<struct kevent> _events;
+        std::vector<struct kevent> _changes;
+        int _queueFd;
+#    elif defined(ICE_USE_SELECT)
+        std::vector<std::pair<EventHandler*, SocketOperation>> _changes;
+        std::map<SOCKET, EventHandler*> _handlers;
+
+        fd_set _readFdSet;
+        fd_set _writeFdSet;
+        fd_set _errorFdSet;
+        fd_set _selectedReadFdSet;
+        fd_set _selectedWriteFdSet;
+        fd_set _selectedErrorFdSet;
+
+        fd_set* fdSetCopy(fd_set& dest, fd_set& src)
+        {
+            if (src.fd_count > 0)
+            {
+                dest.fd_count = src.fd_count;
+                memcpy(dest.fd_array, src.fd_array, sizeof(SOCKET) * src.fd_count);
+                return &dest;
+            }
+            return 0;
+        }
+#    elif defined(ICE_USE_POLL)
+        std::vector<std::pair<EventHandler*, SocketOperation>> _changes;
+        std::map<SOCKET, EventHandler*> _handlers;
+        std::vector<struct pollfd> _pollFdSet;
+#    endif
+    };
 
 #elif defined(ICE_USE_CFSTREAM)
 
-class Selector;
+    class Selector;
 
-class SelectorReadyCallback
-{
-public:
-
-    virtual ~SelectorReadyCallback() { }
-    virtual void readyCallback(SocketOperation, int = 0) = 0;
-};
-
-class StreamNativeInfo : public NativeInfo
-{
-public:
-
-    StreamNativeInfo(SOCKET fd) : NativeInfo(fd), _connectError(0)
+    class SelectorReadyCallback
     {
-    }
+    public:
+        virtual ~SelectorReadyCallback() {}
+        virtual void readyCallback(SocketOperation, int = 0) = 0;
+    };
 
-    virtual void initStreams(SelectorReadyCallback*) = 0;
-    virtual SocketOperation registerWithRunLoop(SocketOperation) = 0;
-    virtual SocketOperation unregisterFromRunLoop(SocketOperation, bool) = 0;
-    virtual void closeStreams() = 0;
-
-    void setConnectError(int error)
+    class StreamNativeInfo : public NativeInfo
     {
-        _connectError = error;
-    }
+    public:
+        StreamNativeInfo(SOCKET fd) : NativeInfo(fd), _connectError(0) {}
 
-private:
+        virtual void initStreams(SelectorReadyCallback*) = 0;
+        virtual SocketOperation registerWithRunLoop(SocketOperation) = 0;
+        virtual SocketOperation unregisterFromRunLoop(SocketOperation, bool) = 0;
+        virtual void closeStreams() = 0;
 
-    int _connectError;
-};
-using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
+        void setConnectError(int error) { _connectError = error; }
 
-class EventHandlerWrapper final : public SelectorReadyCallback, public std::enable_shared_from_this<EventHandlerWrapper>
-{
-public:
+    private:
+        int _connectError;
+    };
+    using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-    EventHandlerWrapper(EventHandler*, Selector&);
-    ~EventHandlerWrapper();
-
-    void updateRunLoop();
-
-    void readyCallback(SocketOperation, int = 0) final;
-    void ready(SocketOperation, int);
-
-    SocketOperation readyOp();
-    bool checkReady();
-
-    bool update(SocketOperation, SocketOperation);
-    bool finish();
-
-    bool operator<(const EventHandlerWrapper& o)
+    class EventHandlerWrapper final : public SelectorReadyCallback,
+                                      public std::enable_shared_from_this<EventHandlerWrapper>
     {
-        return this < &o;
-    }
+    public:
+        EventHandlerWrapper(EventHandler*, Selector&);
+        ~EventHandlerWrapper();
 
-private:
+        void updateRunLoop();
 
-    friend class Selector;
+        void readyCallback(SocketOperation, int = 0) final;
+        void ready(SocketOperation, int);
 
-    EventHandlerPtr _handler;
-    StreamNativeInfoPtr _streamNativeInfo;
-    Selector& _selector;
-    SocketOperation _ready;
-    bool _finish;
-    IceInternal::UniqueRef<CFSocketRef> _socket;
-    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
-};
-using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
+        SocketOperation readyOp();
+        bool checkReady();
 
-class Selector final
-{
+        bool update(SocketOperation, SocketOperation);
+        bool finish();
 
-public:
+        bool operator<(const EventHandlerWrapper& o) { return this < &o; }
 
-    Selector(const InstancePtr&);
+    private:
+        friend class Selector;
 
-    void destroy();
+        EventHandlerPtr _handler;
+        StreamNativeInfoPtr _streamNativeInfo;
+        Selector& _selector;
+        SocketOperation _ready;
+        bool _finish;
+        IceInternal::UniqueRef<CFSocketRef> _socket;
+        IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
+    };
+    using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
 
-    void initialize(EventHandler*);
-    void update(EventHandler*, SocketOperation, SocketOperation);
-    void enable(EventHandler*, SocketOperation);
-    void disable(EventHandler*, SocketOperation);
-    bool finish(EventHandler*, bool);
+    class Selector final
+    {
+    public:
+        Selector(const InstancePtr&);
 
-    void ready(EventHandler*, SocketOperation, bool);
+        void destroy();
 
-    void startSelect();
-    void finishSelect(std::vector<std::pair<EventHandler*, SocketOperation> >&);
-    void select(int);
+        void initialize(EventHandler*);
+        void update(EventHandler*, SocketOperation, SocketOperation);
+        void enable(EventHandler*, SocketOperation);
+        void disable(EventHandler*, SocketOperation);
+        bool finish(EventHandler*, bool);
 
-    void processInterrupt();
-    void run();
+        void ready(EventHandler*, SocketOperation, bool);
 
-private:
+        void startSelect();
+        void finishSelect(std::vector<std::pair<EventHandler*, SocketOperation>>&);
+        void select(int);
 
-    void ready(EventHandlerWrapper*, SocketOperation, int = 0);
-    void addReadyHandler(EventHandlerWrapperPtr);
+        void processInterrupt();
+        void run();
 
-    friend class EventHandlerWrapper;
+    private:
+        void ready(EventHandlerWrapper*, SocketOperation, int = 0);
+        void addReadyHandler(EventHandlerWrapperPtr);
 
-    InstancePtr _instance;
-    std::thread _thread;
-    CFRunLoopRef _runLoop;
-    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
-    bool _destroyed;
+        friend class EventHandlerWrapper;
 
-    std::set<EventHandlerWrapperPtr> _changes;
+        InstancePtr _instance;
+        std::thread _thread;
+        CFRunLoopRef _runLoop;
+        IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
+        bool _destroyed;
 
-    std::set<EventHandlerWrapperPtr> _readyHandlers;
-    std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation> > _selectedHandlers;
-    std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
-    std::recursive_mutex _mutex;
-    std::condition_variable_any _conditionVariable;
-};
+        std::set<EventHandlerWrapperPtr> _changes;
+
+        std::set<EventHandlerWrapperPtr> _readyHandlers;
+        std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation>> _selectedHandlers;
+        std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
+        std::recursive_mutex _mutex;
+        std::condition_variable_any _conditionVariable;
+    };
 
 #endif
-
 }
 
 #endif

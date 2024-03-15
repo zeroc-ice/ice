@@ -12,74 +12,73 @@
 
 namespace IceInternal
 {
+    class TcpEndpointI final : public IPEndpointI
+    {
+    public:
+        TcpEndpointI(
+            const ProtocolInstancePtr&,
+            const std::string&,
+            std::int32_t,
+            const Address&,
+            std::int32_t,
+            const std::string&,
+            bool);
+        TcpEndpointI(const ProtocolInstancePtr&);
+        TcpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
-class TcpEndpointI final : public IPEndpointI
-{
-public:
+        void streamWriteImpl(Ice::OutputStream*) const final;
 
-    TcpEndpointI(const ProtocolInstancePtr&, const std::string&, std::int32_t, const Address&, std::int32_t, const std::string&,
-                 bool);
-    TcpEndpointI(const ProtocolInstancePtr&);
-    TcpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
+        Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    void streamWriteImpl(Ice::OutputStream*) const final;
+        std::int32_t timeout() const final;
+        EndpointIPtr timeout(std::int32_t) const final;
+        bool compress() const final;
+        EndpointIPtr compress(bool) const final;
+        bool datagram() const final;
 
-    Ice::EndpointInfoPtr getInfo() const noexcept final;
+        TransceiverPtr transceiver() const final;
+        AcceptorPtr acceptor(const std::string&) const final;
+        std::string options() const final;
 
-    std::int32_t timeout() const final;
-    EndpointIPtr timeout(std::int32_t) const final;
-    bool compress() const final;
-    EndpointIPtr compress(bool) const final;
-    bool datagram() const final;
+        bool operator==(const Ice::Endpoint&) const final;
+        bool operator<(const Ice::Endpoint&) const final;
+        TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
 
-    TransceiverPtr transceiver() const final;
-    AcceptorPtr acceptor(const std::string&) const final;
-    std::string options() const final;
+        using IPEndpointI::connectionId;
 
-    bool operator==(const Ice::Endpoint&) const final;
-    bool operator<(const Ice::Endpoint&) const final;
-    TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
+    protected:
+        void hashInit(std::int32_t&) const final;
+        void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
+        bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-    using IPEndpointI::connectionId;
+        ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
+        IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
-protected:
+    private:
+        //
+        // All members are const, because endpoints are immutable.
+        //
+        const std::int32_t _timeout;
+        const bool _compress;
+    };
 
-    void hashInit(std::int32_t&) const final;
-    void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
-    bool checkOption(const std::string&, const std::string&, const std::string&) final;
+    class TcpEndpointFactory final : public EndpointFactory
+    {
+    public:
+        TcpEndpointFactory(const ProtocolInstancePtr&);
+        ~TcpEndpointFactory();
 
-    ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
-    IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
+        std::int16_t type() const final;
+        std::string protocol() const final;
+        EndpointIPtr create(std::vector<std::string>&, bool) const final;
+        EndpointIPtr read(Ice::InputStream*) const final;
+        void destroy() final;
 
-private:
+        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
 
-    //
-    // All members are const, because endpoints are immutable.
-    //
-    const std::int32_t _timeout;
-    const bool _compress;
-};
-
-class TcpEndpointFactory final : public EndpointFactory
-{
-public:
-
-    TcpEndpointFactory(const ProtocolInstancePtr&);
-    ~TcpEndpointFactory();
-
-    std::int16_t type() const final;
-    std::string protocol() const final;
-    EndpointIPtr create(std::vector<std::string>&, bool) const final;
-    EndpointIPtr read(Ice::InputStream*) const final;
-    void destroy() final;
-
-    EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
-
-private:
-
-    ProtocolInstancePtr _instance;
-};
-
+    private:
+        ProtocolInstancePtr _instance;
+    };
 }
 
 #endif

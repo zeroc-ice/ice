@@ -18,65 +18,48 @@ using namespace std;
 
 namespace
 {
-
-//
-// The servant has a 1-1 association with a topic. It is used to
-// receive events from Publishers.
-//
-class TransientPublisherI : public Ice::BlobjectArray
-{
-public:
-
-    TransientPublisherI(shared_ptr<TransientTopicImpl> impl) :
-        _impl(std::move(impl))
+    //
+    // The servant has a 1-1 association with a topic. It is used to
+    // receive events from Publishers.
+    //
+    class TransientPublisherI : public Ice::BlobjectArray
     {
-    }
+    public:
+        TransientPublisherI(shared_ptr<TransientTopicImpl> impl) : _impl(std::move(impl)) {}
 
-    bool
-    ice_invoke(pair<const uint8_t*, const uint8_t*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
+        bool ice_invoke(pair<const byte*, const byte*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
+        {
+            // Use cached reads.
+            EventData event = {current.operation, current.mode, Ice::ByteSeq(), current.ctx};
+
+            Ice::ByteSeq data(inParams.first, inParams.second);
+            event.data.swap(data);
+
+            EventDataSeq v;
+            v.push_back(std::move(event));
+            _impl->publish(false, v);
+
+            return true;
+        }
+
+    private:
+        const shared_ptr<TransientTopicImpl> _impl;
+    };
+
+    //
+    // The servant has a 1-1 association with a topic. It is used to
+    // receive events from linked Topics.
+    //
+    class TransientTopicLinkI : public TopicLink
     {
-        // Use cached reads.
-        EventData event = { current.operation, current.mode, Ice::ByteSeq(), current.ctx };
+    public:
+        TransientTopicLinkI(shared_ptr<TransientTopicImpl> impl) : _impl(std::move(impl)) {}
 
-        Ice::ByteSeq data(inParams.first, inParams.second);
-        event.data.swap(data);
+        void forward(EventDataSeq v, const Ice::Current&) override { _impl->publish(true, std::move(v)); }
 
-        EventDataSeq v;
-        v.push_back(std::move(event));
-        _impl->publish(false, v);
-
-        return true;
-    }
-
-private:
-
-    const shared_ptr<TransientTopicImpl> _impl;
-};
-
-//
-// The servant has a 1-1 association with a topic. It is used to
-// receive events from linked Topics.
-//
-class TransientTopicLinkI : public TopicLink
-{
-public:
-
-    TransientTopicLinkI(shared_ptr<TransientTopicImpl> impl) :
-        _impl(std::move(impl))
-    {
-    }
-
-    void
-    forward(EventDataSeq v, const Ice::Current&) override
-    {
-        _impl->publish(true, std::move(v));
-    }
-
-private:
-
-    const shared_ptr<TransientTopicImpl> _impl;
-};
-
+    private:
+        const shared_ptr<TransientTopicImpl> _impl;
+    };
 }
 
 shared_ptr<TransientTopicImpl>
@@ -96,7 +79,7 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     //
     Ice::Identity pubid;
     Ice::Identity linkid;
-    if(id.category.empty())
+    if (id.category.empty())
     {
         pubid.category = name;
         pubid.name = "publish";
@@ -119,14 +102,11 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     return topicImpl;
 }
 
-TransientTopicImpl::TransientTopicImpl(
-    shared_ptr<Instance> instance,
-    const std::string& name,
-    const Ice::Identity& id) :
-    _instance(std::move(instance)),
-    _name(name),
-    _id(id),
-    _destroyed(false)
+TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, const std::string& name, const Ice::Identity& id)
+    : _instance(std::move(instance)),
+      _name(name),
+      _id(id),
+      _destroyed(false)
 {
 }
 
@@ -156,22 +136,21 @@ TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 optional<Ice::ObjectPrx>
 TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current& current)
 {
-    Ice::checkNotNull(obj, current);
+    checkNotNull(obj, __FILE__, __LINE__, current);
     Ice::Identity id = obj->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topic > 0)
+    if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
 
-        if(traceLevels->topic > 1)
+        if (traceLevels->topic > 1)
         {
-            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
-                << " QoS: ";
-            for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
+            out << " endpoints: " << IceStormInternal::describeEndpoints(obj) << " QoS: ";
+            for (QoS::const_iterator p = qos.begin(); p != qos.end(); ++p)
             {
-                if(p != qos.begin())
+                if (p != qos.begin())
                 {
                     out << ',';
                 }
@@ -189,7 +168,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
     record.link = false;
     record.cost = 0;
 
-    if(find(_subscribers.begin(), _subscribers.end(), record.id) != _subscribers.end())
+    if (find(_subscribers.begin(), _subscribers.end(), record.id) != _subscribers.end())
     {
         throw AlreadySubscribed();
     }
@@ -203,15 +182,15 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
 void
 TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current& current)
 {
-    Ice::checkNotNull(subscriber, current);
+    checkNotNull(subscriber, __FILE__, __LINE__, current);
     Ice::Identity id = subscriber->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topic > 0)
+    if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
-        if(traceLevels->topic > 1)
+        if (traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(subscriber);
         }
@@ -223,7 +202,7 @@ TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::
     // that its possible that the subscriber isn't in the list, but is
     // in the database if the subscriber was locally reaped.
     auto p = find(_subscribers.begin(), _subscribers.end(), id);
-    if(p != _subscribers.end())
+    if (p != _subscribers.end())
     {
         (*p)->destroy();
         _subscribers.erase(p);
@@ -241,16 +220,16 @@ TransientTopicImpl::getLinkProxy(const Ice::Current&)
 void
 TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
-    Ice::checkNotNull(topic, current);
+    checkNotNull(topic, __FILE__, __LINE__, current);
     TopicInternalPrx internal(*topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topic > 0)
+    if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
-            << " cost " << cost;
+        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity()) << " cost "
+            << cost;
     }
 
     lock_guard lock(_mutex);
@@ -265,7 +244,7 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
     record.link = true;
     record.cost = cost;
 
-    if(find(_subscribers.begin(), _subscribers.end(), record.id) != _subscribers.end())
+    if (find(_subscribers.begin(), _subscribers.end(), record.id) != _subscribers.end())
     {
         throw LinkExists(IceStormInternal::identityToTopicName(id));
     }
@@ -279,7 +258,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
-    if(_destroyed)
+    if (_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -287,11 +266,11 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
     auto id = topic->ice_getIdentity();
     auto traceLevels = _instance->traceLevels();
 
-    if(find(_subscribers.begin(), _subscribers.end(), id) == _subscribers.end())
+    if (find(_subscribers.begin(), _subscribers.end(), id) == _subscribers.end())
     {
         string name = IceStormInternal::identityToTopicName(id);
 
-        if(traceLevels->topic > 0)
+        if (traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
             out << _name << ": unlink " << name << " failed - not linked";
@@ -299,7 +278,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
         throw NoSuchLink(name);
     }
 
-    if(traceLevels->topic > 0)
+    if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << " unlink " << _instance->communicator()->identityToString(id);
@@ -309,7 +288,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
     // that its possible that the subscriber isn't in the list, but is
     // in the database if the subscriber was locally reaped.
     auto p = find(_subscribers.begin(), _subscribers.end(), id);
-    if(p != _subscribers.end())
+    if (p != _subscribers.end())
     {
         (*p)->destroy();
         _subscribers.erase(p);
@@ -322,10 +301,10 @@ TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
     lock_guard lock(_mutex);
 
     LinkInfoSeq seq;
-    for(const auto& subscriber : _subscribers)
+    for (const auto& subscriber : _subscribers)
     {
         SubscriberRecord record = subscriber->record();
-        if(record.link && !subscriber->errored())
+        if (record.link && !subscriber->errored())
         {
             LinkInfo info;
             info.name = IceStormInternal::identityToTopicName(record.theTopic->ice_getIdentity());
@@ -343,7 +322,7 @@ TransientTopicImpl::getSubscribers(const Ice::Current&) const
     lock_guard lock(_mutex);
 
     Ice::IdentitySeq subscribers;
-    for(const auto& subscriber : _subscribers)
+    for (const auto& subscriber : _subscribers)
     {
         subscribers.push_back(subscriber->id());
     }
@@ -355,14 +334,14 @@ TransientTopicImpl::destroy(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
-    if(_destroyed)
+    if (_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     _destroyed = true;
 
     auto traceLevels = _instance->traceLevels();
-    if(traceLevels->topic > 0)
+    if (traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": destroy";
@@ -373,13 +352,13 @@ TransientTopicImpl::destroy(const Ice::Current&)
         _instance->publishAdapter()->remove(_linkPrx->ice_getIdentity());
         _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         // Ignore -- this could occur on shutdown.
     }
 
     // Destroy all of the subscribers.
-    for(const auto& subscriber : _subscribers)
+    for (const auto& subscriber : _subscribers)
     {
         subscriber->destroy();
     }
@@ -423,9 +402,9 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // must be reaped.
     //
     vector<Ice::Identity> ids;
-    for(const auto& subscriber : copy)
+    for (const auto& subscriber : copy)
     {
-        if(!subscriber->queue(forwarded, events) && subscriber->reap())
+        if (!subscriber->queue(forwarded, events) && subscriber->reap())
         {
             ids.push_back(subscriber->id());
         }
@@ -435,10 +414,10 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // Run through the error list removing those subscribers that are
     // in error from the subscriber list.
     //
-    if(!ids.empty())
+    if (!ids.empty())
     {
         lock_guard lock(_mutex);
-        for(const auto& id : ids)
+        for (const auto& id : ids)
         {
             //
             // Its possible for the subscriber to already have been
@@ -455,7 +434,7 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
             // the next reap.
             //
             auto q = find(_subscribers.begin(), _subscribers.end(), id);
-            if(q != _subscribers.end())
+            if (q != _subscribers.end())
             {
                 //
                 // Destroy the subscriber.
@@ -473,7 +452,7 @@ TransientTopicImpl::shutdown()
     lock_guard lock(_mutex);
 
     // Shutdown each subscriber. This waits for the event queues to drain.
-    for(const auto& subscriber : _subscribers)
+    for (const auto& subscriber : _subscribers)
     {
         subscriber->shutdown();
     }

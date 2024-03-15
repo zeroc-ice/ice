@@ -58,7 +58,7 @@ TestControllerI::step(
     TestToken& newState,
     const Ice::Current&)
 {
-    switch(currentState.code)
+    switch (currentState.code)
     {
         case Test::StateCode::Finished:
         {
@@ -73,9 +73,9 @@ TestControllerI::step(
 
             SessionTuple session;
             lock_guard lock(_mutex);
-            for(const auto& p : _sessions)
+            for (const auto& p : _sessions)
             {
-                if(p.session == currentSession)
+                if (p.session == currentSession)
                 {
                     session = p;
                     break;
@@ -93,14 +93,14 @@ TestControllerI::step(
             newState = currentState;
 
             ++newState.caseIndex;
-            if(!(newState.caseIndex < (long)config.cases.size()))
+            if (!(newState.caseIndex < (long)config.cases.size()))
             {
                 //
                 // We are out of test cases for this configuration. Move to
                 // the next configuration.
                 //
                 ++newState.config;
-                if(!(newState.config < (long)_configurations.size()))
+                if (!(newState.config < (long)_configurations.size()))
                 {
                     newState.code = Test::StateCode::Finished;
                     newState.expectedResult = false;
@@ -123,7 +123,7 @@ TestControllerI::step(
             newState.expectedResult = config.cases[static_cast<size_t>(newState.caseIndex)].expectedResult;
             newState.testReference = config.cases[static_cast<size_t>(newState.caseIndex)].proxy;
 
-            if(reconfigure)
+            if (reconfigure)
             {
                 auto categories = session.sessionControl->categories();
                 categories->add(config.categoryFiltersAccept);
@@ -168,9 +168,9 @@ void
 TestControllerI::notifyDestroy(const optional<Glacier2::SessionControlPrx>& control)
 {
     lock_guard lock(_mutex);
-    for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
+    for (auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-        if(i->sessionControl == control)
+        if (i->sessionControl == control)
         {
             _sessions.erase(i);
             break;

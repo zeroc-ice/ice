@@ -13,19 +13,17 @@ using namespace IceSSL;
 
 namespace
 {
+    //
+    // See RFC 2253 and RFC 1779.
+    //
 
-//
-// See RFC 2253 and RFC 1779.
-//
-
-string special = ",=+<>#;";
-string hexvalid = "0123456789abcdefABCDEF";
-
+    string special = ",=+<>#;";
+    string hexvalid = "0123456789abcdefABCDEF";
 }
 
 static char unescapeHex(const string&, size_t);
-static pair<string,string> parseNameComponent(const string&, size_t&);
-static pair<string,string> parseAttributeTypeAndValue(const string&, size_t&);
+static pair<string, string> parseNameComponent(const string&, size_t&);
+static pair<string, string> parseAttributeTypeAndValue(const string&, size_t&);
 static string parseAttributeType(const string&, size_t&);
 static string parseAttributeValue(const string&, size_t&);
 static string parsePair(const string&, size_t&);
@@ -39,12 +37,12 @@ RFC2253::parse(const string& data)
     RDNEntry current;
     current.negate = false;
     size_t pos = 0;
-    while(pos < data.size())
+    while (pos < data.size())
     {
         eatWhite(data, pos);
-        if(pos < data.size() && data[pos] == '!')
+        if (pos < data.size() && data[pos] == '!')
         {
-            if(!current.rdn.empty())
+            if (!current.rdn.empty())
             {
                 throw ParseException(__FILE__, __LINE__, "negation symbol '!' must appear at start of list");
             }
@@ -53,23 +51,23 @@ RFC2253::parse(const string& data)
         }
         current.rdn.push_back(parseNameComponent(data, pos));
         eatWhite(data, pos);
-        if(pos < data.size() && data[pos] == ',')
+        if (pos < data.size() && data[pos] == ',')
         {
             ++pos;
         }
-        else if(pos < data.size() && data[pos] == ';')
+        else if (pos < data.size() && data[pos] == ';')
         {
             ++pos;
             results.push_back(current);
             current.rdn.clear();
             current.negate = false;
         }
-        else if(pos < data.size())
+        else if (pos < data.size())
         {
             throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
         }
     }
-    if(!current.rdn.empty())
+    if (!current.rdn.empty())
     {
         results.push_back(current);
     }
@@ -82,15 +80,15 @@ RFC2253::parseStrict(const string& data)
 {
     RDNSeq results;
     size_t pos = 0;
-    while(pos < data.size())
+    while (pos < data.size())
     {
         results.push_back(parseNameComponent(data, pos));
         eatWhite(data, pos);
-        if(pos < data.size() && (data[pos] == ',' || data[pos] == ';'))
+        if (pos < data.size() && (data[pos] == ',' || data[pos] == ';'))
         {
             ++pos;
         }
-        else if(pos < data.size())
+        else if (pos < data.size())
         {
             throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
         }
@@ -101,14 +99,14 @@ RFC2253::parseStrict(const string& data)
 string
 RFC2253::unescape(const string& data)
 {
-    if(data.size() == 0)
+    if (data.size() == 0)
     {
         return data;
     }
 
-    if(data[0] == '"')
+    if (data[0] == '"')
     {
-        if(data[data.size() - 1] != '"')
+        if (data[data.size() - 1] != '"')
         {
             throw ParseException(__FILE__, __LINE__, "unescape: missing \"");
         }
@@ -123,10 +121,10 @@ RFC2253::unescape(const string& data)
     // Unescape the entire string.
     //
     string result;
-    if(data[0] == '#')
+    if (data[0] == '#')
     {
         size_t pos = 1;
-        while(pos < data.size())
+        while (pos < data.size())
         {
             result += unescapeHex(data, pos);
             pos += 2;
@@ -135,9 +133,9 @@ RFC2253::unescape(const string& data)
     else
     {
         size_t pos = 0;
-        while(pos < data.size())
+        while (pos < data.size())
         {
-            if(data[pos] != '\\')
+            if (data[pos] != '\\')
             {
                 result += data[pos];
                 ++pos;
@@ -145,11 +143,11 @@ RFC2253::unescape(const string& data)
             else
             {
                 ++pos;
-                if(pos >= data.size())
+                if (pos >= data.size())
                 {
                     throw ParseException(__FILE__, __LINE__, "unescape: invalid escape sequence");
                 }
-                if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
+                if (special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
                 {
                     result += data[pos];
                     ++pos;
@@ -169,15 +167,15 @@ RFC2253::unescape(const string& data)
 static int
 hexToInt(char v)
 {
-    if(v >= '0' && v <= '9')
+    if (v >= '0' && v <= '9')
     {
         return v - '0';
     }
-    if(v >= 'a' && v <= 'f')
+    if (v >= 'a' && v <= 'f')
     {
         return 10 + (v - 'a');
     }
-    if(v >= 'A' && v <= 'F')
+    if (v >= 'A' && v <= 'F')
     {
         return 10 + (v - 'A');
     }
@@ -188,21 +186,21 @@ static char
 unescapeHex(const string& data, size_t pos)
 {
     assert(pos < data.size());
-    if(pos + 2 >= data.size())
+    if (pos + 2 >= data.size())
     {
         throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
     }
     return static_cast<char>(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
 }
 
-static pair<string,string>
+static pair<string, string>
 parseNameComponent(const string& data, size_t& pos)
 {
     pair<string, string> final = parseAttributeTypeAndValue(data, pos);
-    while(pos < data.size())
+    while (pos < data.size())
     {
         eatWhite(data, pos);
-        if(pos < data.size() && data[pos] == '+')
+        if (pos < data.size() && data[pos] == '+')
         {
             ++pos;
         }
@@ -219,18 +217,18 @@ parseNameComponent(const string& data, size_t& pos)
     return final;
 }
 
-static pair<string,string>
+static pair<string, string>
 parseAttributeTypeAndValue(const string& data, size_t& pos)
 {
     pair<string, string> p;
     p.first = parseAttributeType(data, pos);
     eatWhite(data, pos);
 
-    if(pos >= data.size())
+    if (pos >= data.size())
     {
         throw ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (unexpected end of data)");
     }
-    if(data[pos] != '=')
+    if (data[pos] != '=')
     {
         throw ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (missing =)");
     }
@@ -243,7 +241,7 @@ static string
 parseAttributeType(const string& data, size_t& pos)
 {
     eatWhite(data, pos);
-    if(pos >= data.size())
+    if (pos >= data.size())
     {
         throw ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
     }
@@ -268,30 +266,30 @@ parseAttributeType(const string& data, size_t& pos)
     //
     // First the OID case.
     //
-    if(IceUtilInternal::isDigit(data[pos]) ||
-       (data.size() - pos >= 4 && (data.substr(pos, 4) == "oid." || data.substr(pos, 4) == "OID.")))
+    if (IceUtilInternal::isDigit(data[pos]) ||
+        (data.size() - pos >= 4 && (data.substr(pos, 4) == "oid." || data.substr(pos, 4) == "OID.")))
     {
-        if(!IceUtilInternal::isDigit(data[pos]))
+        if (!IceUtilInternal::isDigit(data[pos]))
         {
             result += data.substr(pos, 4);
             pos += 4;
         }
 
-        while(true)
+        while (true)
         {
             // 1*DIGIT
-            while(pos < data.size() && IceUtilInternal::isDigit(data[pos]))
+            while (pos < data.size() && IceUtilInternal::isDigit(data[pos]))
             {
                 result += data[pos];
                 ++pos;
             }
             // "." 1*DIGIT
-            if(pos < data.size() && data[pos] == '.')
+            if (pos < data.size() && data[pos] == '.')
             {
                 result += data[pos];
                 ++pos;
                 // 1*DIGIT must follow "."
-                if(pos < data.size() && !IceUtilInternal::isDigit(data[pos]))
+                if (pos < data.size() && !IceUtilInternal::isDigit(data[pos]))
                 {
                     throw ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
                 }
@@ -302,7 +300,7 @@ parseAttributeType(const string& data, size_t& pos)
             }
         }
     }
-    else if(IceUtilInternal::isAlpha(data[pos]))
+    else if (IceUtilInternal::isAlpha(data[pos]))
     {
         //
         // The grammar is wrong in this case. It should be ALPHA
@@ -312,8 +310,8 @@ parseAttributeType(const string& data, size_t& pos)
         result += data[pos];
         ++pos;
         // 1* KEYCHAR
-        while(pos < data.size() &&
-              (IceUtilInternal::isAlpha(data[pos]) || IceUtilInternal::isDigit(data[pos]) || data[pos] == '-'))
+        while (pos < data.size() &&
+               (IceUtilInternal::isAlpha(data[pos]) || IceUtilInternal::isDigit(data[pos]) || data[pos] == '-'))
         {
             result += data[pos];
             ++pos;
@@ -331,7 +329,7 @@ parseAttributeValue(const string& data, size_t& pos)
 {
     eatWhite(data, pos);
     string result;
-    if(pos >= data.size())
+    if (pos >= data.size())
     {
         return result;
     }
@@ -340,14 +338,14 @@ parseAttributeValue(const string& data, size_t& pos)
     // RFC 2253
     // # hexstring
     //
-    if(data[pos] == '#')
+    if (data[pos] == '#')
     {
         result += data[pos];
         ++pos;
-        while(true)
+        while (true)
         {
             string h = parseHexPair(data, pos, true);
-            if(h.size() == 0)
+            if (h.size() == 0)
             {
                 break;
             }
@@ -359,25 +357,25 @@ parseAttributeValue(const string& data, size_t& pos)
     // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
     // quotechar     = <any character except "\" or QUOTATION >
     //
-    else if(data[pos] == '"')
+    else if (data[pos] == '"')
     {
         result += data[pos];
         ++pos;
-        while(true)
+        while (true)
         {
-            if(pos >= data.size())
+            if (pos >= data.size())
             {
                 throw ParseException(__FILE__, __LINE__, "invalid attribute value (unexpected end of data)");
             }
             // final terminating "
-            if(data[pos] == '"')
+            if (data[pos] == '"')
             {
                 result += data[pos];
                 ++pos;
                 break;
             }
             // any character except '\'
-            else if(data[pos] != '\\')
+            else if (data[pos] != '\\')
             {
                 result += data[pos];
                 ++pos;
@@ -396,13 +394,13 @@ parseAttributeValue(const string& data, size_t& pos)
     //
     else
     {
-        while(pos < data.size())
+        while (pos < data.size())
         {
-            if(data[pos] == '\\')
+            if (data[pos] == '\\')
             {
                 result += parsePair(data, pos);
             }
-            else if(special.find(data[pos]) == string::npos && data[pos] != '"')
+            else if (special.find(data[pos]) == string::npos && data[pos] != '"')
             {
                 result += data[pos];
                 ++pos;
@@ -429,12 +427,12 @@ parsePair(const string& data, size_t& pos)
     result += data[pos];
     ++pos;
 
-    if(pos >= data.size())
+    if (pos >= data.size())
     {
         throw ParseException(__FILE__, __LINE__, "invalid escape format (unexpected end of data)");
     }
 
-    if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
+    if (special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
     {
         result += data[pos];
         ++pos;
@@ -451,19 +449,19 @@ static string
 parseHexPair(const string& data, size_t& pos, bool allowEmpty)
 {
     string result;
-    if(pos < data.size() && hexvalid.find(data[pos]) != string::npos)
+    if (pos < data.size() && hexvalid.find(data[pos]) != string::npos)
     {
         result += data[pos];
         ++pos;
     }
-    if(pos < data.size() && hexvalid.find(data[pos]) != string::npos)
+    if (pos < data.size() && hexvalid.find(data[pos]) != string::npos)
     {
         result += data[pos];
         ++pos;
     }
-    if(result.size() != 2)
+    if (result.size() != 2)
     {
-        if(allowEmpty && result.size() == 0)
+        if (allowEmpty && result.size() == 0)
         {
             return result;
         }
@@ -483,7 +481,7 @@ parseHexPair(const string& data, size_t& pos, bool allowEmpty)
 static void
 eatWhite(const string& data, size_t& pos)
 {
-    while(pos < data.size() && data[pos] == ' ')
+    while (pos < data.size() && data[pos] == ' ')
     {
         ++pos;
     }

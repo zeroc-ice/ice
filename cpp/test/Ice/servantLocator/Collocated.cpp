@@ -13,13 +13,9 @@ using namespace Ice;
 class ServantLocatorI final : public Test::ServantLocatorI
 {
 public:
-
-    ServantLocatorI(const string& category) : Test::ServantLocatorI(category)
-    {
-    }
+    ServantLocatorI(const string& category) : Test::ServantLocatorI(category) {}
 
 protected:
-
     shared_ptr<Ice::Object> newServantAndCookie(shared_ptr<void>& cookie) const final
     {
         cookie = make_shared<Cookie>();
@@ -33,19 +29,15 @@ protected:
         test(co->message() == "blahblah");
     }
 
-    void throwTestIntfUserException() const final
-    {
-        throw Test::TestIntfUserException();
-    }
+    void throwTestIntfUserException() const final { throw Test::TestIntfUserException(); }
 };
 
 class TestActivationI : public Test::TestActivation
 {
 public:
-
     void activateServantLocator(bool activate, const Ice::Current& current)
     {
-        if(activate)
+        if (activate)
         {
             current.adapter->addServantLocator(make_shared<ServantLocatorI>(""), "");
             current.adapter->addServantLocator(make_shared<ServantLocatorI>("category"), "category");
@@ -63,7 +55,6 @@ public:
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

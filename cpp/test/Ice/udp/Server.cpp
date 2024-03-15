@@ -11,7 +11,6 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -32,7 +31,7 @@ Server::run(int argc, char** argv)
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("control"));
     adapter->activate();
 
-    if(num == 0)
+    if (num == 0)
     {
         communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
@@ -41,7 +40,7 @@ Server::run(int argc, char** argv)
     }
 
     ostringstream endpoint;
-    if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+    if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
@@ -63,11 +62,11 @@ Server::run(int argc, char** argv)
         mcastAdapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
         mcastAdapter->activate();
     }
-    catch(const Ice::SocketException&)
+    catch (const Ice::SocketException&)
     {
         // Multicast IPv6 not supported on the platform. This occurs for example
         // on AIX PVP clould VMs.
-        if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
         {
             cout << "McastTestAdapter ready" << endl;
         }

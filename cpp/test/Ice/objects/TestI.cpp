@@ -45,10 +45,7 @@ DI::ice_postUnmarshal()
     postUnmarshalInvoked = true;
 }
 
-EI::EI() :
-    E(1, "hello")
-{
-}
+EI::EI() : E(1, "hello") {}
 
 bool
 EI::checkValues()
@@ -56,14 +53,9 @@ EI::checkValues()
     return i == 1 && s == "hello";
 }
 
-FI::FI()
-{
-}
+FI::FI() {}
 
-FI::FI(const EPtr& e) :
-    F(e, e)
-{
-}
+FI::FI(const EPtr& e) : F(e, e) {}
 
 bool
 FI::checkValues()
@@ -71,28 +63,28 @@ FI::checkValues()
     return e1 && e1 == e2;
 }
 
-InitialI::InitialI(const ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
-    _b1(new BI),
-    _b2(new BI),
-    _c(new CI),
-    _d(new DI),
-    _e(new EI),
-    _f(new FI(_e))
+InitialI::InitialI(const ObjectAdapterPtr& adapter)
+    : _adapter(adapter),
+      _b1(new BI),
+      _b2(new BI),
+      _c(new CI),
+      _d(new DI),
+      _e(new EI),
+      _f(new FI(_e))
 {
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
-    _b1->theC = 0; // Null reference.
+    _b1->theC = 0;   // Null reference.
 
     _b2->theA = _b2; // Self reference, using base.
     _b2->theB = _b1; // Cyclic reference to another B
-    _b2->theC = _c; // Cyclic reference to a C.
+    _b2->theC = _c;  // Cyclic reference to a C.
 
     _c->theB = _b2; // Cyclic reference to a B.
 
     _d->theA = _b1; // Reference to a B.
     _d->theB = _b2; // Reference to a B.
-    _d->theC = 0; // Reference to a C.
+    _d->theC = 0;   // Reference to a C.
 
     _b1->postUnmarshalInvoked = false;
     _b2->postUnmarshalInvoked = false;
@@ -199,9 +191,10 @@ InitialI::getMB(const Current& current)
 }
 
 void
-InitialI::getAMDMBAsync(function<void(GetAMDMBMarshaledResult)> response,
-                        function<void(exception_ptr)>,
-                        const Current& current)
+InitialI::getAMDMBAsync(
+    function<void(GetAMDMBMarshaledResult)> response,
+    function<void(exception_ptr)>,
+    const Current& current)
 {
     response(GetAMDMBMarshaledResult(_b1, current));
 }
@@ -301,10 +294,7 @@ InitialI::getD1(D1Ptr d1, const Current&)
 void
 InitialI::throwEDerived(const Current&)
 {
-    throw EDerived(make_shared<A1>("a1"),
-                   make_shared<A1>("a2"),
-                   make_shared<A1>("a3"),
-                   make_shared<A1>("a4"));
+    throw EDerived(make_shared<A1>("a1"), make_shared<A1>("a2"), make_shared<A1>("a3"), make_shared<A1>("a4"));
 }
 
 MPtr
@@ -315,9 +305,7 @@ InitialI::opM(MPtr v1, MPtr& v2, const Current&)
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(vector<uint8_t>,
-                                           vector<uint8_t>& outParams,
-                                           const Current& current)
+UnexpectedObjectExceptionTestI::ice_invoke(vector<byte>, vector<byte>& outParams, const Current& current)
 {
     CommunicatorPtr communicator = current.adapter->getCommunicator();
     OutputStream out(communicator);

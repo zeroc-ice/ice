@@ -4,6 +4,4 @@
 
 #include <Ice/Logger.h>
 
-Ice::Logger::~Logger()
-{
-}
+Ice::Logger::~Logger() {}

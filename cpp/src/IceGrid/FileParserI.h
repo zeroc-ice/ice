@@ -9,15 +9,11 @@
 
 namespace IceGrid
 {
-
-class FileParserI : public FileParser
-{
-public:
-
-    ApplicationDescriptor
-    parse(std::string file, AdminPrxPtr admin, const Ice::Current&) override;
-};
-
+    class FileParserI final : public FileParser
+    {
+    public:
+        ApplicationDescriptor parse(std::string file, std::optional<AdminPrx> admin, const Ice::Current&) final;
+    };
 }
 
 #endif

@@ -15,7 +15,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     Ice::CommunicatorPtr communicator = helper->communicator();
     ostringstream ref;
     ref << "test";
-    for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
+    for (vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
         ref << ":" << helper->getTestEndpoint(*p);
     }
@@ -23,15 +23,15 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
 
     int oldPid = 0;
     bool ami = false;
-    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
+    for (unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
     {
-        if(j > 3)
+        if (j > 3)
         {
             j = 0;
             ami = !ami;
         }
 
-        if(!ami)
+        if (!ami)
         {
             cout << "testing server #" << i << "... " << flush;
             int pid = obj->pid();
@@ -49,15 +49,15 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                 cout << "ok" << endl;
                 oldPid = pid;
             }
-            catch(const exception&)
+            catch (const exception&)
             {
                 test(false);
             }
         }
 
-        if(j == 0)
+        if (j == 0)
         {
-            if(!ami)
+            if (!ami)
             {
                 cout << "shutting down server #" << i << "... " << flush;
                 obj->shutdown();
@@ -70,16 +70,16 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                 {
                     obj->shutdownAsync().get();
                 }
-                catch(const exception&)
+                catch (const exception&)
                 {
                     test(false);
                 }
                 cout << "ok" << endl;
             }
         }
-        else if(j == 1 || i + 1 > ports.size())
+        else if (j == 1 || i + 1 > ports.size())
         {
-            if(!ami)
+            if (!ami)
             {
                 cout << "aborting server #" << i << "... " << flush;
                 try
@@ -87,11 +87,11 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                     obj->abort();
                     test(false);
                 }
-                catch(const Ice::ConnectionLostException&)
+                catch (const Ice::ConnectionLostException&)
                 {
                     cout << "ok" << endl;
                 }
-                catch(const Ice::ConnectFailedException&)
+                catch (const Ice::ConnectFailedException&)
                 {
                     cout << "ok" << endl;
                 }
@@ -104,15 +104,15 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                     obj->abortAsync().get();
                     test(false);
                 }
-                catch(const exception&)
+                catch (const exception&)
                 {
                 }
                 cout << "ok" << endl;
             }
         }
-        else if(j == 2 || j == 3)
+        else if (j == 2 || j == 3)
         {
-            if(!ami)
+            if (!ami)
             {
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
                 try
@@ -120,11 +120,11 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                     obj->idempotentAbort();
                     test(false);
                 }
-                catch(const Ice::ConnectionLostException&)
+                catch (const Ice::ConnectionLostException&)
                 {
                     cout << "ok" << endl;
                 }
-                catch(const Ice::ConnectFailedException&)
+                catch (const Ice::ConnectFailedException&)
                 {
                     cout << "ok" << endl;
                 }
@@ -137,7 +137,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                     obj->idempotentAbortAsync().get();
                     test(false);
                 }
-                catch(const exception&)
+                catch (const exception&)
                 {
                 }
                 cout << "ok" << endl;
@@ -157,7 +157,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
         obj->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }

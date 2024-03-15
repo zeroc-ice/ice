@@ -12,7 +12,6 @@
 class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {
 public:
-
     ServerLocatorRegistry();
 
     void setAdapterDirectProxyAsync(
@@ -47,34 +46,33 @@ public:
     void addObject(const std::optional<Ice::ObjectPrx>&);
 
 private:
-
-    ::std::map< ::std::string, std::optional<Ice::ObjectPrx>> _adapters;
-    ::std::map< Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
+    ::std::map<::std::string, std::optional<Ice::ObjectPrx>> _adapters;
+    ::std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
 class ServerLocator final : public Test::TestLocator
 {
 public:
-
     ServerLocator(const ::ServerLocatorRegistryPtr&, const std::optional<Ice::LocatorRegistryPrx>&);
 
-    void findObjectByIdAsync(Ice::Identity,
-                                      std::function<void(const std::optional<Ice::ObjectPrx>&)>,
-                                      std::function<void(std::exception_ptr)>,
-                                      const Ice::Current&) const final;
+    void findObjectByIdAsync(
+        Ice::Identity,
+        std::function<void(const std::optional<Ice::ObjectPrx>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const final;
 
-    void findAdapterByIdAsync(::std::string,
-                                       std::function<void(const std::optional<Ice::ObjectPrx>&)>,
-                                       std::function<void(std::exception_ptr)>,
-                                       const Ice::Current&) const final;
+    void findAdapterByIdAsync(
+        ::std::string,
+        std::function<void(const std::optional<Ice::ObjectPrx>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const final;
 
     std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
     int getRequestCount(const Ice::Current&) const final;
 
 private:
-
     ServerLocatorRegistryPtr _registry;
     std::optional<Ice::LocatorRegistryPrx> _registryPrx;
     int _requestCount;

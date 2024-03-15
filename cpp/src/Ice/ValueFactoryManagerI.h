@@ -12,28 +12,24 @@
 
 namespace IceInternal
 {
+    class ValueFactoryManagerI final : public Ice::ValueFactoryManager
+    {
+    public:
+        ValueFactoryManagerI();
 
-class ValueFactoryManagerI final : public Ice::ValueFactoryManager
-{
-public:
+        void add(Ice::ValueFactoryFunc, std::string_view) final;
+        void add(Ice::ValueFactoryPtr, std::string_view) final;
+        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
-    ValueFactoryManagerI();
+    private:
+        using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc, std::less<>>;
 
-    void add(Ice::ValueFactoryFunc, std::string_view) final;
-    void add(Ice::ValueFactoryPtr, std::string_view) final;
-    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+        FactoryFuncMap _factoryFuncMap;
+        mutable FactoryFuncMap::iterator _factoryFuncMapHint;
+        mutable std::mutex _mutex;
+    };
 
-private:
-
-    using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc, std::less<>>;
-
-    FactoryFuncMap _factoryFuncMap;
-    mutable FactoryFuncMap::iterator _factoryFuncMapHint;
-    mutable std::mutex _mutex;
-};
-
-using ValueFactoryManagerIPtr = std::shared_ptr<ValueFactoryManagerI>;
-
+    using ValueFactoryManagerIPtr = std::shared_ptr<ValueFactoryManagerI>;
 }
 
 #endif

@@ -17,10 +17,10 @@ struct SessionTuple
     bool configured = false;
 
     SessionTuple() = default;
-    SessionTuple(std::optional<Glacier2::SessionPrx> s, std::optional<Glacier2::SessionControlPrx> control):
-        session(std::move(s)),
-        sessionControl(std::move(control)),
-        configured(false)
+    SessionTuple(std::optional<Glacier2::SessionPrx> s, std::optional<Glacier2::SessionControlPrx> control)
+        : session(std::move(s)),
+          sessionControl(std::move(control)),
+          configured(false)
     {
     }
 
@@ -60,8 +60,11 @@ class TestControllerI final : public Test::TestController
 public:
     TestControllerI(const std::string&);
 
-    void step(std::optional<Glacier2::SessionPrx> currentSession, Test::TestToken currentState,
-              Test::TestToken& newState, const Ice::Current&) override;
+    void step(
+        std::optional<Glacier2::SessionPrx> currentSession,
+        Test::TestToken currentState,
+        Test::TestToken& newState,
+        const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 
@@ -73,11 +76,9 @@ public:
     void notifyDestroy(const std::optional<Glacier2::SessionControlPrx>&);
 
 private:
-
     std::mutex _mutex;
     std::vector<SessionTuple> _sessions;
     std::vector<TestConfiguration> _configurations;
-
 };
 
 #endif

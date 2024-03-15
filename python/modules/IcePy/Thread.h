@@ -11,55 +11,47 @@
 
 namespace IcePy
 {
+    //
+    // Release Python's Global Interpreter Lock during potentially time-consuming
+    // (and non-Python related) work.
+    //
+    class AllowThreads
+    {
+    public:
+        AllowThreads();
+        ~AllowThreads();
 
-//
-// Release Python's Global Interpreter Lock during potentially time-consuming
-// (and non-Python related) work.
-//
-class AllowThreads
-{
-public:
+    private:
+        PyThreadState* _state;
+    };
 
-    AllowThreads();
-    ~AllowThreads();
+    //
+    // Ensure that the current thread is capable of calling into Python.
+    //
+    class AdoptThread
+    {
+    public:
+        AdoptThread();
+        ~AdoptThread();
 
-private:
+    private:
+        PyGILState_STATE _state;
+    };
 
-    PyThreadState* _state;
-};
+    // ThreadHook ensures that every Ice thread is ready to invoke the Python API. It also acts as a wrapper thread
+    // notification callbacks.
+    class ThreadHook final
+    {
+    public:
+        ThreadHook(PyObject*, PyObject*);
 
-//
-// Ensure that the current thread is capable of calling into Python.
-//
-class AdoptThread
-{
-public:
+        void start();
+        void stop();
 
-    AdoptThread();
-    ~AdoptThread();
-
-private:
-
-    PyGILState_STATE _state;
-};
-
-// ThreadHook ensures that every Ice thread is ready to invoke the Python API. It also acts as a wrapper thread
-// notification callbacks.
-class ThreadHook final
-{
-public:
-
-    ThreadHook(PyObject*, PyObject*);
-
-    void start();
-    void stop();
-
-private:
-
-    PyObjectHandle _threadStart;
-    PyObjectHandle _threadStop;
-};
-
+    private:
+        PyObjectHandle _threadStart;
+        PyObjectHandle _threadStop;
+    };
 }
 
 #endif

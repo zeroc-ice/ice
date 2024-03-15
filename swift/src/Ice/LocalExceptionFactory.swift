@@ -13,10 +13,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return PluginInitializationException(reason: reason, file: file, line: line)
     }
 
-    static func collocationOptimizationException(_ file: String, line: Int) -> Error {
-        return CollocationOptimizationException(file: file, line: line)
-    }
-
     static func alreadyRegisteredException(_ kindOfObject: String, id: String, file: String, line: Int) -> Error {
         return AlreadyRegisteredException(kindOfObject: kindOfObject, id: id, file: file, line: line)
     }
@@ -99,10 +95,6 @@ class ExceptionFactory: ICEExceptionFactory {
 
     static func fixedProxyException(_ file: String, line: Int) -> Error {
         return FixedProxyException(file: file, line: line)
-    }
-
-    static func responseSentException(_ file: String, line: Int) -> Error {
-        return ResponseSentException(file: file, line: line)
     }
 
     static func securityException(_ reason: String, file: String, line: Int) -> Error {

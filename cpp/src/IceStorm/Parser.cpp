@@ -25,47 +25,37 @@ using namespace IceStorm;
 
 namespace IceStorm
 {
-
-Parser* parser;
+    Parser* parser;
 
 #ifdef _WIN32
-shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
+    shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
 #endif
-
 }
 
 namespace
 {
-
-class UnknownManagerException : public std::exception
-{
-public:
-
-    explicit UnknownManagerException(const std::string& name) : _name(name)
+    class UnknownManagerException : public std::exception
     {
-    }
+    public:
+        explicit UnknownManagerException(const std::string& name) : _name(name) {}
 
-    const char* what() const noexcept override
-    {
-        return _name.c_str();
-    }
+        const char* what() const noexcept override { return _name.c_str(); }
 
-private:
-    const string _name;
-};
-
+    private:
+        const string _name;
+    };
 }
 
 Parser::Parser(
     shared_ptr<Communicator> communicator,
     TopicManagerPrx admin,
-    map<Ice::Identity, TopicManagerPrx> managers) :
-    _communicator(std::move(communicator)),
-    _defaultManager(std::move(admin)),
-    _managers(std::move(managers))
+    map<Ice::Identity, TopicManagerPrx> managers)
+    : _communicator(std::move(communicator)),
+      _defaultManager(std::move(admin)),
+      _managers(std::move(managers))
 {
 #ifdef _WIN32
-    if(!windowsConsoleConverter)
+    if (!windowsConsoleConverter)
     {
         windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
     }
@@ -75,34 +65,32 @@ Parser::Parser(
 void
 Parser::usage()
 {
-    consoleOut <<
-        "help                     Print this message.\n"
-        "exit, quit               Exit this program.\n"
-        "create TOPICS            Add TOPICS.\n"
-        "destroy TOPICS           Remove TOPICS.\n"
-        "link FROM TO [COST]      Link FROM to TO with the optional given COST.\n"
-        "unlink FROM TO           Unlink TO from FROM.\n"
-        "links [INSTANCE-NAME]    Display all links for the topics in the current topic\n"
-        "                         manager, or in the given INSTANCE-NAME.\n"
-        "topics [INSTANCE-NAME]   Display the names of all topics in the current topic\n"
-        "                         manager, or in the given INSTANCE-NAME.\n"
-        "current [INSTANCE-NAME]  Display the current topic manager, or change it to\n"
-        "                         INSTANCE-NAME.\n"
-        "replica [INSTANCE-NAME]  Display replication information for the given INSTANCE-NAME.\n"
-        "subscribers TOPICS       List TOPICS subscribers.\n"
-        ;
+    consoleOut << "help                     Print this message.\n"
+                  "exit, quit               Exit this program.\n"
+                  "create TOPICS            Add TOPICS.\n"
+                  "destroy TOPICS           Remove TOPICS.\n"
+                  "link FROM TO [COST]      Link FROM to TO with the optional given COST.\n"
+                  "unlink FROM TO           Unlink TO from FROM.\n"
+                  "links [INSTANCE-NAME]    Display all links for the topics in the current topic\n"
+                  "                         manager, or in the given INSTANCE-NAME.\n"
+                  "topics [INSTANCE-NAME]   Display the names of all topics in the current topic\n"
+                  "                         manager, or in the given INSTANCE-NAME.\n"
+                  "current [INSTANCE-NAME]  Display the current topic manager, or change it to\n"
+                  "                         INSTANCE-NAME.\n"
+                  "replica [INSTANCE-NAME]  Display replication information for the given INSTANCE-NAME.\n"
+                  "subscribers TOPICS       List TOPICS subscribers.\n";
 }
 
 void
 Parser::create(const list<string>& args)
 {
-    if(args.empty())
+    if (args.empty())
     {
         error("`create' requires at least one argument (type `help' for more info)");
         return;
     }
 
-    for(const auto& arg : args)
+    for (const auto& arg : args)
     {
         try
         {
@@ -110,9 +98,11 @@ Parser::create(const list<string>& args)
             auto manager = findManagerById(arg, topicName);
             manager->create(topicName);
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
-            exception(current_exception(), args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
+            exception(
+                current_exception(),
+                args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
         }
     }
 }
@@ -120,21 +110,23 @@ Parser::create(const list<string>& args)
 void
 Parser::destroy(const list<string>& args)
 {
-    if(args.empty())
+    if (args.empty())
     {
         error("`destroy' requires at least one argument (type `help' for more info)");
         return;
     }
 
-    for(const auto& arg : args)
+    for (const auto& arg : args)
     {
         try
         {
             findTopic(arg)->destroy();
         }
-        catch(const std::exception&)
+        catch (const std::exception&)
         {
-            exception(current_exception(), args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
+            exception(
+                current_exception(),
+                args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
         }
     }
 }
@@ -142,7 +134,7 @@ Parser::destroy(const list<string>& args)
 void
 Parser::link(const list<string>& args)
 {
-    if(args.size() != 2 && args.size() != 3)
+    if (args.size() != 2 && args.size() != 3)
     {
         error("`link' requires two or three arguments (type `help' for more info)");
         return;
@@ -158,7 +150,7 @@ Parser::link(const list<string>& args)
 
         fromTopic->link(toTopic, cost);
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -167,7 +159,7 @@ Parser::link(const list<string>& args)
 void
 Parser::unlink(const list<string>& args)
 {
-    if(args.size() != 2)
+    if (args.size() != 2)
     {
         error("`unlink' requires exactly two arguments (type `help' for more info)");
         return;
@@ -182,7 +174,7 @@ Parser::unlink(const list<string>& args)
 
         fromTopic->unlink(toTopic);
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -191,7 +183,7 @@ Parser::unlink(const list<string>& args)
 void
 Parser::links(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         error("`links' requires at most one argument (type `help' for more info)");
         return;
@@ -203,13 +195,13 @@ Parser::links(const list<string>& args)
 
         for (const auto& topic : manager->retrieveAll())
         {
-            for(const auto& linkInfo : topic.second->getLinkInfoSeq())
+            for (const auto& linkInfo : topic.second->getLinkInfoSeq())
             {
                 consoleOut << topic.first << " to " << linkInfo.name << " with cost " << linkInfo.cost << endl;
             }
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -218,7 +210,7 @@ Parser::links(const list<string>& args)
 void
 Parser::topics(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         error("`topics' requires at most one argument (type `help' for more info)");
         return;
@@ -232,7 +224,7 @@ Parser::topics(const list<string>& args)
             consoleOut << topic.first << endl;
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -241,7 +233,7 @@ Parser::topics(const list<string>& args)
 void
 Parser::replica(const list<string>& args)
 {
-    if(args.size() > 1)
+    if (args.size() > 1)
     {
         error("`replica' requires at most one argument (type `help' for more info)");
         return;
@@ -249,16 +241,16 @@ Parser::replica(const list<string>& args)
 
     try
     {
-        auto manager = TopicManagerInternalPrx(
-            args.size() == 0 ? _defaultManager : findManagerByCategory(args.front()));
+        auto manager =
+            TopicManagerInternalPrx(args.size() == 0 ? _defaultManager : findManagerByCategory(args.front()));
         auto node = manager->getReplicaNode();
-        if(!node)
+        if (!node)
         {
             error("This topic is not replicated");
         }
         auto nodes = node->nodes();
         consoleOut << "replica count: " << nodes.size() << endl;
-        for(const auto& n : nodes)
+        for (const auto& n : nodes)
         {
             try
             {
@@ -267,44 +259,43 @@ Parser::replica(const list<string>& args)
                 consoleOut << n.id << ": coord:      " << info.coord << endl;
                 consoleOut << n.id << ": group name: " << info.group << endl;
                 consoleOut << n.id << ": state:      ";
-                switch(info.state)
+                switch (info.state)
                 {
-                case IceStormElection::NodeState::NodeStateInactive:
-                    consoleOut << "inactive";
-                    break;
-                case IceStormElection::NodeState::NodeStateElection:
-                    consoleOut << "election";
-                    break;
-                case IceStormElection::NodeState::NodeStateReorganization:
-                    consoleOut << "reorganization";
-                    break;
-                case IceStormElection::NodeState::NodeStateNormal:
-                    consoleOut << "normal";
-                    break;
-                default:
-                    consoleOut << "unknown";
+                    case IceStormElection::NodeState::NodeStateInactive:
+                        consoleOut << "inactive";
+                        break;
+                    case IceStormElection::NodeState::NodeStateElection:
+                        consoleOut << "election";
+                        break;
+                    case IceStormElection::NodeState::NodeStateReorganization:
+                        consoleOut << "reorganization";
+                        break;
+                    case IceStormElection::NodeState::NodeStateNormal:
+                        consoleOut << "normal";
+                        break;
+                    default:
+                        consoleOut << "unknown";
                 }
                 consoleOut << endl;
                 consoleOut << n.id << ": group:      ";
-                for(auto q = info.up.cbegin(); q != info.up.cend(); ++q)
+                for (auto q = info.up.cbegin(); q != info.up.cend(); ++q)
                 {
-                    if(q != info.up.cbegin())
+                    if (q != info.up.cbegin())
                     {
                         consoleOut << ",";
                     }
                     consoleOut << q->id;
                 }
                 consoleOut << endl;
-                consoleOut << n.id << ": max:        " << info.max
-                           << endl;
+                consoleOut << n.id << ": max:        " << info.max << endl;
             }
-            catch(const Exception& ex)
+            catch (const Exception& ex)
             {
                 consoleOut << n.id << ": " << ex.ice_id() << endl;
             }
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -313,24 +304,24 @@ Parser::replica(const list<string>& args)
 void
 Parser::subscribers(const list<string>& args)
 {
-    if(args.empty())
+    if (args.empty())
     {
         error("subscribers' requires at least one argument (type `help' for more info) ");
         return;
     }
     try
     {
-        for(const auto& arg : args)
+        for (const auto& arg : args)
         {
             auto topic = _defaultManager->retrieve(arg);
             consoleOut << arg << ": subscribers:" << endl;
-            for(const auto& subscriber : topic->getSubscribers())
+            for (const auto& subscriber : topic->getSubscribers())
             {
                 consoleOut << "\t" << _communicator->identityToString(subscriber) << endl;
             }
         }
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -339,12 +330,12 @@ Parser::subscribers(const list<string>& args)
 void
 Parser::current(const list<string>& args)
 {
-    if(args.empty())
+    if (args.empty())
     {
         consoleOut << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
         return;
     }
-    else if(args.size() > 1)
+    else if (args.size() > 1)
     {
         error("`current' requires at most one argument (type `help' for more info)");
         return;
@@ -356,7 +347,7 @@ Parser::current(const list<string>& args)
         manager->ice_ping();
         _defaultManager = manager;
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         exception(current_exception());
     }
@@ -384,9 +375,9 @@ Parser::getInput(char* buf, int& result, size_t maxSize)
 void
 Parser::getInput(char* buf, size_t& result, size_t maxSize)
 {
-    if(!_commands.empty())
+    if (!_commands.empty())
     {
-        if(_commands == ";")
+        if (_commands == ";")
         {
             result = 0;
         }
@@ -395,7 +386,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             result = min(maxSize, _commands.length());
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
-            if(_commands.empty())
+            if (_commands.empty())
             {
                 _commands = ";";
             }
@@ -408,19 +399,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         {
             const char* prompt = parser->getPrompt();
             char* line = readline(const_cast<char*>(prompt));
-            if(!line)
+            if (!line)
             {
                 result = 0;
             }
             else
             {
-                if(*line)
+                if (*line)
                 {
                     add_history(line);
                 }
 
                 result = strlen(line) + 1;
-                if(result > maxSize)
+                if (result > maxSize)
                 {
                     free(line);
                     error("input line too long");
@@ -440,12 +431,12 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             consoleOut << parser->getPrompt() << flush;
 
             string line;
-            while(true)
+            while (true)
             {
                 int c = getc(yyin);
-                if(c == EOF)
+                if (c == EOF)
                 {
-                    if(line.size())
+                    if (line.size())
                     {
                         line += '\n';
                     }
@@ -453,19 +444,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
 
                 line += static_cast<char>(c);
-                if(c == '\n')
+                if (c == '\n')
                 {
                     break;
                 }
             }
 #ifdef _WIN32
-            if(windowsConsoleConverter)
+            if (windowsConsoleConverter)
             {
                 line = nativeToUTF8(line, windowsConsoleConverter);
             }
 #endif
             result = line.length();
-            if(result > maxSize)
+            if (result > maxSize)
             {
                 error("input line too long");
                 buf[0] = EOF;
@@ -492,7 +483,7 @@ Parser::getPrompt()
 {
     assert(_commands.empty());
 
-    if(_continue)
+    if (_continue)
     {
         _continue = false;
         return "(cont) ";
@@ -550,7 +541,7 @@ Parser::parse(FILE* file, bool debug)
     _continue = false;
 
     int status = yyparse();
-    if(_errors)
+    if (_errors)
     {
         status = EXIT_FAILURE;
     }
@@ -575,7 +566,7 @@ Parser::parse(const std::string& commands, bool debug)
     _continue = false;
 
     int status = yyparse();
-    if(_errors)
+    if (_errors)
     {
         status = EXIT_FAILURE;
     }
@@ -589,13 +580,13 @@ Parser::findManagerById(const string& full, string& arg) const
 {
     auto id = Ice::stringToIdentity(full);
     arg = id.name;
-    if(id.category.empty())
+    if (id.category.empty())
     {
         return _defaultManager;
     }
     id.name = "TopicManager";
     auto p = _managers.find(id);
-    if(p == _managers.end())
+    if (p == _managers.end())
     {
         throw UnknownManagerException(id.category);
     }
@@ -607,7 +598,7 @@ Parser::findManagerByCategory(const string& full) const
 {
     Ice::Identity id = {"TopicManager", full};
     auto p = _managers.find(id);
-    if(p == _managers.end())
+    if (p == _managers.end())
     {
         throw UnknownManagerException(id.category);
     }
@@ -630,44 +621,44 @@ Parser::exception(exception_ptr pex, bool warn)
     {
         rethrow_exception(pex);
     }
-    catch(const LinkExists& ex)
+    catch (const LinkExists& ex)
     {
         os << "link `" << ex.name << "' already exists";
     }
-    catch(const NoSuchLink& ex)
+    catch (const NoSuchLink& ex)
     {
         os << "couldn't find link `" << ex.name << "'";
     }
-    catch(const TopicExists& ex)
+    catch (const TopicExists& ex)
     {
         os << "topic `" << ex.name << "' exists";
     }
-    catch(const NoSuchTopic& ex)
+    catch (const NoSuchTopic& ex)
     {
         os << "couldn't find topic `" << ex.name << "'";
     }
-    catch(const UnknownManagerException& ex)
+    catch (const UnknownManagerException& ex)
     {
         os << "couldn't find IceStorm service `" << ex.what() << "'";
     }
-    catch(const IdentityParseException& ex)
+    catch (const IdentityParseException& ex)
     {
         os << "invalid identity `" << ex.str << "'";
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         os << "couldn't reach IceStorm service:\n" << ex;
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         os << ex;
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         os << ex.what();
     }
 
-    if(warn)
+    if (warn)
     {
         warning(os.str());
     }

@@ -27,21 +27,21 @@ TimeoutI::sleep(int32_t to, const Ice::Current&)
     this_thread::sleep_for(chrono::milliseconds(to));
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-{
-}
+ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
 void
 ControllerI::holdAdapter(int32_t to, const Ice::Current&)
 {
     _adapter->hold();
 
-    if(to >= 0)
+    if (to >= 0)
     {
-        std::thread activateThread([this, to] {
-            this_thread::sleep_for(chrono::milliseconds(to));
-            _adapter->activate();
-        });
+        std::thread activateThread(
+            [this, to]
+            {
+                this_thread::sleep_for(chrono::milliseconds(to));
+                _adapter->activate();
+            });
         activateThread.detach();
     }
 }

@@ -11,7 +11,6 @@ using namespace std;
 class Client1 : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -28,12 +27,12 @@ Client1::run(int argc, char** argv)
     communicator->getLogger()->trace("info", "XXX");
 
     ifstream in("log.txt");
-    if(!in)
+    if (!in)
     {
         test(false);
     }
     string s;
-    if(!getline(in, s))
+    if (!getline(in, s))
     {
         test(false);
     }

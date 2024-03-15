@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class NetworkProxy;
-using NetworkProxyPtr = std::shared_ptr<NetworkProxy>;
-
+    class NetworkProxy;
+    using NetworkProxyPtr = std::shared_ptr<NetworkProxy>;
 }
 
 #endif

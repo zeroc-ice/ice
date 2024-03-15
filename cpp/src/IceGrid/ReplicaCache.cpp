@@ -12,24 +12,31 @@
 using namespace std;
 using namespace IceGrid;
 
-ReplicaCache::ReplicaCache(const shared_ptr<Ice::Communicator>& communicator,
-                           const IceStorm::TopicManagerPrxPtr& topicManager) :
-    _communicator(communicator)
+namespace
 {
-    IceStorm::TopicPrxPtr t;
-    try
+    IceStorm::TopicPrx createOrRetrieveReplicaObserverTopic(const IceStorm::TopicManagerPrx& topicManager)
     {
-        t = topicManager->create("ReplicaObserverTopic");
-    }
-    catch(const IceStorm::TopicExists&)
-    {
-        t = topicManager->retrieve("ReplicaObserverTopic");
-    }
+        optional<IceStorm::TopicPrx> topic;
+        try
+        {
+            topic = topicManager->create("ReplicaObserverTopic");
+        }
+        catch (const IceStorm::TopicExists&)
+        {
+            topic = topicManager->retrieve("ReplicaObserverTopic");
+        }
 
-    const_cast<IceStorm::TopicPrxPtr&>(_topic) =
-        Ice::uncheckedCast<IceStorm::TopicPrx>(t->ice_endpoints(Ice::EndpointSeq()));
-    const_cast<ReplicaObserverPrxPtr&>(_observers) =
-        Ice::uncheckedCast<ReplicaObserverPrx>(_topic->getPublisher()->ice_endpoints(Ice::EndpointSeq()));
+        return topic.value()->ice_endpoints(Ice::EndpointSeq());
+    }
+}
+
+ReplicaCache::ReplicaCache(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const IceStorm::TopicManagerPrx& topicManager)
+    : _communicator(communicator),
+      _topic(createOrRetrieveReplicaObserverTopic(topicManager)),
+      _observers(_topic->getPublisher().value()->ice_endpoints(Ice::EndpointSeq()))
+{
 }
 
 shared_ptr<ReplicaEntry>
@@ -38,10 +45,10 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
     unique_lock lock(_mutex);
 
     shared_ptr<ReplicaEntry> entry;
-    while((entry = getImpl(name)))
+    while ((entry = getImpl(name)))
     {
         auto s = entry->getSession();
-        if(s->isDestroyed())
+        if (s->isDestroyed())
         {
             // Wait for the session to be removed.
             _condVar.wait(lock);
@@ -58,13 +65,13 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
                 s->getInternalRegistry()->ice_ping();
                 throw ReplicaActiveException();
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
                 try
                 {
                     s->destroy(Ice::emptyCurrent);
                 }
-                catch(const Ice::LocalException&)
+                catch (const Ice::LocalException&)
                 {
                 }
             }
@@ -72,7 +79,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
         }
     }
 
-    if(_traceLevels && _traceLevels->replica > 0)
+    if (_traceLevels && _traceLevels->replica > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
         out << "replica `" << name << "' up";
@@ -82,18 +89,18 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
     {
         _observers->replicaAdded(session->getInternalRegistry());
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         // Expected if the replica is being shutdown.
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         // Expected if the replica is being shutdown.
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         auto traceLevels = getTraceLevels();
-        if(traceLevels)
+        if (traceLevels)
         {
             Ice::Warning out(traceLevels->logger);
             out << "unexpected exception while publishing `replicaAdded' update:\n" << ex;
@@ -113,30 +120,30 @@ ReplicaCache::remove(const string& name, bool shutdown)
     removeImpl(name);
     _condVar.notify_all();
 
-    if(_traceLevels && _traceLevels->replica > 0)
+    if (_traceLevels && _traceLevels->replica > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
         out << "replica `" << name << "' down";
     }
 
-    if(!shutdown)
+    if (!shutdown)
     {
         try
         {
             _observers->replicaRemoved(entry->getProxy());
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
             // Expected if the replica is being shutdown.
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
             // Expected if the replica is being shutdown.
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             auto traceLevels = getTraceLevels();
-            if(traceLevels)
+            if (traceLevels)
             {
                 Ice::Warning out(traceLevels->logger);
                 out << "unexpected exception while publishing `replicaRemoved' update:\n" << ex;
@@ -152,7 +159,7 @@ ReplicaCache::get(const string& name) const
 {
     lock_guard lock(_mutex);
     auto entry = getImpl(name);
-    if(!entry)
+    if (!entry)
     {
         throw RegistryNotExistException(name);
     }
@@ -160,13 +167,13 @@ ReplicaCache::get(const string& name) const
 }
 
 void
-ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
+ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
 {
     try
     {
         lock_guard lock(_mutex);
         InternalRegistryPrxSeq replicas;
-        for(const auto& entry : _entries)
+        for (const auto& entry : _entries)
         {
             replicas.push_back(entry.second->getProxy());
         }
@@ -174,20 +181,26 @@ ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
         auto publisher = _topic->subscribeAndGetPublisher(qos, observer->ice_twoway());
-        Ice::uncheckedCast<ReplicaObserverPrx>(publisher)->replicaInit(replicas);
+        if (!publisher)
+        {
+            ostringstream os;
+            os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
+        ReplicaObserverPrx(*publisher)->replicaInit(replicas);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         // The replica is being shutdown.
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         // Expected if the replica is being shutdown.
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         auto traceLevels = getTraceLevels();
-        if(traceLevels)
+        if (traceLevels)
         {
             Ice::Warning out(traceLevels->logger);
             out << "unexpected exception while subscribing observer from replica observer topic:\n" << ex;
@@ -196,24 +209,24 @@ ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
 }
 
 void
-ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
+ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
 {
     try
     {
         _topic->unsubscribe(observer);
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         // The replica is being shutdown.
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         // The replica is being shutdown.
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         auto traceLevels = getTraceLevels();
-        if(traceLevels)
+        if (traceLevels)
         {
             Ice::Warning out(traceLevels->logger);
             out << "unexpected exception while unsubscribing observer from replica observer topic:\n" << ex;
@@ -221,52 +234,49 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
     }
 }
 
-Ice::ObjectPrxPtr
-ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrxPtr& proxy) const
+Ice::ObjectPrx
+ReplicaCache::getEndpoints(const string& name, const optional<Ice::ObjectPrx>& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
-    if(proxy)
+    if (proxy)
     {
         Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
         endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
     }
 
     lock_guard lock(_mutex);
-    for(const auto& entry : _entries)
+    for (const auto& entry : _entries)
     {
         auto prx = entry.second->getSession()->getEndpoint(name);
-        if(prx)
+        if (prx)
         {
             Ice::EndpointSeq endpts = prx->ice_getEndpoints();
             endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
         }
     }
 
-    return _communicator->stringToProxy("dummy")->ice_endpoints(endpoints);
+    return Ice::ObjectPrx(_communicator, "dummy")->ice_endpoints(endpoints);
 }
 
 void
-ReplicaCache::setInternalRegistry(const InternalRegistryPrxPtr& proxy)
+ReplicaCache::setInternalRegistry(InternalRegistryPrx proxy)
 {
-    //
     // Setup this replica internal registry proxy.
-    //
-    _self = proxy;
+    _self = std::optional<InternalRegistryPrx>(std::move(proxy));
 }
 
-InternalRegistryPrxPtr
+InternalRegistryPrx
 ReplicaCache::getInternalRegistry() const
 {
-    //
     // This replica internal registry proxy.
-    //
-    return _self;
+    assert(_self);
+    return *_self;
 }
 
-ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session) :
-    _name(name),
-    _session(session)
+ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session)
+    : _name(name),
+      _session(session)
 {
 }
 
@@ -282,17 +292,15 @@ ReplicaEntry::getInfo() const
     return _session->getInfo();
 }
 
-InternalRegistryPrxPtr
+InternalRegistryPrx
 ReplicaEntry::getProxy() const
 {
     return _session->getInternalRegistry();
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 ReplicaEntry::getAdminProxy() const
 {
-    auto prx = getProxy();
-    assert(prx);
-    Ice::Identity adminId = { "RegistryAdmin-" + _name, prx->ice_getIdentity().category };
-    return prx->ice_identity(std::move(adminId));
+    InternalRegistryPrx prx = getProxy();
+    return prx->ice_identity(Ice::Identity{"RegistryAdmin-" + _name, prx->ice_getIdentity().category});
 }

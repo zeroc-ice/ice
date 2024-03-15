@@ -3,7 +3,7 @@
 //
 
 #ifndef TEST_API_EXPORTS
-#   define TEST_API_EXPORTS
+#    define TEST_API_EXPORTS
 #endif
 
 #include <Ice/Initialize.h>
@@ -18,7 +18,6 @@ using namespace std;
 class TestPluginI final : public PluginI
 {
 public:
-
     TestPluginI(const Ice::CommunicatorPtr&);
 
     void initialize() final;
@@ -26,7 +25,6 @@ public:
     ConfigurationPtr getConfiguration() final;
 
 private:
-
     const Ice::CommunicatorPtr _communicator;
     const ConfigurationPtr _configuration;
 };
@@ -36,18 +34,16 @@ private:
 //
 extern "C"
 {
-
-ICE_DECLSPEC_EXPORT Ice::Plugin*
-createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
-{
-    return new TestPluginI(communicator);
+    ICE_DECLSPEC_EXPORT Ice::Plugin*
+    createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+    {
+        return new TestPluginI(communicator);
+    }
 }
 
-}
-
-TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator),
-    _configuration(make_shared<Configuration>())
+TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator)
+    : _communicator(communicator),
+      _configuration(make_shared<Configuration>())
 {
     _configuration->init();
 }
@@ -57,26 +53,26 @@ TestPluginI::initialize()
 {
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(_communicator);
 
-    for(int16_t s = 0; s < 100; ++s)
+    for (int16_t s = 0; s < 100; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
-        if(factory)
+        if (factory)
         {
             facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
-    for(int16_t s = 1000; s < 1010; ++s)
+    for (int16_t s = 1000; s < 1010; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
-        if(factory)
+        if (factory)
         {
             facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
-    for(int16_t s = 10000; s < 10010; ++s)
+    for (int16_t s = 10000; s < 10010; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
-        if(factory)
+        if (factory)
         {
             facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }

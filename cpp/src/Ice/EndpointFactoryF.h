@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class EndpointFactory;
-using EndpointFactoryPtr = std::shared_ptr<EndpointFactory>;
-
+    class EndpointFactory;
+    using EndpointFactoryPtr = std::shared_ptr<EndpointFactory>;
 }
 
 #endif

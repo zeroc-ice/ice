@@ -19,39 +19,36 @@ using namespace IceUtilInternal;
 
 namespace
 {
+    mutex outputMutex;
 
-mutex outputMutex;
-
-//
-// Timeout in milliseconds after which rename will be attempted
-// in case of failures renaming files. That is set to 5 minutes.
-//
-const chrono::minutes retryTimeout = chrono::minutes(5);
-
+    //
+    // Timeout in milliseconds after which rename will be attempted
+    // in case of failures renaming files. That is set to 5 minutes.
+    //
+    const chrono::minutes retryTimeout = chrono::minutes(5);
 }
 
-Ice::LoggerI::LoggerI(const string& prefix, const string& file,
-                      bool convert, size_t sizeMax) :
-    _prefix(prefix),
-    _convert(convert),
-    _converter(getProcessStringConverter()),
-    _sizeMax(sizeMax)
+Ice::LoggerI::LoggerI(const string& prefix, const string& file, bool convert, size_t sizeMax)
+    : _prefix(prefix),
+      _convert(convert),
+      _converter(getProcessStringConverter()),
+      _sizeMax(sizeMax)
 {
-    if(!prefix.empty())
+    if (!prefix.empty())
     {
         _formattedPrefix = prefix + ": ";
     }
 
-    if(!file.empty())
+    if (!file.empty())
     {
         _file = file;
         _out.open(IceUtilInternal::streamFilename(file).c_str(), fstream::out | fstream::app);
-        if(!_out.is_open())
+        if (!_out.is_open())
         {
             throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
         }
 
-        if(_sizeMax > 0)
+        if (_sizeMax > 0)
         {
             _out.seekp(0, _out.end);
         }
@@ -60,7 +57,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
 
 Ice::LoggerI::~LoggerI()
 {
-    if(_out.is_open())
+    if (_out.is_open())
     {
         _out.close();
     }
@@ -76,7 +73,7 @@ void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
     string s = "-- " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix;
-    if(!category.empty())
+    if (!category.empty())
     {
         s += category + ": ";
     }
@@ -88,13 +85,17 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    write("-! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "warning: " + message, true);
+    write(
+        "-! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "warning: " + message,
+        true);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    write("!! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "error: " + message, true);
+    write(
+        "!! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "error: " + message,
+        true);
 }
 
 string
@@ -116,32 +117,32 @@ Ice::LoggerI::write(const string& message, bool indent)
     unique_lock lock(outputMutex);
     string s = message;
 
-    if(indent)
+    if (indent)
     {
         string::size_type idx = 0;
-        while((idx = s.find("\n", idx)) != string::npos)
+        while ((idx = s.find("\n", idx)) != string::npos)
         {
             s.insert(idx + 1, "   ");
             ++idx;
         }
     }
 
-    if(_out.is_open())
+    if (_out.is_open())
     {
-        if(_sizeMax > 0)
+        if (_sizeMax > 0)
         {
             //
             // If file size + message size exceeds max size we archive the log file,
             // but we do not archive empty files or truncate messages.
             //
             size_t sz = static_cast<size_t>(_out.tellp());
-            if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= chrono::steady_clock::now())
+            if (sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= chrono::steady_clock::now())
             {
                 string basename = _file;
                 string ext;
 
                 size_t i = basename.rfind(".");
-                if(i != string::npos && i + 1 < basename.size())
+                if (i != string::npos && i + 1 < basename.size())
                 {
                     ext = basename.substr(i + 1);
                     basename = basename.substr(0, i);
@@ -151,19 +152,19 @@ Ice::LoggerI::write(const string& message, bool indent)
                 int id = 0;
                 string archive;
                 string date = timePointToString(chrono::system_clock::now(), "%Y%m%d-%H%M%S");
-                while(true)
+                while (true)
                 {
                     ostringstream oss;
                     oss << basename << "-" << date;
-                    if(id > 0)
+                    if (id > 0)
                     {
                         oss << "-" << id;
                     }
-                    if(!ext.empty())
+                    if (!ext.empty())
                     {
                         oss << "." << ext;
                     }
-                    if(IceUtilInternal::fileExists(oss.str()))
+                    if (IceUtilInternal::fileExists(oss.str()))
                     {
                         id++;
                         continue;
@@ -176,7 +177,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 _out.open(IceUtilInternal::streamFilename(_file).c_str(), fstream::out | fstream::app);
 
-                if(err)
+                if (err)
                 {
                     _nextRetry = chrono::steady_clock::now() + retryTimeout;
 
@@ -196,7 +197,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                     _nextRetry = chrono::steady_clock::time_point();
                 }
 
-                if(!_out.is_open())
+                if (!_out.is_open())
                 {
                     lock.unlock();
                     error("FileLogger: cannot open `" + _file + "':\nlog messages will be sent to stderr");
@@ -215,7 +216,7 @@ Ice::LoggerI::write(const string& message, bool indent)
         // code page encoding for printing. If the _convert member is set to false
         // we don't do any conversion.
         //
-        if(!_convert)
+        if (!_convert)
         {
             //
             // Use fprintf_s to avoid encoding conversion when stderr is connected

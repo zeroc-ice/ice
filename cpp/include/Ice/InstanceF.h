@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
-class Instance;
-using InstancePtr = std::shared_ptr<Instance>;
-
+    class Instance;
+    using InstancePtr = std::shared_ptr<Instance>;
 }
 
 #endif

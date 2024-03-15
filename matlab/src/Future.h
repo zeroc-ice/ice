@@ -6,51 +6,49 @@
 
 namespace IceMatlab
 {
+    class Future
+    {
+    public:
+        void token(std::function<void()>);
 
-class Future
-{
-public:
+        enum State
+        {
+            Running,
+            Sent,
+            Finished
+        };
 
-    void token(std::function<void()>);
+        bool waitForState(State, double);
+        bool waitForState(const std::string&, double);
 
-    enum State { Running, Sent, Finished };
+        virtual void exception(std::exception_ptr);
+        std::exception_ptr getException() const;
 
-    bool waitForState(State, double);
-    bool waitForState(const std::string&, double);
+        virtual void sent();
+        virtual std::string state() const;
+        void cancel();
 
-    virtual void exception(std::exception_ptr);
-    std::exception_ptr getException() const;
+    protected:
+        virtual State stateImpl() const = 0;
 
-    virtual void sent();
-    virtual std::string state() const;
-    void cancel();
+        std::mutex _mutex;
+        std::condition_variable _cond;
 
-protected:
+        std::function<void()> _token;
+        std::exception_ptr _exception; // If a local exception occurs.
+    };
 
-    virtual State stateImpl() const = 0;
+    class SimpleFuture : public Future
+    {
+    public:
+        SimpleFuture();
 
-    std::mutex _mutex;
-    std::condition_variable _cond;
+        void done();
 
-    std::function<void()> _token;
-    std::exception_ptr _exception; // If a local exception occurs.
-};
+    protected:
+        virtual State stateImpl() const;
 
-class SimpleFuture : public Future
-{
-public:
-
-    SimpleFuture();
-
-    void done();
-
-protected:
-
-    virtual State stateImpl() const;
-
-private:
-
-    State _state;
-};
-
+    private:
+        State _state;
+    };
 }

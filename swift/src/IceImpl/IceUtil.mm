@@ -17,7 +17,6 @@ namespace
     class Init
     {
     public:
-
         Init()
         {
             //
@@ -41,27 +40,27 @@ static Class<ICEConnectionInfoFactory> _connectionInfoFactory;
 static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
 static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
-+(Class<ICEExceptionFactory>) exceptionFactory
++ (Class<ICEExceptionFactory>)exceptionFactory
 {
     return _exceptionFactory;
 }
 
-+(Class<ICEConnectionInfoFactory>) connectionInfoFactory
++ (Class<ICEConnectionInfoFactory>)connectionInfoFactory
 {
     return _connectionInfoFactory;
 }
 
-+(Class<ICEEndpointInfoFactory>) endpointInfoFactory
++ (Class<ICEEndpointInfoFactory>)endpointInfoFactory
 {
     return _endpointInfoFactory;
 }
 
-+(Class<ICEAdminFacetFactory>) adminFacetFactory
++ (Class<ICEAdminFacetFactory>)adminFacetFactory
 {
     return _adminFacetFactory;
 }
 
-+(BOOL) registerFactories:(Class<ICEExceptionFactory>)exception
++ (BOOL)registerFactories:(Class<ICEExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
                adminFacet:(Class<ICEAdminFacetFactory>)adminFacet
@@ -73,7 +72,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return true;
 }
 
-+(ICECommunicator*) initialize:(NSArray*)swiftArgs
++ (ICECommunicator*)initialize:(NSArray*)swiftArgs
                     properties:(ICEProperties*)properties
                 withConfigFile:(BOOL)withConfigFile
                         logger:(id<ICELoggerProtocol>)logger
@@ -92,7 +91,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
-    if(logger)
+    if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);
     }
@@ -100,7 +99,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     try
     {
         std::shared_ptr<Ice::Communicator> communicator;
-        if(withConfigFile)
+        if (withConfigFile)
         {
             communicator = Ice::initialize(args, initData);
             *remArgs = toNSArray(args);
@@ -111,19 +110,19 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         }
         return [ICECommunicator getHandle:communicator];
     }
-    catch(const std::exception& err)
+    catch (...)
     {
-        *error = convertException(err);
+        *error = convertException(std::current_exception());
     }
     return nil;
 }
 
-+(ICEProperties*) createProperties
++ (ICEProperties*)createProperties
 {
     return [ICEProperties getHandle:Ice::createProperties()];
 }
 
-+(ICEProperties*) createProperties:(NSArray*)swiftArgs
++ (ICEProperties*)createProperties:(NSArray*)swiftArgs
                           defaults:(ICEProperties*)defaults
                            remArgs:(NSArray**)remArgs
                              error:(NSError**)error
@@ -133,31 +132,31 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         std::vector<std::string> a;
         fromNSArray(swiftArgs, a);
         std::shared_ptr<Ice::Properties> def;
-        if(defaults)
+        if (defaults)
         {
             def = [defaults properties];
         }
         auto props = Ice::createProperties(a, def);
 
         // a now contains remaning arguments that were not used by Ice::createProperties
-        if(remArgs)
+        if (remArgs)
         {
             *remArgs = toNSArray(a);
         }
         return [ICEProperties getHandle:props];
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
     }
 
     return nil;
 }
 
-+(BOOL) stringToIdentity:(NSString*)str
-                    name:(NSString* __strong _Nonnull *  _Nonnull)name
-                category:(NSString* __strong _Nonnull *  _Nonnull)category
-                   error:(NSError* _Nullable * _Nullable)error
++ (BOOL)stringToIdentity:(NSString*)str
+                    name:(NSString* __strong _Nonnull* _Nonnull)name
+                category:(NSString* __strong _Nonnull* _Nonnull)category
+                   error:(NSError* _Nullable* _Nullable)error
 {
     try
     {
@@ -166,53 +165,49 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         *category = toNSString(ident.category);
         return YES;
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return NO;
     }
 }
 
-+(NSString*) identityToString:(NSString*)name
-                              category:(NSString*)category
-                                  mode:(std::uint8_t)mode
++ (NSString*)identityToString:(NSString*)name category:(NSString*)category mode:(std::uint8_t)mode
 {
     Ice::Identity identity{fromNSString(name), fromNSString(category)};
     return toNSString(Ice::identityToString(identity, static_cast<Ice::ToStringMode>(mode)));
 }
 
-+(NSString*) encodingVersionToString:(UInt8)major minor:(UInt8)minor
++ (NSString*)encodingVersionToString:(UInt8)major minor:(UInt8)minor
 {
-    Ice::EncodingVersion v {major, minor};
+    Ice::EncodingVersion v{major, minor};
     return toNSString(Ice::encodingVersionToString(v));
 }
 
-+(NSString*) escapeString:(NSString *)string
-                  special:(NSString *)special
-                     communicator:(ICECommunicator*)communicator error:(NSError *__autoreleasing _Nullable *)error
++ (NSString*)escapeString:(NSString*)string
+                  special:(NSString*)special
+             communicator:(ICECommunicator*)communicator
+                    error:(NSError* __autoreleasing _Nullable*)error
 {
     try
     {
-
         auto instance = IceInternal::getInstance([communicator communicator]);
-        return toNSString(IceInternal::escapeString(fromNSString(string),
-                                                    fromNSString(special),
-                                                    instance->toStringMode()));
+        return toNSString(
+            IceInternal::escapeString(fromNSString(string), fromNSString(special), instance->toStringMode()));
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        *error = convertException(ex);
+        *error = convertException(std::current_exception());
         return nil;
     }
-
 }
 
-+(NSString*) errorToString:(int32_t)error
++ (NSString*)errorToString:(int32_t)error
 {
     return toNSString(IceUtilInternal::errorToString(error));
 }
 
-+(NSString*) errorToStringDNS:(int32_t)error
++ (NSString*)errorToStringDNS:(int32_t)error
 {
     return toNSString(IceInternal::errorToStringDNS(error));
 }

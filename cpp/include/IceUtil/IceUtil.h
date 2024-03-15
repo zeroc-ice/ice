@@ -15,7 +15,7 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/ConsoleUtil.h>
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-#   include <IceUtil/CtrlCHandler.h>
+#    include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>
 #include <IceUtil/StringConverter.h>

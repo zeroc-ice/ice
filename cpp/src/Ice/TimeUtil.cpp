@@ -12,7 +12,6 @@ using namespace std;
 string
 IceInternal::timePointToString(const chrono::system_clock::time_point& timePoint, const string& format)
 {
-
     time_t time = static_cast<time_t>(chrono::duration_cast<chrono::seconds>(timePoint.time_since_epoch()).count());
     struct tm tr;
 #ifdef _MSC_VER

@@ -13,9 +13,9 @@ AdminCallbackRouter::addMapping(const string& category, const shared_ptr<Ice::Co
     lock_guard lock(_mutex);
 
 #ifdef NDEBUG
-    _categoryToConnection.insert({ category, con });
+    _categoryToConnection.insert({category, con});
 #else
-    bool inserted = _categoryToConnection.insert({ category, con }).second;
+    bool inserted = _categoryToConnection.insert({category, con}).second;
     assert(inserted == true);
 #endif
 }
@@ -34,17 +34,18 @@ AdminCallbackRouter::removeMapping(const string& category)
 }
 
 void
-AdminCallbackRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
-                                     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                     function<void(exception_ptr)> exception,
-                                     const Ice::Current& current)
+AdminCallbackRouter::ice_invokeAsync(
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     shared_ptr<Ice::Connection> con;
 
     {
         lock_guard lock(_mutex);
         auto p = _categoryToConnection.find(current.id.category);
-        if(p == _categoryToConnection.end())
+        if (p == _categoryToConnection.end())
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
@@ -56,12 +57,13 @@ AdminCallbackRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inPara
     //
     // Call with AMI
     //
-    target->ice_invokeAsync(current.operation, current.mode, inParams,
-                            std::move(response),
-                            [exception = std::move(exception)] (exception_ptr)
-                            {
-                                exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
-                            },
-                            nullptr,
-                            current.ctx);
+    target->ice_invokeAsync(
+        current.operation,
+        current.mode,
+        inParams,
+        std::move(response),
+        [exception = std::move(exception)](exception_ptr)
+        { exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__))); },
+        nullptr,
+        current.ctx);
 }

@@ -26,9 +26,9 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 string
 getProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
-        if(q->name == name)
+        if (q->name == name)
         {
             return q->value;
         }
@@ -48,10 +48,11 @@ createProperty(const string& name, const string& value)
 bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
-    for(PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
-        p != desc->propertySet.properties.end(); ++p)
+    for (PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
+         p != desc->propertySet.properties.end();
+         ++p)
     {
-        if(p->name == name)
+        if (p->name == name)
         {
             return p->value == value;
         }
@@ -69,9 +70,7 @@ allTests(Test::TestHelper* helper)
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     optional<AdminPrx> admin = session->getAdmin();
     test(admin);
@@ -120,11 +119,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Adapter already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -136,11 +135,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Object already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -151,7 +150,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -184,7 +183,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -199,11 +198,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Missing parameter
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -220,7 +219,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -235,7 +234,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -246,7 +245,7 @@ allTests(Test::TestHelper* helper)
             admin->getServerInfo("Server2");
             test(false);
         }
-        catch(const ServerNotExistException&)
+        catch (const ServerNotExistException&)
         {
         }
 
@@ -254,12 +253,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -272,11 +271,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Server without template!
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -288,7 +287,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -299,7 +298,7 @@ allTests(Test::TestHelper* helper)
             admin->getServerInfo("Server1");
             test(false);
         }
-        catch(const ServerNotExistException&)
+        catch (const ServerNotExistException&)
         {
         }
 
@@ -309,7 +308,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -327,7 +326,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -346,7 +345,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -360,7 +359,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -384,11 +383,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Adapter already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -411,11 +410,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Object already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -433,11 +432,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Object already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -454,7 +453,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -472,11 +471,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Object already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -493,7 +492,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -511,11 +510,11 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Object already exists
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -570,12 +569,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -590,12 +589,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -608,12 +607,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -636,11 +635,11 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(testApp);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -657,7 +656,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -678,7 +677,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -699,7 +698,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -753,12 +752,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(testApp);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -773,12 +772,12 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Missing app variable
-            //cerr << ex.reason << endl;
+            // cerr << ex.reason << endl;
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -794,12 +793,12 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Missing node variable
-            //cerr << ex.reason << endl;
+            // cerr << ex.reason << endl;
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -818,12 +817,12 @@ allTests(Test::TestHelper* helper)
             admin->updateApplication(update);
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
             // Missing parameter
-            //cerr << ex.reason << endl;
+            // cerr << ex.reason << endl;
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -842,7 +841,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -860,7 +859,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -889,7 +888,7 @@ allTests(Test::TestHelper* helper)
 
         ServiceInstanceDescriptor serviceInstance;
         serviceInstance._cpp_template = "ServiceTemplate";
-        serviceInstance.parameterValues["name"] =  "Service";
+        serviceInstance.parameterValues["name"] = "Service";
         serviceInstance.propertySet.properties.push_back(createProperty("ServiceInstanceProp", "test"));
 
         auto server = make_shared<IceBoxDescriptor>();
@@ -912,7 +911,7 @@ allTests(Test::TestHelper* helper)
         testApp.variables["appvar"] = "AppValue";
         testApp.serverTemplates["ServerTemplate"] = templ;
         testApp.serviceTemplates["ServiceTemplate"] = svcTempl;
-        testApp.propertySets["ApplicationPropertySet"].properties.push_back(createProperty("ApplicationProp","test"));
+        testApp.propertySets["ApplicationPropertySet"].properties.push_back(createProperty("ApplicationProp", "test"));
         testApp.propertySets["ApplicationPropertySet1"].properties.push_back(createProperty("ApplicationProp", "d"));
 
         NodeDescriptor node;
@@ -932,12 +931,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(testApp);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1002,16 +1001,16 @@ allTests(Test::TestHelper* helper)
         nodeUpdate.name = "node1";
         nodeUpdate.serverInstances.clear();
         nodeUpdate.propertySets["NodePropertySet"].properties.clear();
-        nodeUpdate.propertySets["NodePropertySet"].properties.push_back(
-            createProperty("NodeProp", "updated"));
+        nodeUpdate.propertySets["NodePropertySet"].properties.push_back(createProperty("NodeProp", "updated"));
         nodeUpdate.removePropertySets.push_back("NodePropertySet1");
         update.nodes.push_back(nodeUpdate);
         admin->updateApplication(update);
         info = admin->getServerInfo("Server");
         test(hasProperty(info.descriptor, "NodeProp", "updated"));
         ApplicationDescriptor updatedApplication = admin->getApplicationInfo("TestApp").descriptor;
-        test(updatedApplication.nodes["node1"].propertySets.find("NodePropertySet1") ==
-             updatedApplication.nodes["node1"].propertySets.end());
+        test(
+            updatedApplication.nodes["node1"].propertySets.find("NodePropertySet1") ==
+            updatedApplication.nodes["node1"].propertySets.end());
 
         update = empty;
         update.propertySets["ApplicationPropertySet"].properties.clear();
@@ -1022,8 +1021,7 @@ allTests(Test::TestHelper* helper)
         info = admin->getServerInfo("Server");
         test(hasProperty(info.descriptor, "ApplicationProp", "updated"));
         updatedApplication = admin->getApplicationInfo("TestApp").descriptor;
-        test(updatedApplication.propertySets.find("ApplicationPropertySet1") ==
-             updatedApplication.propertySets.end());
+        test(updatedApplication.propertySets.find("ApplicationPropertySet1") == updatedApplication.propertySets.end());
 
         admin->removeApplication("TestApp");
         cout << "ok" << endl;
@@ -1039,7 +1037,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(testApp);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1053,7 +1051,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1066,7 +1064,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1079,7 +1077,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1126,7 +1124,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(nodeApp);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1141,16 +1139,16 @@ allTests(Test::TestHelper* helper)
         // wait-for-activation feature here.)
         //
         int retry = 0;
-        while(retry < 20)
+        while (retry < 20)
         {
             try
             {
-                if(admin->pingNode("node-1") && admin->pingNode("node-2"))
+                if (admin->pingNode("node-1") && admin->pingNode("node-2"))
                 {
                     break;
                 }
             }
-            catch(const NodeNotExistException&)
+            catch (const NodeNotExistException&)
             {
             }
             this_thread::sleep_for(chrono::milliseconds(500));
@@ -1181,7 +1179,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->addApplication(testApp);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
@@ -1192,12 +1190,12 @@ allTests(Test::TestHelper* helper)
             admin->startServer("Server");
             test(admin->getServerState("Server") == ServerState::Active);
         }
-        catch(const ServerStartException& ex)
+        catch (const ServerStartException& ex)
         {
             cerr << ex << "\nreason = " << ex.reason << endl;
             test(false);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1219,12 +1217,12 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
         }
-        while(true)
+        while (true)
         {
             try
             {
@@ -1236,7 +1234,7 @@ allTests(Test::TestHelper* helper)
                 test(admin->getServerState("Server") == ServerState::Active);
                 break;
             }
-            catch(const DeploymentException&)
+            catch (const DeploymentException&)
             {
                 this_thread::sleep_for(chrono::milliseconds(200));
             }
@@ -1259,7 +1257,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->updateApplication(update);
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
@@ -1270,7 +1268,7 @@ allTests(Test::TestHelper* helper)
             admin->getServerState("Server");
             test(false);
         }
-        catch(const NodeUnreachableException&)
+        catch (const NodeUnreachableException&)
         {
         }
 
@@ -1278,7 +1276,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->removeApplication("TestApp");
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             cerr << ex.reason << endl;
             test(false);
@@ -1291,7 +1289,7 @@ allTests(Test::TestHelper* helper)
         {
             admin->removeApplication("NodeApp");
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cerr << ex << endl;
             test(false);

@@ -10,7 +10,6 @@
 class TestI final : public Test::TestIntf
 {
 public:
-
     void shutdown(const Ice::Current&) final;
 
     Ice::Context getEndpointInfoAsContext(const Ice::Current&) final;

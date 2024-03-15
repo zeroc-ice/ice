@@ -7,36 +7,40 @@
 
 #ifdef __APPLE__
 
-#include <IceSSL/SecureTransport.h>
-#include <IceSSL/Util.h>
+#    include <IceSSL/SecureTransport.h>
+#    include <IceSSL/Util.h>
 
 namespace IceSSL
 {
+    namespace SecureTransport
+    {
+        std::string sslErrorToString(CFErrorRef);
+        std::string sslErrorToString(OSStatus);
 
-namespace SecureTransport
-{
+#    if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+        //
+        // Retrieve a certificate property
+        //
+        CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
+#    endif
 
-std::string sslErrorToString(CFErrorRef);
-std::string sslErrorToString(OSStatus);
+        //
+        // Read certificate from a file.
+        //
+        CFArrayRef loadCertificateChain(
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const PasswordPromptPtr&,
+            int);
 
-#  if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-//
-// Retrieve a certificate property
-//
-CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
-#  endif
+        SecCertificateRef loadCertificate(const std::string&);
+        CFArrayRef loadCACertificates(const std::string&);
+        CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
 
-//
-// Read certificate from a file.
-//
-CFArrayRef loadCertificateChain(const std::string&, const std::string&, const std::string&, const std::string&,
-                                const std::string&, const PasswordPromptPtr&, int);
-
-SecCertificateRef loadCertificate(const std::string&);
-CFArrayRef loadCACertificates(const std::string&);
-CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
-
-} // SecureTransport namespace end
+    } // SecureTransport namespace end
 
 } // IceSSL namespace end
 

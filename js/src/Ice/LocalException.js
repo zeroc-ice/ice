@@ -77,28 +77,6 @@ Ice.PluginInitializationException = class extends Ice.LocalException
 };
 
 /**
- *  This exception is raised if a feature is requested that is not supported with collocation optimization.
- * @deprecated This exception is no longer used by the Ice run time
- **/
-Ice.CollocationOptimizationException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::CollocationOptimizationException";
-    }
-};
-
-/**
  *  An attempt was made to register something more than once with the Ice run time. This exception is raised if an
  *  attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
  *  user exception factory more than once for the same ID.
@@ -1482,26 +1460,6 @@ Ice.FixedProxyException = class extends Ice.LocalException
     }
 };
 
-/**
- *  Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
- **/
-Ice.ResponseSentException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::ResponseSentException";
-    }
-};
 /* slice2js browser-bundle-skip */
 exports.Ice = Ice;
 /* slice2js browser-bundle-skip-end */

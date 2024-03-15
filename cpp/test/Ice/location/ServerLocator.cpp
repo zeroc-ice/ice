@@ -13,17 +13,17 @@
 using namespace std;
 using namespace Ice;
 
-ServerLocatorRegistry::ServerLocatorRegistry()
-{
-}
+ServerLocatorRegistry::ServerLocatorRegistry() {}
 
 void
-ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, optional<ObjectPrx> object,
-                                                  function<void()> response,
-                                                  function<void(exception_ptr)>,
-                                                  const Current&)
+ServerLocatorRegistry::setAdapterDirectProxyAsync(
+    string adapter,
+    optional<ObjectPrx> object,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Current&)
 {
-    if(!object)
+    if (!object)
     {
         _adapters.erase(adapter);
     }
@@ -35,12 +35,15 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, optional<Objec
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, optional<ObjectPrx> object,
-                                                            function<void()> response,
-                                                            function<void(exception_ptr)>,
-                                                            const Current&)
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(
+    string adapter,
+    string replicaGroup,
+    optional<ObjectPrx> object,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Current&)
 {
-    if(!object)
+    if (!object)
     {
         _adapters.erase(adapter);
         _adapters.erase(replicaGroup);
@@ -54,11 +57,12 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, stri
 }
 
 void
-ServerLocatorRegistry::setServerProcessProxyAsync(string,
-                                                  optional<ProcessPrx>,
-                                                  function<void()> response,
-                                                  function<void(exception_ptr)>,
-                                                  const Current&)
+ServerLocatorRegistry::setServerProcessProxyAsync(
+    string,
+    optional<ProcessPrx>,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Current&)
 {
     response();
 }
@@ -72,8 +76,8 @@ ServerLocatorRegistry::addObject(optional<ObjectPrx> object, const Current&)
 optional<ObjectPrx>
 ServerLocatorRegistry::getAdapter(const string& adapter) const
 {
-    map< string, optional<ObjectPrx>>::const_iterator p = _adapters.find(adapter);
-    if(_adapters.find(adapter) == _adapters.end())
+    map<string, optional<ObjectPrx>>::const_iterator p = _adapters.find(adapter);
+    if (_adapters.find(adapter) == _adapters.end())
     {
         throw AdapterNotFoundException();
     }
@@ -83,8 +87,8 @@ ServerLocatorRegistry::getAdapter(const string& adapter) const
 optional<ObjectPrx>
 ServerLocatorRegistry::getObject(const Identity& id) const
 {
-    map< Identity, optional<ObjectPrx>>::const_iterator p = _objects.find(id);
-    if(p == _objects.end())
+    map<Identity, optional<ObjectPrx>>::const_iterator p = _objects.find(id);
+    if (p == _objects.end())
     {
         throw ObjectNotFoundException();
     }
@@ -98,18 +102,19 @@ ServerLocatorRegistry::addObject(const optional<ObjectPrx>& object)
     _objects[object->ice_getIdentity()] = object;
 }
 
-ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const optional<LocatorRegistryPrx>& registryPrx) :
-    _registry(registry),
-    _registryPrx(registryPrx),
-    _requestCount(0)
+ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const optional<LocatorRegistryPrx>& registryPrx)
+    : _registry(registry),
+      _registryPrx(registryPrx),
+      _requestCount(0)
 {
 }
 
 void
-ServerLocator::findObjectByIdAsync(Identity id,
-                                   function<void(const optional<ObjectPrx>&)> response,
-                                   function<void(exception_ptr)>,
-                                   const Current&) const
+ServerLocator::findObjectByIdAsync(
+    Identity id,
+    function<void(const optional<ObjectPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Current&) const
 {
     ++const_cast<int&>(_requestCount);
     // We add a small delay to make sure locator request queuing gets tested when
@@ -119,13 +124,14 @@ ServerLocator::findObjectByIdAsync(Identity id,
 }
 
 void
-ServerLocator::findAdapterByIdAsync(string id,
-                                    function<void(const optional<ObjectPrx>&)> response,
-                                    function<void(exception_ptr)>,
-                                    const Current& current) const
+ServerLocator::findAdapterByIdAsync(
+    string id,
+    function<void(const optional<ObjectPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Current& current) const
 {
     ++const_cast<int&>(_requestCount);
-    if(id == "TestAdapter10" || id == "TestAdapter10-2")
+    if (id == "TestAdapter10" || id == "TestAdapter10-2")
     {
         test(current.encoding == Encoding_1_0);
         response(_registry->getAdapter("TestAdapter"));

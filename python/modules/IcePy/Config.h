@@ -11,18 +11,18 @@
 //
 
 #ifdef _WIN32
-    // suppress C4100: '_unused_op': unreferenced formal parameter in Python 3.12 cpython/unicodeobject.h
-#   pragma warning( disable : 4100)
+// suppress C4100: '_unused_op': unreferenced formal parameter in Python 3.12 cpython/unicodeobject.h
+#    pragma warning(disable : 4100)
 #endif
 
 #include <Python.h>
 
 #ifdef _WIN32
-#   pragma warning( default : 4100)
+#    pragma warning(default : 4100)
 #endif
 
 #ifdef STRCAST
-#   error "STRCAST already defined!"
+#    error "STRCAST already defined!"
 #endif
 #define STRCAST(s) const_cast<char*>(s)
 

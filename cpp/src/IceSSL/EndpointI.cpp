@@ -20,25 +20,23 @@ using namespace IceSSL;
 
 namespace
 {
-
-Ice::IPEndpointInfoPtr
-getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
-{
-    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    Ice::IPEndpointInfoPtr getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
     {
-        Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
-        if(ipInfo)
+        for (Ice::EndpointInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
 }
 
-}
-
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del) :
-    _instance(instance), _delegate(del)
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
+    : _instance(instance),
+      _delegate(del)
 {
 }
 
@@ -51,8 +49,8 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(
-        const_cast<EndpointI*>(this)->shared_from_this());
+    EndpointInfoPtr info =
+        make_shared<IceInternal::InfoI<EndpointInfo>>(const_cast<EndpointI*>(this)->shared_from_this());
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -80,7 +78,7 @@ IceSSL::EndpointI::timeout() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointI::timeout(int32_t timeout) const
 {
-    if(timeout == _delegate->timeout())
+    if (timeout == _delegate->timeout())
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -99,7 +97,7 @@ IceSSL::EndpointI::connectionId() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointI::connectionId(const string& connectionId) const
 {
-    if(connectionId == _delegate->connectionId())
+    if (connectionId == _delegate->connectionId())
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -118,7 +116,7 @@ IceSSL::EndpointI::compress() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointI::compress(bool compress) const
 {
-    if(compress == _delegate->compress())
+    if (compress == _delegate->compress())
     {
         return const_cast<EndpointI*>(this)->shared_from_this();
     }
@@ -153,7 +151,7 @@ IceSSL::EndpointI::connectorsAsync(
     function<void(exception_ptr)> exception) const
 {
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
-    string host  = info ? info->host : string();
+    string host = info ? info->host : string();
 
     _delegate->connectorsAsync(
         selType,
@@ -181,7 +179,7 @@ IceSSL::EndpointI::acceptor(const string& adapterName) const
 EndpointIPtr
 IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    if(delEndp.get() == _delegate.get())
+    if (delEndp.get() == _delegate.get())
     {
         return dynamic_pointer_cast<EndpointI>(const_cast<EndpointI*>(this)->shared_from_this());
     }
@@ -195,9 +193,9 @@ vector<IceInternal::EndpointIPtr>
 IceSSL::EndpointI::expandIfWildcard() const
 {
     vector<IceInternal::EndpointIPtr> endps = _delegate->expandIfWildcard();
-    for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    for (vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        if(p->get() == _delegate.get())
+        if (p->get() == _delegate.get())
         {
             *p = const_cast<EndpointI*>(this)->shared_from_this();
         }
@@ -213,17 +211,17 @@ vector<IceInternal::EndpointIPtr>
 IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
 {
     vector<IceInternal::EndpointIPtr> endps = _delegate->expandHost(publish);
-    if(publish.get() == _delegate.get())
+    if (publish.get() == _delegate.get())
     {
         publish = const_cast<EndpointI*>(this)->shared_from_this();
     }
-    else if(publish.get())
+    else if (publish.get())
     {
         publish = make_shared<EndpointI>(_instance, publish);
     }
-    for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    for (vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        if(p->get() == _delegate.get())
+        if (p->get() == _delegate.get())
         {
             *p = const_cast<EndpointI*>(this)->shared_from_this();
         }
@@ -239,7 +237,7 @@ bool
 IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 {
     const EndpointI* endpointI = dynamic_cast<const EndpointI*>(endpoint.get());
-    if(!endpointI)
+    if (!endpointI)
     {
         return false;
     }
@@ -262,17 +260,17 @@ bool
 IceSSL::EndpointI::operator==(const Ice::Endpoint& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         return false;
     }
 
-    if(this == p)
+    if (this == p)
     {
         return true;
     }
 
-    if(!Ice::targetEqualTo(_delegate, p->_delegate))
+    if (!Ice::targetEqualTo(_delegate, p->_delegate))
     {
         return false;
     }
@@ -284,22 +282,22 @@ bool
 IceSSL::EndpointI::operator<(const Ice::Endpoint& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
-    if(!p)
+    if (!p)
     {
         const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
-        if(!e)
+        if (!e)
         {
             return false;
         }
         return type() < e->type();
     }
 
-    if(this == p)
+    if (this == p)
     {
         return false;
     }
 
-    if(Ice::targetLess(_delegate, p->_delegate))
+    if (Ice::targetLess(_delegate, p->_delegate))
     {
         return true;
     }
@@ -317,8 +315,9 @@ IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argumen
     return false;
 }
 
-IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, int16_t type) :
-    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance)
+IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, int16_t type)
+    : IceInternal::EndpointFactoryWithUnderlying(instance, type),
+      _sslInstance(instance)
 {
 }
 
@@ -329,9 +328,12 @@ IceSSL::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying) const
+IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying)
+    const
 {
-    return make_shared<EndpointFactoryI>(make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
+    return make_shared<EndpointFactoryI>(
+        make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()),
+        underlying);
 }
 
 IceInternal::EndpointIPtr

@@ -15,7 +15,6 @@ using namespace Test;
 class Publisher final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -25,16 +24,15 @@ Publisher::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
         throw invalid_argument(os.str());
     }
 
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
-        communicator->stringToProxy(managerProxy));
-    if(!manager)
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -49,7 +47,7 @@ Publisher::run(int argc, char** argv)
     // a Single object.
     //
     optional<SinglePrx> single(topic->getPublisher()->ice_twoway());
-    for(int i = 0; i < 1000; ++i)
+    for (int i = 0; i < 1000; ++i)
     {
         single->event(i);
     }

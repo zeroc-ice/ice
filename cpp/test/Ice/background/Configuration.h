@@ -11,13 +11,13 @@
 #include <Ice/Selector.h>
 
 #ifndef TEST_API
-#   if defined(ICE_STATIC_LIBS)
-#       define TEST_API /**/
-#   elif defined(TEST_API_EXPORTS)
-#       define TEST_API ICE_DECLSPEC_EXPORT
-#   else
-#       define TEST_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define TEST_API /**/
+#    elif defined(TEST_API_EXPORTS)
+#        define TEST_API ICE_DECLSPEC_EXPORT
+#    else
+#        define TEST_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 class Configuration;
@@ -26,30 +26,29 @@ using ConfigurationPtr = std::shared_ptr<Configuration>;
 class TEST_API Configuration : public std::enable_shared_from_this<Configuration>
 {
 public:
-
     Configuration();
     void init();
 
     virtual ~Configuration();
 
-    void connectorsException(Ice::LocalException*);
+    void connectorsException(std::exception_ptr);
     void checkConnectorsException();
 
-    void connectException(Ice::LocalException*);
+    void connectException(std::exception_ptr);
     void checkConnectException();
 
     void initializeSocketOperation(IceInternal::SocketOperation);
-    void initializeException(Ice::LocalException*);
+    void initializeException(std::exception_ptr);
     IceInternal::SocketOperation initializeSocketOperation();
     void checkInitializeException();
 
     void readReady(bool);
-    void readException(Ice::LocalException*);
+    void readException(std::exception_ptr);
     bool readReady();
     void checkReadException();
 
     void writeReady(bool);
-    void writeException(Ice::LocalException*);
+    void writeException(std::exception_ptr);
     bool writeReady();
     void checkWriteException();
 
@@ -59,16 +58,15 @@ public:
     static ConfigurationPtr getInstance();
 
 private:
-
-    std::unique_ptr<Ice::LocalException> _connectorsException;
-    std::unique_ptr<Ice::LocalException> _connectException;
+    std::exception_ptr _connectorsException;
+    std::exception_ptr _connectException;
     IceInternal::SocketOperation _initializeSocketOperation;
     int _initializeResetCount;
-    std::unique_ptr<Ice::LocalException> _initializeException;
+    std::exception_ptr _initializeException;
     int _readReadyCount;
-    std::unique_ptr<Ice::LocalException> _readException;
+    std::exception_ptr _readException;
     int _writeReadyCount;
-    std::unique_ptr<Ice::LocalException> _writeException;
+    std::exception_ptr _writeException;
     bool _buffered;
     std::mutex _mutex;
     static ConfigurationPtr _instance;

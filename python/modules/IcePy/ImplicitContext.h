@@ -10,13 +10,11 @@
 
 namespace IcePy
 {
+    extern PyTypeObject ImplicitContextType;
 
-extern PyTypeObject ImplicitContextType;
+    bool initImplicitContext(PyObject*);
 
-bool initImplicitContext(PyObject*);
-
-PyObject* createImplicitContext(const Ice::ImplicitContextPtr&);
-
+    PyObject* createImplicitContext(const Ice::ImplicitContextPtr&);
 }
 
 #endif

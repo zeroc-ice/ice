@@ -3,7 +3,7 @@
 //
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
+#    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
 
 #include <Ice/Ice.h>
@@ -18,7 +18,6 @@ using namespace Test2::Sub2;
 class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
 {
 public:
-
     TestObjectWriter(const MyClassPtr& p)
     {
         obj = p;
@@ -31,10 +30,7 @@ public:
         const_cast<TestObjectWriter*>(this)->called = true;
     }
 
-    virtual void _iceRead(Ice::InputStream*)
-    {
-        assert(false);
-    }
+    virtual void _iceRead(Ice::InputStream*) { assert(false); }
 
     MyClassPtr obj;
     bool called;
@@ -43,16 +39,9 @@ public:
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
 {
 public:
+    TestObjectReader() { called = false; }
 
-    TestObjectReader()
-    {
-        called = false;
-    }
-
-    virtual void _iceWrite(Ice::OutputStream*) const
-    {
-        assert(false);
-    }
+    virtual void _iceWrite(Ice::OutputStream*) const { assert(false); }
 
     virtual void _iceRead(Ice::InputStream* in)
     {
@@ -68,26 +57,22 @@ public:
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
 namespace Ice
 {
-template<class S>
-struct StreamWriter<TestObjectWriter, S>
-{
-    static void write(S*, const TestObjectWriter&) { assert(false); }
-};
-template<class S>
-struct StreamReader<TestObjectWriter, S>
-{
-    static void read(S*, TestObjectWriter&) { assert(false); }
-};
-template<class S>
-struct StreamWriter<TestObjectReader, S>
-{
-    static void write(S*, const TestObjectReader&) { assert(false); }
-};
-template<class S>
-struct StreamReader<TestObjectReader, S>
-{
-    static void read(S*, TestObjectReader&) { assert(false); }
-};
+    template<class S> struct StreamWriter<TestObjectWriter, S>
+    {
+        static void write(S*, const TestObjectWriter&) { assert(false); }
+    };
+    template<class S> struct StreamReader<TestObjectWriter, S>
+    {
+        static void read(S*, TestObjectWriter&) { assert(false); }
+    };
+    template<class S> struct StreamWriter<TestObjectReader, S>
+    {
+        static void write(S*, const TestObjectReader&) { assert(false); }
+    };
+    template<class S> struct StreamReader<TestObjectReader, S>
+    {
+        static void read(S*, TestObjectReader&) { assert(false); }
+    };
 }
 
 void
@@ -101,21 +86,11 @@ patchObject(void* addr, const shared_ptr<Ice::Value>& v)
 class MyClassFactoryWrapper
 {
 public:
+    MyClassFactoryWrapper() { clear(); }
 
-    MyClassFactoryWrapper()
-    {
-        clear();
-    }
+    shared_ptr<Ice::Value> create(string_view type) { return _factory(type); }
 
-    shared_ptr<Ice::Value> create(string_view type)
-    {
-        return _factory(type);
-    }
-
-    void setFactory(function<shared_ptr<Ice::Value>(string_view)> f)
-    {
-        _factory = f;
-    }
+    void setFactory(function<shared_ptr<Ice::Value>(string_view)> f) { _factory = f; }
 
     void clear()
     {
@@ -134,7 +109,7 @@ allTests(Test::TestHelper* helper)
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 
-    vector<uint8_t> data;
+    vector<byte> data;
 
     //
     // Test the stream API.
@@ -142,7 +117,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing primitive types... " << flush;
 
     {
-        vector<uint8_t> byte;
+        vector<byte> byte;
         Ice::InputStream in(communicator, byte);
     }
 
@@ -152,9 +127,9 @@ allTests(Test::TestHelper* helper)
         out.write(true);
         out.endEncapsulation();
         out.finished(data);
-        pair<const uint8_t*, const uint8_t*> d = out.finished();
+        pair<const byte*, const byte*> d = out.finished();
         test(d.second - d.first == static_cast<int>(data.size()));
-        test(vector<uint8_t>(d.first, d.second) == data);
+        test(vector<byte>(d.first, d.second) == data);
 
         Ice::InputStream in(communicator, data);
         in.startEncapsulation();
@@ -165,7 +140,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        vector<uint8_t> byte;
+        vector<byte> byte;
         Ice::InputStream in(communicator, byte);
         try
         {
@@ -173,7 +148,7 @@ allTests(Test::TestHelper* helper)
             in.read(v);
             test(false);
         }
-        catch(const Ice::UnmarshalOutOfBoundsException&)
+        catch (const Ice::UnmarshalOutOfBoundsException&)
         {
         }
     }
@@ -312,7 +287,7 @@ allTests(Test::TestHelper* helper)
         in.readPendingValues();
         test(o2->bo == o->bo);
         test(o2->by == o->by);
-        if(in.getEncoding() == Ice::Encoding_1_0)
+        if (in.getEncoding() == Ice::Encoding_1_0)
         {
             test(!o2->sh);
             test(!o2->i);
@@ -377,10 +352,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::ByteSeq arr;
-        arr.push_back(0x01);
-        arr.push_back(0x11);
-        arr.push_back(0x12);
-        arr.push_back(0x22);
+        arr.push_back(byte{0x01});
+        arr.push_back(byte{0x11});
+        arr.push_back(byte{0x12});
+        arr.push_back(byte{0x22});
 
         Ice::OutputStream out(communicator);
         out.write(arr);
@@ -611,7 +586,7 @@ allTests(Test::TestHelper* helper)
 
     {
         SmallStructS arr;
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             SmallStruct s;
             s.bo = true;
@@ -636,7 +611,7 @@ allTests(Test::TestHelper* helper)
         in.readPendingValues();
         test(arr2.size() == arr.size());
 
-        for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
+        for (SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
             test(arr[j].p == arr2[j].p);
             arr2[j].p = arr[j].p;
@@ -659,7 +634,7 @@ allTests(Test::TestHelper* helper)
 
     {
         MyClassS arr;
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             MyClassPtr c = std::make_shared<MyClass>();
             c->c = c;
@@ -671,10 +646,10 @@ allTests(Test::TestHelper* helper)
             c->seq1.push_back(true);
             c->seq1.push_back(false);
 
-            c->seq2.push_back(1);
-            c->seq2.push_back(2);
-            c->seq2.push_back(3);
-            c->seq2.push_back(4);
+            c->seq2.push_back(byte{1});
+            c->seq2.push_back(byte{2});
+            c->seq2.push_back(byte{3});
+            c->seq2.push_back(byte{4});
 
             c->seq3.push_back(1);
             c->seq3.push_back(2);
@@ -723,7 +698,7 @@ allTests(Test::TestHelper* helper)
         in.read(arr2);
         in.readPendingValues();
         test(arr2.size() == arr.size());
-        for(MyClassS::size_type j = 0; j < arr2.size(); ++j)
+        for (MyClassS::size_type j = 0; j < arr2.size(); ++j)
         {
             test(arr2[j]);
             test(arr2[j]->c == arr2[j]);
@@ -759,9 +734,9 @@ allTests(Test::TestHelper* helper)
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
-        for(size_t j = 0; j < arr2S.size(); ++j)
+        for (size_t j = 0; j < arr2S.size(); ++j)
         {
-            for(size_t k = 0; k < arr2S[j].size(); ++k)
+            for (size_t k = 0; k < arr2S[j].size(); ++k)
             {
                 test(arr2S[j][k]->c == arr2S[j][k]);
                 test(arr2S[j][k]->o == arr2S[j][k]);
@@ -779,10 +754,11 @@ allTests(Test::TestHelper* helper)
             }
         }
 
-        auto clearS = [](MyClassS& arr3) {
-            for(MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+        auto clearS = [](MyClassS& arr3)
+        {
+            for (MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
-                if(*p)
+                if (*p)
                 {
                     (*p)->c = nullptr;
                     (*p)->o = nullptr;
@@ -790,8 +766,9 @@ allTests(Test::TestHelper* helper)
                 }
             }
         };
-        auto clearSS = [clearS](MyClassSS& arr3) {
-            for(MyClassSS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+        auto clearSS = [clearS](MyClassSS& arr3)
+        {
+            for (MyClassSS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
                 clearS(*p);
             }
@@ -849,10 +826,10 @@ allTests(Test::TestHelper* helper)
         c->seq1.push_back(true);
         c->seq1.push_back(false);
 
-        c->seq2.push_back(1);
-        c->seq2.push_back(2);
-        c->seq2.push_back(3);
-        c->seq2.push_back(4);
+        c->seq2.push_back(byte{1});
+        c->seq2.push_back(byte{2});
+        c->seq2.push_back(byte{3});
+        c->seq2.push_back(byte{4});
 
         c->seq3.push_back(1);
         c->seq3.push_back(2);
@@ -899,7 +876,7 @@ allTests(Test::TestHelper* helper)
             in.throwException();
             test(false);
         }
-        catch(const MyException& ex1)
+        catch (const MyException& ex1)
         {
             test(ex1.c->s.e == c->s.e);
             test(ex1.c->seq1 == c->seq1);
@@ -1035,7 +1012,7 @@ allTests(Test::TestHelper* helper)
             in.throwException();
             test(false);
         }
-        catch(const NestedException& ex1)
+        catch (const NestedException& ex1)
         {
             test(ex1.str == ex.str);
         }
@@ -1085,7 +1062,7 @@ allTests(Test::TestHelper* helper)
             in.throwException();
             test(false);
         }
-        catch(const NestedException2& ex1)
+        catch (const NestedException2& ex1)
         {
             test(ex1.str == ex.str);
         }
@@ -1095,30 +1072,30 @@ allTests(Test::TestHelper* helper)
     // Test marshaling to user-supplied buffer.
     //
     {
-        uint8_t buf[128];
-        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
+        byte buf[128];
+        pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<uint8_t> v;
+        vector<byte> v;
         v.resize(127);
         out.write(v);
-        test(out.pos() == 128); // 127 bytes + leading size (1 byte)
+        test(out.pos() == 128);     // 127 bytes + leading size (1 byte)
         test(out.b.begin() == buf); // Verify the stream hasn't reallocated.
     }
     {
-        uint8_t buf[128];
-        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
+        byte buf[128];
+        pair<byte*, byte*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<uint8_t> v;
+        vector<byte> v;
         v.resize(127);
         ::memset(&v[0], 0xFF, v.size());
         out.write(v);
-        out.write(uint8_t(0xFF)); // This extra byte should make the stream reallocate.
-        test(out.pos() == 129); // 127 bytes + leading size (1 byte) + 1 byte
+        out.write(byte(0xFF));      // This extra byte should make the stream reallocate.
+        test(out.pos() == 129);     // 127 bytes + leading size (1 byte) + 1 byte
         test(out.b.begin() != buf); // Verify the stream was reallocated.
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-        vector<uint8_t> v2;
+        vector<byte> v2;
         in.read(v2);
         test(v2.size() == 127);
         test(v == v2); // Make sure the original buffer was preserved.
@@ -1130,7 +1107,6 @@ allTests(Test::TestHelper* helper)
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

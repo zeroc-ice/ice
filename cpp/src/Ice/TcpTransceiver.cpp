@@ -6,12 +6,12 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#include <Ice/TcpTransceiver.h>
-#include <Ice/Connection.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/LocalException.h>
+#    include <Ice/TcpTransceiver.h>
+#    include <Ice/Connection.h>
+#    include <Ice/ProtocolInstance.h>
+#    include <Ice/LoggerUtil.h>
+#    include <Ice/Buffer.h>
+#    include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -55,7 +55,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
     return _stream->read(buf);
 }
 
-#if defined(ICE_USE_IOCP)
+#    if defined(ICE_USE_IOCP)
 bool
 IceInternal::TcpTransceiver::startWrite(Buffer& buf)
 {
@@ -79,7 +79,7 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
 {
     _stream->finishRead(buf);
 }
-#endif
+#    endif
 
 string
 IceInternal::TcpTransceiver::protocol() const
@@ -104,7 +104,7 @@ IceInternal::TcpTransceiver::getInfo() const
 {
     TCPConnectionInfoPtr info = std::make_shared<TCPConnectionInfo>();
     fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    if(_stream->fd() != INVALID_SOCKET)
+    if (_stream->fd() != INVALID_SOCKET)
     {
         info->rcvSize = getRecvBufferSize(_stream->fd());
         info->sndSize = getSendBufferSize(_stream->fd());
@@ -123,13 +123,11 @@ IceInternal::TcpTransceiver::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(rcvSize, sndSize);
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, const StreamSocketPtr& stream) :
-    _instance(instance),
-    _stream(stream)
+IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, const StreamSocketPtr& stream)
+    : _instance(instance),
+      _stream(stream)
 {
 }
 
-IceInternal::TcpTransceiver::~TcpTransceiver()
-{
-}
+IceInternal::TcpTransceiver::~TcpTransceiver() {}
 #endif

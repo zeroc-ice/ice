@@ -7,75 +7,70 @@
 
 #ifdef _WIN32
 
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/SChannelEngineF.h>
+#    include <IceSSL/SSLEngine.h>
+#    include <IceSSL/SChannelEngineF.h>
 
 //
 // SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h
 // indicating who is compiling the code.
 //
-#  ifdef SECURITY_WIN32
+#    ifdef SECURITY_WIN32
+#        undef SECURITY_WIN32
+#    endif
+#    ifdef SECURITY_KERNEL
+#        undef SECURITY_KERNEL
+#    endif
+#    define SECURITY_WIN32 1
+#    include <security.h>
+#    include <sspi.h>
+#    include <schannel.h>
 #    undef SECURITY_WIN32
-#  endif
-#  ifdef SECURITY_KERNEL
-#    undef SECURITY_KERNEL
-#  endif
-#  define SECURITY_WIN32 1
-#  include <security.h>
-#  include <sspi.h>
-#  include <schannel.h>
-#  undef SECURITY_WIN32
 
 namespace IceSSL
 {
+    namespace SChannel
+    {
+        class SSLEngine final : public IceSSL::SSLEngine
+        {
+        public:
+            SSLEngine(const Ice::CommunicatorPtr&);
 
-namespace SChannel
-{
+            //
+            // Setup the engine.
+            //
+            void initialize() final;
 
-class SSLEngine final : public IceSSL::SSLEngine
-{
-public:
+            IceInternal::TransceiverPtr
+            createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
-    SSLEngine(const Ice::CommunicatorPtr&);
+            //
+            // Destroy the engine.
+            //
+            void destroy() final;
 
-    //
-    // Setup the engine.
-    //
-    void initialize() final;
+            std::string getCipherName(ALG_ID) const;
 
-    IceInternal::TransceiverPtr
-    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
+            CredHandle newCredentialsHandle(bool);
 
-    //
-    // Destroy the engine.
-    //
-    void destroy() final;
+            HCERTCHAINENGINE chainEngine() const;
 
-    std::string getCipherName(ALG_ID) const;
+        private:
+            void parseCiphers(const std::string&);
 
-    CredHandle newCredentialsHandle(bool);
+            std::vector<PCCERT_CONTEXT> _allCerts;
+            std::vector<PCCERT_CONTEXT> _importedCerts;
+            DWORD _protocols;
 
-    HCERTCHAINENGINE chainEngine() const;
+            std::vector<HCERTSTORE> _stores;
+            HCERTSTORE _rootStore;
 
-private:
+            HCERTCHAINENGINE _chainEngine;
+            std::vector<ALG_ID> _ciphers;
 
-    void parseCiphers(const std::string&);
+            const bool _strongCrypto;
+        };
 
-    std::vector<PCCERT_CONTEXT> _allCerts;
-    std::vector<PCCERT_CONTEXT> _importedCerts;
-    DWORD _protocols;
-
-    std::vector<HCERTSTORE> _stores;
-    HCERTSTORE _rootStore;
-
-    HCERTCHAINENGINE _chainEngine;
-    std::vector<ALG_ID> _ciphers;
-
-    const bool _strongCrypto;
-};
-
-}
-
+    }
 }
 
 #endif

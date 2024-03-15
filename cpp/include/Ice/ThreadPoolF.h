@@ -9,12 +9,10 @@
 
 namespace IceInternal
 {
+    class ThreadPool;
+    using ThreadPoolPtr = std::shared_ptr<ThreadPool>;
 
-class ThreadPool;
-using ThreadPoolPtr = std::shared_ptr<ThreadPool>;
-
-class ThreadPoolCurrent;
-
+    class ThreadPoolCurrent;
 }
 
 #endif

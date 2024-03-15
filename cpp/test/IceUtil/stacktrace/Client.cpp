@@ -12,81 +12,74 @@ using namespace std;
 
 namespace IceUtilInternal
 {
-extern bool ICE_API printStackTraces;
+    extern bool ICE_API printStackTraces;
 }
 
 namespace
 {
-class Thrower
-{
-public:
-
-    Thrower() : _idx(0)
+    class Thrower
     {
-    }
+    public:
+        Thrower() : _idx(0) {}
 
-    void first()
+        void first()
+        {
+            _idx++;
+            second();
+        }
+
+        void second()
+        {
+            _idx++;
+            third();
+        }
+
+        void third()
+        {
+            _idx++;
+            forth();
+        }
+
+        void forth()
+        {
+            _idx++;
+            fifth();
+        }
+
+        void fifth()
+        {
+            _idx++;
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+
+    private:
+        int _idx;
+    };
+    using ThrowerPtr = shared_ptr<Thrower>;
+
+    vector<string> splitLines(const string& str)
     {
-        _idx++;
-        second();
+        vector<string> result;
+        istringstream is(str);
+        string line;
+        while (std::getline(is, line))
+        {
+            result.push_back(line);
+        }
+        return result;
     }
-
-    void second()
-    {
-        _idx++;
-        third();
-    }
-
-    void third()
-    {
-        _idx++;
-        forth();
-    }
-
-    void forth()
-    {
-        _idx++;
-        fifth();
-    }
-
-    void fifth()
-    {
-        _idx++;
-        throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-    }
-
-private:
-
-    int _idx;
-};
-using ThrowerPtr = shared_ptr<Thrower>;
-
-vector<string>
-splitLines(const string& str)
-{
-    vector<string> result;
-    istringstream is(str);
-    string line;
-    while(std::getline(is, line))
-    {
-        result.push_back(line);
-    }
-    return result;
-}
-
 }
 
 class Client : public Test::TestHelper
 {
 public:
-
     virtual void run(int argc, char* argv[]);
 };
 
 void
 Client::run(int, char*[])
 {
-    if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
+    if (IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
     {
         cout << "This Ice build cannot capture stack traces" << endl;
         return;
@@ -100,7 +93,7 @@ Client::run(int, char*[])
     {
         thrower->first();
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         test(splitLines(ex.ice_stackTrace()).size() >= 3);
     }

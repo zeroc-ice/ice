@@ -5,10 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::PropertiesPtr& properties) :
-    _properties(properties)
-{
-}
+TestI::TestI(const Ice::PropertiesPtr& properties) : _properties(properties) {}
 
 std::string
 TestI::getReplicaId(const Ice::Current& current)

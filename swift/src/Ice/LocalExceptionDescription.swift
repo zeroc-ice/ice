@@ -61,16 +61,6 @@ extension PluginInitializationException {
     }
 }
 
-extension CollocationOptimizationException {
-    var _CollocationOptimizationExceptionDescription: String {
-        var s = String()
-
-        s.sep("requested feature not available with collocation optimization")
-
-        return s
-    }
-}
-
 extension AlreadyRegisteredException {
     var _AlreadyRegisteredExceptionDescription: String {
         var s = String()
@@ -746,16 +736,6 @@ extension FixedProxyException {
         var s = String()
 
         s.sep("fixed proxy exception")
-
-        return s
-    }
-}
-
-extension ResponseSentException {
-    var _ResponseSentExceptionDescription: String {
-        var s = String()
-
-        s.sep("response sent exception")
 
         return s
     }

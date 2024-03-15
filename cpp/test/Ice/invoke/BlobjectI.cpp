@@ -12,16 +12,16 @@ using namespace Test;
 using namespace Ice;
 
 bool
-invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& current)
+invokeInternal(InputStream& in, vector<byte>& outEncaps, const Current& current)
 {
     CommunicatorPtr communicator = current.adapter->getCommunicator();
     OutputStream out(communicator);
     out.startEncapsulation();
-    if(current.operation == "opOneway")
+    if (current.operation == "opOneway")
     {
         return true;
     }
-    else if(current.operation == "opString")
+    else if (current.operation == "opString")
     {
         string s;
         in.startEncapsulation();
@@ -33,9 +33,9 @@ invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& curre
         out.finished(outEncaps);
         return true;
     }
-    else if(current.operation == "opException")
+    else if (current.operation == "opException")
     {
-        if(current.ctx.find("raise") != current.ctx.end())
+        if (current.ctx.find("raise") != current.ctx.end())
         {
             throw MyException();
         }
@@ -45,20 +45,20 @@ invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& curre
         out.finished(outEncaps);
         return false;
     }
-    else if(current.operation == "shutdown")
+    else if (current.operation == "shutdown")
     {
         out.endEncapsulation();
         out.finished(outEncaps);
         communicator->shutdown();
         return true;
     }
-    else if(current.operation == "ice_isA")
+    else if (current.operation == "ice_isA")
     {
         string s;
         in.startEncapsulation();
         in.read(s);
         in.endEncapsulation();
-        if(s == "::MyClass")
+        if (s == "::MyClass")
         {
             out.write(true);
         }
@@ -81,43 +81,44 @@ invokeInternal(InputStream& in, vector<uint8_t>& outEncaps, const Current& curre
 }
 
 bool
-BlobjectI::ice_invoke(vector<uint8_t> inEncaps, vector<uint8_t>& outEncaps, const Current& current)
+BlobjectI::ice_invoke(vector<byte> inEncaps, vector<byte>& outEncaps, const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 bool
-BlobjectArrayI::ice_invoke(pair<const uint8_t*, const uint8_t*> inEncaps, vector<uint8_t>& outEncaps,
-                           const Current& current)
+BlobjectArrayI::ice_invoke(pair<const byte*, const byte*> inEncaps, vector<byte>& outEncaps, const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 void
-BlobjectAsyncI::ice_invokeAsync(vector<uint8_t> inEncaps,
-                                function<void(bool, const vector<uint8_t>&)> response,
-                                function<void(exception_ptr)>,
-                                const Current& current)
+BlobjectAsyncI::ice_invokeAsync(
+    vector<byte> inEncaps,
+    function<void(bool, const vector<byte>&)> response,
+    function<void(exception_ptr)>,
+    const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), inEncaps);
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
     response(ok, outEncaps);
 }
 
 void
-BlobjectArrayAsyncI::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inEncaps,
-                                     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
-                                     function<void(exception_ptr)>,
-                                     const Current& current)
+BlobjectArrayAsyncI::ice_invokeAsync(
+    pair<const byte*, const byte*> inEncaps,
+    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(exception_ptr)>,
+    const Current& current)
 {
     InputStream in(current.adapter->getCommunicator(), inEncaps);
-    vector<uint8_t> outEncaps;
+    vector<byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    pair<const uint8_t*, const uint8_t*> outPair(static_cast<const uint8_t*>(nullptr), static_cast<const uint8_t*>(nullptr));
-    if(outEncaps.size() != 0)
+    pair<const byte*, const byte*> outPair(static_cast<const byte*>(nullptr), static_cast<const byte*>(nullptr));
+    if (outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];
         outPair.second = &outEncaps[0] + outEncaps.size();

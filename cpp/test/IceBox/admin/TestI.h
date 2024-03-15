@@ -10,7 +10,6 @@
 class TestFacetI : public virtual ::Test::TestFacet
 {
 public:
-
     TestFacetI();
 
     virtual Ice::PropertyDict getChanges(const Ice::Current&);
@@ -18,7 +17,6 @@ public:
     virtual void updated(const Ice::PropertyDict&);
 
 private:
-
     Ice::PropertyDict _changes;
     std::mutex _mutex;
 };

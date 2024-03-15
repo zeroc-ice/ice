@@ -7,9 +7,7 @@
 
 namespace IceInternal
 {
-
-union Address;
-
+    union Address;
 }
 
 #endif

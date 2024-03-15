@@ -11,42 +11,32 @@
 
 namespace IceUtilInternal
 {
-
-class StopWatch
-{
-public:
-
-    StopWatch() { }
-
-    void start()
+    class StopWatch
     {
-        _start = std::chrono::steady_clock::now();
-    }
+    public:
+        StopWatch() {}
 
-    std::chrono::microseconds stop()
-    {
-        assert(isStarted());
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::steady_clock::now() - _start);
-        _start = std::chrono::steady_clock::time_point();
-        return duration;
-    }
+        void start() { _start = std::chrono::steady_clock::now(); }
 
-    bool isStarted() const
-    {
-        return _start != std::chrono::steady_clock::time_point();
-    }
+        std::chrono::microseconds stop()
+        {
+            assert(isStarted());
+            auto duration =
+                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - _start);
+            _start = std::chrono::steady_clock::time_point();
+            return duration;
+        }
 
-    std::chrono::microseconds delay()
-    {
-        return std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::steady_clock::now() - _start);
-    }
+        bool isStarted() const { return _start != std::chrono::steady_clock::time_point(); }
 
-private:
+        std::chrono::microseconds delay()
+        {
+            return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - _start);
+        }
 
-    std::chrono::steady_clock::time_point _start;
-};
+    private:
+        std::chrono::steady_clock::time_point _start;
+    };
 
 } // End namespace IceUtilInternal
 

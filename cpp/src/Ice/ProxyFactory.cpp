@@ -60,7 +60,4 @@ IceInternal::ProxyFactory::proxyToProperty(const std::optional<ObjectPrx>& proxy
     return proxy ? proxy->_getReference()->toProperty(prefix) : PropertyDict();
 }
 
-IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
-    _instance(instance)
-{
-}
+IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) : _instance(instance) {}

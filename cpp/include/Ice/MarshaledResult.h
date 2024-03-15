@@ -16,50 +16,37 @@ namespace IceInternal
 
 namespace Ice
 {
-
-/**
- * Base class for marshaled result structures, which are generated for operations having the marshaled-result metadata
- * tag.
- * \headerfile Ice/Ice.h
- */
-class ICE_API MarshaledResult
-{
-public:
-
-    MarshaledResult() = delete;
-    MarshaledResult(const MarshaledResult&) = delete;
-    MarshaledResult(MarshaledResult&&);
-
-    virtual ~MarshaledResult() = default;
-
-    MarshaledResult& operator=(const MarshaledResult&) = delete;
-    MarshaledResult& operator=(MarshaledResult&&);
-
-protected:
-
-    /// \cond INTERNAL
-
     /**
-     * The constructor requires the Current object that was passed to the servant.
+     * Base class for marshaled result structures, which are generated for operations having the marshaled-result
+     * metadata tag. \headerfile Ice/Ice.h
      */
-    MarshaledResult(const Current& current);
+    class ICE_API MarshaledResult
+    {
+    public:
+        MarshaledResult() = delete;
+        MarshaledResult(const MarshaledResult&) = delete;
+        MarshaledResult(MarshaledResult&&);
 
-    /** The output stream used to marshal the results. */
-    OutputStream _ostr;
+        virtual ~MarshaledResult() = default;
 
-private:
+        MarshaledResult& operator=(const MarshaledResult&) = delete;
+        MarshaledResult& operator=(MarshaledResult&&);
 
-    friend class IceInternal::Incoming;
+        /// \cond INTERNAL
 
-    /**
-     * Swaps the output stream of this object with the supplied output stream.
-     * @param other The output stream to swap with.
-     */
-    void swap(OutputStream& other);
+        OutputStream& outputStream() noexcept { return _ostr; }
 
-    /// \endcond
-};
+    protected:
+        /**
+         * The constructor requires the Current object that was passed to the servant.
+         */
+        MarshaledResult(const Current& current);
 
+        /** The output stream used to marshal the results. */
+        OutputStream _ostr;
+
+        /// \endcond
+    };
 }
 
 #endif
