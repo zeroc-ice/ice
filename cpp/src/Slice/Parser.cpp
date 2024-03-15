@@ -59,12 +59,6 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-void
-Slice::CompilerException::ice_throw() const
-{
-    throw *this;
-}
-
 string
 Slice::CompilerException::reason() const
 {

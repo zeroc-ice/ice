@@ -26,7 +26,6 @@ namespace Slice
         CompilerException(const char*, int, const std::string&);
         virtual std::string ice_id() const;
         virtual void ice_print(std::ostream&) const;
-        virtual void ice_throw() const;
 
         std::string reason() const;
 

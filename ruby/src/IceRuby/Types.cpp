@@ -2857,7 +2857,7 @@ IceRuby::ExceptionReader::ice_id() const
 void
 IceRuby::ExceptionReader::ice_throw() const
 {
-    throw *this;
+    assert(false);
 }
 
 void

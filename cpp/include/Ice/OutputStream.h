@@ -13,6 +13,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
 #include <Ice/StreamHelpers.h>
+#include "Ice/Format.h"
 
 namespace Ice
 {

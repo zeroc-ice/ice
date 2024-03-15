@@ -5,35 +5,9 @@
 #ifndef __IceGrid_PluginFacade_h__
 #define __IceGrid_PluginFacade_h__
 
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <Ice/Proxy.h>
-#include <Ice/Object.h>
-#include <Ice/Value.h>
-#include <Ice/FactoryTableInit.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/BuiltinSequences.h>
-#include <Ice/Current.h>
-#include <IceGrid/Admin.h>
-#include <IceUtil/UndefSysMacros.h>
-#include <IceGrid/Config.h>
-
-#ifndef ICEGRID_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEGRID_API /**/
-#    elif defined(ICEGRID_API_EXPORTS)
-#        define ICEGRID_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEGRID_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
+#include "Ice/Ice.h"
+#include "IceGrid/Admin.h"
+#include "Config.h"
 namespace IceGrid
 {
     class ReplicaGroupFilter;

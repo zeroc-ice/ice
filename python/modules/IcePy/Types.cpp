@@ -4014,7 +4014,9 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
 //
 // ExceptionWriter implementation.
 //
-IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const ExceptionInfoPtr& info) : _ex(ex), _info(info)
+IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const ExceptionInfoPtr& info) noexcept
+    : _ex(ex),
+      _info(info)
 {
     if (!info)
     {
@@ -4041,7 +4043,7 @@ IcePy::ExceptionWriter::ice_id() const
 void
 IcePy::ExceptionWriter::ice_throw() const
 {
-    throw *this;
+    assert(false);
 }
 
 void
@@ -4055,6 +4057,7 @@ IcePy::ExceptionWriter::_write(Ice::OutputStream* os) const
 void
 IcePy::ExceptionWriter::_read(Ice::InputStream*)
 {
+    assert(false);
 }
 
 bool
@@ -4066,7 +4069,7 @@ IcePy::ExceptionWriter::_usesClasses() const
 //
 // ExceptionReader implementation.
 //
-IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) : _info(info) {}
+IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) noexcept : _info(info) {}
 
 IcePy::ExceptionReader::~ExceptionReader()
 {
@@ -4084,7 +4087,7 @@ IcePy::ExceptionReader::ice_id() const
 void
 IcePy::ExceptionReader::ice_throw() const
 {
-    throw *this;
+    assert(false);
 }
 
 void
