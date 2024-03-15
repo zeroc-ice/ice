@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 
 std::string_view
 Ice::UserException::ice_staticId() noexcept
@@ -18,7 +17,7 @@ Ice::UserException::ice_staticId() noexcept
 }
 
 void
-Ice::UserException::_write(Ice::OutputStream* os) const
+Ice::UserException::_write(OutputStream* os) const
 {
     os->startException();
     _writeImpl(os);
@@ -26,7 +25,7 @@ Ice::UserException::_write(Ice::OutputStream* os) const
 }
 
 void
-Ice::UserException::_read(Ice::InputStream* is)
+Ice::UserException::_read(InputStream* is)
 {
     is->startException();
     _readImpl(is);
