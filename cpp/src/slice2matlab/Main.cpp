@@ -4,7 +4,6 @@
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>

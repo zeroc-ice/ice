@@ -219,9 +219,6 @@
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\Options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -25,26 +25,6 @@ namespace IceUtilInternal
     EndEscapes endEscapes;
 }
 
-string
-IceUtilInternal::int64ToString(Int64 val)
-{
-    char buf[64];
-
-#if defined(_WIN32)
-    sprintf_s(buf, sizeof(buf), "%I64d", val);
-#elif defined(__APPLE__)
-    // sprintf is deprecated with macOS Ventura
-    snprintf(buf, sizeof(buf), "%ld", val); // Avoids a format warning from GCC.
-#else
-#    if defined(ICE_64)
-    sprintf(buf, "%ld", val); // Avoids a format warning from GCC.
-#    else
-    sprintf(buf, "%lld", val);
-#    endif
-#endif
-    return string(buf);
-}
-
 // ----------------------------------------------------------------------
 // OutputBase
 // ----------------------------------------------------------------------

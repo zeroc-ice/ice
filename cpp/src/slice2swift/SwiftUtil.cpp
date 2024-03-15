@@ -1642,7 +1642,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     string args;
     if (tag >= 0)
     {
-        args += "tag: " + int64ToString(tag);
+        args += "tag: " + std::to_string(tag);
         if (marshal)
         {
             args += ", ";

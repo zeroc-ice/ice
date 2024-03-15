@@ -161,9 +161,7 @@ NodeI::start()
     lock_guard lock(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
-    _timer->schedule(
-        _checkTask,
-        chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+    _timer->schedule(_checkTask, chrono::seconds(static_cast<int64_t>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 

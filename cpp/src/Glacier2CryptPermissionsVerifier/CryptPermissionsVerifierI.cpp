@@ -8,7 +8,6 @@
 
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/InputUtil.h>
 
 #include <fstream>
 #include <mutex>
@@ -254,8 +253,12 @@ namespace
             return false; // Rounds end token not found
         }
 
-        IceUtil::Int64 rounds = 0;
-        if (!IceUtilInternal::stringToInt64(p->second.substr(beg, (end - beg)), rounds))
+        int64_t rounds;
+        try
+        {
+            rounds = std::stoll(p->second.substr(beg, (end - beg)), nullptr, 0);
+        }
+        catch (const std::exception&)
         {
             return false; // Invalid rounds value
         }

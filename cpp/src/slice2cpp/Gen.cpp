@@ -1329,7 +1329,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         //
         if (explicitValue)
         {
-            H << " = " << int64ToString((*en)->value());
+            H << " = " << std::to_string((*en)->value());
         }
         if (++en != enumerators.end())
         {

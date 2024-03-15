@@ -163,25 +163,6 @@ namespace IceUtil
         noncopyable(const noncopyable&);
         const noncopyable& operator=(const noncopyable&);
     };
-
-//
-// Int64 typedef and ICE_INT64 macro for Int64 literal values
-//
-// Note that on Windows, long is always 32-bit
-//
-#if defined(_WIN32) && defined(_MSC_VER)
-    typedef __int64 Int64;
-#    define ICE_INT64(n) n##i64
-#    define ICE_INT64_FORMAT "%lld"
-#elif defined(ICE_64) && !defined(_WIN32)
-    typedef long Int64;
-#    define ICE_INT64(n) n##L
-#    define ICE_INT64_FORMAT "%ld"
-#else
-    typedef long long Int64;
-#    define ICE_INT64(n) n##LL
-#    define ICE_INT64_FORMAT "%lld"
-#endif
 }
 
 #endif

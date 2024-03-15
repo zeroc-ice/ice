@@ -5,7 +5,6 @@
 #include <Types.h>
 #include <Proxy.h>
 #include <Util.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
@@ -705,7 +704,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintOb
         case PrimitiveInfo::KindLong:
         {
             int64_t l = getLong(value);
-            out << IceUtilInternal::int64ToString(l);
+            out << l;
             break;
         }
         case PrimitiveInfo::KindFloat:

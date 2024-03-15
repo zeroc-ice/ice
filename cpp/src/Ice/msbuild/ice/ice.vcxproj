@@ -496,7 +496,6 @@
     <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Options.cpp" />
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />

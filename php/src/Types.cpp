@@ -6,7 +6,6 @@
 #include "Proxy.h"
 #include "Util.h"
 
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include "PHPUtil.h"
 #include <Ice/SlicedData.h>
@@ -618,9 +617,12 @@ IcePHP::PrimitiveInfo::validate(zval* zv, bool throwException)
 
             if (Z_TYPE_P(zv) != IS_LONG)
             {
-                Int64 val;
                 string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-                if (!IceUtilInternal::stringToInt64(sval, val))
+                try
+                {
+                    std::stoll(sval, nullptr, 0);
+                }
+                catch (const std::exception&)
                 {
                     if (throwException)
                     {
@@ -776,15 +778,22 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         {
             // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
             assert(Z_TYPE_P(zv) == IS_LONG || Z_TYPE_P(zv) == IS_STRING); // validate() should have caught this.
-            Int64 val;
+            int64_t val = 0;
             if (Z_TYPE_P(zv) == IS_LONG)
             {
-                val = static_cast<long>(Z_LVAL_P(zv));
+                val = static_cast<int64_t>(Z_LVAL_P(zv));
             }
             else
             {
                 string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-                IceUtilInternal::stringToInt64(sval, val);
+                try
+                {
+                    val = std::stoll(sval, nullptr, 0);
+                }
+                catch (const std::exception&)
+                {
+                    assert(false); // validate() should have caught this.
+                }
             }
             os->write(static_cast<int64_t>(val));
             break;
@@ -892,7 +901,7 @@ IcePHP::PrimitiveInfo::unmarshal(
             // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
             if (sizeof(int64_t) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
             {
-                string str = IceUtilInternal::int64ToString(val);
+                string str = std::to_string(val);
                 ZVAL_STRINGL(&zv, str.c_str(), static_cast<int>(str.length()));
             }
             else
@@ -1675,15 +1684,22 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
                 }
                 // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
                 assert(Z_TYPE_P(val) == IS_LONG || Z_TYPE_P(val) == IS_STRING);
-                Int64 l;
+                int64_t l;
                 if (Z_TYPE_P(val) == IS_LONG)
                 {
-                    l = static_cast<long>(Z_LVAL_P(val));
+                    l = static_cast<int64_t>(Z_LVAL_P(val));
                 }
                 else
                 {
                     string sval(Z_STRVAL_P(val), Z_STRLEN_P(val));
-                    IceUtilInternal::stringToInt64(sval, l);
+                    try
+                    {
+                        l = std::stoll(sval, nullptr, 0);
+                    }
+                    catch (const std::exception&)
+                    {
+                        assert(false); // validate() should have caught this.
+                    }
                 }
                 seq[i++] = l;
             }
@@ -1850,7 +1866,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
                 // TODO: can we remove this now
                 if (sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
                 {
-                    string str = IceUtilInternal::int64ToString(*p);
+                    string str = std::to_string(*p);
                     ZVAL_STRINGL(&val, str.c_str(), static_cast<int>(str.length()));
                 }
                 else
