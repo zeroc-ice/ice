@@ -2386,8 +2386,8 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Creates a shallow polymorphic copy of this instance.";
     H << nl << " * @return The cloned value.";
     H << nl << " */";
-    H << nl << "::std::shared_ptr<" << name << "> ice_clone() const { return ::std::static_pointer_cast <"
-        << name << ">(_iceCloneImpl()); }";
+    H << nl << "::std::shared_ptr<" << name << "> ice_clone() const { return ::std::static_pointer_cast <" << name
+      << ">(_iceCloneImpl()); }";
 
     return true;
 }
@@ -2476,8 +2476,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
     C << eb;
 
-    string baseClass =
-        base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::Value", scope);
+    string baseClass = base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::Value", scope);
 
     H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(::Ice::OutputStream* ostr) const";
