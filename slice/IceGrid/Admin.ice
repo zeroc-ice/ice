@@ -59,7 +59,7 @@ dictionary<string, Object*> StringObjectProxyDict;
 /// Information about an Ice object.
 struct ObjectInfo
 {
-    /// The proxy of the object. This proxy is never null.
+    /// The proxy of the object.
     Object* proxy;
 
     /// The type of the object.
@@ -75,7 +75,7 @@ struct AdapterInfo
     /// The id of the adapter.
     string id;
 
-    /// A dummy direct proxy that contains the adapter endpoints. This proxy is never null.
+    /// A dummy direct proxy that contains the adapter endpoints.
     Object* proxy;
 
     /// The replica group id of the object adapter, or empty if the adapter doesn't belong to a replica group.

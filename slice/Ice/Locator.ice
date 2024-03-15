@@ -87,7 +87,7 @@ interface LocatorRegistry
     /// Set the adapter endpoints with the locator registry.
     /// @param id The adapter id.
     /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the
-    /// adapter endpoints. The proxy is never null.
+    /// adapter endpoints. The proxy can be null, typically during adapter deactivation.
     /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
     /// registered adapters to set their active proxy and the adapter is not registered with the locator.
     /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
@@ -98,7 +98,7 @@ interface LocatorRegistry
     /// @param adapterId The adapter id.
     /// @param replicaGroupId The replica group id.
     /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the adapter
-    /// endpoints. The proxy is never null.
+    /// endpoints. TThe proxy can be null, typically during adapter deactivation.
     /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
     /// registered adapters to set their active proxy and the adapter is not registered with the locator.
     /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
