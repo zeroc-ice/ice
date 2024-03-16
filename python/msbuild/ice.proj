@@ -33,7 +33,7 @@
 
     <ItemGroup>
         <SliceCompile Include="..\..\slice\Ice\*.ice;
-                               ..\..\slice\Glacier2\*.ice" />
+                               ..\..\slice\Glacier2\*.ice">
             <AdditionalOptions>--no-package %(AdditionalOptions)</AdditionalOptions>
         </SliceCompile>
         <SliceCompile Include="..\..\slice\IceBox\*.ice;
