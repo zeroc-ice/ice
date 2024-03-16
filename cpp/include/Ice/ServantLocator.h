@@ -43,7 +43,7 @@ namespace Ice
          * @see Current
          * @see #finished
          */
-        virtual ::std::shared_ptr<::Ice::Object> locate(const Current& curr, ::std::shared_ptr<void>& cookie) = 0;
+        virtual ObjectPtr locate(const Current& curr, ::std::shared_ptr<void>& cookie) = 0;
 
         /**
          * Called by the object adapter after a request has been made. This operation is only called if
@@ -65,7 +65,7 @@ namespace Ice
          */
         virtual void finished(
             const Current& curr,
-            const ::std::shared_ptr<Object>& servant,
+            const ObjectPtr& servant,
             const ::std::shared_ptr<void>& cookie) = 0;
 
         /**

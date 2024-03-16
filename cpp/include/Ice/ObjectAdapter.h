@@ -127,7 +127,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx add(const ::std::shared_ptr<Object>& servant, const Identity& id) = 0;
+        virtual ObjectPrx add(const ObjectPtr& servant, const Identity& id) = 0;
 
         /**
          * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
@@ -143,7 +143,7 @@ namespace Ice
          * @see #findFacet
          */
         virtual ObjectPrx
-        addFacet(const ::std::shared_ptr<Object>& servant, const Identity& id, const ::std::string& facet) = 0;
+        addFacet(const ObjectPtr& servant, const Identity& id, const ::std::string& facet) = 0;
 
         /**
          * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
@@ -157,7 +157,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx addWithUUID(const ::std::shared_ptr<Object>& servant) = 0;
+        virtual ObjectPrx addWithUUID(const ObjectPtr& servant) = 0;
 
         /**
          * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to
@@ -172,7 +172,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx addFacetWithUUID(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
+        virtual ObjectPrx addFacetWithUUID(const ObjectPtr& servant, const ::std::string& facet) = 0;
 
         /**
          * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
@@ -192,7 +192,7 @@ namespace Ice
          * @see #removeDefaultServant
          * @see #findDefaultServant
          */
-        virtual void addDefaultServant(const ::std::shared_ptr<Object>& servant, const ::std::string& category) = 0;
+        virtual void addDefaultServant(const ObjectPtr& servant, const ::std::string& category) = 0;
 
         /**
          * Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
@@ -204,7 +204,7 @@ namespace Ice
          * @see #add
          * @see #addWithUUID
          */
-        virtual ::std::shared_ptr<::Ice::Object> remove(const Identity& id) = 0;
+        virtual ObjectPtr remove(const Identity& id) = 0;
 
         /**
          * Like {@link #remove}, but with a facet. Calling <code>remove(id)</code> is equivalent to calling
@@ -216,7 +216,7 @@ namespace Ice
          * @see #addFacet
          * @see #addFacetWithUUID
          */
-        virtual ::std::shared_ptr<::Ice::Object> removeFacet(const Identity& id, const ::std::string& facet) = 0;
+        virtual ObjectPtr removeFacet(const Identity& id, const ::std::string& facet) = 0;
 
         /**
          * Remove all facets with the given identity from the Active Servant Map. The operation completely removes the
@@ -237,7 +237,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #findDefaultServant
          */
-        virtual ::std::shared_ptr<Object> removeDefaultServant(const ::std::string& category) = 0;
+        virtual ObjectPtr removeDefaultServant(const ::std::string& category) = 0;
 
         /**
          * Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it
@@ -250,7 +250,7 @@ namespace Ice
          * @see #findFacet
          * @see #findByProxy
          */
-        virtual ::std::shared_ptr<Object> find(const Identity& id) const = 0;
+        virtual ObjectPtr find(const Identity& id) const = 0;
 
         /**
          * Like {@link #find}, but with a facet. Calling <code>find(id)</code> is equivalent to calling {@link
@@ -263,7 +263,7 @@ namespace Ice
          * @see #find
          * @see #findByProxy
          */
-        virtual ::std::shared_ptr<Object> findFacet(const Identity& id, const ::std::string& facet) const = 0;
+        virtual ObjectPtr findFacet(const Identity& id, const ::std::string& facet) const = 0;
 
         /**
          * Find all facets with the given identity in the Active Servant Map.
@@ -284,7 +284,7 @@ namespace Ice
          * @see #find
          * @see #findFacet
          */
-        virtual ::std::shared_ptr<Object> findByProxy(const ObjectPrx& proxy) const = 0;
+        virtual ObjectPtr findByProxy(const ObjectPrx& proxy) const = 0;
 
         /**
          * Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
@@ -343,7 +343,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #removeDefaultServant
          */
-        virtual ::std::shared_ptr<::Ice::Object> findDefaultServant(const ::std::string& category) const = 0;
+        virtual ObjectPtr findDefaultServant(const ::std::string& category) const = 0;
 
         /**
          * Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the

@@ -315,7 +315,7 @@ namespace Ice
          * @param servant The servant that implements the new Admin facet.
          * @param facet The name of the new Admin facet.
          */
-        void addAdminFacet(const std::shared_ptr<Object>& servant, const std::string& facet);
+        void addAdminFacet(const ObjectPtr& servant, const std::string& facet);
 
         /**
          * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
@@ -323,14 +323,14 @@ namespace Ice
          * @param facet The name of the Admin facet.
          * @return The servant associated with this Admin facet.
          */
-        std::shared_ptr<Object> removeAdminFacet(const std::string& facet);
+        ObjectPtr removeAdminFacet(const std::string& facet);
 
         /**
          * Returns a facet of the Admin object.
          * @param facet The name of the Admin facet.
          * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
          */
-        std::shared_ptr<Object> findAdminFacet(const std::string& facet);
+        ObjectPtr findAdminFacet(const std::string& facet);
 
         /**
          * Returns a map of all facets of the Admin object.

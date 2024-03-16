@@ -46,7 +46,7 @@ using namespace IceInternal;
 
 namespace
 {
-    inline void checkServant(const shared_ptr<Object>& servant)
+    inline void checkServant(const ObjectPtr& servant)
     {
         if (!servant)
         {
@@ -379,13 +379,13 @@ Ice::ObjectAdapterI::destroy() noexcept
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::add(const shared_ptr<Object>& object, const Identity& ident)
+Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
     return addFacet(object, ident, "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
 
@@ -399,13 +399,13 @@ Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& 
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addWithUUID(const shared_ptr<Object>& object)
+Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
     return addFacetWithUUID(object, "");
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addFacetWithUUID(const shared_ptr<Object>& object, const string& facet)
+Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& facet)
 {
     Identity ident;
     ident.name = Ice::generateUUID();
@@ -413,7 +413,7 @@ Ice::ObjectAdapterI::addFacetWithUUID(const shared_ptr<Object>& object, const st
 }
 
 void
-Ice::ObjectAdapterI::addDefaultServant(const shared_ptr<Object>& servant, const string& category)
+Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
 {
     checkServant(servant);
 
@@ -423,13 +423,13 @@ Ice::ObjectAdapterI::addDefaultServant(const shared_ptr<Object>& servant, const 
     _servantManager->addDefaultServant(servant, category);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     return removeFacet(ident, "");
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
@@ -451,7 +451,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
     return _servantManager->removeAllFacets(ident);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::removeDefaultServant(const string& category)
 {
     lock_guard lock(_mutex);
@@ -461,13 +461,13 @@ Ice::ObjectAdapterI::removeDefaultServant(const string& category)
     return _servantManager->removeDefaultServant(category);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::find(const Identity& ident) const
 {
     return findFacet(ident, "");
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
 {
     lock_guard lock(_mutex);
@@ -489,7 +489,7 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
     return _servantManager->findAllFacets(ident);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
 {
     lock_guard lock(_mutex);
@@ -500,7 +500,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
     return findFacet(ref->getIdentity(), ref->getFacet());
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 {
     lock_guard lock(_mutex);

@@ -23,12 +23,12 @@ namespace
     public:
         ClientLocator(shared_ptr<SessionRouterI> sessionRouter) : _sessionRouter(std::move(sessionRouter)) {}
 
-        shared_ptr<Object> locate(const Current& current, shared_ptr<void>&) final
+        ObjectPtr locate(const Current& current, shared_ptr<void>&) final
         {
             return _sessionRouter->getClientBlobject(current.con, current.id);
         }
 
-        void finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) final {}
+        void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
         void deactivate(const string&) final {}
 
@@ -41,12 +41,12 @@ namespace
     public:
         ServerLocator(shared_ptr<SessionRouterI> sessionRouter) : _sessionRouter(std::move(sessionRouter)) {}
 
-        shared_ptr<Object> locate(const Current& current, shared_ptr<void>&) final
+        ObjectPtr locate(const Current& current, shared_ptr<void>&) final
         {
             return _sessionRouter->getServerBlobject(current.id.category);
         }
 
-        void finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) final {}
+        void finished(const Current&, const ObjectPtr&, const shared_ptr<void>&) final {}
 
         void deactivate(const string&) final {}
 

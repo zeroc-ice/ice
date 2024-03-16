@@ -56,7 +56,7 @@ namespace IceStorm
 
         void shutdown();
 
-        std::shared_ptr<Ice::Object> getServant() const;
+        Ice::ObjectPtr getServant() const;
 
     private:
         TopicManagerImpl(std::shared_ptr<PersistentInstance>);
@@ -74,7 +74,7 @@ namespace IceStorm
 
         std::map<std::string, std::shared_ptr<TopicImpl>> _topics;
 
-        std::shared_ptr<Ice::Object> _managerImpl;
+        Ice::ObjectPtr _managerImpl;
         std::optional<Ice::ObjectPrx> _observer;
         std::optional<Ice::ObjectPrx> _sync;
 

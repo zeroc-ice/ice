@@ -96,9 +96,9 @@ namespace Glacier2
         std::shared_ptr<RouterI>
         getRouter(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool = true) const;
 
-        std::shared_ptr<Ice::Object>
+        Ice::ObjectPtr
         getClientBlobject(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&) const;
-        std::shared_ptr<Ice::Object> getServerBlobject(const std::string&) const;
+        Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
         void refreshSession(const std::shared_ptr<Ice::Connection>&);
         void destroySession(const std::shared_ptr<Ice::Connection>&);

@@ -21,13 +21,7 @@ namespace Ice
     class ICE_API Object
     {
     public:
-        /**
-         * Default constructor.
-         */
-        // TODO: is this doc-comment necessary?
         Object() = default;
-
-        // TODO: does it need a doc-comment?
         virtual ~Object() = default;
 
         Object(const Object&) = delete;
@@ -36,7 +30,7 @@ namespace Ice
         Object& operator=(Object&&) = delete;
 
         /**
-         * Dispatch an incoming request and return the corresponding outgoing response.
+         * Dispatches an incoming request and return the corresponding outgoing response.
          * @param request The incoming request.
          * @param sendResponse A callback that the implementation calls to return the response. sendResponse does not
          * throw any exception and any sendResponse wrapper must not throw any exception. sendResponse can be called by
@@ -76,7 +70,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Returns the Slice type IDs of the interfaces supported by this object.
+         * Gets the Slice type IDs of the interfaces supported by this object.
          * @param current The Current object for the invocation.
          * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
          */
@@ -86,7 +80,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Returns the Slice type ID of the most-derived interface supported by this object.
+         * Gets the Slice type ID of the most-derived interface supported by this object.
          * @param current The Current object for the invocation.
          * @return The Slice type ID of the most-derived interface.
          */
@@ -96,7 +90,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Obtains the Slice type ID of this type.
+         * Gets the Slice type ID of this type.
          * @return The return value is always "::Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;

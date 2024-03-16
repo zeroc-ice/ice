@@ -113,7 +113,7 @@ namespace
         virtual std::string getPrefix();
         virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-        virtual std::shared_ptr<Ice::Object> getFacet() const;
+        virtual ObjectPtr getFacet() const;
 
         virtual void destroy();
 
@@ -637,7 +637,7 @@ namespace
         return _localLogger->cloneWithPrefix(prefix);
     }
 
-    std::shared_ptr<Ice::Object> LoggerAdminLoggerI::getFacet() const { return _loggerAdmin; }
+    ObjectPtr LoggerAdminLoggerI::getFacet() const { return _loggerAdmin; }
 
     void LoggerAdminLoggerI::log(const LogMessage& logMessage)
     {

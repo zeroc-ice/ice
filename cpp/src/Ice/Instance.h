@@ -102,9 +102,9 @@ namespace IceInternal
 
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
-        void addAdminFacet(const std::shared_ptr<Ice::Object>&, const std::string&);
-        std::shared_ptr<Ice::Object> removeAdminFacet(const std::string&);
-        std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
+        void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
+        Ice::ObjectPtr removeAdminFacet(const std::string&);
+        Ice::ObjectPtr findAdminFacet(const std::string&);
         Ice::FacetMap findAllAdminFacets();
 
         const Ice::ImplicitContextPtr& getImplicitContext() const;

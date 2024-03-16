@@ -857,14 +857,14 @@ SessionRouterI::getRouter(const shared_ptr<Connection>& connection, const Ice::I
     return getRouterImpl(connection, id, close);
 }
 
-shared_ptr<Object>
+ObjectPtr
 SessionRouterI::getClientBlobject(const shared_ptr<Connection>& connection, const Ice::Identity& id) const
 {
     lock_guard<mutex> lg(_mutex);
     return getRouterImpl(connection, id, true)->getClientBlobject();
 }
 
-shared_ptr<Object>
+ObjectPtr
 SessionRouterI::getServerBlobject(const string& category) const
 {
     lock_guard<mutex> lg(_mutex);

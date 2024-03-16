@@ -76,9 +76,9 @@ namespace IceGrid
         bool setupUserAccountMapper();
         std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrx&);
         std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(
-            const std::shared_ptr<Ice::Object>&,
-            const std::shared_ptr<Ice::Object>&,
-            const std::shared_ptr<Ice::Object>&,
+            const Ice::ObjectPtr&,
+            const Ice::ObjectPtr&,
+            const Ice::ObjectPtr&,
             const LocatorPrx&);
 
         std::optional<Glacier2::PermissionsVerifierPrx> getPermissionsVerifier(const LocatorPrx&, const std::string&);

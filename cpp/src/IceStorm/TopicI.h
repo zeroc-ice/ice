@@ -56,7 +56,7 @@ namespace IceStorm
         void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
         void observerDestroyTopic(const IceStormElection::LogUpdate&);
 
-        std::shared_ptr<Ice::Object> getServant() const;
+        Ice::ObjectPtr getServant() const;
 
         void updateObserver();
         void updateSubscriberObservers();
@@ -83,7 +83,7 @@ namespace IceStorm
         std::optional<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
         std::optional<TopicLinkPrx> _linkPrx;        // The link proxy.
 
-        std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
+        Ice::ObjectPtr _servant; // The topic implementation servant.
 
         // Mutex protecting the subscribers.
         mutable std::mutex _subscribersMutex;

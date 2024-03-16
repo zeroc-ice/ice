@@ -13,13 +13,13 @@ public:
     ServantLocatorI();
     ~ServantLocatorI() final;
 
-    std::shared_ptr<Ice::Object> locate(const Ice::Current&, ::std::shared_ptr<void>&) final;
-    void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const ::std::shared_ptr<void>&) final;
+    Ice::ObjectPtr locate(const Ice::Current&, ::std::shared_ptr<void>&) final;
+    void finished(const Ice::Current&, const Ice::ObjectPtr&, const ::std::shared_ptr<void>&) final;
     void deactivate(const std::string&) final;
 
 public:
     bool _deactivated;
-    std::shared_ptr<Ice::Object> _router;
+    Ice::ObjectPtr _router;
 };
 
 #endif
