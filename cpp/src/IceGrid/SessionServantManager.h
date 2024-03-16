@@ -33,12 +33,8 @@ namespace IceGrid
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&);
         void deactivate(const std::string&);
 
-        Ice::ObjectPrx
-        addSession(const Ice::ObjectPtr&, const std::shared_ptr<Ice::Connection>&, const std::string&);
-        void setSessionControl(
-            const Ice::ObjectPtr&,
-            const Glacier2::SessionControlPrx&,
-            const Ice::IdentitySeq&);
+        Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const std::shared_ptr<Ice::Connection>&, const std::string&);
+        void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet(const Ice::ObjectPtr&);
         std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet(const Ice::ObjectPtr&);
         void removeSession(const Ice::ObjectPtr&);
@@ -54,10 +50,7 @@ namespace IceGrid
 
         struct ServantInfo
         {
-            ServantInfo(
-                const Ice::ObjectPtr& s,
-                const std::shared_ptr<Ice::Connection>& con,
-                const Ice::ObjectPtr& ss)
+            ServantInfo(const Ice::ObjectPtr& s, const std::shared_ptr<Ice::Connection>& con, const Ice::ObjectPtr& ss)
                 : servant(s),
                   connection(con),
                   session(ss)

@@ -142,8 +142,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx
-        addFacet(const ObjectPtr& servant, const Identity& id, const ::std::string& facet) = 0;
+        virtual ObjectPrx addFacet(const ObjectPtr& servant, const Identity& id, const ::std::string& facet) = 0;
 
         /**
          * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
