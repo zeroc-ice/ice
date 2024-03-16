@@ -117,7 +117,7 @@ void IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_vi
         }
     }
     ICE_RUBY_CATCH
-    // clang-format on
+// clang-format on
 }
 
 VALUE
