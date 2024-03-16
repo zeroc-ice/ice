@@ -5,7 +5,7 @@
 #ifndef ICEPY_VALUE_FACTORY_MANAGER_H
 #define ICEPY_VALUE_FACTORY_MANAGER_H
 
-#include <Config.h>
+#include "Config.h"
 #include <Ice/ValueFactory.h>
 
 #include <mutex>
@@ -16,13 +16,13 @@ namespace IcePy
 
     bool initValueFactoryManager(PyObject*);
 
-    class ValueFactory
+    struct ValueFactory
     {
-    public:
         virtual std::shared_ptr<Ice::Value> create(std::string_view) = 0;
     };
     using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
 
+    // Adapts a Python value factory to our C++ value factory.
     class FactoryWrapper final : public ValueFactory
     {
     public:
@@ -33,25 +33,24 @@ namespace IcePy
 
         PyObject* getValueFactory() const;
 
-    protected:
+    private:
         PyObject* _valueFactory;
     };
 
     using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
+    // The default Python value factory as a C++ value factory.
     class DefaultValueFactory final : public ValueFactory
     {
     public:
         std::shared_ptr<Ice::Value> create(std::string_view) final;
     };
-
     using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
     class ValueFactoryManager final : public Ice::ValueFactoryManager
     {
     public:
         static std::shared_ptr<ValueFactoryManager> create();
-
         ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
@@ -65,10 +64,9 @@ namespace IcePy
         void destroy();
 
     private:
-        typedef std::map<std::string, ValueFactoryPtr, std::less<>> FactoryMap;
+        using FactoryMap = std::map<std::string, FactoryWrapperPtr, std::less<>>;
 
         ValueFactoryManager();
-        ValueFactoryPtr findCore(std::string_view) const noexcept;
 
         PyObject* _self;
         FactoryMap _factories;

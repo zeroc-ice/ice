@@ -74,7 +74,8 @@
         "variant": "cpp",
         "algorithm": "cpp",
         "xtree": "cpp",
-        "execution": "cpp"
+        "execution": "cpp",
+        "type_traits": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
 }

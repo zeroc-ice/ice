@@ -66,13 +66,26 @@ IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 }
 
 Ice::ValueFactoryFunc
-IcePy::ValueFactoryManager::find(string_view id) const noexcept
+IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
 {
-    ValueFactoryPtr factory = findCore(id);
+    ValueFactoryPtr factory;
+    {
+        std::lock_guard lock(_mutex);
+
+        FactoryMap::const_iterator p = _factories.find(typeId);
+        if (p != _factories.end())
+        {
+            factory = p->second;
+        }
+        else if (typeId.empty())
+        {
+            factory = _defaultFactory;
+        }
+    }
 
     if (factory)
     {
-        return [factory](string_view type) -> shared_ptr<Ice::Value> { return factory->create(type); };
+        return [factory](string_view id) { return factory->create(id); };
     }
     else
     {
@@ -87,7 +100,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
     {
         FactoryWrapperPtr f = make_shared<FactoryWrapper>(valueFactory);
 
-        std::lock_guard lock(_mutex);
+        std::lock_guard lock(_mutex); // lock in case a C++ thread is unmarshaling at the same time.
         FactoryMap::iterator p = _factories.find(id);
         if (p != _factories.end())
         {
@@ -106,14 +119,12 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 PyObject*
 IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 {
-    ValueFactoryPtr factory = findCore(id);
-    if (factory)
+    // Called from the Python thread, no need to lock.
+
+    FactoryMap::const_iterator p = _factories.find(id);
+    if (p != _factories.end())
     {
-        auto w = dynamic_pointer_cast<FactoryWrapper>(factory);
-        if (w)
-        {
-            return w->getValueFactory();
-        }
+        return p->second->getValueFactory();
     }
 
     Py_INCREF(Py_None);
@@ -135,7 +146,7 @@ IcePy::ValueFactoryManager::destroy()
     FactoryMap factories;
 
     {
-        std::lock_guard lock(_mutex);
+        std::lock_guard lock(_mutex); // TODO: may not be necessary.
         if (_self == 0)
         {
             //
@@ -151,25 +162,6 @@ IcePy::ValueFactoryManager::destroy()
 
         factories.swap(_factories);
     }
-}
-
-ValueFactoryPtr
-IcePy::ValueFactoryManager::findCore(string_view id) const noexcept
-{
-    std::lock_guard lock(_mutex);
-
-    FactoryMap::const_iterator p = _factories.find(id);
-    if (p != _factories.end())
-    {
-        return p->second;
-    }
-
-    if (id.empty())
-    {
-        return _defaultFactory;
-    }
-
-    return nullptr;
 }
 
 IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory) : _valueFactory(valueFactory)
