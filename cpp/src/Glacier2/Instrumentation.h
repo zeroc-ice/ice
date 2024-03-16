@@ -6,7 +6,6 @@
 #define __Glacier2_Instrumentation_h__
 
 #include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
 #include <Ice/StreamHelpers.h>
@@ -22,7 +21,6 @@ namespace Glacier2
         class SessionObserver;
         class ObserverUpdater;
         class RouterObserver;
-
     }
 }
 

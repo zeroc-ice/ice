@@ -1,13 +1,12 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-//
+
+#ifndef ICE_FACET_MAP_H
+#define ICE_FACET_MAP_H
 
 #include <Ice/ObjectF.h>
 #include <map>
-
-#ifndef ICE_FACET_MAP_H
-#    define ICE_FACET_MAP_H
 
 namespace Ice
 {

@@ -13,11 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace Ice
-{
-    const Current emptyCurrent = Current();
-}
-
 bool
 Ice::Object::ice_isA(string s, const Current& current) const
 {

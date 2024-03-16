@@ -5,33 +5,35 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include <Ice/ObjectF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/Current.h>
-#include <Ice/Format.h>
+#include "ObjectF.h"
 #include "IncomingRequest.h"
 #include "OutgoingResponse.h"
 
-namespace IceInternal
-{
-    class Incoming;
-    class Direct;
-}
-
 namespace Ice
 {
-    /** A default-initialized Current instance. */
-    ICE_API extern const Current emptyCurrent;
-
     /**
      * The base class for servants.
+     * @remarks Object is a stateless polymorphic base class. Its copy constructor, move constructor, copy assignment
+     * operator and move assignment operator are all deleted to prevent accidental slicing. Derived classes can
+     * define these constructors and assignment operators to reenable copying, moving and slicing.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Object
     {
     public:
+        /**
+         * Default constructor.
+         */
+        // TODO: is this doc-comment necessary?
+        Object() = default;
+
+        // TODO: does it need a doc-comment?
         virtual ~Object() = default;
+
+        Object(const Object&) = delete;
+        Object& operator=(const Object&) = delete;
+        Object(Object&&) = delete;
+        Object& operator=(Object&&) = delete;
 
         /**
          * Dispatch an incoming request and return the corresponding outgoing response.

@@ -9,6 +9,7 @@
 #include <Ice/Logger.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/CommunicatorF.h>
+#include "Ice/ObjectF.h"
 
 namespace IceInternal
 {
