@@ -16,6 +16,7 @@ namespace IcePy
 
     bool initValueFactoryManager(PyObject*);
 
+    // The IcePy C++ value factory abstract base class.
     struct ValueFactory
     {
         virtual std::shared_ptr<Ice::Value> create(std::string_view) = 0;
@@ -23,11 +24,11 @@ namespace IcePy
     using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
 
     // Adapts a Python value factory to our C++ value factory.
-    class FactoryWrapper final : public ValueFactory
+    class CustomValueFactory final : public ValueFactory
     {
     public:
-        FactoryWrapper(PyObject*);
-        ~FactoryWrapper();
+        CustomValueFactory(PyObject*);
+        ~CustomValueFactory();
 
         std::shared_ptr<Ice::Value> create(std::string_view) final;
 
@@ -37,7 +38,7 @@ namespace IcePy
         PyObject* _valueFactory;
     };
 
-    using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
+    using CustomValueFactoryPtr = std::shared_ptr<CustomValueFactory>;
 
     // The default Python value factory as a C++ value factory.
     class DefaultValueFactory final : public ValueFactory
@@ -64,12 +65,12 @@ namespace IcePy
         void destroy();
 
     private:
-        using FactoryMap = std::map<std::string, FactoryWrapperPtr, std::less<>>;
+        using CustomFactoryMap = std::map<std::string, CustomValueFactoryPtr, std::less<>>;
 
         ValueFactoryManager();
 
         PyObject* _self;
-        FactoryMap _factories;
+        CustomFactoryMap _customFactories;
         DefaultValueFactoryPtr _defaultFactory;
 
         mutable std::mutex _mutex;

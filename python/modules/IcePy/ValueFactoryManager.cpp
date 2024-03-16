@@ -72,8 +72,8 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
     {
         std::lock_guard lock(_mutex);
 
-        FactoryMap::const_iterator p = _factories.find(typeId);
-        if (p != _factories.end())
+        CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
+        if (p != _customFactories.end())
         {
             factory = p->second;
         }
@@ -98,16 +98,16 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        FactoryWrapperPtr f = make_shared<FactoryWrapper>(valueFactory);
+        CustomValueFactoryPtr f = make_shared<CustomValueFactory>(valueFactory);
 
         std::lock_guard lock(_mutex); // lock in case a C++ thread is unmarshaling at the same time.
-        FactoryMap::iterator p = _factories.find(id);
-        if (p != _factories.end())
+        CustomFactoryMap::iterator p = _customFactories.find(id);
+        if (p != _customFactories.end())
         {
             throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
 
-        _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
+        _customFactories.insert(CustomFactoryMap::value_type(string{id}, std::move(f)));
 
     }
     catch (...)
@@ -121,8 +121,8 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 {
     // Called from the Python thread, no need to lock.
 
-    FactoryMap::const_iterator p = _factories.find(id);
-    if (p != _factories.end())
+    CustomFactoryMap::const_iterator p = _customFactories.find(id);
+    if (p != _customFactories.end())
     {
         return p->second->getValueFactory();
     }
@@ -143,7 +143,7 @@ IcePy::ValueFactoryManager::destroy()
 {
     // Called by the Python thread during communicator destruction.
 
-    FactoryMap factories;
+    CustomFactoryMap factories;
 
     {
         std::lock_guard lock(_mutex); // TODO: may not be necessary.
@@ -160,20 +160,20 @@ IcePy::ValueFactoryManager::destroy()
         Py_DECREF(_self);
         _self = 0;
 
-        factories.swap(_factories);
+        factories.swap(_customFactories);
     }
 }
 
-IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory) : _valueFactory(valueFactory)
+IcePy::CustomValueFactory::CustomValueFactory(PyObject* valueFactory) : _valueFactory(valueFactory)
 {
     Py_INCREF(_valueFactory);
     assert(_valueFactory != Py_None); // This should always be present.
 }
 
-IcePy::FactoryWrapper::~FactoryWrapper() { Py_DECREF(_valueFactory); }
+IcePy::CustomValueFactory::~CustomValueFactory() { Py_DECREF(_valueFactory); }
 
 shared_ptr<Ice::Value>
-IcePy::FactoryWrapper::create(string_view id)
+IcePy::CustomValueFactory::create(string_view id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -205,7 +205,7 @@ IcePy::FactoryWrapper::create(string_view id)
 }
 
 PyObject*
-IcePy::FactoryWrapper::getValueFactory() const
+IcePy::CustomValueFactory::getValueFactory() const
 {
     Py_INCREF(_valueFactory);
     return _valueFactory;
