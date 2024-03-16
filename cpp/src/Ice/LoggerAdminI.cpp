@@ -100,22 +100,20 @@ namespace
     };
     using JobPtr = std::shared_ptr<Job>;
 
-    class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger,
+    class LoggerAdminLoggerI final : public IceInternal::LoggerAdminLogger,
                                public std::enable_shared_from_this<LoggerAdminLoggerI>
     {
     public:
         LoggerAdminLoggerI(const PropertiesPtr&, const LoggerPtr&);
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual LoggerPtr cloneWithPrefix(const std::string&);
-
-        virtual ObjectPtr getFacet() const;
-
-        virtual void destroy();
+        void print(const std::string&) final;
+        void trace(const std::string&, const std::string&) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        LoggerPtr cloneWithPrefix(const std::string&) final;
+        ObjectPtr getFacet() const;
+        void destroy() final;
 
         const LoggerPtr& getLocalLogger() const { return _localLogger; }
 

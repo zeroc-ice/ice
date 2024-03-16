@@ -71,12 +71,9 @@ IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const st
 ObjectPtr
 IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
-    //
     // We return the removed servant to avoid releasing the last reference count
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
-    //
-    ObjectPtr servant = 0;
 
     lock_guard lock(_mutex);
 
@@ -102,7 +99,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
         throw NotRegisteredException(__FILE__, __LINE__, "servant", os.str());
     }
 
-    servant = q->second;
+    ObjectPtr servant = q->second;
     p->second.erase(q);
 
     if (p->second.empty())
@@ -123,12 +120,9 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 ObjectPtr
 IceInternal::ServantManager::removeDefaultServant(const string& category)
 {
-    //
     // We return the removed servant to avoid releasing the last reference count
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
-    //
-    ObjectPtr servant = 0;
 
     lock_guard lock(_mutex);
 
@@ -140,7 +134,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
         throw NotRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
-    servant = p->second;
+    ObjectPtr servant = p->second;
     _defaultServantMap.erase(p);
 
     return servant;
