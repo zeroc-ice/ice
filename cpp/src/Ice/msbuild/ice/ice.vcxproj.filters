@@ -267,6 +267,9 @@
     <ClCompile Include="..\..\ConnectionI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Current.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\FixedRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
