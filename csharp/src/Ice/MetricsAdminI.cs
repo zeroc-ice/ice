@@ -12,15 +12,15 @@ namespace IceInternal
 
     internal interface IMetricsMap
     {
-        IceMX.Metrics[] getMetrics();
-        IceMX.MetricsFailures[] getFailures();
-        IceMX.MetricsFailures getFailures(string id);
+        Ice.MX.Metrics[] getMetrics();
+        Ice.MX.MetricsFailures[] getFailures();
+        Ice.MX.MetricsFailures getFailures(string id);
         Dictionary<string, string> getProperties();
     }
 
     interface ISubMap
     {
-        void addSubMapToMetrics(IceMX.Metrics metrics);
+        void addSubMapToMetrics(Ice.MX.Metrics metrics);
     }
 
     interface ISubMapCloneFactory
@@ -35,12 +35,12 @@ namespace IceInternal
 
     internal interface IMetricsMapFactory
     {
-        void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field) where S : IceMX.Metrics, new();
+        void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field) where S : Ice.MX.Metrics, new();
         void update();
         IMetricsMap create(string mapPrefix, Ice.Properties properties);
     }
 
-    internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
+    internal class SubMap<S> : ISubMap where S : Ice.MX.Metrics, new()
     {
         internal SubMap(MetricsMap<S> map, System.Reflection.FieldInfo field)
         {
@@ -48,12 +48,12 @@ namespace IceInternal
             _field = field;
         }
 
-        internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper)
+        internal MetricsMap<S>.Entry getMatching(Ice.MX.MetricsHelper<S> helper)
         {
             return _map.getMatching(helper, null);
         }
 
-        public void addSubMapToMetrics(IceMX.Metrics metrics)
+        public void addSubMapToMetrics(Ice.MX.Metrics metrics)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace IceInternal
         readonly private System.Reflection.FieldInfo _field;
     }
 
-    internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metrics, new()
+    internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : Ice.MX.Metrics, new()
     {
         internal SubMapCloneFactory(MetricsMap<S> map, System.Reflection.FieldInfo field)
         {
@@ -86,7 +86,7 @@ namespace IceInternal
         readonly private System.Reflection.FieldInfo _field;
     }
 
-    class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
+    class SubMapFactory<S> : ISubMapFactory where S : Ice.MX.Metrics, new()
     {
         internal SubMapFactory(System.Reflection.FieldInfo field)
         {
@@ -101,7 +101,7 @@ namespace IceInternal
         readonly private System.Reflection.FieldInfo _field;
     }
 
-    public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
+    public class MetricsMap<T> : IMetricsMap where T : Ice.MX.Metrics, new()
     {
         public class Entry
         {
@@ -132,8 +132,8 @@ namespace IceInternal
                 }
             }
 
-            internal MetricsMap<S>.Entry getMatching<S>(string mapName, IceMX.MetricsHelper<S> helper)
-                where S : IceMX.Metrics, new()
+            internal MetricsMap<S>.Entry getMatching<S>(string mapName, Ice.MX.MetricsHelper<S> helper)
+                where S : Ice.MX.Metrics, new()
             {
                 ISubMap m;
                 lock(_map)
@@ -167,7 +167,7 @@ namespace IceInternal
                 }
             }
 
-            public void execute(IceMX.Observer<T>.MetricsUpdate func)
+            public void execute(Ice.MX.Observer<T>.MetricsUpdate func)
             {
                 lock(_map)
                 {
@@ -180,19 +180,19 @@ namespace IceInternal
                 return _map;
             }
 
-            internal IceMX.MetricsFailures getFailures()
+            internal Ice.MX.MetricsFailures getFailures()
             {
                 if(_failures == null)
                 {
                     return null;
                 }
-                IceMX.MetricsFailures f = new IceMX.MetricsFailures();
+                Ice.MX.MetricsFailures f = new Ice.MX.MetricsFailures();
                 f.id = _object.id;
                 f.failures = new Dictionary<string, int>(_failures);
                 return f;
             }
 
-            internal void attach(IceMX.MetricsHelper<T> helper)
+            internal void attach(Ice.MX.MetricsHelper<T> helper)
             {
                 ++_object.total;
                 ++_object.current;
@@ -204,7 +204,7 @@ namespace IceInternal
                 return _object.current == 0;
             }
 
-            internal IceMX.Metrics clone()
+            internal Ice.MX.Metrics clone()
             {
                 T metrics = (T)_object.Clone();
                 if(_subMaps != null)
@@ -327,11 +327,11 @@ namespace IceInternal
             return _properties;
         }
 
-        public IceMX.Metrics[] getMetrics()
+        public Ice.MX.Metrics[] getMetrics()
         {
             lock(this)
             {
-                IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.Count];
+                Ice.MX.Metrics[] metrics = new Ice.MX.Metrics[_objects.Count];
                 int i = 0;
                 foreach(Entry e in _objects.Values)
                 {
@@ -341,14 +341,14 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures[] getFailures()
+        public Ice.MX.MetricsFailures[] getFailures()
         {
             lock(this)
             {
-                List<IceMX.MetricsFailures> failures = new List<IceMX.MetricsFailures>();
+                List<Ice.MX.MetricsFailures> failures = new List<Ice.MX.MetricsFailures>();
                 foreach(Entry e in _objects.Values)
                 {
-                    IceMX.MetricsFailures f = e.getFailures();
+                    Ice.MX.MetricsFailures f = e.getFailures();
                     if(f != null)
                     {
                         failures.Add(f);
@@ -358,7 +358,7 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures getFailures(string id)
+        public Ice.MX.MetricsFailures getFailures(string id)
         {
             lock(this)
             {
@@ -385,7 +385,7 @@ namespace IceInternal
             return null;
         }
 
-        public Entry getMatching(IceMX.MetricsHelper<T> helper, Entry previous)
+        public Entry getMatching(Ice.MX.MetricsHelper<T> helper, Entry previous)
         {
             //
             // Check the accept and reject filters.
@@ -514,7 +514,7 @@ namespace IceInternal
             return pats;
         }
 
-        private bool match(string attribute, Regex regex, IceMX.MetricsHelper<T> helper, bool reject)
+        private bool match(string attribute, Regex regex, Ice.MX.MetricsHelper<T> helper, bool reject)
         {
             string value;
             try
@@ -605,12 +605,12 @@ namespace IceInternal
             return _maps.Remove(mapName);
         }
 
-        internal Dictionary<string, IceMX.Metrics[]> getMetrics()
+        internal Dictionary<string, Ice.MX.Metrics[]> getMetrics()
         {
-            Dictionary<string, IceMX.Metrics[]> metrics = new Dictionary<string, IceMX.Metrics[]>();
+            Dictionary<string, Ice.MX.Metrics[]> metrics = new Dictionary<string, Ice.MX.Metrics[]>();
             foreach(KeyValuePair<string, IMetricsMap> e in _maps)
             {
-                IceMX.Metrics[] m = e.Value.getMetrics();
+                Ice.MX.Metrics[] m = e.Value.getMetrics();
                 if(m != null)
                 {
                     metrics.Add(e.Key, m);
@@ -619,7 +619,7 @@ namespace IceInternal
             return metrics;
         }
 
-        internal IceMX.MetricsFailures[] getFailures(string mapName)
+        internal Ice.MX.MetricsFailures[] getFailures(string mapName)
         {
             IMetricsMap m;
             if(_maps.TryGetValue(mapName, out m))
@@ -629,7 +629,7 @@ namespace IceInternal
             return null;
         }
 
-        internal IceMX.MetricsFailures getFailures(string mapName, string id)
+        internal Ice.MX.MetricsFailures getFailures(string mapName, string id)
         {
             IMetricsMap m;
             if(_maps.TryGetValue(mapName, out m))
@@ -644,7 +644,7 @@ namespace IceInternal
             return _maps.Keys;
         }
 
-        internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
+        internal MetricsMap<T> getMap<T>(string mapName) where T : Ice.MX.Metrics, new()
         {
             IMetricsMap m;
             if(_maps.TryGetValue(mapName, out m))
@@ -658,7 +658,7 @@ namespace IceInternal
         readonly private Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
     }
 
-    public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
+    public class MetricsAdminI : Ice.MX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
     {
         readonly static private string[] suffixes =
             {
@@ -706,7 +706,7 @@ namespace IceInternal
             }
         }
 
-        class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
+        class MetricsMapFactory<T> : IMetricsMapFactory where T : Ice.MX.Metrics, new()
         {
             public MetricsMapFactory(Action updater)
             {
@@ -725,7 +725,7 @@ namespace IceInternal
             }
 
             public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-                where S : IceMX.Metrics, new()
+                where S : Ice.MX.Metrics, new()
             {
                 _subMaps.Add(subMap, new SubMapFactory<S>(field));
             }
@@ -848,7 +848,7 @@ namespace IceInternal
             updateViews();
         }
 
-        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp,
+        override public Dictionary<string, Ice.MX.Metrics[]> getMetricsView(string viewName, out long timestamp,
                                                                            Ice.Current current)
         {
             lock(this)
@@ -859,11 +859,11 @@ namespace IceInternal
                 {
                     return view.getMetrics();
                 }
-                return new Dictionary<string, IceMX.Metrics[]>();
+                return new Dictionary<string, Ice.MX.Metrics[]>();
             }
         }
 
-        override public IceMX.MetricsFailures[] getMapMetricsFailures(string viewName, string mapName, Ice.Current c)
+        override public Ice.MX.MetricsFailures[] getMapMetricsFailures(string viewName, string mapName, Ice.Current c)
         {
             lock(this)
             {
@@ -872,11 +872,11 @@ namespace IceInternal
                 {
                     return view.getFailures(mapName);
                 }
-                return new IceMX.MetricsFailures[0];
+                return new Ice.MX.MetricsFailures[0];
             }
         }
 
-        override public IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
+        override public Ice.MX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
                                                                  Ice.Current c)
         {
             lock(this)
@@ -886,12 +886,12 @@ namespace IceInternal
                 {
                     return view.getFailures(mapName, id);
                 }
-                return new IceMX.MetricsFailures();
+                return new Ice.MX.MetricsFailures();
             }
         }
 
         public void registerMap<T>(string map, Action updater)
-            where T : IceMX.Metrics, new()
+            where T : Ice.MX.Metrics, new()
         {
             bool updated;
             MetricsMapFactory<T> factory;
@@ -908,7 +908,7 @@ namespace IceInternal
         }
 
         public void registerSubMap<S>(string map, string subMap, System.Reflection.FieldInfo field)
-            where S : IceMX.Metrics, new()
+            where S : Ice.MX.Metrics, new()
         {
             bool updated;
             IMetricsMapFactory factory;
@@ -947,7 +947,7 @@ namespace IceInternal
             }
         }
 
-        public List<MetricsMap<T>> getMaps<T>(string mapName) where T : IceMX.Metrics, new()
+        public List<MetricsMap<T>> getMaps<T>(string mapName) where T : Ice.MX.Metrics, new()
         {
             List<MetricsMap<T>> maps = new List<MetricsMap<T>>();
             foreach(MetricsViewI v in _views.Values)
@@ -994,7 +994,7 @@ namespace IceInternal
             {
                 if(!_disabledViews.Contains(name))
                 {
-                    throw new IceMX.UnknownMetricsView();
+                    throw new Ice.MX.UnknownMetricsView();
                 }
                 return null;
             }

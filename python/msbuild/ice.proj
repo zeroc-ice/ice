@@ -33,14 +33,10 @@
 
     <ItemGroup>
         <SliceCompile Include="..\..\slice\Ice\*.ice;
-                               ..\..\slice\Glacier2\*.ice"
-                      Exclude="..\..\slice\Ice\Metrics.ice;
-                               ..\..\slice\Glacier2\Metrics.ice">
+                               ..\..\slice\Glacier2\*.ice" />
             <AdditionalOptions>--no-package %(AdditionalOptions)</AdditionalOptions>
         </SliceCompile>
-        <SliceCompile Include="..\..\slice\Glacier2\Metrics.ice;
-                               ..\..\slice\Ice\Metrics.ice;
-                               ..\..\slice\IceBox\*.ice;
+        <SliceCompile Include="..\..\slice\IceBox\*.ice;
                                ..\..\slice\IceGrid\*.ice;
                                ..\..\slice\IcePatch2\*.ice;
                                ..\..\slice\IceStorm\*.ice"/>

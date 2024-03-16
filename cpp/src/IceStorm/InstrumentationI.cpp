@@ -11,7 +11,8 @@
 using namespace std;
 using namespace IceStorm;
 using namespace IceStorm::Instrumentation;
-using namespace IceMX;
+using namespace Ice::MX;
+using namespace IceStorm::MX;
 
 namespace
 {

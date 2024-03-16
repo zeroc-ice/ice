@@ -17,7 +17,7 @@
 
 #include <stdexcept>
 
-namespace IceMX
+namespace Ice::MX
 {
     /// \cond INTERNAL
     template<typename T> class MetricsHelperT

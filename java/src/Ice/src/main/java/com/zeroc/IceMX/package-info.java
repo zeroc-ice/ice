@@ -5,4 +5,4 @@
 /**
  * Ice Management Extension (IceMX) APIs.
  **/
-package com.zeroc.IceMX;
+package com.zeroc.Ice.MX;

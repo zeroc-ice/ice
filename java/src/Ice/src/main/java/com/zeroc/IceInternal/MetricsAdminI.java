@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
+public class MetricsAdminI implements com.zeroc.Ice.MX.MetricsAdmin,
                            java.util.function.Consumer<java.util.Map<String, String>>
 {
     final static private String[] suffixes =
@@ -53,7 +53,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
         }
     }
 
-    static class MetricsMapFactory<T extends com.zeroc.IceMX.Metrics>
+    static class MetricsMapFactory<T extends com.zeroc.Ice.MX.Metrics>
     {
         public MetricsMapFactory(Runnable updater, Class<T> cl)
         {
@@ -74,7 +74,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
             return new MetricsMap<T>(mapPrefix, _class, properties, _subMaps);
         }
 
-        public <S extends com.zeroc.IceMX.Metrics> void
+        public <S extends com.zeroc.Ice.MX.Metrics> void
         registerSubMap(String subMap, Class<S> cl, java.lang.reflect.Field field)
         {
             _subMaps.put(subMap, new MetricsMap.SubMapFactory<S>(cl, field));
@@ -170,11 +170,11 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.IceMX.MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(
+    synchronized public com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(
         com.zeroc.Ice.Current current)
     {
-        com.zeroc.IceMX.MetricsAdmin.GetMetricsViewNamesResult r =
-            new com.zeroc.IceMX.MetricsAdmin.GetMetricsViewNamesResult();
+        com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewNamesResult r =
+            new com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewNamesResult();
         r.disabledViews = _disabledViews.toArray(new String[_disabledViews.size()]);
         r.returnValue = _views.keySet().toArray(new String[_views.size()]);
         return r;
@@ -183,7 +183,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
     @Override
     public void
     enableMetricsView(String name, com.zeroc.Ice.Current current)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
         synchronized(this)
         {
@@ -195,7 +195,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
 
     @Override
     public void disableMetricsView(String name, com.zeroc.Ice.Current current)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
         synchronized(this)
         {
@@ -206,12 +206,12 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.IceMX.MetricsAdmin.GetMetricsViewResult getMetricsView(
+    synchronized public com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewResult getMetricsView(
         String viewName,
         com.zeroc.Ice.Current current)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
-        com.zeroc.IceMX.MetricsAdmin.GetMetricsViewResult r = new com.zeroc.IceMX.MetricsAdmin.GetMetricsViewResult();
+        com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewResult r = new com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewResult();
         MetricsViewI view = getMetricsView(viewName);
         r.timestamp = Time.currentMonotonicTimeMillis();
         if(view != null)
@@ -226,32 +226,32 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.IceMX.MetricsFailures[] getMapMetricsFailures(String viewName, String mapName,
+    synchronized public com.zeroc.Ice.MX.MetricsFailures[] getMapMetricsFailures(String viewName, String mapName,
                                                                                 com.zeroc.Ice.Current current)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
         MetricsViewI view = getMetricsView(viewName);
         if(view != null)
         {
             return view.getFailures(mapName);
         }
-        return new com.zeroc.IceMX.MetricsFailures[0];
+        return new com.zeroc.Ice.MX.MetricsFailures[0];
     }
 
     @Override
-    synchronized public com.zeroc.IceMX.MetricsFailures getMetricsFailures(String viewName, String mapName, String id,
+    synchronized public com.zeroc.Ice.MX.MetricsFailures getMetricsFailures(String viewName, String mapName, String id,
                                                                            com.zeroc.Ice.Current current)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
         MetricsViewI view = getMetricsView(viewName);
         if(view != null)
         {
             return view.getFailures(mapName, id);
         }
-        return new com.zeroc.IceMX.MetricsFailures();
+        return new com.zeroc.Ice.MX.MetricsFailures();
     }
 
-    public <T extends com.zeroc.IceMX.Metrics> void registerMap(String map, Class<T> cl, Runnable updater)
+    public <T extends com.zeroc.Ice.MX.Metrics> void registerMap(String map, Class<T> cl, Runnable updater)
     {
         boolean updated;
         MetricsMapFactory<T> factory;
@@ -267,7 +267,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
         }
     }
 
-    synchronized public <S extends com.zeroc.IceMX.Metrics> void registerSubMap(String map, String subMap, Class<S> cl,
+    synchronized public <S extends com.zeroc.Ice.MX.Metrics> void registerSubMap(String map, String subMap, Class<S> cl,
                                                                                 java.lang.reflect.Field field)
     {
         boolean updated;
@@ -308,7 +308,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
         }
     }
 
-    public <T extends com.zeroc.IceMX.Metrics> java.util.List<MetricsMap<T>> getMaps(String mapName, Class<T> cl)
+    public <T extends com.zeroc.Ice.MX.Metrics> java.util.List<MetricsMap<T>> getMaps(String mapName, Class<T> cl)
     {
         java.util.List<MetricsMap<T>> maps = new java.util.ArrayList<>();
         for(MetricsViewI v : _views.values())
@@ -350,14 +350,14 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
     }
 
     private MetricsViewI getMetricsView(String name)
-        throws com.zeroc.IceMX.UnknownMetricsView
+        throws com.zeroc.Ice.MX.UnknownMetricsView
     {
         MetricsViewI view = _views.get(name);
         if(view == null)
         {
             if(!_disabledViews.contains(name))
             {
-                throw new com.zeroc.IceMX.UnknownMetricsView();
+                throw new com.zeroc.Ice.MX.UnknownMetricsView();
             }
             return null;
         }

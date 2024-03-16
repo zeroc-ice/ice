@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-module com.zeroc.icepatch2 {
-    exports com.zeroc.IcePatch2;
+module com.zeroc.icestorm {
+    exports com.zeroc.IceStorm;
+    exports com.zeroc.IceStorm.MX;
+
     requires transitive com.zeroc.ice;
 }

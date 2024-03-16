@@ -93,13 +93,13 @@ public class AllTests
         System.out.print("testing metrics admin facet... ");
         System.out.flush();
         {
-            com.zeroc.IceMX.MetricsAdminPrx ma =
-                com.zeroc.IceMX.MetricsAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Metrics");
+            com.zeroc.Ice.MX.MetricsAdminPrx ma =
+                com.zeroc.Ice.MX.MetricsAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
             com.zeroc.Ice.PropertiesAdminPrx pa =
                 com.zeroc.Ice.PropertiesAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Properties");
 
-            com.zeroc.IceMX.MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
+            com.zeroc.Ice.MX.MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
             test(r.returnValue.length == 0);
 
             java.util.Map<String, String> setProps = new java.util.HashMap<>();
@@ -113,7 +113,7 @@ public class AllTests
             test(r.returnValue.length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(com.zeroc.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics").
+            test(com.zeroc.Ice.MX.MetricsAdminPrx.checkedCast(admin, "Metrics").
                  getMetricsViewNames().returnValue.length == 0);
         }
         System.out.println("ok");

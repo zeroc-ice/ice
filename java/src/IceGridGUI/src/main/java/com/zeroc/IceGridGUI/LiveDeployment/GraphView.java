@@ -829,7 +829,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
     }
 
-    private void addData(final MetricsViewInfo info, final Map<String, com.zeroc.IceMX.Metrics[]> data,
+    private void addData(final MetricsViewInfo info, final Map<String, com.zeroc.Ice.MX.Metrics[]> data,
                          final long timestamp)
     {
         //
@@ -845,7 +845,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                 for(Map.Entry<String, Map<String, Map<String, MetricsRow>>> i : series.entrySet())
                 {
-                    com.zeroc.IceMX.Metrics[] metricsSeq = null;
+                    com.zeroc.Ice.MX.Metrics[] metricsSeq = null;
                     if(data != null)
                     {
                         metricsSeq = data.get(i.getKey());
@@ -858,11 +858,11 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                     for(Map.Entry<String, Map<String, MetricsRow>> j : i.getValue().entrySet())
                     {
-                        com.zeroc.IceMX.Metrics metrics = null;
+                        com.zeroc.Ice.MX.Metrics metrics = null;
 
                         if(metricsSeq != null)
                         {
-                            for(com.zeroc.IceMX.Metrics m : metricsSeq)
+                            for(com.zeroc.Ice.MX.Metrics m : metricsSeq)
                             {
                                 if(m.id.equals(j.getKey()))
                                 {

@@ -13,14 +13,14 @@ using System;
 
 public class AllTests : Test.AllTests
 {
-    static IceMX.ConnectionMetrics
-    getServerConnectionMetrics(IceMX.MetricsAdminPrx metrics, long expected)
+    static Ice.MX.ConnectionMetrics
+    getServerConnectionMetrics(Ice.MX.MetricsAdminPrx metrics, long expected)
     {
         try
         {
-            IceMX.ConnectionMetrics s;
+            Ice.MX.ConnectionMetrics s;
             long timestamp;
-            s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
+            s = (Ice.MX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
             int nRetry = 30;
             while(s.sentBytes != expected && nRetry-- > 0)
             {
@@ -29,11 +29,11 @@ public class AllTests : Test.AllTests
                 // to the operation is sent and getMetricsView can be dispatched before the metric is really
                 // updated.
                 Thread.Sleep(100);
-                s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
+                s = (Ice.MX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
             }
             return s;
         }
-        catch(IceMX.UnknownMetricsView)
+        catch(Ice.MX.UnknownMetricsView)
         {
             Debug.Assert(false);
             return null;
@@ -270,15 +270,15 @@ public class AllTests : Test.AllTests
     };
 
     static void
-    waitForCurrent(IceMX.MetricsAdminPrx metrics, string viewName, string map, int value)
+    waitForCurrent(Ice.MX.MetricsAdminPrx metrics, string viewName, string map, int value)
     {
         while(true)
         {
             long timestamp;
-            Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView(viewName, out timestamp);
+            Dictionary<string, Ice.MX.Metrics[]> view = metrics.getMetricsView(viewName, out timestamp);
             test(view.ContainsKey(map));
             bool ok = true;
-            foreach(IceMX.Metrics m in view[map])
+            foreach(Ice.MX.Metrics m in view[map])
             {
                 if(m.current != value)
                 {
@@ -311,7 +311,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
+    testAttribute(Ice.MX.MetricsAdminPrx metrics,
                   Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
@@ -335,7 +335,7 @@ public class AllTests : Test.AllTests
 
         func();
         long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
+        Dictionary<string, Ice.MX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
         if(!view.ContainsKey(map) || view[map].Length == 0)
         {
             if(value.Length > 0)
@@ -393,7 +393,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
+    testAttribute(Ice.MX.MetricsAdminPrx metrics,
                   Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
@@ -459,9 +459,9 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    checkFailure(IceMX.MetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
+    checkFailure(Ice.MX.MetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
     {
-        IceMX.MetricsFailures f = m.getMetricsFailures("View", map, id);
+        Ice.MX.MetricsFailures f = m.getMetricsFailures("View", map, id);
         if(!f.failures.ContainsKey(failure))
         {
             output.WriteLine("couldn't find failure `" + failure + "' for `" + id + "'");
@@ -475,11 +475,11 @@ public class AllTests : Test.AllTests
         }
     }
 
-    static Dictionary<string, IceMX.Metrics>
-    toMap(IceMX.Metrics[] mmap)
+    static Dictionary<string, Ice.MX.Metrics>
+    toMap(Ice.MX.Metrics[] mmap)
     {
-        Dictionary<string, IceMX.Metrics> m = new Dictionary<string, IceMX.Metrics>();
-        foreach(IceMX.Metrics e in mmap)
+        Dictionary<string, Ice.MX.Metrics> m = new Dictionary<string, Ice.MX.Metrics>();
+        foreach(Ice.MX.Metrics e in mmap)
         {
             m.Add(e.id, e);
         }
@@ -504,12 +504,12 @@ public class AllTests : Test.AllTests
         output.Flush();
         Ice.ObjectPrx admin = communicator.getAdmin();
         Ice.PropertiesAdminPrx clientProps = Ice.PropertiesAdminPrxHelper.checkedCast(admin, "Properties");
-        IceMX.MetricsAdminPrx clientMetrics = IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
+        Ice.MX.MetricsAdminPrx clientMetrics = Ice.MX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
         test(clientProps != null && clientMetrics != null);
 
         admin = metrics.getAdmin();
         Ice.PropertiesAdminPrx serverProps = Ice.PropertiesAdminPrxHelper.checkedCast(admin, "Properties");
-        IceMX.MetricsAdminPrx serverMetrics = IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
+        Ice.MX.MetricsAdminPrx serverMetrics = Ice.MX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
@@ -525,7 +525,7 @@ public class AllTests : Test.AllTests
         props.Add("IceMX.Metrics.View.GroupBy", "none");
         updateProps(clientProps, serverProps, update, props, "");
         long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
+        Dictionary<string, Ice.MX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
         if(!collocated)
         {
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
@@ -557,7 +557,7 @@ public class AllTests : Test.AllTests
         }
         test(view["Invocation"].Length == 1);
 
-        IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
+        Ice.MX.InvocationMetrics invoke = (Ice.MX.InvocationMetrics)view["Invocation"][0];
 
         test(invoke.id.IndexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
         if(!collocated)
@@ -605,7 +605,7 @@ public class AllTests : Test.AllTests
             isSecure = endpointInfo.secure() ? "True": "False";
         }
 
-        Dictionary<string, IceMX.Metrics> map;
+        Dictionary<string, Ice.MX.Metrics> map;
 
         if(!collocated)
         {
@@ -620,13 +620,13 @@ public class AllTests : Test.AllTests
 
             metrics.ice_ping();
 
-            IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            Ice.MX.ConnectionMetrics cm1, sm1, cm2, sm2;
+            cm1 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm1 = getServerConnectionMetrics(serverMetrics, 25);
 
             metrics.ice_ping();
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
             test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for ice_ping request
@@ -640,7 +640,7 @@ public class AllTests : Test.AllTests
             byte[] bs = new byte[0];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + cm2.receivedBytes - cm1.receivedBytes);
             long requestSz = cm2.sentBytes - cm1.sentBytes;
             long replySz = cm2.receivedBytes - cm1.receivedBytes;
@@ -651,7 +651,7 @@ public class AllTests : Test.AllTests
             bs = new byte[456];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
@@ -665,7 +665,7 @@ public class AllTests : Test.AllTests
             bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
@@ -718,10 +718,10 @@ public class AllTests : Test.AllTests
             }
             controller.resume();
 
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm1 = (Ice.MX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             while(true)
             {
-                sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+                sm1 = (Ice.MX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
                 if(sm1.failures >= 2)
                 {
                     break;
@@ -777,7 +777,7 @@ public class AllTests : Test.AllTests
             metrics.ice_ping();
 
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
-            IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
+            Ice.MX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
 
             metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
@@ -942,26 +942,26 @@ public class AllTests : Test.AllTests
         map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Dispatch"]);
         test(collocated ? map.Count == 5 : map.Count == 6);
 
-        IceMX.DispatchMetrics dm1;
-        dm1 = (IceMX.DispatchMetrics)map["op"];
+        Ice.MX.DispatchMetrics dm1;
+        dm1 = (Ice.MX.DispatchMetrics)map["op"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
         test(dm1.size == 21 && dm1.replySize == 7);
 
-        dm1 = (IceMX.DispatchMetrics)map["opWithUserException"];
+        dm1 = (Ice.MX.DispatchMetrics)map["opWithUserException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
         test(dm1.size == 38 && dm1.replySize == 27);
 
-        dm1 = (IceMX.DispatchMetrics)map["opWithLocalException"];
+        dm1 = (Ice.MX.DispatchMetrics)map["opWithLocalException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "::Ice::SyscallException", 1, output);
         test(dm1.size == 39 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
 
-        dm1 = (IceMX.DispatchMetrics)map["opWithRequestFailedException"];
+        dm1 = (Ice.MX.DispatchMetrics)map["opWithRequestFailedException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "::Ice::ObjectNotExistException", 1, output);
         test(dm1.size == 47 && dm1.replySize == 40);
 
-        dm1 = (IceMX.DispatchMetrics)map["opWithUnknownException"];
+        dm1 = (Ice.MX.DispatchMetrics)map["opWithUnknownException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "System.ArgumentOutOfRangeException", 1, output);
         test(dm1.size == 41 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
@@ -1116,51 +1116,51 @@ public class AllTests : Test.AllTests
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == (collocated ? 5 : 6));
 
-        IceMX.InvocationMetrics im1;
-        IceMX.ChildInvocationMetrics rim1;
-        im1 = (IceMX.InvocationMetrics)map["op"];
+        Ice.MX.InvocationMetrics im1;
+        Ice.MX.ChildInvocationMetrics rim1;
+        im1 = (Ice.MX.InvocationMetrics)map["op"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 42 && rim1.replySize == 14);
 
-        im1 = (IceMX.InvocationMetrics)map["opWithUserException"];
+        im1 = (Ice.MX.InvocationMetrics)map["opWithUserException"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 76 && rim1.replySize == 54);
         test(im1.userException == 2);
 
-        im1 = (IceMX.InvocationMetrics)map["opWithLocalException"];
+        im1 = (Ice.MX.InvocationMetrics)map["opWithLocalException"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 78 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownLocalException", 2, output);
 
-        im1 = (IceMX.InvocationMetrics)map["opWithRequestFailedException"];
+        im1 = (Ice.MX.InvocationMetrics)map["opWithRequestFailedException"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
         checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ObjectNotExistException", 2, output);
 
-        im1 = (IceMX.InvocationMetrics)map["opWithUnknownException"];
+        im1 = (Ice.MX.InvocationMetrics)map["opWithUnknownException"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 82 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownException", 2, output);
 
         if(!collocated)
         {
-            im1 = (IceMX.InvocationMetrics)map["fail"];
+            im1 = (Ice.MX.InvocationMetrics)map["fail"];
             test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 2 && im1.remotes.Length == 1);
-            rim1 = (IceMX.ChildInvocationMetrics)im1.remotes[0];
+            rim1 = (Ice.MX.ChildInvocationMetrics)im1.remotes[0];
             test(rim1.current == 0);
             test(rim1.total == 4);
             test(rim1.failures == 4);
@@ -1197,10 +1197,10 @@ public class AllTests : Test.AllTests
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
 
-        im1 = (IceMX.InvocationMetrics)map["op"];
+        im1 = (Ice.MX.InvocationMetrics)map["op"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? (im1.collocated.Length == 1) : (im1.remotes.Length == 1));
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+        rim1 = (Ice.MX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current <= 1 && rim1.total == 2 && rim1.failures == 0);
         test(rim1.size == 42 && rim1.replySize == 0);
 
@@ -1221,7 +1221,7 @@ public class AllTests : Test.AllTests
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
 
-        im1 = (IceMX.InvocationMetrics)map["op"];
+        im1 = (Ice.MX.InvocationMetrics)map["op"];
         test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.Length == 0);
 
@@ -1244,7 +1244,7 @@ public class AllTests : Test.AllTests
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 2);
 
-        im1 = (IceMX.InvocationMetrics)map["ice_flushBatchRequests"];
+        im1 = (Ice.MX.InvocationMetrics)map["ice_flushBatchRequests"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         if(!collocated)
         {
@@ -1266,7 +1266,7 @@ public class AllTests : Test.AllTests
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
             test(map.Count == 3);
 
-            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            im1 = (Ice.MX.InvocationMetrics)map["flushBatchRequests"];
             if (!(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0))
             {
                 output.WriteLine("");
@@ -1275,7 +1275,7 @@ public class AllTests : Test.AllTests
                 output.WriteLine(string.Format("im1.failures: {0}", im1.failures));
                 output.WriteLine(string.Format("im1.retry: {0}", im1.retry));
 
-                IceMX.MetricsFailures f = clientMetrics.getMetricsFailures("View", "Invocation", im1.id);
+                Ice.MX.MetricsFailures f = clientMetrics.getMetricsFailures("View", "Invocation", im1.id);
                 foreach (KeyValuePair<string, int> kvp in f.failures)
                 {
                     output.WriteLine(string.Format("{0} = {1}", kvp.Key, kvp.Value));
@@ -1292,7 +1292,7 @@ public class AllTests : Test.AllTests
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
             test(map.Count == 2);
 
-            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            im1 = (Ice.MX.InvocationMetrics)map["flushBatchRequests"];
             test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
             test(im1.remotes.Length == 1); // The first operation got sent over a connection
         }
@@ -1325,7 +1325,7 @@ public class AllTests : Test.AllTests
         {
             clientMetrics.enableMetricsView("UnknownView");
         }
-        catch(IceMX.UnknownMetricsView)
+        catch(Ice.MX.UnknownMetricsView)
         {
         }
 

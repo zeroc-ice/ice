@@ -24,6 +24,8 @@ import Glacier2.PermissionsVerifier_ice
 import Glacier2.SSLInfo_ice
 import Glacier2.Metrics_ice
 
+from . import MX
+
 
 class SessionNotExistException(Exception):
     def __init__(self):

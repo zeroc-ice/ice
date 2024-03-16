@@ -13,7 +13,7 @@
 namespace IceStorm
 {
     class TopicObserverI final : public IceStorm::Instrumentation::TopicObserver,
-                                 public IceMX::ObserverT<IceMX::TopicMetrics>
+                                 public Ice::MX::ObserverT<IceStorm::MX::TopicMetrics>
     {
     public:
         void published() override;
@@ -21,7 +21,7 @@ namespace IceStorm
     };
 
     class SubscriberObserverI final : public IceStorm::Instrumentation::SubscriberObserver,
-                                      public IceMX::ObserverT<IceMX::SubscriberMetrics>
+                                      public Ice::MX::ObserverT<IceStorm::MX::SubscriberMetrics>
     {
     public:
         void queued(int) override;
@@ -53,8 +53,8 @@ namespace IceStorm
     private:
         const std::shared_ptr<IceInternal::MetricsAdminI> _metrics;
 
-        IceMX::ObserverFactoryT<TopicObserverI> _topics;
-        IceMX::ObserverFactoryT<SubscriberObserverI> _subscribers;
+        Ice::MX::ObserverFactoryT<TopicObserverI> _topics;
+        Ice::MX::ObserverFactoryT<SubscriberObserverI> _subscribers;
     };
 }
 

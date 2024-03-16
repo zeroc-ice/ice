@@ -336,7 +336,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
         public String component;
         public String view;
-        public com.zeroc.IceMX.MetricsAdminPrx admin;
+        public com.zeroc.Ice.MX.MetricsAdminPrx admin;
     }
 
     public static class MetricsCell
@@ -393,7 +393,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = scaleFactor;
         }
 
-        public Number getValue(com.zeroc.IceMX.Metrics m, long timestamp)
+        public Number getValue(com.zeroc.Ice.MX.Metrics m, long timestamp)
         {
             Number value = ((Number)getField().getValue(m, timestamp));
             if(value == null)
@@ -614,7 +614,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         private MetricsView _node;
     }
 
-    public void show(final MetricsView node, final Map<java.lang.String, com.zeroc.IceMX.Metrics[]> data,
+    public void show(final MetricsView node, final Map<java.lang.String, com.zeroc.Ice.MX.Metrics[]> data,
                      final long timestamp)
     {
         boolean rebuildPanel = false;
@@ -625,14 +625,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
         else if(data != null)
         {
-            for(final Map.Entry<String, com.zeroc.IceMX.Metrics[]> entry : data.entrySet())
+            for(final Map.Entry<String, com.zeroc.Ice.MX.Metrics[]> entry : data.entrySet())
             {
                 if(_tables.get(entry.getKey()) != null)
                 {
                     continue;
                 }
 
-                com.zeroc.IceMX.Metrics[] objects = entry.getValue();
+                com.zeroc.Ice.MX.Metrics[] objects = entry.getValue();
                 if(objects == null || objects.length == 0)
                 {
                     continue;
@@ -784,10 +784,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             //
             // Load the data.
             //
-            for(Map.Entry<String, com.zeroc.IceMX.Metrics[]> entry : data.entrySet())
+            for(Map.Entry<String, com.zeroc.Ice.MX.Metrics[]> entry : data.entrySet())
             {
                 String key = entry.getKey();
-                com.zeroc.IceMX.Metrics[] values = entry.getValue();
+                com.zeroc.Ice.MX.Metrics[] values = entry.getValue();
                 JTable table = _tables.get(key);
                 if(table == null)
                 {
@@ -799,7 +799,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
                 model.getDataVector().removeAllElements();
                 model.fireTableDataChanged();
-                for(com.zeroc.IceMX.Metrics m : values)
+                for(com.zeroc.Ice.MX.Metrics m : values)
                 {
                     model.addMetrics(m, timestamp);
                 }
@@ -1007,7 +1007,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _metricsName = metricsName;
         }
 
-        public void addMetrics(com.zeroc.IceMX.Metrics m, long timestamp)
+        public void addMetrics(com.zeroc.Ice.MX.Metrics m, long timestamp)
         {
             Object[] row = new Object[_fields.size()];
 
@@ -1131,7 +1131,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         //
         // Return the value of the field for the given metrics object.
         //
-        public Object getValue(com.zeroc.IceMX.Metrics m, long timestamp);
+        public Object getValue(com.zeroc.Ice.MX.Metrics m, long timestamp);
 
         //
         // Set up a field identical to this but without the transient data.
@@ -1281,7 +1281,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         @Override
-        public Object getValue(com.zeroc.IceMX.Metrics m, long timestamp)
+        public Object getValue(com.zeroc.Ice.MX.Metrics m, long timestamp)
         {
             try
             {
@@ -1333,9 +1333,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         @Override
-        public Object getValue(com.zeroc.IceMX.Metrics m2, long timestamp)
+        public Object getValue(com.zeroc.Ice.MX.Metrics m2, long timestamp)
         {
-            com.zeroc.IceMX.Metrics m1 = _deltas.get(m2.id);
+            com.zeroc.Ice.MX.Metrics m1 = _deltas.get(m2.id);
             _deltas.put(m2.id, m2);
             if(m1 == null)
             {
@@ -1356,7 +1356,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         private double _scaleFactor = 1.0d;
         private String _columnName;
         private TableCellRenderer _cellRenderer;
-        private final Map<String, com.zeroc.IceMX.Metrics> _deltas = new HashMap<>();
+        private final Map<String, com.zeroc.Ice.MX.Metrics> _deltas = new HashMap<>();
     }
 
     static public class DeltaMeasurement
@@ -1402,7 +1402,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         @Override
-        public Object getValue(com.zeroc.IceMX.Metrics m, long timestamp)
+        public Object getValue(com.zeroc.Ice.MX.Metrics m, long timestamp)
         {
             DeltaMeasurement d1 = _deltas.get(m.id);
             DeltaMeasurement d2 = new DeltaMeasurement();
@@ -1507,7 +1507,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         @Override
-        public Object getValue(final com.zeroc.IceMX.Metrics m, long timestamp)
+        public Object getValue(final com.zeroc.Ice.MX.Metrics m, long timestamp)
         {
             JButton button = new JButton(Integer.toString(m.failures));
             if(m.failures > 0)
@@ -1547,7 +1547,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
                             getMetricsNode().getCoordinator().getMainFrame().setCursor(
                                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            java.util.concurrent.CompletableFuture<com.zeroc.IceMX.MetricsFailures> r =
+                            java.util.concurrent.CompletableFuture<com.zeroc.Ice.MX.MetricsFailures> r =
                                 getMetricsNode().fetchMetricsFailures(getMetricsName(), m.id);
                             if(r != null)
                             {
@@ -1633,12 +1633,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         @Override
-        public Object getValue(final com.zeroc.IceMX.Metrics m, final long timestamp)
+        public Object getValue(final com.zeroc.Ice.MX.Metrics m, final long timestamp)
         {
             try
             {
-                final com.zeroc.IceMX.Metrics[] objects =
-                    (com.zeroc.IceMX.Metrics[])m.getClass().getField(getFieldName()).get(m);
+                final com.zeroc.Ice.MX.Metrics[] objects =
+                    (com.zeroc.Ice.MX.Metrics[])m.getClass().getField(getFieldName()).get(m);
                 JButton button = new JButton(Integer.toString(objects.length));
                 button.setEnabled(objects.length > 0);
                 if(objects.length > 0)
@@ -1721,7 +1721,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                 int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix +
                                                                                                      ".id.columnName"));
 
-                                for(com.zeroc.IceMX.Metrics m : objects)
+                                for(com.zeroc.Ice.MX.Metrics m : objects)
                                 {
                                     model.addMetrics(m, timestamp);
                                 }

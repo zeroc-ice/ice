@@ -18,15 +18,9 @@ $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2py))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Ice,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Glacier2,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceBox))
-$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceMX))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceGrid))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IcePatch2))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceStorm))
-
-# Generate these two files individually without the --no-package option to ensure the
-# IceMX package is updated.
-$(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Ice,Metrics))
-$(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Glacier2,Metrics))
 
 install:: | $(DESTDIR)$(install_pythondir)/Ice
 	$(E) "Installing generated code"

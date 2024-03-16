@@ -13,7 +13,7 @@
 namespace Glacier2
 {
     class SessionObserverI final : public Glacier2::Instrumentation::SessionObserver,
-                                   public IceMX::ObserverT<IceMX::SessionMetrics>
+                                   public Ice::MX::ObserverT<Glacier2::MX::SessionMetrics>
     {
     public:
         void forwarded(bool) override;
@@ -39,7 +39,7 @@ namespace Glacier2
         const std::shared_ptr<IceInternal::MetricsAdminI> _metrics;
         const std::string _instanceName;
 
-        IceMX::ObserverFactoryT<SessionObserverI> _sessions;
+        Ice::MX::ObserverFactoryT<SessionObserverI> _sessions;
     };
 }
 

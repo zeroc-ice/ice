@@ -9,7 +9,7 @@ namespace IceInternal
     using System.Text;
     using System.Collections.Generic;
 
-    using IceMX;
+    using Ice.MX;
 
     public class ObserverWithDelegate<T, O> : Observer<T>
         where T : Metrics, new()
@@ -109,7 +109,7 @@ namespace IceInternal
     static class AttrsUtil
     {
         public static void
-        addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
+        addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Ice.MX.Metrics
         {
             r.add("endpoint", cl.GetMethod("getEndpoint"));
 
@@ -126,7 +126,7 @@ namespace IceInternal
         }
 
         public static void
-        addConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
+        addConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Ice.MX.Metrics
         {
             Type cli = typeof(Ice.ConnectionInfo);
             r.add("incoming", cl.GetMethod("getConnectionInfo"), cli.GetField("incoming"));

@@ -45,7 +45,7 @@ public class Collocated extends test.TestHelper
             MetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
-        catch(com.zeroc.IceMX.UnknownMetricsView ex)
+        catch(com.zeroc.Ice.MX.UnknownMetricsView ex)
         {
             throw new RuntimeException(ex);
         }
