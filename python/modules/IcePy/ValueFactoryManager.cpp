@@ -5,9 +5,9 @@
 // PY_SSIZE_T_CLEAN is required for s#. Should we move it somewhere else, as it's always recommended to define it
 // See https://docs.python.org/3/c-api/arg.html
 #define PY_SSIZE_T_CLEAN
-#include <ValueFactoryManager.h>
-#include <Thread.h>
-#include <Types.h>
+#include "ValueFactoryManager.h"
+#include "Thread.h"
+#include "Types.h"
 #include <Ice/LocalException.h>
 
 using namespace std;

@@ -109,9 +109,9 @@ namespace IcePHP
 
         void getZval(zval*);
 
-        void destroy(void);
+        void destroy();
 
-    protected:
+    private:
         zval _factory;
         CommunicatorInfoIPtr _info;
     };
@@ -121,16 +121,10 @@ namespace IcePHP
     {
     public:
         DefaultValueFactory(const CommunicatorInfoIPtr&);
-
         shared_ptr<Ice::Value> create(string_view) final;
 
-        void setDelegate(const CustomValueFactoryPtr& d) { _delegate = d; }
-        CustomValueFactoryPtr getDelegate() const { return _delegate; }
-
-        void destroy(void);
-
+        void destroy();
     private:
-        CustomValueFactoryPtr _delegate;
         CommunicatorInfoIPtr _info;
     };
 
@@ -158,7 +152,6 @@ namespace IcePHP
     {
     public:
         void add(Ice::ValueFactoryFunc, string_view) final;
-        void add(ValueFactoryPtr, string_view);
         Ice::ValueFactoryFunc find(string_view) const noexcept final;
 
         void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
@@ -1921,16 +1914,6 @@ IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& inf
 shared_ptr<Ice::Value>
 IcePHP::DefaultValueFactory::create(string_view id)
 {
-    // Get the TSRM id for the current request.
-    if (_delegate)
-    {
-        shared_ptr<Ice::Value> v = _delegate->create(id);
-        if (v)
-        {
-            return v;
-        }
-    }
-
     // Get the type information.
     ClassInfoPtr cls;
     if (id == Ice::Object::ice_staticId())
@@ -1973,11 +1956,6 @@ IcePHP::DefaultValueFactory::create(string_view id)
 void
 IcePHP::DefaultValueFactory::destroy(void)
 {
-    if (_delegate)
-    {
-        _delegate->destroy();
-        _delegate = nullptr;
-    }
     _info = nullptr;
 }
 
@@ -2020,28 +1998,14 @@ IcePHP::CommunicatorInfoI::getCommunicator() const
 bool
 IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
 {
-    if (id.empty())
+    CustomFactoryMap::iterator p = _customFactories.find(id);
+    if (p != _customFactories.end())
     {
-        if (_defaultFactory->getDelegate())
-        {
-            throwException(
-                make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
-            return false;
-        }
-
-        _defaultFactory->setDelegate(make_shared<CustomValueFactory>(factory, shared_from_this()));
+        throwException(
+            make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
+        return false;
     }
-    else
-    {
-        CustomFactoryMap::iterator p = _customFactories.find(id);
-        if (p != _customFactories.end())
-        {
-            throwException(
-                make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
-            return false;
-        }
-        _customFactories.insert(CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
-    }
+    _customFactories.insert(CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
 
     return true;
 }
@@ -2049,28 +2013,21 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
 CustomValueFactoryPtr
 IcePHP::CommunicatorInfoI::findFactory(string_view id) const
 {
-    if (id.empty())
+    CustomFactoryMap::const_iterator p = _customFactories.find(id);
+    if (p != _customFactories.end())
     {
-        return _defaultFactory->getDelegate();
+        return p->second;
     }
-    else
-    {
-        CustomFactoryMap::const_iterator p = _customFactories.find(id);
-        if (p != _customFactories.end())
-        {
-            assert(p->second);
-            return p->second;
-        }
-    }
+
     return nullptr;
 }
 
 void
 IcePHP::CommunicatorInfoI::destroyFactories(void)
 {
-    for (CustomFactoryMap::iterator p = _customFactories.begin(); p != _customFactories.end(); ++p)
+    for (const auto& p : _customFactories)
     {
-        p->second->destroy();
+        p.second->destroy();
     }
     _customFactories.clear();
     _defaultFactory->destroy();
@@ -2078,13 +2035,6 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
 
 void
 IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
-{
-    // We don't support factories registered in C++.
-    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
-}
-
-void
-IcePHP::ValueFactoryManager::add(ValueFactoryPtr, string_view)
 {
     // We don't support factories registered in C++.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
@@ -2101,14 +2051,10 @@ IcePHP::ValueFactoryManager::find(string_view id) const noexcept
 
     CommunicatorInfoIPtr info = p->second;
 
-    ValueFactoryPtr factory;
-    if (id.empty())
+    ValueFactoryPtr factory = info->findFactory(id);
+    if (!factory && id.empty())
     {
         factory = info->defaultFactory();
-    }
-    else
-    {
-        factory = info->findFactory(id);
     }
 
     if (factory)
