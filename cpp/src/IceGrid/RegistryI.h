@@ -73,7 +73,6 @@ namespace IceGrid
         QueryPrx setupQuery();
         RegistryPrx setupRegistry();
         InternalRegistryPrx setupInternalRegistry();
-        bool setupUserAccountMapper();
         std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrx&);
         std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(
             const Ice::ObjectPtr&,

@@ -510,9 +510,26 @@ RegistryI::startImpl()
     _wellKnownObjects->addEndpoint("Server", _serverAdapter->createDirectProxy(dummy));
     _wellKnownObjects->addEndpoint("Internal", _registryAdapter->createDirectProxy(dummy));
 
-    if (!setupUserAccountMapper())
+    //
+    // Setup file user account mapper object if the property is set.
+    //
+    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
+    if (!userAccountFileProperty.empty())
     {
-        return false;
+        try
+        {
+            Identity mapperId{
+                _master ? "RegistryUserAccountMapper" : "RegistryUserAccountMapper-" + _replicaName,
+                _instanceName};
+            _registryAdapter->add(make_shared<FileUserAccountMapperI>(userAccountFileProperty), mapperId);
+            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), string{UserAccountMapper::ice_staticId()});
+        }
+        catch (const Ice::Exception& ex)
+        {
+            Error out(_communicator->getLogger());
+            out << "unable to setup file user account mapper:\n" << ex;
+            return false;
+        }
     }
 
     setupLocatorRegistry();
@@ -714,38 +731,6 @@ RegistryI::setupInternalRegistry()
 
     _database->getReplicaCache().setInternalRegistry(registry);
     return registry;
-}
-
-bool
-RegistryI::setupUserAccountMapper()
-{
-    auto properties = _communicator->getProperties();
-
-    //
-    // Setup file user account mapper object if the property is set.
-    //
-    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
-    if (!userAccountFileProperty.empty())
-    {
-        try
-        {
-            Identity mapperId{"RegistryUserAccountMapper", _instanceName};
-            if (!_master)
-            {
-                mapperId.name += "-" + _replicaName;
-            }
-
-            _registryAdapter->add(make_shared<FileUserAccountMapperI>(userAccountFileProperty), mapperId);
-            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), string{UserAccountMapper::ice_staticId()});
-        }
-        catch (const string& msg)
-        {
-            Error out(_communicator->getLogger());
-            out << msg;
-            return false;
-        }
-    }
-    return true;
 }
 
 shared_ptr<ObjectAdapter>

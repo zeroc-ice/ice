@@ -199,16 +199,6 @@ Ice::PluginManagerI::destroy() noexcept
                     Warning out(getProcessLogger());
                     out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << ex.what();
                 }
-                catch (const std::string& str)
-                {
-                    Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << str;
-                }
-                catch (const char* msg)
-                {
-                    Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << msg;
-                }
                 catch (...)
                 {
                     Warning out(getProcessLogger());

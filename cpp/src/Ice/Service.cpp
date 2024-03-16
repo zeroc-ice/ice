@@ -808,22 +808,6 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
 #endif
     }
-    catch (const std::string& msg)
-    {
-        ServiceError err(this);
-        err << "service terminating after catching exception:\n" << msg;
-#ifdef ICE_USE_SYSTEMD
-        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
-#endif
-    }
-    catch (const char* msg)
-    {
-        ServiceError err(this);
-        err << "service terminating after catching exception:\n" << msg;
-#ifdef ICE_USE_SYSTEMD
-        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg);
-#endif
-    }
     catch (...)
     {
         error("service terminating after catching unknown exception");
