@@ -62,7 +62,7 @@ IceInternal::FactoryTable::removeExceptionFactory(string_view t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactory f)
+IceInternal::FactoryTable::addValueFactory(string_view t, Ice::ValueFactory f)
 {
     lock_guard lock(_mutex);
     assert(f);
@@ -80,7 +80,7 @@ IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactory f)
 //
 // Return the value factory for a given type ID
 //
-::Ice::ValueFactory
+Ice::ValueFactory
 IceInternal::FactoryTable::getValueFactory(string_view t) const
 {
     lock_guard lock(_mutex);
