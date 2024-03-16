@@ -88,25 +88,14 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
         FactoryWrapperPtr f = make_shared<FactoryWrapper>(valueFactory);
 
         std::lock_guard lock(_mutex);
-        if (id.empty())
+        FactoryMap::iterator p = _factories.find(id);
+        if (p != _factories.end())
         {
-            if (_defaultFactory->getDelegate())
-            {
-                throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
-            }
-
-            _defaultFactory->setDelegate(f);
+            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
-        else
-        {
-            FactoryMap::iterator p = _factories.find(id);
-            if (p != _factories.end())
-            {
-                throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
-            }
 
-            _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
-        }
+        _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
+
     }
     catch (...)
     {
@@ -162,8 +151,6 @@ IcePy::ValueFactoryManager::destroy()
 
         factories.swap(_factories);
     }
-
-    _defaultFactory->destroy();
 }
 
 ValueFactoryPtr
@@ -171,20 +158,17 @@ IcePy::ValueFactoryManager::findCore(string_view id) const noexcept
 {
     std::lock_guard lock(_mutex);
 
-    ValueFactoryPtr factory;
+    FactoryMap::const_iterator p = _factories.find(id);
+    if (p != _factories.end())
+    {
+        return p->second;
+    }
 
     if (id.empty())
     {
         return _defaultFactory;
     }
-    else
-    {
-        FactoryMap::const_iterator p = _factories.find(id);
-        if (p != _factories.end())
-        {
-            return p->second;
-        }
-    }
+
     return nullptr;
 }
 
@@ -240,20 +224,6 @@ IcePy::DefaultValueFactory::create(std::string_view id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    shared_ptr<Ice::Value> v;
-
-    //
-    // Give the application-provided default factory a chance to create the object first.
-    //
-    if (_delegate)
-    {
-        v = _delegate->create(id);
-        if (v)
-        {
-            return v;
-        }
-    }
-
     //
     // Get the type information.
     //
@@ -261,7 +231,7 @@ IcePy::DefaultValueFactory::create(std::string_view id)
 
     if (!info)
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -277,34 +247,6 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     }
 
     return make_shared<ValueReader>(obj.get(), info);
-}
-
-void
-IcePy::DefaultValueFactory::setDelegate(const ValueFactoryPtr& d)
-{
-    _delegate = d;
-}
-
-PyObject*
-IcePy::DefaultValueFactory::getValueFactory() const
-{
-    if (_delegate)
-    {
-        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
-        if (w)
-        {
-            return w->getValueFactory();
-        }
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-void
-IcePy::DefaultValueFactory::destroy()
-{
-    _delegate = nullptr;
 }
 
 #ifdef WIN32

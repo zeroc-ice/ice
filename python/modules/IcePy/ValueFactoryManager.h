@@ -43,16 +43,6 @@ namespace IcePy
     {
     public:
         std::shared_ptr<Ice::Value> create(std::string_view) final;
-
-        void setDelegate(const ValueFactoryPtr&);
-        ValueFactoryPtr getDelegate() const { return _delegate; }
-
-        PyObject* getValueFactory() const;
-
-        void destroy();
-
-    private:
-        ValueFactoryPtr _delegate;
     };
 
     using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
