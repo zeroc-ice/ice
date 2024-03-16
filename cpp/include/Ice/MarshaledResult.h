@@ -9,11 +9,6 @@
 #include "Current.h"
 #include "OutputStream.h"
 
-namespace IceInternal
-{
-    class Incoming;
-}
-
 namespace Ice
 {
     /**
@@ -25,12 +20,12 @@ namespace Ice
     public:
         MarshaledResult() = delete;
         MarshaledResult(const MarshaledResult&) = delete;
-        MarshaledResult(MarshaledResult&&);
+        MarshaledResult(MarshaledResult&&) = default;
 
         virtual ~MarshaledResult() = default;
 
         MarshaledResult& operator=(const MarshaledResult&) = delete;
-        MarshaledResult& operator=(MarshaledResult&&);
+        MarshaledResult& operator=(MarshaledResult&&) = default;
 
         /// \cond INTERNAL
 

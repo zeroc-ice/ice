@@ -7,7 +7,6 @@
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
 #include <Ice/StreamHelpers.h>

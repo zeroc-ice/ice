@@ -5,7 +5,6 @@
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
-#include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
 #include "UserException.h"

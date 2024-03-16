@@ -1126,7 +1126,7 @@ TopicImpl::observerDestroyTopic(const LogUpdate& llu)
     destroyInternal(llu, false);
 }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 TopicImpl::getServant() const
 {
     return _servant;

@@ -713,7 +713,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 }
 
 void
-IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
+IceInternal::Instance::addAdminFacet(const ObjectPtr& servant, const string& facet)
 {
     lock_guard lock(_mutex);
 
@@ -735,7 +735,7 @@ IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const st
     }
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
     lock_guard lock(_mutex);
@@ -745,7 +745,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    std::shared_ptr<Ice::Object> result;
+    ObjectPtr result;
 
     if (_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
@@ -768,7 +768,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     return result;
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::Instance::findAdminFacet(const string& facet)
 {
     lock_guard lock(_mutex);
@@ -778,7 +778,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    std::shared_ptr<Ice::Object> result;
+    ObjectPtr result;
 
     //
     // If the _adminAdapter was not yet created, or this facet is filtered out, we check _adminFacets

@@ -779,9 +779,9 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
 
 shared_ptr<ObjectAdapter>
 RegistryI::setupAdminSessionFactory(
-    const shared_ptr<Object>& serverAdminRouter,
-    const shared_ptr<Object>& nodeAdminRouter,
-    const shared_ptr<Object>& replicaAdminRouter,
+    const ObjectPtr& serverAdminRouter,
+    const ObjectPtr& nodeAdminRouter,
+    const ObjectPtr& replicaAdminRouter,
     const IceGrid::LocatorPrx& locator)
 {
     auto properties = _communicator->getProperties();

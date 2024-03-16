@@ -265,18 +265,18 @@ Ice::Communicator::getAdmin() const
 }
 
 void
-Ice::Communicator::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
+Ice::Communicator::addAdminFacet(const ObjectPtr& servant, const string& facet)
 {
     _instance->addAdminFacet(servant, facet);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::Communicator::removeAdminFacet(const string& facet)
 {
     return _instance->removeAdminFacet(facet);
 }
 
-shared_ptr<Object>
+ObjectPtr
 Ice::Communicator::findAdminFacet(const string& facet)
 {
     return _instance->findAdminFacet(facet);

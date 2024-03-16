@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
+IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
 
@@ -49,11 +49,11 @@ IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const 
 
     _servantMapMapHint = p;
 
-    p->second.insert(pair<const string, shared_ptr<Object>>(facet, object));
+    p->second.insert(pair<const string, ObjectPtr>(facet, object));
 }
 
 void
-IceInternal::ServantManager::addDefaultServant(const shared_ptr<Object>& object, const string& category)
+IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const string& category)
 {
     lock_guard lock(_mutex);
 
@@ -65,18 +65,15 @@ IceInternal::ServantManager::addDefaultServant(const shared_ptr<Object>& object,
         throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
-    _defaultServantMap.insert(pair<const string, shared_ptr<Object>>(category, object));
+    _defaultServantMap.insert(pair<const string, ObjectPtr>(category, object));
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
-    //
     // We return the removed servant to avoid releasing the last reference count
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
-    //
-    shared_ptr<Object> servant = 0;
 
     lock_guard lock(_mutex);
 
@@ -102,7 +99,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
         throw NotRegisteredException(__FILE__, __LINE__, "servant", os.str());
     }
 
-    servant = q->second;
+    ObjectPtr servant = q->second;
     p->second.erase(q);
 
     if (p->second.empty())
@@ -120,15 +117,12 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     return servant;
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::ServantManager::removeDefaultServant(const string& category)
 {
-    //
     // We return the removed servant to avoid releasing the last reference count
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
-    //
-    shared_ptr<Object> servant = 0;
 
     lock_guard lock(_mutex);
 
@@ -140,7 +134,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
         throw NotRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
-    servant = p->second;
+    ObjectPtr servant = p->second;
     _defaultServantMap.erase(p);
 
     return servant;
@@ -184,7 +178,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     return result;
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
     lock_guard lock(_mutex);
@@ -234,7 +228,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     }
 }
 
-shared_ptr<Object>
+ObjectPtr
 IceInternal::ServantManager::findDefaultServant(const string& category) const
 {
     lock_guard lock(_mutex);

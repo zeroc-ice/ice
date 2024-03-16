@@ -512,6 +512,7 @@
     <ClCompile Include="..\..\CollocatedRequestHandler.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
+    <ClCompile Include="..\..\Current.cpp" />
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />

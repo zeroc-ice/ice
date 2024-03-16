@@ -698,7 +698,7 @@ TopicManagerImpl::shutdown()
     _managerImpl = nullptr;
 }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 TopicManagerImpl::getServant() const
 {
     return _managerImpl;

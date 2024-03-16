@@ -9,6 +9,7 @@
 #include <Ice/Logger.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/CommunicatorF.h>
+#include "Ice/ObjectF.h"
 
 namespace IceInternal
 {
@@ -21,7 +22,7 @@ namespace IceInternal
         //
         // Return the associated Admin facet
         //
-        virtual std::shared_ptr<Ice::Object> getFacet() const = 0;
+        virtual Ice::ObjectPtr getFacet() const = 0;
 
         //
         // Destroy this logger, in particular join any thread

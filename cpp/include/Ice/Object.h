@@ -5,36 +5,32 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include <Ice/ObjectF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/Current.h>
-#include <Ice/Format.h>
+#include "ObjectF.h"
 #include "IncomingRequest.h"
 #include "OutgoingResponse.h"
 
-namespace IceInternal
-{
-    class Incoming;
-    class Direct;
-}
-
 namespace Ice
 {
-    /** A default-initialized Current instance. */
-    ICE_API extern const Current emptyCurrent;
-
     /**
      * The base class for servants.
+     * @remarks Object is a stateless polymorphic base class. Its copy constructor, move constructor, copy assignment
+     * operator and move assignment operator are all deleted to prevent accidental slicing. Derived classes can
+     * define these constructors and assignment operators to reenable copying, moving and slicing.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Object
     {
     public:
+        Object() = default;
         virtual ~Object() = default;
 
+        Object(const Object&) = delete;
+        Object& operator=(const Object&) = delete;
+        Object(Object&&) = delete;
+        Object& operator=(Object&&) = delete;
+
         /**
-         * Dispatch an incoming request and return the corresponding outgoing response.
+         * Dispatches an incoming request and return the corresponding outgoing response.
          * @param request The incoming request.
          * @param sendResponse A callback that the implementation calls to return the response. sendResponse does not
          * throw any exception and any sendResponse wrapper must not throw any exception. sendResponse can be called by
@@ -74,7 +70,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Returns the Slice type IDs of the interfaces supported by this object.
+         * Gets the Slice type IDs of the interfaces supported by this object.
          * @param current The Current object for the invocation.
          * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
          */
@@ -84,7 +80,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Returns the Slice type ID of the most-derived interface supported by this object.
+         * Gets the Slice type ID of the most-derived interface supported by this object.
          * @param current The Current object for the invocation.
          * @return The Slice type ID of the most-derived interface.
          */
@@ -94,7 +90,7 @@ namespace Ice
         /// \endcond
 
         /**
-         * Obtains the Slice type ID of this type.
+         * Gets the Slice type ID of this type.
          * @return The return value is always "::Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;

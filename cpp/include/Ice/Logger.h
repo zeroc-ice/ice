@@ -6,7 +6,6 @@
 #define __Ice_Logger_h__
 
 #include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
 #include <Ice/StreamHelpers.h>
