@@ -14,12 +14,19 @@ namespace IceRuby
 {
     bool initValueFactoryManager(VALUE);
 
-    class FactoryWrapper : public Ice::ValueFactory
+    // The IceRuby C++ value factory abstract base class.
+    struct ValueFactory
+    {
+        virtual std::shared_ptr<Ice::Value> create(std::string_view) = 0;
+    };
+    using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
+
+    class FactoryWrapper final : public ValueFactory
     {
     public:
         FactoryWrapper(VALUE);
 
-        virtual std::shared_ptr<Ice::Value> create(std::string_view);
+        std::shared_ptr<Ice::Value> create(std::string_view) final;
 
         VALUE getObject() const;
 
@@ -32,13 +39,13 @@ namespace IceRuby
     };
     using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
-    class DefaultValueFactory : public Ice::ValueFactory
+    class DefaultValueFactory final : public ValueFactory
     {
     public:
-        virtual std::shared_ptr<Ice::Value> create(std::string_view);
+        std::shared_ptr<Ice::Value> create(std::string_view) final;
 
-        void setDelegate(const Ice::ValueFactoryPtr&);
-        Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
+        void setDelegate(const ValueFactoryPtr&);
+        ValueFactoryPtr getDelegate() const { return _delegate; }
 
         VALUE getObject() const;
 
@@ -47,7 +54,7 @@ namespace IceRuby
         void destroy();
 
     private:
-        Ice::ValueFactoryPtr _delegate;
+        ValueFactoryPtr _delegate;
     };
     using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
@@ -59,7 +66,7 @@ namespace IceRuby
         ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
-        void add(Ice::ValueFactoryPtr, std::string_view) final;
+        void add(ValueFactoryPtr, std::string_view);
         Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
         void addValueFactory(VALUE, std::string_view);
@@ -73,11 +80,11 @@ namespace IceRuby
         void destroy();
 
     private:
-        using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr, std::less<>>;
+        using FactoryMap = std::map<std::string, ValueFactoryPtr, std::less<>>;
 
         ValueFactoryManager();
 
-        Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
+        ValueFactoryPtr findCore(std::string_view) const noexcept;
 
         VALUE _self;
         FactoryMap _factories;

@@ -77,7 +77,7 @@ IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 }
 
 void
-IceRuby::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
+IceRuby::ValueFactoryManager::add(ValueFactoryPtr f, string_view id)
 {
     std::lock_guard lock(_mutex);
 
@@ -105,7 +105,7 @@ IceRuby::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
 Ice::ValueFactoryFunc
 IceRuby::ValueFactoryManager::find(string_view id) const noexcept
 {
-    Ice::ValueFactoryPtr factory = findCore(id);
+    ValueFactoryPtr factory = findCore(id);
 
     if (factory)
     {
@@ -117,7 +117,7 @@ IceRuby::ValueFactoryManager::find(string_view id) const noexcept
     }
 }
 
-Ice::ValueFactoryPtr
+ValueFactoryPtr
 IceRuby::ValueFactoryManager::findCore(string_view id) const noexcept
 {
     std::lock_guard lock(_mutex);
@@ -147,7 +147,7 @@ ICE_RUBY_CATCH
 VALUE
 IceRuby::ValueFactoryManager::findValueFactory(string_view id) const
 {
-    Ice::ValueFactoryPtr f = findCore(id);
+    ValueFactoryPtr f = findCore(id);
     if (f)
     {
         auto w = dynamic_pointer_cast<FactoryWrapper>(f);
@@ -319,7 +319,7 @@ IceRuby::DefaultValueFactory::create(string_view id)
 }
 
 void
-IceRuby::DefaultValueFactory::setDelegate(const Ice::ValueFactoryPtr& d)
+IceRuby::DefaultValueFactory::setDelegate(const ValueFactoryPtr& d)
 {
     _delegate = d;
 }

@@ -53,6 +53,13 @@ namespace IcePHP
     };
     using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
+    // The IcePHP C++ value factory abstract base class.
+    struct ValueFactory
+    {
+        virtual shared_ptr<Ice::Value> create(string_view) = 0;
+    };
+    using ValueFactoryPtr = shared_ptr<ValueFactory>;
+
     class FactoryWrapper;
     using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
 
@@ -93,7 +100,7 @@ namespace IcePHP
     using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
     // Wraps a PHP object/value factory.
-    class FactoryWrapper final : public Ice::ValueFactory
+    class FactoryWrapper final : public ValueFactory
     {
     public:
         FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
@@ -110,7 +117,7 @@ namespace IcePHP
     };
 
     // Implements the default value factory behavior.
-    class DefaultValueFactory final : public Ice::ValueFactory
+    class DefaultValueFactory final : public ValueFactory
     {
     public:
         DefaultValueFactory(const CommunicatorInfoIPtr&);
@@ -151,7 +158,7 @@ namespace IcePHP
     {
     public:
         void add(Ice::ValueFactoryFunc, string_view) final;
-        void add(Ice::ValueFactoryPtr, string_view) final;
+        void add(ValueFactoryPtr, string_view);
         Ice::ValueFactoryFunc find(string_view) const noexcept final;
 
         void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
@@ -2077,7 +2084,7 @@ IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 }
 
 void
-IcePHP::ValueFactoryManager::add(Ice::ValueFactoryPtr, string_view)
+IcePHP::ValueFactoryManager::add(ValueFactoryPtr, string_view)
 {
     // We don't support factories registered in C++.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
@@ -2094,7 +2101,7 @@ IcePHP::ValueFactoryManager::find(string_view id) const noexcept
 
     CommunicatorInfoIPtr info = p->second;
 
-    Ice::ValueFactoryPtr factory;
+    ValueFactoryPtr factory;
     if (id.empty())
     {
         factory = info->defaultFactory();
