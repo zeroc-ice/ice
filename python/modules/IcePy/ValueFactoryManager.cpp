@@ -85,7 +85,7 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
 
     if (factory)
     {
-        return [factory](string_view id) { return factory->create(id); };
+        return [factory = std::move(factory)](string_view id) { return factory->create(id); };
     }
     else
     {
@@ -98,16 +98,13 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        CustomValueFactoryPtr f = make_shared<CustomValueFactory>(valueFactory);
+        std::lock_guard lock(_mutex);
+        auto [_, inserted] = _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(valueFactory));
 
-        std::lock_guard lock(_mutex); // lock in case a C++ thread is unmarshaling at the same time.
-        CustomFactoryMap::iterator p = _customFactories.find(id);
-        if (p != _customFactories.end())
+        if (!inserted)
         {
             throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
-
-        _customFactories.insert(CustomFactoryMap::value_type(string{id}, std::move(f)));
     }
     catch (...)
     {

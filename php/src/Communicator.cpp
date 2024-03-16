@@ -1999,16 +1999,15 @@ IcePHP::CommunicatorInfoI::getCommunicator() const
 bool
 IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
 {
-    CustomFactoryMap::iterator p = _customFactories.find(id);
-    if (p != _customFactories.end())
+    auto [_, inserted] =
+        _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(factory, shared_from_this()));
+
+    if (!inserted)
     {
         throwException(
             make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
         return false;
     }
-    _customFactories.insert(
-        CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
-
     return true;
 }
 
@@ -2027,9 +2026,9 @@ IcePHP::CommunicatorInfoI::findFactory(string_view id) const
 void
 IcePHP::CommunicatorInfoI::destroyFactories(void)
 {
-    for (const auto& p : _customFactories)
+    for (const auto& [_, factory] : _customFactories)
     {
-        p.second->destroy();
+        factory->destroy();
     }
     _customFactories.clear();
     _defaultFactory->destroy();
@@ -2061,7 +2060,7 @@ IcePHP::ValueFactoryManager::find(string_view id) const noexcept
 
     if (factory)
     {
-        return [factory](string_view id) -> shared_ptr<Ice::Value> { return factory->create(id); };
+        return [factory = std::move(factory)](string_view id) { return factory->create(id); };
     }
     else
     {

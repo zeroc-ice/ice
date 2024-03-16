@@ -95,7 +95,7 @@ IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
 
     if (factory)
     {
-        return [factory](string_view id) { return factory->create(id); };
+        return [factory = std::move(factory)](string_view id) { return factory->create(id); };
     }
     else
     {
@@ -108,19 +108,16 @@ void IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_vi
     // clang-format off
     ICE_RUBY_TRY
     {
-        CustomValueFactoryPtr f = make_shared<CustomValueFactory>(valueFactory);
-
         std::lock_guard lock(_mutex);
-        CustomFactoryMap::iterator p = _customFactories.find(id);
-        if (p != _customFactories.end())
+        auto [_, inserted] = _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(valueFactory));
+
+        if (!inserted)
         {
             throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
-
-        _customFactories.insert(CustomFactoryMap::value_type(string{id}, f));
     }
     ICE_RUBY_CATCH
-    // clang-format off
+    // clang-format on
 }
 
 VALUE
@@ -141,9 +138,9 @@ void
 IceRuby::ValueFactoryManager::mark()
 {
     std::lock_guard lock(_mutex);
-    for (const auto& p : _customFactories)
+    for (const auto& [_, factory] : _customFactories)
     {
-        p.second->mark();
+        factory->mark();
     }
 }
 
