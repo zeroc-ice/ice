@@ -61,33 +61,8 @@ IcePy::ValueFactoryManager::~ValueFactoryManager()
 void
 IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 {
+    // This means a C++ plugin cannot register a value factory with a Python application/communicator.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
-}
-
-void
-IcePy::ValueFactoryManager::add(ValueFactoryPtr f, string_view id)
-{
-    std::lock_guard lock(_mutex);
-
-    if (id.empty())
-    {
-        if (_defaultFactory->getDelegate())
-        {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
-        }
-
-        _defaultFactory->setDelegate(f);
-    }
-    else
-    {
-        FactoryMap::iterator p = _factories.find(id);
-        if (p != _factories.end())
-        {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
-        }
-
-        _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
-    }
 }
 
 Ice::ValueFactoryFunc
@@ -110,7 +85,28 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        add(make_shared<FactoryWrapper>(valueFactory), id);
+        FactoryWrapperPtr f = make_shared<FactoryWrapper>(valueFactory);
+
+        std::lock_guard lock(_mutex);
+        if (id.empty())
+        {
+            if (_defaultFactory->getDelegate())
+            {
+                throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
+            }
+
+            _defaultFactory->setDelegate(f);
+        }
+        else
+        {
+            FactoryMap::iterator p = _factories.find(id);
+            if (p != _factories.end())
+            {
+                throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
+            }
+
+            _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
+        }
     }
     catch (...)
     {
@@ -165,15 +161,6 @@ IcePy::ValueFactoryManager::destroy()
         _self = 0;
 
         factories.swap(_factories);
-    }
-
-    for (FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
-    {
-        auto w = dynamic_pointer_cast<FactoryWrapper>(p->second);
-        if (w)
-        {
-            w->destroy();
-        }
     }
 
     _defaultFactory->destroy();
@@ -248,11 +235,6 @@ IcePy::FactoryWrapper::getValueFactory() const
     return _valueFactory;
 }
 
-void
-IcePy::FactoryWrapper::destroy()
-{
-}
-
 shared_ptr<Ice::Value>
 IcePy::DefaultValueFactory::create(std::string_view id)
 {
@@ -322,16 +304,7 @@ IcePy::DefaultValueFactory::getValueFactory() const
 void
 IcePy::DefaultValueFactory::destroy()
 {
-    if (_delegate)
-    {
-        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
-        if (w)
-        {
-            w->destroy();
-        }
-    }
-
-    _delegate = 0;
+    _delegate = nullptr;
 }
 
 #ifdef WIN32

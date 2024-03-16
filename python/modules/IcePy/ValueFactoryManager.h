@@ -32,7 +32,6 @@ namespace IcePy
         std::shared_ptr<Ice::Value> create(std::string_view) final;
 
         PyObject* getValueFactory() const;
-        void destroy();
 
     protected:
         PyObject* _valueFactory;
@@ -66,7 +65,6 @@ namespace IcePy
         ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
-        void add(ValueFactoryPtr, std::string_view);
         Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
         void add(PyObject*, std::string_view);
