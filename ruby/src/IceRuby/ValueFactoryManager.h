@@ -21,10 +21,10 @@ namespace IceRuby
     };
     using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
 
-    class FactoryWrapper final : public ValueFactory
+    class CustomValueFactory final : public ValueFactory
     {
     public:
-        FactoryWrapper(VALUE);
+        CustomValueFactory(VALUE);
 
         std::shared_ptr<Ice::Value> create(std::string_view) final;
 
@@ -32,12 +32,10 @@ namespace IceRuby
 
         void mark();
 
-        void destroy();
-
     protected:
         VALUE _factory;
     };
-    using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
+    using CustomValueFactoryPtr = std::shared_ptr<CustomValueFactory>;
 
     class DefaultValueFactory final : public ValueFactory
     {
@@ -62,7 +60,6 @@ namespace IceRuby
     {
     public:
         static std::shared_ptr<ValueFactoryManager> create();
-
         ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
@@ -80,14 +77,14 @@ namespace IceRuby
         void destroy();
 
     private:
-        using FactoryMap = std::map<std::string, ValueFactoryPtr, std::less<>>;
+        using CustomFactoryMap = std::map<std::string, ValueFactoryPtr, std::less<>>;
 
         ValueFactoryManager();
 
         ValueFactoryPtr findCore(std::string_view) const noexcept;
 
         VALUE _self;
-        FactoryMap _factories;
+        CustomFactoryMap _customFactories;
         DefaultValueFactoryPtr _defaultFactory;
 
         mutable std::mutex _mutex;
