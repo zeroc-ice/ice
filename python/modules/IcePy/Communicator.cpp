@@ -964,7 +964,7 @@ extern "C"
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        shared_ptr<Ice::Object> obj = (*self->communicator)->findAdminFacet(facet);
+        Ice::ObjectPtr obj = (*self->communicator)->findAdminFacet(facet);
         if (obj)
         {
             ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
@@ -1074,7 +1074,7 @@ extern "C"
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        shared_ptr<Ice::Object> obj = (*self->communicator)->removeAdminFacet(facet);
+        Ice::ObjectPtr obj = (*self->communicator)->removeAdminFacet(facet);
         assert(obj);
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         if (wrapper)

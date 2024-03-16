@@ -38,14 +38,14 @@ public:
         }
     }
 
-    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return _blobject; }
+    Ice::ObjectPtr locate(const Ice::Current&, shared_ptr<void>&) final { return _blobject; }
 
-    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
+    void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final {}
 
     void deactivate(const string&) final {}
 
 private:
-    shared_ptr<Ice::Object> _blobject;
+    Ice::ObjectPtr _blobject;
 };
 
 class Server : public Test::TestHelper

@@ -51,9 +51,9 @@ namespace IcePy
         ServantLocatorWrapper(PyObject*);
         ~ServantLocatorWrapper() final;
 
-        shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final;
+        Ice::ObjectPtr locate(const Ice::Current&, shared_ptr<void>&) final;
 
-        void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final;
+        void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final;
 
         void deactivate(const string&) final;
 
@@ -120,7 +120,7 @@ IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
     Py_DECREF(_locator);
 }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<void>& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
@@ -214,7 +214,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
 void
 IcePy::ServantLocatorWrapper::finished(
     const Ice::Current&,
-    const shared_ptr<Ice::Object>&,
+    const Ice::ObjectPtr&,
     const shared_ptr<void>& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
@@ -864,7 +864,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->remove(ident);
@@ -913,7 +913,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->removeFacet(ident, facet);
@@ -1005,7 +1005,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->removeDefaultServant(category);
@@ -1047,7 +1047,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->find(ident);
@@ -1096,7 +1096,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->findFacet(ident, facet);
@@ -1188,7 +1188,7 @@ extern "C"
     Ice::ObjectPrx prx = getProxy(proxy);
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->findByProxy(prx);
@@ -1229,7 +1229,7 @@ extern "C"
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::Object> obj;
+    Ice::ObjectPtr obj;
     try
     {
         obj = (*self->adapter)->findDefaultServant(category);

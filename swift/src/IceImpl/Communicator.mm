@@ -417,7 +417,7 @@
         IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
 }
 
-- (id<ICEBlobjectFacade>)facetToFacade:(const std::shared_ptr<Ice::Object>&)servant
+- (id<ICEBlobjectFacade>)facetToFacade:(const Ice::ObjectPtr&)servant
 {
     if (!servant)
     {
