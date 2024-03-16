@@ -108,7 +108,6 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
         }
 
         _customFactories.insert(CustomFactoryMap::value_type(string{id}, std::move(f)));
-
     }
     catch (...)
     {

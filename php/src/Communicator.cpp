@@ -124,6 +124,7 @@ namespace IcePHP
         shared_ptr<Ice::Value> create(string_view) final;
 
         void destroy();
+
     private:
         CommunicatorInfoIPtr _info;
     };
@@ -2005,7 +2006,8 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
             make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
         return false;
     }
-    _customFactories.insert(CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
+    _customFactories.insert(
+        CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
 
     return true;
 }

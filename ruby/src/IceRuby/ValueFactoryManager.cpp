@@ -103,9 +103,9 @@ IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
     }
 }
 
-void
-IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_view id)
-{
+void IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_view id){
+    // clang-format gets confused by the macros.
+    // clang-format off
     ICE_RUBY_TRY
     {
         CustomValueFactoryPtr f = make_shared<CustomValueFactory>(valueFactory);
@@ -120,6 +120,7 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_view id
         _customFactories.insert(CustomFactoryMap::value_type(string{id}, f));
     }
     ICE_RUBY_CATCH
+    // clang-format off
 }
 
 VALUE
