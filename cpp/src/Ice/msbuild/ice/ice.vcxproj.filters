@@ -610,163 +610,163 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\EndpointTypes.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Identity.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Locator.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Metrics.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Process.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\RemoteLogger.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Router.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Version.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\EndpointTypes.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Identity.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Locator.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Metrics.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Process.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\PropertiesAdmin.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\RemoteLogger.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Router.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Version.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\EndpointTypes.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Identity.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Locator.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Metrics.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Process.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\RemoteLogger.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Router.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Version.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\EndpointTypes.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Identity.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Locator.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Metrics.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Process.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\PropertiesAdmin.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\RemoteLogger.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Router.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Version.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\EndpointI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Context.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Context.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Context.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Context.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\OperationMode.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\OperationMode.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\OperationMode.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\OperationMode.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\PropertyDict.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\PropertyDict.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\PropertyDict.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\PropertyDict.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>

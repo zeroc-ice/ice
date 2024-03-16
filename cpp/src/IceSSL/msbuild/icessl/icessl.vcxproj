@@ -96,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
+      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceSSL</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemDefinitionGroup>
