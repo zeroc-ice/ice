@@ -48,8 +48,8 @@ namespace IceRuby
     public:
         static std::shared_ptr<ValueFactoryManager> create();
 
-        void add(Ice::ValueFactoryFunc, std::string_view) final;
-        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+        void add(Ice::ValueFactory, std::string_view) final;
+        Ice::ValueFactory find(std::string_view) const noexcept final;
 
         void addValueFactory(VALUE, std::string_view);
         VALUE findValueFactory(std::string_view) const;

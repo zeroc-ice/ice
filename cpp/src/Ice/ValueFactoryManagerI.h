@@ -17,11 +17,11 @@ namespace IceInternal
     public:
         ValueFactoryManagerI();
 
-        void add(Ice::ValueFactoryFunc, std::string_view) final;
-        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+        void add(Ice::ValueFactory, std::string_view) final;
+        Ice::ValueFactory find(std::string_view) const noexcept final;
 
     private:
-        using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc, std::less<>>;
+        using FactoryFuncMap = std::map<std::string, Ice::ValueFactory, std::less<>>;
 
         FactoryFuncMap _factoryFuncMap;
         mutable FactoryFuncMap::iterator _factoryFuncMapHint;

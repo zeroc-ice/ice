@@ -151,8 +151,8 @@ namespace IcePHP
     class ValueFactoryManager final : public Ice::ValueFactoryManager
     {
     public:
-        void add(Ice::ValueFactoryFunc, string_view) final;
-        Ice::ValueFactoryFunc find(string_view) const noexcept final;
+        void add(Ice::ValueFactory, string_view) final;
+        Ice::ValueFactory find(string_view) const noexcept final;
 
         void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
         Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -2034,13 +2034,13 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
 }
 
 void
-IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
+IcePHP::ValueFactoryManager::add(Ice::ValueFactory, string_view)
 {
     // We don't support factories registered in C++.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
-Ice::ValueFactoryFunc
+Ice::ValueFactory
 IcePHP::ValueFactoryManager::find(string_view id) const noexcept
 {
     // Get the TSRM id for the current request.

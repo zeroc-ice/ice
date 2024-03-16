@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, string_view id)
+IceInternal::ValueFactoryManagerI::add(ValueFactory factoryFunc, string_view id)
 {
     lock_guard lock(_mutex);
 
@@ -23,7 +23,7 @@ IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, string_view
     _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(string{id}, factoryFunc));
 }
 
-ValueFactoryFunc
+ValueFactory
 IceInternal::ValueFactoryManagerI::find(string_view id) const noexcept
 {
     lock_guard lock(_mutex);

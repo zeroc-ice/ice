@@ -69,13 +69,13 @@ IceRuby::ValueFactoryManager::ValueFactoryManager::create()
 IceRuby::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
 
 void
-IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
+IceRuby::ValueFactoryManager::add(Ice::ValueFactory, string_view)
 {
     // This means a C++ plugin cannot register a value factory with a Ruby application/communicator.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
-Ice::ValueFactoryFunc
+Ice::ValueFactory
 IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
 {
     ValueFactoryPtr factory;

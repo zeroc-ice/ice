@@ -54,8 +54,8 @@ namespace IcePy
         static std::shared_ptr<ValueFactoryManager> create();
         ~ValueFactoryManager();
 
-        void add(Ice::ValueFactoryFunc, std::string_view) final;
-        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+        void add(Ice::ValueFactory, std::string_view) final;
+        Ice::ValueFactory find(std::string_view) const noexcept final;
 
         void add(PyObject*, std::string_view);
         PyObject* findValueFactory(std::string_view) const;
