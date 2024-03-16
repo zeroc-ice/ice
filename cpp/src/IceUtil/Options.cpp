@@ -427,7 +427,7 @@ IceUtilInternal::Options::split(const string& line)
                                     break;
                                 }
 
-                                Int64 ull = 0;
+                                int64_t ull = 0;
                                 string::size_type j;
                                 for (j = i + 1;
                                      j < i + 3 && j < l.size() && isxdigit(static_cast<unsigned char>(c = l[j]));

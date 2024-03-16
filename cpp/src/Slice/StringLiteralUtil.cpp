@@ -4,7 +4,6 @@
 
 #include <Slice/Util.h>
 
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/StringConverter.h>
 
 #include <ostream>
@@ -350,7 +349,7 @@ Slice::toStringLiteral(
                             string codePointStr = value.substr(i + 1, sz);
                             assert(codePointStr.size() == sz);
 
-                            IceUtil::Int64 v = IceUtilInternal::strToInt64(codePointStr.c_str(), 0, 16);
+                            int64_t v = std::stoll(codePointStr, nullptr, 16);
                             if (v < 128)
                             {
                                 // ASCII character that may need to escaped in languages such as Java
@@ -430,7 +429,7 @@ Slice::toStringLiteral(
                         string codePointStr = value.substr(i + 1, sz);
                         assert(codePointStr.size() == sz);
 
-                        IceUtil::Int64 v = IceUtilInternal::strToInt64(codePointStr.c_str(), 0, 16);
+                        int64_t v = std::stoll(codePointStr, nullptr, 16);
                         os << generator.escapeCodePoint(static_cast<unsigned int>(v));
                         i += sz;
                     }

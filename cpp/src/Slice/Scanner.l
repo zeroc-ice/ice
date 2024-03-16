@@ -11,7 +11,6 @@
 
 #include <Slice/GrammarUtil.h>
 #include <Slice/Grammar.h>
-#include <IceUtil/InputUtil.h>
 
 #include <iomanip>
 
@@ -182,7 +181,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an escaped octal value. Octal literals are limited to a max of 3 digits. */
 <STRING_LITERAL>"\\"{oct}{1,3} {
-    IceUtil::Int64 value = strtoull((yytext + 1), 0, 8);
+    std::int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if(value > 255)
     {
         currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
@@ -195,7 +194,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
 <STRING_LITERAL>"\\x"{hex}{1,2} {
-    IceUtil::Int64 value = strtoull((yytext + 2), 0, 16);
+    std::int64_t value = std::stoll((yytext + 2), nullptr, 16);
     assert(value <= 255);
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -213,7 +212,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a 4-char or 8-char size universal character code. */
 <STRING_LITERAL>"\\u"{hex}{4} |
 <STRING_LITERAL>"\\U"{hex}{8} {
-    IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
+    std::int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
     {
         currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
@@ -286,10 +285,17 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     IntegerTokPtr itp = make_shared<IntegerTok>();
     itp->literal = string(yytext);
     *yylval = itp;
-    if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
+    try
     {
-        assert(itp->v != 0);
+        itp->v = std::stoll(string(yytext), nullptr, 0);
+    }
+    catch (const std::out_of_range&)
+    {
         currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+    }
+    catch (const std::invalid_argument&)
+    {
+        currentUnit->error("invalid integer constant `" + string(yytext) + "'");
     }
     return ICE_INTEGER_LITERAL;
 }

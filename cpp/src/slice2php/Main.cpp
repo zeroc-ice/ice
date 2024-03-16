@@ -4,7 +4,6 @@
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -1163,10 +1162,9 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                 }
                 case Slice::Builtin::KindLong:
                 {
-                    IceUtil::Int64 l;
-                    IceUtilInternal::stringToInt64(value, l);
+                    int64_t l = std::stoll(value, nullptr, 0);
                     // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-                    if (sizeof(IceUtil::Int64) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
+                    if (sizeof(int64_t) > sizeof(long) && (l < INT32_MIN || l > INT32_MAX))
                     {
                         _out << "'" << value << "'";
                     }

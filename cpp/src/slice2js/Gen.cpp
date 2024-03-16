@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/InputUtil.h>
 #include <Gen.h>
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
@@ -488,7 +487,8 @@ Slice::JsVisitor::writeConstantValue(
         }
         else if (bp && bp->kind() == Builtin::KindLong)
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+            // It should never fail as the Slice parser has already validated the value.
+            int64_t l = std::stoll(value, nullptr, 0);
 
             //
             // JavaScript doesn't support 64 bit integer so long types are written as
