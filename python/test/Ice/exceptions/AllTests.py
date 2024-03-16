@@ -200,7 +200,7 @@ class Callback(CallbackBase):
     def exception_LocalException(self, ex):
         try:
             raise ex
-        except Ice.UnknownLocalException as ex:
+        except Ice.UnknownLocalException:
             pass
         except Ice.OperationNotExistException:
             pass
@@ -211,7 +211,7 @@ class Callback(CallbackBase):
     def exception_NonIceException(self, ex):
         try:
             raise ex
-        except Ice.UnknownException as ex:
+        except Ice.UnknownException:
             pass
         except Exception:
             test(False)
@@ -268,12 +268,20 @@ def allTests(helper, communicator):
     adapter.deactivate()
     print("ok")
 
-    sys.stdout.write("testing object factory registration exception... ")
+    sys.stdout.write("testing value factory registration exception... ")
     sys.stdout.flush()
 
     communicator.getValueFactoryManager().add(ValueFactory, "x")
     try:
         communicator.getValueFactoryManager().add(ValueFactory, "x")
+        test(False)
+    except Ice.AlreadyRegisteredException:
+        pass
+    print("ok")
+
+    communicator.getValueFactoryManager().add(ValueFactory, "")
+    try:
+        communicator.getValueFactoryManager().add(ValueFactory, "")
         test(False)
     except Ice.AlreadyRegisteredException:
         pass

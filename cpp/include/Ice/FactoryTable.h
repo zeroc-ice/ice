@@ -39,8 +39,8 @@ namespace IceInternal
         ::Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
         void removeExceptionFactory(std::string_view);
 
-        void addValueFactory(std::string_view, ::Ice::ValueFactoryFunc);
-        ::Ice::ValueFactoryFunc getValueFactory(std::string_view) const;
+        void addValueFactory(std::string_view, Ice::ValueFactory);
+        Ice::ValueFactory getValueFactory(std::string_view) const;
         void removeValueFactory(std::string_view);
 
         void addTypeId(int, std::string_view);
@@ -54,7 +54,7 @@ namespace IceInternal
         typedef ::std::map<::std::string, EFPair, std::less<>> EFTable;
         EFTable _eft;
 
-        typedef ::std::pair<::Ice::ValueFactoryFunc, int> VFPair;
+        typedef ::std::pair<Ice::ValueFactory, int> VFPair;
         typedef ::std::map<::std::string, VFPair, std::less<>> VFTable;
         VFTable _vft;
 
