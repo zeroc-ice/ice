@@ -71,7 +71,7 @@ namespace IcePy
 
         PyObject* _self;
         CustomFactoryMap _customFactories;
-        DefaultValueFactoryPtr _defaultFactory;
+        const DefaultValueFactoryPtr _defaultFactory;
 
         mutable std::mutex _mutex;
     };

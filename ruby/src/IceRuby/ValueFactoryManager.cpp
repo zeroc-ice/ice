@@ -66,32 +66,51 @@ IceRuby::ValueFactoryManager::ValueFactoryManager::create()
     return vfm;
 }
 
-IceRuby::ValueFactoryManager::ValueFactoryManager() { _defaultFactory = make_shared<DefaultValueFactory>(); }
-
-IceRuby::ValueFactoryManager::~ValueFactoryManager() { assert(_customFactories.empty()); }
+IceRuby::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
 
 void
 IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 {
+    // This means a C++ plugin cannot register a value factory with a Ruby application/communicator.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
-void
-IceRuby::ValueFactoryManager::add(ValueFactoryPtr f, string_view id)
+Ice::ValueFactoryFunc
+IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
 {
-    std::lock_guard lock(_mutex);
-
-    if (id.empty())
+    ValueFactoryPtr factory;
     {
-        if (_defaultFactory->getDelegate())
-        {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
-        }
+        std::lock_guard lock(_mutex);
 
-        _defaultFactory->setDelegate(f);
+        CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
+        if (p != _customFactories.end())
+        {
+            factory = p->second;
+        }
+        else if (typeId.empty())
+        {
+            factory = _defaultFactory;
+        }
+    }
+
+    if (factory)
+    {
+        return [factory](string_view id) { return factory->create(id); };
     }
     else
     {
+        return nullptr;
+    }
+}
+
+void
+IceRuby::ValueFactoryManager::addValueFactory(VALUE valueFactory, string_view id)
+{
+    ICE_RUBY_TRY
+    {
+        CustomValueFactoryPtr f = make_shared<CustomValueFactory>(valueFactory);
+
+        std::lock_guard lock(_mutex);
         CustomFactoryMap::iterator p = _customFactories.find(id);
         if (p != _customFactories.end())
         {
@@ -100,61 +119,18 @@ IceRuby::ValueFactoryManager::add(ValueFactoryPtr f, string_view id)
 
         _customFactories.insert(CustomFactoryMap::value_type(string{id}, f));
     }
-}
-
-Ice::ValueFactoryFunc
-IceRuby::ValueFactoryManager::find(string_view id) const noexcept
-{
-    ValueFactoryPtr factory = findCore(id);
-
-    if (factory)
-    {
-        return [factory](string_view type) { return factory->create(type); };
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-ValueFactoryPtr
-IceRuby::ValueFactoryManager::findCore(string_view id) const noexcept
-{
-    std::lock_guard lock(_mutex);
-
-    if (id.empty())
-    {
-        return _defaultFactory;
-    }
-    else
-    {
-        CustomFactoryMap::const_iterator p = _customFactories.find(id);
-        if (p != _customFactories.end())
-        {
-            return p->second;
-        }
-    }
-
-    return nullptr;
-}
-
-void IceRuby::ValueFactoryManager::addValueFactory(VALUE f, string_view id){
-    ICE_RUBY_TRY{add(make_shared<CustomValueFactory>(f), id);
-}
-ICE_RUBY_CATCH
+    ICE_RUBY_CATCH
 }
 
 VALUE
 IceRuby::ValueFactoryManager::findValueFactory(string_view id) const
 {
-    ValueFactoryPtr f = findCore(id);
-    if (f)
+    std::lock_guard lock(_mutex);
+
+    CustomFactoryMap::const_iterator p = _customFactories.find(id);
+    if (p != _customFactories.end())
     {
-        auto w = dynamic_pointer_cast<CustomValueFactory>(f);
-        if (w)
-        {
-            return w->getObject();
-        }
+        return p->second->getObject();
     }
 
     return Qnil;
@@ -164,17 +140,10 @@ void
 IceRuby::ValueFactoryManager::mark()
 {
     std::lock_guard lock(_mutex);
-
-    for (CustomFactoryMap::iterator p = _customFactories.begin(); p != _customFactories.end(); ++p)
+    for (const auto& p : _customFactories)
     {
-        auto w = dynamic_pointer_cast<CustomValueFactory>(p->second);
-        if (w)
-        {
-            w->mark();
-        }
+        p.second->mark();
     }
-
-    _defaultFactory->mark();
 }
 
 void
@@ -184,7 +153,6 @@ IceRuby::ValueFactoryManager::markSelf()
 
     {
         std::lock_guard lock(_mutex);
-
         self = _self;
     }
 
@@ -216,8 +184,6 @@ IceRuby::ValueFactoryManager::destroy()
 
         _self = Qnil;
     }
-
-    _defaultFactory->destroy();
 }
 
 IceRuby::CustomValueFactory::CustomValueFactory(VALUE factory) : _factory(factory) {}
@@ -260,20 +226,6 @@ IceRuby::CustomValueFactory::mark()
 shared_ptr<Ice::Value>
 IceRuby::DefaultValueFactory::create(string_view id)
 {
-    shared_ptr<Ice::Value> v;
-
-    //
-    // Give the application-provided default factory a chance to create the object first.
-    //
-    if (_delegate)
-    {
-        v = _delegate->create(id);
-        if (v)
-        {
-            return v;
-        }
-    }
-
     //
     // Get the type information.
     //
@@ -302,46 +254,6 @@ IceRuby::DefaultValueFactory::create(string_view id)
     assert(!NIL_P(obj));
 
     return make_shared<ValueReader>(obj, info);
-}
-
-void
-IceRuby::DefaultValueFactory::setDelegate(const ValueFactoryPtr& d)
-{
-    _delegate = d;
-}
-
-VALUE
-IceRuby::DefaultValueFactory::getObject() const
-{
-    if (_delegate)
-    {
-        auto w = dynamic_pointer_cast<CustomValueFactory>(_delegate);
-        if (w)
-        {
-            return w->getObject();
-        }
-    }
-
-    return Qnil;
-}
-
-void
-IceRuby::DefaultValueFactory::mark()
-{
-    if (_delegate)
-    {
-        auto w = dynamic_pointer_cast<CustomValueFactory>(_delegate);
-        if (w)
-        {
-            w->mark();
-        }
-    }
-}
-
-void
-IceRuby::DefaultValueFactory::destroy()
-{
-    _delegate = nullptr;
 }
 
 extern "C" VALUE

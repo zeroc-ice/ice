@@ -50,7 +50,7 @@ IcePy::ValueFactoryManager::create()
     return vfm;
 }
 
-IcePy::ValueFactoryManager::ValueFactoryManager() { _defaultFactory = make_shared<DefaultValueFactory>(); }
+IcePy::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
 
 IcePy::ValueFactoryManager::~ValueFactoryManager()
 {

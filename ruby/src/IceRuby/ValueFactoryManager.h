@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_OBJECT_FACTORY_H
 #define ICE_RUBY_OBJECT_FACTORY_H
 
-#include <Config.h>
+#include "Config.h"
 #include <Ice/ValueFactory.h>
 
 #include <mutex>
@@ -29,10 +29,9 @@ namespace IceRuby
         std::shared_ptr<Ice::Value> create(std::string_view) final;
 
         VALUE getObject() const;
-
         void mark();
 
-    protected:
+    private:
         VALUE _factory;
     };
     using CustomValueFactoryPtr = std::shared_ptr<CustomValueFactory>;
@@ -41,18 +40,6 @@ namespace IceRuby
     {
     public:
         std::shared_ptr<Ice::Value> create(std::string_view) final;
-
-        void setDelegate(const ValueFactoryPtr&);
-        ValueFactoryPtr getDelegate() const { return _delegate; }
-
-        VALUE getObject() const;
-
-        void mark();
-
-        void destroy();
-
-    private:
-        ValueFactoryPtr _delegate;
     };
     using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
@@ -60,10 +47,8 @@ namespace IceRuby
     {
     public:
         static std::shared_ptr<ValueFactoryManager> create();
-        ~ValueFactoryManager();
 
         void add(Ice::ValueFactoryFunc, std::string_view) final;
-        void add(ValueFactoryPtr, std::string_view);
         Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
         void addValueFactory(VALUE, std::string_view);
@@ -71,21 +56,18 @@ namespace IceRuby
 
         void mark();
         void markSelf();
-
         VALUE getObject() const;
 
         void destroy();
 
     private:
-        using CustomFactoryMap = std::map<std::string, ValueFactoryPtr, std::less<>>;
+        using CustomFactoryMap = std::map<std::string, CustomValueFactoryPtr, std::less<>>;
 
         ValueFactoryManager();
 
-        ValueFactoryPtr findCore(std::string_view) const noexcept;
-
         VALUE _self;
         CustomFactoryMap _customFactories;
-        DefaultValueFactoryPtr _defaultFactory;
+        const DefaultValueFactoryPtr _defaultFactory;
 
         mutable std::mutex _mutex;
     };
