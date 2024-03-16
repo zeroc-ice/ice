@@ -141,7 +141,7 @@ IcePy::ValueFactoryManager::getObject() const
 void
 IcePy::ValueFactoryManager::destroy()
 {
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    // Called by the Python thread during communicator destruction.
 
     FactoryMap factories;
 
