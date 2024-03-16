@@ -1598,10 +1598,10 @@ compile(const vector<string>& argv)
                         consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
-                    catch (const string& err)
+                    catch (const exception& ex)
                     {
                         FileTracker::instance()->cleanup();
-                        consoleErr << argv[0] << ": error: " << err << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         status = EXIT_FAILURE;
                     }
                 }
