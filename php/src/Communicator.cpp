@@ -60,8 +60,8 @@ namespace IcePHP
     };
     using ValueFactoryPtr = shared_ptr<ValueFactory>;
 
-    class FactoryWrapper;
-    using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
+    class CustomValueFactory;
+    using CustomValueFactoryPtr = shared_ptr<CustomValueFactory>;
 
     class DefaultValueFactory;
     using DefaultValueFactoryPtr = shared_ptr<DefaultValueFactory>;
@@ -83,7 +83,7 @@ namespace IcePHP
         Ice::CommunicatorPtr getCommunicator() const final;
 
         bool addFactory(zval*, string_view);
-        FactoryWrapperPtr findFactory(string_view) const;
+        CustomValueFactoryPtr findFactory(string_view) const;
         void setDefaultFactory(DefaultValueFactoryPtr defaultFactory);
         DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
         void destroyFactories();
@@ -92,18 +92,18 @@ namespace IcePHP
         zval zv;
 
     private:
-        typedef map<string, FactoryWrapperPtr, std::less<>> FactoryMap;
+        typedef map<string, CustomValueFactoryPtr, std::less<>> CustomFactoryMap;
 
-        FactoryMap _factories;
+        CustomFactoryMap _customFactories;
         DefaultValueFactoryPtr _defaultFactory;
     };
     using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
     // Wraps a PHP object/value factory.
-    class FactoryWrapper final : public ValueFactory
+    class CustomValueFactory final : public ValueFactory
     {
     public:
-        FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
+        CustomValueFactory(zval*, const CommunicatorInfoIPtr&);
 
         shared_ptr<Ice::Value> create(string_view) final;
 
@@ -124,13 +124,13 @@ namespace IcePHP
 
         shared_ptr<Ice::Value> create(string_view) final;
 
-        void setDelegate(const FactoryWrapperPtr& d) { _delegate = d; }
-        FactoryWrapperPtr getDelegate() const { return _delegate; }
+        void setDelegate(const CustomValueFactoryPtr& d) { _delegate = d; }
+        CustomValueFactoryPtr getDelegate() const { return _delegate; }
 
         void destroy(void);
 
     private:
-        FactoryWrapperPtr _delegate;
+        CustomValueFactoryPtr _delegate;
         CommunicatorInfoIPtr _info;
     };
 
@@ -875,7 +875,7 @@ ZEND_METHOD(Ice_ValueFactoryManager, find)
 
     CommunicatorInfoIPtr info = p->second;
 
-    FactoryWrapperPtr w = info->findFactory(type);
+    CustomValueFactoryPtr w = info->findFactory(type);
     if (w)
     {
         w->getZval(return_value);
@@ -1842,13 +1842,13 @@ IcePHP::ActiveCommunicator::~ActiveCommunicator()
     }
 }
 
-IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, const CommunicatorInfoIPtr& info) : _info(info)
+IcePHP::CustomValueFactory::CustomValueFactory(zval* factory, const CommunicatorInfoIPtr& info) : _info(info)
 {
     ZVAL_COPY(&_factory, factory);
 }
 
 shared_ptr<Ice::Value>
-IcePHP::FactoryWrapper::create(string_view id)
+IcePHP::CustomValueFactory::create(string_view id)
 {
     // Get the TSRM id for the current request.
 
@@ -1904,13 +1904,13 @@ IcePHP::FactoryWrapper::create(string_view id)
 }
 
 void
-IcePHP::FactoryWrapper::getZval(zval* factory)
+IcePHP::CustomValueFactory::getZval(zval* factory)
 {
     ZVAL_COPY(factory, &_factory);
 }
 
 void
-IcePHP::FactoryWrapper::destroy(void)
+IcePHP::CustomValueFactory::destroy(void)
 {
     zval_ptr_dtor(&_factory);
     _info = nullptr;
@@ -2029,24 +2029,24 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
             return false;
         }
 
-        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, shared_from_this()));
+        _defaultFactory->setDelegate(make_shared<CustomValueFactory>(factory, shared_from_this()));
     }
     else
     {
-        FactoryMap::iterator p = _factories.find(id);
-        if (p != _factories.end())
+        CustomFactoryMap::iterator p = _customFactories.find(id);
+        if (p != _customFactories.end())
         {
             throwException(
                 make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
             return false;
         }
-        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, shared_from_this())));
+        _customFactories.insert(CustomFactoryMap::value_type(id, make_shared<CustomValueFactory>(factory, shared_from_this())));
     }
 
     return true;
 }
 
-FactoryWrapperPtr
+CustomValueFactoryPtr
 IcePHP::CommunicatorInfoI::findFactory(string_view id) const
 {
     if (id.empty())
@@ -2055,8 +2055,8 @@ IcePHP::CommunicatorInfoI::findFactory(string_view id) const
     }
     else
     {
-        FactoryMap::const_iterator p = _factories.find(id);
-        if (p != _factories.end())
+        CustomFactoryMap::const_iterator p = _customFactories.find(id);
+        if (p != _customFactories.end())
         {
             assert(p->second);
             return p->second;
@@ -2068,11 +2068,11 @@ IcePHP::CommunicatorInfoI::findFactory(string_view id) const
 void
 IcePHP::CommunicatorInfoI::destroyFactories(void)
 {
-    for (FactoryMap::iterator p = _factories.begin(); p != _factories.end(); ++p)
+    for (CustomFactoryMap::iterator p = _customFactories.begin(); p != _customFactories.end(); ++p)
     {
         p->second->destroy();
     }
-    _factories.clear();
+    _customFactories.clear();
     _defaultFactory->destroy();
 }
 
