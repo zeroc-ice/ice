@@ -101,7 +101,7 @@ namespace
     using JobPtr = std::shared_ptr<Job>;
 
     class LoggerAdminLoggerI final : public IceInternal::LoggerAdminLogger,
-                               public std::enable_shared_from_this<LoggerAdminLoggerI>
+                                     public std::enable_shared_from_this<LoggerAdminLoggerI>
     {
     public:
         LoggerAdminLoggerI(const PropertiesPtr&, const LoggerPtr&);
