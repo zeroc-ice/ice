@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IceGrid"
+project.ext.moduleName = "com.zeroc.icegrid"
 project.ext.description = "Locate, deploy, and manage Ice servers"
 
 slice {
