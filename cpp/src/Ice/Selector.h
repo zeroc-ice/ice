@@ -28,6 +28,7 @@
 
 #if defined(ICE_USE_CFSTREAM)
 #    include <set>
+#    include <thread>
 
 struct __CFRunLoop;
 typedef struct __CFRunLoop* CFRunLoopRef;
