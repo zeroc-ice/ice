@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iterator>
 #include <functional>
+#include <limits>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)
@@ -2687,7 +2688,7 @@ Slice::Container::validateConstant(
             case Builtin::KindByte:
             {
                 int64_t l = std::stoll(value, nullptr, 0);
-                if (l < ByteMin || l > ByteMax)
+                if (l < numeric_limits<uint8_t>::min() || l > numeric_limits<uint8_t>::max())
                 {
                     ostringstream os;
                     os << "initializer `" << value << "' for " << desc << " `" << name
@@ -2700,7 +2701,7 @@ Slice::Container::validateConstant(
             case Builtin::KindShort:
             {
                 int64_t l = std::stoll(value, nullptr, 0);
-                if (l < Int16Min || l > Int16Max)
+                if (l < numeric_limits<int16_t>::min() || l > numeric_limits<int16_t>::max())
                 {
                     ostringstream os;
                     os << "initializer `" << value << "' for " << desc << " `" << name
@@ -2713,7 +2714,7 @@ Slice::Container::validateConstant(
             case Builtin::KindInt:
             {
                 int64_t l = std::stoll(value, nullptr, 0);
-                if (l < Int32Min || l > Int32Max)
+                if (l < numeric_limits<int32_t>::min() || l > numeric_limits<int32_t>::max())
                 {
                     ostringstream os;
                     os << "initializer `" << value << "' for " + desc << " `" << name << "' out of range for type int";
@@ -4537,7 +4538,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
       Contained(container, name),
       Constructed(container, name),
       _explicitValue(false),
-      _minValue(Int32Max),
+      _minValue(numeric_limits<int32_t>::max()),
       _maxValue(0),
       _lastValue(-1)
 {
@@ -4560,7 +4561,7 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
     }
     else
     {
-        if (_lastValue == Int32Max)
+        if (_lastValue == numeric_limits<int32_t>::max())
         {
             ostringstream os;
             os << "value for enumerator `" << p->name() << "' is out of range";
