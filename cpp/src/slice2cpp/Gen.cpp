@@ -235,9 +235,9 @@ namespace
             //
             // Generate a catch block for each legal user exception.
             //
-            for (ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            for (const auto& ex : throws)
             {
-                C << nl << "catch(const " << getUnqualified(fixKwd((*i)->scoped()), scope) << "&)";
+                C << nl << "catch(const " << getUnqualified(fixKwd(ex->scoped()), scope) << "&)";
                 C << sb;
                 C << nl << "throw;";
                 C << eb;
@@ -262,9 +262,9 @@ namespace
     string escapeParam(const ParamDeclList& params, const string& name)
     {
         string r = name;
-        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if (fixKwd((*p)->name()) == name)
+            if (fixKwd(param->name()) == name)
             {
                 r = name + "_";
                 break;
@@ -275,30 +275,31 @@ namespace
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
-        StringList l = lines;
+        auto l = lines.cbegin();
         if (!commentFirst)
         {
-            out << l.front();
-            l.pop_front();
+            assert(l != lines.cend());
+            out << *l;
+            l++;
         }
-        for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+        for (; l != lines.cend(); ++l)
         {
             out << nl << " *";
-            if (!i->empty())
+            if (!l->empty())
             {
-                out << space << *i;
+                out << space << *l;
             }
         }
     }
 
     void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
     {
-        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        for (const string& line : lines)
         {
             out << nl << " *";
-            if (!i->empty())
+            if (!line.empty())
             {
-                out << space << "@see " << *i;
+                out << space << "@see " << line;
             }
         }
     }
@@ -458,9 +459,9 @@ namespace
         }
 
         map<string, StringList> paramDoc = doc->parameters();
-        for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            map<string, StringList>::iterator q = paramDoc.find((*p)->name());
+            map<string, StringList>::iterator q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
                 out << nl << " * @param " << fixKwd(q->first) << " ";
@@ -476,20 +477,17 @@ namespace
 
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
     {
-        map<string, StringList> exDoc = doc->exceptions();
-        for (map<string, StringList>::iterator p = exDoc.begin(); p != exDoc.end(); ++p)
+        for (const auto& [name, lines] : doc->exceptions())
         {
-            //
+            string scopedName = name;
             // Try to locate the exception's definition using the name given in the comment.
-            //
-            string name = p->first;
             ExceptionPtr ex = op->container()->lookupException(name, false);
             if (ex)
             {
-                name = ex->scoped().substr(2);
+                scopedName = ex->scoped().substr(2);
             }
-            out << nl << " * @throws " << name << " ";
-            writeDocLines(out, p->second, false);
+            out << nl << " * @throws " << scopedName << " ";
+            writeDocLines(out, lines, false);
         }
     }
 
@@ -505,9 +503,10 @@ namespace
     {
         out << nl << "/**";
 
-        if (!doc->overview().empty())
+        const auto& overview = doc->overview();
+        if (!overview.empty())
         {
-            writeDocLines(out, doc->overview(), true);
+            writeDocLines(out, overview, true);
         }
 
         writeOpDocParams(out, op, doc, type, preParams, postParams);
@@ -523,21 +522,24 @@ namespace
             writeOpDocExceptions(out, op, doc);
         }
 
-        if (!doc->misc().empty())
+        const auto& misc = doc->misc();
+        if (!misc.empty())
         {
-            writeDocLines(out, doc->misc(), true);
+            writeDocLines(out, misc, true);
         }
 
-        if (!doc->seeAlso().empty())
+        const auto& seeAlso = doc->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(out, doc->seeAlso());
+            writeSeeAlso(out, seeAlso);
         }
 
-        if (!doc->deprecated().empty())
+        const auto& deprecated = doc->deprecated();
+        if (!deprecated.empty())
         {
             out << nl << " *";
             out << nl << " * @deprecated ";
-            writeDocLines(out, doc->deprecated(), false);
+            writeDocLines(out, deprecated, false);
         }
         else if (doc->isDeprecated())
         {
@@ -741,57 +743,52 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/Ice.h>";
     }
 
-    StringList includes = p->includeFiles();
-
-    for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+    for (const string& includeFile : p->includeFiles())
     {
-        string extension = getHeaderExt((*q), p);
+        string extension = getHeaderExt(includeFile, p);
         if (extension.empty())
         {
             extension = _headerExtension;
         }
-        H << "\n#include <" << changeInclude(*q, _includePaths) << "." << extension << ">";
+        H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
     }
 
     H << "\n#include <IceUtil/UndefSysMacros.h>";
 
-    //
-    // Emit #include statements for any cpp:include metadata directives
-    // in the top-level Slice file.
-    //
+    // Emit #include statements for any cpp:include metadata directives in the top-level Slice file.
     {
         StringList globalMetaData = dc->getMetaData();
         for (StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end();)
         {
-            string md = *q++;
+            string metaData = *q++;
             static const string includePrefix = "cpp:include:";
             static const string sourceIncludePrefix = "cpp:source-include:";
-            if (md.find(includePrefix) == 0)
+            if (metaData.find(includePrefix) == 0)
             {
-                if (md.size() > includePrefix.size())
+                if (metaData.size() > includePrefix.size())
                 {
-                    H << nl << "#include <" << md.substr(includePrefix.size()) << ">";
+                    H << nl << "#include <" << metaData.substr(includePrefix.size()) << ">";
                 }
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid file metadata `" << md << "'";
+                    ostr << "ignoring invalid file metadata `" << metaData << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
-                    globalMetaData.remove(md);
+                    globalMetaData.remove(metaData);
                 }
             }
-            else if (md.find(sourceIncludePrefix) == 0)
+            else if (metaData.find(sourceIncludePrefix) == 0)
             {
-                if (md.size() > sourceIncludePrefix.size())
+                if (metaData.size() > sourceIncludePrefix.size())
                 {
-                    C << nl << "#include <" << md.substr(sourceIncludePrefix.size()) << ">";
+                    C << nl << "#include <" << metaData.substr(sourceIncludePrefix.size()) << ">";
                 }
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid file metadata `" << md << "'";
+                    ostr << "ignoring invalid file metadata `" << metaData << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
-                    globalMetaData.remove(md);
+                    globalMetaData.remove(metaData);
                 }
             }
         }
@@ -852,23 +849,21 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
 {
-    for (vector<string>::const_iterator i = _extraHeaders.begin(); i != _extraHeaders.end(); ++i)
+    for (string header : _extraHeaders)
     {
-        string hdr = *i;
         string guard;
-        string::size_type pos = hdr.rfind(',');
+        string::size_type pos = header.rfind(',');
         if (pos != string::npos)
         {
-            hdr = i->substr(0, pos);
-            guard = i->substr(pos + 1);
+            header = header.substr(0, pos);
+            guard = header.substr(pos + 1);
         }
         if (!guard.empty())
         {
             out << "\n#ifndef " << guard;
             out << "\n#define " << guard;
         }
-        out << "\n#include <";
-        out << hdr << '>';
+        out << "\n#include <" << header << '>';
         if (!guard.empty())
         {
             out << "\n#endif";
@@ -891,14 +886,11 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     //
     // Validate file metadata in the top-level file and all included files.
     //
-    StringList files = p->allFiles();
-
-    for (StringList::iterator q = files.begin(); q != files.end(); ++q)
+    for (const string& file : p->allFiles())
     {
-        string file = *q;
         DefinitionContextPtr dc = p->findDefinitionContext(file);
-        assert(dc);
         StringList globalMetaData = dc->getMetaData();
+        assert(dc);
         int headerExtension = 0;
         int sourceExtension = 0;
         int dllExport = 0;
@@ -1043,15 +1035,12 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    StringList metaData = p->getMetaData();
-
-    const UnitPtr ut = p->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
-    assert(dc);
-
     TypePtr returnType = p->returnType();
     if (!returnType)
     {
+        const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
+        assert(dc);
+        StringList metaData = p->getMetaData();
         for (StringList::const_iterator q = metaData.begin(); q != metaData.end();)
         {
             string s = *q++;
@@ -1065,19 +1054,16 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
                 metaData.remove(s);
             }
         }
+        p->setMetaData(metaData);
     }
     else
     {
-        metaData = validate(returnType, metaData, p->file(), p->line(), true);
+        p->setMetaData(validate(returnType, p->getMetaData(), p->file(), p->line(), true));
     }
 
-    p->setMetaData(metaData);
-
-    ParamDeclList params = p->parameters();
-    for (ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (const auto& param : p->parameters())
     {
-        metaData = validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), true);
-        (*q)->setMetaData(metaData);
+        param->setMetaData(validate(param->type(), param->getMetaData(), p->file(), param->line(), true));
     }
 }
 
@@ -1130,10 +1116,8 @@ Slice::Gen::MetaDataVisitor::validate(
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     StringList newMetaData = metaData;
-    for (StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
+    for (const string& s : metaData)
     {
-        string s = *p++;
-
         // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
         // for unknown "top-level" metadata.
         if (s.find("cpp11:") == 0 || s.find("cpp98:") == 0)
@@ -2078,20 +2062,21 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     vector<string> allParamDecls;
     map<string, CommentPtr> allComments;
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : dataMembers)
     {
-        params.push_back(fixKwd((*q)->name()));
+        params.push_back(fixKwd(dataMember->name()));
     }
 
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& dataMember : allDataMembers)
     {
-        string typeName = typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
-        allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
+        string typeName =
+            typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetaData(), _useWstring);
+        allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
 
-        CommentPtr comment = (*q)->parseComment(false);
+        CommentPtr comment = dataMember->parseComment(false);
         if (comment)
         {
-            allComments[(*q)->name()] = comment;
+            allComments[dataMember->name()] = comment;
         }
     }
 
@@ -2120,9 +2105,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
         H << nl << "/**";
         H << nl << " * One-shot constructor to initialize all data members.";
-        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& dataMember : allDataMembers)
         {
-            map<string, CommentPtr>::iterator r = allComments.find((*q)->name());
+            map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
             if (r != allComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -2349,9 +2334,9 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     vector<string> params;
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : dataMembers)
     {
-        params.push_back(fixKwd((*q)->name()));
+        params.push_back(fixKwd(dataMember->name()));
     }
 
     H << nl << name << "() = default;";
@@ -2416,9 +2401,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool prot = p->hasMetaData("protected");
     bool needSp = true;
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : dataMembers)
     {
-        if (prot || (*q)->hasMetaData("protected"))
+        if (prot || dataMember->hasMetaData("protected"))
         {
             if (!inProtected)
             {
@@ -2448,7 +2433,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
             needSp = false;
         }
 
-        emitDataMember(*q);
+        emitDataMember(dataMember);
     }
 
     if (!inProtected)
@@ -2576,14 +2561,15 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         map<string, CommentPtr> allComments;
         DataMemberList dataMembers = p->dataMembers();
 
-        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& dataMember : allDataMembers)
         {
-            string typeName = typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
-            allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
-            CommentPtr comment = (*q)->parseComment(false);
+            string typeName =
+                typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetaData(), _useWstring);
+            allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
+            CommentPtr comment = dataMember->parseComment(false);
             if (comment)
             {
-                allComments[(*q)->name()] = comment;
+                allComments[dataMember->name()] = comment;
             }
         }
 
@@ -2592,9 +2578,9 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << sp;
         H << nl << "/**";
         H << nl << " * One-shot constructor to initialize all data members.";
-        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& dataMember : allDataMembers)
         {
-            map<string, CommentPtr>::iterator r = allComments.find((*q)->name());
+            map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
             if (r != allComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -2961,39 +2947,39 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         retS = typeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(), _useWstring);
     }
 
-    for (ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for (const auto& param : paramList)
     {
-        TypePtr type = (*q)->type();
-        string paramName = fixKwd((*q)->name());
-        bool isOutParam = (*q)->isOutParam();
+        TypePtr type = param->type();
+        string paramName = fixKwd(param->name());
+        bool isOutParam = param->isOutParam();
 
         if (!isOutParam)
         {
             params.push_back(
                 typeToString(
                     type,
-                    (*q)->optional(),
+                    param->optional(),
                     interfaceScope,
-                    (*q)->getMetaData(),
+                    param->getMetaData(),
                     _useWstring | TypeContext::UnmarshalParamZeroCopy) +
                 " " + paramName);
-            args.push_back(condMove(isMovable(type), paramPrefix + (*q)->name()));
+            args.push_back(condMove(isMovable(type), paramPrefix + param->name()));
         }
         else
         {
             if (!p->hasMarshaledResult() && !amd)
             {
                 params.push_back(
-                    outputTypeToString(type, (*q)->optional(), interfaceScope, (*q)->getMetaData(), _useWstring) + " " +
-                    paramName);
-                args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
+                    outputTypeToString(type, param->optional(), interfaceScope, param->getMetaData(), _useWstring) +
+                    " " + paramName);
+                args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + param->name()));
             }
 
             string responseTypeS =
-                inputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, (*q)->getMetaData(), _useWstring);
+                inputTypeToString(param->type(), param->optional(), interfaceScope, param->getMetaData(), _useWstring);
             responseParams.push_back(responseTypeS + " " + paramName);
-            responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + (*q)->name());
-            responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + (*q)->name());
+            responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + param->name());
+            responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + param->name());
         }
     }
     if (amd)
@@ -3049,9 +3035,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             paramComments = comment->parameters();
         }
         const string mrcurrent = escapeParam(outParams, "current");
-        for (ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            map<string, StringList>::iterator r = paramComments.find((*q)->name());
+            map<string, StringList>::iterator r = paramComments.find(param->name());
             if (r != paramComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second);
