@@ -116,6 +116,7 @@
 
 #include <IceUtil/UUID.h>
 #include <cstring>
+#include <limits>
 
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label
