@@ -1089,10 +1089,13 @@ namespace Ice
 
         using ValueList = std::vector<std::shared_ptr<Value>>;
 
-        class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
+        class ICE_API EncapsDecoder
         {
         public:
+            EncapsDecoder(const EncapsDecoder&) = delete;
             virtual ~EncapsDecoder();
+
+            EncapsDecoder& operator=(const EncapsDecoder&) = delete;
 
             virtual void read(PatchFunc, void*) = 0;
             virtual void throwException(UserExceptionFactory) = 0;
@@ -1293,18 +1296,22 @@ namespace Ice
             std::int32_t _valueIdIndex; // The ID of the next value to unmarshal.
         };
 
-        class Encaps : private ::IceUtil::noncopyable
+        class Encaps
         {
         public:
             Encaps() : start(0), decoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
+            Encaps(const Encaps&) = delete;
             ~Encaps()
             {
                 // Inlined for performance reasons.
                 delete decoder;
             }
+
+            Encaps& operator=(const Encaps&) = delete;
+
             void reset()
             {
                 // Inlined for performance reasons.

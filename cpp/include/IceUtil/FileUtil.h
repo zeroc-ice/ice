@@ -94,7 +94,7 @@ namespace IceUtilInternal
     // This class is used to implement process file locking. This class
     // is not intended to do file locking within the same process.
     //
-    class ICE_API FileLock : public IceUtil::noncopyable
+    class ICE_API FileLock
     {
     public:
         //
@@ -107,10 +107,14 @@ namespace IceUtilInternal
         //
         FileLock(const std::string&);
 
+        FileLock(const FileLock&) = delete;
+
         //
         // The destructor releases the lock and removes the file.
         //
         virtual ~FileLock();
+
+        FileLock& operator=(const FileLock&) = delete;
 
     private:
 #ifdef _WIN32

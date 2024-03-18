@@ -25,6 +25,7 @@ namespace Slice
         ~Gen();
 
         Gen(const Gen&) = delete;
+        Gen& operator=(const Gen&) = delete;
 
         void generate(const UnitPtr&);
 

@@ -65,22 +65,4 @@
 #    endif
 #endif
 
-namespace IceUtil
-{
-    //
-    // By deriving from this class, other classes are made non-copyable.
-    //
-    class ICE_API noncopyable
-    {
-    protected:
-        noncopyable() {}
-        ~noncopyable() {} // May not be virtual! Classes without virtual
-                          // operations also derive from noncopyable.
-
-    private:
-        noncopyable(const noncopyable&);
-        const noncopyable& operator=(const noncopyable&);
-    };
-}
-
 #endif

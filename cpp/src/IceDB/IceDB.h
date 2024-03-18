@@ -117,23 +117,25 @@ namespace IceDB
     {
     public:
         explicit Env(const std::string&, MDB_dbi = 0, size_t = 0, unsigned int = 0);
+        Env(const Env&) = delete;
         ~Env();
+
+        Env& operator=(const Env&) = delete;
 
         void close();
 
         MDB_env* menv() const;
 
     private:
-        // Not implemented: class is not copyable
-        Env(const Env&);
-        void operator=(const Env&);
-
         MDB_env* _menv;
     };
 
     class ICE_DB_API Txn
     {
     public:
+        Txn(const Txn&) = delete;
+        Txn& operator=(const Txn&) = delete;
+
         void commit();
         void rollback();
 
@@ -147,11 +149,6 @@ namespace IceDB
 
         MDB_txn* _mtxn;
         const bool _readOnly;
-
-    private:
-        // Not implemented: class is not copyable
-        Txn(const Txn&);
-        void operator=(const Txn&);
     };
 
     class ICE_DB_API ReadOnlyTxn : public Txn
@@ -299,6 +296,9 @@ namespace IceDB
         CursorBase(MDB_dbi dbi, const Txn& txn);
         ~CursorBase();
 
+        CursorBase(const CursorBase&) = delete;
+        CursorBase& operator=(const CursorBase&) = delete;
+
         bool get(MDB_val*, MDB_val*, MDB_cursor_op);
         void put(MDB_val*, MDB_val*, unsigned int);
         bool find(MDB_val*);
@@ -307,10 +307,6 @@ namespace IceDB
         void renew(const ReadOnlyTxn&);
 
     private:
-        // Not implemented: class is not copyable
-        CursorBase(const CursorBase&);
-        void operator=(const CursorBase&);
-
         MDB_cursor* _mcursor;
         const bool _readOnly;
     };
