@@ -10,6 +10,7 @@
 #include "Slice/FileTracker.h"
 #include "IceUtil/FileUtil.h"
 
+#include <cassert>
 #include <limits>
 #include <algorithm>
 #include <string.h>
@@ -83,7 +84,7 @@ namespace
             {
                 msg = deprecateMetadata.substr(10);
             }
-            deprecateSymbol = "ICE_DEPRECATED_API(\"" + msg + "\") ";
+            deprecateSymbol = "[[deprecated(\"" + msg + "\")]] ";
         }
         return deprecateSymbol;
     }
@@ -802,8 +803,9 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         // For simplicity, we include these extra headers all the time.
 
-        C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
         C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
+        C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
+        C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
     }
 
     //
@@ -1415,25 +1417,39 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     H << ';';
 }
 
-Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c) {}
+Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _factoryTableInitDone(false) {}
 
 bool
-Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr&)
+Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& p)
 {
-    C << sp << nl << "namespace" << nl << "{";
-    return true;
+    if (p->hasClassDefs() || p->hasExceptions())
+    {
+        C << sp << nl << "namespace" << nl << "{";
+        C.inc();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void
 Slice::Gen::DefaultFactoryVisitor::visitUnitEnd(const UnitPtr&)
 {
-    C << sp << nl << "}";
+    C.dec();
+    C << nl << "}";
 }
 
 bool
 Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    C << sp;
+    if (!_factoryTableInitDone)
+    {
+        // Make sure the global factory table is initialized before we use it.
+        C << nl << "const ::IceInternal::FactoryTableInit iceC_factoryTableInit;";
+        _factoryTableInitDone = true;
+    }
 
     C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
     C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
@@ -1450,7 +1466,12 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    C << sp;
+    if (!_factoryTableInitDone)
+    {
+        // Make sure the global factory table is initialized before we use it.
+        C << nl << "const ::IceInternal::FactoryTableInit iceC_factoryTableInit;";
+        _factoryTableInitDone = true;
+    }
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
     C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
     return false;

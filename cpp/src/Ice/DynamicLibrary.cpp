@@ -6,6 +6,9 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/StringConverter.h>
 
+#include <cassert>
+#include <sstream>
+
 #ifndef _WIN32
 #    include <dlfcn.h>
 #endif

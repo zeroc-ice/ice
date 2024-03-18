@@ -10,6 +10,7 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/RFC2253.h>
 #include <list>
+#include <map>
 
 namespace IceSSL
 {

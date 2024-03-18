@@ -4,6 +4,7 @@
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <cassert>
 #include <cstring>
 
 using namespace std;

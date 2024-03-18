@@ -21,6 +21,7 @@
 #    include <pdhmsg.h> // For PDH_MORE_DATA
 #else
 #    include <sys/utsname.h>
+#    include <unistd.h>
 #    if defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #        include <sys/sysctl.h>
 #    endif

@@ -9,6 +9,7 @@
 #include <IceUtil/FileUtil.h>
 
 #include <algorithm>
+#include <cassert>
 #include <sys/types.h>
 #include <string.h>
 

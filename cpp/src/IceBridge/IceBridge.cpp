@@ -9,6 +9,8 @@
 #include <Ice/UUID.h>
 #include <IceUtil/Options.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 

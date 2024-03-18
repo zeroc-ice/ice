@@ -75,7 +75,8 @@
         "algorithm": "cpp",
         "xtree": "cpp",
         "execution": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "cassert": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
     "cSpell.words": [

@@ -6,6 +6,7 @@
 #define TEST_MY_BYTE_SEQ_H
 
 #include <Ice/Config.h>
+#include <cstddef>
 
 class MyByteSeq
 {

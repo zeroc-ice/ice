@@ -2,12 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifdef __sun
-#    define _POSIX_PTHREAD_SEMANTICS
-#endif
-
 #include <IceUtil/CtrlCHandler.h>
 
+#ifdef _WIN32
+#    include <windows.h>
+#endif
+
+#include <cassert>
 #include <mutex>
 
 #ifndef _WIN32

@@ -12,6 +12,10 @@
 #include "ServantLocator.h"
 #include "Proxy.h"
 
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
+
 #include <memory>
 
 namespace Ice

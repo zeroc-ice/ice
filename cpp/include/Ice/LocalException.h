@@ -11,6 +11,7 @@
 #include "Protocol.h"
 
 #include <string>
+#include <string_view>
 #include <utility>
 
 #if defined(__clang__)

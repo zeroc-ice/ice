@@ -7,8 +7,10 @@
 
 #include <expat.h>
 
+#include <cassert>
 #include <list>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace IceXML;

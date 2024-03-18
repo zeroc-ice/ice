@@ -143,11 +143,8 @@ void
 IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 {
     assert(TYPE(target) == T_ARRAY);
-#ifdef ICE_64
-    long i = static_cast<long>(reinterpret_cast<long long>(closure));
-#else
+    static_assert(sizeof(long) == sizeof(void*), "long and void* must have the same size");
     long i = reinterpret_cast<long>(closure);
-#endif
     RARRAY_ASET(target, i, val);
 }
 

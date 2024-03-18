@@ -5,6 +5,7 @@
 #include <Ice/SHA1.h>
 
 #if defined(_WIN32)
+#    include <windows.h>
 #    include <Wincrypt.h>
 #    include <Ice/LocalException.h>
 #elif defined(__APPLE__)

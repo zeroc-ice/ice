@@ -9,6 +9,8 @@
 #include "IncomingRequest.h"
 #include "OutgoingResponse.h"
 
+#include <string_view>
+
 namespace Ice
 {
     /**

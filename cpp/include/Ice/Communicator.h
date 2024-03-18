@@ -15,6 +15,10 @@
 #include "Properties.h"
 #include "Proxy.h"
 
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
+
 namespace Ice
 {
     class LocatorPrx;

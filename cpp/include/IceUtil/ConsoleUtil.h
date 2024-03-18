@@ -5,9 +5,11 @@
 #ifndef ICE_UTIL_CONSOLE_UTIL_H
 #define ICE_UTIL_CONSOLE_UTIL_H
 
-#include <IceUtil/Config.h>
-#include <IceUtil/StringConverter.h>
-#include <iostream>
+#include "Config.h"
+#include "StringConverter.h"
+
+#include <ostream>
+#include <sstream>
 
 namespace IceUtilInternal
 {

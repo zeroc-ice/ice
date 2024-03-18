@@ -11,6 +11,7 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 
+#include <cassert>
 #include <fstream>
 
 using namespace std;

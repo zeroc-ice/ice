@@ -5,14 +5,17 @@
 #ifndef ICE_ICONV_STRING_CONVERTER
 #define ICE_ICONV_STRING_CONVERTER
 
-#include <Ice/Config.h>
+#include "Config.h"
+
+#include <cassert>
+#include <sstream>
 
 //
 // For all platforms except Windows
 //
 #ifndef _WIN32
 
-#    include <Ice/StringConverter.h>
+#    include "StringConverter.h"
 #    include <IceUtil/StringUtil.h>
 #    include <IceUtil/UndefSysMacros.h>
 

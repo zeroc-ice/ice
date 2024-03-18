@@ -5,8 +5,9 @@
 #ifndef ICE_UTIL_OUTPUT_UTIL_H
 #define ICE_UTIL_OUTPUT_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
 #include <fstream>
+#include <sstream>
 #include <stack>
 #include <vector>
 #include <string_view>

@@ -417,13 +417,11 @@ char* yytext;
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 #    pragma warning(disable : 4244)
 
-#    if defined(ICE_64)
 //
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
 //
-#        pragma warning(disable : 4267)
-#    endif
+#    pragma warning(disable : 4267)
 #endif
 
 #if defined(__GNUC__)

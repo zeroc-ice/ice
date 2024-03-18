@@ -12,6 +12,8 @@
 #include <IceGrid/Registry.h>
 #include <IceLocatorDiscovery/Plugin.h>
 #include <Glacier2/Router.h>
+
+#include <iostream>
 #include <fstream>
 
 //

@@ -11,6 +11,8 @@
 #include <IceBT/Types.h>
 #include <Ice/CommunicatorF.h>
 
+#include <mutex>
+
 namespace IceBT
 {
     //

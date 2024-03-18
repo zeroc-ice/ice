@@ -8,7 +8,9 @@
 #include <IceSSL/OpenSSLUtil.h>
 #include <IceSSL/RFC2253.h>
 
+#include <cassert>
 #include <mutex>
+#include <sstream>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>

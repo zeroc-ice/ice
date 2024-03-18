@@ -5,8 +5,10 @@
 #ifndef ICE_EXCEPTION_H
 #define ICE_EXCEPTION_H
 
-#include "IceUtil/Exception.h"
 #include "Config.h"
+#include "IceUtil/Exception.h"
+
+#include <memory>
 
 namespace Ice
 {

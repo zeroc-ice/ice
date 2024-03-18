@@ -7,6 +7,8 @@
 
 #include <Ice/Plugin.h>
 
+#include <map>
+
 #ifndef ICEBT_API
 #    if defined(ICE_STATIC_LIBS)
 #        define ICEBT_API /**/

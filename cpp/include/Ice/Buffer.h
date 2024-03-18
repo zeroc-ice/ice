@@ -7,6 +7,10 @@
 
 #include "Config.h"
 
+#include <cassert>
+#include <cstddef>
+#include <vector>
+
 namespace IceInternal
 {
     class Buffer

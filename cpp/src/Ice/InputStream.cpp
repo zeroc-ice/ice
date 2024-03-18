@@ -13,12 +13,13 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
-#include <Ice/FactoryTableInit.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
+
+#include "Ice/FactoryTable.h"
 #include "ReferenceFactory.h"
 #include "Endian.h"
 #include <iterator>
@@ -32,6 +33,12 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+namespace
+{
+    // Make sure the global factory table is initialized before we use it.
+    const FactoryTableInit factoryTableInit;
+}
 
 Ice::InputStream::InputStream() { initialize(currentEncoding); }
 
