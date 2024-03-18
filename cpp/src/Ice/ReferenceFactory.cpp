@@ -260,9 +260,9 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                 {
                     facet = unescapeString(argument, 0, argument.size(), "");
                 }
-                catch (const IceUtil::IllegalArgumentException& ex)
+                catch (const invalid_argument& ex)
                 {
-                    throw ProxyParseException(__FILE__, __LINE__, "invalid facet in `" + s + "': " + ex.reason());
+                    throw ProxyParseException(__FILE__, __LINE__, "invalid facet in `" + s + "': " + ex.what());
                 }
 
                 break;
@@ -532,9 +532,9 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 adapter = unescapeString(adapterstr, 0, adapterstr.size(), "");
             }
-            catch (const IceUtil::IllegalArgumentException& ex)
+            catch (const invalid_argument& ex)
             {
-                throw ProxyParseException(__FILE__, __LINE__, "invalid adapter id in `" + s + "': " + ex.reason());
+                throw ProxyParseException(__FILE__, __LINE__, "invalid adapter id in `" + s + "': " + ex.what());
             }
             if (adapter.size() == 0)
             {

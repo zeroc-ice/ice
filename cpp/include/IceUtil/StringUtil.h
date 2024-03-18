@@ -28,7 +28,7 @@ namespace IceUtilInternal
     ICE_API std::string escapeString(const std::string&, const std::string&, ToStringMode);
 
     //
-    // Remove escape sequences added by escapeString. Throws IllegalArgumentException
+    // Remove escape sequences added by escapeString. Throws std::invalid_argument
     // for an invalid input string.
     //
     ICE_API std::string
