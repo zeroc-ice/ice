@@ -11,6 +11,7 @@
 #include <IceBT/EngineF.h>
 #include <IceBT/InstanceF.h>
 
+#include <mutex>
 #include <stack>
 
 namespace IceBT

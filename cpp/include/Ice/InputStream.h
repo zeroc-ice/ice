@@ -5,20 +5,25 @@
 #ifndef ICE_INPUT_STREAM_H
 #define ICE_INPUT_STREAM_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Object.h>
-#include <Ice/ValueF.h>
+#include "CommunicatorF.h"
+#include "InstanceF.h"
+#include "Object.h"
+#include "ValueF.h"
 #include "ProxyF.h"
-#include <Ice/LoggerF.h>
-#include <Ice/ValueFactory.h>
-#include <Ice/Buffer.h>
-#include <Ice/Protocol.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/FactoryTable.h>
+#include "LoggerF.h"
+#include "ValueFactory.h"
+#include "Buffer.h"
+#include "Protocol.h"
+#include "SlicedDataF.h"
+#include "UserExceptionFactory.h"
+#include "ValueFactory.h"
+#include "StreamHelpers.h"
 #include "ReferenceF.h"
+
+#include <cassert>
+#include <cstdint>
+#include <string>
+#include <string_view>
 
 namespace Ice
 {

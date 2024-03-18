@@ -5,9 +5,8 @@
 #ifndef ICEPY_PROXY_H
 #define ICEPY_PROXY_H
 
-#include <Config.h>
-#include <Ice/ProxyF.h>
-#include <Ice/CommunicatorF.h>
+#include "Config.h"
+#include <Ice/Proxy.h>
 
 namespace IcePy
 {

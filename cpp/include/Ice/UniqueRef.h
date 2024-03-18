@@ -5,6 +5,8 @@
 #ifndef ICE_UNIQUE_REF_H
 #define ICE_UNIQUE_REF_H
 
+#include <cassert>
+
 #ifdef __APPLE__
 
 #    include <CoreFoundation/CoreFoundation.h>

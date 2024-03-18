@@ -8,6 +8,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <algorithm>
+#include <cassert>
 
 #include <sys/types.h>
 #include <sys/stat.h>

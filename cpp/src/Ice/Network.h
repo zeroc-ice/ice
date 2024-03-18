@@ -20,7 +20,12 @@
 #include <Ice/EndpointTypes.h>
 #include <Ice/EndpointSelectionType.h>
 
+#include <cassert>
+#include <cstring>
+
 #if defined(_WIN32)
+#    define NOMINMAX
+#    include <windows.h>
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 typedef int ssize_t;

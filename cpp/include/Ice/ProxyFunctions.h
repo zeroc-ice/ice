@@ -10,6 +10,8 @@
 #include "Ice/Communicator.h"
 #include "Ice/ObjectAdapter.h"
 
+#include <sstream>
+
 namespace Ice
 {
     /**

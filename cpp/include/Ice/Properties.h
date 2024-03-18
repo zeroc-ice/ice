@@ -10,6 +10,7 @@
 #include "Ice/PropertyDict.h"
 #include "StringConverter.h"
 
+#include <mutex>
 #include <set>
 #include <string>
 #include <string_view>

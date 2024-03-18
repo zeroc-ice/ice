@@ -9,6 +9,8 @@
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

@@ -5,8 +5,10 @@
 #ifndef ICE_UTIL_CTRL_C_HANDLER_H
 #define ICE_UTIL_CTRL_C_HANDLER_H
 
-#include <IceUtil/Config.h>
-#include <IceUtil/Exception.h>
+#include "Config.h"
+#include "Exception.h"
+
+#include <functional>
 
 namespace IceUtil
 {

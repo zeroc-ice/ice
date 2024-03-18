@@ -5,7 +5,7 @@
 #ifndef ICE_FORMAT_H
 #define ICE_FORMAT_H
 
-#include <Ice/Config.h>
+#include "Config.h"
 
 namespace Ice
 {

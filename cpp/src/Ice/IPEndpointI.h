@@ -13,6 +13,7 @@
 #include <Ice/ObserverHelper.h>
 
 #include <deque>
+#include <condition_variable>
 #include <mutex>
 
 namespace IceInternal

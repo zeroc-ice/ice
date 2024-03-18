@@ -4,6 +4,7 @@
 
 #include "CPlusPlusUtil.h"
 #include <Slice/Util.h>
+#include <cassert>
 #include <cstring>
 #include <functional>
 #include <algorithm>

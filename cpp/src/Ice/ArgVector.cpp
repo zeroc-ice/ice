@@ -3,6 +3,7 @@
 //
 
 #include <Ice/ArgVector.h>
+#include <cassert>
 #include <cstring>
 
 IceInternal::ArgVector::ArgVector(int argcP, const char* const argvP[])

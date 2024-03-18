@@ -5,11 +5,19 @@
 #ifndef ICE_FILE_UTIL_H
 #define ICE_FILE_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
+
+#ifdef _WIN32
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
+#endif
 
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <string>
 
 namespace IceUtilInternal
 {
@@ -17,7 +25,7 @@ namespace IceUtilInternal
     extern const ICE_API std::string separator;
 
     //
-    // Detemine if path is an absolute path.
+    // Determine if path is an absolute path.
     //
     ICE_API bool isAbsolutePath(const std::string&);
 

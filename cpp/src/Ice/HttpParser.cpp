@@ -7,6 +7,8 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 
+#include <cassert>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

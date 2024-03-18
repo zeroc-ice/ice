@@ -5,8 +5,8 @@
 #ifndef ICE_SLICED_DATA_H
 #define ICE_SLICED_DATA_H
 
-#include <Ice/SlicedDataF.h>
-#include <Ice/Value.h>
+#include "SlicedDataF.h"
+#include "Value.h"
 
 namespace Ice
 {

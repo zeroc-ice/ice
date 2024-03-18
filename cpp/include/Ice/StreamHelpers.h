@@ -5,11 +5,13 @@
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
-#include <Ice/ValueF.h>
-#include <Ice/ProxyF.h>
+#include "ValueF.h"
+#include "ProxyF.h"
 #include "UserException.h"
 
 #include <iterator>
+#include <optional>
+#include <string_view>
 
 namespace Ice
 {

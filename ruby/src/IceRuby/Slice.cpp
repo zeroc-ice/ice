@@ -9,6 +9,8 @@
 #include <Slice/Util.h>
 #include <IceUtil/Options.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace IceRuby;
 using namespace Slice;

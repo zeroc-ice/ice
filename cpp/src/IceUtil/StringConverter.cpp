@@ -13,6 +13,11 @@
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/StringUtil.h>
 
+#ifdef _WIN32
+#    include <windows.h>
+#endif
+
+#include <cassert>
 #include <codecvt>
 #include <locale>
 #include <mutex>

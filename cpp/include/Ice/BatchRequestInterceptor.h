@@ -5,7 +5,9 @@
 #ifndef ICE_BATCH_REQUEST_INTERCEPTOR_H
 #define ICE_BATCH_REQUEST_INTERCEPTOR_H
 
-#include <Ice/ProxyF.h>
+#include "ProxyF.h"
+
+#include <string_view>
 
 namespace Ice
 {

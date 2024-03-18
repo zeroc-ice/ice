@@ -11,6 +11,7 @@
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
+#    include <unistd.h>
 #endif
 
 extern FILE* yyin;

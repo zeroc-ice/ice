@@ -5,59 +5,54 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/Config.h>
-#include <Ice/Comparable.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Proxy.h>
-#include <Ice/Current.h>
-#include <Ice/LocalException.h>
-#include <Ice/UserException.h>
-#include <optional>
-#include <Ice/Object.h>
-#include <Ice/SlicedData.h>
-#include <Ice/InputStream.h>
-#include <Ice/OutputStream.h>
-#include <Ice/MarshaledResult.h>
-#include <Ice/FactoryTable.h>
-#include <Ice/FactoryTableInit.h>
+#include "Config.h"
+
+#include "Comparable.h"
+#include "InputStream.h"
+#include "MarshaledResult.h"
+#include "Object.h"
+#include "OutputStream.h"
+#include "Proxy.h"
+#include "UserException.h"
+#include "Value.h"
 
 #ifndef ICE_BUILDING_GENERATED_CODE
 
 // We don't need to see the following headers when building the generated code.
 
-#    include <Ice/Initialize.h>
-#    include <Ice/ProxyFunctions.h>
-#    include <Ice/Properties.h>
-#    include <Ice/Logger.h>
-#    include <Ice/LoggerUtil.h>
-#    include <Ice/Communicator.h>
-#    include <Ice/ObjectAdapter.h>
-#    include <Ice/ServantLocator.h>
-#    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-#        include <Ice/CtrlCHandler.h>
-#        include <Ice/Service.h>
-#    endif
-#    include <Ice/Connection.h>
-#    include <Ice/ImplicitContext.h>
-#    include <Ice/Plugin.h>
-#    include <Ice/NativePropertiesAdmin.h>
-#    include <Ice/Instrumentation.h>
-#    include <Ice/RegisterPlugins.h>
-#    include <Ice/StringConverter.h>
-#    include <Ice/IconvStringConverter.h>
-#    include <Ice/UUID.h>
+#    include "Communicator.h"
+#    include "Connection.h"
+#    include "IconvStringConverter.h"
+#    include "ImplicitContext.h"
+#    include "Initialize.h"
+#    include "Instrumentation.h"
+#    include "LocalException.h"
+#    include "Logger.h"
+#    include "LoggerUtil.h"
+#    include "NativePropertiesAdmin.h"
+#    include "ObjectAdapter.h"
+#    include "Plugin.h"
+#    include "Properties.h"
+#    include "ProxyFunctions.h"
+#    include "RegisterPlugins.h"
+#    include "ServantLocator.h"
+#    include "SlicedData.h"
+#    include "StringConverter.h"
+#    include "UUID.h"
 
 // Generated header files:
-#    include <Ice/EndpointTypes.h>
-#    include <Ice/Locator.h>
-#    include <Ice/Metrics.h>
-#    include <Ice/Process.h>
-#    include <Ice/PropertiesAdmin.h>
-#    include <Ice/RemoteLogger.h>
-#    include <Ice/Router.h>
+#    include "Ice/EndpointTypes.h"
+#    include "Ice/Locator.h"
+#    include "Ice/Metrics.h"
+#    include "Ice/Process.h"
+#    include "Ice/PropertiesAdmin.h"
+#    include "Ice/RemoteLogger.h"
+#    include "Ice/Router.h"
 
+#    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#        include "CtrlCHandler.h"
+#        include "Service.h"
+#    endif
 #endif
-#include <IceUtil/PopDisableWarnings.h>
 
 #endif

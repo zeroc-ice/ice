@@ -190,9 +190,10 @@ namespace Glacier2
         std::string getRouterHost() const;
 
         /// \cond INTERNAL
-        ICE_DEPRECATED_API("is deprecated, use SessionFactoryHelper::setProtocol instead")
+        [[deprecated("is deprecated, use SessionFactoryHelper::setProtocol instead")]]
         void setSecure(bool);
-        ICE_DEPRECATED_API("is deprecated, use SessionFactoryHelper::getProtocol instead")
+
+        [[deprecated("is deprecated, use SessionFactoryHelper::getProtocol instead")]]
         bool getSecure() const;
         /// \endcond
 

@@ -11,6 +11,8 @@
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
 
+#include <cstring>
+
 using namespace Ice;
 using namespace std;
 

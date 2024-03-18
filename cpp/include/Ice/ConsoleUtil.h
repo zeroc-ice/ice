@@ -5,7 +5,7 @@
 #ifndef ICE_CONSOLE_UTIL_H
 #define ICE_CONSOLE_UTIL_H
 
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/ConsoleUtil.h"
 
 namespace IceInternal
 {
