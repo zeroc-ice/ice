@@ -9,6 +9,8 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

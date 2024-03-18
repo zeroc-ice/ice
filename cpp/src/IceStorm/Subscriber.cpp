@@ -9,7 +9,9 @@
 #include <IceStorm/Util.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
+
 #include <iterator>
+#include <stdexcept>
 
 #include "SendQueueSizeMaxReached.h"
 

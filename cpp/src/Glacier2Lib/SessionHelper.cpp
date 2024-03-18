@@ -8,6 +8,7 @@
 #include <Ice/Ice.h>
 
 #include <algorithm> // required by max
+#include <stdexcept>
 
 using namespace std;
 

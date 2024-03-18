@@ -25,6 +25,8 @@
 #include "Ice/IncomingRequest.h"
 #include "Ice/OutgoingResponse.h"
 
+#include <stdexcept>
+
 #ifdef ICE_HAS_BZIP2
 #    include <bzlib.h>
 #endif

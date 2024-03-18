@@ -9,6 +9,7 @@
 #include <chrono>
 #include <vector>
 #include <thread>
+#include <stdexcept>
 
 using namespace IceUtil;
 using namespace std;

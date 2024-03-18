@@ -15,6 +15,7 @@
 #include "CheckIdentity.h"
 
 #include <mutex>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;

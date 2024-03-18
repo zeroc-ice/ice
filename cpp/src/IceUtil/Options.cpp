@@ -4,8 +4,10 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+
 #include <iostream>
 #include <set>
+#include <stdexcept>
 
 using namespace std;
 using namespace IceUtil;

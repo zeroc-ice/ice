@@ -6,6 +6,8 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 
+#include <stdexcept>
+
 #include <Aclapi.h>
 #include <Sddl.h>
 #include <authz.h>

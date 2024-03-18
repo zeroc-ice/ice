@@ -13,6 +13,7 @@
 #include <chrono>
 #include <functional>
 #include <optional>
+#include <stdexcept>
 
 namespace IceUtil
 {
