@@ -27,6 +27,7 @@
 #    include <sys/wait.h>
 #    include <signal.h>
 #    include <pwd.h> // for getpwuid
+#    include <unistd.h>
 #else
 #    ifndef SIGKILL
 #        define SIGKILL 9

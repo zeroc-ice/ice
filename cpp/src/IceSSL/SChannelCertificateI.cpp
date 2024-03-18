@@ -11,6 +11,7 @@
 
 #include <wincrypt.h>
 
+#include <cassert>
 #include <string>
 #include <vector>
 #include <stdexcept>

@@ -7,8 +7,9 @@
 
 #include "Config.h"
 #include "OutputStream.h"
-#include <Ice/Context.h>
+#include "Ice/Context.h"
 
+#include <mutex>
 #include <string>
 
 namespace Ice

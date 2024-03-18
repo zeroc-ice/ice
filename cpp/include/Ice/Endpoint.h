@@ -5,17 +5,16 @@
 #ifndef __Ice_Endpoint_h__
 #define __Ice_Endpoint_h__
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/Version.h>
-#include <Ice/BuiltinSequences.h>
-#include <Ice/EndpointF.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "IceUtil/PushDisableWarnings.h"
+#include "ProxyF.h"
+#include "ValueF.h"
+#include "Exception.h"
+#include "StreamHelpers.h"
+#include "Comparable.h"
+#include "Ice/Version.h"
+#include "Ice/BuiltinSequences.h"
+#include "EndpointF.h"
+#include "IceUtil/UndefSysMacros.h"
 
 #ifndef ICE_API
 #    if defined(ICE_STATIC_LIBS)
@@ -382,5 +381,5 @@ namespace Ice
 }
 /// \endcond
 
-#include <IceUtil/PopDisableWarnings.h>
+#include "IceUtil/PopDisableWarnings.h"
 #endif

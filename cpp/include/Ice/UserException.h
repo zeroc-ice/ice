@@ -7,6 +7,8 @@
 
 #include "Exception.h"
 
+#include <string_view>
+
 namespace Ice
 {
     class InputStream;

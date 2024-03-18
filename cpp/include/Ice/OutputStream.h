@@ -5,15 +5,23 @@
 #ifndef ICE_OUTPUT_STREAM_H
 #define ICE_OUTPUT_STREAM_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/ValueF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/Buffer.h>
-#include <Ice/Protocol.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/StreamHelpers.h>
+#include "CommunicatorF.h"
+#include "InstanceF.h"
+#include "ValueF.h"
+#include "ProxyF.h"
+#include "Buffer.h"
+#include "Protocol.h"
+#include "SlicedDataF.h"
+#include "StreamHelpers.h"
 #include "Ice/Format.h"
+
+#include <cassert>
+#include <cstdint>
+#include <cstring>
+#include <map>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace Ice
 {

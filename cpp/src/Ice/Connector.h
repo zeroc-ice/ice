@@ -9,6 +9,9 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/TransceiverF.h>
 
+#include <string>
+#include <cstdint>
+
 namespace IceInternal
 {
     class ICE_API Connector

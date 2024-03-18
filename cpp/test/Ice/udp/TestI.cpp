@@ -6,6 +6,8 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace Test;

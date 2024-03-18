@@ -5,12 +5,13 @@
 #ifndef ICE_METRICSADMIN_I_H
 #define ICE_METRICSADMIN_I_H
 
-#include <Ice/Properties.h>
-#include <Ice/NativePropertiesAdmin.h>
-#include <Ice/Initialize.h>
+#include "Properties.h"
+#include "NativePropertiesAdmin.h"
+#include "Initialize.h"
 
-#include <Ice/Metrics.h>
+#include "Ice/Metrics.h"
 
+#include <cassert>
 #include <regex>
 #include <list>
 #include <mutex>

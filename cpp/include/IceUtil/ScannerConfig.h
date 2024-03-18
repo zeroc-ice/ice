@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_SCANNER_CONFIG_H
 #define ICE_UTIL_SCANNER_CONFIG_H
 
-#include <IceUtil/Config.h> // Required by generated Scanners.
+#include "Config.h" // Required by generated Scanners.
 
 //
 // COMPILERFIX: VC compilers does not provide stdint.h header until v100

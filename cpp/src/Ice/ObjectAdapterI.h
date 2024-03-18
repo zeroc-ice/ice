@@ -22,6 +22,10 @@
 #include <Ice/Proxy.h>
 #include <Ice/ACM.h>
 
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
+
 #include <list>
 #include <mutex>
 

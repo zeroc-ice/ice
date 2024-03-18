@@ -15,8 +15,13 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 
-#include <set>
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
+
 #include <list>
+#include <set>
+#include <thread>
 
 namespace IceInternal
 {

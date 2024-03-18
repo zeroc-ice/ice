@@ -4,12 +4,17 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
+#include <cassert>
 #include <cstring>
 #include <string.h> // for strerror_r
 
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+
+#ifdef _WIN32
+#    include <windows.h>
+#endif
 
 using namespace std;
 using namespace IceUtil;

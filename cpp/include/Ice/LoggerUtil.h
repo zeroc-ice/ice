@@ -5,10 +5,10 @@
 #ifndef ICE_LOGGER_UTIL_H
 #define ICE_LOGGER_UTIL_H
 
-#include <Ice/Logger.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/Plugin.h>
-#include <Ice/Exception.h>
+#include "Logger.h"
+#include "CommunicatorF.h"
+#include "Plugin.h"
+#include "Exception.h"
 #include "Proxy.h"
 
 namespace Ice

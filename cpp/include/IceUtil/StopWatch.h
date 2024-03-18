@@ -5,8 +5,9 @@
 #ifndef ICE_UTIL_STOPWATCH_H
 #define ICE_UTIL_STOPWATCH_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
 
+#include <cassert>
 #include <chrono>
 
 namespace IceUtilInternal

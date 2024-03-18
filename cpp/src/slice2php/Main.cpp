@@ -14,6 +14,7 @@
 #include <Slice/Parser.h>
 #include <Slice/Util.h>
 
+#include <cassert>
 #include <cstring>
 #include <climits>
 #include <mutex>

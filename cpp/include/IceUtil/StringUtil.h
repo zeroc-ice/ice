@@ -5,7 +5,9 @@
 #ifndef ICE_UTIL_STRING_UTIL_H
 #define ICE_UTIL_STRING_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
+
+#include <string>
 #include <vector>
 
 namespace IceUtilInternal
@@ -72,7 +74,7 @@ namespace IceUtilInternal
     //
     ICE_API std::string lastErrorToString();
 #ifdef _WIN32
-    ICE_API std::string errorToString(int, LPCVOID = nullptr);
+    ICE_API std::string errorToString(int, const void* = nullptr);
 #else
     ICE_API std::string errorToString(int);
 #endif

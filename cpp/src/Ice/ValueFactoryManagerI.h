@@ -8,6 +8,7 @@
 #include "Ice/ValueFactory.h"
 
 #include <list>
+#include <map>
 #include <mutex>
 
 namespace IceInternal

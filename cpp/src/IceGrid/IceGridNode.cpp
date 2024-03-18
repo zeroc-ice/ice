@@ -21,6 +21,8 @@
 #include <IceGrid/Util.h>
 #include <IcePatch2Lib/Util.h>
 
+#include <iostream>
+
 #ifdef _WIN32
 #    include <direct.h>
 #    include <sys/types.h>

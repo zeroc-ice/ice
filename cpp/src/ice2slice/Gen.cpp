@@ -4,6 +4,8 @@
 
 #include <Gen.h>
 
+#include <cassert>
+
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)

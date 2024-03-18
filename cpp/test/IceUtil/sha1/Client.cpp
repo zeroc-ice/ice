@@ -5,6 +5,8 @@
 #include <Ice/SHA1.h>
 #include <TestHelper.h>
 
+#include <cstring>
+
 using namespace std;
 
 namespace

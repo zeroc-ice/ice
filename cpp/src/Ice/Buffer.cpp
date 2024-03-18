@@ -5,6 +5,8 @@
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 
+#include <cstring>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

@@ -6,6 +6,7 @@
 
 #include <IceUtil/StringConverter.h>
 
+#include <cassert>
 #include <ostream>
 #include <iomanip>
 

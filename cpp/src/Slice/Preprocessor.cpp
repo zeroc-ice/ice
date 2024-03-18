@@ -10,6 +10,7 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/ConsoleUtil.h>
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <vector>
 #include <fstream>

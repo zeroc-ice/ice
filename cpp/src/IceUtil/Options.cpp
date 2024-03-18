@@ -5,6 +5,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 
+#include <cassert>
 #include <iostream>
 #include <set>
 #include <stdexcept>

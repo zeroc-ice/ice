@@ -3,6 +3,9 @@
 //
 
 #include "MyByteSeq.h"
+#include <cstring>
+
+using namespace std;
 
 MyByteSeq::MyByteSeq() : _size(0), _data(0) {}
 

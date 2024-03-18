@@ -16,7 +16,10 @@
 #include "CommunicatorF.h"
 #include "LocalException.h"
 
+#include <future>
 #include <iosfwd>
+#include <optional>
+#include <string_view>
 
 namespace Ice
 {

@@ -5,10 +5,14 @@
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
-#include <Ice/Initialize.h>
-#include <Ice/LoggerUtil.h>
+#include "Initialize.h"
+#include "LoggerUtil.h"
 
 #ifdef _WIN32
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
 #    include <winsvc.h>
 #endif
 

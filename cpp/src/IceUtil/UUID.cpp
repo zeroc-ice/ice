@@ -50,7 +50,7 @@ IceUtil::generateUUID()
     };
     UUID uuid;
 
-    assert(sizeof(UUID) == 16);
+    static_assert(sizeof(UUID) == 16);
 
     // Get a random sequence of bytes.
     char* buffer = reinterpret_cast<char*>(&uuid);

@@ -12,6 +12,7 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/Comparable.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
+[["cpp:include:cstdint"]]
 
 [["ice-prefix"]]
 

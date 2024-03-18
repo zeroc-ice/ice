@@ -9,6 +9,7 @@
 #define ICE_INTERNAL_PropertyNames_H
 
 #include <Ice/Config.h>
+#include <string>
 
 namespace IceInternal
 {

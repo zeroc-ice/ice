@@ -7,6 +7,10 @@
 
 #include <lmdb.h>
 
+#ifndef _WIN32
+#    include <unistd.h>
+#endif
+
 using namespace IceDB;
 using namespace std;
 

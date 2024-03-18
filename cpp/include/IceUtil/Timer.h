@@ -5,15 +5,17 @@
 #ifndef ICE_UTIL_TIMER_H
 #define ICE_UTIL_TIMER_H
 
-#include <IceUtil/Exception.h>
+#include "Exception.h"
 
-#include <set>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
 #include <map>
 #include <mutex>
-#include <chrono>
-#include <functional>
 #include <optional>
+#include <set>
 #include <stdexcept>
+#include <thread>
 
 namespace IceUtil
 {

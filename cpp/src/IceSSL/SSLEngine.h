@@ -15,6 +15,8 @@
 #include <Ice/Network.h>
 #include <Ice/TransceiverF.h>
 
+#include <mutex>
+
 namespace IceSSL
 {
     class ICESSL_API SSLEngine
