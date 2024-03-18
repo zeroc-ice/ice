@@ -15,6 +15,7 @@
 #include "CheckIdentity.h"
 
 #include <mutex>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -473,9 +474,9 @@ Ice::stringToIdentity(const string& s)
         {
             ident.name = unescapeString(s, 0, s.size(), "/");
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.reason());
+            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.what());
         }
     }
     else
@@ -484,12 +485,9 @@ Ice::stringToIdentity(const string& s)
         {
             ident.category = unescapeString(s, 0, slash, "/");
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(
-                __FILE__,
-                __LINE__,
-                "invalid category in identity `" + s + "': " + ex.reason());
+            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.what());
         }
 
         if (slash + 1 < s.size())
@@ -498,12 +496,9 @@ Ice::stringToIdentity(const string& s)
             {
                 ident.name = unescapeString(s, slash + 1, s.size(), "/");
             }
-            catch (const IceUtil::IllegalArgumentException& ex)
+            catch (const invalid_argument& ex)
             {
-                throw IdentityParseException(
-                    __FILE__,
-                    __LINE__,
-                    "invalid name in identity `" + s + "': " + ex.reason());
+                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.what());
             }
         }
     }

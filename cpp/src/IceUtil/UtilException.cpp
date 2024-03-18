@@ -568,31 +568,6 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
     return out;
 }
 
-IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
-      _reason(std::move(r))
-{
-}
-
-void
-IceUtil::IllegalArgumentException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ": " << _reason;
-}
-
-string
-IceUtil::IllegalArgumentException::ice_id() const
-{
-    return "::IceUtil::IllegalArgumentException";
-}
-
-string
-IceUtil::IllegalArgumentException::reason() const noexcept
-{
-    return _reason;
-}
-
 //
 // IllegalConversionException
 //

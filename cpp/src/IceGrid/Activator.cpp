@@ -16,6 +16,7 @@
 
 #include <thread>
 #include <chrono>
+#include <stdexcept>
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -8,6 +8,8 @@
 #include <TestHelper.h>
 #include <Single.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;

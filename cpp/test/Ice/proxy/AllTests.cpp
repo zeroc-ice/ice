@@ -8,6 +8,8 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <stdexcept>
+
 #ifdef _MSC_VER
 #    pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
 #endif

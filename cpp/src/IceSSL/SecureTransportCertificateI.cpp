@@ -21,6 +21,7 @@
 #include <Security/Security.h>
 
 #include <mutex>
+#include <stdexcept>
 
 using namespace Ice;
 using namespace IceInternal;

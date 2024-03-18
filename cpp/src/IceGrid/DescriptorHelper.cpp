@@ -8,6 +8,7 @@
 #include <IceGrid/Util.h>
 
 #include <iterator>
+#include <stdexcept>
 
 using namespace std;
 using namespace IceInternal;

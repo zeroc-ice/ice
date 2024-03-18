@@ -388,9 +388,9 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
             long t = getInteger(timeout);
             return createProxy(p->ice_locatorCacheTimeout(static_cast<int32_t>(t)), rb_class_of(self));
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw RubyException(rb_eArgError, ex.reason().c_str());
+            throw RubyException(rb_eArgError, ex.what());
         }
     }
     ICE_RUBY_CATCH
@@ -408,9 +408,9 @@ IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
             long t = getInteger(timeout);
             return createProxy(p->ice_invocationTimeout(static_cast<int32_t>(t)), rb_class_of(self));
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw RubyException(rb_eArgError, ex.reason().c_str());
+            throw RubyException(rb_eArgError, ex.what());
         }
     }
     ICE_RUBY_CATCH
@@ -801,9 +801,9 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
             int32_t timeout = static_cast<int32_t>(getInteger(t));
             return createProxy(p->ice_timeout(timeout), rb_class_of(self));
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw RubyException(rb_eArgError, ex.reason().c_str());
+            throw RubyException(rb_eArgError, ex.what());
         }
     }
     ICE_RUBY_CATCH

@@ -108,14 +108,7 @@ IcePatch2Internal::readFileInfo(FILE* fp, LargeFileInfo& info)
 
     string s;
     getline(is, s, '\t');
-    try
-    {
-        info.path = IceUtilInternal::unescapeString(s, 0, s.size(), "");
-    }
-    catch (const IceUtil::IllegalArgumentException& ex)
-    {
-        throw invalid_argument(ex.reason());
-    }
+    info.path = IceUtilInternal::unescapeString(s, 0, s.size(), "");
 
     getline(is, s, '\t');
     info.checksum = stringToBytes(s);

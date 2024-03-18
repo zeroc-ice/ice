@@ -9,6 +9,7 @@
 #include <chrono>
 #include <vector>
 #include <thread>
+#include <stdexcept>
 
 using namespace IceUtil;
 using namespace std;
@@ -150,7 +151,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(task, chrono::seconds::zero());
             }
-            catch (const IceUtil::IllegalArgumentException&)
+            catch (const invalid_argument&)
             {
                 // Expected.
             }
@@ -228,7 +229,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(destroyTask, chrono::seconds::zero());
             }
-            catch (const IceUtil::IllegalArgumentException&)
+            catch (const invalid_argument&)
             {
                 // Expected;
             }
@@ -242,7 +243,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(testTask, chrono::seconds::zero());
             }
-            catch (const IceUtil::IllegalArgumentException&)
+            catch (const invalid_argument&)
             {
                 // Expected;
             }
