@@ -1095,6 +1095,8 @@ namespace Ice
             EncapsDecoder(const EncapsDecoder&) = delete;
             virtual ~EncapsDecoder();
 
+            EncapsDecoder& operator=(const EncapsDecoder&) = delete;
+
             virtual void read(PatchFunc, void*) = 0;
             virtual void throwException(UserExceptionFactory) = 0;
 
@@ -1307,6 +1309,9 @@ namespace Ice
                 // Inlined for performance reasons.
                 delete decoder;
             }
+
+            Encaps& operator=(const Encaps&) = delete;
+
             void reset()
             {
                 // Inlined for performance reasons.

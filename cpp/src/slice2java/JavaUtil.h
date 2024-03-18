@@ -63,6 +63,8 @@ namespace Slice
         JavaGenerator(const JavaGenerator&) = delete;
         virtual ~JavaGenerator();
 
+        JavaGenerator& operator=(const JavaGenerator&) = delete;
+
         //
         // Validate all metadata in the unit with a "java:" prefix.
         //

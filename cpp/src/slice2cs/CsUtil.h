@@ -15,7 +15,9 @@ namespace Slice
     public:
         CsGenerator() = default;
         CsGenerator(const CsGenerator&) = delete;
-        virtual ~CsGenerator(){};
+        virtual ~CsGenerator() = default;
+
+        CsGenerator& operator=(const CsGenerator&) = delete;
 
         //
         // Convert a dimension-less array declaration to one with a dimension.

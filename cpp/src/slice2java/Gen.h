@@ -137,6 +137,8 @@ namespace Slice
         Gen(const Gen&) = delete;
         ~Gen();
 
+        Gen& operator=(const Gen&) = delete;
+
         void generate(const UnitPtr&);
 
     private:

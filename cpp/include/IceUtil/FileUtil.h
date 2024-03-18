@@ -114,6 +114,8 @@ namespace IceUtilInternal
         //
         virtual ~FileLock();
 
+        FileLock& operator=(const FileLock&) = delete;
+
     private:
 #ifdef _WIN32
         HANDLE _fd;

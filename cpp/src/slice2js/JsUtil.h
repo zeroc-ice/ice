@@ -19,6 +19,8 @@ namespace Slice
         JsGenerator(const JsGenerator&) = delete;
         virtual ~JsGenerator(){};
 
+        JsGenerator& operator=(const JsGenerator&) = delete;
+
         static bool isClassType(const TypePtr&);
         static std::string getDefinedIn(const ContainedPtr&);
         static std::string getModuleMetadata(const TypePtr&);

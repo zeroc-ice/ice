@@ -16,7 +16,10 @@ namespace Slice
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&);
+        Gen(const Gen&) = delete;
         ~Gen();
+
+        Gen& operator=(const Gen&) = delete;
 
         void generate(const UnitPtr&);
         void printHeader();

@@ -894,6 +894,8 @@ namespace Ice
             EncapsEncoder(const EncapsEncoder&) = delete;
             virtual ~EncapsEncoder();
 
+            EncapsEncoder& operator=(const EncapsEncoder&) = delete;
+
             virtual void write(const std::shared_ptr<Value>&) = 0;
             virtual void write(const UserException&) = 0;
 
@@ -1036,6 +1038,9 @@ namespace Ice
                 // Inlined for performance reasons.
                 delete encoder;
             }
+
+            Encaps& operator=(const Encaps&) = delete;
+
             void reset()
             {
                 // Inlined for performance reasons.

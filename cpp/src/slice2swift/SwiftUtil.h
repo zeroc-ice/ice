@@ -52,7 +52,9 @@ namespace Slice
     public:
         SwiftGenerator() = default;
         SwiftGenerator(const SwiftGenerator&) = delete;
-        virtual ~SwiftGenerator(){};
+        virtual ~SwiftGenerator() = default;
+
+        SwiftGenerator& operator=(const SwiftGenerator&) = delete;
 
         static void validateMetaData(const UnitPtr&);
 

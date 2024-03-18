@@ -34,6 +34,8 @@ namespace IceUtilInternal
         OutputBase(const OutputBase&) = delete;
         virtual ~OutputBase();
 
+        OutputBase& operator=(const OutputBase&) = delete;
+
         void setIndent(int);  // What is the indent level?
         void setUseTab(bool); // Should we output tabs?
 

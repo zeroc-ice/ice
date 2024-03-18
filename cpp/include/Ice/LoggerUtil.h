@@ -23,6 +23,8 @@ namespace Ice
         LoggerOutputBase() = default;
         LoggerOutputBase(const LoggerOutputBase&) = delete;
 
+        LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
+
         /** Obtains the collected output. */
         std::string str() const;
 
