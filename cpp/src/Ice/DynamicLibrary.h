@@ -7,6 +7,12 @@
 
 #include <Ice/Config.h>
 
+#ifdef _WIN32
+#    include <windows.h>
+#endif
+
+#include <string>
+
 namespace IceInternal
 {
     class ICE_API DynamicLibrary final

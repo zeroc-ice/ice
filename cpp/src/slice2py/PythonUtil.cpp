@@ -6,6 +6,8 @@
 #include <Slice/Util.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <algorithm>
+#include <cassert>
 #include <climits>
 #include <iterator>
 

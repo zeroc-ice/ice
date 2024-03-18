@@ -2,41 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_FACTORYTABLE_H
-#define ICE_FACTORYTABLE_H
+#ifndef ICE_FACTORY_TABLE_H
+#define ICE_FACTORY_TABLE_H
 
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/ValueFactory.h>
+#include "Config.h"
+#include "UserExceptionFactory.h"
+#include "ValueFactory.h"
 
+#include <cassert>
+#include <map>
 #include <mutex>
-
-namespace Ice
-{
-    /**
-     * The base class for a compact ID resolver. Subclasses must implement resolve.
-     * The resolver can be installed via InitializationData.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CompactIdResolver
-    {
-    public:
-        /**
-         * Called by the Ice run time when a compact ID must be translated into a type ID.
-         * @param id The compact ID.
-         * @return The fully-scoped Slice type ID, or an empty string if the compact ID is unknown.
-         */
-        virtual ::std::string resolve(std::int32_t id) const = 0;
-    };
-    using CompactIdResolverPtr = ::std::shared_ptr<CompactIdResolver>;
-}
+#include <utility>
 
 namespace IceInternal
 {
-    class ICE_API FactoryTable : private IceUtil::noncopyable
+    class ICE_API FactoryTable final
     {
     public:
-        void addExceptionFactory(std::string_view, ::Ice::UserExceptionFactory);
-        ::Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
+        FactoryTable() = default;
+        FactoryTable(FactoryTable&) = delete;
+
+        void addExceptionFactory(std::string_view, Ice::UserExceptionFactory);
+        Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
         void removeExceptionFactory(std::string_view);
 
         void addValueFactory(std::string_view, Ice::ValueFactory);
@@ -50,17 +37,74 @@ namespace IceInternal
     private:
         mutable std::mutex _mutex;
 
-        typedef ::std::pair<::Ice::UserExceptionFactory, int> EFPair;
-        typedef ::std::map<::std::string, EFPair, std::less<>> EFTable;
+        typedef std::pair<Ice::UserExceptionFactory, int> EFPair;
+        typedef std::map<std::string, EFPair, std::less<>> EFTable;
         EFTable _eft;
 
-        typedef ::std::pair<Ice::ValueFactory, int> VFPair;
-        typedef ::std::map<::std::string, VFPair, std::less<>> VFTable;
+        typedef std::pair<Ice::ValueFactory, int> VFPair;
+        typedef std::map<std::string, VFPair, std::less<>> VFTable;
         VFTable _vft;
 
-        typedef ::std::pair<::std::string, int> TypeIdPair;
-        typedef ::std::map<int, TypeIdPair> TypeIdTable;
+        typedef std::pair<std::string, int> TypeIdPair;
+        typedef std::map<int, TypeIdPair> TypeIdTable;
         TypeIdTable _typeIdTable;
+    };
+
+    extern ICE_API FactoryTable* factoryTable;
+
+    template<class E> void defaultUserExceptionFactory([[maybe_unused]] std::string_view typeId)
+    {
+        assert(typeId == E::ice_staticId());
+        throw E();
+    }
+
+    template<class V> std::shared_ptr<Ice::Value> defaultValueFactory([[maybe_unused]] std::string_view typeId)
+    {
+        assert(typeId == V::ice_staticId());
+        return std::make_shared<V>();
+    }
+
+    class ICE_API FactoryTableInit
+    {
+    public:
+        FactoryTableInit();
+        ~FactoryTableInit();
+    };
+
+    class ICE_API CompactIdInit
+    {
+    public:
+        CompactIdInit(std::string_view, int);
+        ~CompactIdInit();
+
+    private:
+        const int _compactId;
+    };
+
+    template<class E> class DefaultUserExceptionFactoryInit
+    {
+    public:
+        DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
+        {
+            factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
+        }
+
+        ~DefaultUserExceptionFactoryInit() { factoryTable->removeExceptionFactory(typeId); }
+
+        const std::string typeId;
+    };
+
+    template<class O> class DefaultValueFactoryInit
+    {
+    public:
+        DefaultValueFactoryInit(std::string_view tId) : typeId(tId)
+        {
+            factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
+        }
+
+        ~DefaultValueFactoryInit() { factoryTable->removeValueFactory(typeId); }
+
+        const std::string typeId;
     };
 }
 

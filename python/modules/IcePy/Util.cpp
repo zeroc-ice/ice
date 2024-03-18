@@ -10,6 +10,7 @@
 #include "PythonUtil.h"
 #include <compile.h>
 #include <frameobject.h>
+#include <cstddef>
 
 using namespace std;
 using namespace Slice::Python;

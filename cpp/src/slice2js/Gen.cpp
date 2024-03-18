@@ -9,6 +9,7 @@
 #include <Slice/Util.h>
 #include "../Ice/Endian.h"
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 
 using namespace std;

@@ -6,7 +6,9 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/Exception.h>
 #include <IceUtil/StringConverter.h>
+#include <cassert>
 #include <climits>
+#include <sstream>
 #include <string.h>
 
 #ifdef _WIN32

@@ -12,6 +12,7 @@
 #include <Ice/EndpointFactoryManagerF.h>
 
 #include <mutex>
+#include <vector>
 
 namespace Ice
 {

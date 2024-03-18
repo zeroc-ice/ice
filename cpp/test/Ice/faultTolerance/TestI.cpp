@@ -5,6 +5,10 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+#ifndef _WIN32
+#    include <unistd.h>
+#endif
+
 TestI::TestI() {}
 
 void

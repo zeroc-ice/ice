@@ -6,6 +6,8 @@
 #include <IceUtil/ConsoleUtil.h>
 #include <IceUtil/FileUtil.h>
 
+#include <cassert>
+
 using namespace IceUtilInternal;
 using namespace std;
 

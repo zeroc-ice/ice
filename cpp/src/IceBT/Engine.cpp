@@ -9,6 +9,8 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/UUID.h>
 
+#include <thread>
+
 using namespace std;
 using namespace Ice;
 using namespace IceBT;

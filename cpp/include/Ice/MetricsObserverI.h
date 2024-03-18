@@ -5,16 +5,17 @@
 #ifndef ICEMX_METRICSOBSERVER_I_H
 #define ICEMX_METRICSOBSERVER_I_H
 
-#include <IceUtil/StopWatch.h>
+#include "IceUtil/StopWatch.h"
 
-#include <Ice/Instrumentation.h>
-#include <Ice/Endpoint.h>
-#include <Ice/Connection.h>
+#include "Instrumentation.h"
+#include "Endpoint.h"
+#include "Connection.h"
 
-#include <Ice/Metrics.h>
-#include <Ice/MetricsAdminI.h>
-#include <Ice/MetricsFunctional.h>
+#include "Ice/Metrics.h"
+#include "MetricsAdminI.h"
+#include "MetricsFunctional.h"
 
+#include <cassert>
 #include <stdexcept>
 
 namespace IceMX

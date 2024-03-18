@@ -8,6 +8,7 @@
 #include <Slice/Util.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <iterator>
 #include <functional>

@@ -7,6 +7,7 @@
 
 #include "Parser.h"
 #include "Util.h"
+#include <cassert>
 #include <memory>
 
 namespace Slice

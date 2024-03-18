@@ -5,9 +5,11 @@
 #ifndef ICE_OBSERVERHELPER_H
 #define ICE_OBSERVERHELPER_H
 
-#include <Ice/Instrumentation.h>
-#include <Ice/ProxyF.h>
-#include <Ice/InstanceF.h>
+#include "Instrumentation.h"
+#include "ProxyF.h"
+#include "InstanceF.h"
+
+#include <string_view>
 
 namespace IceInternal
 {

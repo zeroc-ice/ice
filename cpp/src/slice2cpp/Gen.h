@@ -99,6 +99,7 @@ namespace Slice
 
         private:
             ::IceUtilInternal::Output& C;
+            bool _factoryTableInitDone; // when false, we need to generate a factory table init
         };
 
         // Generates code for proxies. We need to generate this code before the code for structs, classes and exceptions

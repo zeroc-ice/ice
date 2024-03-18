@@ -5,6 +5,8 @@
 #include <Ice/Base64.h>
 #include <iterator>
 
+#include <cstddef>
+
 using namespace std;
 
 string

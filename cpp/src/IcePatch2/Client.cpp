@@ -9,11 +9,14 @@
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
 
+#include <iostream>
+
 #ifdef _WIN32
 #    include <conio.h>
 #else
 #    include <fcntl.h>
 #    include <termios.h>
+#    include <unistd.h>
 #endif
 
 using namespace std;

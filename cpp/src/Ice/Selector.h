@@ -12,6 +12,8 @@
 #include <Ice/EventHandlerF.h>
 #include <Ice/UniqueRef.h>
 
+#include <map>
+
 #if defined(ICE_USE_EPOLL)
 #    include <sys/epoll.h>
 #elif defined(ICE_USE_KQUEUE)
@@ -26,6 +28,7 @@
 
 #if defined(ICE_USE_CFSTREAM)
 #    include <set>
+#    include <thread>
 
 struct __CFRunLoop;
 typedef struct __CFRunLoop* CFRunLoopRef;

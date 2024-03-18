@@ -10,6 +10,7 @@
 
 [["cpp:no-default-include"]]
 [["cpp:include:Ice/Config.h"]]
+[["cpp:include:cstdint"]]
 
 [["ice-prefix"]]
 

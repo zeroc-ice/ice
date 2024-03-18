@@ -10,6 +10,7 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/FileUtil.h>
 
+#include <iostream>
 #include <mutex>
 
 using namespace std;
