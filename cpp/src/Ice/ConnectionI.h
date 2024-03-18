@@ -70,7 +70,7 @@ namespace Ice
     public:
         std::shared_ptr<ConnectionI> shared_from_this()
         {
-            return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
+            return std::dynamic_pointer_cast<ConnectionI>(IceInternal::EventHandler::shared_from_this());
         }
 
         struct OutgoingMessage

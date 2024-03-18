@@ -9,11 +9,12 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Network.h>
-#include <Ice/VirtualShared.h>
+
+#include <memory>
 
 namespace IceInternal
 {
-    class ICE_API EventHandler : public EnableSharedFromThis<EventHandler>
+    class ICE_API EventHandler : public std::enable_shared_from_this<EventHandler>
     {
     public:
 #if defined(ICE_USE_IOCP)
