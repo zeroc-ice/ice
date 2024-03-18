@@ -24,19 +24,17 @@ namespace IceInternal
     {
     public:
         Hasher();
+        Hasher(const Hasher&) = delete;
 #ifdef _WIN32
         ~Hasher();
 #endif
+        Hasher operator=(const Hasher&) = delete;
 
         void update(const unsigned char*, std::size_t);
         void finalize(std::vector<unsigned char>&);
         void finalize(vector<byte>&);
 
     private:
-        // noncopyable
-        Hasher(const Hasher&);
-        Hasher operator=(const Hasher&);
-
 #if defined(_WIN32)
         HCRYPTPROV _ctx;
         HCRYPTHASH _hash;

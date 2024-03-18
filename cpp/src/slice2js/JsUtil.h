@@ -12,9 +12,11 @@ namespace Slice
 {
     std::string relativePath(const std::string&, const std::string&);
 
-    class JsGenerator : private ::IceUtil::noncopyable
+    class JsGenerator
     {
     public:
+        JsGenerator() = default;
+        JsGenerator(const JsGenerator&) = delete;
         virtual ~JsGenerator(){};
 
         static bool isClassType(const TypePtr&);

@@ -127,7 +127,6 @@ namespace IceInternal
 #    endif
             }
 
-            // Non-copyable
             DescriptorHolder(const DescriptorHolder&) = delete;
             DescriptorHolder& operator=(const DescriptorHolder&) = delete;
         };

@@ -20,17 +20,18 @@ namespace IceUtilInternal
 
     //
     // Technically it's not necessary to have print() & newline() as virtual
-    // since the opeator<< functions are specific to each OutputBase
+    // since the operator<< functions are specific to each OutputBase
     // derivative. However, since it's possible to call print() & newline()
     // manually I've decided to leave them as virtual.
     //
 
-    class ICE_API OutputBase : private ::IceUtil::noncopyable
+    class ICE_API OutputBase
     {
     public:
         OutputBase();
         OutputBase(std::ostream&);
         OutputBase(const std::string&);
+        OutputBase(const OutputBase&) = delete;
         virtual ~OutputBase();
 
         void setIndent(int);  // What is the indent level?
@@ -46,7 +47,7 @@ namespace IceUtilInternal
         void dec(); // Decrement indentation level.
 
         void useCurrentPosAsIndent(); // Save the current position as indentation.
-        void zeroIndent();            // Use zero identation.
+        void zeroIndent();            // Use zero indentation.
         void restoreIndent();         // Restore indentation.
         int currIndent();             // Return current indent value.
 

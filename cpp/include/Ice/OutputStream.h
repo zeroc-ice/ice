@@ -888,9 +888,10 @@ namespace Ice
 
         typedef std::vector<std::shared_ptr<Value>> ValueList;
 
-        class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
+        class ICE_API EncapsEncoder
         {
         public:
+            EncapsEncoder(const EncapsEncoder&) = delete;
             virtual ~EncapsEncoder();
 
             virtual void write(const std::shared_ptr<Value>&) = 0;
@@ -1019,16 +1020,17 @@ namespace Ice
             InstanceData _preAllocatedInstanceData;
             InstanceData* _current;
 
-            std::int32_t _valueIdIndex; // The ID of the next value to marhsal
+            std::int32_t _valueIdIndex; // The ID of the next value to marshal
         };
 
-        class Encaps : private ::IceUtil::noncopyable
+        class Encaps
         {
         public:
             Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
+            Encaps(const Encaps&) = delete;
             ~Encaps()
             {
                 // Inlined for performance reasons.

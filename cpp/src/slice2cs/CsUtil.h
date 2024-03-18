@@ -10,9 +10,11 @@
 
 namespace Slice
 {
-    class CsGenerator : private ::IceUtil::noncopyable
+    class CsGenerator
     {
     public:
+        CsGenerator() = default;
+        CsGenerator(const CsGenerator&) = delete;
         virtual ~CsGenerator(){};
 
         //

@@ -8,7 +8,6 @@
 #include <cstring>
 
 using namespace std;
-using namespace IceUtil;
 using namespace IceUtilInternal;
 
 namespace IceUtilInternal

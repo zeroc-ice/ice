@@ -47,9 +47,11 @@ namespace Slice
         std::map<std::string, StringList> exceptions;
     };
 
-    class SwiftGenerator : private IceUtil::noncopyable
+    class SwiftGenerator
     {
     public:
+        SwiftGenerator() = default;
+        SwiftGenerator(const SwiftGenerator&) = delete;
         virtual ~SwiftGenerator(){};
 
         static void validateMetaData(const UnitPtr&);
