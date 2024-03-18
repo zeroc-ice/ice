@@ -67,6 +67,7 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 #include <IceUtil/UUID.h>
 #include <cstring>
+#include <limits>
 
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label
@@ -472,7 +473,7 @@ tag
     auto i = dynamic_pointer_cast<IntegerTok>($2);
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
     {
         currentUnit->error("tag is out of range");
         tag = -1;
@@ -544,7 +545,7 @@ tag
         if(b && b->isIntegralType())
         {
             std::int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if(l < 0 || l > Int32Max)
+            if (l < 0 || l > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
             }
@@ -586,7 +587,7 @@ optional
     auto i = dynamic_pointer_cast<IntegerTok>($2);
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
     {
         currentUnit->error("tag is out of range");
         tag = -1;
@@ -657,7 +658,7 @@ optional
         if(b && b->isIntegralType())
         {
             std::int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if(l < 0 || l > Int32Max)
+            if (l < 0 || l > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
             }
@@ -811,7 +812,7 @@ class_id
     {
         currentUnit->error("invalid compact id for class: id must be a positive integer");
     }
-    else if(id > Int32Max)
+    else if (id > std::numeric_limits<int32_t>::max())
     {
         currentUnit->error("invalid compact id for class: value is out of range");
     }
@@ -888,7 +889,7 @@ class_id
         if(b && b->isIntegralType())
         {
             int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if(l < 0 || l > Int32Max)
+            if (l < 0 || l > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("compact id for class is out of range");
             }
@@ -1724,7 +1725,7 @@ enumerator
     auto intVal = dynamic_pointer_cast<IntegerTok>($3);
     if(intVal)
     {
-        if(intVal->v < 0 || intVal->v > Int32Max)
+        if (intVal->v < 0 || intVal->v > std::numeric_limits<int32_t>::max())
         {
             currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
         }
