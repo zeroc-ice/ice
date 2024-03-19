@@ -46,7 +46,7 @@ clang_version = $(shell clang -dumpversion 2>&1 | cut -f1 -d\.)
 
 # We use -std=c++20 with clang 15.0 and later.
 ifeq ($(shell test $(clang_version) -ge 15 && echo yes),yes)
-    cppflags    += -std=c++20
+    cppflags    += -std=c++17
 else
     cppflags    += -std=c++17
 endif

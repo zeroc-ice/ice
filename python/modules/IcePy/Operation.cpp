@@ -113,8 +113,8 @@ namespace IcePy
             MappingType,
             Ice::OutputStream*,
             pair<const byte*, const byte*>&);
-        PyObject* unmarshalResults(const OperationPtr&, const pair<const byte*, const byte*>&);
-        PyObject* unmarshalException(const OperationPtr&, const pair<const byte*, const byte*>&);
+        PyObject* unmarshalResults(const OperationPtr&, pair<const byte*, const byte*>);
+        PyObject* unmarshalException(const OperationPtr&, pair<const byte*, const byte*>);
         bool validateException(const OperationPtr&, PyObject*) const;
         void checkTwowayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
 
@@ -142,13 +142,13 @@ namespace IcePy
 
         PyObject* invoke(PyObject*, PyObject* = 0) final;
 
-        void response(bool, const pair<const byte*, const byte*>&);
+        void response(bool, pair<const byte*, const byte*>);
         void exception(std::exception_ptr);
         void sent(bool);
 
     protected:
         virtual function<void()> handleInvoke(PyObject*, PyObject*) = 0;
-        virtual void handleResponse(PyObject*, bool, const pair<const byte*, const byte*>&) = 0;
+        virtual void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) = 0;
 
         PyObject* _pyProxy;
         string _operation;
@@ -170,7 +170,7 @@ namespace IcePy
 
     protected:
         function<void()> handleInvoke(PyObject*, PyObject*) final;
-        void handleResponse(PyObject*, bool, const pair<const byte*, const byte*>&) final;
+        void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) final;
 
     private:
         OperationPtr _op;
@@ -192,7 +192,7 @@ namespace IcePy
 
     protected:
         function<void()> handleInvoke(PyObject*, PyObject*) final;
-        void handleResponse(PyObject*, bool, const pair<const byte*, const byte*>&) final;
+        void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) final;
 
         string _op;
     };
@@ -201,7 +201,7 @@ namespace IcePy
     class Upcall : public enable_shared_from_this<Upcall>
     {
     public:
-        virtual void dispatch(PyObject*, const pair<const byte*, const byte*>&, const Ice::Current&) = 0;
+        virtual void dispatch(PyObject*, pair<const byte*, const byte*>, const Ice::Current&) = 0;
         virtual void response(PyObject*) = 0;
         virtual void exception(PyException&) = 0;
 
@@ -217,18 +217,18 @@ namespace IcePy
     public:
         TypedUpcall(
             const OperationPtr&,
-            function<void(bool, const std::pair<const byte*, const byte*>&)>,
+            function<void(bool, pair<const byte*, const byte*>)>,
             function<void(std::exception_ptr)>,
             const Ice::CommunicatorPtr&);
 
-        void dispatch(PyObject*, const pair<const byte*, const byte*>&, const Ice::Current&) final;
+        void dispatch(PyObject*, pair<const byte*, const byte*>, const Ice::Current&) final;
         void response(PyObject*) final;
         void exception(PyException&) final;
 
     private:
         OperationPtr _op;
 
-        function<void(bool, const std::pair<const byte*, const byte*>&)> _response;
+        function<void(bool, pair<const byte*, const byte*>)> _response;
         function<void(std::exception_ptr)> _error;
 
         Ice::CommunicatorPtr _communicator;
@@ -243,15 +243,15 @@ namespace IcePy
     {
     public:
         BlobjectUpcall(
-            function<void(bool, const std::pair<const byte*, const byte*>&)>,
+            function<void(bool, pair<const byte*, const byte*>)>,
             function<void(std::exception_ptr)>);
 
-        void dispatch(PyObject*, const pair<const byte*, const byte*>&, const Ice::Current&) final;
+        void dispatch(PyObject*, pair<const byte*, const byte*>, const Ice::Current&) final;
         void response(PyObject*) final;
         void exception(PyException&) final;
 
     private:
-        function<void(bool, const std::pair<const byte*, const byte*>&)> _response;
+        function<void(bool, pair<const byte*, const byte*>)> _response;
         function<void(std::exception_ptr)> _error;
     };
 
@@ -264,7 +264,7 @@ namespace IcePy
 
         void ice_invokeAsync(
             pair<const byte*, const byte*> inEncaps,
-            function<void(bool, const std::pair<const byte*, const byte*>&)> response,
+            function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(std::exception_ptr)> error,
             const Ice::Current& current) final;
 
@@ -282,7 +282,7 @@ namespace IcePy
 
         void ice_invokeAsync(
             pair<const byte*, const byte*> inEncaps,
-            function<void(bool, const std::pair<const byte*, const byte*>&)> response,
+            function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(std::exception_ptr)> error,
             const Ice::Current& current) final;
     };
@@ -1479,7 +1479,7 @@ IcePy::Invocation::prepareRequest(
 }
 
 PyObject*
-IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const byte*, const byte*>& bytes)
+IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, const byte*> bytes)
 {
     Py_ssize_t numResults = static_cast<Py_ssize_t>(op->outParams.size());
     if (op->returnType)
@@ -1558,7 +1558,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const byt
 }
 
 PyObject*
-IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const byte*, const byte*>& bytes)
+IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, const byte*> bytes)
 {
     Ice::InputStream is(_communicator, bytes);
 
@@ -1920,7 +1920,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
 }
 
 void
-IcePy::AsyncInvocation::response(bool ok, const pair<const byte*, const byte*>& results)
+IcePy::AsyncInvocation::response(bool ok, pair<const byte*, const byte*> results)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -2091,14 +2091,14 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
         _op->name,
         _op->sendMode,
         params,
-        [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
+        [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
         [self](exception_ptr ex) { self->exception(ex); },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         pyctx == Py_None ? Ice::noExplicitContext : context);
 }
 
 void
-IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, const pair<const byte*, const byte*>& results)
+IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<const byte*, const byte*> results)
 {
     try
     {
@@ -2309,14 +2309,14 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
         operation,
         sendMode,
         params,
-        [self](bool ok, const pair<const byte*, const byte*>& results) { self->response(ok, results); },
+        [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
         [self](exception_ptr ex) { self->exception(ex); },
         [self](bool sentSynchronously) { self->sent(sentSynchronously); },
         (ctx == 0 || ctx == Py_None) ? Ice::noExplicitContext : context);
 }
 
 void
-IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok, const pair<const byte*, const byte*>& results)
+IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok, pair<const byte*, const byte*> results)
 {
     // Prepare the args as a tuple of the bool and out param buffer.
     PyObjectHandle args = PyTuple_New(2);
@@ -2426,7 +2426,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
 //
 IcePy::TypedUpcall::TypedUpcall(
     const OperationPtr& op,
-    function<void(bool, const std::pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(std::exception_ptr)> error,
     const Ice::CommunicatorPtr& communicator)
     : _op(op),
@@ -2439,7 +2439,7 @@ IcePy::TypedUpcall::TypedUpcall(
 void
 IcePy::TypedUpcall::dispatch(
     PyObject* servant,
-    const pair<const byte*, const byte*>& inBytes,
+    pair<const byte*, const byte*> inBytes,
     const Ice::Current& current)
 {
     _encoding = current.encoding;
@@ -2625,7 +2625,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
 // BlobjectUpcall
 //
 IcePy::BlobjectUpcall::BlobjectUpcall(
-    function<void(bool, const std::pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(std::exception_ptr)> error)
     : _response(std::move(response)),
       _error(std::move(error))
@@ -2635,7 +2635,7 @@ IcePy::BlobjectUpcall::BlobjectUpcall(
 void
 IcePy::BlobjectUpcall::dispatch(
     PyObject* servant,
-    const pair<const byte*, const byte*>& inBytes,
+    pair<const byte*, const byte*> inBytes,
     const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
@@ -3027,7 +3027,7 @@ IcePy::TypedServantWrapper::TypedServantWrapper(PyObject* servant)
 void
 IcePy::TypedServantWrapper::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const std::pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(std::exception_ptr)> error,
     const Ice::Current& current)
 {
@@ -3104,7 +3104,7 @@ IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant) : Serva
 void
 IcePy::BlobjectServantWrapper::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> error,
     const Ice::Current& current)
 {

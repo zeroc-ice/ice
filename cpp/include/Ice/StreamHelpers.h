@@ -13,6 +13,10 @@
 #include <optional>
 #include <string_view>
 
+#ifdef __cpp_lib_span
+#   include <span>
+#endif
+
 namespace Ice
 {
     /// \cond STREAM
@@ -491,13 +495,29 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
     {
-        template<class S> static inline void write(S* stream, const std::pair<const T*, const T*>& v)
+        template<class S> static inline void write(S* stream, std::pair<const T*, const T*> v)
         {
             stream->write(v.first, v.second);
         }
 
         template<class S> static inline void read(S* stream, std::pair<const T*, const T*>& v) { stream->read(v); }
     };
+
+#ifdef __cpp_lib_span
+     /**
+     * Helper for span (C++20 or later).
+     * \headerfile Ice/Ice.h
+     */
+    template<typename T> struct StreamHelper<std::span<T>, StreamHelperCategorySequence>
+    {
+        template<class S> inline static void write(S* stream, const std::span<T>& v)
+        {
+            stream->write(v.data(), v.data() + v.size());
+        }
+
+        // No read. span are only for view types.
+    };
+#endif
 
     /**
      * Helper for dictionaries.

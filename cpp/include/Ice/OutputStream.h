@@ -66,7 +66,7 @@ namespace Ice
         OutputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::byte*, const std::byte*>& bytes);
+            std::pair<const std::byte*, const std::byte*> bytes);
 
         /**
          * Move constructor.

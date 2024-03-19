@@ -67,8 +67,8 @@ Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::S
 void
 Glacier2::Blobject::invoke(
     ObjectPrx& proxy,
-    const std::pair<const byte*, const byte*>& inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception,
     const Current& current)
 {
