@@ -40,7 +40,27 @@ TestIntfAMDI::opStringSpanAsync(
 void
 TestIntfAMDI::opOptionalByteSpanAsync(
     optional<ByteSeq> dataIn,
-    function<void(span<const byte> returnValue, span<const byte> dataOut)> response,
+    function<void(optional<span<const byte>> returnValue, optional<span<const byte>> dataOut)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
+{
+    response(dataIn, dataIn);
+}
+
+void
+TestIntfAMDI::opOptionalShortSpanAsync(
+    optional<ShortSeq> dataIn,
+    function<void(optional<span<const int16_t>> returnValue, optional<span<const int16_t>> dataOut)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
+{
+    response(dataIn, dataIn);
+}
+
+void
+TestIntfAMDI::opOptionalStringSpanAsync(
+    optional<StringSeq> dataIn,
+    function<void(optional<span<string>> returnValue, optional<span<string>> dataOut)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -50,8 +70,7 @@ TestIntfAMDI::opOptionalByteSpanAsync(
     }
     else
     {
-        vector<byte> v = {byte{42}};
-        response(v, v);
+        response(nullopt, nullopt);
     }
 }
 

@@ -7,7 +7,6 @@
 
 #include "CommunicatorF.h"
 #include "InstanceF.h"
-#include "Object.h"
 #include "ValueF.h"
 #include "ProxyF.h"
 #include "LoggerF.h"
@@ -22,6 +21,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <string_view>
 

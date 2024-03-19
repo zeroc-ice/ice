@@ -28,19 +28,25 @@ TestIntfI::opStringSpan(StringSeq dataIn, StringSeq& dataOut, const Ice::Current
     return dataOut;
 }
 
-ByteSeq
-TestIntfI::opOptionalByteSpan(optional<ByteSeq> dataIn, ByteSeq& dataOut, const Ice::Current&)
+optional<ByteSeq>
+TestIntfI::opOptionalByteSpan(optional<ByteSeq> dataIn, optional<ByteSeq>& dataOut, const Ice::Current&)
 {
-    if (dataIn)
-    {
-        dataOut = *std::move(dataIn);
-        return dataOut;
-    }
-    else
-    {
-        dataOut = {std::byte{42}};
-        return dataOut;
-    }
+    dataOut = std::move(dataIn);
+    return dataOut;
+}
+
+optional<ShortSeq>
+TestIntfI::opOptionalShortSpan(optional<ShortSeq> dataIn, optional<ShortSeq>& dataOut, const Ice::Current&)
+{
+    dataOut = std::move(dataIn);
+    return dataOut;
+}
+
+optional<StringSeq>
+TestIntfI::opOptionalStringSpan(optional<StringSeq> dataIn, optional<StringSeq>& dataOut, const Ice::Current&)
+{
+    dataOut = std::move(dataIn);
+    return dataOut;
 }
 
 void

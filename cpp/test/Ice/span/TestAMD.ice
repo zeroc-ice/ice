@@ -27,9 +27,19 @@ module Test
             ["cpp:view-type:std::span<std::string>"] StringSeq dataIn,
             out ["cpp:view-type:std::span<std::string>"] StringSeq dataOut);
 
-        ["cpp:view-type:std::span<const std::byte>"] ByteSeq opOptionalByteSpan(
+        // Same with optionals
+
+        ["cpp:view-type:std::span<const std::byte>"] optional(10) ByteSeq opOptionalByteSpan(
             ["cpp:view-type:std::span<const std::byte>"] optional(1) ByteSeq dataIn,
-            out ["cpp:view-type:std::span<const std::byte>"] ByteSeq dataOut);
+            out ["cpp:view-type:std::span<const std::byte>"] optional(11) ByteSeq dataOut);
+
+        ["cpp:view-type:std::span<const std::int16_t>"] optional(10) ShortSeq opOptionalShortSpan(
+            ["cpp:view-type:std::span<const std::int16_t>"] optional(1) ShortSeq dataIn,
+            out ["cpp:view-type:std::span<const std::int16_t>"] optional(11) ShortSeq dataOut);
+
+        ["cpp:view-type:std::span<std::string>"] optional(10) StringSeq opOptionalStringSpan(
+            ["cpp:view-type:std::span<std::string>"] optional(1) StringSeq dataIn,
+            out ["cpp:view-type:std::span<std::string>"] optional(11) StringSeq dataOut);
 
         void shutdown();
     }
