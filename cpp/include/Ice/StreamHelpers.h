@@ -13,8 +13,8 @@
 #include <optional>
 #include <string_view>
 
-#ifdef __cpp_lib_span
-#   include <span>
+#if __has_include(<span>)
+#include <span>
 #endif
 
 namespace Ice
