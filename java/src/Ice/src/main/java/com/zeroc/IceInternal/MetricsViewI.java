@@ -70,10 +70,10 @@ public class MetricsViewI
         return _maps.remove(mapName) != null;
     }
 
-    public java.util.Map<String, com.zeroc.IceMX.Metrics[]>
+    public java.util.Map<String, com.zeroc.Ice.IceMX.Metrics[]>
     getMetrics()
     {
-        java.util.Map<String, com.zeroc.IceMX.Metrics[]> metrics = new java.util.HashMap<>();
+        java.util.Map<String, com.zeroc.Ice.IceMX.Metrics[]> metrics = new java.util.HashMap<>();
         for(java.util.Map.Entry<String, MetricsMap<?>> e : _maps.entrySet())
         {
             metrics.put(e.getKey(), e.getValue().getMetrics());
@@ -81,7 +81,7 @@ public class MetricsViewI
         return metrics;
     }
 
-    public com.zeroc.IceMX.MetricsFailures[]
+    public com.zeroc.Ice.IceMX.MetricsFailures[]
     getFailures(String mapName)
     {
         MetricsMap<?> m = _maps.get(mapName);
@@ -92,7 +92,7 @@ public class MetricsViewI
         return null;
     }
 
-    public com.zeroc.IceMX.MetricsFailures
+    public com.zeroc.Ice.IceMX.MetricsFailures
     getFailures(String mapName, String id)
     {
         MetricsMap<?> m = _maps.get(mapName);
@@ -110,7 +110,7 @@ public class MetricsViewI
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends com.zeroc.IceMX.Metrics> MetricsMap<T>
+    public <T extends com.zeroc.Ice.IceMX.Metrics> MetricsMap<T>
     getMap(String mapName, Class<T> cl)
     {
         return (MetricsMap<T>)_maps.get(mapName);
