@@ -473,7 +473,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
     test(mo5->j == mo1->j);
-    test(mo5->k == mo5->k);
+    test(mo5->k == mo1->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
     test(mo5->iid == mo1->iid);
