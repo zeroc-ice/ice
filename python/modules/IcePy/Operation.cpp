@@ -242,9 +242,7 @@ namespace IcePy
     class BlobjectUpcall final : public Upcall
     {
     public:
-        BlobjectUpcall(
-            function<void(bool, pair<const byte*, const byte*>)>,
-            function<void(std::exception_ptr)>);
+        BlobjectUpcall(function<void(bool, pair<const byte*, const byte*>)>, function<void(std::exception_ptr)>);
 
         void dispatch(PyObject*, pair<const byte*, const byte*>, const Ice::Current&) final;
         void response(PyObject*) final;
@@ -2437,10 +2435,7 @@ IcePy::TypedUpcall::TypedUpcall(
 }
 
 void
-IcePy::TypedUpcall::dispatch(
-    PyObject* servant,
-    pair<const byte*, const byte*> inBytes,
-    const Ice::Current& current)
+IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> inBytes, const Ice::Current& current)
 {
     _encoding = current.encoding;
 
@@ -2633,10 +2628,7 @@ IcePy::BlobjectUpcall::BlobjectUpcall(
 }
 
 void
-IcePy::BlobjectUpcall::dispatch(
-    PyObject* servant,
-    pair<const byte*, const byte*> inBytes,
-    const Ice::Current& current)
+IcePy::BlobjectUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> inBytes, const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
 

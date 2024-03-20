@@ -227,8 +227,7 @@ InitialI::opMyInterfaceProxyAsync(
 void
 InitialI::opByteSeqAsync(
     optional<pair<const byte*, const byte*>> p1,
-    function<void(optional<pair<const byte*, const byte*>>, optional<pair<const byte*, const byte*>>)>
-        response,
+    function<void(optional<pair<const byte*, const byte*>>, optional<pair<const byte*, const byte*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -238,8 +237,7 @@ InitialI::opByteSeqAsync(
 void
 InitialI::opBoolSeqAsync(
     optional<pair<const bool*, const bool*>> p1,
-    function<void(optional<pair<const bool*, const bool*>>, optional<pair<const bool*, const bool*>>)>
-        response,
+    function<void(optional<pair<const bool*, const bool*>>, optional<pair<const bool*, const bool*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -249,8 +247,7 @@ InitialI::opBoolSeqAsync(
 void
 InitialI::opShortSeqAsync(
     optional<pair<const short*, const short*>> p1,
-    function<void(optional<pair<const short*, const short*>>, optional<pair<const short*, const short*>>)>
-        response,
+    function<void(optional<pair<const short*, const short*>>, optional<pair<const short*, const short*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -260,8 +257,7 @@ InitialI::opShortSeqAsync(
 void
 InitialI::opIntSeqAsync(
     optional<pair<const int*, const int*>> p1,
-    function<void(optional<pair<const int*, const int*>>, optional<pair<const int*, const int*>>)>
-        response,
+    function<void(optional<pair<const int*, const int*>>, optional<pair<const int*, const int*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -271,9 +267,8 @@ InitialI::opIntSeqAsync(
 void
 InitialI::opLongSeqAsync(
     optional<pair<const int64_t*, const int64_t*>> p1,
-    function<void(
-        optional<pair<const int64_t*, const int64_t*>>,
-        optional<pair<const int64_t*, const int64_t*>>)> response,
+    function<void(optional<pair<const int64_t*, const int64_t*>>, optional<pair<const int64_t*, const int64_t*>>)>
+        response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -283,8 +278,7 @@ InitialI::opLongSeqAsync(
 void
 InitialI::opFloatSeqAsync(
     optional<pair<const float*, const float*>> p1,
-    function<void(optional<pair<const float*, const float*>>, optional<pair<const float*, const float*>>)>
-        response,
+    function<void(optional<pair<const float*, const float*>>, optional<pair<const float*, const float*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -294,9 +288,7 @@ InitialI::opFloatSeqAsync(
 void
 InitialI::opDoubleSeqAsync(
     optional<pair<const double*, const double*>> p1,
-    function<
-        void(optional<pair<const double*, const double*>>, optional<pair<const double*, const double*>>)>
-        response,
+    function<void(optional<pair<const double*, const double*>>, optional<pair<const double*, const double*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {

@@ -14,7 +14,7 @@
 #include <string_view>
 
 #if __has_include(<span>)
-#include <span>
+#    include <span>
 #endif
 
 namespace Ice
@@ -504,7 +504,7 @@ namespace Ice
     };
 
 #ifdef __cpp_lib_span
-     /**
+    /**
      * Helper for span (C++20 or later).
      * \headerfile Ice/Ice.h
      */

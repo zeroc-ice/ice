@@ -30,19 +30,25 @@ public:
 
     void opOptionalByteSpanAsync(
         std::optional<Test::ByteSeq> dataIn,
-        std::function<void(std::optional<std::span<const std::byte>> returnValue, std::optional<std::span<const std::byte>> dataOut)> response,
+        std::function<void(
+            std::optional<std::span<const std::byte>> returnValue,
+            std::optional<std::span<const std::byte>> dataOut)> response,
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 
     void opOptionalShortSpanAsync(
         std::optional<Test::ShortSeq> dataIn,
-        std::function<void(std::optional<std::span<const std::int16_t>> returnValue, std::optional<std::span<const std::int16_t>> dataOut)> response,
+        std::function<void(
+            std::optional<std::span<const std::int16_t>> returnValue,
+            std::optional<std::span<const std::int16_t>> dataOut)> response,
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 
     void opOptionalStringSpanAsync(
         std::optional<Test::StringSeq> dataIn,
-        std::function<void(std::optional<std::span<std::string>> returnValue, std::optional<std::span<std::string>> dataOut)> response,
+        std::function<
+            void(std::optional<std::span<std::string>> returnValue, std::optional<std::span<std::string>> dataOut)>
+            response,
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 

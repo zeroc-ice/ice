@@ -16,11 +16,20 @@ public:
 
     Test::StringSeq opStringSpan(Test::StringSeq dataIn, Test::StringSeq& dataOut, const Ice::Current&) final;
 
-    std::optional<Test::ByteSeq> opOptionalByteSpan(std::optional<Test::ByteSeq> dataIn, std::optional<Test::ByteSeq>& dataOut, const Ice::Current&) final;
+    std::optional<Test::ByteSeq> opOptionalByteSpan(
+        std::optional<Test::ByteSeq> dataIn,
+        std::optional<Test::ByteSeq>& dataOut,
+        const Ice::Current&) final;
 
-    std::optional<Test::ShortSeq> opOptionalShortSpan(std::optional<Test::ShortSeq> dataIn, std::optional<Test::ShortSeq>& dataOut, const Ice::Current&) final;
+    std::optional<Test::ShortSeq> opOptionalShortSpan(
+        std::optional<Test::ShortSeq> dataIn,
+        std::optional<Test::ShortSeq>& dataOut,
+        const Ice::Current&) final;
 
-    std::optional<Test::StringSeq> opOptionalStringSpan(std::optional<Test::StringSeq> dataIn, std::optional<Test::StringSeq>& dataOut, const Ice::Current&) final;
+    std::optional<Test::StringSeq> opOptionalStringSpan(
+        std::optional<Test::StringSeq> dataIn,
+        std::optional<Test::StringSeq>& dataOut,
+        const Ice::Current&) final;
 
     void shutdown(const Ice::Current&) final;
 };

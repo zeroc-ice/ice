@@ -322,10 +322,7 @@ Glacier2::RequestQueue::flush()
 }
 
 void
-Glacier2::RequestQueue::response(
-    bool ok,
-    pair<const byte*, const byte*> outParams,
-    const shared_ptr<Request>& request)
+Glacier2::RequestQueue::response(bool ok, pair<const byte*, const byte*> outParams, const shared_ptr<Request>& request)
 {
     assert(request);
     request->response(ok, outParams);

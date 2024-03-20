@@ -14,7 +14,7 @@ TestIntfAMDI::opByteSpanAsync(
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
-   response(dataIn, dataIn);
+    response(dataIn, dataIn);
 }
 
 void
@@ -75,10 +75,7 @@ TestIntfAMDI::opOptionalStringSpanAsync(
 }
 
 void
-TestIntfAMDI::shutdownAsync(
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
+TestIntfAMDI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();
