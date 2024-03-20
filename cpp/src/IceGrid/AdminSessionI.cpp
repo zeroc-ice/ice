@@ -25,7 +25,7 @@ namespace
 
         void ice_invokeAsync(
             pair<const byte*, const byte*> inParams,
-            function<void(bool, const pair<const byte*, const byte*>&)> response,
+            function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(exception_ptr)> exception,
             const Ice::Current& current) override
         {

@@ -44,7 +44,7 @@ Ice::InputStream::InputStream() { initialize(currentEncoding); }
 
 Ice::InputStream::InputStream(const vector<byte>& v) : Buffer(v) { initialize(currentEncoding); }
 
-Ice::InputStream::InputStream(const pair<const byte*, const byte*>& p) : Buffer(p.first, p.second)
+Ice::InputStream::InputStream(pair<const byte*, const byte*> p) : Buffer(p.first, p.second)
 {
     initialize(currentEncoding);
 }
@@ -58,7 +58,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<
     initialize(communicator);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const pair<const byte*, const byte*>& p)
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator);
@@ -76,7 +76,7 @@ Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<byte
     initialize(encoding);
 }
 
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const pair<const byte*, const byte*>& p)
+Ice::InputStream::InputStream(const EncodingVersion& encoding, pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(encoding);
@@ -104,7 +104,7 @@ Ice::InputStream::InputStream(
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     const EncodingVersion& encoding,
-    const pair<const byte*, const byte*>& p)
+    pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator, encoding);

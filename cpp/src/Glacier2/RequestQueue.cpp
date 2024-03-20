@@ -12,7 +12,7 @@ using namespace Glacier2;
 
 Glacier2::Request::Request(
     ObjectPrx proxy,
-    const std::pair<const byte*, const byte*>& inParams,
+    pair<const byte*, const byte*> inParams,
     const Current& current,
     bool forwardContext,
     const Ice::Context& sslContext,
@@ -138,7 +138,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
 }
 
 void
-Glacier2::Request::response(bool ok, const pair<const byte*, const byte*>& outParams)
+Glacier2::Request::response(bool ok, pair<const byte*, const byte*> outParams)
 {
     assert(_proxy->ice_isTwoway());
     _response(ok, outParams);
@@ -245,7 +245,7 @@ Glacier2::RequestQueue::flushRequests()
             }
             auto self = shared_from_this();
             request->invoke(
-                [self, request](bool ok, const pair<const byte*, const byte*>& outParams)
+                [self, request](bool ok, pair<const byte*, const byte*> outParams)
                 { self->response(ok, outParams, request); },
                 [self, request](exception_ptr e) { self->exception(e, request); });
         }
@@ -289,7 +289,7 @@ Glacier2::RequestQueue::flush()
         auto request = *p;
 
         request->invoke(
-            [self, request](bool ok, const pair<const byte*, const byte*>& outParams)
+            [self, request](bool ok, pair<const byte*, const byte*> outParams)
             { self->response(ok, outParams, request); },
             [self, request, completedExceptionally](exception_ptr e)
             {
@@ -322,10 +322,7 @@ Glacier2::RequestQueue::flush()
 }
 
 void
-Glacier2::RequestQueue::response(
-    bool ok,
-    const pair<const byte*, const byte*>& outParams,
-    const shared_ptr<Request>& request)
+Glacier2::RequestQueue::response(bool ok, pair<const byte*, const byte*> outParams, const shared_ptr<Request>& request)
 {
     assert(request);
     request->response(ok, outParams);

@@ -85,7 +85,7 @@ Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const Encod
 Ice::OutputStream::OutputStream(
     const CommunicatorPtr& communicator,
     const EncodingVersion& encoding,
-    const pair<const byte*, const byte*>& buf)
+    pair<const byte*, const byte*> buf)
     : Buffer(buf.first, buf.second),
       _closure(0),
       _currentEncaps(0)

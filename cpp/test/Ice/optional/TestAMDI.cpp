@@ -227,8 +227,7 @@ InitialI::opMyInterfaceProxyAsync(
 void
 InitialI::opByteSeqAsync(
     optional<pair<const byte*, const byte*>> p1,
-    function<void(const optional<pair<const byte*, const byte*>>&, const optional<pair<const byte*, const byte*>>&)>
-        response,
+    function<void(optional<pair<const byte*, const byte*>>, optional<pair<const byte*, const byte*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -238,8 +237,7 @@ InitialI::opByteSeqAsync(
 void
 InitialI::opBoolSeqAsync(
     optional<pair<const bool*, const bool*>> p1,
-    function<void(const optional<pair<const bool*, const bool*>>&, const optional<pair<const bool*, const bool*>>&)>
-        response,
+    function<void(optional<pair<const bool*, const bool*>>, optional<pair<const bool*, const bool*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -249,8 +247,7 @@ InitialI::opBoolSeqAsync(
 void
 InitialI::opShortSeqAsync(
     optional<pair<const short*, const short*>> p1,
-    function<void(const optional<pair<const short*, const short*>>&, const optional<pair<const short*, const short*>>&)>
-        response,
+    function<void(optional<pair<const short*, const short*>>, optional<pair<const short*, const short*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -260,8 +257,7 @@ InitialI::opShortSeqAsync(
 void
 InitialI::opIntSeqAsync(
     optional<pair<const int*, const int*>> p1,
-    function<void(const optional<pair<const int*, const int*>>&, const optional<pair<const int*, const int*>>&)>
-        response,
+    function<void(optional<pair<const int*, const int*>>, optional<pair<const int*, const int*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -271,9 +267,8 @@ InitialI::opIntSeqAsync(
 void
 InitialI::opLongSeqAsync(
     optional<pair<const int64_t*, const int64_t*>> p1,
-    function<void(
-        const optional<pair<const int64_t*, const int64_t*>>&,
-        const optional<pair<const int64_t*, const int64_t*>>&)> response,
+    function<void(optional<pair<const int64_t*, const int64_t*>>, optional<pair<const int64_t*, const int64_t*>>)>
+        response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -283,8 +278,7 @@ InitialI::opLongSeqAsync(
 void
 InitialI::opFloatSeqAsync(
     optional<pair<const float*, const float*>> p1,
-    function<void(const optional<pair<const float*, const float*>>&, const optional<pair<const float*, const float*>>&)>
-        response,
+    function<void(optional<pair<const float*, const float*>>, optional<pair<const float*, const float*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -294,9 +288,7 @@ InitialI::opFloatSeqAsync(
 void
 InitialI::opDoubleSeqAsync(
     optional<pair<const double*, const double*>> p1,
-    function<
-        void(const optional<pair<const double*, const double*>>&, const optional<pair<const double*, const double*>>&)>
-        response,
+    function<void(optional<pair<const double*, const double*>>, optional<pair<const double*, const double*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -317,8 +309,8 @@ void
 InitialI::opSmallStructSeqAsync(
     optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>> p1,
     function<void(
-        const optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>&,
-        const optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>&)> response,
+        optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
+        optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -329,8 +321,8 @@ void
 InitialI::opSmallStructListAsync(
     optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>> p1,
     function<void(
-        const optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>&,
-        const optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>&)> response,
+        optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
+        optional<pair<const Test::SmallStruct*, const Test::SmallStruct*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -341,8 +333,8 @@ void
 InitialI::opFixedStructSeqAsync(
     optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>> p1,
     function<void(
-        const optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>&,
-        const optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>&)> response,
+        optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
+        optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -353,8 +345,8 @@ void
 InitialI::opFixedStructListAsync(
     optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>> p1,
     function<void(
-        const optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>&,
-        const optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>&)> response,
+        optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
+        optional<pair<const Test::FixedStruct*, const Test::FixedStruct*>>)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {

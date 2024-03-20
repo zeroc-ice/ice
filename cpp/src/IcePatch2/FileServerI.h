@@ -27,7 +27,7 @@ namespace IcePatch2
             std::string,
             std::int32_t,
             std::int32_t,
-            std::function<void(const std::pair<const std::byte*, const std::byte*>& returnValue)>,
+            std::function<void(std::pair<const std::byte*, const std::byte*> returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const;
 
@@ -35,7 +35,7 @@ namespace IcePatch2
             std::string,
             std::int64_t,
             std::int32_t,
-            std::function<void(const std::pair<const std::byte*, const std::byte*>& returnValue)>,
+            std::function<void(std::pair<const std::byte*, const std::byte*> returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const final;
 

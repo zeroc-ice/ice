@@ -27,6 +27,7 @@
 #include <Ice/ACM.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include "Ice/OutgoingResponse.h"
 
 #include <condition_variable>
 #include <deque>

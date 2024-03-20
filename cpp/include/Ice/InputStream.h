@@ -7,7 +7,6 @@
 
 #include "CommunicatorF.h"
 #include "InstanceF.h"
-#include "Object.h"
 #include "ValueF.h"
 #include "ProxyF.h"
 #include "LoggerF.h"
@@ -22,6 +21,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <string_view>
 
@@ -81,7 +81,7 @@ namespace Ice
          * You can supply a communicator later by calling initialize().
          * @param bytes The encoded data.
          */
-        InputStream(const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(IceInternal::Buffer&, bool = false);
@@ -105,7 +105,7 @@ namespace Ice
          * @param communicator The communicator to use for unmarshaling tasks.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator, const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
@@ -138,7 +138,7 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const EncodingVersion& version, const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(const EncodingVersion& version, std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -171,7 +171,7 @@ namespace Ice
         InputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::byte*, const std::byte*>& bytes);
+            std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
