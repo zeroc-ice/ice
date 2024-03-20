@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <Gradle Condition="'$(Gradle)' == ''">gradlew</Gradle>
-    <slice2java>c++98\slice2java</slice2java>
+    <slice2java>slice2java</slice2java>
   </PropertyGroup>
 
   <Target Name="slice2java">
@@ -19,7 +19,7 @@
              Targets="NuGetRestore"
              BuildInParallel="true"/>
 
-    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
              Targets="$(slice2java)"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
