@@ -13,7 +13,6 @@
 #include "LoggerF.h"
 #include "InstrumentationF.h"
 #include "Ice/BuiltinSequences.h"
-#include "Ice/Version.h"
 #include "Plugin.h"
 #include "BatchRequestInterceptor.h"
 #include "ValueFactory.h"

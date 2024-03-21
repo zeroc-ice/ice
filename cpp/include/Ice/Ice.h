@@ -33,13 +33,13 @@
 #    include "ObjectAdapter.h"
 #    include "Plugin.h"
 #    include "Properties.h"
-#    include "Protocol.h"
 #    include "ProxyFunctions.h"
 #    include "RegisterPlugins.h"
 #    include "ServantLocator.h"
 #    include "SlicedData.h"
 #    include "StringConverter.h"
 #    include "UUID.h"
+#    include "Version.h"
 
 // Generated header files:
 #    include "Ice/EndpointTypes.h"

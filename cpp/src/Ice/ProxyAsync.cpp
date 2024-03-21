@@ -253,7 +253,7 @@ ProxyFlushBatchAsync::invokeCollocated(CollocatedRequestHandler* handler)
 void
 ProxyFlushBatchAsync::invoke(string_view operation)
 {
-    checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
+    checkSupportedProtocol(_proxy->_getReference()->getProtocol());
     _observer.attach(_proxy, operation, noExplicitContext);
     bool compress; // Ignore for proxy flushBatchRequests
     _batchRequestNum = _proxy._getReference()->getBatchRequestQueue()->swap(&_os, compress);

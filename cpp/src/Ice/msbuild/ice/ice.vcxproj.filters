@@ -925,9 +925,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\PropertiesF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\Protocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Proxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>

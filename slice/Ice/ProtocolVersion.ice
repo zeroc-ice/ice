@@ -33,15 +33,4 @@ struct ProtocolVersion
     byte minor;
 }
 
-#ifndef __SLICE2CPP__
-// Ice for C++ provides an hand-written equivalent.
-
-/// A version structure for the encoding version.
-struct EncodingVersion
-{
-    byte major;
-    byte minor;
-}
-#endif
-
 }

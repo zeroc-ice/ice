@@ -10,7 +10,7 @@
 #include "ValueF.h"
 #include "Exception.h"
 #include "Comparable.h"
-#include "Ice/Version.h"
+#include "EncodingVersion.h"
 #include "Ice/BuiltinSequences.h"
 #include "EndpointF.h"
 #include "IceUtil/UndefSysMacros.h"

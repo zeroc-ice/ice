@@ -959,7 +959,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\PluginF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Properties.h" />
     <ClInclude Include="..\..\..\..\include\Ice\PropertiesF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\Protocol.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Proxy.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ProxyF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ProxyFunctions.h" />

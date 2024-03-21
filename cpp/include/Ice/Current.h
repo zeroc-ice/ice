@@ -10,7 +10,7 @@
 #include "Ice/Identity.h"
 #include "ObjectAdapterF.h"
 #include "Ice/OperationMode.h"
-#include "Ice/Version.h"
+#include "EncodingVersion.h"
 
 namespace Ice
 {

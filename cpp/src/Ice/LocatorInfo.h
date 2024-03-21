@@ -10,7 +10,6 @@
 #include <Ice/Identity.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
-#include <Ice/Version.h>
 #include "Ice/Locator.h"
 
 #include <mutex>

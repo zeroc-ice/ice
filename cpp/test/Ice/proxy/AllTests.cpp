@@ -1017,18 +1017,23 @@ allTests(TestHelper* helper)
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
 
+    string ref13 = "test -e 1.3:" + endp;
+    MyClassPrx cl13(communicator, ref13);
+    try
+    {
+        cl13->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnsupportedEncodingException&)
+    {
+        // Same for 1.3
+    }
+
     string ref10 = "test -e 1.0:" + endp;
     MyClassPrx cl10(communicator, ref10);
     cl10->ice_ping();
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
     cl->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-    // call will use the 1.1 encoding
-    string ref13 = "test -e 1.3:" + endp;
-    MyClassPrx cl13(communicator, ref13);
-    cl13->ice_ping();
-    cl13->ice_pingAsync().get();
 
     try
     {
@@ -1088,17 +1093,21 @@ allTests(TestHelper* helper)
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
+    ref13 = "test -p 1.3:" + endp;
+    cl13 = MyClassPrx(communicator, ref13);
+    try
+    {
+        cl13->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnsupportedProtocolException&)
+    {
+        // Same with 1.3
+    }
+
     ref10 = "test -p 1.0:" + endp;
     cl10 = MyClassPrx(communicator, ref10);
     cl10->ice_ping();
-
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
-    // call will use the 1.0 encoding
-    ref13 = "test -p 1.3:" + endp;
-    cl13 = MyClassPrx(communicator, ref13);
-    cl13->ice_ping();
-    cl13->ice_pingAsync().get();
-    cout << "ok" << endl;
 
     cout << "testing opaque endpoints... " << flush;
 

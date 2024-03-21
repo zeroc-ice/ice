@@ -8,7 +8,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Protocol.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceLevels.h>

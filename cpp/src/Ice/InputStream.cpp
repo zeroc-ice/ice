@@ -12,7 +12,6 @@
 #include <Ice/ValueFactory.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -20,7 +19,6 @@
 #include <Ice/StringConverter.h>
 
 #include "Ice/FactoryTable.h"
-#include "Ice/Protocol.h"
 #include "ReferenceFactory.h"
 #include "Endian.h"
 #include <iterator>
