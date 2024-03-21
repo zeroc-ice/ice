@@ -903,12 +903,6 @@ def allTests(helper, communicator, collocated):
     cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
     cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
 
-    # 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-    # call will use the 1.1 encoding
-    ref13 = "test -e 1.3:{0}".format(helper.getTestEndpoint())
-    cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13))
-    cl13.ice_ping()
-
     print("ok")
 
     sys.stdout.write("testing opaque endpoints... ")
