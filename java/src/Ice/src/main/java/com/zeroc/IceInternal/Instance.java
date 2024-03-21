@@ -5,6 +5,8 @@
 package com.zeroc.IceInternal;
 
 import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
@@ -761,10 +763,22 @@ public final class Instance implements java.util.function.Function<String, Class
             if(pos != -1)
             {
                 String topLevelModule = typeId.substring(2, pos);
-                String pkg = _initData.properties.getProperty("Ice.Package." + topLevelModule);
-                if(pkg.length() > 0)
+                String[] packages = _builtInModulePackages.get(topLevelModule);
+                if (packages == null)
                 {
-                    c = getConcreteClass(pkg + "." + className);
+                    packages = _initData.properties.getPropertyAsListWithDefault("Ice.Package." + topLevelModule, null);
+                }
+
+                if(packages != null)
+                {
+                    for(String pkg : packages)
+                    {
+                        c = getConcreteClass(pkg + "." + className);
+                        if(c != null)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -1880,4 +1894,16 @@ public final class Instance implements java.util.function.Function<String, Class
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
+
+    private Map<String,String[]> _builtInModulePackages = java.util.Collections.unmodifiableMap(new HashMap<String, String[]>() {{ 
+        put("Glacier2", new String[] { "com.zeroc" });
+        put("Ice", new String[] { "com.zeroc" });
+        put("IceBox", new String[] { "com.zeroc" });
+        put("IceDiscovery", new String[] { "com.zeroc" });
+        put("IceGrid", new String[] { "com.zeroc" });
+        put("IceLocatorDiscovery", new String[] { "com.zeroc" });
+        put("IceMX", new String[] { "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm" });
+        put("IcePatch2", new String[] { "com.zeroc" });
+        put("IceStorm", new String[] { "com.zeroc" });
+    }});
 }
