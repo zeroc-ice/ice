@@ -10,6 +10,8 @@
 #    include <IceSSL/OpenSSL.h>
 #endif
 
+#include <stdexcept>
+
 using namespace std;
 
 class Server : public Test::TestHelper

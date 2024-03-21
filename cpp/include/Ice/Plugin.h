@@ -9,7 +9,6 @@
 #include "ProxyF.h"
 #include "ValueF.h"
 #include "Exception.h"
-#include "StreamHelpers.h"
 #include "Comparable.h"
 #include "LoggerF.h"
 #include "Ice/BuiltinSequences.h"

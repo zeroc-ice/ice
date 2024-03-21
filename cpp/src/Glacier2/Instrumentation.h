@@ -8,7 +8,6 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <optional>
 #include <Ice/Instrumentation.h>

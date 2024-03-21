@@ -95,10 +95,11 @@ namespace Slice
         ::IceUtilInternal::Output& _out;
     };
 
-    class Gen : private ::IceUtil::noncopyable
+    class Gen
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
+        Gen(const Gen&) = delete;
         ~Gen();
 
         void generate(const UnitPtr&);

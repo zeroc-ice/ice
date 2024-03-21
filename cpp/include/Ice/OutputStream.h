@@ -66,7 +66,7 @@ namespace Ice
         OutputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::byte*, const std::byte*>& bytes);
+            std::pair<const std::byte*, const std::byte*> bytes);
 
         /**
          * Move constructor.
@@ -888,10 +888,13 @@ namespace Ice
 
         typedef std::vector<std::shared_ptr<Value>> ValueList;
 
-        class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
+        class ICE_API EncapsEncoder
         {
         public:
+            EncapsEncoder(const EncapsEncoder&) = delete;
             virtual ~EncapsEncoder();
+
+            EncapsEncoder& operator=(const EncapsEncoder&) = delete;
 
             virtual void write(const std::shared_ptr<Value>&) = 0;
             virtual void write(const UserException&) = 0;
@@ -1019,21 +1022,25 @@ namespace Ice
             InstanceData _preAllocatedInstanceData;
             InstanceData* _current;
 
-            std::int32_t _valueIdIndex; // The ID of the next value to marhsal
+            std::int32_t _valueIdIndex; // The ID of the next value to marshal
         };
 
-        class Encaps : private ::IceUtil::noncopyable
+        class Encaps
         {
         public:
             Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
+            Encaps(const Encaps&) = delete;
             ~Encaps()
             {
                 // Inlined for performance reasons.
                 delete encoder;
             }
+
+            Encaps& operator=(const Encaps&) = delete;
+
             void reset()
             {
                 // Inlined for performance reasons.

@@ -9,6 +9,8 @@
 #include <IceGrid/DescriptorBuilder.h>
 #include <IceGrid/Util.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace IceGrid;
 

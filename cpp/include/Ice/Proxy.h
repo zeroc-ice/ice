@@ -480,7 +480,7 @@ namespace Ice
         bool ice_invoke(
             std::string_view operation,
             Ice::OperationMode mode,
-            const std::pair<const std::byte*, const std::byte*>& inParams,
+            std::pair<const std::byte*, const std::byte*> inParams,
             std::vector<std::byte>& outParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
@@ -495,7 +495,7 @@ namespace Ice
         std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
-            const std::pair<const std::byte*, const std::byte*>& inParams,
+            std::pair<const std::byte*, const std::byte*> inParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
@@ -512,7 +512,7 @@ namespace Ice
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
-            const std::pair<const std::byte*, const std::byte*>& inParams,
+            std::pair<const std::byte*, const std::byte*> inParams,
             std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr,

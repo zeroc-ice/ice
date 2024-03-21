@@ -11,6 +11,7 @@
 #include <cassert>
 #include <mutex>
 #include <sstream>
+#include <stdexcept>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>

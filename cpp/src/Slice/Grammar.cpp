@@ -116,6 +116,7 @@
 
 #include <IceUtil/UUID.h>
 #include <cstring>
+#include <limits>
 
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label
@@ -1965,7 +1966,7 @@ yyreduce:
             auto i = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
 
             int tag;
-            if (i->v < 0 || i->v > Int32Max)
+            if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
                 tag = -1;
@@ -2043,7 +2044,7 @@ yyreduce:
                 if (b && b->isIntegralType())
                 {
                     int64_t l = std::stoll(constant->value(), nullptr, 0);
-                    if (l < 0 || l > Int32Max)
+                    if (l < 0 || l > std::numeric_limits<int32_t>::max())
                     {
                         currentUnit->error("tag is out of range");
                     }
@@ -2092,7 +2093,7 @@ yyreduce:
             auto i = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
 
             int tag;
-            if (i->v < 0 || i->v > Int32Max)
+            if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
                 tag = -1;
@@ -2169,7 +2170,7 @@ yyreduce:
                 if (b && b->isIntegralType())
                 {
                     int64_t l = std::stoll(constant->value(), nullptr, 0);
-                    if (l < 0 || l > Int32Max)
+                    if (l < 0 || l > std::numeric_limits<int32_t>::max())
                     {
                         currentUnit->error("tag is out of range");
                     }
@@ -2345,7 +2346,7 @@ yyreduce:
             {
                 currentUnit->error("invalid compact id for class: id must be a positive integer");
             }
-            else if (id > Int32Max)
+            else if (id > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("invalid compact id for class: value is out of range");
             }
@@ -2428,7 +2429,7 @@ yyreduce:
                 if (b && b->isIntegralType())
                 {
                     int64_t l = std::stoll(constant->value(), nullptr, 0);
-                    if (l < 0 || l > Int32Max)
+                    if (l < 0 || l > std::numeric_limits<int32_t>::max())
                     {
                         currentUnit->error("compact id for class is out of range");
                     }
@@ -3411,7 +3412,7 @@ yyreduce:
             auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
             if (intVal)
             {
-                if (intVal->v < 0 || intVal->v > Int32Max)
+                if (intVal->v < 0 || intVal->v > std::numeric_limits<int32_t>::max())
                 {
                     currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
                 }

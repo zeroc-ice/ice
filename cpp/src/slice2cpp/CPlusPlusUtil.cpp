@@ -94,6 +94,51 @@ namespace
         }
     }
 
+    // Do we pass this type by value when it's an input parameter?
+    bool inputParamByValue(const TypePtr& type, const StringList& metaData)
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)))
+        {
+            return true;
+        }
+        if (dynamic_pointer_cast<Enum>(type))
+        {
+            return true;
+        }
+        if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+        {
+            static const string prefix = "cpp:";
+
+            // Return true for view-type (sequence and dictionary) and array (sequence only)
+            for (const auto& str : metaData)
+            {
+                if (str.find(prefix) == 0)
+                {
+                    string::size_type pos = str.find(':', prefix.size());
+                    if (pos != string::npos)
+                    {
+                        string ss = str.substr(prefix.size());
+                        if (ss.find("view-type:") == 0)
+                        {
+                            return true;
+                        }
+                        // else check remaining meta data
+                    }
+                    else
+                    {
+                        if (str.substr(prefix.size()) == "array")
+                        {
+                            return true;
+                        }
+                        // else check remaining meta data
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     void writeParamAllocateCode(
         Output& out,
         const TypePtr& type,
@@ -513,9 +558,7 @@ Slice::inputTypeToString(
     assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
     typeCtx = (typeCtx | TypeContext::MarshalParam);
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)) ||
-        dynamic_pointer_cast<Enum>(type))
+    if (inputParamByValue(type, metaData))
     {
         // Pass by value, even if it's optional.
         return typeToString(type, optional, scope, metaData, typeCtx);

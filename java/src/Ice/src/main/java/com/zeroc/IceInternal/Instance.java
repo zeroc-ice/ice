@@ -5,6 +5,8 @@
 package com.zeroc.IceInternal;
 
 import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
@@ -727,7 +729,7 @@ public final class Instance implements java.util.function.Function<String, Class
         // 3. If that fails, check for an Default.Package property. If found,
         //    prepend the property value to the classname.
         //
-        String className;
+        String fullyQualifiedClassName;
         boolean addClass = false;
 
         //
@@ -735,22 +737,22 @@ public final class Instance implements java.util.function.Function<String, Class
         //
         synchronized(this)
         {
-            className = _typeToClassMap.get(typeId);
+            fullyQualifiedClassName = _sliceTypeIdToClassMap.get(typeId);
         }
 
         //
         // It's a new type ID, so first convert it into a Java class name.
         //
-        if(className == null)
+        if(fullyQualifiedClassName == null)
         {
-            className = com.zeroc.Ice.Util.typeIdToClass(typeId);
+            fullyQualifiedClassName = com.zeroc.Ice.Util.typeIdToClass(typeId);
             addClass = true;
         }
 
         //
         // See if we can find the class without any prefix.
         //
-        c = getConcreteClass(className);
+        c = getConcreteClass(fullyQualifiedClassName);
 
         //
         // See if the application defined an Ice.Package.MODULE property.
@@ -761,10 +763,22 @@ public final class Instance implements java.util.function.Function<String, Class
             if(pos != -1)
             {
                 String topLevelModule = typeId.substring(2, pos);
-                String pkg = _initData.properties.getProperty("Ice.Package." + topLevelModule);
-                if(pkg.length() > 0)
+                String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
+                if (packagePrefixes == null)
                 {
-                    c = getConcreteClass(pkg + "." + className);
+                    packagePrefixes = _initData.properties.getPropertyAsListWithDefault("Ice.Package." + topLevelModule, null);
+                }
+
+                if(packagePrefixes != null)
+                {
+                    for(String packagePrefix : packagePrefixes)
+                    {
+                        c = getConcreteClass(packagePrefix + "." + fullyQualifiedClassName);
+                        if(c != null)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -777,7 +791,7 @@ public final class Instance implements java.util.function.Function<String, Class
             String pkg = _initData.properties.getProperty("Ice.Default.Package");
             if(pkg.length() > 0)
             {
-                c = getConcreteClass(pkg + "." + className);
+                c = getConcreteClass(pkg + "." + fullyQualifiedClassName);
             }
         }
 
@@ -788,14 +802,14 @@ public final class Instance implements java.util.function.Function<String, Class
         {
             synchronized(this)
             {
-                className = c.getName();
-                if(_typeToClassMap.containsKey(typeId))
+                fullyQualifiedClassName = c.getName();
+                if(_sliceTypeIdToClassMap.containsKey(typeId))
                 {
-                    assert(_typeToClassMap.get(typeId).equals(className));
+                    assert(_sliceTypeIdToClassMap.get(typeId).equals(fullyQualifiedClassName));
                 }
                 else
                 {
-                    _typeToClassMap.put(typeId, className);
+                    _sliceTypeIdToClassMap.put(typeId, fullyQualifiedClassName);
                 }
             }
         }
@@ -1579,7 +1593,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 _queueExecutor = null;
                 _queueExecutorService = null;
 
-                _typeToClassMap.clear();
+                _sliceTypeIdToClassMap.clear();
 
                 _state = StateDestroyed;
                 notifyAll();
@@ -1873,11 +1887,23 @@ public final class Instance implements java.util.function.Function<String, Class
     private com.zeroc.Ice.Identity _adminIdentity;
     private java.util.Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new java.util.HashMap<>();
 
-    private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<>();
+    private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
     final private String[] _packages;
     final private boolean _useApplicationClassLoader;
 
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
+
+    private Map<String,String[]> _builtInModulePackagePrefixes = java.util.Collections.unmodifiableMap(new HashMap<String, String[]>() {{
+        put("Glacier2", new String[] { "com.zeroc" });
+        put("Ice", new String[] { "com.zeroc" });
+        put("IceBox", new String[] { "com.zeroc" });
+        put("IceDiscovery", new String[] { "com.zeroc" });
+        put("IceGrid", new String[] { "com.zeroc" });
+        put("IceLocatorDiscovery", new String[] { "com.zeroc" });
+        put("IceMX", new String[] { "com.zeroc" });
+        put("IcePatch2", new String[] { "com.zeroc" });
+        put("IceStorm", new String[] { "com.zeroc" });
+    }});
 }

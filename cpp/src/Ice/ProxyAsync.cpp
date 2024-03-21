@@ -121,7 +121,7 @@ namespace IceInternal
         void invoke(
             string_view operation,
             Ice::OperationMode mode,
-            const std::pair<const byte*, const byte*>& inParams,
+            std::pair<const byte*, const byte*> inParams,
             const Ice::Context& context)
         {
             _read = [](bool ok, Ice::InputStream* stream)
@@ -522,7 +522,7 @@ bool
 Ice::ObjectPrx::ice_invoke(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const byte*, const byte*>& inParams,
+    std::pair<const byte*, const byte*> inParams,
     vector<byte>& outParams,
     const Ice::Context& context) const
 {
@@ -539,7 +539,7 @@ std::future<std::tuple<bool, vector<byte>>>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const byte*, const byte*>& inParams,
+    std::pair<const byte*, const byte*> inParams,
     const Ice::Context& context) const
 {
     using Outgoing = ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<byte>>>;
@@ -552,7 +552,7 @@ std::function<void()>
 Ice::ObjectPrx::ice_invokeAsync(
     string_view operation,
     Ice::OperationMode mode,
-    const std::pair<const byte*, const byte*>& inParams,
+    std::pair<const byte*, const byte*> inParams,
     std::function<void(bool, std::pair<const byte*, const byte*>)> response,
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent,

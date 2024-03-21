@@ -27,6 +27,7 @@
 #include <Ice/ACM.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include "Ice/OutgoingResponse.h"
 
 #include <condition_variable>
 #include <deque>
@@ -70,7 +71,7 @@ namespace Ice
     public:
         std::shared_ptr<ConnectionI> shared_from_this()
         {
-            return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
+            return std::dynamic_pointer_cast<ConnectionI>(IceInternal::EventHandler::shared_from_this());
         }
 
         struct OutgoingMessage

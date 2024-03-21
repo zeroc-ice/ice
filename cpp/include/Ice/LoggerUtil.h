@@ -17,9 +17,14 @@ namespace Ice
      * Base class for logger output utility classes.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API LoggerOutputBase : private IceUtil::noncopyable
+    class ICE_API LoggerOutputBase
     {
     public:
+        LoggerOutputBase() = default;
+        LoggerOutputBase(const LoggerOutputBase&) = delete;
+
+        LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
+
         /** Obtains the collected output. */
         std::string str() const;
 

@@ -290,7 +290,7 @@ environment variables:
 Open the Visual Studio solution that corresponds to the Visual Studio version
 you are using.
 
-- For Visual Studio 2022 use [msbuild/ice.v143.sln](./msbuild/ice.v143.sln)
+- For Visual Studio 2022 use [msbuild/ice.sln](./msbuild/ice.sln)
 
 Restore the solution NuGet packages using the NuGet package manager, if the
 automatic download of packages during build is not enabled.

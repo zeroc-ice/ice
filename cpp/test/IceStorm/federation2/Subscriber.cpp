@@ -16,6 +16,8 @@
 #    include <sys/stat.h>
 #endif
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;

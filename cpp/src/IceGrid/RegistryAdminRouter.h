@@ -18,7 +18,7 @@ namespace IceGrid
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*>,
-            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
+            std::function<void(bool, std::pair<const std::byte*, const std::byte*>)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 
@@ -33,7 +33,7 @@ namespace IceGrid
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*>,
-            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
+            std::function<void(bool, std::pair<const std::byte*, const std::byte*>)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 
@@ -49,7 +49,7 @@ namespace IceGrid
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*>,
-            std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)>,
+            std::function<void(bool, std::pair<const std::byte*, const std::byte*>)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 

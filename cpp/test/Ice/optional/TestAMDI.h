@@ -133,56 +133,56 @@ public:
     void opByteSeqAsync(
         std::optional<std::pair<const std::byte*, const std::byte*>>,
         std::function<void(
-            const std::optional<std::pair<const std::byte*, const std::byte*>>&,
-            const std::optional<std::pair<const std::byte*, const std::byte*>>&)>,
+            std::optional<std::pair<const std::byte*, const std::byte*>>,
+            std::optional<std::pair<const std::byte*, const std::byte*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opBoolSeqAsync(
         std::optional<std::pair<const bool*, const bool*>>,
         std::function<void(
-            const std::optional<std::pair<const bool*, const bool*>>&,
-            const std::optional<std::pair<const bool*, const bool*>>&)>,
+            std::optional<std::pair<const bool*, const bool*>>,
+            std::optional<std::pair<const bool*, const bool*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opShortSeqAsync(
         std::optional<std::pair<const std::int16_t*, const std::int16_t*>>,
         std::function<void(
-            const std::optional<std::pair<const std::int16_t*, const std::int16_t*>>&,
-            const std::optional<std::pair<const std::int16_t*, const std::int16_t*>>&)>,
+            std::optional<std::pair<const std::int16_t*, const std::int16_t*>>,
+            std::optional<std::pair<const std::int16_t*, const std::int16_t*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opIntSeqAsync(
         std::optional<std::pair<const std::int32_t*, const std::int32_t*>>,
         std::function<void(
-            const std::optional<std::pair<const std::int32_t*, const std::int32_t*>>&,
-            const std::optional<std::pair<const std::int32_t*, const std::int32_t*>>&)>,
+            std::optional<std::pair<const std::int32_t*, const std::int32_t*>>,
+            std::optional<std::pair<const std::int32_t*, const std::int32_t*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opLongSeqAsync(
         std::optional<std::pair<const std::int64_t*, const std::int64_t*>>,
         std::function<void(
-            const std::optional<std::pair<const std::int64_t*, const std::int64_t*>>&,
-            const std::optional<std::pair<const std::int64_t*, const std::int64_t*>>&)>,
+            std::optional<std::pair<const std::int64_t*, const std::int64_t*>>,
+            std::optional<std::pair<const std::int64_t*, const std::int64_t*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opFloatSeqAsync(
         std::optional<std::pair<const float*, const float*>>,
         std::function<void(
-            const std::optional<std::pair<const float*, const float*>>&,
-            const std::optional<std::pair<const float*, const float*>>&)>,
+            std::optional<std::pair<const float*, const float*>>,
+            std::optional<std::pair<const float*, const float*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opDoubleSeqAsync(
         std::optional<std::pair<const double*, const double*>>,
         std::function<void(
-            const std::optional<std::pair<const double*, const double*>>&,
-            const std::optional<std::pair<const double*, const double*>>&)>,
+            std::optional<std::pair<const double*, const double*>>,
+            std::optional<std::pair<const double*, const double*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
@@ -195,32 +195,32 @@ public:
     void opSmallStructSeqAsync(
         std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
         std::function<void(
-            const std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>&,
-            const std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>&)>,
+            std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
+            std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opSmallStructListAsync(
         std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
         std::function<void(
-            const std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>&,
-            const std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>&)>,
+            std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>,
+            std::optional<std::pair<const Test::SmallStruct*, const Test::SmallStruct*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opFixedStructSeqAsync(
         std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
         std::function<void(
-            const std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>&,
-            const std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>&)>,
+            std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
+            std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
     void opFixedStructListAsync(
         std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
         std::function<void(
-            const std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>&,
-            const std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>&)>,
+            std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>,
+            std::optional<std::pair<const Test::FixedStruct*, const Test::FixedStruct*>>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

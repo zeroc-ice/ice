@@ -16,18 +16,9 @@
     </Target>
 
     <!-- Targets required to build Slice compilers -->
-    <Choose>
-        <When Condition="'$(OS)' != 'Windows_NT'">
-            <ItemGroup>
-                <SliceCompilers Include="slice2cs"/>
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs"/>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
+    <ItemGroup>
+        <SliceCompilers Include="slice2cs"/>
+    </ItemGroup>
 
     <Target Name="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
@@ -35,7 +26,7 @@
                  BuildInParallel="true"
                  Condition="'$(OS)' == 'Windows_NT'"/>
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.v143.sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="@(SliceCompilers)"
                  BuildInParallel="true"
                  Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"

@@ -35,13 +35,6 @@ namespace Slice
         const std::string _reason;
     };
 
-    const std::int64_t Int32Max = INT32_MAX;
-    const std::int64_t Int32Min = INT32_MIN;
-    const std::int64_t Int16Max = 0x7fff;
-    const std::int64_t Int16Min = -Int16Max - 1;
-    const std::int64_t ByteMax = 0xff;
-    const std::int64_t ByteMin = 0x00;
-
     enum NodeType
     {
         Dummy,

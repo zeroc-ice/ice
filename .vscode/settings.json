@@ -76,10 +76,12 @@
         "xtree": "cpp",
         "execution": "cpp",
         "type_traits": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "span": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
     "cSpell.words": [
+        "unmarshal",
         "unmarshaling"
     ],
 }

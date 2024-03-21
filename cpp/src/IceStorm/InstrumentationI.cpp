@@ -8,6 +8,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace IceStorm;
 using namespace IceStorm::Instrumentation;

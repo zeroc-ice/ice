@@ -39,6 +39,7 @@
 #endif
 
 #include <iterator>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;

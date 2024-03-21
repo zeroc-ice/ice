@@ -7,6 +7,8 @@
 #include <Single.h>
 #include <Controller.h>
 #include <TestHelper.h>
+
+#include <stdexcept>
 #include <thread>
 
 using namespace std;

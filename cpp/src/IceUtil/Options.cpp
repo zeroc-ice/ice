@@ -4,9 +4,11 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+
 #include <cassert>
 #include <iostream>
 #include <set>
+#include <stdexcept>
 
 using namespace std;
 using namespace IceUtil;
@@ -76,7 +78,7 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
 {
     if (shortOpt.empty() && longOpt.empty())
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "short and long option cannot both be empty");
+        throw invalid_argument("short and long option cannot both be empty");
     }
 
     if (!shortOpt.empty())
@@ -86,21 +88,21 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
             string err = "`";
             err += shortOpt;
             err += "': a short option cannot specify more than one option";
-            throw IllegalArgumentException(__FILE__, __LINE__, err);
+            throw invalid_argument(err);
         }
         if (shortOpt.find_first_of(" \t\n\r\f\v") != string::npos)
         {
             string err = "`";
             err += shortOpt;
             err += "': a short option cannot be whitespace";
-            throw IllegalArgumentException(__FILE__, __LINE__, err);
+            throw invalid_argument(err);
         }
         if (shortOpt[0] == '-')
         {
             string err = "`";
             err += shortOpt;
             err += "': a short option cannot be `-'";
-            throw IllegalArgumentException(__FILE__, __LINE__, err);
+            throw invalid_argument(err);
         }
     }
 
@@ -111,23 +113,20 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
             string err = "`";
             err += longOpt;
             err += "': a long option cannot contain whitespace";
-            throw IllegalArgumentException(__FILE__, __LINE__, err);
+            throw invalid_argument(err);
         }
         if (longOpt[0] == '-')
         {
             string err = "`";
             err += longOpt;
             err += "': a long option must not contain a leading `-'";
-            throw IllegalArgumentException(__FILE__, __LINE__, err);
+            throw invalid_argument(err);
         }
     }
 
     if (!needArg && !dflt.empty())
     {
-        throw IllegalArgumentException(
-            __FILE__,
-            __LINE__,
-            "a default value can be specified only for options requiring an argument");
+        throw invalid_argument("a default value can be specified only for options requiring an argument");
     }
 }
 
@@ -771,7 +770,7 @@ IceUtilInternal::Options::optArg(const string& opt) const
         }
         err += opt;
         err += "': is a repeating option -- use argVec() to get its arguments";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
 
     Opts::const_iterator p = _opts.find(opt);
@@ -800,7 +799,7 @@ IceUtilInternal::Options::argVec(const string& opt) const
             err.push_back('-');
         }
         err += opt + "': is a non-repeating option -- use optArg() to get its argument";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
 
     ROpts::const_iterator p = _ropts.find(opt);
@@ -820,14 +819,14 @@ IceUtilInternal::Options::addValidOpt(
         string err = "`";
         err += shortOpt;
         err += "': duplicate option";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
     if (!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
     {
         string err = "`";
         err += longOpt;
         err += "': duplicate option";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
 
     ODPtr odp = make_shared<OptionDetails>();
@@ -985,7 +984,7 @@ IceUtilInternal::Options::checkOptIsValid(const string& opt) const
         string err = "`";
         err += opt;
         err += "': invalid option";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
     return pos;
 }
@@ -1003,7 +1002,7 @@ IceUtilInternal::Options::checkOptHasArg(const string& opt) const
         }
         err += opt;
         err += "': option does not take arguments";
-        throw IllegalArgumentException(__FILE__, __LINE__, err);
+        throw invalid_argument(err);
     }
     return pos;
 }

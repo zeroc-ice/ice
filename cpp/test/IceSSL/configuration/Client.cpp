@@ -11,6 +11,8 @@
 #    include <IceSSL/OpenSSL.h>
 #endif
 
+#include <stdexcept>
+
 using namespace std;
 
 class Client : public Test::TestHelper

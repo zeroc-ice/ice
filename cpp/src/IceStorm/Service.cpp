@@ -23,6 +23,8 @@
 
 #include <IceGrid/Registry.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
