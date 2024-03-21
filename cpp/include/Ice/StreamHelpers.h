@@ -160,10 +160,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
     {
-        static void write(OutputStream* stream, std::pair<const T*, const T*> v)
-        {
-            stream->write(v.first, v.second);
-        }
+        static void write(OutputStream* stream, std::pair<const T*, const T*> v) { stream->write(v.first, v.second); }
 
         static void read(InputStream* stream, std::pair<const T*, const T*>& v) { stream->read(v); }
     };
@@ -175,10 +172,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<std::span<T>, StreamHelperCategorySequence>
     {
-        static void write(OutputStream* stream, const std::span<T>& v)
-        {
-            stream->write(v.data(), v.data() + v.size());
-        }
+        static void write(OutputStream* stream, const std::span<T>& v) { stream->write(v.data(), v.data() + v.size()); }
 
         // No read. span are only for view types.
     };
