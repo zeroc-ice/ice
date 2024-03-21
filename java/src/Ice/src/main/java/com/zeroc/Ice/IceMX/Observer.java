@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceMX;
+package com.zeroc.Ice.IceMX;
 
 import com.zeroc.IceInternal.MetricsMap;
 

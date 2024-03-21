@@ -26,7 +26,7 @@ public class Client extends test.TestHelper
             MetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
-        catch(com.zeroc.IceMX.UnknownMetricsView ex)
+        catch(com.zeroc.Ice.IceMX.UnknownMetricsView ex)
         {
             throw new RuntimeException(ex);
         }

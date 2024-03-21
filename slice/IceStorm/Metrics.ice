@@ -18,7 +18,7 @@
 
 #include <Ice/Metrics.ice>
 
-[["java:package:com.zeroc"]]
+[["java:package:com.zeroc.IceStorm"]]
 
 ["swift:module:IceStorm:MX"]
 module IceMX

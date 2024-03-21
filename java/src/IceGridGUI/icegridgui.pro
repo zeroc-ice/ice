@@ -53,8 +53,8 @@
 -dontnote com.zeroc.Ice.PluginManagerI
 -dontnote com.zeroc.Ice._ObjectPrxI
 -dontnote com.zeroc.IceInternal.MetricsMap
--dontnote com.zeroc.IceMX.Observer
--dontnote com.zeroc.IceMX.ObserverFactory
+-dontnote com.zeroc.Ice.IceMX.Observer
+-dontnote com.zeroc.Ice.IceMX.ObserverFactory
 
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator
@@ -99,8 +99,12 @@
   public *;
 }
 -keep interface com.zeroc.IceGrid.**
--keep class com.zeroc.IceMX.**
--keep interface com.zeroc.IceMX.**
+-keep class com.zeroc.Ice.IceMX.**
+-keep interface com.zeroc.Ice.IceMX.**
+-keep class com.zeroc.IceStorm.IceMX.**
+-keep interface com.zeroc.IceStorm.IceMX.**
+-keep class com.zeroc.Glacier2.IceMX.**
+-keep interface com.zeroc.Glacier2.IceMX.**
 
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticFieldCaret

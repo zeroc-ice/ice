@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IceStorm"
+project.ext.moduleName = "com.zeroc.icestorm"
 project.ext.description = "Publish-subscribe event distribution service"
 
 sourceSets {
