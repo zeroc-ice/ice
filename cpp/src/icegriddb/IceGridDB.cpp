@@ -20,8 +20,6 @@ using namespace IceInternal;
 
 namespace
 {
-    bool skipReplicaGroupFilter = false;
-
     class ServerDescriptorI : public IceGrid::ServerDescriptor
     {
     public:
@@ -46,33 +44,6 @@ namespace
         string _serverVersion;
     };
 }
-
-/*
-TODO: how do we deal with this?
-
-//
-// This custom version of the StreamReader allows us to customize the
-// reading of ReplicaGroupDescriptor
-//
-namespace Ice
-{
-    template<> struct StreamReader<IceGrid::ReplicaGroupDescriptor>
-    {
-        static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)
-        {
-            is->read(v.id);
-            is->read(v.loadBalancing);
-            is->read(v.proxyOptions);
-            is->read(v.objects);
-            is->read(v.description);
-            if (!skipReplicaGroupFilter)
-            {
-                is->read(v.filter);
-            }
-        }
-    };
-}
-*/
 
 int run(const Ice::StringSeq&);
 
@@ -275,13 +246,10 @@ run(const Ice::StringSeq& args)
                 return 1;
             }
             stream.read(version);
-            if (version / 100 == 305)
+            if (version / 100 <= 305)
             {
-                if (debug)
-                {
-                    consoleOut << "Reading Ice 3.5.x data" << endl;
-                }
-                skipReplicaGroupFilter = true;
+                consoleErr << args[0] << ": cannot read file created by IceGrid 3.5 or earlier." << endl;
+                return 1;
             }
             stream.read(data);
 
