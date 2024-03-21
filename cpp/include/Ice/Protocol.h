@@ -6,6 +6,7 @@
 #define ICE_PROTOCOL_H
 
 #include "Config.h"
+#include "EncodingVersion.h"
 #include "Ice/Version.h"
 
 #include <sstream>

@@ -30,6 +30,8 @@
 #include <Ice/ImplicitContext.h>
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
+#include "Ice/Protocol.h"
+
 #include <list>
 
 namespace Ice

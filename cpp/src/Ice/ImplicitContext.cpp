@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ImplicitContext.h>
+#include "Ice/ImplicitContext.h"
+#include "Ice/StreamHelpers.h"
 
 using namespace std;
 using namespace Ice;

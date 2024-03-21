@@ -16,6 +16,7 @@
 #include "ObserverHelper.h"
 #include "LocalException.h"
 #include "Proxy.h"
+#include "Protocol.h"
 
 #include <cassert>
 #include <exception>

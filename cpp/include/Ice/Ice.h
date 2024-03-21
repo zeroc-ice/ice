@@ -33,6 +33,7 @@
 #    include "ObjectAdapter.h"
 #    include "Plugin.h"
 #    include "Properties.h"
+#    include "Protocol.h"
 #    include "ProxyFunctions.h"
 #    include "RegisterPlugins.h"
 #    include "ServantLocator.h"

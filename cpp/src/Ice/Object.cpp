@@ -10,6 +10,7 @@
 #include "Ice/OutputStream.h"
 
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;

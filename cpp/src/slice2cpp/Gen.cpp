@@ -2281,7 +2281,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ", ::Ice::OutputStream>::write(ostr, *this);";
+        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2296,7 +2296,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ", ::Ice::InputStream>::read(istr, *this);";
+        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
     }
     C << nl << "istr->endSlice();";
     if (base)
@@ -2468,9 +2468,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if (generateFriend)
     {
         H << sp;
-        H << nl << "template<typename T, typename S>";
+        H << nl << "template<typename T>";
         H << nl << "friend struct Ice::StreamWriter;";
-        H << nl << "template<typename T, typename S>";
+        H << nl << "template<typename T>";
         H << nl << "friend struct Ice::StreamReader;";
     }
 
@@ -2491,7 +2491,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "ostr->startSlice(ice_staticId(), -1, " << (base ? "false" : "true") << ");";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamWriter<" << name << ", ::Ice::OutputStream>::write(ostr, *this);";
+        C << nl << "::Ice::StreamWriter<" << name << ">::write(ostr, *this);";
     }
     C << nl << "ostr->endSlice();";
     if (base)
@@ -2506,7 +2506,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "istr->startSlice();";
     if (!dataMembers.empty())
     {
-        C << nl << "::Ice::StreamReader<" << name << ", ::Ice::InputStream>::read(istr, *this);";
+        C << nl << "::Ice::StreamReader<" << name << ">::read(istr, *this);";
     }
     C << nl << "istr->endSlice();";
     if (base)

@@ -5,13 +5,10 @@
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
-#include "ValueF.h"
-#include "ProxyF.h"
-#include "UserException.h"
+#include "InputStream.h"
+#include "OutputStream.h"
 
 #include <iterator>
-#include <optional>
-#include <string_view>
 
 #if __has_include(<span>)
 #    include <span>
@@ -21,339 +18,7 @@ namespace Ice
 {
     /// \cond STREAM
 
-    /**
-     * The stream helper category allows streams to select the desired StreamHelper for a given streamable object.
-     */
-    typedef int StreamHelperCategory;
-
-    /** For types with no specialized trait. */
-    const StreamHelperCategory StreamHelperCategoryUnknown = 0;
-    /** For built-in types usually passed by value. */
-    const StreamHelperCategory StreamHelperCategoryBuiltinValue = 1;
-    /** For built-in types usually passed by reference. */
-    const StreamHelperCategory StreamHelperCategoryBuiltin = 2;
-    /** For struct types. */
-    const StreamHelperCategory StreamHelperCategoryStruct = 3;
-    /** For enum types. */
-    const StreamHelperCategory StreamHelperCategoryEnum = 4;
-    /** For sequence types. */
-    const StreamHelperCategory StreamHelperCategorySequence = 5;
-    /** For dictionary types. */
-    const StreamHelperCategory StreamHelperCategoryDictionary = 6;
-    /** For proxy types. */
-    const StreamHelperCategory StreamHelperCategoryProxy = 7;
-    /** For class types. */
-    const StreamHelperCategory StreamHelperCategoryClass = 8;
-    /** For exception types. */
-    const StreamHelperCategory StreamHelperCategoryUserException = 9;
-
-    /**
-     * The optional format.
-     *
-     * Optional data members and parameters are encoded with a specific
-     * optional format. This optional format describes how the data is encoded
-     * and how it can be skipped by the unmarshaling code if the optional ID
-     * isn't known to the receiver.
-     */
-    enum class OptionalFormat : unsigned char
-    {
-        /** Fixed 1-byte encoding. */
-        F1 = 0,
-        /** Fixed 2-byte encoding. */
-        F2 = 1,
-        /** Fixed 4-byte encoding. */
-        F4 = 2,
-        /** Fixed 8-byte encoding. */
-        F8 = 3,
-        /** "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier. */
-        Size = 4,
-        /**
-         * "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size
-         * struct, or containers whose size can be computed prior to marshaling.
-         */
-        VSize = 5,
-        /** Fixed size using 4 bytes followed by data, e.g., variable-size struct, container. */
-        FSize = 6,
-        /** Class instance. */
-        Class = 7
-    };
-
-    /**
-     * Determines whether the provided type is a container. For now, the implementation only checks
-     * if there is a T::iterator typedef using SFINAE.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T> struct IsContainer
-    {
-        template<typename C> static char test(typename C::iterator*);
-
-        template<typename C> static long test(...);
-
-        static const bool value = sizeof(test<T>(0)) == sizeof(char);
-    };
-
-    /**
-     * Determines whether the provided type is a map. For now, the implementation only checks if there
-     * is a T::mapped_type typedef using SFINAE.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T> struct IsMap
-    {
-        template<typename C> static char test(typename C::mapped_type*);
-
-        template<typename C> static long test(...);
-
-        static const bool value = IsContainer<T>::value && sizeof(test<T>(0)) == sizeof(char);
-    };
-
-    /**
-     * Base traits template. Types with no specialized trait use this trait.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T, typename Enabler = void> struct StreamableTraits
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryUnknown;
-
-        //
-        // When extracting a sequence<T> from a stream, we can ensure the
-        // stream has at least StreamableTraits<T>::minWireSize * size bytes
-        // For containers, the minWireSize is 1 (just 1 byte for an empty container).
-        //
-        // static const int minWireSize = 1;
-
-        //
-        // Is this type encoded on a fixed number of bytes?
-        // Used only for marshaling/unmarshaling optional data members and parameters.
-        //
-        // static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for sequence and dictionary types.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T>
-    struct StreamableTraits<T, typename ::std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
-    {
-        static const StreamHelperCategory helper =
-            IsMap<T>::value ? StreamHelperCategoryDictionary : StreamHelperCategorySequence;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for exceptions.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T>
-    struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::UserException, T>::value>::type>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryUserException;
-
-        //
-        // There is no sequence/dictionary of UserException (so no need for minWireSize)
-        // and no optional UserException (so no need for fixedLength)
-        //
-    };
-
-    /**
-     * Specialization for arrays (std::pair<const T*, const T*>).
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T> struct StreamableTraits<std::pair<T*, T*>>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategorySequence;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<bool>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::byte>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::uint8_t>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::int16_t>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 2;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::int32_t>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 4;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::int64_t>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 8;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<float>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 4;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<double>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 8;
-        static const bool fixedLength = true;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::string>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::string_view>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::wstring>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::wstring_view>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * vector<bool> is a special type in C++: the streams handle it like a built-in type.
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct StreamableTraits<std::vector<bool>>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for proxy types.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T>
-    struct StreamableTraits<std::optional<T>, typename std::enable_if<std::is_base_of<ObjectPrx, T>::value>::type>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryProxy;
-        static const int minWireSize = 2;
-        static const bool fixedLength = false;
-    };
-
-    /**
-     * Specialization for class types.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T>
-    struct StreamableTraits<
-        ::std::shared_ptr<T>,
-        typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static const StreamHelperCategory helper = StreamHelperCategoryClass;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
-    };
-
-    //
     // StreamHelper templates used by streams to read and write data.
-    //
-
-    /** Base StreamHelper template; it must be specialized for each type. */
-    template<typename T, StreamHelperCategory st> struct StreamHelper;
 
     /**
      * Helper for smaller built-in type that are typically passed by value.
@@ -361,9 +26,9 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryBuiltinValue>
     {
-        template<class S> static inline void write(S* stream, T v) { stream->write(v); }
+        static void write(OutputStream* stream, T v) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     /**
@@ -372,7 +37,7 @@ namespace Ice
      */
     template<> struct StreamHelper<std::string_view, StreamHelperCategoryBuiltinValue>
     {
-        template<class S> static inline void write(S* stream, std::string_view v) { stream->write(v); }
+        static void write(OutputStream* stream, std::string_view v) { stream->write(v); }
 
         // No read: we marshal string views but unmarshal strings.
     };
@@ -383,7 +48,7 @@ namespace Ice
      */
     template<> struct StreamHelper<std::wstring_view, StreamHelperCategoryBuiltinValue>
     {
-        template<class S> static inline void write(S* stream, std::wstring_view v) { stream->write(v); }
+        static void write(OutputStream* stream, std::wstring_view v) { stream->write(v); }
 
         // No read: we marshal wstring views but unmarshal wstrings.
     };
@@ -394,9 +59,9 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryBuiltin>
     {
-        template<class S> static inline void write(S* stream, const T& v) { stream->write(v); }
+        static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     //
@@ -405,24 +70,24 @@ namespace Ice
     //
 
     /**
-     * General writer. slice2cpp generates specializations as needed.
-     * \headerfile Ice/Ice.h
-     */
-    template<typename T, typename S> struct StreamWriter
-    {
-        static inline void write(S* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
-    };
-
-    /**
      * General reader. slice2cpp generates specializations as needed.
      * \headerfile Ice/Ice.h
      */
-    template<typename T, typename S> struct StreamReader
+    template<typename T> struct StreamReader
     {
-        static inline void read(S*, T&)
+        static void read(InputStream*, T&)
         {
             // Default is to read nothing
         }
+    };
+
+    /**
+     * General writer. slice2cpp generates specializations as needed.
+     * \headerfile Ice/Ice.h
+     */
+    template<typename T> struct StreamWriter
+    {
+        static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
     };
 
     /**
@@ -431,9 +96,9 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryStruct>
     {
-        template<class S> static inline void write(S* stream, const T& v) { StreamWriter<T, S>::write(stream, v); }
+        static void write(OutputStream* stream, const T& v) { StreamWriter<T>::write(stream, v); }
 
-        template<class S> static inline void read(S* stream, T& v) { StreamReader<T, S>::read(stream, v); }
+        static void read(InputStream* stream, T& v) { StreamReader<T>::read(stream, v); }
     };
 
     /**
@@ -442,7 +107,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryEnum>
     {
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             if (static_cast<std::int32_t>(v) < StreamableTraits<T>::minValue ||
                 static_cast<std::int32_t>(v) > StreamableTraits<T>::maxValue)
@@ -452,7 +117,7 @@ namespace Ice
             stream->writeEnum(static_cast<std::int32_t>(v), StreamableTraits<T>::maxValue);
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             std::int32_t value = stream->readEnum(StreamableTraits<T>::maxValue);
             if (value < StreamableTraits<T>::minValue || value > StreamableTraits<T>::maxValue)
@@ -469,7 +134,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategorySequence>
     {
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             stream->writeSize(static_cast<std::int32_t>(v.size()));
             for (typename T::const_iterator p = v.begin(); p != v.end(); ++p)
@@ -478,7 +143,7 @@ namespace Ice
             }
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             std::int32_t sz = stream->readAndCheckSeqSize(StreamableTraits<typename T::value_type>::minWireSize);
             T(static_cast<size_t>(sz)).swap(v);
@@ -495,12 +160,12 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
     {
-        template<class S> static inline void write(S* stream, std::pair<const T*, const T*> v)
+        static void write(OutputStream* stream, std::pair<const T*, const T*> v)
         {
             stream->write(v.first, v.second);
         }
 
-        template<class S> static inline void read(S* stream, std::pair<const T*, const T*>& v) { stream->read(v); }
+        static void read(InputStream* stream, std::pair<const T*, const T*>& v) { stream->read(v); }
     };
 
 #ifdef __cpp_lib_span
@@ -510,7 +175,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<std::span<T>, StreamHelperCategorySequence>
     {
-        template<class S> inline static void write(S* stream, const std::span<T>& v)
+        static void write(OutputStream* stream, const std::span<T>& v)
         {
             stream->write(v.data(), v.data() + v.size());
         }
@@ -525,7 +190,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryDictionary>
     {
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             stream->writeSize(static_cast<std::int32_t>(v.size()));
             for (typename T::const_iterator p = v.begin(); p != v.end(); ++p)
@@ -535,7 +200,7 @@ namespace Ice
             }
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             std::int32_t sz = stream->readSize();
             v.clear();
@@ -555,7 +220,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryUserException>
     {
-        template<class S> static inline void write(S* stream, const T& v) { stream->writeException(v); }
+        static void write(OutputStream* stream, const T& v) { stream->writeException(v); }
 
         // no read: only used for marshaling
     };
@@ -566,9 +231,9 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryProxy>
     {
-        template<class S> static inline void write(S* stream, const T& v) { stream->write(v); }
+        static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     /**
@@ -577,9 +242,9 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryClass>
     {
-        template<class S> static inline void write(S* stream, const T& v) { stream->write(v); }
+        static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     //
@@ -685,9 +350,9 @@ namespace Ice
         //
         static const OptionalFormat optionalFormat = GetOptionalFormat<st, Traits::minWireSize, fixedLength>::value;
 
-        template<class S> static inline void write(S* stream, const T& v) { stream->write(v); }
+        static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     /**
@@ -698,13 +363,13 @@ namespace Ice
     {
         static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             stream->writeSize(StreamableTraits<T>::minWireSize);
             stream->write(v);
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             stream->skipSize();
             stream->read(v);
@@ -719,14 +384,14 @@ namespace Ice
     {
         static const OptionalFormat optionalFormat = OptionalFormat::FSize;
 
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
-            typename S::size_type pos = stream->startSize();
+            OutputStream::size_type pos = stream->startSize();
             stream->write(v);
             stream->endSize(pos);
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             stream->skip(4);
             stream->read(v);
@@ -753,12 +418,12 @@ namespace Ice
     {
         static const OptionalFormat optionalFormat = OptionalFormat::FSize;
 
-        template<class S> static inline void write(S* stream, const T& v, std::int32_t)
+        static void write(OutputStream* stream, const T& v, std::int32_t)
         {
             StreamOptionalHelper<T, StreamHelperCategoryStruct, false>::write(stream, v);
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             StreamOptionalHelper<T, StreamHelperCategoryStruct, false>::read(stream, v);
         }
@@ -774,7 +439,7 @@ namespace Ice
     {
         static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
-        template<class S> static inline void write(S* stream, const T& v, std::int32_t n)
+        static void write(OutputStream* stream, const T& v, std::int32_t n)
         {
             //
             // The container size is the number of elements * the size of
@@ -785,7 +450,7 @@ namespace Ice
             stream->write(v);
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             stream->skipSize();
             stream->read(v);
@@ -803,9 +468,9 @@ namespace Ice
     {
         static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
-        template<class S> static inline void write(S* stream, const T& v, std::int32_t) { stream->write(v); }
+        static void write(OutputStream* stream, const T& v, std::int32_t) { stream->write(v); }
 
-        template<class S> static inline void read(S* stream, T& v) { stream->read(v); }
+        static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
     /**
@@ -824,12 +489,12 @@ namespace Ice
         static const OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<std::int32_t>(v.size()));
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
         }
@@ -851,13 +516,13 @@ namespace Ice
         static const OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<P, fixedLength, size>::optionalFormat;
 
-        template<class S> static inline void write(S* stream, const P& v)
+        static void write(OutputStream* stream, const P& v)
         {
             std::int32_t n = static_cast<std::int32_t>(v.second - v.first);
             StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
         }
 
-        template<class S> static inline void read(S* stream, P& v)
+        static void read(InputStream* stream, P& v)
         {
             StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
         }
@@ -881,12 +546,12 @@ namespace Ice
         static const OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
-        template<class S> static inline void write(S* stream, const T& v)
+        static void write(OutputStream* stream, const T& v)
         {
             StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<std::int32_t>(v.size()));
         }
 
-        template<class S> static inline void read(S* stream, T& v)
+        static void read(InputStream* stream, T& v)
         {
             StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
         }

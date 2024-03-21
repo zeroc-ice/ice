@@ -47,13 +47,16 @@ namespace
     };
 }
 
+/*
+TODO: how do we deal with this?
+
 //
 // This custom version of the StreamReader allows us to customize the
 // reading of ReplicaGroupDescriptor
 //
 namespace Ice
 {
-    template<> struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
+    template<> struct StreamReader<IceGrid::ReplicaGroupDescriptor>
     {
         static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)
         {
@@ -69,6 +72,7 @@ namespace Ice
         }
     };
 }
+*/
 
 int run(const Ice::StringSeq&);
 

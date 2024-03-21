@@ -824,16 +824,16 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     //
     if (!optionalMembers.empty() || hasBaseDataMembers)
     {
-        out << nl << "template<typename S>";
-        out << nl << "struct StreamWriter<" << fullName << ", S>";
+        out << nl << "template<>";
+        out << nl << "struct StreamWriter<" << fullName << ">";
         out << sb;
         if (requiredMembers.empty() && optionalMembers.empty())
         {
-            out << nl << "static void write(S*, const " << fullName << "&)";
+            out << nl << "static void write(OutputStream*, const " << fullName << "&)";
         }
         else
         {
-            out << nl << "static void write(S* ostr, const " << fullName << "& v)";
+            out << nl << "static void write(OutputStream* ostr, const " << fullName << "& v)";
         }
 
         out << sb;
@@ -848,16 +848,16 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     //
     // Generate StreamReader
     //
-    out << nl << "template<typename S>";
-    out << nl << "struct StreamReader<" << fullName << ", S>";
+    out << nl << "template<>";
+    out << nl << "struct StreamReader<" << fullName << ">";
     out << sb;
     if (requiredMembers.empty() && optionalMembers.empty())
     {
-        out << nl << "static void read(S*, " << fullName << "&)";
+        out << nl << "static void read(InputStream*, " << fullName << "&)";
     }
     else
     {
-        out << nl << "static void read(S* istr, " << fullName << "& v)";
+        out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
     }
 
     out << sb;

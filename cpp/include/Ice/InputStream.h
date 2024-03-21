@@ -12,11 +12,11 @@
 #include "LoggerF.h"
 #include "ValueFactory.h"
 #include "Buffer.h"
-#include "Protocol.h"
+#include "Ice/EncodingVersion.h"
 #include "SlicedDataF.h"
 #include "UserExceptionFactory.h"
 #include "ValueFactory.h"
-#include "StreamHelpers.h"
+#include "StreamableTraits.h"
 #include "ReferenceF.h"
 
 #include <cassert>
@@ -27,8 +27,6 @@
 
 namespace Ice
 {
-    class UserException;
-
     /// \cond INTERNAL
     template<typename T> inline void patchValue(void* addr, const std::shared_ptr<Value>& v)
     {
@@ -350,124 +348,19 @@ namespace Ice
          *
          * @return The encoding version used by the encapsulation.
          */
-        const EncodingVersion& startEncapsulation()
-        {
-            Encaps* oldEncaps = _currentEncaps;
-            if (!oldEncaps) // First allocated encaps?
-            {
-                _currentEncaps = &_preAllocatedEncaps;
-            }
-            else
-            {
-                _currentEncaps = new Encaps();
-                _currentEncaps->previous = oldEncaps;
-            }
-            _currentEncaps->start = static_cast<size_t>(i - b.begin());
-
-            //
-            // I don't use readSize() and writeSize() for encapsulations,
-            // because when creating an encapsulation, I must know in advance
-            // how many bytes the size information will require in the data
-            // stream. If I use an Int, it is always 4 bytes. For
-            // readSize()/writeSize(), it could be 1 or 5 bytes.
-            //
-            std::int32_t sz;
-            read(sz);
-            if (sz < 6)
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            _currentEncaps->sz = sz;
-
-            read(_currentEncaps->encoding);
-            IceInternal::checkSupportedEncoding(_currentEncaps->encoding); // Make sure the encoding is supported
-
-            return _currentEncaps->encoding;
-        }
+        const EncodingVersion& startEncapsulation();
 
         /**
          * Ends the current encapsulation.
          */
-        void endEncapsulation()
-        {
-            assert(_currentEncaps);
-
-            if (_currentEncaps->encoding != Encoding_1_0)
-            {
-                skipOptionals();
-                if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-            {
-                if (i + 1 != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-
-                //
-                // Ice version < 3.3 had a bug where user exceptions with
-                // class members could be encoded with a trailing byte
-                // when dispatched with AMD. So we tolerate an extra byte
-                // in the encapsulation.
-                //
-                ++i;
-            }
-
-            Encaps* oldEncaps = _currentEncaps;
-            _currentEncaps = _currentEncaps->previous;
-            if (oldEncaps == &_preAllocatedEncaps)
-            {
-                oldEncaps->reset();
-            }
-            else
-            {
-                delete oldEncaps;
-            }
-        }
+        void endEncapsulation();
 
         /**
          * Skips an empty encapsulation.
          *
          * @return The encapsulation's encoding version.
          */
-        EncodingVersion skipEmptyEncapsulation()
-        {
-            std::int32_t sz;
-            read(sz);
-            if (sz < 6)
-            {
-                throwEncapsulationException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            Ice::EncodingVersion encoding;
-            read(encoding);
-            IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported
-
-            if (encoding == Ice::Encoding_1_0)
-            {
-                if (sz != static_cast<std::int32_t>(sizeof(std::int32_t)) + 2)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else
-            {
-                // Skip the optional content of the encapsulation if we are expecting an
-                // empty encapsulation.
-                i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
-            }
-            return encoding;
-        }
+        EncodingVersion skipEmptyEncapsulation();
 
         /**
          * Returns a blob of bytes representing an encapsulation.
@@ -622,6 +515,12 @@ namespace Ice
          * @param v Holds the extracted data.
          */
         template<typename T> void read(T& v) { StreamHelper<T, StreamableTraits<T>::helper>::read(this, v); }
+
+        void read(EncodingVersion& v)
+        {
+            read(v.major);
+            read(v.minor);
+        }
 
         /**
          * Reads an optional data value from the stream. For all types except proxies.
