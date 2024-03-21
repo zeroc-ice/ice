@@ -1895,7 +1895,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
 
-    private Map<String,String[]> _builtInModulePackages = java.util.Collections.unmodifiableMap(new HashMap<String, String[]>() {{ 
+    private Map<String,String[]> _builtInModulePackages = java.util.Collections.unmodifiableMap(new HashMap<String, String[]>() {{
         put("Glacier2", new String[] { "com.zeroc" });
         put("Ice", new String[] { "com.zeroc" });
         put("IceBox", new String[] { "com.zeroc" });
