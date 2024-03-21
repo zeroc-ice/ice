@@ -12,7 +12,7 @@
 #include "LoggerF.h"
 #include "ValueFactory.h"
 #include "Buffer.h"
-#include "Ice/EncodingVersion.h"
+#include "EncodingVersion.h"
 #include "SlicedDataF.h"
 #include "UserExceptionFactory.h"
 #include "ValueFactory.h"

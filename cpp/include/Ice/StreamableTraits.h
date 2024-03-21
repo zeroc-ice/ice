@@ -14,9 +14,6 @@
 
 namespace Ice
 {
-    class InputStream;
-    class OutputStream;
-
     /// \cond STREAM
 
     /**
