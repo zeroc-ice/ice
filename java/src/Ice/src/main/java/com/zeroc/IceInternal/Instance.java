@@ -731,12 +731,11 @@ public final class Instance implements java.util.function.Function<String, Class
         //    classname directly.
         //
         String fullyQualifiedClassName;
-        boolean addClass = false;
 
         //
         // See if we've already translated this type ID before.
         //
-        synchronized(this)
+        synchronized (this)
         {
             fullyQualifiedClassName = _sliceTypeIdToClassMap.get(typeId);
         }
@@ -753,13 +752,12 @@ public final class Instance implements java.util.function.Function<String, Class
         // It's a new type ID, so first convert it into a Java class name.
         //
         fullyQualifiedClassName = com.zeroc.Ice.Util.typeIdToClass(typeId);
-        addClass = true;
 
         //
         // See if the application defined any package prefixes with Ice.Package.MODULE property.
         //
         int pos = typeId.indexOf(':', 2);
-        if(pos != -1)
+        if (pos != -1)
         {
             String topLevelModule = typeId.substring(2, pos);
             String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
@@ -768,12 +766,12 @@ public final class Instance implements java.util.function.Function<String, Class
                 packagePrefixes = _initData.properties.getPropertyAsListWithDefault("Ice.Package." + topLevelModule, null);
             }
 
-            if(packagePrefixes != null)
+            if (packagePrefixes != null)
             {
-                for(String packagePrefix : packagePrefixes)
+                for (String packagePrefix : packagePrefixes)
                 {
                     c = getConcreteClass(packagePrefix + "." + fullyQualifiedClassName);
-                    if(c != null)
+                    if (c != null)
                     {
                         break;
                     }
@@ -782,7 +780,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
 
         // If we didn't find the class yet, try the default package prefix or without prefix.
-        if(c == null)
+        if (c == null)
         {
             String packagePrefix = _initData.properties.getProperty("Ice.Default.Package");
             c = getConcreteClass(
@@ -792,12 +790,12 @@ public final class Instance implements java.util.function.Function<String, Class
         //
         // If we found the class, update our map so we don't have to translate this type ID again.
         //
-        if(c != null && addClass)
+        if (c != null)
         {
             synchronized(this)
             {
                 fullyQualifiedClassName = c.getName();
-                if(_sliceTypeIdToClassMap.containsKey(typeId))
+                if (_sliceTypeIdToClassMap.containsKey(typeId))
                 {
                     assert(_sliceTypeIdToClassMap.get(typeId).equals(fullyQualifiedClassName));
                 }
