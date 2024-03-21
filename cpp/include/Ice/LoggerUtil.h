@@ -11,6 +11,8 @@
 #include "Exception.h"
 #include "Proxy.h"
 
+#include <sstream>
+
 namespace Ice
 {
     /**
