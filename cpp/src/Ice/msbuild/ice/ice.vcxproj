@@ -589,6 +589,7 @@
     <ClCompile Include="..\..\UdpTransceiver.cpp" />
     <ClCompile Include="..\..\Value.cpp" />
     <ClCompile Include="..\..\ValueFactoryManagerI.cpp" />
+    <ClCompile Include="..\..\VersionFunctions.cpp" />
     <ClCompile Include="..\..\WSAcceptor.cpp" />
     <ClCompile Include="..\..\WSConnector.cpp" />
     <ClCompile Include="..\..\WSEndpoint.cpp" />
