@@ -24,30 +24,15 @@ package com.zeroc.Ice;
  **/
 public class CloseConnectionException extends ProtocolException
 {
-    public CloseConnectionException()
-    {
-        super();
-    }
+    public CloseConnectionException() { super(); }
 
-    public CloseConnectionException(Throwable cause)
-    {
-        super(cause);
-    }
+    public CloseConnectionException(Throwable cause) { super(cause); }
 
-    public CloseConnectionException(String reason)
-    {
-        super(reason);
-    }
+    public CloseConnectionException(String reason) { super(reason); }
 
-    public CloseConnectionException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+    public CloseConnectionException(String reason, Throwable cause) { super(reason, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::CloseConnectionException";
-    }
+    public String ice_id() { return "::Ice::CloseConnectionException"; }
 
     /** @hidden */
     public static final long serialVersionUID = 4166975853591251903L;

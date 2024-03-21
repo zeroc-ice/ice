@@ -4,12 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGridGUI.*;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
-
-import com.zeroc.IceGridGUI.*;
 
 class ServerInstancePropertySetEditor extends PropertySetEditor
 {
@@ -22,23 +21,17 @@ class ServerInstancePropertySetEditor extends PropertySetEditor
         idTextField.getDocument().addDocumentListener(_updateListener);
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Instance Property Set");
     }
 
-    @Override
-    protected JComponent getIdComponent()
-    {
-        return _id;
-    }
+    @Override protected JComponent getIdComponent() { return _id; }
 
-    @Override
-    protected String getIdText()
+    @Override protected String getIdText()
     {
-        if(_id.getSelectedItem() == null)
+        if (_id.getSelectedItem() == null)
         {
             return "";
         }
@@ -48,9 +41,7 @@ class ServerInstancePropertySetEditor extends PropertySetEditor
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void showId(String unsubstitutedId, Utils.Resolver resolver)
+    @Override @SuppressWarnings("unchecked") protected void showId(String unsubstitutedId, Utils.Resolver resolver)
     {
         ServerInstance s = (ServerInstance)_target.getParent();
 

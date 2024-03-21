@@ -12,7 +12,7 @@ public class Client extends test.TestHelper
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.facets");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             GPrx g = AllTests.allTests(this);
             g.shutdown();

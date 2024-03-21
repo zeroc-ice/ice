@@ -3,29 +3,28 @@
 //
 
 package com.zeroc.IceGridGUI;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
+import com.zeroc.IceGrid.*;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Rectangle;
-
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.KeyStroke;
-import com.zeroc.IceGrid.*;
 
 public class Utils
 {
     static public ImageIcon getIcon(String path)
     {
         java.net.URL imgURL = Utils.class.getResource(path);
-        if(imgURL == null)
+        if (imgURL == null)
         {
             System.err.println("Could not find icon " + path);
             return null;
@@ -38,7 +37,7 @@ public class Utils
 
     static public Image iconToImage(Icon icon)
     {
-        if(icon instanceof ImageIcon)
+        if (icon instanceof ImageIcon)
         {
             return ((ImageIcon)icon).getImage();
         }
@@ -47,16 +46,17 @@ public class Utils
             Graphics2D g = null;
             try
             {
-                BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().
-                    getDefaultConfiguration().createCompatibleImage(
-                        icon.getIconWidth(), icon.getIconHeight());
+                BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                                          .getDefaultScreenDevice()
+                                          .getDefaultConfiguration()
+                                          .createCompatibleImage(icon.getIconWidth(), icon.getIconHeight());
                 g = image.createGraphics();
                 icon.paintIcon(null, g, 0, 0);
                 return image;
             }
             finally
             {
-                if(g != null)
+                if (g != null)
                 {
                     g.dispose();
                 }
@@ -66,17 +66,9 @@ public class Utils
 
     static public void addEscapeListener(final JDialog dialog)
     {
-        dialog.getRootPane().registerKeyboardAction(
-            new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        dialog.dispose();
-                    }
-                },
-            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-            JComponent.WHEN_IN_FOCUSED_WINDOW);
+        dialog.getRootPane().registerKeyboardAction(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) { dialog.dispose(); }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     static public void removeEscapeListener(JDialog dialog)
@@ -93,27 +85,27 @@ public class Utils
     {
         int result = 0;
         version = version.trim();
-        if(version.length() > 0)
+        if (version.length() > 0)
         {
             try
             {
                 int firstDotPos = version.indexOf('.');
 
-                if(firstDotPos == -1)
+                if (firstDotPos == -1)
                 {
                     result = -1;
                 }
                 else
                 {
                     result = Integer.parseInt(version.substring(0, firstDotPos));
-                    if(result == 0)
+                    if (result == 0)
                     {
                         return -1;
                     }
                     result *= 100;
 
                     int secondDotPos = version.indexOf('.', firstDotPos + 1);
-                    if(secondDotPos == -1)
+                    if (secondDotPos == -1)
                     {
                         result += Integer.parseInt(version.substring(firstDotPos + 1));
                         result *= 100;
@@ -126,7 +118,7 @@ public class Utils
                     }
                 }
             }
-            catch(NumberFormatException e)
+            catch (NumberFormatException e)
             {
                 result = -1;
             }
@@ -134,10 +126,9 @@ public class Utils
         return result;
     }
 
-    static public void
-    storeWindowBounds(java.awt.Window window, java.util.prefs.Preferences prefs)
+    static public void storeWindowBounds(java.awt.Window window, java.util.prefs.Preferences prefs)
     {
-        if(window instanceof java.awt.Frame)
+        if (window instanceof java.awt.Frame)
         {
             java.awt.Frame frame = (java.awt.Frame)window;
             boolean maximized = frame.getExtendedState() == java.awt.Frame.MAXIMIZED_BOTH;
@@ -151,25 +142,28 @@ public class Utils
         prefs.putInt("height", rect.height);
     }
 
-    static public java.util.prefs.Preferences
-    restoreWindowBounds(java.awt.Window window, java.util.prefs.Preferences parent, String node, java.awt.Component parentComponent)
+    static public java.util.prefs.Preferences restoreWindowBounds(
+        java.awt.Window window,
+        java.util.prefs.Preferences parent,
+        String node,
+        java.awt.Component parentComponent)
     {
         java.util.prefs.Preferences prefs = null;
 
         try
         {
-            if(parent.nodeExists(node))
+            if (parent.nodeExists(node))
             {
                 prefs = parent.node(node);
             }
         }
-        catch(java.util.prefs.BackingStoreException ex)
+        catch (java.util.prefs.BackingStoreException ex)
         {
         }
 
         boolean locationVisible = false;
 
-        if(prefs != null)
+        if (prefs != null)
         {
             int x = prefs.getInt("x", 0);
             int y = prefs.getInt("y", 0);
@@ -180,15 +174,15 @@ public class Utils
             Rectangle visibleBounds = new Rectangle();
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice screens[] = ge.getScreenDevices();
-            for(GraphicsDevice s : screens)
+            for (GraphicsDevice s : screens)
             {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }
             locationVisible = visibleBounds.contains(x, y) || (maximized && visibleBounds.contains(x + 20, y + 20));
 
-            if(locationVisible)
+            if (locationVisible)
             {
-                if(maximized)
+                if (maximized)
                 {
                     java.awt.Frame frame = (java.awt.Frame)window;
                     frame.setBounds(new Rectangle(x + 20, y + 20, width, height));
@@ -198,7 +192,6 @@ public class Utils
                 {
                     window.setBounds(new Rectangle(x, y, width, height));
                 }
-
             }
             else
             {
@@ -206,13 +199,13 @@ public class Utils
             }
         }
 
-        if(!locationVisible)
+        if (!locationVisible)
         {
-            if(parentComponent != null)
+            if (parentComponent != null)
             {
                 java.awt.Dimension parentSize = parentComponent.getSize();
                 java.awt.Dimension thisSize = window.getSize();
-                if(parentSize.width < thisSize.width || parentSize.height < thisSize.height)
+                if (parentSize.width < thisSize.width || parentSize.height < thisSize.height)
                 {
                     window.setLocationRelativeTo(null);
                 }
@@ -230,8 +223,7 @@ public class Utils
         return prefs;
     }
 
-    static public interface Stringifier
-    {
+    static public interface Stringifier {
         public String toString(Object obj);
     }
 
@@ -252,12 +244,12 @@ public class Utils
         java.util.Iterator<?> p = col.iterator();
 
         boolean firstElement = true;
-        while(p.hasNext())
+        while (p.hasNext())
         {
             String elt = stringifier.toString(p.next());
-            if(elt != null)
+            if (elt != null)
             {
-                if(firstElement)
+                if (firstElement)
                 {
                     firstElement = false;
                     r.toolTip = "<html>";
@@ -268,11 +260,11 @@ public class Utils
                     r.toolTip += "<br>";
                 }
 
-                if(elt.length() == 0)
+                if (elt.length() == 0)
                 {
                     r.returnValue += "\"\"";
                 }
-                else if(elt.matches("\\S*"))
+                else if (elt.matches("\\S*"))
                 {
                     //
                     // Only non-whitespace characters
@@ -287,7 +279,7 @@ public class Utils
                 r.toolTip += elt;
             }
         }
-        if(r.toolTip != null)
+        if (r.toolTip != null)
         {
             r.toolTip += "</html>";
         }
@@ -297,14 +289,9 @@ public class Utils
 
     static public StringifyResult stringify(java.util.Collection<?> col, String separator)
     {
-        Stringifier stringifier = new Stringifier()
-            {
-                @Override
-                public String toString(Object obj)
-                {
-                    return (String)obj;
-                }
-            };
+        Stringifier stringifier = new Stringifier() {
+            @Override public String toString(Object obj) { return (String)obj; }
+        };
         return stringify(col, stringifier, separator);
     }
 
@@ -313,20 +300,17 @@ public class Utils
         return stringify(java.util.Arrays.asList(stringSeq), separator);
     }
 
-    static public StringifyResult stringify(java.util.Map<String, String> stringMap,
-                                            final String pairSeparator,
-                                            String separator)
+    static public StringifyResult
+    stringify(java.util.Map<String, String> stringMap, final String pairSeparator, String separator)
     {
-        Stringifier stringifier = new Stringifier()
+        Stringifier stringifier = new Stringifier() {
+            @Override public String toString(Object obj)
             {
-                @Override
-                public String toString(Object obj)
-                {
-                    @SuppressWarnings("unchecked")
-                    java.util.Map.Entry<String, String> entry = (java.util.Map.Entry<String, String>)obj;
-                    return entry.getKey() + pairSeparator + entry.getValue();
-                }
-            };
+                @SuppressWarnings("unchecked")
+                java.util.Map.Entry<String, String> entry = (java.util.Map.Entry<String, String>)obj;
+                return entry.getKey() + pairSeparator + entry.getValue();
+            }
+        };
 
         return stringify(stringMap.entrySet(), stringifier, separator);
     }
@@ -336,11 +320,10 @@ public class Utils
         //
         // Application-level resolver
         //
-        @SuppressWarnings("unchecked")
-        public Resolver(java.util.Map<String, String> variables)
+        @SuppressWarnings("unchecked") public Resolver(java.util.Map<String, String> variables)
         {
             //@SuppressWarnings("unchecked") - unchecked conversion
-            this(new java.util.Map[]{variables});
+            this(new java.util.Map[] {variables});
         }
 
         public Resolver(java.util.Map<String, String>[] variables)
@@ -355,8 +338,10 @@ public class Utils
         //
         // Resolver for instance; in-parameters are not yet substituted
         //
-        public Resolver(Resolver parent, java.util.Map<String, String> parameters,
-                        java.util.Map<String, String> defaults)
+        public Resolver(
+            Resolver parent,
+            java.util.Map<String, String> parameters,
+            java.util.Map<String, String> defaults)
         {
             _variables = parent._variables;
 
@@ -375,7 +360,7 @@ public class Utils
             _variables = parent._variables;
             _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
             _parameters = parent._parameters;
-            if(_parameters == null)
+            if (_parameters == null)
             {
                 _subResolver = this;
             }
@@ -396,25 +381,25 @@ public class Utils
 
         public String find(String name)
         {
-            if(_parameters != null)
+            if (_parameters != null)
             {
                 String val = _parameters.get(name);
-                if(val != null)
+                if (val != null)
                 {
                     return val;
                 }
             }
 
             String val = _predefinedVariables.get(name);
-            if(val != null)
+            if (val != null)
             {
                 return val;
             }
 
-            for(java.util.Map<String, String> map : _variables)
+            for (java.util.Map<String, String> map : _variables)
             {
                 val = map.get(name);
-                if(val != null)
+                if (val != null)
                 {
                     return _subResolver.substitute(val);
                 }
@@ -428,7 +413,7 @@ public class Utils
         public boolean put(String name, String value)
         {
             String oldVal = _predefinedVariables.get(name);
-            if(oldVal == null || !oldVal.equals(value))
+            if (oldVal == null || !oldVal.equals(value))
             {
                 _predefinedVariables.put(name, value);
                 return true;
@@ -442,8 +427,8 @@ public class Utils
         //
         // Reset parameters and pre-defined variables
         //
-        public void reset(Resolver parent, java.util.Map<String, String> parameters,
-                          java.util.Map<String, String> defaults)
+        public void
+        reset(Resolver parent, java.util.Map<String, String> parameters, java.util.Map<String, String> defaults)
         {
             assert _variables == parent._variables;
             _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
@@ -458,7 +443,7 @@ public class Utils
             _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
 
             assert _parameters == parent._parameters;
-            if(_parameters == null)
+            if (_parameters == null)
             {
                 _subResolver = this;
             }
@@ -471,14 +456,11 @@ public class Utils
         //
         // The sorted substituted parameters
         //
-        public java.util.Map<String, String> getParameters()
-        {
-            return _parameters;
-        }
+        public java.util.Map<String, String> getParameters() { return _parameters; }
 
         public String substitute(String input)
         {
-            if(input == null)
+            if (input == null)
             {
                 return input;
             }
@@ -486,18 +468,18 @@ public class Utils
             int beg = 0;
             int end = 0;
 
-            while((beg = input.indexOf("${", beg)) != -1)
+            while ((beg = input.indexOf("${", beg)) != -1)
             {
-                if(beg > 0 && input.charAt(beg - 1) == '$')
+                if (beg > 0 && input.charAt(beg - 1) == '$')
                 {
                     int escape = beg - 1;
-                    while(escape > 0 && input.charAt(escape - 1) == '$')
+                    while (escape > 0 && input.charAt(escape - 1) == '$')
                     {
                         --escape;
                     }
 
                     input = input.substring(0, escape) + input.substring(beg - (beg - escape) / 2);
-                    if((beg - escape) % 2 != 0)
+                    if ((beg - escape) % 2 != 0)
                     {
                         ++beg;
                         continue;
@@ -509,7 +491,7 @@ public class Utils
                 }
 
                 end = input.indexOf('}', beg);
-                if(end == -1)
+                if (end == -1)
                 {
                     //
                     // Malformed variable, can't substitute anything else
@@ -523,7 +505,7 @@ public class Utils
                 // Resolve name
                 //
                 String val = find(name);
-                if(val != null)
+                if (val != null)
                 {
                     input = input.substring(0, beg) + val + input.substring(end + 1);
                     beg += val.length();
@@ -542,17 +524,17 @@ public class Utils
         //
         // Substitute all the values from the input map
         //
-        public java.util.Map<String, String> substituteParameterValues(java.util.Map<String, String> input,
-                                                                       java.util.Map<String, String> defaults)
+        public java.util.Map<String, String>
+        substituteParameterValues(java.util.Map<String, String> input, java.util.Map<String, String> defaults)
         {
             java.util.Map<String, String> result = new java.util.HashMap<>();
-            for(java.util.Map.Entry<String, String> p : input.entrySet())
+            for (java.util.Map.Entry<String, String> p : input.entrySet())
             {
                 result.put(p.getKey(), substitute(p.getValue()));
             }
-            for(java.util.Map.Entry<String, String> p : defaults.entrySet())
+            for (java.util.Map.Entry<String, String> p : defaults.entrySet())
             {
-                if(!result.containsKey(p.getKey()))
+                if (!result.containsKey(p.getKey()))
                 {
                     result.put(p.getKey(), substitute(p.getValue()));
                 }
@@ -569,7 +551,7 @@ public class Utils
 
     static public String substitute(String input, Resolver resolver)
     {
-        if(resolver != null)
+        if (resolver != null)
         {
             return resolver.substitute(input);
         }
@@ -585,15 +567,14 @@ public class Utils
     static public class ExpandedPropertySet
     {
         public ExpandedPropertySet[] references;
-        public java.util.List<PropertyDescriptor> properties;       // list of PropertyDescriptor
+        public java.util.List<PropertyDescriptor> properties; // list of PropertyDescriptor
     }
 
-    static public java.util.SortedMap<String, String> propertySetsToMap(
-        java.util.List<ExpandedPropertySet> propertySets,
-        Resolver resolver)
+    static public java.util.SortedMap<String, String>
+    propertySetsToMap(java.util.List<ExpandedPropertySet> propertySets, Resolver resolver)
     {
         java.util.SortedMap<String, String> toMap = new java.util.TreeMap<>();
-        for(ExpandedPropertySet p : propertySets)
+        for (ExpandedPropertySet p : propertySets)
         {
             addSet(p, resolver, toMap);
         }
@@ -610,12 +591,12 @@ public class Utils
 
     static private void addSet(ExpandedPropertySet set, Resolver resolver, java.util.SortedMap<String, String> toMap)
     {
-        for(ExpandedPropertySet s : set.references)
+        for (ExpandedPropertySet s : set.references)
         {
             addSet(s, resolver, toMap);
         }
 
-        for(PropertyDescriptor p : set.properties)
+        for (PropertyDescriptor p : set.properties)
         {
             String name = substitute(p.name, resolver);
             String val = substitute(p.value, resolver);

@@ -4,8 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -14,33 +17,23 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class ServiceInstanceEditor extends CommunicatorChildEditor
+@SuppressWarnings("unchecked") class ServiceInstanceEditor extends CommunicatorChildEditor
 {
     ServiceInstanceEditor()
     {
         //
         // Template
         //
-        Action gotoTemplate = new AbstractAction(
-            "", Utils.getIcon("/icons/16x16/goto.png"))
+        Action gotoTemplate = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
+                TreeNode t = (TreeNode)_template.getSelectedItem();
+                if (t != null)
                 {
-                    TreeNode t = (TreeNode)_template.getSelectedItem();
-                    if(t != null)
-                    {
-                        t.getRoot().setSelectedNode(t);
-                    }
+                    t.getRoot().setSelectedNode(t);
                 }
-            };
+            }
+        };
         gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this service template");
         _templateButton = new JButton(gotoTemplate);
 
@@ -51,19 +44,15 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         _properties = new PropertiesField(this);
     }
 
-    ServiceInstanceDescriptor getDescriptor()
-    {
-        return (ServiceInstanceDescriptor)_target.getDescriptor();
-    }
+    ServiceInstanceDescriptor getDescriptor() { return (ServiceInstanceDescriptor)_target.getDescriptor(); }
 
     //
     // From Editor:
     //
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
         ServiceInstance service = (ServiceInstance)_target;
-        if(service.getCoordinator().substitute())
+        if (service.getCoordinator().substitute())
         {
             return service.getResolver();
         }
@@ -73,8 +62,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         }
     }
 
-    @Override
-    void writeDescriptor()
+    @Override void writeDescriptor()
     {
         ServiceInstanceDescriptor descriptor = getDescriptor();
         descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
@@ -84,8 +72,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         descriptor.propertySet.properties = _properties.getProperties();
     }
 
-    @Override
-    boolean isSimpleUpdate()
+    @Override boolean isSimpleUpdate()
     {
         ServiceInstanceDescriptor descriptor = getDescriptor();
         ServiceTemplate t = (ServiceTemplate)_template.getSelectedItem();
@@ -93,14 +80,9 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         return descriptor.template.equals(t.getId()) && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
-    @Override
-    Communicator.ChildList getChildList()
-    {
-        return ((Communicator)_target.getParent()).getServices();
-    }
+    @Override Communicator.ChildList getChildList() { return ((Communicator)_target.getParent()).getServices(); }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template", _template);
         builder.append(_templateButton);
@@ -142,8 +124,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Properties");
@@ -178,35 +159,29 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         assert t != null;
         _template.setSelectedItem(t);
 
-        ListDataListener templateListener = new ListDataListener()
+        ListDataListener templateListener = new ListDataListener() {
+            @Override public void contentsChanged(ListDataEvent e)
             {
-                @Override
-                public void contentsChanged(ListDataEvent e)
-                {
-                    updated();
+                updated();
 
-                    ServiceTemplate t = (ServiceTemplate)_template.getModel().getSelectedItem();
+                ServiceTemplate t = (ServiceTemplate)_template.getModel().getSelectedItem();
 
-                    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+                TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
 
-                    //
-                    // Replace parameters but keep existing values
-                    //
-                    _parameters.set(td.parameters,
-                                    makeParameterValues(_parameters.getValues(), td.parameters),
-                                    td.parameterDefaults, null);
-                }
+                //
+                // Replace parameters but keep existing values
+                //
+                _parameters.set(
+                    td.parameters,
+                    makeParameterValues(_parameters.getValues(), td.parameters),
+                    td.parameterDefaults,
+                    null);
+            }
 
-                @Override
-                public void intervalAdded(ListDataEvent e)
-                {
-                }
+            @Override public void intervalAdded(ListDataEvent e) {}
 
-                @Override
-                public void intervalRemoved(ListDataEvent e)
-                {
-                }
-            };
+            @Override public void intervalRemoved(ListDataEvent e) {}
+        };
 
         _template.getModel().addListDataListener(templateListener);
         _template.setEnabled(isEditable);
@@ -222,7 +197,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         _applyButton.setEnabled(service.isEphemeral());
         _discardButton.setEnabled(service.isEphemeral());
         detectUpdates(true);
-        if(service.isEphemeral())
+        if (service.isEphemeral())
         {
             updated();
         }

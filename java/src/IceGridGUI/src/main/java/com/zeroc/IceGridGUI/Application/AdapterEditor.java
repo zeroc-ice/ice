@@ -4,10 +4,13 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
@@ -21,14 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class AdapterEditor extends CommunicatorChildEditor
+@SuppressWarnings("unchecked") class AdapterEditor extends CommunicatorChildEditor
 {
     AdapterEditor()
     {
@@ -42,46 +38,39 @@ class AdapterEditor extends CommunicatorChildEditor
         //
         // _replicaGroupButton
         //
-        Action gotoReplicaGroup = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
+        Action gotoReplicaGroup = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
+                Object obj = _replicaGroupId.getSelectedItem();
+                Adapter adapter = getAdapter();
+
+                ReplicaGroup rg = null;
+                if (obj instanceof ReplicaGroup)
                 {
-                    Object obj = _replicaGroupId.getSelectedItem();
-                    Adapter adapter = getAdapter();
-
-                    ReplicaGroup rg = null;
-                    if(obj instanceof ReplicaGroup)
-                    {
-                        rg = (ReplicaGroup)obj;
-                    }
-                    else
-                    {
-                        String replicaGroupId = Utils.substitute(obj.toString(), adapter.getResolver());
-
-                        rg = adapter.getRoot().findReplicaGroup(replicaGroupId);
-                    }
-
-                    //
-                    // The button is enabled therefore rg should be != null
-                    //
-                    if(rg != null)
-                    {
-                        adapter.getRoot().setSelectedNode(rg);
-                    }
+                    rg = (ReplicaGroup)obj;
                 }
-            };
+                else
+                {
+                    String replicaGroupId = Utils.substitute(obj.toString(), adapter.getResolver());
+
+                    rg = adapter.getRoot().findReplicaGroup(replicaGroupId);
+                }
+
+                //
+                // The button is enabled therefore rg should be != null
+                //
+                if (rg != null)
+                {
+                    adapter.getRoot().setSelectedNode(rg);
+                }
+            }
+        };
         gotoReplicaGroup.putValue(Action.SHORT_DESCRIPTION, "Goto the definition of this replica group");
         _replicaGroupButton = new JButton(gotoReplicaGroup);
 
-        Action checkRegisterProcess = new AbstractAction("Register Process")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    updated();
-                }
-            };
+        Action checkRegisterProcess = new AbstractAction("Register Process") {
+            @Override public void actionPerformed(ActionEvent e) { updated(); }
+        };
         _registerProcess = new JCheckBox(checkRegisterProcess);
         _registerProcess.setToolTipText(
             "<html>This setting is ignored for servers running Ice<br>"
@@ -91,54 +80,35 @@ class AdapterEditor extends CommunicatorChildEditor
             + "to enable clean shutdown; you should register<br>"
             + "exactly one Process object per server.</html>");
 
-        Action checkServerLifetime = new AbstractAction("Server Lifetime")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    updated();
-                }
-            };
+        Action checkServerLifetime = new AbstractAction("Server Lifetime") {
+            @Override public void actionPerformed(ActionEvent e) { updated(); }
+        };
         _serverLifetime = new JCheckBox(checkServerLifetime);
         _serverLifetime.setToolTipText(
-            "<html>Is the adapter lifetime the same as the server<br>" +
-            "lifetime? The server is considered to be active<br>" +
-            "only if all the adapters with this attribute set<br>" +
-            "to true are active.</html>");
+            "<html>Is the adapter lifetime the same as the server<br>"
+            + "lifetime? The server is considered to be active<br>"
+            + "only if all the adapters with this attribute set<br>"
+            + "to true are active.</html>");
         //
         // Associate updateListener with various fields
         //
-        _name.getDocument().addDocumentListener(
-            new DocumentListener()
+        _name.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void changedUpdate(DocumentEvent e) { update(); }
+
+            @Override public void insertUpdate(DocumentEvent e) { update(); }
+
+            @Override public void removeUpdate(DocumentEvent e) { update(); }
+
+            private void update()
             {
-                @Override
-                public void changedUpdate(DocumentEvent e)
-                {
-                    update();
-                }
-
-                @Override
-                public void insertUpdate(DocumentEvent e)
-                {
-                    update();
-                }
-
-                @Override
-                public void removeUpdate(DocumentEvent e)
-                {
-                    update();
-                }
-
-                private void update()
-                {
-                    updated();
-                    //
-                    // Recompute default id
-                    //
-                    _defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText().trim());
-                    refreshId();
-                }
-            });
+                updated();
+                //
+                // Recompute default id
+                //
+                _defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText().trim());
+                refreshId();
+            }
+        });
 
         _name.setToolTipText("Identifies this object adapter within an Ice communicator");
 
@@ -167,8 +137,9 @@ class AdapterEditor extends CommunicatorChildEditor
         _replicaGroupId.setToolTipText("Select a replica group");
 
         _priority.getDocument().addDocumentListener(_updateListener);
-        _priority.setToolTipText("The priority of this adapter; see the Ordered load-balancing "
-                                 + "policy in Replica Groups");
+        _priority.setToolTipText(
+            "The priority of this adapter; see the Ordered load-balancing "
+            + "policy in Replica Groups");
 
         JTextField publishedEndpointsTextField = (JTextField)_publishedEndpoints.getEditor().getEditorComponent();
         publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);
@@ -180,8 +151,7 @@ class AdapterEditor extends CommunicatorChildEditor
     // From CommunicatorChildEditor
     //
 
-    @Override
-    void writeDescriptor()
+    @Override void writeDescriptor()
     {
         AdapterDescriptor descriptor = (AdapterDescriptor)getAdapter().getDescriptor();
         descriptor.name = _name.getText().trim();
@@ -195,24 +165,18 @@ class AdapterEditor extends CommunicatorChildEditor
         descriptor.allocatables = _allocatableList;
     }
 
-    @Override
-    boolean isSimpleUpdate()
+    @Override boolean isSimpleUpdate()
     {
         AdapterDescriptor descriptor = (AdapterDescriptor)getAdapter().getDescriptor();
 
         return descriptor.name.equals(_name.getText().trim());
     }
 
-    @Override
-    Communicator.ChildList getChildList()
-    {
-        return ((Communicator)_target.getParent()).getAdapters();
-    }
+    @Override Communicator.ChildList getChildList() { return ((Communicator)_target.getParent()).getAdapters(); }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
-        builder.append("Adapter Name" );
+        builder.append("Adapter Name");
         builder.append(_name, 3);
         builder.nextLine();
 
@@ -238,7 +202,7 @@ class AdapterEditor extends CommunicatorChildEditor
         builder.append(_priority, 3);
         builder.nextLine();
 
-        builder.append("Endpoints" );
+        builder.append("Endpoints");
         builder.append(_endpoints, 3);
         builder.nextLine();
 
@@ -246,7 +210,7 @@ class AdapterEditor extends CommunicatorChildEditor
         builder.append(_publishedEndpoints, 3);
         builder.nextLine();
 
-        builder.append("Proxy Options" );
+        builder.append("Proxy Options");
         builder.append(_proxyOptions, 3);
         builder.nextLine();
 
@@ -282,22 +246,20 @@ class AdapterEditor extends CommunicatorChildEditor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Adapter Properties");
     }
 
-    @Override
-    void postUpdate()
+    @Override void postUpdate()
     {
         //
         // Change enclosing properties after successful update
         //
         String name = _name.getText().trim();
         Adapter adapter = getAdapter();
-        if(!name.equals(_oldName))
+        if (!name.equals(_oldName))
         {
             adapter.removeProperty(_oldName + ".Endpoints");
             adapter.removeProperty(_oldName + ".PublishedEndpoints");
@@ -308,7 +270,7 @@ class AdapterEditor extends CommunicatorChildEditor
         adapter.setProperty(name + ".Endpoints", _endpoints.getText().trim());
 
         Object published = _publishedEndpoints.getSelectedItem();
-        if(published == PUBLISH_ACTUAL)
+        if (published == PUBLISH_ACTUAL)
         {
             adapter.removeProperty(name + ".PublishedEndpoints");
         }
@@ -317,7 +279,7 @@ class AdapterEditor extends CommunicatorChildEditor
             adapter.setProperty(name + ".PublishedEndpoints", published.toString().trim());
         }
 
-        if(!_proxyOptions.getText().trim().isEmpty())
+        if (!_proxyOptions.getText().trim().isEmpty())
         {
             adapter.setProperty(name + ".ProxyOptions", _proxyOptions.getText().trim());
         }
@@ -326,22 +288,22 @@ class AdapterEditor extends CommunicatorChildEditor
         // Set all objects and allocatables properties
         //
         java.util.Map<String, String[]> map = _objects.get();
-        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
+        for (java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             String key = p.getKey();
             String[] value = p.getValue();
-            if(!value[1].equals(""))
+            if (!value[1].equals(""))
             {
                 adapter.setProperty(value[1], key);
             }
         }
 
         map = _allocatables.get();
-        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
+        for (java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             String key = p.getKey();
             String[] value = p.getValue();
-            if(!value[1].equals(""))
+            if (!value[1].equals(""))
             {
                 adapter.setProperty(value[1], key);
             }
@@ -350,7 +312,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
     private void setId(String id)
     {
-        if(id.equals(_defaultAdapterId))
+        if (id.equals(_defaultAdapterId))
         {
             _id.setSelectedItem(DEFAULT_ADAPTER_ID);
         }
@@ -363,7 +325,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private void refreshId()
     {
         Object id = _id.getSelectedItem();
-        _id.setModel(new DefaultComboBoxModel(new Object[]{DEFAULT_ADAPTER_ID}));
+        _id.setModel(new DefaultComboBoxModel(new Object[] {DEFAULT_ADAPTER_ID}));
         _id.setSelectedItem(id);
     }
 
@@ -375,7 +337,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
     private void setReplicaGroupId(String replicaGroupId)
     {
-        if(replicaGroupId.equals(""))
+        if (replicaGroupId.equals(""))
         {
             _replicaGroupId.setSelectedItem(NOT_REPLICATED);
         }
@@ -385,7 +347,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
             ReplicaGroup replicaGroup = (ReplicaGroup)replicaGroups.findChild(replicaGroupId);
 
-            if(replicaGroup != null)
+            if (replicaGroup != null)
             {
                 _replicaGroupId.setSelectedItem(replicaGroup);
             }
@@ -399,7 +361,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private String getReplicaGroupIdAsString()
     {
         Object obj = _replicaGroupId.getSelectedItem();
-        if(obj == NOT_REPLICATED)
+        if (obj == NOT_REPLICATED)
         {
             return "";
         }
@@ -409,31 +371,32 @@ class AdapterEditor extends CommunicatorChildEditor
         }
     }
 
-    @Override
-    protected boolean validate()
+    @Override protected boolean validate()
     {
         //
         // First validate stringified identities
         //
         _objectList = mapToObjectDescriptorSeq(_objects.get());
 
-        if(_objectList == null)
+        if (_objectList == null)
         {
             return false;
         }
 
         _allocatableList = mapToObjectDescriptorSeq(_allocatables.get());
 
-        if(_allocatableList == null)
+        if (_allocatableList == null)
         {
             return false;
         }
 
-        return check(new String[]{
-            "Adapter Name", _name.getText().trim(),
-            "Adapter ID", getIdAsString(),
-            "Endpoints", _endpoints.getText().trim()
-        });
+        return check(new String[] {
+            "Adapter Name",
+            _name.getText().trim(),
+            "Adapter ID",
+            getIdAsString(),
+            "Endpoints",
+            _endpoints.getText().trim()});
     }
 
     void show(Adapter adapter)
@@ -443,7 +406,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
         AdapterDescriptor descriptor = (AdapterDescriptor)adapter.getDescriptor();
 
-        final Utils.Resolver resolver = adapter.getCoordinator().substitute() ?  adapter.getResolver() : null;
+        final Utils.Resolver resolver = adapter.getCoordinator().substitute() ? adapter.getResolver() : null;
 
         boolean isEditable = resolver == null;
 
@@ -465,7 +428,7 @@ class AdapterEditor extends CommunicatorChildEditor
         _id.setEditable(true);
         _defaultAdapterId = adapter.getDefaultAdapterId();
         refreshId();
-        if(descriptor.id == null)
+        if (descriptor.id == null)
         {
             descriptor.id = _defaultAdapterId;
         }
@@ -480,27 +443,25 @@ class AdapterEditor extends CommunicatorChildEditor
         final ReplicaGroups replicaGroups = adapter.getRoot().getReplicaGroups();
         _replicaGroupId.setModel(replicaGroups.createComboBoxModel(NOT_REPLICATED));
 
-        _replicaGroupId.addItemListener(new ItemListener()
+        _replicaGroupId.addItemListener(new ItemListener() {
+            @Override public void itemStateChanged(ItemEvent e)
             {
-                @Override
-                public void itemStateChanged(ItemEvent e)
+                if (e.getStateChange() == ItemEvent.SELECTED)
                 {
-                    if(e.getStateChange() == ItemEvent.SELECTED)
+                    Object item = e.getItem();
+                    boolean enabled = (item instanceof ReplicaGroup);
+                    if (!enabled && item != NOT_REPLICATED)
                     {
-                        Object item = e.getItem();
-                        boolean enabled = (item instanceof ReplicaGroup);
-                        if(!enabled && item != NOT_REPLICATED)
+                        if (resolver != null)
                         {
-                            if(resolver != null)
-                            {
-                                String replicaGroupId = resolver.substitute(item.toString().trim());
-                                enabled = (replicaGroups.findChild(replicaGroupId) != null);
-                            }
+                            String replicaGroupId = resolver.substitute(item.toString().trim());
+                            enabled = (replicaGroups.findChild(replicaGroupId) != null);
                         }
-                        _replicaGroupButton.setEnabled(enabled);
                     }
+                    _replicaGroupButton.setEnabled(enabled);
                 }
-            });
+            }
+        });
 
         setReplicaGroupId(Utils.substitute(descriptor.replicaGroupId, resolver));
 
@@ -512,7 +473,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
         String endpoints = Utils.substitute(adapter.getProperty(oaPrefix + "Endpoints"), resolver);
 
-        if(adapter.isEphemeral() && (endpoints == null || endpoints.equals("")))
+        if (adapter.isEphemeral() && (endpoints == null || endpoints.equals("")))
         {
             _endpoints.setText("default");
         }
@@ -525,7 +486,7 @@ class AdapterEditor extends CommunicatorChildEditor
         _publishedEndpoints.setEnabled(true);
         _publishedEndpoints.setEditable(true);
         String published = Utils.substitute(adapter.getProperty(oaPrefix + "PublishedEndpoints"), resolver);
-        if(published == null || published.equals(""))
+        if (published == null || published.equals(""))
         {
             _publishedEndpoints.setSelectedItem(PUBLISH_ACTUAL);
         }
@@ -556,26 +517,23 @@ class AdapterEditor extends CommunicatorChildEditor
         _discardButton.setEnabled(adapter.isEphemeral());
         detectUpdates(true);
 
-        if(adapter.isEphemeral())
+        if (adapter.isEphemeral())
         {
             updated();
         }
     }
 
-    Adapter getAdapter()
-    {
-        return (Adapter)_target;
-    }
+    Adapter getAdapter() { return (Adapter)_target; }
 
     private java.util.Map<String, String[]> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
     {
         java.util.Map<String, String[]> result = new java.util.TreeMap<>();
         com.zeroc.Ice.Communicator communicator = getAdapter().getRoot().getCoordinator().getCommunicator();
 
-        for(ObjectDescriptor p : objects)
+        for (ObjectDescriptor p : objects)
         {
             String k = communicator.identityToString(p.id);
-            result.put(k, new String[]{p.type, getAdapter().lookupPropertyValue(k),p.proxyOptions});
+            result.put(k, new String[] {p.type, getAdapter().lookupPropertyValue(k), p.proxyOptions});
         }
         return result;
     }
@@ -585,7 +543,7 @@ class AdapterEditor extends CommunicatorChildEditor
         String badIdentities = "";
         java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
         com.zeroc.Ice.Communicator communicator = getAdapter().getRoot().getCoordinator().getCommunicator();
-        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
+        for (java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             try
             {
@@ -593,13 +551,13 @@ class AdapterEditor extends CommunicatorChildEditor
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[2]));
             }
-            catch(com.zeroc.Ice.IdentityParseException ex)
+            catch (com.zeroc.Ice.IdentityParseException ex)
             {
                 badIdentities += "- " + p.getKey() + "\n";
             }
         }
 
-        if(!badIdentities.equals(""))
+        if (!badIdentities.equals(""))
         {
             JOptionPane.showMessageDialog(
                 _target.getCoordinator().getMainFrame(),
@@ -617,14 +575,9 @@ class AdapterEditor extends CommunicatorChildEditor
 
     private String _defaultAdapterId = "";
 
-    private final Object DEFAULT_ADAPTER_ID = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return _defaultAdapterId;
-            }
-        };
+    private final Object DEFAULT_ADAPTER_ID = new Object() {
+        @Override public String toString() { return _defaultAdapterId; }
+    };
 
     private String _oldName;
 
@@ -638,7 +591,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private JTextField _priority = new JTextField(20);
 
     private JTextField _endpoints = new JTextField(20);
-    private JComboBox _publishedEndpoints = new JComboBox(new Object[]{PUBLISH_ACTUAL});
+    private JComboBox _publishedEndpoints = new JComboBox(new Object[] {PUBLISH_ACTUAL});
     private JTextField _proxyOptions = new JTextField(20);
 
     private JTextField _currentStatus = new JTextField(20);
@@ -652,21 +605,11 @@ class AdapterEditor extends CommunicatorChildEditor
     private ArrayMapField _allocatables;
     private java.util.LinkedList<ObjectDescriptor> _allocatableList;
 
-    static private final Object PUBLISH_ACTUAL = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "Actual endpoints";
-            }
-        };
+    static private final Object PUBLISH_ACTUAL = new Object() {
+        @Override public String toString() { return "Actual endpoints"; }
+    };
 
-    static private final Object NOT_REPLICATED = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "Does not belong to a replica group";
-            }
-        };
+    static private final Object NOT_REPLICATED = new Object() {
+        @Override public String toString() { return "Does not belong to a replica group"; }
+    };
 }

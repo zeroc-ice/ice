@@ -13,7 +13,7 @@ public class Client extends test.TestHelper
         java.io.PrintWriter out = getWriter();
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.serialize");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             InitialPrx initial = AllTests.allTests(this, false);
             initial.shutdown();

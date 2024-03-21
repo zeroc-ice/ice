@@ -4,8 +4,8 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * <code>BlobjectAsync</code> is the base class for asynchronous dynamic
@@ -35,8 +35,7 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
      * @throws UserException A user exception raised by this method will be marshaled
      * as the result of the invocation.
      **/
-    CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
-        throws UserException;
+    CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current) throws UserException;
 
     /** @hidden */
     @Override
@@ -47,17 +46,16 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
         CompletableFuture<OutputStream> f = new CompletableFuture<>();
         CompletionStage<Object.Ice_invokeResult> s = ice_invokeAsync(inEncaps, current);
         final OutputStream cached = in.getAndClearCachedOutputStream(); // If an output stream is cached, re-use it
-        s.whenComplete((result, ex) ->
+        s.whenComplete((result, ex) -> {
+            if (ex != null)
             {
-                if(ex != null)
-                {
-                    f.completeExceptionally(ex);
-                }
-                else
-                {
-                    f.complete(in.writeParamEncaps(cached, result.outParams, result.returnValue));
-                }
-            });
+                f.completeExceptionally(ex);
+            }
+            else
+            {
+                f.complete(in.writeParamEncaps(cached, result.outParams, result.returnValue));
+            }
+        });
         return f;
     }
 }

@@ -6,14 +6,11 @@ package com.zeroc.IceInternal;
 
 public final class RouterManager
 {
-    RouterManager()
-    {
-    }
+    RouterManager() {}
 
-    synchronized void
-    destroy()
+    synchronized void destroy()
     {
-        for(RouterInfo info : _table.values())
+        for (RouterInfo info : _table.values())
         {
             info.destroy();
         }
@@ -24,10 +21,9 @@ public final class RouterManager
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    public RouterInfo
-    get(com.zeroc.Ice.RouterPrx rtr)
+    public RouterInfo get(com.zeroc.Ice.RouterPrx rtr)
     {
-        if(rtr == null)
+        if (rtr == null)
         {
             return null;
         }
@@ -37,10 +33,10 @@ public final class RouterManager
         //
         com.zeroc.Ice.RouterPrx router = com.zeroc.Ice.RouterPrx.uncheckedCast(rtr.ice_router(null));
 
-        synchronized(this)
+        synchronized (this)
         {
             RouterInfo info = _table.get(router);
-            if(info == null)
+            if (info == null)
             {
                 info = new RouterInfo(router);
                 _table.put(router, info);
@@ -50,19 +46,15 @@ public final class RouterManager
         }
     }
 
-    public RouterInfo
-    erase(com.zeroc.Ice.RouterPrx rtr)
+    public RouterInfo erase(com.zeroc.Ice.RouterPrx rtr)
     {
         RouterInfo info = null;
-        if(rtr != null)
+        if (rtr != null)
         {
             // The router cannot be routed.
             com.zeroc.Ice.RouterPrx router = com.zeroc.Ice.RouterPrx.uncheckedCast(rtr.ice_router(null));
 
-            synchronized(this)
-            {
-                info = _table.remove(router);
-            }
+            synchronized (this) { info = _table.remove(router); }
         }
         return info;
     }

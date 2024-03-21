@@ -4,24 +4,18 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.Connection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 
-import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.CommunicatorDestroyedException;
-import com.zeroc.Ice.Connection;
-
 public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFuture<T>
 {
-    @Override
-    public boolean cancel()
-    {
-        return cancel(false);
-    }
+    @Override public boolean cancel() { return cancel(false); }
 
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning)
+    @Override public boolean cancel(boolean mayInterruptIfRunning)
     {
         //
         // Call super.cancel(boolean) first. This sets the result of the future.
@@ -33,34 +27,17 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         return r;
     }
 
-    @Override
-    public Communicator getCommunicator()
-    {
-        return _communicator;
-    }
+    @Override public Communicator getCommunicator() { return _communicator; }
 
-    @Override
-    public com.zeroc.Ice.Connection getConnection()
-    {
-        return null;
-    }
+    @Override public com.zeroc.Ice.Connection getConnection() { return null; }
 
-    @Override
-    public com.zeroc.Ice.ObjectPrx getProxy()
-    {
-        return null;
-    }
+    @Override public com.zeroc.Ice.ObjectPrx getProxy() { return null; }
 
-    @Override
-    public final String getOperation()
-    {
-        return _operation;
-    }
+    @Override public final String getOperation() { return _operation; }
 
-    @Override
-    public final void waitForCompleted()
+    @Override public final void waitForCompleted()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -68,42 +45,36 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         {
             join();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
         }
     }
 
-    @Override
-    public final boolean isSent()
+    @Override public final boolean isSent()
     {
-        synchronized(this)
-        {
-            return (_state & StateSent) > 0;
-        }
+        synchronized (this) { return (_state & StateSent) > 0; }
     }
 
-    @Override
-    synchronized public final void waitForSent()
+    @Override synchronized public final void waitForSent()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
-        while((_state & StateSent) == 0 && _exception == null)
+        while ((_state & StateSent) == 0 && _exception == null)
         {
             try
             {
                 this.wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 throw new com.zeroc.Ice.OperationInterruptedException();
             }
         }
     }
 
-    @Override
-    public final boolean sentSynchronously()
+    @Override public final boolean sentSynchronously()
     {
         return _sentSynchronously; // No lock needed, immutable
     }
@@ -111,7 +82,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     @Override
     synchronized public final CompletableFuture<Boolean> whenSent(BiConsumer<Boolean, ? super Throwable> action)
     {
-        if(_sentFuture == null)
+        if (_sentFuture == null)
         {
             _sentFuture = new CompletableFuture<>();
         }
@@ -121,9 +92,9 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         //
         // Check if the request has already been sent.
         //
-        if(((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone())
+        if (((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone())
         {
-            if(_exception != null)
+            if (_exception != null)
             {
                 _sentFuture.completeExceptionally(_exception);
             }
@@ -142,16 +113,16 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     }
 
     @Override
-    synchronized public final CompletableFuture<Boolean> whenSentAsync(BiConsumer<Boolean, ? super Throwable> action,
-                                                                       Executor executor)
+    synchronized public final CompletableFuture<Boolean>
+    whenSentAsync(BiConsumer<Boolean, ? super Throwable> action, Executor executor)
     {
-        if(_sentFuture == null)
+        if (_sentFuture == null)
         {
             _sentFuture = new CompletableFuture<>();
         }
 
         CompletableFuture<Boolean> r;
-        if(executor == null)
+        if (executor == null)
         {
             r = _sentFuture.whenCompleteAsync(action);
         }
@@ -163,9 +134,9 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         //
         // Check if the request has already been sent.
         //
-        if(((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone())
+        if (((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone())
         {
-            if(_exception != null)
+            if (_exception != null)
             {
                 _sentFuture.completeExceptionally(_exception);
             }
@@ -181,36 +152,36 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     {
         try
         {
-            synchronized(this)
+            synchronized (this)
             {
-                if(_sentFuture != null && !_sentFuture.isDone())
+                if (_sentFuture != null && !_sentFuture.isDone())
                 {
                     _sentFuture.complete(_sentSynchronously);
                 }
             }
 
-            if(_doneInSent)
+            if (_doneInSent)
             {
                 markCompleted();
             }
         }
-        catch(java.lang.RuntimeException ex)
+        catch (java.lang.RuntimeException ex)
         {
             warning(ex);
         }
-        catch(java.lang.Error exc)
+        catch (java.lang.Error exc)
         {
             error(exc);
-            if(!(exc instanceof java.lang.AssertionError || exc instanceof java.lang.OutOfMemoryError))
+            if (!(exc instanceof java.lang.AssertionError || exc instanceof java.lang.OutOfMemoryError))
             {
                 throw exc;
             }
         }
 
-        if(_observer != null)
+        if (_observer != null)
         {
             com.zeroc.Ice.ObjectPrx proxy = getProxy();
-            if(proxy == null || !proxy.ice_isTwoway())
+            if (proxy == null || !proxy.ice_isTwoway())
             {
                 _observer.detach();
                 _observer = null;
@@ -224,11 +195,11 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     {
         try
         {
-            if(_exception != null)
+            if (_exception != null)
             {
-                synchronized(this)
+                synchronized (this)
                 {
-                    if(_sentFuture != null && !_sentFuture.isDone())
+                    if (_sentFuture != null && !_sentFuture.isDone())
                     {
                         _sentFuture.completeExceptionally(_exception);
                     }
@@ -240,20 +211,20 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 markCompleted();
             }
         }
-        catch(RuntimeException ex)
+        catch (RuntimeException ex)
         {
             warning(ex);
         }
-        catch(AssertionError exc)
+        catch (AssertionError exc)
         {
             error(exc);
         }
-        catch(OutOfMemoryError exc)
+        catch (OutOfMemoryError exc)
         {
             error(exc);
         }
 
-        if(_observer != null)
+        if (_observer != null)
         {
             _observer.detach();
             _observer = null;
@@ -265,20 +236,14 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         //
         // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
         //
-        _instance.clientThreadPool().dispatch(
-            new DispatchWorkItem(_cachedConnection)
-                {
-                    @Override
-                    public void run()
-                    {
-                        invokeCompleted();
-                    }
-                });
+        _instance.clientThreadPool().dispatch(new DispatchWorkItem(_cachedConnection) {
+            @Override public void run() { invokeCompleted(); }
+        });
     }
 
     synchronized public void cancelable(final CancellationHandler handler)
     {
-        if(_cancellationException != null)
+        if (_cancellationException != null)
         {
             try
             {
@@ -304,19 +269,17 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         _exception = null;
     }
 
-    protected void cacheMessageBuffers()
-    {
-    }
+    protected void cacheMessageBuffers() {}
 
     protected boolean sent(boolean done)
     {
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_exception == null);
+            assert (_exception == null);
 
             boolean alreadySent = (_state & StateSent) != 0;
             _state |= StateSent;
-            if(done)
+            if (done)
             {
                 _state |= StateDone | StateOK;
                 _cancellationHandler = null;
@@ -333,13 +296,13 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             }
 
             boolean invoke = (!alreadySent && _sentFuture != null || done) && !_synchronous;
-            if(!invoke && done && _observer != null)
+            if (!invoke && done && _observer != null)
             {
                 _observer.detach();
                 _observer = null;
             };
 
-            if(!invoke && done)
+            if (!invoke && done)
             {
                 markCompleted();
                 return false;
@@ -354,25 +317,25 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
 
     protected boolean finished(boolean ok, boolean invoke)
     {
-        synchronized(this)
+        synchronized (this)
         {
             _state |= StateDone;
-            if(ok)
+            if (ok)
             {
                 _state |= StateOK;
             }
             _cancellationHandler = null;
 
             invoke &= !_synchronous;
-            if(!invoke && _observer != null)
+            if (!invoke && _observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
 
-            if(!invoke)
+            if (!invoke)
             {
-                if(_exception != null)
+                if (_exception != null)
                 {
                     completeExceptionally(_exception);
                 }
@@ -392,26 +355,26 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
 
     protected boolean finished(com.zeroc.Ice.Exception ex)
     {
-        synchronized(this)
+        synchronized (this)
         {
             _state |= StateDone;
             _exception = ex;
             _cancellationHandler = null;
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
             boolean invoke = !_synchronous;
-            if(!invoke && _observer != null)
+            if (!invoke && _observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
 
-            if(!invoke)
+            if (!invoke)
             {
-                if(_exception != null)
+                if (_exception != null)
                 {
                     completeExceptionally(_exception);
                 }
@@ -442,9 +405,9 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     protected void cancel(com.zeroc.Ice.LocalException ex)
     {
         CancellationHandler handler;
-        synchronized(this)
+        synchronized (this)
         {
-            if(_cancellationHandler == null)
+            if (_cancellationHandler == null)
             {
                 _cancellationException = ex;
                 return;
@@ -454,33 +417,24 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         handler.asyncRequestCanceled((OutgoingAsyncBase)this, ex);
     }
 
-    protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver()
-    {
-        return _observer;
-    }
+    protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver() { return _observer; }
 
     protected void dispatch(final Runnable runnable)
     {
         try
         {
-            _instance.clientThreadPool().dispatch(
-                new DispatchWorkItem(_cachedConnection)
-                {
-                    @Override
-                    public void run()
-                    {
-                        runnable.run();
-                    }
-                });
+            _instance.clientThreadPool().dispatch(new DispatchWorkItem(_cachedConnection) {
+                @Override public void run() { runnable.run(); }
+            });
         }
-        catch(CommunicatorDestroyedException ex)
+        catch (CommunicatorDestroyedException ex)
         {
         }
     }
 
     private void warning(RuntimeException ex)
     {
-        if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+        if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
         {
             String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
             _instance.initializationData().logger.warning(s);

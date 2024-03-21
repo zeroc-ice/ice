@@ -4,36 +4,31 @@
 
 package test.Ice.binding;
 
-import java.io.PrintWriter;
-
-import test.Ice.binding.Test.RemoteCommunicatorPrx;
-import test.Ice.binding.Test.RemoteObjectAdapterPrx;
-import test.Ice.binding.Test.TestIntfPrx;
-
 import com.zeroc.Ice.ConnectionClose;
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointSelectionType;
+import java.io.PrintWriter;
+import test.Ice.binding.Test.RemoteCommunicatorPrx;
+import test.Ice.binding.Test.RemoteObjectAdapterPrx;
+import test.Ice.binding.Test.TestIntfPrx;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    private static String getAdapterNameWithAMI(TestIntfPrx test)
-    {
-        return test.getAdapterNameAsync().join();
-    }
+    private static String getAdapterNameWithAMI(TestIntfPrx test) { return test.getAdapterNameAsync().join(); }
 
     private static TestIntfPrx createTestIntfPrx(java.util.List<RemoteObjectAdapterPrx> adapters)
     {
         java.util.List<Endpoint> endpoints = new java.util.ArrayList<>();
         TestIntfPrx test = null;
-        for(RemoteObjectAdapterPrx p : adapters)
+        for (RemoteObjectAdapterPrx p : adapters)
         {
             test = p.getTestIntf();
             Endpoint[] edpts = test.ice_getEndpoints();
@@ -44,7 +39,7 @@ public class AllTests
 
     private static void deactivate(RemoteCommunicatorPrx communicator, java.util.List<RemoteObjectAdapterPrx> adapters)
     {
-        for(RemoteObjectAdapterPrx p : adapters)
+        for (RemoteObjectAdapterPrx p : adapters)
         {
             communicator.deactivateObjectAdapter(p);
         }
@@ -81,14 +76,14 @@ public class AllTests
                 test3.ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
                 //
                 // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -113,7 +108,7 @@ public class AllTests
             names.add("Adapter11");
             names.add("Adapter12");
             names.add("Adapter13");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 java.util.List<RemoteObjectAdapterPrx> adpts = new java.util.ArrayList<>(adapters);
 
@@ -135,7 +130,7 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                for(RemoteObjectAdapterPrx p : adapters)
+                for (RemoteObjectAdapterPrx p : adapters)
                 {
                     p.getTestIntf().ice_ping();
                 }
@@ -144,10 +139,11 @@ public class AllTests
                 String name = test.getAdapterName();
                 final int nRetry = 10;
                 int i;
-                for(i = 0; i < nRetry && test.getAdapterName().equals(name); i++);
+                for (i = 0; i < nRetry && test.getAdapterName().equals(name); i++)
+                    ;
                 test(i == nRetry);
 
-                for(RemoteObjectAdapterPrx p : adapters)
+                for (RemoteObjectAdapterPrx p : adapters)
                 {
                     p.getTestIntf().ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
                 }
@@ -160,7 +156,7 @@ public class AllTests
             rcom.deactivateObjectAdapter(adapters.get(0));
             names.add("Adapter12");
             names.add("Adapter13");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 java.util.List<RemoteObjectAdapterPrx> adpts = new java.util.ArrayList<>(adapters);
 
@@ -201,18 +197,17 @@ public class AllTests
             adapters[3] = rcom.createObjectAdapter("AdapterRandom14", "default");
             adapters[4] = rcom.createObjectAdapter("AdapterRandom15", "default");
 
-            boolean shortenTest =
-                System.getProperty("os.name").startsWith("Windows") ||
-                System.getProperty("java.vendor").toLowerCase().indexOf("android") >= 0;
+            boolean shortenTest = System.getProperty("os.name").startsWith("Windows") ||
+                                  System.getProperty("java.vendor").toLowerCase().indexOf("android") >= 0;
 
             int count = 20;
             int adapterCount = adapters.length;
-            while(--count > 0)
+            while (--count > 0)
             {
                 TestIntfPrx[] proxies = new TestIntfPrx[10];
-                if(shortenTest)
+                if (shortenTest)
                 {
-                    if(count == 1)
+                    if (count == 1)
                     {
                         rcom.deactivateObjectAdapter(adapters[4]);
                         --adapterCount;
@@ -220,7 +215,7 @@ public class AllTests
                 }
                 else
                 {
-                    if(count < 20 && count % 4 == 0)
+                    if (count < 20 && count % 4 == 0)
                     {
                         rcom.deactivateObjectAdapter(adapters[count / 4 - 1]);
                         --adapterCount;
@@ -228,52 +223,52 @@ public class AllTests
                 }
 
                 int i;
-                for(i = 0; i < proxies.length; ++i)
+                for (i = 0; i < proxies.length; ++i)
                 {
                     RemoteObjectAdapterPrx[] adpts = new RemoteObjectAdapterPrx[rand.nextInt(adapters.length)];
-                    if(adpts.length == 0)
+                    if (adpts.length == 0)
                     {
                         adpts = new RemoteObjectAdapterPrx[1];
                     }
-                    for(int j = 0; j < adpts.length; ++j)
+                    for (int j = 0; j < adpts.length; ++j)
                     {
                         adpts[j] = adapters[rand.nextInt(adapters.length)];
                     }
                     proxies[i] = createTestIntfPrx(java.util.Arrays.asList((adpts)));
                 }
 
-                for(TestIntfPrx p : proxies)
+                for (TestIntfPrx p : proxies)
                 {
                     p.getAdapterNameAsync();
                 }
-                for(TestIntfPrx p : proxies)
+                for (TestIntfPrx p : proxies)
                 {
                     try
                     {
                         p.ice_ping();
                     }
-                    catch(com.zeroc.Ice.LocalException ex)
+                    catch (com.zeroc.Ice.LocalException ex)
                     {
                     }
                 }
 
                 java.util.Set<com.zeroc.Ice.Connection> connections = new java.util.HashSet<>();
-                for(TestIntfPrx p : proxies)
+                for (TestIntfPrx p : proxies)
                 {
-                    if(p.ice_getCachedConnection() != null)
+                    if (p.ice_getCachedConnection() != null)
                     {
                         connections.add(p.ice_getCachedConnection());
                     }
                 }
                 test(connections.size() <= adapterCount);
 
-                for(RemoteObjectAdapterPrx a : adapters)
+                for (RemoteObjectAdapterPrx a : adapters)
                 {
                     try
                     {
                         a.getTestIntf().ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
                     }
-                    catch(com.zeroc.Ice.LocalException ex)
+                    catch (com.zeroc.Ice.LocalException ex)
                     {
                         // Expected if adapter is down.
                     }
@@ -298,7 +293,7 @@ public class AllTests
             names.add("AdapterAMI11");
             names.add("AdapterAMI12");
             names.add("AdapterAMI13");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 java.util.List<RemoteObjectAdapterPrx> adpts = new java.util.ArrayList<>(adapters);
 
@@ -320,7 +315,7 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                for(RemoteObjectAdapterPrx p : adapters)
+                for (RemoteObjectAdapterPrx p : adapters)
                 {
                     p.getTestIntf().ice_ping();
                 }
@@ -329,10 +324,11 @@ public class AllTests
                 String name = getAdapterNameWithAMI(test);
                 final int nRetry = 10;
                 int i;
-                for(i = 0; i < nRetry &&  getAdapterNameWithAMI(test).equals(name); i++);
+                for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals(name); i++)
+                    ;
                 test(i == nRetry);
 
-                for(RemoteObjectAdapterPrx p : adapters)
+                for (RemoteObjectAdapterPrx p : adapters)
                 {
                     p.getTestIntf().ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
                 }
@@ -345,7 +341,7 @@ public class AllTests
             rcom.deactivateObjectAdapter(adapters.get(0));
             names.add("AdapterAMI12");
             names.add("AdapterAMI13");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 java.util.List<RemoteObjectAdapterPrx> adpts = new java.util.ArrayList<>(adapters);
 
@@ -389,7 +385,7 @@ public class AllTests
             names.add("Adapter21");
             names.add("Adapter22");
             names.add("Adapter23");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(test.getAdapterName());
                 test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -401,7 +397,7 @@ public class AllTests
             names.add("Adapter21");
             names.add("Adapter22");
             names.add("Adapter23");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(test.getAdapterName());
                 test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -429,13 +425,16 @@ public class AllTests
             // Ensure that endpoints are tried in order by deactiving the adapters
             // one after the other.
             //
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter32"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter32"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter33"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter33"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -443,14 +442,14 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
                 //
                 // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -466,15 +465,18 @@ public class AllTests
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter36", endpoints[2].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter36"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter36"); i++)
+                ;
             test(i == nRetry);
             test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             adapters.add(rcom.createObjectAdapter("Adapter35", endpoints[1].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter35"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter35"); i++)
+                ;
             test(i == nRetry);
             test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             adapters.add(rcom.createObjectAdapter("Adapter34", endpoints[0].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter34"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter34"); i++)
+                ;
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -503,14 +505,14 @@ public class AllTests
                 test(test3.ice_getConnection() == test1.ice_getConnection());
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
                 //
                 // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -534,7 +536,7 @@ public class AllTests
             names.add("Adapter51");
             names.add("Adapter52");
             names.add("Adapter53");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(test.getAdapterName());
             }
@@ -543,7 +545,7 @@ public class AllTests
 
             names.add("Adapter52");
             names.add("Adapter53");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(test.getAdapterName());
             }
@@ -571,7 +573,7 @@ public class AllTests
             names.add("AdapterAMI51");
             names.add("AdapterAMI52");
             names.add("AdapterAMI53");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(getAdapterNameWithAMI(test));
             }
@@ -580,7 +582,7 @@ public class AllTests
 
             names.add("AdapterAMI52");
             names.add("AdapterAMI53");
-            while(!names.isEmpty())
+            while (!names.isEmpty())
             {
                 names.remove(getAdapterNameWithAMI(test));
             }
@@ -613,13 +615,16 @@ public class AllTests
             // Ensure that endpoints are tried in order by deactiving the adapters
             // one after the other.
             //
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter62"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter62"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter63"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter63"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -627,14 +632,14 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
                 //
                 // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -650,13 +655,16 @@ public class AllTests
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter66", endpoints[2].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter66"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter66"); i++)
+                ;
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter65", endpoints[1].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter65"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter65"); i++)
+                ;
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter64", endpoints[0].toString()));
-            for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter64"); i++);
+            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter64"); i++)
+                ;
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -683,13 +691,16 @@ public class AllTests
             // Ensure that endpoints are tried in order by deactiving the adapters
             // one after the other.
             //
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI62"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI62"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI63"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI63"); i++)
+                ;
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -697,14 +708,14 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
                 //
                 // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -720,13 +731,16 @@ public class AllTests
             // order.
             //
             adapters.add(rcom.createObjectAdapter("AdapterAMI66", endpoints[2].toString()));
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI66"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI66"); i++)
+                ;
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI65", endpoints[1].toString()));
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI65"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI65"); i++)
+                ;
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI64", endpoints[0].toString()));
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI64"); i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI64"); i++)
+                ;
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -749,13 +763,13 @@ public class AllTests
             {
                 testUDP.getAdapterName();
             }
-            catch(com.zeroc.Ice.TwowayOnlyException ex)
+            catch (com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }
         out.println("ok");
 
-        if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length() > 0)
+        if (communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length() > 0)
         {
             out.print("testing unsecure vs. secure endpoints... ");
             out.flush();
@@ -766,7 +780,7 @@ public class AllTests
 
                 TestIntfPrx test = createTestIntfPrx(adapters);
                 int i;
-                for(i = 0; i < 5; i++)
+                for (i = 0; i < 5; i++)
                 {
                     test(test.getAdapterName().equals("Adapter82"));
                     test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -782,7 +796,7 @@ public class AllTests
 
                 rcom.deactivateObjectAdapter(adapters.get(1));
 
-                for(i = 0; i < 5; i++)
+                for (i = 0; i < 5; i++)
                 {
                     test(test.getAdapterName().equals("Adapter81"));
                     test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -790,7 +804,7 @@ public class AllTests
 
                 rcom.createObjectAdapter("Adapter83", (test.ice_getEndpoints()[1]).toString()); // Reactive tcp OA.
 
-                for(i = 0; i < 5; i++)
+                for (i = 0; i < 5; i++)
                 {
                     test(test.getAdapterName().equals("Adapter83"));
                     test.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -802,14 +816,14 @@ public class AllTests
                     testSecure.ice_ping();
                     test(false);
                 }
-                catch(com.zeroc.Ice.ConnectFailedException ex)
+                catch (com.zeroc.Ice.ConnectFailedException ex)
                 {
                     //
                     // Usually the actual type of this exception is ConnectionRefusedException,
                     // but not always. See bug 3179.
                     //
                 }
-                catch(com.zeroc.Ice.ConnectTimeoutException ex)
+                catch (com.zeroc.Ice.ConnectTimeoutException ex)
                 {
                     //
                     // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
@@ -883,9 +897,9 @@ public class AllTests
             serverProps.add(localipv6);
 
             boolean ipv6NotSupported = false;
-            for(com.zeroc.Ice.Properties p : serverProps)
+            for (com.zeroc.Ice.Properties p : serverProps)
             {
-                try(com.zeroc.Ice.Communicator serverCommunicator = helper.initialize(p))
+                try (com.zeroc.Ice.Communicator serverCommunicator = helper.initialize(p))
                 {
                     com.zeroc.Ice.ObjectAdapter oa;
                     try
@@ -893,14 +907,14 @@ public class AllTests
                         oa = serverCommunicator.createObjectAdapter("Adapter");
                         oa.activate();
                     }
-                    catch(com.zeroc.Ice.DNSException ex)
+                    catch (com.zeroc.Ice.DNSException ex)
                     {
                         serverCommunicator.destroy();
                         continue; // IP version not supported.
                     }
-                    catch(com.zeroc.Ice.SocketException ex)
+                    catch (com.zeroc.Ice.SocketException ex)
                     {
-                        if(p == ipv6)
+                        if (p == ipv6)
                         {
                             ipv6NotSupported = true;
                         }
@@ -909,9 +923,9 @@ public class AllTests
                     }
 
                     String strPrx = oa.createProxy(com.zeroc.Ice.Util.stringToIdentity("dummy")).toString();
-                    for(com.zeroc.Ice.Properties q : clientProps)
+                    for (com.zeroc.Ice.Properties q : clientProps)
                     {
-                        try(com.zeroc.Ice.Communicator clientCommunicator = helper.initialize(q))
+                        try (com.zeroc.Ice.Communicator clientCommunicator = helper.initialize(q))
                         {
                             com.zeroc.Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
                             try
@@ -919,11 +933,11 @@ public class AllTests
                                 prx.ice_ping();
                                 test(false);
                             }
-                            catch(com.zeroc.Ice.ObjectNotExistException ex)
+                            catch (com.zeroc.Ice.ObjectNotExistException ex)
                             {
                                 // Expected, no object registered.
                             }
-                            catch(com.zeroc.Ice.DNSException ex)
+                            catch (com.zeroc.Ice.DNSException ex)
                             {
                                 // Expected if no IPv4 or IPv6 address is
                                 // associated to localhost or if trying to connect
@@ -931,16 +945,17 @@ public class AllTests
                                 // e.g.: resolving an IPv4 address when only IPv6
                                 // is enabled fails with a DNS exception.
                             }
-                            catch(com.zeroc.Ice.SocketException ex)
+                            catch (com.zeroc.Ice.SocketException ex)
                             {
-                                test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
-                                     (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
-                                     (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
-                                     (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
-                                     (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
-                                     (p == ipv6 && q == bothPreferIPv4) || (p == bothPreferIPv6 && q == ipv6) ||
-                                     (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
-                                     (p == bothPreferIPv6 && q == ipv6));
+                                test(
+                                    (p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
+                                    (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
+                                    (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
+                                    (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
+                                    (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
+                                    (p == ipv6 && q == bothPreferIPv4) || (p == bothPreferIPv6 && q == ipv6) ||
+                                    (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
+                                    (p == bothPreferIPv6 && q == ipv6));
                             }
                         }
                     }

@@ -6,15 +6,13 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.IceMX.*;
 
-public class InvocationObserverI
-    extends com.zeroc.Ice.IceMX.ObserverWithDelegate<com.zeroc.Ice.IceMX.InvocationMetrics,
-                                                 com.zeroc.Ice.Instrumentation.InvocationObserver>
-    implements com.zeroc.Ice.Instrumentation.InvocationObserver
+public class InvocationObserverI extends com.zeroc.Ice.IceMX.ObserverWithDelegate<
+    com.zeroc.Ice.IceMX.InvocationMetrics,
+    com.zeroc.Ice.Instrumentation.InvocationObserver> implements com.zeroc.Ice.Instrumentation.InvocationObserver
 {
     static public final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics>
     {
-        static private final AttributeResolver _attributes = new AttributeResolver()
-        {
+        static private final AttributeResolver _attributes = new AttributeResolver() {
             {
                 try
                 {
@@ -24,10 +22,10 @@ public class InvocationObserverI
                     add("requestId", cl.getDeclaredMethod("getRequestId"));
                     CommunicatorObserverI.addConnectionAttributes(this, RemoteInvocationHelper.class);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ex.printStackTrace();
-                    assert(false);
+                    assert (false);
                 }
             }
         };
@@ -41,20 +39,14 @@ public class InvocationObserverI
             _size = size;
         }
 
-        @Override
-        public void
-        initMetrics(RemoteMetrics v)
-        {
-            v.size += _size;
-        }
+        @Override public void initMetrics(RemoteMetrics v) { v.size += _size; }
 
-        public String
-        getId()
+        public String getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
                 _id = _endpoint.toString();
-                if(_connectionInfo.connectionId != null && !_connectionInfo.connectionId.isEmpty())
+                if (_connectionInfo.connectionId != null && !_connectionInfo.connectionId.isEmpty())
                 {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
@@ -62,16 +54,11 @@ public class InvocationObserverI
             return _id;
         }
 
-        int
-        getRequestId()
-        {
-            return _requestId;
-        }
+        int getRequestId() { return _requestId; }
 
-        public String
-        getParent()
+        public String getParent()
         {
-            if(_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
+            if (_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
             {
                 return _connectionInfo.adapterName;
             }
@@ -81,22 +68,13 @@ public class InvocationObserverI
             }
         }
 
-        public com.zeroc.Ice.ConnectionInfo
-        getConnectionInfo()
-        {
-            return _connectionInfo;
-        }
+        public com.zeroc.Ice.ConnectionInfo getConnectionInfo() { return _connectionInfo; }
 
-        public com.zeroc.Ice.Endpoint
-        getEndpoint()
-        {
-            return _endpoint;
-        }
+        public com.zeroc.Ice.Endpoint getEndpoint() { return _endpoint; }
 
-        public com.zeroc.Ice.EndpointInfo
-        getEndpointInfo()
+        public com.zeroc.Ice.EndpointInfo getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if (_endpointInfo == null)
             {
                 _endpointInfo = _endpoint.getInfo();
             }
@@ -113,8 +91,7 @@ public class InvocationObserverI
 
     static public final class CollocatedInvocationHelper extends MetricsHelper<CollocatedMetrics>
     {
-        static private final AttributeResolver _attributes = new AttributeResolver()
-        {
+        static private final AttributeResolver _attributes = new AttributeResolver() {
             {
                 try
                 {
@@ -123,10 +100,10 @@ public class InvocationObserverI
                     add("id", cl.getDeclaredMethod("getId"));
                     add("requestId", cl.getDeclaredMethod("getRequestId"));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ex.printStackTrace();
-                    assert(false);
+                    assert (false);
                 }
             }
         };
@@ -139,53 +116,32 @@ public class InvocationObserverI
             _size = size;
         }
 
-        @Override
-        public void
-        initMetrics(CollocatedMetrics v)
-        {
-            v.size += _size;
-        }
+        @Override public void initMetrics(CollocatedMetrics v) { v.size += _size; }
 
-        public String
-        getId()
-        {
-            return _id;
-        }
+        public String getId() { return _id; }
 
-        int
-        getRequestId()
-        {
-            return _requestId;
-        }
+        int getRequestId() { return _requestId; }
 
-        public String
-        getParent()
-        {
-            return "Communicator";
-        }
+        public String getParent() { return "Communicator"; }
 
         final private int _requestId;
         final private int _size;
         final private String _id;
     }
 
-    @Override
-    public void
-    userException()
+    @Override public void userException()
     {
         forEach(_userException);
-        if(_delegate != null)
+        if (_delegate != null)
         {
             _delegate.userException();
         }
     }
 
-    @Override
-    public void
-    retried()
+    @Override public void retried()
     {
         forEach(_incrementRetry);
-        if(_delegate != null)
+        if (_delegate != null)
         {
             _delegate.retried();
         }
@@ -196,15 +152,16 @@ public class InvocationObserverI
     getRemoteObserver(com.zeroc.Ice.ConnectionInfo con, com.zeroc.Ice.Endpoint edpt, int requestId, int sz)
     {
         com.zeroc.Ice.Instrumentation.RemoteObserver delegate = null;
-        if(_delegate != null)
+        if (_delegate != null)
         {
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);
         }
-        return getObserver("Remote",
-                           new RemoteInvocationHelper(con, edpt, requestId, sz),
-                           RemoteMetrics.class,
-                           RemoteObserverI.class,
-                           delegate);
+        return getObserver(
+            "Remote",
+            new RemoteInvocationHelper(con, edpt, requestId, sz),
+            RemoteMetrics.class,
+            RemoteObserverI.class,
+            delegate);
     }
 
     @Override
@@ -212,34 +169,23 @@ public class InvocationObserverI
     getCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId, int sz)
     {
         com.zeroc.Ice.Instrumentation.CollocatedObserver delegate = null;
-        if(_delegate != null)
+        if (_delegate != null)
         {
             delegate = _delegate.getCollocatedObserver(adapter, requestId, sz);
         }
-        return getObserver("Collocated",
-                           new CollocatedInvocationHelper(adapter, requestId, sz),
-                           CollocatedMetrics.class,
-                           CollocatedObserverI.class,
-                           delegate);
+        return getObserver(
+            "Collocated",
+            new CollocatedInvocationHelper(adapter, requestId, sz),
+            CollocatedMetrics.class,
+            CollocatedObserverI.class,
+            delegate);
     }
 
-    final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()
-    {
-        @Override
-        public void
-        update(InvocationMetrics v)
-        {
-            ++v.retry;
-        }
+    final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>() {
+        @Override public void update(InvocationMetrics v) { ++v.retry; }
     };
 
-    final MetricsUpdate<InvocationMetrics> _userException = new MetricsUpdate<InvocationMetrics>()
-    {
-        @Override
-        public void
-        update(InvocationMetrics v)
-        {
-            ++v.userException;
-        }
+    final MetricsUpdate<InvocationMetrics> _userException = new MetricsUpdate<InvocationMetrics>() {
+        @Override public void update(InvocationMetrics v) { ++v.userException; }
     };
 }

@@ -19,14 +19,9 @@ abstract public class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
         s.endEncapsulation();
     }
 
-    @Override
-    public String toString()
-    {
-        return _toString();
-    }
+    @Override public String toString() { return _toString(); }
 
-    @Override
-    public String _toString()
+    @Override public String _toString()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -146,9 +141,9 @@ abstract public class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
         java.util.ArrayList<String> unknown = new java.util.ArrayList<>();
 
         String str = "`" + protocol() + " ";
-        for(String p : args)
+        for (String p : args)
         {
-            if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+            if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
             {
                 str += " \"" + p + "\"";
             }
@@ -159,25 +154,25 @@ abstract public class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
         }
         str += "'";
 
-        for(int n = 0; n < args.size(); ++n)
+        for (int n = 0; n < args.size(); ++n)
         {
             String option = args.get(n);
-            if(option.length() < 2 || option.charAt(0) != '-')
+            if (option.length() < 2 || option.charAt(0) != '-')
             {
                 unknown.add(option);
                 continue;
             }
 
             String argument = null;
-            if(n + 1 < args.size() && args.get(n + 1).charAt(0) != '-')
+            if (n + 1 < args.size() && args.get(n + 1).charAt(0) != '-')
             {
                 argument = args.get(++n);
             }
 
-            if(!checkOption(option, argument, str))
+            if (!checkOption(option, argument, str))
             {
                 unknown.add(option);
-                if(argument != null)
+                if (argument != null)
                 {
                     unknown.add(argument);
                 }
@@ -191,10 +186,9 @@ abstract public class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
     //
     // Compare endpoints for sorting purposes.
     //
-    @Override
-    public boolean equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(!(obj instanceof EndpointI))
+        if (!(obj instanceof EndpointI))
         {
             return false;
         }

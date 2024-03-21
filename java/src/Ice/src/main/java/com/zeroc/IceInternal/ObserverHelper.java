@@ -9,14 +9,13 @@ import com.zeroc.Ice.Instrumentation.InvocationObserver;
 
 public final class ObserverHelper
 {
-    static public InvocationObserver
-    get(Instance instance, String op)
+    static public InvocationObserver get(Instance instance, String op)
     {
         CommunicatorObserver obsv = instance.initializationData().observer;
-        if(obsv != null)
+        if (obsv != null)
         {
             InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
-            if(observer != null)
+            if (observer != null)
             {
                 observer.attach();
             }
@@ -25,21 +24,17 @@ public final class ObserverHelper
         return null;
     }
 
-    static public InvocationObserver
-    get(com.zeroc.Ice.ObjectPrx proxy, String op)
-    {
-        return get(proxy, op, null);
-    }
+    static public InvocationObserver get(com.zeroc.Ice.ObjectPrx proxy, String op) { return get(proxy, op, null); }
 
     static public InvocationObserver
     get(com.zeroc.Ice.ObjectPrx proxy, String op, java.util.Map<String, String> context)
     {
         CommunicatorObserver obsv =
             ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getInstance().initializationData().observer;
-        if(obsv != null)
+        if (obsv != null)
         {
             InvocationObserver observer;
-            if(context == null)
+            if (context == null)
             {
                 observer = obsv.getInvocationObserver(proxy, op, _emptyContext);
             }
@@ -47,7 +42,7 @@ public final class ObserverHelper
             {
                 observer = obsv.getInvocationObserver(proxy, op, context);
             }
-            if(observer != null)
+            if (observer != null)
             {
                 observer.attach();
             }

@@ -24,8 +24,7 @@ public interface SessionCallback
      *
      * @throws SessionNotExistException If the session no longer exists.
      */
-    void connected(SessionHelper session)
-        throws SessionNotExistException;
+    void connected(SessionHelper session) throws SessionNotExistException;
 
     /**
      * Notifies the application that the Glacier2 session has been disconnected.

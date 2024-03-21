@@ -8,7 +8,7 @@ public class BZip2
 {
     public static Buffer compress(Buffer buf, int headerSize, int compressionLevel)
     {
-        assert(supported());
+        assert (supported());
 
         int uncompressedLen = buf.size() - headerSize;
         int compressedLen = (int)(uncompressedLen * 1.01 + 600);
@@ -25,7 +25,7 @@ public class BZip2
             data = buf.b.array();
             offset = buf.b.arrayOffset();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             //
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
@@ -43,13 +43,13 @@ public class BZip2
             // compressed buffer in an OutputStream wrapper.
             //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
-            java.lang.Object[] args = new java.lang.Object[]{ bos, Integer.valueOf(compressionLevel) };
+            java.lang.Object[] args = new java.lang.Object[] {bos, Integer.valueOf(compressionLevel)};
             java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
             compressedLen = bos.pos();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.CompressionException("bzip2 compression failure", ex);
         }
@@ -58,7 +58,7 @@ public class BZip2
         // Don't bother if the compressed data is larger than the
         // uncompressed data.
         //
-        if(compressedLen >= uncompressedLen)
+        if (compressedLen >= uncompressedLen)
         {
             return null;
         }
@@ -87,15 +87,15 @@ public class BZip2
 
     public static Buffer uncompress(Buffer buf, int headerSize, int messageSizeMax)
     {
-        assert(supported());
+        assert (supported());
 
         buf.position(headerSize);
         int uncompressedSize = buf.b.getInt();
-        if(uncompressedSize <= headerSize)
+        if (uncompressedSize <= headerSize)
         {
             throw new com.zeroc.Ice.IllegalMessageSizeException();
         }
-        if(uncompressedSize > messageSizeMax)
+        if (uncompressedSize > messageSizeMax)
         {
             Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
         }
@@ -113,7 +113,7 @@ public class BZip2
             compressed = buf.b.array();
             offset = buf.b.arrayOffset();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             //
             // Otherwise, allocate an array to hold a copy of the compressed data.
@@ -136,18 +136,18 @@ public class BZip2
             java.io.ByteArrayInputStream bais =
                 new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
 
-            java.lang.Object[] args = new java.lang.Object[]{ bais };
+            java.lang.Object[] args = new java.lang.Object[] {bais};
             java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
             r.position(headerSize);
             byte[] arr = new byte[8 * 1024];
             int n;
-            while((n = is.read(arr)) != -1)
+            while ((n = is.read(arr)) != -1)
             {
                 r.b.put(arr, 0, n);
             }
             is.close();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.CompressionException("bzip2 uncompression failure", ex);
         }
@@ -170,7 +170,7 @@ public class BZip2
         //
         // Use lazy initialization when determining whether support for bzip2 compression is available.
         //
-        if(!_checked)
+        if (!_checked)
         {
             _checked = true;
             try
@@ -178,13 +178,13 @@ public class BZip2
                 Class<?> cls;
                 Class<?>[] types = new Class<?>[1];
                 cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream", null);
-                if(cls != null)
+                if (cls != null)
                 {
                     types[0] = java.io.InputStream.class;
                     _bzInputStreamCtor = cls.getDeclaredConstructor(types);
                 }
                 cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream", null);
-                if(cls != null)
+                if (cls != null)
                 {
                     types = new Class<?>[2];
                     types[0] = java.io.OutputStream.class;
@@ -192,7 +192,7 @@ public class BZip2
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // Ignore - bzip2 compression not available.
             }
@@ -202,55 +202,34 @@ public class BZip2
 
     private static class BufferedOutputStream extends java.io.OutputStream
     {
-        BufferedOutputStream(byte[] data)
-        {
-            _data = data;
-        }
+        BufferedOutputStream(byte[] data) { _data = data; }
 
-        @Override
-        public void close()
-            throws java.io.IOException
-        {
-        }
+        @Override public void close() throws java.io.IOException {}
 
-        @Override
-        public void flush()
-            throws java.io.IOException
-        {
-        }
+        @Override public void flush() throws java.io.IOException {}
 
-        @Override
-        public void write(byte[] b)
-            throws java.io.IOException
+        @Override public void write(byte[] b) throws java.io.IOException
         {
-            assert(_data.length - _pos >= b.length);
+            assert (_data.length - _pos >= b.length);
             System.arraycopy(b, 0, _data, _pos, b.length);
             _pos += b.length;
         }
 
-        @Override
-        public void write(byte[] b, int off, int len)
-            throws java.io.IOException
+        @Override public void write(byte[] b, int off, int len) throws java.io.IOException
         {
-            assert(_data.length - _pos >= len);
+            assert (_data.length - _pos >= len);
             System.arraycopy(b, off, _data, _pos, len);
             _pos += len;
         }
 
-        @Override
-        public void write(int b)
-            throws java.io.IOException
+        @Override public void write(int b) throws java.io.IOException
         {
-            assert(_data.length - _pos >= 1);
+            assert (_data.length - _pos >= 1);
             _data[_pos] = (byte)b;
             ++_pos;
         }
 
-        int
-        pos()
-        {
-            return _pos;
-        }
+        int pos() { return _pos; }
 
         private byte[] _data;
         private int _pos;

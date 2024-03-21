@@ -12,7 +12,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.Package.Test", "test.Ice.acm");
         properties.setProperty("Ice.Warn.Connections", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             AllTests.allTests(this);
         }

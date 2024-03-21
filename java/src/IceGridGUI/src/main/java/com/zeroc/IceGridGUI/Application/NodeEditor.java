@@ -4,34 +4,31 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 class NodeEditor extends Editor
 {
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Node Properties");
     }
 
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
 
         root.disableSelectionListener();
         try
         {
-            if(_target.isEphemeral())
+            if (_target.isEphemeral())
             {
                 Nodes nodes = (Nodes)_target.getParent();
                 writeDescriptor();
@@ -41,7 +38,7 @@ class NodeEditor extends Editor
                 {
                     nodes.tryAdd(_name.getText().trim(), descriptor);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Add back ephemeral child
@@ -50,7 +47,7 @@ class NodeEditor extends Editor
                     {
                         nodes.insertChild(_target, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -69,12 +66,12 @@ class NodeEditor extends Editor
                 //
                 _target = nodes.findChildWithDescriptor(descriptor);
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
-            else if(isSimpleUpdate())
+            else if (isSimpleUpdate())
             {
                 writeDescriptor();
                 root.updated();
@@ -98,7 +95,7 @@ class NodeEditor extends Editor
                 {
                     ((Node)_target).rebuild(editables);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     ((Node)_target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
@@ -109,7 +106,7 @@ class NodeEditor extends Editor
                     return false;
                 }
 
-                for(Editable p : editables)
+                for (Editable p : editables)
                 {
                     p.markModified();
                 }
@@ -118,7 +115,7 @@ class NodeEditor extends Editor
                 root.updated();
             }
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
@@ -132,10 +129,9 @@ class NodeEditor extends Editor
         }
     }
 
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
-        if(_target.getCoordinator().substitute())
+        if (_target.getCoordinator().substitute())
         {
             return _target.getResolver();
         }
@@ -158,14 +154,14 @@ class NodeEditor extends Editor
         _variables = new SimpleMapField(this, false, "Name", "Value");
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
-        _loadFactor.setToolTipText("<html>A floating point value.<br>"
-                                   + "When not specified, IceGrid uses 1.0 divided by the<br>"
-                                   + "<i>number of threads</i> on all platforms except Windows;<br>"
-                                   + "on Windows, IceGrid uses 1.0.<html>");
+        _loadFactor.setToolTipText(
+            "<html>A floating point value.<br>"
+            + "When not specified, IceGrid uses 1.0 divided by the<br>"
+            + "<i>number of threads</i> on all platforms except Windows;<br>"
+            + "on Windows, IceGrid uses 1.0.<html>");
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Name");
         builder.append(_name, 3);
@@ -213,11 +209,7 @@ class NodeEditor extends Editor
         descriptor.loadFactor = _loadFactor.getText().trim();
     }
 
-    @Override
-    protected boolean validate()
-    {
-        return check(new String[]{"Name", _name.getText().trim()});
-    }
+    @Override protected boolean validate() { return check(new String[] {"Name", _name.getText().trim()}); }
 
     void show(Node node)
     {
@@ -244,7 +236,7 @@ class NodeEditor extends Editor
         _applyButton.setEnabled(node.isEphemeral());
         _discardButton.setEnabled(node.isEphemeral());
         detectUpdates(true);
-        if(node.isEphemeral())
+        if (node.isEphemeral())
         {
             updated();
         }

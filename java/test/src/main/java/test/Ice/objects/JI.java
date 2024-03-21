@@ -8,8 +8,5 @@ import test.Ice.objects.Test.J;
 
 public final class JI extends com.zeroc.Ice.InterfaceByValue
 {
-    public JI()
-    {
-        super(J.ice_staticId());
-    }
+    public JI() { super(J.ice_staticId()); }
 }

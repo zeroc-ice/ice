@@ -4,9 +4,8 @@
 
 package test.Ice.background;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.CompletionStage;
 import test.Ice.background.PluginFactory.PluginI;
 
 public class Server extends test.TestHelper
@@ -14,8 +13,8 @@ public class Server extends test.TestHelper
     static public class LocatorI implements com.zeroc.Ice.Locator
     {
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findAdapterByIdAsync(String adapter,
-                                                                             com.zeroc.Ice.Current current)
+        public CompletionStage<com.zeroc.Ice.ObjectPrx>
+        findAdapterByIdAsync(String adapter, com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
             com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
@@ -24,38 +23,29 @@ public class Server extends test.TestHelper
         }
 
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findObjectByIdAsync(com.zeroc.Ice.Identity id,
-                                                                            com.zeroc.Ice.Current current)
+        public CompletionStage<com.zeroc.Ice.ObjectPrx>
+        findObjectByIdAsync(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
             return CompletableFuture.completedFuture(current.adapter.createDirectProxy(id));
         }
 
-        @Override
-        public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current)
-        {
-            return null;
-        }
+        @Override public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current) { return null; }
 
-        LocatorI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        LocatorI(BackgroundControllerI controller) { _controller = controller; }
 
         final private BackgroundControllerI _controller;
     }
 
     static public class RouterI implements com.zeroc.Ice.Router
     {
-        @Override
-        public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(com.zeroc.Ice.Current current)
+        @Override public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
             return new com.zeroc.Ice.Router.GetClientProxyResult(null, java.util.Optional.of(true));
         }
 
-        @Override
-        public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current)
+        @Override public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
             return null;
@@ -67,16 +57,12 @@ public class Server extends test.TestHelper
             return new com.zeroc.Ice.ObjectPrx[0];
         }
 
-        RouterI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        RouterI(BackgroundControllerI controller) { _controller = controller; }
 
         final private BackgroundControllerI _controller;
     }
 
-    @Override
-    public void run(String[] args)
+    @Override public void run(String[] args)
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
 
@@ -94,11 +80,12 @@ public class Server extends test.TestHelper
         // Setup the test transport plug-in.
         //
         properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+        properties.setProperty(
+            "Ice.Default.Protocol",
+            "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));

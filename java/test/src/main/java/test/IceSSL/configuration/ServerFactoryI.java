@@ -3,30 +3,26 @@
 //
 
 package test.IceSSL.configuration;
-import test.IceSSL.configuration.Test.ServerPrx;
 import test.IceSSL.configuration.Test.ServerFactory;
+import test.IceSSL.configuration.Test.ServerPrx;
 
 class ServerFactoryI implements ServerFactory
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    public ServerFactoryI(String defaultDir)
-    {
-        _defaultDir = defaultDir;
-    }
+    public ServerFactoryI(String defaultDir) { _defaultDir = defaultDir; }
 
-    @Override
-    public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
+    @Override public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.properties = com.zeroc.Ice.Util.createProperties();
-        for(java.util.Map.Entry<String, String> i : props.entrySet())
+        for (java.util.Map.Entry<String, String> i : props.entrySet())
         {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
@@ -41,11 +37,10 @@ class ServerFactoryI implements ServerFactory
         return ServerPrx.uncheckedCast(obj);
     }
 
-    @Override
-    public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current)
+    @Override public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.Identity key = srv.ice_getIdentity();
-        if(_servers.containsKey(key))
+        if (_servers.containsKey(key))
         {
             ServerI server = _servers.get(key);
             server.destroy();
@@ -53,8 +48,7 @@ class ServerFactoryI implements ServerFactory
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
+    @Override public void shutdown(com.zeroc.Ice.Current current)
     {
         test(_servers.size() == 0);
         current.adapter.getCommunicator().shutdown();

@@ -22,19 +22,11 @@ package com.zeroc.Ice;
  **/
 public class CommunicatorDestroyedException extends LocalException
 {
-    public CommunicatorDestroyedException()
-    {
-    }
+    public CommunicatorDestroyedException() {}
 
-    public CommunicatorDestroyedException(Throwable cause)
-    {
-        super(cause);
-    }
+    public CommunicatorDestroyedException(Throwable cause) { super(cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::CommunicatorDestroyedException";
-    }
+    public String ice_id() { return "::Ice::CommunicatorDestroyedException"; }
 
     /** @hidden */
     public static final long serialVersionUID = 752535633703849L;

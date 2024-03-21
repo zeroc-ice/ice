@@ -4,52 +4,35 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.tree.DefaultTreeModel;
-
-import java.util.Enumeration;
-
 import com.zeroc.IceGridGUI.*;
+import java.util.Enumeration;
+import javax.swing.tree.DefaultTreeModel;
 
 //
 // An editable TreeNode that holds a list of children
 //
 abstract class ListTreeNode extends TreeNode
 {
-    @Override
-    public Enumeration<javax.swing.tree.TreeNode> children()
+    @Override public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<javax.swing.tree.TreeNode>()
-            {
-                @Override
-                public boolean hasMoreElements()
-                {
-                    return _p.hasNext();
-                }
+        return new Enumeration<javax.swing.tree.TreeNode>() {
+            @Override public boolean hasMoreElements() { return _p.hasNext(); }
 
-                @Override
-                public javax.swing.tree.TreeNode nextElement()
-                {
-                    return _p.next();
-                }
+            @Override public javax.swing.tree.TreeNode nextElement() { return _p.next(); }
 
-                private java.util.Iterator<TreeNodeBase> _p = _children.iterator();
-            };
+            private java.util.Iterator<TreeNodeBase> _p = _children.iterator();
+        };
     }
 
-    @Override
-    public boolean getAllowsChildren()
-    {
-        return true;
-    }
+    @Override public boolean getAllowsChildren() { return true; }
 
-    @Override
-    public javax.swing.tree.TreeNode getChildAt(int childIndex)
+    @Override public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
-        if(childIndex < 0)
+        if (childIndex < 0)
         {
             throw new ArrayIndexOutOfBoundsException(childIndex);
         }
-        else if(childIndex < _children.size())
+        else if (childIndex < _children.size())
         {
             return _children.get(childIndex);
         }
@@ -59,36 +42,22 @@ abstract class ListTreeNode extends TreeNode
         }
     }
 
-    @Override
-    public int getChildCount()
-    {
-        return _children.size();
-    }
+    @Override public int getChildCount() { return _children.size(); }
 
-    @Override
-    public int getIndex(javax.swing.tree.TreeNode node)
-    {
-        return _children.indexOf(node);
-    }
+    @Override public int getIndex(javax.swing.tree.TreeNode node) { return _children.indexOf(node); }
 
-    @Override
-    public boolean isLeaf()
-    {
-        return _children.isEmpty();
-    }
+    @Override public boolean isLeaf() { return _children.isEmpty(); }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = new Editor();
         }
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
+    @Override protected Editor createEditor()
     {
         assert false;
         return null;
@@ -100,36 +69,32 @@ abstract class ListTreeNode extends TreeNode
         _editable = new Editable(brandNew);
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             TreeNode node = (TreeNode)p;
             node.write(writer);
         }
     }
 
-    void insertChild(TreeNode child, boolean fireEvent)
-        throws UpdateFailedException
+    void insertChild(TreeNode child, boolean fireEvent) throws UpdateFailedException
     {
-        DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
+        DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
-        if(!insertSortedChild(child, _children, treeModel))
+        if (!insertSortedChild(child, _children, treeModel))
         {
             throw new UpdateFailedException(this, child.getId());
         }
     }
 
-    void insertChildren(java.util.List newChildren, boolean fireEvent)
-        throws UpdateFailedException
+    void insertChildren(java.util.List newChildren, boolean fireEvent) throws UpdateFailedException
     {
-        DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
+        DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
         String badChildId = insertSortedChildren(newChildren, _children, treeModel);
 
-        if(badChildId != null)
+        if (badChildId != null)
         {
             throw new UpdateFailedException(this, badChildId);
         }
@@ -140,46 +105,30 @@ abstract class ListTreeNode extends TreeNode
         int index = getIndex(child);
         _children.remove(child);
 
-        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {child});
         return index;
     }
 
-    void removeChildren(String[] childIds)
-    {
-        removeSortedChildren(childIds, _children, getRoot().getTreeModel());
-    }
+    void removeChildren(String[] childIds) { removeSortedChildren(childIds, _children, getRoot().getTreeModel()); }
 
-    void childrenChanged(java.util.List children)
-    {
-        childrenChanged(children, getRoot().getTreeModel());
-    }
+    void childrenChanged(java.util.List children) { childrenChanged(children, getRoot().getTreeModel()); }
 
-    Editable getEditable()
-    {
-        return _editable;
-    }
+    Editable getEditable() { return _editable; }
 
-    javax.swing.ComboBoxModel createComboBoxModel()
-    {
-        return new ComboBoxModel();
-    }
+    javax.swing.ComboBoxModel createComboBoxModel() { return new ComboBoxModel(); }
 
-    javax.swing.ComboBoxModel createComboBoxModel(Object item)
-    {
-        return new ComboBoxModel(item);
-    }
+    javax.swing.ComboBoxModel createComboBoxModel(Object item) { return new ComboBoxModel(item); }
 
     //
     // Adapts ListTreeNode to a ComboBoxModel
     //
     class ComboBoxModel extends javax.swing.AbstractListModel implements javax.swing.ComboBoxModel
     {
-        @Override
-        public Object getElementAt(int index)
+        @Override public Object getElementAt(int index)
         {
-            if(_firstItem != null)
+            if (_firstItem != null)
             {
-                if(index == 0)
+                if (index == 0)
                 {
                     return _firstItem;
                 }
@@ -194,10 +143,9 @@ abstract class ListTreeNode extends TreeNode
             }
         }
 
-        @Override
-        public int getSize()
+        @Override public int getSize()
         {
-            if(_firstItem != null)
+            if (_firstItem != null)
             {
                 return getChildCount() + 1;
             }
@@ -207,31 +155,20 @@ abstract class ListTreeNode extends TreeNode
             }
         }
 
-        @Override
-        public Object getSelectedItem()
-        {
-            return _selectedItem;
-        }
+        @Override public Object getSelectedItem() { return _selectedItem; }
 
-        @Override
-        public void setSelectedItem(Object obj)
+        @Override public void setSelectedItem(Object obj)
         {
-            if(obj != _selectedItem)
+            if (obj != _selectedItem)
             {
                 _selectedItem = obj;
                 fireContentsChanged(this, -1, -1);
             }
         }
 
-        ComboBoxModel(Object firstItem)
-        {
-            _firstItem = firstItem;
-        }
+        ComboBoxModel(Object firstItem) { _firstItem = firstItem; }
 
-        ComboBoxModel()
-        {
-            _firstItem = null;
-        }
+        ComboBoxModel() { _firstItem = null; }
 
         private final Object _firstItem;
         private Object _selectedItem;

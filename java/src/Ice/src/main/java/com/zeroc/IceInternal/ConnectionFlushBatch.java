@@ -8,24 +8,18 @@ import java.util.concurrent.Callable;
 
 public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
 {
-    public ConnectionFlushBatch(com.zeroc.Ice.ConnectionI con, com.zeroc.Ice.Communicator communicator,
-                                Instance instance)
+    public ConnectionFlushBatch(
+        com.zeroc.Ice.ConnectionI con,
+        com.zeroc.Ice.Communicator communicator,
+        Instance instance)
     {
         super(communicator, instance, "flushBatchRequests");
         _connection = con;
     }
 
-    @Override
-    public com.zeroc.Ice.Connection getConnection()
-    {
-        return _connection;
-    }
+    @Override public com.zeroc.Ice.Connection getConnection() { return _connection; }
 
-    @Override
-    protected void markCompleted()
-    {
-        complete(null);
-    }
+    @Override protected void markCompleted() { complete(null); }
 
     public void invoke(com.zeroc.Ice.CompressBatch compressBatch)
     {
@@ -34,28 +28,25 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
         {
             final BatchRequestQueue.SwapResult r = _connection.getBatchRequestQueue().swap(_os);
             int status;
-            if(r == null)
+            if (r == null)
             {
                 status = AsyncStatus.Sent;
-                if(sent())
+                if (sent())
                 {
                     status |= AsyncStatus.InvokeSentCallback;
                 }
             }
-            else if(_instance.queueRequests())
+            else if (_instance.queueRequests())
             {
-                status = _instance.getQueueExecutor().execute(new Callable<Integer>()
-                {
-                    @Override
-                    public Integer call()
-                        throws RetryException
+                status = _instance.getQueueExecutor().execute(new Callable<Integer>() {
+                    @Override public Integer call() throws RetryException
                     {
                         boolean comp = false;
-                        if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                        if (compressBatch == com.zeroc.Ice.CompressBatch.Yes)
                         {
                             comp = true;
                         }
-                        else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                        else if (compressBatch == com.zeroc.Ice.CompressBatch.No)
                         {
                             comp = false;
                         }
@@ -70,11 +61,11 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
             else
             {
                 boolean comp = false;
-                if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                if (compressBatch == com.zeroc.Ice.CompressBatch.Yes)
                 {
                     comp = true;
                 }
-                else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                else if (compressBatch == com.zeroc.Ice.CompressBatch.No)
                 {
                     comp = false;
                 }
@@ -85,25 +76,25 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
                 status = _connection.sendAsyncRequest(this, comp, false, r.batchRequestNum);
             }
 
-            if((status & AsyncStatus.Sent) > 0)
+            if ((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = true;
-                if((status & AsyncStatus.InvokeSentCallback) > 0)
+                if ((status & AsyncStatus.InvokeSentCallback) > 0)
                 {
                     invokeSent();
                 }
             }
         }
-        catch(RetryException ex)
+        catch (RetryException ex)
         {
-            if(completed(ex.get()))
+            if (completed(ex.get()))
             {
                 invokeCompletedAsync();
             }
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
-            if(completed(ex))
+            if (completed(ex))
             {
                 invokeCompletedAsync();
             }

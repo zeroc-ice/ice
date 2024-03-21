@@ -18,13 +18,13 @@ public class BlobjectI implements com.zeroc.Ice.Blobject
         com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
         out.startEncapsulation();
         com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
-        if(current.operation.equals("opOneway"))
+        if (current.operation.equals("opOneway"))
         {
             r.returnValue = true;
             r.outParams = new byte[0];
             return r;
         }
-        else if(current.operation.equals("opString"))
+        else if (current.operation.equals("opString"))
         {
             String s = in.readString();
             out.writeString(s);
@@ -34,9 +34,9 @@ public class BlobjectI implements com.zeroc.Ice.Blobject
             r.outParams = out.finished();
             return r;
         }
-        else if(current.operation.equals("opException"))
+        else if (current.operation.equals("opException"))
         {
-            if(current.ctx.containsKey("raise"))
+            if (current.ctx.containsKey("raise"))
             {
                 throw new MyException();
             }
@@ -47,17 +47,17 @@ public class BlobjectI implements com.zeroc.Ice.Blobject
             r.outParams = out.finished();
             return r;
         }
-        else if(current.operation.equals("shutdown"))
+        else if (current.operation.equals("shutdown"))
         {
             communicator.shutdown();
             r.returnValue = true;
             r.outParams = new byte[0];
             return r;
         }
-        else if(current.operation.equals("ice_isA"))
+        else if (current.operation.equals("ice_isA"))
         {
             String s = in.readString();
-            if(s.equals("::Test::MyClass"))
+            if (s.equals("::Test::MyClass"))
             {
                 out.writeBool(true);
             }

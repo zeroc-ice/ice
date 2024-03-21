@@ -20,30 +20,15 @@ package com.zeroc.Ice;
  **/
 public class CompressionException extends ProtocolException
 {
-    public CompressionException()
-    {
-        super();
-    }
+    public CompressionException() { super(); }
 
-    public CompressionException(Throwable cause)
-    {
-        super(cause);
-    }
+    public CompressionException(Throwable cause) { super(cause); }
 
-    public CompressionException(String reason)
-    {
-        super(reason);
-    }
+    public CompressionException(String reason) { super(reason); }
 
-    public CompressionException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+    public CompressionException(String reason, Throwable cause) { super(reason, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::CompressionException";
-    }
+    public String ice_id() { return "::Ice::CompressionException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -3980762816174249071L;

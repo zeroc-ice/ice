@@ -11,7 +11,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -46,7 +46,7 @@ public class AllTests
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
             adapter.destroy();
@@ -67,9 +67,9 @@ public class AllTests
         {
             out.print("testing connection closure... ");
             out.flush();
-            for(int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i)
             {
-                try(com.zeroc.Ice.Communicator comm = helper.initialize(communicator.getProperties()._clone()))
+                try (com.zeroc.Ice.Communicator comm = helper.initialize(communicator.getProperties()._clone()))
                 {
                     comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
                 }
@@ -80,13 +80,15 @@ public class AllTests
         out.print("testing object adapter published endpoints... ");
         out.flush();
         {
-            communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+            communicator.getProperties().setProperty(
+                "PAdapter.PublishedEndpoints",
+                "tcp -h localhost -p 12345 -t 30000");
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length == 1);
             com.zeroc.Ice.Endpoint endpt = adapter.getPublishedEndpoints()[0];
             test(endpt.toString().equals("tcp -h localhost -p 12345 -t 30000"));
-            com.zeroc.Ice.ObjectPrx prx =
-                communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+            com.zeroc.Ice.ObjectPrx prx = communicator.stringToProxy(
+                "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().length == 2);
             com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
@@ -96,7 +98,9 @@ public class AllTests
             adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length == 1);
             test(adapter.getPublishedEndpoints()[0].equals(endpt));
-            communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
+            communicator.getProperties().setProperty(
+                "PAdapter.PublishedEndpoints",
+                "tcp -h localhost -p 12345 -t 20000");
             adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length == 1);
             test(adapter.getPublishedEndpoints()[0].toString().equals("tcp -h localhost -p 12345 -t 20000"));
@@ -105,7 +109,7 @@ public class AllTests
         }
         out.println("ok");
 
-        if(obj.ice_getConnection() != null)
+        if (obj.ice_getConnection() != null)
         {
             out.print("testing object adapter with bi-dir connection... ");
             out.flush();
@@ -118,7 +122,7 @@ public class AllTests
                 obj.ice_getConnection().setAdapter(adapter);
                 test(false);
             }
-            catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
+            catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
             {
             }
             out.println("ok");
@@ -142,7 +146,7 @@ public class AllTests
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);
             }
-            catch(IllegalArgumentException ex)
+            catch (IllegalArgumentException ex)
             {
                 // Expected.
             }
@@ -155,19 +159,19 @@ public class AllTests
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             }
-            catch(com.zeroc.Ice.OperationNotExistException ex)
+            catch (com.zeroc.Ice.OperationNotExistException ex)
             {
                 // Expected: the "test" object doesn't implement Ice::Router!
             }
 
             try
             {
-                router = com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(1)));
+                router = com.zeroc.Ice.RouterPrx.uncheckedCast(
+                    communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectFailedException ex)
+            catch (com.zeroc.Ice.ConnectFailedException ex)
             {
             }
         }
@@ -183,7 +187,7 @@ public class AllTests
                 communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                 test(false);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 // Expected can't re-use the same endpoint.
             }
@@ -203,7 +207,7 @@ public class AllTests
             obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             test(false);
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             out.println("ok");
             out.flush();

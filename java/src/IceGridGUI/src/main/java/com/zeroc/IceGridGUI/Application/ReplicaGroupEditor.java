@@ -4,9 +4,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -14,17 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class ReplicaGroupEditor extends Editor
+@SuppressWarnings("unchecked") class ReplicaGroupEditor extends Editor
 {
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         ReplicaGroup replicaGroup = (ReplicaGroup)_target;
         Root root = replicaGroup.getRoot();
@@ -32,7 +27,7 @@ class ReplicaGroupEditor extends Editor
         root.disableSelectionListener();
         try
         {
-            if(replicaGroup.isEphemeral())
+            if (replicaGroup.isEphemeral())
             {
                 ReplicaGroups replicaGroups = (ReplicaGroups)replicaGroup.getParent();
                 writeDescriptor();
@@ -43,7 +38,7 @@ class ReplicaGroupEditor extends Editor
                 {
                     replicaGroups.tryAdd(descriptor, true);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Add back ephemeral child
@@ -52,7 +47,7 @@ class ReplicaGroupEditor extends Editor
                     {
                         replicaGroups.insertChild(replicaGroup, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -72,7 +67,7 @@ class ReplicaGroupEditor extends Editor
                 _target = replicaGroups.findChildWithDescriptor(descriptor);
                 root.updated();
             }
-            else if(isSimpleUpdate())
+            else if (isSimpleUpdate())
             {
                 writeDescriptor();
                 root.updated();
@@ -93,7 +88,7 @@ class ReplicaGroupEditor extends Editor
                 {
                     replicaGroups.tryAdd(descriptor, false);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Restore all
@@ -102,7 +97,7 @@ class ReplicaGroupEditor extends Editor
                     {
                         replicaGroups.insertChild(replicaGroup, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -122,19 +117,21 @@ class ReplicaGroupEditor extends Editor
                 //
 
                 // replaced by brand new ReplicaGroup
-                replicaGroups.getEditable().
-                    removeElement(replicaGroup.getId(), replicaGroup.getEditable(), ReplicaGroup.class);
+                replicaGroups.getEditable().removeElement(
+                    replicaGroup.getId(),
+                    replicaGroup.getEditable(),
+                    ReplicaGroup.class);
 
                 _target = replicaGroups.findChildWithDescriptor(descriptor);
                 root.updated();
 
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
@@ -148,12 +145,11 @@ class ReplicaGroupEditor extends Editor
         }
     }
 
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
         Root root = _target.getRoot();
 
-        if(root.getCoordinator().substitute())
+        if (root.getCoordinator().substitute())
         {
             return root.getResolver();
         }
@@ -170,21 +166,19 @@ class ReplicaGroupEditor extends Editor
         //
         // load balancing
         //
-        _loadBalancing.addItemListener(new ItemListener()
+        _loadBalancing.addItemListener(new ItemListener() {
+            @Override public void itemStateChanged(ItemEvent e)
             {
-                @Override
-                public void itemStateChanged(ItemEvent e)
+                if (e.getStateChange() == ItemEvent.SELECTED)
                 {
-                    if(e.getStateChange() == ItemEvent.SELECTED)
-                    {
-                        updated();
+                    updated();
 
-                        Object item = e.getItem();
-                        _loadSampleLabel.setVisible(item == ADAPTIVE);
-                        _loadSample.setVisible(item == ADAPTIVE);
-                    }
+                    Object item = e.getItem();
+                    _loadSampleLabel.setVisible(item == ADAPTIVE);
+                    _loadSample.setVisible(item == ADAPTIVE);
                 }
-            });
+            }
+        });
         _loadBalancing.setToolTipText(
             "<html>Specifies how IceGrid selects adapters and return<br>"
             + "their endpoints when resolving a replica group ID</html>");
@@ -199,10 +193,11 @@ class ReplicaGroupEditor extends Editor
         _description.setToolTipText("An optional description for this replica group");
 
         _nReplicas.getDocument().addDocumentListener(_updateListener);
-        _nReplicas.setToolTipText("<html>IceGrid returns the endpoints of "
-                                  + "up to <i>number</i> adapters<br>"
-                                  + "when resolving a replica group ID.<br>"
-                                  + "Enter 0 to returns the endpoints of all adapters.</html>");
+        _nReplicas.setToolTipText(
+            "<html>IceGrid returns the endpoints of "
+            + "up to <i>number</i> adapters<br>"
+            + "when resolving a replica group ID.<br>"
+            + "Enter 0 to returns the endpoints of all adapters.</html>");
 
         _loadSample.setEditable(true);
         JTextField loadSampleTextField = (JTextField)_loadSample.getEditor().getEditorComponent();
@@ -213,8 +208,9 @@ class ReplicaGroupEditor extends Editor
         _proxyOptions.setToolTipText("The proxy options used for proxies created by IceGrid for the replica group");
 
         _filter.getDocument().addDocumentListener(_updateListener);
-        _filter.setToolTipText("An optional filter for this replica group. Filters are installed by registry" +
-                               "plugin to provide custom load balancing for replica groups.");
+        _filter.setToolTipText(
+            "An optional filter for this replica group. Filters are installed by registry"
+            + "plugin to provide custom load balancing for replica groups.");
     }
 
     void writeDescriptor()
@@ -227,22 +223,23 @@ class ReplicaGroupEditor extends Editor
         descriptor.proxyOptions = _proxyOptions.getText().trim();
         descriptor.filter = _filter.getText();
         Object loadBalancing = _loadBalancing.getSelectedItem();
-        if(loadBalancing == ORDERED)
+        if (loadBalancing == ORDERED)
         {
-            descriptor.loadBalancing =  new OrderedLoadBalancingPolicy(_nReplicas.getText().trim());
+            descriptor.loadBalancing = new OrderedLoadBalancingPolicy(_nReplicas.getText().trim());
         }
-        else if(loadBalancing == RANDOM)
+        else if (loadBalancing == RANDOM)
         {
             descriptor.loadBalancing = new RandomLoadBalancingPolicy(_nReplicas.getText().trim());
         }
-        else if(loadBalancing == ROUND_ROBIN)
+        else if (loadBalancing == ROUND_ROBIN)
         {
             descriptor.loadBalancing = new RoundRobinLoadBalancingPolicy(_nReplicas.getText().trim());
         }
-        else if(loadBalancing == ADAPTIVE)
+        else if (loadBalancing == ADAPTIVE)
         {
             descriptor.loadBalancing = new AdaptiveLoadBalancingPolicy(
-                _nReplicas.getText().trim(), _loadSample.getSelectedItem().toString().trim());
+                _nReplicas.getText().trim(),
+                _loadSample.getSelectedItem().toString().trim());
         }
         else
         {
@@ -256,8 +253,7 @@ class ReplicaGroupEditor extends Editor
         return descriptor.id.equals(_id.getText().trim());
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Replica Group ID");
         builder.append(_id, 3);
@@ -305,27 +301,25 @@ class ReplicaGroupEditor extends Editor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Replica Group Properties");
     }
 
-    @Override
-    protected boolean validate()
+    @Override protected boolean validate()
     {
         //
         // First validate stringified identities
         //
         _objectList = mapToObjectDescriptorSeq(_objects.get());
 
-        if(_objectList == null)
+        if (_objectList == null)
         {
             return false;
         }
 
-        return check(new String[]{"Replica Group ID", _id.getText().trim()});
+        return check(new String[] {"Replica Group ID", _id.getText().trim()});
     }
 
     void show(ReplicaGroup replicaGroup)
@@ -360,31 +354,31 @@ class ReplicaGroupEditor extends Editor
 
         _loadBalancing.setEnabled(true);
 
-        if(descriptor.loadBalancing == null)
+        if (descriptor.loadBalancing == null)
         {
             _loadBalancing.setSelectedItem(RANDOM);
             _nReplicas.setText("0");
             _loadSample.setSelectedItem("1");
         }
-        else if(descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
+        else if (descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
         {
             _loadBalancing.setSelectedItem(RANDOM);
             _nReplicas.setText(Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
             _loadSample.setSelectedItem("1");
         }
-        else if(descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
+        else if (descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
         {
             _loadBalancing.setSelectedItem(ORDERED);
             _nReplicas.setText(Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
             _loadSample.setSelectedItem("1");
         }
-        else if(descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
+        else if (descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
         {
             _loadBalancing.setSelectedItem(ROUND_ROBIN);
             _nReplicas.setText(Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
             _loadSample.setSelectedItem("1");
         }
-        else if(descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
+        else if (descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
         {
             _loadBalancing.setSelectedItem(ADAPTIVE);
             _nReplicas.setText(Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
@@ -403,24 +397,21 @@ class ReplicaGroupEditor extends Editor
         _applyButton.setEnabled(replicaGroup.isEphemeral());
         _discardButton.setEnabled(replicaGroup.isEphemeral());
         detectUpdates(true);
-        if(replicaGroup.isEphemeral())
+        if (replicaGroup.isEphemeral())
         {
             updated();
         }
     }
 
-    private ReplicaGroup getReplicaGroup()
-    {
-        return (ReplicaGroup)_target;
-    }
+    private ReplicaGroup getReplicaGroup() { return (ReplicaGroup)_target; }
 
     private java.util.Map<String, String[]> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
     {
         java.util.Map<String, String[]> result = new java.util.TreeMap<>();
         com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
-        for(ObjectDescriptor p : objects)
+        for (ObjectDescriptor p : objects)
         {
-            result.put(communicator.identityToString(p.id), new String[]{p.type, p.proxyOptions});
+            result.put(communicator.identityToString(p.id), new String[] {p.type, p.proxyOptions});
         }
         return result;
     }
@@ -431,7 +422,7 @@ class ReplicaGroupEditor extends Editor
         java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
         com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
 
-        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
+        for (java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             try
             {
@@ -439,12 +430,12 @@ class ReplicaGroupEditor extends Editor
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[1]));
             }
-            catch(com.zeroc.Ice.IdentityParseException ex)
+            catch (com.zeroc.Ice.IdentityParseException ex)
             {
                 badIdentities += "- " + p.getKey() + "\n";
             }
         }
-        if(!badIdentities.equals(""))
+        if (!badIdentities.equals(""))
         {
             JOptionPane.showMessageDialog(
                 _target.getCoordinator().getMainFrame(),
@@ -470,10 +461,7 @@ class ReplicaGroupEditor extends Editor
     private JTextField _proxyOptions = new JTextField(20);
     private JTextField _filter = new JTextField(20);
 
-    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE,
-                                                                   ORDERED,
-                                                                   RANDOM,
-                                                                   ROUND_ROBIN});
+    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE, ORDERED, RANDOM, ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);
 

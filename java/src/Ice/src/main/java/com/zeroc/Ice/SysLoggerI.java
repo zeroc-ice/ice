@@ -4,94 +4,93 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.io.IOException;
 
 public final class SysLoggerI implements Logger
 {
-    public
-    SysLoggerI(String prefix, String facilityString)
+    public SysLoggerI(String prefix, String facilityString)
     {
         int facility;
-        if(facilityString.equals("LOG_KERN"))
+        if (facilityString.equals("LOG_KERN"))
         {
             facility = LOG_KERN;
         }
-        else if(facilityString.equals("LOG_USER"))
+        else if (facilityString.equals("LOG_USER"))
         {
             facility = LOG_USER;
         }
-        else if(facilityString.equals("LOG_MAIL"))
+        else if (facilityString.equals("LOG_MAIL"))
         {
             facility = LOG_MAIL;
         }
-        else if(facilityString.equals("LOG_DAEMON"))
+        else if (facilityString.equals("LOG_DAEMON"))
         {
             facility = LOG_DAEMON;
         }
-        else if(facilityString.equals("LOG_AUTH"))
+        else if (facilityString.equals("LOG_AUTH"))
         {
             facility = LOG_AUTH;
         }
-        else if(facilityString.equals("LOG_SYSLOG"))
+        else if (facilityString.equals("LOG_SYSLOG"))
         {
             facility = LOG_SYSLOG;
         }
-        else if(facilityString.equals("LOG_LPR"))
+        else if (facilityString.equals("LOG_LPR"))
         {
             facility = LOG_LPR;
         }
-        else if(facilityString.equals("LOG_NEWS"))
+        else if (facilityString.equals("LOG_NEWS"))
         {
             facility = LOG_NEWS;
         }
-        else if(facilityString.equals("LOG_UUCP"))
+        else if (facilityString.equals("LOG_UUCP"))
         {
             facility = LOG_UUCP;
         }
-        else if(facilityString.equals("LOG_CRON"))
+        else if (facilityString.equals("LOG_CRON"))
         {
             facility = LOG_CRON;
         }
-        else if(facilityString.equals("LOG_AUTHPRIV"))
+        else if (facilityString.equals("LOG_AUTHPRIV"))
         {
             facility = LOG_AUTHPRIV;
         }
-        else if(facilityString.equals("LOG_FTP"))
+        else if (facilityString.equals("LOG_FTP"))
         {
             facility = LOG_FTP;
         }
-        else if(facilityString.equals("LOG_LOCAL0"))
+        else if (facilityString.equals("LOG_LOCAL0"))
         {
             facility = LOG_LOCAL0;
         }
-        else if(facilityString.equals("LOG_LOCAL1"))
+        else if (facilityString.equals("LOG_LOCAL1"))
         {
             facility = LOG_LOCAL1;
         }
-        else if(facilityString.equals("LOG_LOCAL2"))
+        else if (facilityString.equals("LOG_LOCAL2"))
         {
             facility = LOG_LOCAL2;
         }
-        else if(facilityString.equals("LOG_LOCAL3"))
+        else if (facilityString.equals("LOG_LOCAL3"))
         {
             facility = LOG_LOCAL3;
         }
-        else if(facilityString.equals("LOG_LOCAL4"))
+        else if (facilityString.equals("LOG_LOCAL4"))
         {
             facility = LOG_LOCAL4;
         }
-        else if(facilityString.equals("LOG_LOCAL5"))
+        else if (facilityString.equals("LOG_LOCAL5"))
         {
             facility = LOG_LOCAL5;
         }
-        else if(facilityString.equals("LOG_LOCAL6"))
+        else if (facilityString.equals("LOG_LOCAL6"))
         {
             facility = LOG_LOCAL6;
         }
-        else if(facilityString.equals("LOG_LOCAL7"))
+        else if (facilityString.equals("LOG_LOCAL7"))
         {
             facility = LOG_LOCAL7;
         }
@@ -102,14 +101,9 @@ public final class SysLoggerI implements Logger
         initialize(prefix, facility);
     }
 
-    private
-    SysLoggerI(String prefix, int facility)
-    {
-        initialize(prefix, facility);
-    }
+    private SysLoggerI(String prefix, int facility) { initialize(prefix, facility); }
 
-    private void
-    initialize(String prefix, int facility)
+    private void initialize(String prefix, int facility)
     {
         _prefix = prefix;
         _facility = facility;
@@ -124,56 +118,25 @@ public final class SysLoggerI implements Logger
             _socket = new DatagramSocket();
             _socket.connect(_host, _port);
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    @Override
-    public void
-    print(String message)
-    {
-        log(LOG_INFO, message);
-    }
+    @Override public void print(String message) { log(LOG_INFO, message); }
 
-    @Override
-    public void
-    trace(String category, String message)
-    {
-        log(LOG_INFO, category + ": " + message);
-    }
+    @Override public void trace(String category, String message) { log(LOG_INFO, category + ": " + message); }
 
-    @Override
-    public void
-    warning(String message)
-    {
-        log(LOG_WARNING, message);
-    }
+    @Override public void warning(String message) { log(LOG_WARNING, message); }
 
-    @Override
-    public void
-    error(String message)
-    {
-        log(LOG_ERR, message);
-    }
+    @Override public void error(String message) { log(LOG_ERR, message); }
 
-    @Override
-    public String
-    getPrefix()
-    {
-        return _prefix;
-    }
+    @Override public String getPrefix() { return _prefix; }
 
-    @Override
-    public Logger
-    cloneWithPrefix(String prefix)
-    {
-        return new SysLoggerI(prefix, _facility);
-    }
+    @Override public Logger cloneWithPrefix(String prefix) { return new SysLoggerI(prefix, _facility); }
 
-    private void
-    log(int severity, String message)
+    private void log(int severity, String message)
     {
         try
         {
@@ -193,7 +156,7 @@ public final class SysLoggerI implements Logger
             DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
             _socket.send(p);
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             throw new SocketException(ex);
         }

@@ -4,18 +4,17 @@
 
 package test.Ice.admin;
 
-import java.io.PrintWriter;
-import test.Ice.admin.Test.*;
-
 import com.zeroc.Ice.LogMessageType;
 import com.zeroc.Ice.ProcessPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
+import java.io.PrintWriter;
+import test.Ice.admin.Test.*;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -23,7 +22,7 @@ public class AllTests
 
     static void testFacets(com.zeroc.Ice.Communicator com, boolean builtInFacets)
     {
-        if(builtInFacets)
+        if (builtInFacets)
         {
             test(com.findAdminFacet("Properties") != null);
             test(com.findAdminFacet("Process") != null);
@@ -45,7 +44,7 @@ public class AllTests
         test(com.findAdminFacet("Bogus") == null);
 
         java.util.Map<String, com.zeroc.Ice.Object> facetMap = com.findAllAdminFacets();
-        if(builtInFacets)
+        if (builtInFacets)
         {
             test(facetMap.size() == 7);
             test(facetMap.containsKey("Properties"));
@@ -66,7 +65,7 @@ public class AllTests
             com.addAdminFacet(f1, "Facet1");
             test(false);
         }
-        catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+        catch (com.zeroc.Ice.AlreadyRegisteredException ex)
         {
             // Expected
         }
@@ -76,7 +75,7 @@ public class AllTests
             com.removeAdminFacet("Bogus");
             test(false);
         }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
+        catch (com.zeroc.Ice.NotRegisteredException ex)
         {
             // Expected
         }
@@ -90,7 +89,7 @@ public class AllTests
             com.removeAdminFacet("Facet1");
             test(false);
         }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
+        catch (com.zeroc.Ice.NotRegisteredException ex)
         {
             // Expected
         }
@@ -110,7 +109,7 @@ public class AllTests
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
             {
                 testFacets(comm, true);
             }
@@ -124,7 +123,7 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
             {
                 testFacets(comm, false);
             }
@@ -133,7 +132,7 @@ public class AllTests
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize())
+            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize())
             {
                 testFacets(comm, false);
             }
@@ -145,7 +144,7 @@ public class AllTests
             com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
             {
                 test(comm.getAdmin() == null);
                 com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("test-admin");
@@ -154,7 +153,7 @@ public class AllTests
                     comm.createAdmin(null, id);
                     test(false);
                 }
-                catch(com.zeroc.Ice.InitializationException ex)
+                catch (com.zeroc.Ice.InitializationException ex)
                 {
                 }
 
@@ -173,7 +172,7 @@ public class AllTests
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
             {
                 testFacets(comm, true);
                 comm.getAdmin();
@@ -243,9 +242,9 @@ public class AllTests
             java.util.Map<String, String> setProps = new java.util.HashMap<>();
             setProps.put("Prop1", "10"); // Changed
             setProps.put("Prop2", "20"); // Changed
-            setProps.put("Prop3", ""); // Removed
-            setProps.put("Prop4", "4"); // Added
-            setProps.put("Prop5", "5"); // Added
+            setProps.put("Prop3", "");   // Removed
+            setProps.put("Prop4", "4");  // Added
+            setProps.put("Prop5", "5");  // Added
             pa.setProperties(setProps);
             test(pa.getProperty("Prop1").equals("10"));
             test(pa.getProperty("Prop2").equals("20"));
@@ -305,20 +304,15 @@ public class AllTests
             rcom.trace("testCat", "trace2");
             rcom.warning("warning2");
 
-            LogMessageType[] messageTypes =
-                {
-                    LogMessageType.ErrorMessage,
-                    LogMessageType.WarningMessage
-                };
+            LogMessageType[] messageTypes = {LogMessageType.ErrorMessage, LogMessageType.WarningMessage};
 
             r = logger.getLog(messageTypes, null, -1);
             test(r.returnValue.length == 4);
             test(r.prefix.equals("NullLogger"));
 
-            for(com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue))
+            for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue))
             {
-                test(msg.type == LogMessageType.ErrorMessage ||
-                     msg.type == LogMessageType.WarningMessage);
+                test(msg.type == LogMessageType.ErrorMessage || msg.type == LogMessageType.WarningMessage);
             }
 
             //
@@ -328,20 +322,17 @@ public class AllTests
             rcom.trace("testCat", "trace3");
             rcom.trace("testCat2", "B");
 
-            messageTypes = new LogMessageType[]
-                {
-                    LogMessageType.ErrorMessage,
-                    LogMessageType.TraceMessage
-                };
+            messageTypes = new LogMessageType[] {LogMessageType.ErrorMessage, LogMessageType.TraceMessage};
             String[] categories = {"testCat"};
             r = logger.getLog(messageTypes, categories, -1);
             test(r.returnValue.length == 5);
             test(r.prefix.equals("NullLogger"));
 
-            for(com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue))
+            for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue))
             {
-                test(msg.type == LogMessageType.ErrorMessage ||
-                     (msg.type == LogMessageType.TraceMessage && msg.traceCategory.equals("testCat")));
+                test(
+                    msg.type == LogMessageType.ErrorMessage ||
+                    (msg.type == LogMessageType.TraceMessage && msg.traceCategory.equals("testCat")));
             }
 
             //
@@ -377,13 +368,13 @@ public class AllTests
             {
                 logger.attachRemoteLogger(myProxy, null, null, -1);
             }
-            catch(com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
+            catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
             {
                 test(false);
             }
             remoteLogger.wait(1);
 
-            for(int i = 0; i < r.returnValue.length; ++i)
+            for (int i = 0; i < r.returnValue.length; ++i)
             {
                 com.zeroc.Ice.LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
@@ -414,13 +405,13 @@ public class AllTests
             {
                 logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
             }
-            catch(com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
+            catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
             {
                 test(false);
             }
             remoteLogger.wait(1);
 
-            for(int i = 0; i < r.returnValue.length; ++i)
+            for (int i = 0; i < r.returnValue.length; ++i)
             {
                 com.zeroc.Ice.LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
@@ -444,7 +435,7 @@ public class AllTests
                 logger.attachRemoteLogger(myProxy.ice_oneway(), messageTypes, categories, 4);
                 test(false);
             }
-            catch(com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
+            catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex)
             {
                 // expected
             }

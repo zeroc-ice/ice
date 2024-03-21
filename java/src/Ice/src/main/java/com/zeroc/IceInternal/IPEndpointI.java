@@ -8,8 +8,12 @@ import com.zeroc.Ice.EndpointSelectionType;
 
 public abstract class IPEndpointI extends EndpointI
 {
-    protected IPEndpointI(ProtocolInstance instance, String host, int port, java.net.InetSocketAddress sourceAddr,
-                          String connectionId)
+    protected IPEndpointI(
+        ProtocolInstance instance,
+        String host,
+        int port,
+        java.net.InetSocketAddress sourceAddr,
+        String connectionId)
     {
         _instance = instance;
         _host = host;
@@ -39,61 +43,30 @@ public abstract class IPEndpointI extends EndpointI
         _hashInitialized = false;
     }
 
-    @Override
-    public com.zeroc.Ice.EndpointInfo getInfo()
+    @Override public com.zeroc.Ice.EndpointInfo getInfo()
     {
-        com.zeroc.Ice.IPEndpointInfo info = new com.zeroc.Ice.IPEndpointInfo()
-            {
-                @Override
-                public short type()
-                {
-                    return IPEndpointI.this.type();
-                }
+        com.zeroc.Ice.IPEndpointInfo info = new com.zeroc.Ice.IPEndpointInfo() {
+            @Override public short type() { return IPEndpointI.this.type(); }
 
-                @Override
-                public boolean datagram()
-                {
-                    return IPEndpointI.this.datagram();
-                }
+            @Override public boolean datagram() { return IPEndpointI.this.datagram(); }
 
-                @Override
-                public boolean secure()
-                {
-                    return IPEndpointI.this.secure();
-                }
+            @Override public boolean secure() { return IPEndpointI.this.secure(); }
         };
         fillEndpointInfo(info);
         return info;
     }
 
-    @Override
-    public short type()
-    {
-        return _instance.type();
-    }
+    @Override public short type() { return _instance.type(); }
 
-    @Override
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    @Override public String protocol() { return _instance.protocol(); }
 
-    @Override
-    public boolean secure()
-    {
-        return _instance.secure();
-    }
+    @Override public boolean secure() { return _instance.secure(); }
 
-    @Override
-    public String connectionId()
-    {
-        return _connectionId;
-    }
+    @Override public String connectionId() { return _connectionId; }
 
-    @Override
-    public EndpointI connectionId(String connectionId)
+    @Override public EndpointI connectionId(String connectionId)
     {
-        if(connectionId.equals(_connectionId))
+        if (connectionId.equals(_connectionId))
         {
             return this;
         }
@@ -103,24 +76,22 @@ public abstract class IPEndpointI extends EndpointI
         }
     }
 
-    @Override
-    public void connectors_async(com.zeroc.Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    @Override public void connectors_async(com.zeroc.Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         _instance.resolve(_host, _port, selType, this, callback);
     }
 
-    @Override
-    public java.util.List<EndpointI> expandIfWildcard()
+    @Override public java.util.List<EndpointI> expandIfWildcard()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<>();
         java.util.List<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
-        if(hosts == null || hosts.isEmpty())
+        if (hosts == null || hosts.isEmpty())
         {
             endps.add(this);
         }
         else
         {
-            for(String h : hosts)
+            for (String h : hosts)
             {
                 endps.add(createEndpoint(h, _port, _connectionId));
             }
@@ -128,8 +99,7 @@ public abstract class IPEndpointI extends EndpointI
         return endps;
     }
 
-    @Override
-    public EndpointI.ExpandHostResult expandHost()
+    @Override public EndpointI.ExpandHostResult expandHost()
     {
         EndpointI.ExpandHostResult result = new EndpointI.ExpandHostResult();
 
@@ -137,7 +107,7 @@ public abstract class IPEndpointI extends EndpointI
         // If this endpoint has an empty host (wildcard address), don't expand, just return
         // this endpoint.
         //
-        if(_host.isEmpty())
+        if (_host.isEmpty())
         {
             result.endpoints = new java.util.ArrayList<>();
             result.endpoints.add(this);
@@ -151,21 +121,22 @@ public abstract class IPEndpointI extends EndpointI
         //
         result.publish = _port > 0 ? this : null;
 
-        java.util.List<java.net.InetSocketAddress> addresses = Network.getAddresses(_host,
-                                                                                    _port,
-                                                                                    _instance.protocolSupport(),
-                                                                                    EndpointSelectionType.Ordered,
-                                                                                    _instance.preferIPv6(),
-                                                                                    true);
+        java.util.List<java.net.InetSocketAddress> addresses = Network.getAddresses(
+            _host,
+            _port,
+            _instance.protocolSupport(),
+            EndpointSelectionType.Ordered,
+            _instance.preferIPv6(),
+            true);
 
         result.endpoints = new java.util.ArrayList<>();
-        if(addresses.size() == 1)
+        if (addresses.size() == 1)
         {
             result.endpoints.add(this);
         }
         else
         {
-            for(java.net.InetSocketAddress addr : addresses)
+            for (java.net.InetSocketAddress addr : addresses)
             {
                 result.endpoints.add(createEndpoint(addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
             }
@@ -173,10 +144,9 @@ public abstract class IPEndpointI extends EndpointI
         return result;
     }
 
-    @Override
-    public boolean equivalent(EndpointI endpoint)
+    @Override public boolean equivalent(EndpointI endpoint)
     {
-        if(!(endpoint instanceof IPEndpointI))
+        if (!(endpoint instanceof IPEndpointI))
         {
             return false;
         }
@@ -185,21 +155,20 @@ public abstract class IPEndpointI extends EndpointI
             Network.compareAddress(ipEndpointI._sourceAddr, _sourceAddr) == 0;
     }
 
-    public java.util.List<Connector> connectors(java.util.List<java.net.InetSocketAddress> addresses,
-                                                NetworkProxy proxy)
+    public java.util.List<Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses, NetworkProxy proxy)
     {
         java.util.List<Connector> connectors = new java.util.ArrayList<>();
-        for(java.net.InetSocketAddress p : addresses)
+        for (java.net.InetSocketAddress p : addresses)
         {
             connectors.add(createConnector(p, proxy));
         }
         return connectors;
     }
 
-    @Override
-    synchronized public int hashCode()
+    @Override synchronized public int hashCode()
     {
-        if(!_hashInitialized)
+        if (!_hashInitialized)
         {
             _hashValue = 5381;
             _hashValue = HashUtil.hashAdd(_hashValue, type());
@@ -209,8 +178,7 @@ public abstract class IPEndpointI extends EndpointI
         return _hashValue;
     }
 
-    @Override
-    public String options()
+    @Override public String options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -221,16 +189,16 @@ public abstract class IPEndpointI extends EndpointI
         //
         String s = "";
 
-        if(_host != null && _host.length() > 0)
+        if (_host != null && _host.length() > 0)
         {
             s += " -h ";
             boolean addQuote = _host.indexOf(':') != -1;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
             s += _host;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
@@ -238,17 +206,17 @@ public abstract class IPEndpointI extends EndpointI
 
         s += " -p " + _port;
 
-        if(_sourceAddr != null)
+        if (_sourceAddr != null)
         {
             String sourceAddr = _sourceAddr.getAddress().getHostAddress();
             s += " --sourceAddress ";
             boolean addQuote = sourceAddr.indexOf(':') != -1;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
             s += sourceAddr;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
@@ -257,37 +225,36 @@ public abstract class IPEndpointI extends EndpointI
         return s;
     }
 
-    @Override
-    public int compareTo(EndpointI obj) // From java.lang.Comparable
+    @Override public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
-        if(!(obj instanceof IPEndpointI))
+        if (!(obj instanceof IPEndpointI))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
         IPEndpointI p = (IPEndpointI)obj;
-        if(this == p)
+        if (this == p)
         {
             return 0;
         }
 
         int v = _host.compareTo(p._host);
-        if(v != 0)
+        if (v != 0)
         {
             return v;
         }
 
-        if(_port < p._port)
+        if (_port < p._port)
         {
             return -1;
         }
-        else if(p._port < _port)
+        else if (p._port < _port)
         {
             return 1;
         }
 
         int rc = Network.compareAddress(_sourceAddr, p._sourceAddr);
-        if(rc != 0)
+        if (rc != 0)
         {
             return rc;
         }
@@ -295,8 +262,7 @@ public abstract class IPEndpointI extends EndpointI
         return _connectionId.compareTo(p._connectionId);
     }
 
-    @Override
-    public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
+    @Override public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
     {
         s.writeString(_host);
         s.writeInt(_port);
@@ -306,7 +272,7 @@ public abstract class IPEndpointI extends EndpointI
     {
         h = HashUtil.hashAdd(h, _host);
         h = HashUtil.hashAdd(h, _port);
-        if(_sourceAddr != null)
+        if (_sourceAddr != null)
         {
             h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
         }
@@ -327,13 +293,13 @@ public abstract class IPEndpointI extends EndpointI
     {
         super.initWithOptions(args);
 
-        if(_host == null || _host.length() == 0)
+        if (_host == null || _host.length() == 0)
         {
             _host = _instance.defaultHost();
         }
-        else if(_host.equals("*"))
+        else if (_host.equals("*"))
         {
-            if(oaEndpoint)
+            if (oaEndpoint)
             {
                 _host = "";
             }
@@ -344,40 +310,39 @@ public abstract class IPEndpointI extends EndpointI
             }
         }
 
-        if(_host == null)
+        if (_host == null)
         {
             _host = "";
         }
 
-        if(_sourceAddr == null)
+        if (_sourceAddr == null)
         {
             if (!oaEndpoint)
             {
                 _sourceAddr = _instance.defaultSourceAddress();
             }
         }
-        else if(oaEndpoint)
+        else if (oaEndpoint)
         {
             throw new com.zeroc.Ice.EndpointParseException(
                 "`--sourceAddress' not valid for object adapter endpoint `" + toString() + "'");
         }
     }
 
-    @Override
-    protected boolean checkOption(String option, String argument, String endpoint)
+    @Override protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(option.equals("-h"))
+        if (option.equals("-h"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "no argument provided for -h option in endpoint " + endpoint);
             }
             _host = argument;
         }
-        else if(option.equals("-p"))
+        else if (option.equals("-p"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "no argument provided for -p option in endpoint " + endpoint);
@@ -387,27 +352,27 @@ public abstract class IPEndpointI extends EndpointI
             {
                 _port = Integer.parseInt(argument);
             }
-            catch(NumberFormatException ex)
+            catch (NumberFormatException ex)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "invalid port value `" + argument + "' in endpoint " + endpoint);
             }
 
-            if(_port < 0 || _port > 65535)
+            if (_port < 0 || _port > 65535)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "port value `" + argument + "' out of range in endpoint " + endpoint);
             }
         }
-        else if(option.equals("--sourceAddress"))
+        else if (option.equals("--sourceAddress"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "no argument provided for --sourceAddress option in endpoint " + endpoint);
             }
             _sourceAddr = Network.getNumericAddress(argument);
-            if(_sourceAddr == null)
+            if (_sourceAddr == null)
             {
                 throw new com.zeroc.Ice.EndpointParseException(
                     "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);

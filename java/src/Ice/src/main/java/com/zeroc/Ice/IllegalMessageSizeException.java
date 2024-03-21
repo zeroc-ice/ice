@@ -20,30 +20,15 @@ package com.zeroc.Ice;
  **/
 public class IllegalMessageSizeException extends ProtocolException
 {
-    public IllegalMessageSizeException()
-    {
-        super();
-    }
+    public IllegalMessageSizeException() { super(); }
 
-    public IllegalMessageSizeException(Throwable cause)
-    {
-        super(cause);
-    }
+    public IllegalMessageSizeException(Throwable cause) { super(cause); }
 
-    public IllegalMessageSizeException(String reason)
-    {
-        super(reason);
-    }
+    public IllegalMessageSizeException(String reason) { super(reason); }
 
-    public IllegalMessageSizeException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+    public IllegalMessageSizeException(String reason, Throwable cause) { super(reason, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::IllegalMessageSizeException";
-    }
+    public String ice_id() { return "::Ice::IllegalMessageSizeException"; }
 
     /** @hidden */
     public static final long serialVersionUID = 3581741698610780247L;

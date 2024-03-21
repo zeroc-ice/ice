@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class VersionParseException extends LocalException
 {
-    public VersionParseException()
-    {
-        this.str = "";
-    }
+    public VersionParseException() { this.str = ""; }
 
     public VersionParseException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class VersionParseException extends LocalException
         this.str = "";
     }
 
-    public VersionParseException(String str)
-    {
-        this.str = str;
-    }
+    public VersionParseException(String str) { this.str = str; }
 
     public VersionParseException(String str, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class VersionParseException extends LocalException
         this.str = str;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::VersionParseException";
-    }
+    public String ice_id() { return "::Ice::VersionParseException"; }
 
     /**
      * Describes the failure and includes the string that could not be parsed.

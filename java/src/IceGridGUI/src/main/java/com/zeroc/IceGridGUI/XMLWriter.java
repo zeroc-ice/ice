@@ -17,7 +17,7 @@ public class XMLWriter
         {
             _writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
         }
-        catch(UnsupportedEncodingException e)
+        catch (UnsupportedEncodingException e)
         {
             assert false;
         }
@@ -25,8 +25,7 @@ public class XMLWriter
         _writer.write("<!-- This file was written by IceGrid GUI -->" + _newline);
     }
 
-    public void writeElement(String name, java.util.List<String[]> attributes)
-        throws IOException
+    public void writeElement(String name, java.util.List<String[]> attributes) throws IOException
     {
         _writer.write(_indent);
         _writer.write("<" + name);
@@ -34,10 +33,7 @@ public class XMLWriter
         _writer.write("/>" + _newline);
     }
 
-    public void writeElement(String name) throws IOException
-    {
-        writeElement(name, (java.util.List<String[]>)null);
-    }
+    public void writeElement(String name) throws IOException { writeElement(name, (java.util.List<String[]>)null); }
 
     public void writeElement(String name, String content) throws IOException
     {
@@ -45,8 +41,7 @@ public class XMLWriter
         _writer.write("<" + name + ">" + escape(content) + "</" + name + ">" + _newline);
     }
 
-    public void writeStartTag(String name, java.util.List<String[]> attributes)
-        throws IOException
+    public void writeStartTag(String name, java.util.List<String[]> attributes) throws IOException
     {
         _writer.write(_indent);
         _writer.write("<" + name);
@@ -56,50 +51,35 @@ public class XMLWriter
         increaseIndent();
     }
 
-    public void writeStartTag(String name)
-        throws IOException
-    {
-        writeStartTag(name, null);
-    }
+    public void writeStartTag(String name) throws IOException { writeStartTag(name, null); }
 
-    public void writeEndTag(String name)
-        throws IOException
+    public void writeEndTag(String name) throws IOException
     {
         decreaseIndent();
         _writer.write(_indent);
         _writer.write("</" + name + ">" + _newline);
     }
 
-    public void close()  throws IOException
-    {
-        _writer.close();
-    }
+    public void close() throws IOException { _writer.close(); }
 
-    public void flush() throws IOException
-    {
-        _writer.flush();
-    }
+    public void flush() throws IOException { _writer.flush(); }
 
-    private void writeAttributes(java.util.List<String[]> attributes)
-        throws IOException
+    private void writeAttributes(java.util.List<String[]> attributes) throws IOException
     {
-        if(attributes != null)
+        if (attributes != null)
         {
-            for(String[] p : attributes)
+            for (String[] p : attributes)
             {
                 _writer.write(" " + p[0] + "=\"" + escape(p[1]) + "\"");
             }
         }
     }
 
-    private void increaseIndent()
-    {
-        _indent += "   ";
-    }
+    private void increaseIndent() { _indent += "   "; }
 
     private void decreaseIndent()
     {
-        if(_indent.length() > 0)
+        if (_indent.length() > 0)
         {
             _indent = _indent.substring(3);
         }
@@ -116,20 +96,20 @@ public class XMLWriter
         final String allReserved = "<>'\"&";
         boolean hasReserved = false;
         char[] arr = input.toCharArray();
-        for(char c : arr)
+        for (char c : arr)
         {
-            if(allReserved.indexOf(c) != -1)
+            if (allReserved.indexOf(c) != -1)
             {
                 hasReserved = true;
                 break;
             }
         }
-        if(hasReserved)
+        if (hasReserved)
         {
             //
             // First convert all & to &amp;
             //
-            if(v.indexOf('&') != -1)
+            if (v.indexOf('&') != -1)
             {
                 v = v.replaceAll("&", "&amp;");
             }
@@ -137,19 +117,19 @@ public class XMLWriter
             //
             // Next convert remaining reserved characters.
             //
-            if(v.indexOf('>') != -1)
+            if (v.indexOf('>') != -1)
             {
                 v = v.replaceAll(">", "&gt;");
             }
-            if(v.indexOf('<') != -1)
+            if (v.indexOf('<') != -1)
             {
                 v = v.replaceAll("<", "&lt;");
             }
-            if(v.indexOf('\'') != -1)
+            if (v.indexOf('\'') != -1)
             {
                 v = v.replaceAll("'", "&apos;");
             }
-            if(v.indexOf('"') != -1)
+            if (v.indexOf('"') != -1)
             {
                 v = v.replaceAll("\"", "&quot;");
             }

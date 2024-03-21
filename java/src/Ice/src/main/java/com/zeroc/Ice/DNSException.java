@@ -46,10 +46,7 @@ public class DNSException extends LocalException
         this.host = host;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::DNSException";
-    }
+    public String ice_id() { return "::Ice::DNSException"; }
 
     /**
      * The error number describing the DNS problem. For C++ and Unix, this is equivalent to <code>h_errno</code>. For

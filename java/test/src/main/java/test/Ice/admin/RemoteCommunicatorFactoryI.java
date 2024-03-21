@@ -18,40 +18,26 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory
         initData.classLoader =
             com.zeroc.IceInternal.Util.getInstance(current.adapter.getCommunicator()).getClassLoader();
         initData.properties = com.zeroc.Ice.Util.createProperties();
-        for(java.util.Map.Entry<String, String> e : props.entrySet())
+        for (java.util.Map.Entry<String, String> e : props.entrySet())
         {
             initData.properties.setProperty(e.getKey(), e.getValue());
         }
 
-        if(initData.properties.getPropertyAsInt("NullLogger") > 0)
+        if (initData.properties.getPropertyAsInt("NullLogger") > 0)
         {
             initData.logger = new com.zeroc.Ice.Logger() {
-                    @Override public void print(String message)
-                    {
-                    }
+                @Override public void print(String message) {}
 
-                    @Override public void trace(String category, String message)
-                    {
-                    }
+                @Override public void trace(String category, String message) {}
 
-                    @Override public void warning(String message)
-                    {
-                    }
+                @Override public void warning(String message) {}
 
-                    @Override public void error(String message)
-                    {
-                    }
+                @Override public void error(String message) {}
 
-                    @Override public String getPrefix()
-                    {
-                        return "NullLogger";
-                    }
+                @Override public String getPrefix() { return "NullLogger"; }
 
-                    @Override public com.zeroc.Ice.Logger cloneWithPrefix(String prefix)
-                    {
-                        return this;
-                    }
-                };
+                @Override public com.zeroc.Ice.Logger cloneWithPrefix(String prefix) { return this; }
+            };
         }
 
         //
@@ -71,7 +57,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory
         RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
         com.zeroc.Ice.Object propFacet = communicator.findAdminFacet("Properties");
 
-        if(propFacet != null)
+        if (propFacet != null)
         {
             com.zeroc.Ice.NativePropertiesAdmin admin = (com.zeroc.Ice.NativePropertiesAdmin)propFacet;
             assert admin != null;
@@ -82,9 +68,5 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory
         return RemoteCommunicatorPrx.uncheckedCast(proxy);
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 }

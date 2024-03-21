@@ -4,27 +4,32 @@
 
 package com.zeroc.IceInternal;
 
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import com.zeroc.Ice.ConnectionInfo;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.FormatType;
+import com.zeroc.Ice.IPConnectionInfo;
+import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.DispatchObserver;
-import com.zeroc.Ice.InputStream;
-import com.zeroc.Ice.IPConnectionInfo;
 import com.zeroc.Ice.MarshaledResult;
 import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ServantLocator;
 import com.zeroc.Ice.Util;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 final public class Incoming implements com.zeroc.Ice.Request
 {
-    public Incoming(Instance instance, ResponseHandler responseHandler, com.zeroc.Ice.ConnectionI connection,
-                    com.zeroc.Ice.ObjectAdapter adapter, boolean response, byte compress, int requestId)
+    public Incoming(
+        Instance instance,
+        ResponseHandler responseHandler,
+        com.zeroc.Ice.ConnectionI connection,
+        com.zeroc.Ice.ObjectAdapter adapter,
+        boolean response,
+        byte compress,
+        int requestId)
     {
         _instance = instance;
         _responseHandler = responseHandler;
@@ -43,8 +48,14 @@ final public class Incoming implements com.zeroc.Ice.Request
     //
     // These functions allow this object to be reused, rather than reallocated.
     //
-    public void reset(Instance instance, ResponseHandler handler, com.zeroc.Ice.ConnectionI connection,
-                      com.zeroc.Ice.ObjectAdapter adapter, boolean response, byte compress, int requestId)
+    public void reset(
+        Instance instance,
+        ResponseHandler handler,
+        com.zeroc.Ice.ConnectionI connection,
+        com.zeroc.Ice.ObjectAdapter adapter,
+        boolean response,
+        byte compress,
+        int requestId)
     {
         _instance = instance;
         _responseHandler = handler;
@@ -60,14 +71,14 @@ final public class Incoming implements com.zeroc.Ice.Request
         _current.con = connection;
         _current.requestId = requestId;
 
-        assert(_cookie == null);
+        assert (_cookie == null);
 
         _inParamPos = -1;
     }
 
     public boolean reclaim()
     {
-        if(_responseHandler != null) // Async dispatch not ready for being reclaimed!
+        if (_responseHandler != null) // Async dispatch not ready for being reclaimed!
         {
             return false;
         }
@@ -78,9 +89,9 @@ final public class Incoming implements com.zeroc.Ice.Request
         _cookie = null;
 
         //_observer = null;
-        assert(_observer == null);
+        assert (_observer == null);
 
-        if(_os != null)
+        if (_os != null)
         {
             _os.reset(); // Reset the output stream to prepare it for re-use.
         }
@@ -88,18 +99,14 @@ final public class Incoming implements com.zeroc.Ice.Request
         _is = null;
 
         //_responseHandler = null;
-        assert(_responseHandler == null);
+        assert (_responseHandler == null);
 
         _inParamPos = -1;
 
         return true;
     }
 
-    @Override
-    public Current getCurrent()
-    {
-        return _current;
-    }
+    @Override public Current getCurrent() { return _current; }
 
     public void invoke(ServantManager servantManager, InputStream stream)
     {
@@ -116,9 +123,9 @@ final public class Incoming implements com.zeroc.Ice.Request
         // For compatibility with the old FacetPath.
         //
         String[] facetPath = _is.readStringSeq();
-        if(facetPath.length > 0)
+        if (facetPath.length > 0)
         {
-            if(facetPath.length > 1)
+            if (facetPath.length > 1)
             {
                 throw new com.zeroc.Ice.MarshalException();
             }
@@ -133,7 +140,7 @@ final public class Incoming implements com.zeroc.Ice.Request
         _current.mode = com.zeroc.Ice.OperationMode.values()[_is.readByte()];
         _current.ctx = new java.util.HashMap<>();
         int sz = _is.readSize();
-        while(sz-- > 0)
+        while (sz-- > 0)
         {
             String first = _is.readString();
             String second = _is.readString();
@@ -141,14 +148,14 @@ final public class Incoming implements com.zeroc.Ice.Request
         }
 
         CommunicatorObserver obsv = _instance.initializationData().observer;
-        if(obsv != null)
+        if (obsv != null)
         {
             // Read the parameter encapsulation size.
             int size = _is.readInt();
             _is.pos(_is.pos() - 4);
 
             _observer = obsv.getDispatchObserver(_current, _is.pos() - start + size);
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.attach();
             }
@@ -160,18 +167,18 @@ final public class Incoming implements com.zeroc.Ice.Request
         // the caller of this operation.
         //
 
-        if(servantManager != null)
+        if (servantManager != null)
         {
             _servant = servantManager.findServant(_current.id, _current.facet);
-            if(_servant == null)
+            if (_servant == null)
             {
                 _locator = servantManager.findServantLocator(_current.id.category);
-                if(_locator == null && _current.id.category.length() > 0)
+                if (_locator == null && _current.id.category.length() > 0)
                 {
                     _locator = servantManager.findServantLocator("");
                 }
 
-                if(_locator != null)
+                if (_locator != null)
                 {
                     try
                     {
@@ -179,7 +186,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                         _servant = r.returnValue;
                         _cookie = r.cookie;
                     }
-                    catch(Throwable ex)
+                    catch (Throwable ex)
                     {
                         skipReadParams(); // Required for batch requests.
                         handleException(ex, false);
@@ -189,11 +196,11 @@ final public class Incoming implements com.zeroc.Ice.Request
             }
         }
 
-        if(_servant == null)
+        if (_servant == null)
         {
             try
             {
-                if(servantManager != null && servantManager.hasServant(_current.id))
+                if (servantManager != null && servantManager.hasServant(_current.id))
                 {
                     throw new com.zeroc.Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
                 }
@@ -202,7 +209,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                     throw new com.zeroc.Ice.ObjectNotExistException(_current.id, _current.facet, _current.operation);
                 }
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 skipReadParams(); // Required for batch requests
                 handleException(ex, false);
@@ -212,7 +219,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
         try
         {
-            if(_instance.useApplicationClassLoader())
+            if (_instance.useApplicationClassLoader())
             {
                 Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
             }
@@ -220,39 +227,38 @@ final public class Incoming implements com.zeroc.Ice.Request
             try
             {
                 CompletionStage<OutputStream> f = _servant._iceDispatch(this, _current);
-                if(f == null)
+                if (f == null)
                 {
                     completed(null, false);
                 }
                 else
                 {
-                    f.whenComplete((result, ex) ->
+                    f.whenComplete((result, ex) -> {
+                        if (ex != null)
                         {
-                            if(ex != null)
-                            {
-                                completed(ex, true); // true = asynchronous
-                            }
-                            else
-                            {
-                                _os = result;
-                                completed(null, true); // true = asynchronous
-                            }
-                        });
+                            completed(ex, true); // true = asynchronous
+                        }
+                        else
+                        {
+                            _os = result;
+                            completed(null, true); // true = asynchronous
+                        }
+                    });
                 }
             }
             finally
             {
-                if(_instance.useApplicationClassLoader())
+                if (_instance.useApplicationClassLoader())
                 {
                     Thread.currentThread().setContextClassLoader(null);
                 }
             }
         }
-        catch(ServantError ex)
+        catch (ServantError ex)
         {
             throw ex;
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             completed(ex, false);
         }
@@ -265,8 +271,7 @@ final public class Incoming implements com.zeroc.Ice.Request
     }
 
     @FunctionalInterface
-    public static interface Write<T>
-    {
+    public static interface Write<T> {
         void write(OutputStream os, T v);
     }
 
@@ -280,20 +285,19 @@ final public class Incoming implements com.zeroc.Ice.Request
         // user installed a dispatch interceptor and the dispatch is retried.
         //
         final CompletableFuture<OutputStream> r = new CompletableFuture<OutputStream>();
-        f.whenComplete((result, ex) ->
+        f.whenComplete((result, ex) -> {
+            if (ex != null)
             {
-                if(ex != null)
-                {
-                    r.completeExceptionally(ex);
-                }
-                else
-                {
-                    OutputStream os = startWriteParams(cached);
-                    write.write(os, result);
-                    endWriteParams(os);
-                    r.complete(os);
-                }
-            });
+                r.completeExceptionally(ex);
+            }
+            else
+            {
+                OutputStream os = startWriteParams(cached);
+                write.write(os, result);
+                endWriteParams(os);
+                r.complete(os);
+            }
+        });
         return r;
     }
 
@@ -307,17 +311,16 @@ final public class Incoming implements com.zeroc.Ice.Request
         // user installed a dispatch interceptor and the dispatch is retried.
         //
         final CompletableFuture<OutputStream> r = new CompletableFuture<OutputStream>();
-        f.whenComplete((result, ex) ->
+        f.whenComplete((result, ex) -> {
+            if (ex != null)
             {
-                if(ex != null)
-                {
-                    r.completeExceptionally(ex);
-                }
-                else
-                {
-                    r.complete(writeEmptyParams(cached));
-                }
-            });
+                r.completeExceptionally(ex);
+            }
+            else
+            {
+                r.complete(writeEmptyParams(cached));
+            }
+        });
         return r;
     }
 
@@ -327,21 +330,19 @@ final public class Incoming implements com.zeroc.Ice.Request
         return null; // Response is cached in the Incoming to not have to create unnecessary future
     }
 
-    public <T extends MarshaledResult> CompletionStage<OutputStream>
-    setMarshaledResultFuture(CompletionStage<T> f)
+    public <T extends MarshaledResult> CompletionStage<OutputStream> setMarshaledResultFuture(CompletionStage<T> f)
     {
         final CompletableFuture<OutputStream> r = new CompletableFuture<OutputStream>();
-        f.whenComplete((result, ex) ->
+        f.whenComplete((result, ex) -> {
+            if (ex != null)
             {
-                if(ex != null)
-                {
-                    r.completeExceptionally(ex);
-                }
-                else
-                {
-                    r.complete(result.getOutputStream());
-                }
-            });
+                r.completeExceptionally(ex);
+            }
+            else
+            {
+                r.complete(result.getOutputStream());
+            }
+        });
         return r;
     }
 
@@ -349,29 +350,29 @@ final public class Incoming implements com.zeroc.Ice.Request
     {
         try
         {
-            if(_locator != null)
+            if (_locator != null)
             {
-                assert(_locator != null && _servant != null);
+                assert (_locator != null && _servant != null);
                 try
                 {
                     _locator.finished(_current, _servant, _cookie);
                 }
-                catch(Throwable ex)
+                catch (Throwable ex)
                 {
                     handleException(ex, amd);
                     return;
                 }
             }
 
-            assert(_responseHandler != null);
+            assert (_responseHandler != null);
 
-            if(exc != null)
+            if (exc != null)
             {
                 handleException(exc, amd);
             }
-            else if(_response)
+            else if (_response)
             {
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -382,13 +383,13 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             _responseHandler.invokeException(_current.requestId, ex, 1, amd);
         }
         finally
         {
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.detach();
                 _observer = null;
@@ -399,7 +400,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     public final void startOver()
     {
-        if(_inParamPos == -1)
+        if (_inParamPos == -1)
         {
             //
             // That's the first startOver, so almost nothing to do
@@ -412,7 +413,7 @@ final public class Incoming implements com.zeroc.Ice.Request
             // Let's rewind _is and reset _os
             //
             _is.pos(_inParamPos);
-            if(_response && _os != null)
+            if (_response && _os != null)
             {
                 _os.reset();
             }
@@ -438,15 +439,9 @@ final public class Incoming implements com.zeroc.Ice.Request
         return _is;
     }
 
-    public void endReadParams()
-    {
-        _is.endEncapsulation();
-    }
+    public void endReadParams() { _is.endEncapsulation(); }
 
-    public void readEmptyParams()
-    {
-        _current.encoding = _is.skipEmptyEncapsulation();
-    }
+    public void readEmptyParams() { _current.encoding = _is.skipEmptyEncapsulation(); }
 
     public byte[] readParamEncaps()
     {
@@ -456,7 +451,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     public void setFormat(FormatType format)
     {
-        if(format == null)
+        if (format == null)
         {
             format = FormatType.DefaultFormat;
         }
@@ -465,7 +460,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     public OutputStream getAndClearCachedOutputStream()
     {
-        if(_response)
+        if (_response)
         {
             OutputStream cached = _os;
             _os = null;
@@ -488,16 +483,16 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     private OutputStream startWriteParams(OutputStream os)
     {
-        if(!_response)
+        if (!_response)
         {
             throw new com.zeroc.Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        if(os == null) // Create the output stream if none is provided
+        if (os == null) // Create the output stream if none is provided
         {
             os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
         }
-        assert(os.pos() == 0);
+        assert (os.pos() == 0);
         os.writeBlob(Protocol.replyHdr);
         os.writeInt(_current.requestId);
         os.writeByte(ReplyStatus.replyOK);
@@ -505,14 +500,11 @@ final public class Incoming implements com.zeroc.Ice.Request
         return os;
     }
 
-    public OutputStream startWriteParams()
-    {
-        return startWriteParams(getAndClearCachedOutputStream());
-    }
+    public OutputStream startWriteParams() { return startWriteParams(getAndClearCachedOutputStream()); }
 
     public void endWriteParams(OutputStream os)
     {
-        if(_response)
+        if (_response)
         {
             os.endEncapsulation();
         }
@@ -520,13 +512,13 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     private OutputStream writeEmptyParams(OutputStream os)
     {
-        if(_response)
+        if (_response)
         {
-            if(os == null) // Create the output stream if none is provided
+            if (os == null) // Create the output stream if none is provided
             {
                 os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
             }
-            assert(os.pos() == 0);
+            assert (os.pos() == 0);
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(_current.requestId);
             os.writeByte(ReplyStatus.replyOK);
@@ -539,29 +531,26 @@ final public class Incoming implements com.zeroc.Ice.Request
         }
     }
 
-    public OutputStream writeEmptyParams()
-    {
-        return writeEmptyParams(getAndClearCachedOutputStream());
-    }
+    public OutputStream writeEmptyParams() { return writeEmptyParams(getAndClearCachedOutputStream()); }
 
     public OutputStream writeParamEncaps(OutputStream os, byte[] v, boolean ok)
     {
-        if(!ok && _observer != null)
+        if (!ok && _observer != null)
         {
             _observer.userException();
         }
 
-        if(_response)
+        if (_response)
         {
-            if(os == null) // Create the output stream if none is provided
+            if (os == null) // Create the output stream if none is provided
             {
                 os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
             }
-            assert(os.pos() == 0);
+            assert (os.pos() == 0);
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(_current.requestId);
             os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
-            if(v == null || v.length == 0)
+            if (v == null || v.length == 0)
             {
                 os.writeEmptyEncapsulation(_current.encoding);
             }
@@ -579,7 +568,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     private void warning(Throwable ex)
     {
-        assert(_instance != null);
+        assert (_instance != null);
 
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -587,22 +576,25 @@ final public class Incoming implements com.zeroc.Ice.Request
         out.setUseTab(false);
         out.print("dispatch exception:");
         out.print("\nidentity: " + Util.identityToString(_current.id, _instance.toStringMode()));
-        out.print("\nfacet: " + com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
+        out.print(
+            "\nfacet: " +
+            com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
         out.print("\noperation: " + _current.operation);
-        if(_current.con != null)
+        if (_current.con != null)
         {
             try
             {
-                for(ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
+                for (ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
                 {
-                    if(connInfo instanceof IPConnectionInfo)
+                    if (connInfo instanceof IPConnectionInfo)
                     {
                         IPConnectionInfo ipConnInfo = (IPConnectionInfo)connInfo;
-                        out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                        out.print(
+                            "\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
                     }
                 }
             }
-            catch(com.zeroc.Ice.LocalException exc)
+            catch (com.zeroc.Ice.LocalException exc)
             {
                 // Ignore.
             }
@@ -615,14 +607,14 @@ final public class Incoming implements com.zeroc.Ice.Request
 
     private void handleException(Throwable exc, boolean amd)
     {
-        assert(_responseHandler != null);
+        assert (_responseHandler != null);
 
-        if(_response)
+        if (_response)
         {
             //
             // If there's already a response output stream, reset it to re-use it
             //
-            if(_os != null)
+            if (_os != null)
             {
                 _os.reset();
             }
@@ -636,72 +628,72 @@ final public class Incoming implements com.zeroc.Ice.Request
         {
             throw exc;
         }
-        catch(com.zeroc.Ice.RequestFailedException ex)
+        catch (com.zeroc.Ice.RequestFailedException ex)
         {
-            if(ex.id == null || ex.id.name == null || ex.id.name.isEmpty())
+            if (ex.id == null || ex.id.name == null || ex.id.name.isEmpty())
             {
                 ex.id = _current.id;
             }
 
-            if(ex.facet == null || ex.facet.isEmpty())
+            if (ex.facet == null || ex.facet.isEmpty())
             {
                 ex.facet = _current.facet;
             }
 
-            if(ex.operation == null || ex.operation.length() == 0)
+            if (ex.operation == null || ex.operation.length() == 0)
             {
                 ex.operation = _current.operation;
             }
 
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
-                if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
+                if (ex instanceof com.zeroc.Ice.ObjectNotExistException)
                 {
                     _os.writeByte(ReplyStatus.replyObjectNotExist);
                 }
-                else if(ex instanceof com.zeroc.Ice.FacetNotExistException)
+                else if (ex instanceof com.zeroc.Ice.FacetNotExistException)
                 {
                     _os.writeByte(ReplyStatus.replyFacetNotExist);
                 }
-                else if(ex instanceof com.zeroc.Ice.OperationNotExistException)
+                else if (ex instanceof com.zeroc.Ice.OperationNotExistException)
                 {
                     _os.writeByte(ReplyStatus.replyOperationNotExist);
                 }
                 else
                 {
-                    assert(false);
+                    assert (false);
                 }
                 ex.id.ice_writeMembers(_os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(ex.facet == null || ex.facet.length() == 0)
+                if (ex.facet == null || ex.facet.length() == 0)
                 {
                     _os.writeStringSeq(null);
                 }
                 else
                 {
-                    String[] facetPath2 = { ex.facet };
+                    String[] facetPath2 = {ex.facet};
                     _os.writeStringSeq(facetPath2);
                 }
 
                 _os.writeString(ex.operation);
 
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -712,26 +704,26 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.UnknownLocalException ex)
+        catch (com.zeroc.Ice.UnknownLocalException ex)
         {
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -742,26 +734,26 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.UnknownUserException ex)
+        catch (com.zeroc.Ice.UnknownUserException ex)
         {
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -772,26 +764,26 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.UnknownException ex)
+        catch (com.zeroc.Ice.UnknownException ex)
         {
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -802,23 +794,23 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.UserException ex)
+        catch (com.zeroc.Ice.UserException ex)
         {
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.userException();
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUserException);
                 _os.startEncapsulation(_current.encoding, _format);
                 _os.writeException(ex);
                 _os.endEncapsulation();
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -829,29 +821,29 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
-            if(ex instanceof com.zeroc.Ice.SystemException)
+            if (ex instanceof com.zeroc.Ice.SystemException)
             {
-                if(_responseHandler.systemException(_current.requestId, (com.zeroc.Ice.SystemException)ex, amd))
+                if (_responseHandler.systemException(_current.requestId, (com.zeroc.Ice.SystemException)ex, amd))
                 {
                     return;
                 }
             }
 
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.ice_id());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -862,7 +854,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 ex.printStackTrace(pw);
                 pw.flush();
                 _os.writeString(sw.toString());
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -873,7 +865,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(ExecutionException | CompletionException ex)
+        catch (ExecutionException | CompletionException ex)
         {
             //
             // Raised by CompletableFuture.get(). The inner exception caused the future to complete exceptionally.
@@ -882,21 +874,21 @@ final public class Incoming implements com.zeroc.Ice.Request
             handleException(ex.getCause(), amd);
             return;
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 warning(ex);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.failed(ex.getClass().getName());
             }
 
-            if(_response)
+            if (_response)
             {
-                assert(_responseHandler != null && _current != null);
+                assert (_responseHandler != null && _current != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
@@ -906,7 +898,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 ex.printStackTrace(pw);
                 pw.flush();
                 _os.writeString(sw.toString());
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
@@ -917,20 +909,20 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
             _responseHandler = null;
 
-            if(!amd && ex instanceof java.lang.Error)
+            if (!amd && ex instanceof java.lang.Error)
             {
                 throw new ServantError((java.lang.Error)ex);
             }
         }
 
-        if(_observer != null)
+        if (_observer != null)
         {
             _observer.detach();
             _observer = null;

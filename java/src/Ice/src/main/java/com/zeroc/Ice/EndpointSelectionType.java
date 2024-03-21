@@ -29,27 +29,21 @@ public enum EndpointSelectionType
      **/
     Ordered(1);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static EndpointSelectionType valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return Random;
-        case 1:
-            return Ordered;
+            case 0:
+                return Random;
+            case 1:
+                return Ordered;
         }
         return null;
     }
 
-    private EndpointSelectionType(int v)
-    {
-        _value = v;
-    }
+    private EndpointSelectionType(int v) { _value = v; }
 
     private final int _value;
 }

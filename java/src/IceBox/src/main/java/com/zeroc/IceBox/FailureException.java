@@ -21,10 +21,7 @@ package com.zeroc.IceBox;
  **/
 public class FailureException extends com.zeroc.Ice.LocalException
 {
-    public FailureException()
-    {
-        this.reason = "";
-    }
+    public FailureException() { this.reason = ""; }
 
     public FailureException(Throwable cause)
     {
@@ -32,10 +29,7 @@ public class FailureException extends com.zeroc.Ice.LocalException
         this.reason = "";
     }
 
-    public FailureException(String reason)
-    {
-        this.reason = reason;
-    }
+    public FailureException(String reason) { this.reason = reason; }
 
     public FailureException(String reason, Throwable cause)
     {
@@ -43,10 +37,7 @@ public class FailureException extends com.zeroc.Ice.LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::IceBox::FailureException";
-    }
+    public String ice_id() { return "::IceBox::FailureException"; }
 
     /**
      * The reason for the failure.

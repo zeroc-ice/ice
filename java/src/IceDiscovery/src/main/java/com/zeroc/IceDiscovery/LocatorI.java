@@ -4,8 +4,8 @@
 
 package com.zeroc.IceDiscovery;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 class LocatorI implements com.zeroc.Ice.Locator
 {
@@ -16,8 +16,8 @@ class LocatorI implements com.zeroc.Ice.Locator
     }
 
     @Override
-    public CompletionStage<com.zeroc.Ice.ObjectPrx> findObjectByIdAsync(com.zeroc.Ice.Identity id,
-                                                                        com.zeroc.Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.ObjectPrx>
+    findObjectByIdAsync(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
     {
         CompletableFuture<com.zeroc.Ice.ObjectPrx> f = new CompletableFuture<com.zeroc.Ice.ObjectPrx>();
         _lookup.findObject(f, id);
@@ -25,19 +25,15 @@ class LocatorI implements com.zeroc.Ice.Locator
     }
 
     @Override
-    public CompletionStage<com.zeroc.Ice.ObjectPrx> findAdapterByIdAsync(String adapterId,
-                                                                         com.zeroc.Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.ObjectPrx>
+    findAdapterByIdAsync(String adapterId, com.zeroc.Ice.Current current)
     {
         CompletableFuture<com.zeroc.Ice.ObjectPrx> f = new CompletableFuture<com.zeroc.Ice.ObjectPrx>();
         _lookup.findAdapter(f, adapterId);
         return f;
     }
 
-    @Override
-    public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current)
-    {
-        return _registry;
-    }
+    @Override public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current) { return _registry; }
 
     private final LookupI _lookup;
     private final com.zeroc.Ice.LocatorRegistryPrx _registry;

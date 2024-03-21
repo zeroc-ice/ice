@@ -20,20 +20,11 @@ package com.zeroc.Ice;
  **/
 public class CloseTimeoutException extends TimeoutException
 {
-    public CloseTimeoutException()
-    {
-        super();
-    }
+    public CloseTimeoutException() { super(); }
 
-    public CloseTimeoutException(Throwable cause)
-    {
-        super(cause);
-    }
+    public CloseTimeoutException(Throwable cause) { super(cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::CloseTimeoutException";
-    }
+    public String ice_id() { return "::Ice::CloseTimeoutException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -702193953324375086L;

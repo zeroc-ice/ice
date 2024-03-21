@@ -4,8 +4,8 @@
 
 package com.zeroc.IceGridGUI;
 
-import javax.swing.SwingUtilities;
 import com.zeroc.IceGrid.*;
+import javax.swing.SwingUtilities;
 
 class AdapterObserverI implements AdapterObserver
 {
@@ -15,19 +15,18 @@ class AdapterObserverI implements AdapterObserver
         _trace = coordinator.traceObservers();
     }
 
-    @Override
-    public synchronized void adapterInit(final AdapterInfo[] adapters, com.zeroc.Ice.Current current)
+    @Override public synchronized void adapterInit(final AdapterInfo[] adapters, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
-            if(adapters.length == 0)
+            if (adapters.length == 0)
             {
                 _coordinator.traceObserver("adapterInit (no adapter)");
             }
             else
             {
                 String names = "";
-                for(AdapterInfo info : adapters)
+                for (AdapterInfo info : adapters)
                 {
                     names += " " + info.id;
                 }
@@ -36,13 +35,12 @@ class AdapterObserverI implements AdapterObserver
             }
         }
 
-        SwingUtilities.invokeLater(() -> {  _coordinator.adapterInit(adapters); });
+        SwingUtilities.invokeLater(() -> { _coordinator.adapterInit(adapters); });
     }
 
-    @Override
-    public void adapterAdded(final AdapterInfo info, com.zeroc.Ice.Current current)
+    @Override public void adapterAdded(final AdapterInfo info, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
             _coordinator.traceObserver("adapterAdded for adapter " + info.id);
         }
@@ -50,10 +48,9 @@ class AdapterObserverI implements AdapterObserver
         SwingUtilities.invokeLater(() -> { _coordinator.adapterAdded(info); });
     }
 
-    @Override
-    public void adapterUpdated(final AdapterInfo info, com.zeroc.Ice.Current current)
+    @Override public void adapterUpdated(final AdapterInfo info, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
             _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
         }
@@ -61,10 +58,9 @@ class AdapterObserverI implements AdapterObserver
         SwingUtilities.invokeLater(() -> { _coordinator.adapterUpdated(info); });
     }
 
-    @Override
-    public void adapterRemoved(final String id, com.zeroc.Ice.Current current)
+    @Override public void adapterRemoved(final String id, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
             _coordinator.traceObserver("adapterRemoved for adapter " + id);
         }

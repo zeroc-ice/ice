@@ -26,7 +26,14 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
         this.cipher = "";
     }
 
-    public ConnectionInfo(com.zeroc.Ice.ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, String cipher, java.security.cert.Certificate[] certs, boolean verified)
+    public ConnectionInfo(
+        com.zeroc.Ice.ConnectionInfo underlying,
+        boolean incoming,
+        String adapterName,
+        String connectionId,
+        String cipher,
+        java.security.cert.Certificate[] certs,
+        boolean verified)
     {
         super(underlying, incoming, adapterName, connectionId);
         this.cipher = cipher;
@@ -49,10 +56,7 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
      **/
     public boolean verified;
 
-    public ConnectionInfo clone()
-    {
-        return (ConnectionInfo)super.clone();
-    }
+    public ConnectionInfo clone() { return (ConnectionInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 8227416448029738634L;

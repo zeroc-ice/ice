@@ -4,17 +4,15 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class PropertySet extends TreeNode
 {
-    static public PropertySetDescriptor
-    copyDescriptor(PropertySetDescriptor d)
+    static public PropertySetDescriptor copyDescriptor(PropertySetDescriptor d)
     {
         PropertySetDescriptor psd = d.clone();
         psd.properties = new java.util.LinkedList<>(psd.properties);
@@ -31,7 +29,7 @@ class PropertySet extends TreeNode
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/property_set.png"));
@@ -43,19 +41,18 @@ class PropertySet extends TreeNode
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
 
-        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        if (((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
         }
         actions[DELETE] = true;
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             actions[SHOW_VARS] = true;
             actions[SUBSTITUTE_VARS] = true;
@@ -63,30 +60,23 @@ class PropertySet extends TreeNode
         return actions;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
-
     }
 
-    @Override
-    public void paste()
-    {
-        ((TreeNode)_parent).paste();
-    }
+    @Override public void paste() { ((TreeNode)_parent).paste(); }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
         PropertySetParent parent = (PropertySetParent)_parent;
         parent.removePropertySet(this);
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             parent.removeDescriptor(_unsubstitutedId);
-            if(_editable != null)
+            if (_editable != null)
             {
                 parent.getEditable().removeElement(_unsubstitutedId, _editable, PropertySet.class);
             }
@@ -98,12 +88,11 @@ class PropertySet extends TreeNode
         }
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
-            if(_inServerInstance)
+            if (_inServerInstance)
             {
                 _editor = (PropertySetEditor)getRoot().getEditor(ServerInstancePropertySetEditor.class, this);
             }
@@ -116,10 +105,9 @@ class PropertySet extends TreeNode
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
+    @Override protected Editor createEditor()
     {
-        if(_inServerInstance)
+        if (_inServerInstance)
         {
             return new ServerInstancePropertySetEditor();
         }
@@ -129,27 +117,13 @@ class PropertySet extends TreeNode
         }
     }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
-    public String unsubstitutedId()
-    {
-        return _unsubstitutedId;
-    }
+    public String unsubstitutedId() { return _unsubstitutedId; }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override Object getDescriptor() { return _descriptor; }
 
-    Object saveDescriptor()
-    {
-        return _descriptor.clone();
-    }
+    Object saveDescriptor() { return _descriptor.clone(); }
 
     void restoreDescriptor(Object savedDescriptor)
     {
@@ -160,7 +134,7 @@ class PropertySet extends TreeNode
 
     void commit()
     {
-        if(_editable != null)
+        if (_editable != null)
         {
             _editable.commit();
         }
@@ -168,7 +142,7 @@ class PropertySet extends TreeNode
 
     Editable getEditable()
     {
-        if(_editable != null)
+        if (_editable != null)
         {
             return _editable;
         }
@@ -208,20 +182,15 @@ class PropertySet extends TreeNode
         rebuild(descriptor);
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             writePropertySet(writer, _unsubstitutedId, _inServerInstance ? "service" : "id", _descriptor, null, null);
         }
     }
 
-    void rebuild(PropertySetDescriptor descriptor)
-    {
-        _descriptor = descriptor;
-    }
+    void rebuild(PropertySetDescriptor descriptor) { _descriptor = descriptor; }
 
     private PropertySetDescriptor _descriptor;
     private String _unsubstitutedId;

@@ -16,7 +16,7 @@ public class Server extends test.TestHelper
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

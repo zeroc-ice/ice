@@ -19,8 +19,7 @@ public final class HTTPNetworkProxy implements NetworkProxy
         _protocolSupport = protocolSupport;
     }
 
-    @Override
-    public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf)
+    @Override public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf)
     {
         String addr = Network.addrToString(endpoint);
         StringBuilder str = new StringBuilder();
@@ -42,15 +41,13 @@ public final class HTTPNetworkProxy implements NetworkProxy
         buf.limit(buf.size());
     }
 
-    @Override
-    public int endWrite(Buffer buf)
+    @Override public int endWrite(Buffer buf)
     {
         // Once the request is sent, read the response
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
     }
 
-    @Override
-    public void beginRead(Buffer buf)
+    @Override public void beginRead(Buffer buf)
     {
         //
         // Read the HTTP response
@@ -59,15 +56,14 @@ public final class HTTPNetworkProxy implements NetworkProxy
         buf.position(0);
     }
 
-    @Override
-    public int endRead(Buffer buf)
+    @Override public int endRead(Buffer buf)
     {
         //
         // Check if we received the full HTTP response, if not, continue
         // reading otherwise we're done.
         //
         int end = new HttpParser().isCompleteMessage(buf.b, 0, buf.b.position());
-        if(end < 0 && !buf.b.hasRemaining())
+        if (end < 0 && !buf.b.hasRemaining())
         {
             //
             // Read one more byte, we can't easily read bytes in advance
@@ -80,48 +76,34 @@ public final class HTTPNetworkProxy implements NetworkProxy
         return SocketOperation.None;
     }
 
-    @Override
-    public void finish(Buffer readBuffer, Buffer writeBuffer)
+    @Override public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
         HttpParser parser = new HttpParser();
         parser.parse(readBuffer.b, 0, readBuffer.b.position());
-        if(parser.status() != 200)
+        if (parser.status() != 200)
         {
             throw new com.zeroc.Ice.ConnectFailedException();
         }
     }
 
-    @Override
-    public NetworkProxy resolveHost(int protocol)
+    @Override public NetworkProxy resolveHost(int protocol)
     {
-        assert(_host != null);
-        return new HTTPNetworkProxy(Network.getAddresses(_host,
-                                                         _port,
-                                                         protocol,
-                                                         com.zeroc.Ice.EndpointSelectionType.Random,
-                                                         false,
-                                                         true).get(0),
-                                    protocol);
+        assert (_host != null);
+        return new HTTPNetworkProxy(
+            Network.getAddresses(_host, _port, protocol, com.zeroc.Ice.EndpointSelectionType.Random, false, true)
+                .get(0),
+            protocol);
     }
 
-    @Override
-    public java.net.InetSocketAddress getAddress()
+    @Override public java.net.InetSocketAddress getAddress()
     {
-        assert(_address != null); // Host must be resolved.
+        assert (_address != null); // Host must be resolved.
         return _address;
     }
 
-    @Override
-    public String getName()
-    {
-        return "HTTP";
-    }
+    @Override public String getName() { return "HTTP"; }
 
-    @Override
-    public int getProtocolSupport()
-    {
-        return _protocolSupport;
-    }
+    @Override public int getProtocolSupport() { return _protocolSupport; }
 
     private String _host;
     private int _port;

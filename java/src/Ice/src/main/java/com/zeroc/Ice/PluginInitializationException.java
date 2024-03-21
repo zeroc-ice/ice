@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class PluginInitializationException extends LocalException
 {
-    public PluginInitializationException()
-    {
-        this.reason = "";
-    }
+    public PluginInitializationException() { this.reason = ""; }
 
     public PluginInitializationException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class PluginInitializationException extends LocalException
         this.reason = "";
     }
 
-    public PluginInitializationException(String reason)
-    {
-        this.reason = reason;
-    }
+    public PluginInitializationException(String reason) { this.reason = reason; }
 
     public PluginInitializationException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class PluginInitializationException extends LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::PluginInitializationException";
-    }
+    public String ice_id() { return "::Ice::PluginInitializationException"; }
 
     /**
      * The reason for the failure.

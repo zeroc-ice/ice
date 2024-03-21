@@ -23,19 +23,11 @@ package com.zeroc.Ice;
  **/
 public class ConnectionManuallyClosedException extends LocalException
 {
-    public ConnectionManuallyClosedException()
-    {
-    }
+    public ConnectionManuallyClosedException() {}
 
-    public ConnectionManuallyClosedException(Throwable cause)
-    {
-        super(cause);
-    }
+    public ConnectionManuallyClosedException(Throwable cause) { super(cause); }
 
-    public ConnectionManuallyClosedException(boolean graceful)
-    {
-        this.graceful = graceful;
-    }
+    public ConnectionManuallyClosedException(boolean graceful) { this.graceful = graceful; }
 
     public ConnectionManuallyClosedException(boolean graceful, Throwable cause)
     {
@@ -43,10 +35,7 @@ public class ConnectionManuallyClosedException extends LocalException
         this.graceful = graceful;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::ConnectionManuallyClosedException";
-    }
+    public String ice_id() { return "::Ice::ConnectionManuallyClosedException"; }
 
     /**
      * True if the connection was closed gracefully, false otherwise.

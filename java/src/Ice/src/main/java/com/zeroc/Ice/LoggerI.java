@@ -6,12 +6,11 @@ package com.zeroc.Ice;
 
 public class LoggerI implements Logger
 {
-    public
-    LoggerI(String prefix, String file)
+    public LoggerI(String prefix, String file)
     {
         _prefix = prefix;
 
-        if(prefix.length() > 0)
+        if (prefix.length() > 0)
         {
             _formattedPrefix = prefix + ": ";
         }
@@ -20,36 +19,32 @@ public class LoggerI implements Logger
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
 
-        if(file.length() != 0)
+        if (file.length() != 0)
         {
             _file = file;
             try
             {
                 _out = new java.io.FileOutputStream(new java.io.File(_file), true);
             }
-            catch(java.io.FileNotFoundException ex)
+            catch (java.io.FileNotFoundException ex)
             {
                 throw new InitializationException("FileLogger: cannot open " + _file);
             }
         }
     }
 
-    @Override
-    public void
-    print(String message)
+    @Override public void print(String message)
     {
         StringBuilder s = new StringBuilder(256);
         s.append(message);
         write(s, false);
     }
 
-    @Override
-    public void
-    trace(String category, String message)
+    @Override public void trace(String category, String message)
     {
         StringBuilder s = new StringBuilder(256);
         s.append("-- ");
-        synchronized(this)
+        synchronized (this)
         {
             java.util.Date date = new java.util.Date();
             s.append(_date.format(date));
@@ -63,13 +58,11 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
-    @Override
-    public void
-    warning(String message)
+    @Override public void warning(String message)
     {
         StringBuilder s = new StringBuilder(256);
         s.append("-! ");
-        synchronized(this)
+        synchronized (this)
         {
             s.append(_date.format(new java.util.Date()));
             s.append(_time.format(new java.util.Date()));
@@ -83,13 +76,11 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
-    @Override
-    public void
-    error(String message)
+    @Override public void error(String message)
     {
         StringBuilder s = new StringBuilder(256);
         s.append("!! ");
-        synchronized(this)
+        synchronized (this)
         {
             s.append(_date.format(new java.util.Date()));
             s.append(_time.format(new java.util.Date()));
@@ -103,27 +94,16 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
-    @Override
-    public String
-    getPrefix()
-    {
-        return _prefix;
-    }
+    @Override public String getPrefix() { return _prefix; }
 
-    @Override
-    public Logger
-    cloneWithPrefix(String prefix)
-    {
-        return new LoggerI(prefix, _file);
-    }
+    @Override public Logger cloneWithPrefix(String prefix) { return new LoggerI(prefix, _file); }
 
-    private void
-    write(StringBuilder message, boolean indent)
+    private void write(StringBuilder message, boolean indent)
     {
-        if(indent)
+        if (indent)
         {
             int idx = 0;
-            while((idx = message.indexOf("\n", idx)) != -1)
+            while ((idx = message.indexOf("\n", idx)) != -1)
             {
                 message.insert(idx + 1, "   ");
                 ++idx;
@@ -131,7 +111,7 @@ public class LoggerI implements Logger
         }
         message.append(_lineSeparator);
 
-        if(_out == null)
+        if (_out == null)
         {
             System.err.print(message.toString());
         }
@@ -141,22 +121,21 @@ public class LoggerI implements Logger
             {
                 _out.write(message.toString().getBytes());
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
             }
         }
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
-        if(_file.length() > 0)
+        if (_file.length() > 0)
         {
             try
             {
                 _out.close();
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
             }
         }

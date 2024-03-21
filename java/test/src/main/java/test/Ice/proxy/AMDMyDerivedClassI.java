@@ -4,39 +4,33 @@
 
 package test.Ice.proxy;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.CompletionStage;
 import test.Ice.proxy.AMD.Test.MyDerivedClass;
 
 public final class AMDMyDerivedClassI implements MyDerivedClass
 {
-    public AMDMyDerivedClassI()
-    {
-    }
+    public AMDMyDerivedClassI() {}
 
     @Override
-    public CompletionStage<com.zeroc.Ice.ObjectPrx> echoAsync(com.zeroc.Ice.ObjectPrx obj,
-                                                              com.zeroc.Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.ObjectPrx>
+    echoAsync(com.zeroc.Ice.ObjectPrx obj, com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture(obj);
     }
 
-    @Override
-    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current c)
+    @Override public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current c)
     {
         c.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<java.util.Map<String, String>> getContextAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<java.util.Map<String, String>> getContextAsync(com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture(_ctx);
     }
 
-    @Override
-    public boolean ice_isA(String s, com.zeroc.Ice.Current current)
+    @Override public boolean ice_isA(String s, com.zeroc.Ice.Current current)
     {
         _ctx = current.ctx;
         return MyDerivedClass.super.ice_isA(s, current);

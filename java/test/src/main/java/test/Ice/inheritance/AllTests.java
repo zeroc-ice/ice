@@ -5,7 +5,6 @@
 package test.Ice.inheritance;
 
 import java.io.PrintWriter;
-
 import test.Ice.inheritance.Test.InitialPrx;
 import test.Ice.inheritance.Test.MA.IAPrx;
 import test.Ice.inheritance.Test.MA.ICPrx;
@@ -16,7 +15,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }

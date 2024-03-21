@@ -13,7 +13,7 @@ public class Client extends test.TestHelper
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.custom");
         properties.setProperty("Ice.CacheMessageBuffers", "0");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             TestIntfPrx test = AllTests.allTests(this);
             test.shutdown();

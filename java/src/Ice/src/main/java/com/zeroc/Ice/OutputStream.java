@@ -17,10 +17,7 @@ public class OutputStream
      * use the default encoding version, the default format for class encoding, and a
      * non-direct buffer. You can supply a communicator later by calling initialize().
      **/
-    public OutputStream()
-    {
-        this(false);
-    }
+    public OutputStream() { this(false); }
 
     /**
      * Constructing an OutputStream without providing a communicator means the stream will
@@ -45,7 +42,7 @@ public class OutputStream
      **/
     public OutputStream(Communicator communicator)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding, instance.cacheMessageBuffers() > 1);
     }
@@ -58,7 +55,7 @@ public class OutputStream
      **/
     public OutputStream(Communicator communicator, boolean direct)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding, direct);
     }
@@ -71,7 +68,7 @@ public class OutputStream
      **/
     public OutputStream(Communicator communicator, EncodingVersion encoding)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
@@ -85,7 +82,7 @@ public class OutputStream
      **/
     public OutputStream(Communicator communicator, EncodingVersion encoding, boolean direct)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, encoding, direct);
     }
@@ -100,8 +97,11 @@ public class OutputStream
         initialize(instance, encoding, direct);
     }
 
-    public OutputStream(com.zeroc.IceInternal.Instance instance, EncodingVersion encoding,
-                        com.zeroc.IceInternal.Buffer buf, boolean adopt)
+    public OutputStream(
+        com.zeroc.IceInternal.Instance instance,
+        EncodingVersion encoding,
+        com.zeroc.IceInternal.Buffer buf,
+        boolean adopt)
     {
         initialize(instance, encoding, new com.zeroc.IceInternal.Buffer(buf, adopt));
     }
@@ -114,7 +114,7 @@ public class OutputStream
      **/
     public void initialize(Communicator communicator)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding, instance.cacheMessageBuffers() > 1);
     }
@@ -128,7 +128,7 @@ public class OutputStream
      **/
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
-        assert(communicator != null);
+        assert (communicator != null);
         final com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
         initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
     }
@@ -138,10 +138,10 @@ public class OutputStream
         initialize(instance, encoding, new com.zeroc.IceInternal.Buffer(direct));
     }
 
-    private void initialize(com.zeroc.IceInternal.Instance instance, EncodingVersion encoding,
-                            com.zeroc.IceInternal.Buffer buf)
+    private void
+    initialize(com.zeroc.IceInternal.Instance instance, EncodingVersion encoding, com.zeroc.IceInternal.Buffer buf)
     {
-        assert(instance != null);
+        assert (instance != null);
 
         _instance = instance;
         _buf = buf;
@@ -169,9 +169,9 @@ public class OutputStream
      **/
     public void clear()
     {
-        if(_encapsStack != null)
+        if (_encapsStack != null)
         {
-            assert(_encapsStack.next == null);
+            assert (_encapsStack.next == null);
             _encapsStack.next = _encapsCache;
             _encapsCache = _encapsStack;
             _encapsCache.reset();
@@ -179,30 +179,21 @@ public class OutputStream
         }
     }
 
-    public com.zeroc.IceInternal.Instance instance()
-    {
-        return _instance;
-    }
+    public com.zeroc.IceInternal.Instance instance() { return _instance; }
 
     /**
      * Sets the encoding format for class and exception instances.
      *
      * @param fmt The encoding format.
      **/
-    public void setFormat(FormatType fmt)
-    {
-        _format = fmt;
-    }
+    public void setFormat(FormatType fmt) { _format = fmt; }
 
     /**
      * Retrieves the closure object associated with this stream.
      *
      * @return The closure object.
      **/
-    public Object getClosure()
-    {
-        return _closure;
-    }
+    public Object getClosure() { return _closure; }
 
     /**
      * Associates a closure object with this stream.
@@ -237,7 +228,7 @@ public class OutputStream
      **/
     public void swap(OutputStream other)
     {
-        assert(_instance == other._instance);
+        assert (_instance == other._instance);
 
         com.zeroc.IceInternal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
@@ -260,10 +251,7 @@ public class OutputStream
         other.resetEncapsulation();
     }
 
-    private void resetEncapsulation()
-    {
-        _encapsStack = null;
-    }
+    private void resetEncapsulation() { _encapsStack = null; }
 
     /**
      * Resizes the stream to a new size.
@@ -292,10 +280,7 @@ public class OutputStream
      *
      * @return The buffer.
      **/
-    public com.zeroc.IceInternal.Buffer getBuffer()
-    {
-        return _buf;
-    }
+    public com.zeroc.IceInternal.Buffer getBuffer() { return _buf; }
 
     /**
      * Marks the start of a class instance.
@@ -304,7 +289,7 @@ public class OutputStream
      **/
     public void startValue(SlicedData data)
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
     }
 
@@ -313,7 +298,7 @@ public class OutputStream
      **/
     public void endValue()
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.endInstance();
     }
 
@@ -323,7 +308,7 @@ public class OutputStream
      **/
     public void startException()
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, null);
     }
 
@@ -332,7 +317,7 @@ public class OutputStream
      **/
     public void endException()
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.endInstance();
     }
 
@@ -347,7 +332,7 @@ public class OutputStream
         // encapsulation, otherwise, use the stream encoding version.
         //
 
-        if(_encapsStack != null)
+        if (_encapsStack != null)
         {
             startEncapsulation(_encapsStack.encoding, _encapsStack.format);
         }
@@ -370,7 +355,7 @@ public class OutputStream
         com.zeroc.IceInternal.Protocol.checkSupportedEncoding(encoding);
 
         Encaps curr = _encapsCache;
-        if(curr != null)
+        if (curr != null)
         {
             curr.reset();
             _encapsCache = _encapsCache.next;
@@ -395,7 +380,7 @@ public class OutputStream
      **/
     public void endEncapsulation()
     {
-        assert(_encapsStack != null);
+        assert (_encapsStack != null);
 
         // Size includes size and version.
         int start = _encapsStack.start;
@@ -428,7 +413,7 @@ public class OutputStream
      **/
     public void writeEncapsulation(byte[] v)
     {
-        if(v.length < 6)
+        if (v.length < 6)
         {
             throw new EncapsulationException();
         }
@@ -441,10 +426,7 @@ public class OutputStream
      *
      * @return The encoding version.
      **/
-    public EncodingVersion getEncoding()
-    {
-        return _encapsStack != null ? _encapsStack.encoding : _encoding;
-    }
+    public EncodingVersion getEncoding() { return _encapsStack != null ? _encapsStack.encoding : _encoding; }
 
     /**
      * Marks the start of a new slice for a class instance or user exception.
@@ -459,7 +441,7 @@ public class OutputStream
      **/
     public void startSlice(String typeId, int compactId, boolean last)
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.startSlice(typeId, compactId, last);
     }
 
@@ -468,7 +450,7 @@ public class OutputStream
      **/
     public void endSlice()
     {
-        assert(_encapsStack != null && _encapsStack.encoder != null);
+        assert (_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.endSlice();
     }
 
@@ -478,11 +460,11 @@ public class OutputStream
      **/
     public void writePendingValues()
     {
-        if(_encapsStack != null && _encapsStack.encoder != null)
+        if (_encapsStack != null && _encapsStack.encoder != null)
         {
             _encapsStack.encoder.writePendingValues();
         }
-        else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
+        else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
         {
             //
             // If using the 1.0 encoding and no instances were written, we
@@ -504,7 +486,7 @@ public class OutputStream
      **/
     public void writeSize(int v)
     {
-        if(v > 254)
+        if (v > 254)
         {
             expand(5);
             _buf.b.put((byte)-1);
@@ -538,7 +520,7 @@ public class OutputStream
      **/
     public void endSize(int pos)
     {
-        assert(pos >= 0);
+        assert (pos >= 0);
         rewriteInt(_buf.b.position() - pos - 4, pos);
     }
 
@@ -549,7 +531,7 @@ public class OutputStream
      **/
     public void writeBlob(byte[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             return;
         }
@@ -566,7 +548,7 @@ public class OutputStream
      **/
     public void writeBlob(byte[] v, int off, int len)
     {
-        if(v == null)
+        if (v == null)
         {
             return;
         }
@@ -583,8 +565,8 @@ public class OutputStream
      **/
     public boolean writeOptional(int tag, OptionalFormat format)
     {
-        assert(_encapsStack != null);
-        if(_encapsStack.encoder != null)
+        assert (_encapsStack != null);
+        if (_encapsStack.encoder != null)
         {
             return _encapsStack.encoder.writeOptional(tag, format);
         }
@@ -613,7 +595,7 @@ public class OutputStream
      **/
     public void writeByte(int tag, java.util.Optional<Byte> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeByte(tag, v.get());
         }
@@ -627,7 +609,7 @@ public class OutputStream
      **/
     public void writeByte(int tag, byte v)
     {
-        if(writeOptional(tag, OptionalFormat.F1))
+        if (writeOptional(tag, OptionalFormat.F1))
         {
             writeByte(v);
         }
@@ -639,10 +621,7 @@ public class OutputStream
      * @param v The byte to write to the stream.
      * @param dest The position at which to store the byte in the buffer.
      **/
-    public void rewriteByte(byte v, int dest)
-    {
-        _buf.b.put(dest, v);
-    }
+    public void rewriteByte(byte v, int dest) { _buf.b.put(dest, v); }
 
     /**
      * Writes a byte sequence to the stream.
@@ -652,7 +631,7 @@ public class OutputStream
      **/
     public void writeByteSeq(byte[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -672,7 +651,7 @@ public class OutputStream
      **/
     public void writeByteSeq(int tag, java.util.Optional<byte[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeByteSeq(tag, v.get());
         }
@@ -686,7 +665,7 @@ public class OutputStream
      **/
     public void writeByteSeq(int tag, byte[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeByteSeq(v);
         }
@@ -699,7 +678,7 @@ public class OutputStream
      **/
     public void writeByteBuffer(java.nio.ByteBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -718,7 +697,7 @@ public class OutputStream
      **/
     public void writeSerializable(java.io.Serializable o)
     {
-        if(o == null)
+        if (o == null)
         {
             writeSize(0);
             return;
@@ -731,7 +710,7 @@ public class OutputStream
             out.close();
             w.close();
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new MarshalException("cannot serialize object: " + ex);
         }
@@ -746,7 +725,7 @@ public class OutputStream
      **/
     public <T extends java.io.Serializable> void writeSerializable(int tag, java.util.Optional<T> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeSerializable(tag, v.get());
         }
@@ -760,7 +739,7 @@ public class OutputStream
      **/
     public void writeSerializable(int tag, java.io.Serializable v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSerializable(v);
         }
@@ -785,7 +764,7 @@ public class OutputStream
      **/
     public void writeBool(int tag, java.util.Optional<Boolean> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeBool(tag, v.get());
         }
@@ -799,7 +778,7 @@ public class OutputStream
      **/
     public void writeBool(int tag, boolean v)
     {
-        if(writeOptional(tag, OptionalFormat.F1))
+        if (writeOptional(tag, OptionalFormat.F1))
         {
             writeBool(v);
         }
@@ -811,10 +790,7 @@ public class OutputStream
      * @param v The boolean to write to the stream.
      * @param dest The position at which to store the boolean in the buffer.
      **/
-    public void rewriteBool(boolean v, int dest)
-    {
-        _buf.b.put(dest, v ? (byte)1 : (byte)0);
-    }
+    public void rewriteBool(boolean v, int dest) { _buf.b.put(dest, v ? (byte)1 : (byte)0); }
 
     /**
      * Writes a boolean sequence to the stream.
@@ -824,7 +800,7 @@ public class OutputStream
      **/
     public void writeBoolSeq(boolean[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -832,7 +808,7 @@ public class OutputStream
         {
             writeSize(v.length);
             expand(v.length);
-            for(boolean b : v)
+            for (boolean b : v)
             {
                 _buf.b.put(b ? (byte)1 : (byte)0);
             }
@@ -847,7 +823,7 @@ public class OutputStream
      **/
     public void writeBoolSeq(int tag, java.util.Optional<boolean[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeBoolSeq(tag, v.get());
         }
@@ -861,7 +837,7 @@ public class OutputStream
      **/
     public void writeBoolSeq(int tag, boolean[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeBoolSeq(v);
         }
@@ -886,7 +862,7 @@ public class OutputStream
      **/
     public void writeShort(int tag, java.util.Optional<Short> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeShort(tag, v.get());
         }
@@ -900,7 +876,7 @@ public class OutputStream
      **/
     public void writeShort(int tag, short v)
     {
-        if(writeOptional(tag, OptionalFormat.F2))
+        if (writeOptional(tag, OptionalFormat.F2))
         {
             writeShort(v);
         }
@@ -914,7 +890,7 @@ public class OutputStream
      **/
     public void writeShortSeq(short[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -936,7 +912,7 @@ public class OutputStream
      **/
     public void writeShortSeq(int tag, java.util.Optional<short[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeShortSeq(tag, v.get());
         }
@@ -950,7 +926,7 @@ public class OutputStream
      **/
     public void writeShortSeq(int tag, short[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
             writeShortSeq(v);
@@ -964,7 +940,7 @@ public class OutputStream
      **/
     public void writeShortBuffer(java.nio.ShortBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -999,7 +975,7 @@ public class OutputStream
      **/
     public void writeInt(int tag, java.util.OptionalInt v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeInt(tag, v.getAsInt());
         }
@@ -1013,7 +989,7 @@ public class OutputStream
      **/
     public void writeInt(int tag, int v)
     {
-        if(writeOptional(tag, OptionalFormat.F4))
+        if (writeOptional(tag, OptionalFormat.F4))
         {
             writeInt(v);
         }
@@ -1025,10 +1001,7 @@ public class OutputStream
      * @param v The int to write to the stream.
      * @param dest The position at which to store the int in the buffer.
      **/
-    public void rewriteInt(int v, int dest)
-    {
-        _buf.b.putInt(dest, v);
-    }
+    public void rewriteInt(int v, int dest) { _buf.b.putInt(dest, v); }
 
     /**
      * Writes an int sequence to the stream.
@@ -1038,7 +1011,7 @@ public class OutputStream
      **/
     public void writeIntSeq(int[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -1060,7 +1033,7 @@ public class OutputStream
      **/
     public void writeIntSeq(int tag, java.util.Optional<int[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeIntSeq(tag, v.get());
         }
@@ -1074,7 +1047,7 @@ public class OutputStream
      **/
     public void writeIntSeq(int tag, int[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeIntSeq(v);
@@ -1088,7 +1061,7 @@ public class OutputStream
      **/
     public void writeIntBuffer(java.nio.IntBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -1123,7 +1096,7 @@ public class OutputStream
      **/
     public void writeLong(int tag, java.util.OptionalLong v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeLong(tag, v.getAsLong());
         }
@@ -1137,7 +1110,7 @@ public class OutputStream
      **/
     public void writeLong(int tag, long v)
     {
-        if(writeOptional(tag, OptionalFormat.F8))
+        if (writeOptional(tag, OptionalFormat.F8))
         {
             writeLong(v);
         }
@@ -1151,7 +1124,7 @@ public class OutputStream
      **/
     public void writeLongSeq(long[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -1173,7 +1146,7 @@ public class OutputStream
      **/
     public void writeLongSeq(int tag, java.util.Optional<long[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeLongSeq(tag, v.get());
         }
@@ -1187,7 +1160,7 @@ public class OutputStream
      **/
     public void writeLongSeq(int tag, long[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeLongSeq(v);
@@ -1201,7 +1174,7 @@ public class OutputStream
      **/
     public void writeLongBuffer(java.nio.LongBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -1236,7 +1209,7 @@ public class OutputStream
      **/
     public void writeFloat(int tag, java.util.Optional<Float> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeFloat(tag, v.get());
         }
@@ -1250,7 +1223,7 @@ public class OutputStream
      **/
     public void writeFloat(int tag, float v)
     {
-        if(writeOptional(tag, OptionalFormat.F4))
+        if (writeOptional(tag, OptionalFormat.F4))
         {
             writeFloat(v);
         }
@@ -1264,7 +1237,7 @@ public class OutputStream
      **/
     public void writeFloatSeq(float[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -1286,7 +1259,7 @@ public class OutputStream
      **/
     public void writeFloatSeq(int tag, java.util.Optional<float[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeFloatSeq(tag, v.get());
         }
@@ -1300,7 +1273,7 @@ public class OutputStream
      **/
     public void writeFloatSeq(int tag, float[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeFloatSeq(v);
@@ -1314,7 +1287,7 @@ public class OutputStream
      **/
     public void writeFloatBuffer(java.nio.FloatBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -1349,7 +1322,7 @@ public class OutputStream
      **/
     public void writeDouble(int tag, java.util.OptionalDouble v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeDouble(tag, v.getAsDouble());
         }
@@ -1363,7 +1336,7 @@ public class OutputStream
      **/
     public void writeDouble(int tag, double v)
     {
-        if(writeOptional(tag, OptionalFormat.F8))
+        if (writeOptional(tag, OptionalFormat.F8))
         {
             writeDouble(v);
         }
@@ -1377,7 +1350,7 @@ public class OutputStream
      **/
     public void writeDoubleSeq(double[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
@@ -1399,7 +1372,7 @@ public class OutputStream
      **/
     public void writeDoubleSeq(int tag, java.util.Optional<double[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeDoubleSeq(tag, v.get());
         }
@@ -1413,7 +1386,7 @@ public class OutputStream
      **/
     public void writeDoubleSeq(int tag, double[] v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeDoubleSeq(v);
@@ -1427,7 +1400,7 @@ public class OutputStream
      **/
     public void writeDoubleBuffer(java.nio.DoubleBuffer v)
     {
-        if(v == null || v.remaining() == 0)
+        if (v == null || v.remaining() == 0)
         {
             writeSize(0);
         }
@@ -1454,20 +1427,20 @@ public class OutputStream
      **/
     public void writeString(String v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
         else
         {
             final int len = v.length();
-            if(len > 0)
+            if (len > 0)
             {
-                if(_stringBytes == null || len > _stringBytes.length)
+                if (_stringBytes == null || len > _stringBytes.length)
                 {
                     _stringBytes = new byte[len];
                 }
-                if(_stringChars == null || len > _stringChars.length)
+                if (_stringChars == null || len > _stringChars.length)
                 {
                     _stringChars = new char[len];
                 }
@@ -1476,14 +1449,14 @@ public class OutputStream
                 // to perform the conversion to UTF-8 manually.
                 //
                 v.getChars(0, len, _stringChars, 0);
-                for(int i = 0; i < len; ++i)
+                for (int i = 0; i < len; ++i)
                 {
-                    if(_stringChars[i] > (char)127)
+                    if (_stringChars[i] > (char)127)
                     {
                         //
                         // Found a multibyte character.
                         //
-                        if(_charEncoder == null)
+                        if (_charEncoder == null)
                         {
                             _charEncoder = _utf8.newEncoder();
                         }
@@ -1492,7 +1465,7 @@ public class OutputStream
                         {
                             b = _charEncoder.encode(java.nio.CharBuffer.wrap(_stringChars, 0, len));
                         }
-                        catch(java.nio.charset.CharacterCodingException ex)
+                        catch (java.nio.charset.CharacterCodingException ex)
                         {
                             throw new MarshalException(ex);
                         }
@@ -1522,7 +1495,7 @@ public class OutputStream
      **/
     public void writeString(int tag, java.util.Optional<String> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeString(tag, v.get());
         }
@@ -1536,7 +1509,7 @@ public class OutputStream
      **/
     public void writeString(int tag, String v)
     {
-        if(writeOptional(tag, OptionalFormat.VSize))
+        if (writeOptional(tag, OptionalFormat.VSize))
         {
             writeString(v);
         }
@@ -1550,14 +1523,14 @@ public class OutputStream
      **/
     public void writeStringSeq(String[] v)
     {
-        if(v == null)
+        if (v == null)
         {
             writeSize(0);
         }
         else
         {
             writeSize(v.length);
-            for(String e : v)
+            for (String e : v)
             {
                 writeString(e);
             }
@@ -1572,7 +1545,7 @@ public class OutputStream
      **/
     public void writeStringSeq(int tag, java.util.Optional<String[]> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeStringSeq(tag, v.get());
         }
@@ -1586,7 +1559,7 @@ public class OutputStream
      **/
     public void writeStringSeq(int tag, String[] v)
     {
-        if(writeOptional(tag, OptionalFormat.FSize))
+        if (writeOptional(tag, OptionalFormat.FSize))
         {
             int pos = startSize();
             writeStringSeq(v);
@@ -1601,7 +1574,7 @@ public class OutputStream
      **/
     public void writeProxy(ObjectPrx v)
     {
-        if(v != null)
+        if (v != null)
         {
             v._write(this);
         }
@@ -1620,7 +1593,7 @@ public class OutputStream
      **/
     public <Prx extends ObjectPrx> void writeProxy(int tag, java.util.Optional<Prx> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeProxy(tag, v.get());
         }
@@ -1634,7 +1607,7 @@ public class OutputStream
      **/
     public void writeProxy(int tag, ObjectPrx v)
     {
-        if(writeOptional(tag, OptionalFormat.FSize))
+        if (writeOptional(tag, OptionalFormat.FSize))
         {
             int pos = startSize();
             writeProxy(v);
@@ -1650,13 +1623,13 @@ public class OutputStream
      **/
     public void writeEnum(int v, int maxValue)
     {
-        if(isEncoding_1_0())
+        if (isEncoding_1_0())
         {
-            if(maxValue < 127)
+            if (maxValue < 127)
             {
                 writeByte((byte)v);
             }
-            else if(maxValue < 32767)
+            else if (maxValue < 32767)
             {
                 writeShort((short)v);
             }
@@ -1692,7 +1665,7 @@ public class OutputStream
      **/
     public <T extends Value> void writeValue(int tag, java.util.Optional<T> v)
     {
-        if(v != null && v.isPresent())
+        if (v != null && v.isPresent())
         {
             writeValue(tag, v.get());
         }
@@ -1706,7 +1679,7 @@ public class OutputStream
      **/
     public void writeValue(int tag, Value v)
     {
-        if(writeOptional(tag, OptionalFormat.Class))
+        if (writeOptional(tag, OptionalFormat.Class))
         {
             writeValue(v);
         }
@@ -1727,13 +1700,13 @@ public class OutputStream
 
     private boolean writeOptionalImpl(int tag, OptionalFormat format)
     {
-        if(isEncoding_1_0())
+        if (isEncoding_1_0())
         {
             return false; // Optional members aren't supported with the 1.0 encoding.
         }
 
         int v = format.value();
-        if(tag < 30)
+        if (tag < 30)
         {
             v |= tag << 3;
             writeByte((byte)v);
@@ -1752,50 +1725,35 @@ public class OutputStream
      *
      * @return The current position.
      **/
-    public int pos()
-    {
-        return _buf.b.position();
-    }
+    public int pos() { return _buf.b.position(); }
 
     /**
      * Sets the current position in the stream.
      *
      * @param n The new position.
      **/
-    public void pos(int n)
-    {
-        _buf.position(n);
-    }
+    public void pos(int n) { _buf.position(n); }
 
     /**
      * Determines the current size of the stream.
      *
      * @return The current size.
      **/
-    public int size()
-    {
-        return _buf.size();
-    }
+    public int size() { return _buf.size(); }
 
     /**
      * Determines whether the stream is empty.
      *
      * @return True if no data has been written yet, false otherwise.
      **/
-    public boolean isEmpty()
-    {
-        return _buf.empty();
-    }
+    public boolean isEmpty() { return _buf.empty(); }
 
     /**
      * Expand the stream to accept more data.
      *
      * @param n The number of bytes to accommodate in the stream.
      **/
-    public void expand(int n)
-    {
-        _buf.expand(n);
-    }
+    public void expand(int n) { _buf.expand(n); }
 
     private com.zeroc.IceInternal.Instance _instance;
     private com.zeroc.IceInternal.Buffer _buf;
@@ -1804,7 +1762,12 @@ public class OutputStream
     private byte[] _stringBytes; // Reusable array for string operations.
     private char[] _stringChars; // Reusable array for string operations.
 
-    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+    private enum SliceType
+    {
+        NoSlice,
+        ValueSlice,
+        ExceptionSlice
+    }
 
     abstract private static class EncapsEncoder
     {
@@ -1824,24 +1787,19 @@ public class OutputStream
         abstract void startSlice(String typeId, int compactId, boolean last);
         abstract void endSlice();
 
-        boolean writeOptional(int tag, OptionalFormat format)
-        {
-            return false;
-        }
+        boolean writeOptional(int tag, OptionalFormat format) { return false; }
 
-        void writePendingValues()
-        {
-        }
+        void writePendingValues() {}
 
         protected int registerTypeId(String typeId)
         {
-            if(_typeIdMap == null) // Lazy initialization
+            if (_typeIdMap == null) // Lazy initialization
             {
                 _typeIdMap = new java.util.TreeMap<>();
             }
 
             Integer p = _typeIdMap.get(typeId);
-            if(p != null)
+            if (p != null)
             {
                 return p;
             }
@@ -1871,13 +1829,12 @@ public class OutputStream
             _toBeMarshaledMap = new java.util.IdentityHashMap<>();
         }
 
-        @Override
-        void writeValue(Value v)
+        @Override void writeValue(Value v)
         {
             //
             // Object references are encoded as a negative integer in 1.0.
             //
-            if(v != null)
+            if (v != null)
             {
                 _stream.writeInt(-registerValue(v));
             }
@@ -1887,8 +1844,7 @@ public class OutputStream
             }
         }
 
-        @Override
-        void writeException(UserException v)
+        @Override void writeException(UserException v)
         {
             //
             // User exception with the 1.0 encoding start with a boolean
@@ -1901,22 +1857,17 @@ public class OutputStream
             boolean usesClasses = v._usesClasses();
             _stream.writeBool(usesClasses);
             v._write(_stream);
-            if(usesClasses)
+            if (usesClasses)
             {
                 writePendingValues();
             }
         }
 
-        @Override
-        void startInstance(SliceType sliceType, SlicedData sliceData)
-        {
-            _sliceType = sliceType;
-        }
+        @Override void startInstance(SliceType sliceType, SlicedData sliceData) { _sliceType = sliceType; }
 
-        @Override
-        void endInstance()
+        @Override void endInstance()
         {
-            if(_sliceType == SliceType.ValueSlice)
+            if (_sliceType == SliceType.ValueSlice)
             {
                 //
                 // Write the Object slice.
@@ -1928,18 +1879,17 @@ public class OutputStream
             _sliceType = SliceType.NoSlice;
         }
 
-        @Override
-        void startSlice(String typeId, int compactId, boolean last)
+        @Override void startSlice(String typeId, int compactId, boolean last)
         {
             //
             // For instance slices, encode a boolean to indicate how the type ID
             // is encoded and the type ID either as a string or index. For
             // exception slices, always encode the type ID as a string.
             //
-            if(_sliceType == SliceType.ValueSlice)
+            if (_sliceType == SliceType.ValueSlice)
             {
                 int index = registerTypeId(typeId);
-                if(index < 0)
+                if (index < 0)
                 {
                     _stream.writeBool(false);
                     _stream.writeString(typeId);
@@ -1960,8 +1910,7 @@ public class OutputStream
             _writeSlice = _stream.pos();
         }
 
-        @Override
-        void endSlice()
+        @Override void endSlice()
         {
             //
             // Write the slice length.
@@ -1970,10 +1919,9 @@ public class OutputStream
             _stream.rewriteInt(sz, _writeSlice - 4);
         }
 
-        @Override
-        void writePendingValues()
+        @Override void writePendingValues()
         {
-            while(_toBeMarshaledMap.size() > 0)
+            while (_toBeMarshaledMap.size() > 0)
             {
                 //
                 // Consider the to be marshalled instances as marshaled now,
@@ -1986,7 +1934,7 @@ public class OutputStream
                 java.util.IdentityHashMap<Value, Integer> savedMap = _toBeMarshaledMap;
                 _toBeMarshaledMap = new java.util.IdentityHashMap<>();
                 _stream.writeSize(savedMap.size());
-                for(java.util.Map.Entry<Value, Integer> p : savedMap.entrySet())
+                for (java.util.Map.Entry<Value, Integer> p : savedMap.entrySet())
                 {
                     //
                     // Ask the instance to marshal itself. Any new class
@@ -1999,7 +1947,7 @@ public class OutputStream
                     {
                         p.getKey().ice_preMarshal();
                     }
-                    catch(java.lang.Exception ex)
+                    catch (java.lang.Exception ex)
                     {
                         String s = "exception raised by ice_preMarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
                         _stream.instance().initializationData().logger.warning(s);
@@ -2013,13 +1961,13 @@ public class OutputStream
 
         private int registerValue(Value v)
         {
-            assert(v != null);
+            assert (v != null);
 
             //
             // Look for this instance in the to-be-marshaled map.
             //
             Integer p = _toBeMarshaledMap.get(v);
-            if(p != null)
+            if (p != null)
             {
                 return p.intValue();
             }
@@ -2028,7 +1976,7 @@ public class OutputStream
             // Didn't find it, try the marshaled map next.
             //
             p = _marshaledMap.get(v);
-            if(p != null)
+            if (p != null)
             {
                 return p.intValue();
             }
@@ -2045,7 +1993,7 @@ public class OutputStream
         private SliceType _sliceType;
 
         // Slice attributes
-        private int _writeSlice;        // Position of the slice data members
+        private int _writeSlice; // Position of the slice data members
 
         // Encapsulation attributes for instance marshaling.
         private int _valueIdIndex;
@@ -2061,16 +2009,15 @@ public class OutputStream
             _valueIdIndex = 1;
         }
 
-        @Override
-        void writeValue(Value v)
+        @Override void writeValue(Value v)
         {
-            if(v == null)
+            if (v == null)
             {
                 _stream.writeSize(0);
             }
-            else if(_current != null && _encaps.format == FormatType.SlicedFormat)
+            else if (_current != null && _encaps.format == FormatType.SlicedFormat)
             {
-                if(_current.indirectionTable == null) // Lazy initialization
+                if (_current.indirectionTable == null) // Lazy initialization
                 {
                     _current.indirectionTable = new java.util.ArrayList<>();
                     _current.indirectionMap = new java.util.IdentityHashMap<>();
@@ -2084,7 +2031,7 @@ public class OutputStream
                 // unknown).
                 //
                 Integer index = _current.indirectionMap.get(v);
-                if(index == null)
+                if (index == null)
                 {
                     _current.indirectionTable.add(v);
                     final int idx = _current.indirectionTable.size(); // Position + 1 (0 is reserved for nil)
@@ -2102,16 +2049,11 @@ public class OutputStream
             }
         }
 
-        @Override
-        void writeException(UserException v)
-        {
-            v._write(_stream);
-        }
+        @Override void writeException(UserException v) { v._write(_stream); }
 
-        @Override
-        void startInstance(SliceType sliceType, SlicedData data)
+        @Override void startInstance(SliceType sliceType, SlicedData data)
         {
-            if(_current == null)
+            if (_current == null)
             {
                 _current = new InstanceData(null);
             }
@@ -2122,33 +2064,29 @@ public class OutputStream
             _current.sliceType = sliceType;
             _current.firstSlice = true;
 
-            if(data != null)
+            if (data != null)
             {
                 writeSlicedData(data);
             }
         }
 
-        @Override
-        void endInstance()
-        {
-            _current = _current.previous;
-        }
+        @Override void endInstance() { _current = _current.previous; }
 
-        @Override
-        void startSlice(String typeId, int compactId, boolean last)
+        @Override void startSlice(String typeId, int compactId, boolean last)
         {
-            assert((_current.indirectionTable == null || _current.indirectionTable.isEmpty()) &&
-                   (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
+            assert (
+                (_current.indirectionTable == null || _current.indirectionTable.isEmpty()) &&
+                (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
 
             _current.sliceFlagsPos = _stream.pos();
 
             _current.sliceFlags = (byte)0;
-            if(_encaps.format == FormatType.SlicedFormat)
+            if (_encaps.format == FormatType.SlicedFormat)
             {
                 // Encode the slice size if using the sliced format.
                 _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE;
             }
-            if(last)
+            if (last)
             {
                 _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_IS_LAST_SLICE; // This is the last slice.
             }
@@ -2160,15 +2098,15 @@ public class OutputStream
             // string or index. For exception slices, always encode the type
             // ID a string.
             //
-            if(_current.sliceType == SliceType.ValueSlice)
+            if (_current.sliceType == SliceType.ValueSlice)
             {
                 //
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
                 //
-                if(_encaps.format == FormatType.SlicedFormat || _current.firstSlice)
+                if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice)
                 {
-                    if(compactId >= 0)
+                    if (compactId >= 0)
                     {
                         _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                         _stream.writeSize(compactId);
@@ -2176,7 +2114,7 @@ public class OutputStream
                     else
                     {
                         int index = registerTypeId(typeId);
-                        if(index < 0)
+                        if (index < 0)
                         {
                             _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_TYPE_ID_STRING;
                             _stream.writeString(typeId);
@@ -2194,7 +2132,7 @@ public class OutputStream
                 _stream.writeString(typeId);
             }
 
-            if((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 _stream.writeInt(0); // Placeholder for the slice length.
             }
@@ -2203,15 +2141,14 @@ public class OutputStream
             _current.firstSlice = false;
         }
 
-        @Override
-        void endSlice()
+        @Override void endSlice()
         {
             //
             // Write the optional member end marker if some optional members
             // were encoded. Note that the optional members are encoded before
             // the indirection table and are included in the slice size.
             //
-            if((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 _stream.writeByte((byte)com.zeroc.IceInternal.Protocol.OPTIONAL_END_MARKER);
             }
@@ -2219,7 +2156,7 @@ public class OutputStream
             //
             // Write the slice length if necessary.
             //
-            if((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 final int sz = _stream.pos() - _current.writeSlice + 4;
                 _stream.rewriteInt(sz, _current.writeSlice - 4);
@@ -2228,16 +2165,16 @@ public class OutputStream
             //
             // Only write the indirection table if it contains entries.
             //
-            if(_current.indirectionTable != null && !_current.indirectionTable.isEmpty())
+            if (_current.indirectionTable != null && !_current.indirectionTable.isEmpty())
             {
-                assert(_encaps.format == FormatType.SlicedFormat);
+                assert (_encaps.format == FormatType.SlicedFormat);
                 _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                 //
                 // Write the indirection instance table.
                 //
                 _stream.writeSize(_current.indirectionTable.size());
-                for(Value v : _current.indirectionTable)
+                for (Value v : _current.indirectionTable)
                 {
                     writeInstance(v);
                 }
@@ -2251,16 +2188,15 @@ public class OutputStream
             _stream.rewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
         }
 
-        @Override
-        boolean writeOptional(int tag, OptionalFormat format)
+        @Override boolean writeOptional(int tag, OptionalFormat format)
         {
-            if(_current == null)
+            if (_current == null)
             {
                 return _stream.writeOptionalImpl(tag, format);
             }
             else
             {
-                if(_stream.writeOptionalImpl(tag, format))
+                if (_stream.writeOptionalImpl(tag, format))
                 {
                     _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                     return true;
@@ -2274,7 +2210,7 @@ public class OutputStream
 
         private void writeSlicedData(SlicedData slicedData)
         {
-            assert(slicedData != null);
+            assert (slicedData != null);
 
             //
             // We only remarshal preserved slices if we are using the sliced
@@ -2282,12 +2218,12 @@ public class OutputStream
             // essentially "slices" the instance into the most-derived type
             // known by the sender.
             //
-            if(_encaps.format != FormatType.SlicedFormat)
+            if (_encaps.format != FormatType.SlicedFormat)
             {
                 return;
             }
 
-            for(SliceInfo info : slicedData.slices)
+            for (SliceInfo info : slicedData.slices)
             {
                 startSlice(info.typeId, info.compactId, info.isLastSlice);
 
@@ -2296,7 +2232,7 @@ public class OutputStream
                 //
                 _stream.writeBlob(info.bytes);
 
-                if(info.hasOptionalMembers)
+                if (info.hasOptionalMembers)
                 {
                     _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                 }
@@ -2304,14 +2240,14 @@ public class OutputStream
                 //
                 // Make sure to also re-write the instance indirection table.
                 //
-                if(info.instances != null && info.instances.length > 0)
+                if (info.instances != null && info.instances.length > 0)
                 {
-                    if(_current.indirectionTable == null) // Lazy initialization
+                    if (_current.indirectionTable == null) // Lazy initialization
                     {
                         _current.indirectionTable = new java.util.ArrayList<>();
                         _current.indirectionMap = new java.util.IdentityHashMap<>();
                     }
-                    for(Value o : info.instances)
+                    for (Value o : info.instances)
                     {
                         _current.indirectionTable.add(o);
                     }
@@ -2323,13 +2259,13 @@ public class OutputStream
 
         private void writeInstance(Value v)
         {
-            assert(v != null);
+            assert (v != null);
 
             //
             // If the instance was already marshaled, just write it's ID.
             //
             Integer p = _marshaledMap.get(v);
-            if(p != null)
+            if (p != null)
             {
                 _stream.writeSize(p);
                 return;
@@ -2345,7 +2281,7 @@ public class OutputStream
             {
                 v.ice_preMarshal();
             }
-            catch(java.lang.Exception ex)
+            catch (java.lang.Exception ex)
             {
                 String s = "exception raised by ice_preMarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
                 _stream.instance().initializationData().logger.warning(s);
@@ -2359,7 +2295,7 @@ public class OutputStream
         {
             InstanceData(InstanceData previous)
             {
-                if(previous != null)
+                if (previous != null)
                 {
                     previous.next = this;
                 }
@@ -2389,10 +2325,7 @@ public class OutputStream
 
     private static final class Encaps
     {
-        void reset()
-        {
-            encoder = null;
-        }
+        void reset() { encoder = null; }
 
         void setEncoding(EncodingVersion encoding)
         {
@@ -2428,10 +2361,10 @@ public class OutputStream
 
     private void initEncaps()
     {
-        if(_encapsStack == null) // Lazy initialization
+        if (_encapsStack == null) // Lazy initialization
         {
             _encapsStack = _encapsCache;
-            if(_encapsStack != null)
+            if (_encapsStack != null)
             {
                 _encapsCache = _encapsCache.next;
             }
@@ -2442,14 +2375,14 @@ public class OutputStream
             _encapsStack.setEncoding(_encoding);
         }
 
-        if(_encapsStack.format == FormatType.DefaultFormat)
+        if (_encapsStack.format == FormatType.DefaultFormat)
         {
             _encapsStack.format = _format;
         }
 
-        if(_encapsStack.encoder == null) // Lazy initialization.
+        if (_encapsStack.encoder == null) // Lazy initialization.
         {
-            if(_encapsStack.encoding_1_0)
+            if (_encapsStack.encoding_1_0)
             {
                 _encapsStack.encoder = new EncapsEncoder10(this, _encapsStack);
             }
@@ -2462,8 +2395,7 @@ public class OutputStream
 
     /** @hidden */
     @FunctionalInterface
-    static public interface Marshaler
-    {
+    static public interface Marshaler {
         void marshal(OutputStream ostr);
     }
 }

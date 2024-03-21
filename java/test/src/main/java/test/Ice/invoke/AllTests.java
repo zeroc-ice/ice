@@ -4,13 +4,11 @@
 
 package test.Ice.invoke;
 
-import java.io.PrintWriter;
-import java.util.concurrent.CompletableFuture;
-
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OutputStream;
-
+import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 import test.Ice.invoke.Test.MyClassPrx;
 import test.Ice.invoke.Test.MyException;
 
@@ -20,7 +18,7 @@ public class AllTests
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -55,7 +53,7 @@ public class AllTests
             outS.endEncapsulation();
             byte[] inEncaps = outS.finished();
             r = cl.ice_invoke("opString", OperationMode.Normal, inEncaps);
-            if(r.returnValue)
+            if (r.returnValue)
             {
                 InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
@@ -71,16 +69,16 @@ public class AllTests
             }
         }
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             java.util.Map<String, String> context = null;
-            if(i == 1)
+            if (i == 1)
             {
                 context = new java.util.HashMap<String, String>();
                 context.put("raise", "");
             }
             com.zeroc.Ice.Object.Ice_invokeResult r = cl.ice_invoke("opException", OperationMode.Normal, null, context);
-            if(r.returnValue)
+            if (r.returnValue)
             {
                 test(false);
             }
@@ -92,10 +90,10 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(MyException ex)
+                catch (MyException ex)
                 {
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     test(false);
                 }
@@ -122,7 +120,7 @@ public class AllTests
 
             f = cl.ice_invokeAsync("opString", OperationMode.Normal, inEncaps);
             r = f.join();
-            if(r.returnValue)
+            if (r.returnValue)
             {
                 InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
@@ -142,7 +140,7 @@ public class AllTests
             CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
                 cl.ice_invokeAsync("opException", OperationMode.Normal, null);
             com.zeroc.Ice.Object.Ice_invokeResult r = f.join();
-            if(r.returnValue)
+            if (r.returnValue)
             {
                 test(false);
             }
@@ -154,10 +152,10 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(MyException ex)
+                catch (MyException ex)
                 {
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     test(false);
                 }

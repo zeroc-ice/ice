@@ -8,34 +8,31 @@ import test.Ice.udp.Test.*;
 
 public final class TestIntfI implements TestIntf
 {
-    @Override
-    public void ping(PingReplyPrx reply, com.zeroc.Ice.Current current)
+    @Override public void ping(PingReplyPrx reply, com.zeroc.Ice.Current current)
     {
         try
         {
             reply.reply();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            assert(false);
+            assert (false);
         }
     }
 
-    @Override
-    public void sendByteSeq(byte[] seq, PingReplyPrx reply, com.zeroc.Ice.Current current)
+    @Override public void sendByteSeq(byte[] seq, PingReplyPrx reply, com.zeroc.Ice.Current current)
     {
         try
         {
             reply.reply();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            assert(false);
+            assert (false);
         }
     }
 
-    @Override
-    public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
+    @Override public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
     {
         try
         {
@@ -48,22 +45,18 @@ public final class TestIntfI implements TestIntf
                 byte[] seq = new byte[32 * 1024];
                 TestIntfPrx.uncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
             }
-            catch(com.zeroc.Ice.DatagramLimitException ex)
+            catch (com.zeroc.Ice.DatagramLimitException ex)
             {
                 // Expected.
             }
 
             PingReplyPrx.uncheckedCast(current.con.createProxy(id)).reply();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            assert(false);
+            assert (false);
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 }

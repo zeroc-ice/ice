@@ -39,31 +39,25 @@ public enum ThreadState
      **/
     ThreadStateInUseForOther(3);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ThreadState valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return ThreadStateIdle;
-        case 1:
-            return ThreadStateInUseForIO;
-        case 2:
-            return ThreadStateInUseForUser;
-        case 3:
-            return ThreadStateInUseForOther;
+            case 0:
+                return ThreadStateIdle;
+            case 1:
+                return ThreadStateInUseForIO;
+            case 2:
+                return ThreadStateInUseForUser;
+            case 3:
+                return ThreadStateInUseForOther;
         }
         return null;
     }
 
-    private ThreadState(int v)
-    {
-        _value = v;
-    }
+    private ThreadState(int v) { _value = v; }
 
     private final int _value;
 }

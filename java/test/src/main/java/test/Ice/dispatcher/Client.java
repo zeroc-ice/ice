@@ -20,7 +20,7 @@ public class Client extends test.TestHelper
         initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
         initData.dispatcher = dispatcher;
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             AllTests.allTests(this, dispatcher);
         }

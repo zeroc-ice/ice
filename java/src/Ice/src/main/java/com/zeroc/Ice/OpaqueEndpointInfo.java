@@ -28,7 +28,12 @@ public abstract class OpaqueEndpointInfo extends EndpointInfo
         this.rawEncoding = new EncodingVersion();
     }
 
-    public OpaqueEndpointInfo(EndpointInfo underlying, int timeout, boolean compress, EncodingVersion rawEncoding, byte[] rawBytes)
+    public OpaqueEndpointInfo(
+        EndpointInfo underlying,
+        int timeout,
+        boolean compress,
+        EncodingVersion rawEncoding,
+        byte[] rawBytes)
     {
         super(underlying, timeout, compress);
         this.rawEncoding = rawEncoding;
@@ -45,10 +50,7 @@ public abstract class OpaqueEndpointInfo extends EndpointInfo
      **/
     public byte[] rawBytes;
 
-    public OpaqueEndpointInfo clone()
-    {
-        return (OpaqueEndpointInfo)super.clone();
-    }
+    public OpaqueEndpointInfo clone() { return (OpaqueEndpointInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 2439699764526521524L;

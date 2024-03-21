@@ -24,11 +24,7 @@ class FactoryACMMonitor implements ACMMonitor
         _config = config;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
@@ -37,7 +33,7 @@ class FactoryACMMonitor implements ACMMonitor
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_changes.isEmpty());
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_reapedConnections.isEmpty());
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -46,35 +42,34 @@ class FactoryACMMonitor implements ACMMonitor
         }
     }
 
-    synchronized void
-    destroy()
+    synchronized void destroy()
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             //
             // Ensure all the connections have been cleared, it's important to wait here
             // to prevent the timer destruction in IceInternal::Instance::destroy.
             //
-            while(!_connections.isEmpty())
+            while (!_connections.isEmpty())
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
             }
             return;
         }
 
-        if(!_connections.isEmpty())
+        if (!_connections.isEmpty())
         {
             //
             // Cancel the scheduled timer task and schedule it again now to clear the
             // connection set from the timer thread.
             //
-            assert(_future != null);
+            assert (_future != null);
             _future.cancel(false);
             _future = null;
 
@@ -87,38 +82,35 @@ class FactoryACMMonitor implements ACMMonitor
         //
         // Wait for the connection set to be cleared by the timer thread.
         //
-        while(!_connections.isEmpty())
+        while (!_connections.isEmpty())
         {
             try
             {
                 wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
     }
 
-    @Override
-    public void
-    add(com.zeroc.Ice.ConnectionI connection)
+    @Override public void add(com.zeroc.Ice.ConnectionI connection)
     {
-        if(_config.timeout == 0)
+        if (_config.timeout == 0)
         {
             return;
         }
 
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_instance != null);
-            if(_connections.isEmpty())
+            assert (_instance != null);
+            if (_connections.isEmpty())
             {
                 _connections.add(connection);
                 assert _future == null;
-                _future = _instance.timer().scheduleAtFixedRate(() -> { monitorConnections(); },
-                                                                _config.timeout / 2,
-                                                                _config.timeout / 2,
-                                                                java.util.concurrent.TimeUnit.MILLISECONDS);
+                _future = _instance.timer().scheduleAtFixedRate(() -> {
+                    monitorConnections();
+                }, _config.timeout / 2, _config.timeout / 2, java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             else
             {
@@ -127,55 +119,50 @@ class FactoryACMMonitor implements ACMMonitor
         }
     }
 
-    @Override
-    public void
-    remove(com.zeroc.Ice.ConnectionI connection)
+    @Override public void remove(com.zeroc.Ice.ConnectionI connection)
     {
-        if(_config.timeout == 0)
+        if (_config.timeout == 0)
         {
             return;
         }
 
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_instance != null);
+            assert (_instance != null);
             _changes.add(new Change(connection, true));
         }
     }
 
-    @Override
-    public synchronized void
-    reap(com.zeroc.Ice.ConnectionI connection)
+    @Override public synchronized void reap(com.zeroc.Ice.ConnectionI connection)
     {
         _reapedConnections.add(connection);
     }
 
     @Override
     public synchronized ACMMonitor
-    acm(java.util.OptionalInt timeout, java.util.Optional<com.zeroc.Ice.ACMClose> close,
+    acm(java.util.OptionalInt timeout,
+        java.util.Optional<com.zeroc.Ice.ACMClose> close,
         java.util.Optional<com.zeroc.Ice.ACMHeartbeat> heartbeat)
     {
-        assert(_instance != null);
+        assert (_instance != null);
 
         ACMConfig config = _config.clone();
-        if(timeout != null && timeout.isPresent())
+        if (timeout != null && timeout.isPresent())
         {
             config.timeout = timeout.getAsInt() * 1000; // To milliseconds
         }
-        if(close != null && close.isPresent())
+        if (close != null && close.isPresent())
         {
             config.close = close.get();
         }
-        if(heartbeat != null && heartbeat.isPresent())
+        if (heartbeat != null && heartbeat.isPresent())
         {
             config.heartbeat = heartbeat.get();
         }
         return new ConnectionACMMonitor(this, _instance.timer(), config);
     }
 
-    @Override
-    public com.zeroc.Ice.ACM
-    getACM()
+    @Override public com.zeroc.Ice.ACM getACM()
     {
         com.zeroc.Ice.ACM acm = new com.zeroc.Ice.ACM();
         acm.timeout = _config.timeout / 1000;
@@ -184,10 +171,9 @@ class FactoryACMMonitor implements ACMMonitor
         return acm;
     }
 
-    synchronized java.util.List<com.zeroc.Ice.ConnectionI>
-    swapReapedConnections()
+    synchronized java.util.List<com.zeroc.Ice.ConnectionI> swapReapedConnections()
     {
-        if(_reapedConnections.isEmpty())
+        if (_reapedConnections.isEmpty())
         {
             return null;
         }
@@ -196,21 +182,20 @@ class FactoryACMMonitor implements ACMMonitor
         return connections;
     }
 
-    private void
-    monitorConnections()
+    private void monitorConnections()
     {
-        synchronized(this)
+        synchronized (this)
         {
-            if(_instance == null)
+            if (_instance == null)
             {
                 _connections.clear();
                 notifyAll();
                 return;
             }
 
-            for(Change change : _changes)
+            for (Change change : _changes)
             {
-                if(change.remove)
+                if (change.remove)
                 {
                     _connections.remove(change.connection);
                 }
@@ -221,7 +206,7 @@ class FactoryACMMonitor implements ACMMonitor
             }
             _changes.clear();
 
-            if(_connections.isEmpty())
+            if (_connections.isEmpty())
             {
                 _future.cancel(false);
                 _future = null;
@@ -234,23 +219,22 @@ class FactoryACMMonitor implements ACMMonitor
         // that connections can be added or removed during monitoring.
         //
         long now = Time.currentMonotonicTimeMillis();
-        for(com.zeroc.Ice.ConnectionI connection : _connections)
+        for (com.zeroc.Ice.ConnectionI connection : _connections)
         {
             try
             {
                 connection.monitor(now, _config);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 handleException(ex);
             }
         }
     }
 
-    synchronized void
-    handleException(Exception ex)
+    synchronized void handleException(Exception ex)
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             return;
         }

@@ -8,23 +8,19 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public void setObserverUpdater(com.zeroc.Ice.Instrumentation.ObserverUpdater u)
-    {
-        updater = u;
-    }
+    @Override public void setObserverUpdater(com.zeroc.Ice.Instrumentation.ObserverUpdater u) { updater = u; }
 
     @Override
-    synchronized public com.zeroc.Ice.Instrumentation.Observer getConnectionEstablishmentObserver(
-        com.zeroc.Ice.Endpoint e, String s)
+    synchronized public com.zeroc.Ice.Instrumentation.Observer
+    getConnectionEstablishmentObserver(com.zeroc.Ice.Endpoint e, String s)
     {
-        if(connectionEstablishmentObserver == null)
+        if (connectionEstablishmentObserver == null)
         {
             connectionEstablishmentObserver = new ObserverI();
             connectionEstablishmentObserver.reset();
@@ -35,7 +31,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
     @Override
     synchronized public com.zeroc.Ice.Instrumentation.Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint e)
     {
-        if(endpointLookupObserver == null)
+        if (endpointLookupObserver == null)
         {
             endpointLookupObserver = new ObserverI();
             endpointLookupObserver.reset();
@@ -51,7 +47,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
         com.zeroc.Ice.Instrumentation.ConnectionObserver old)
     {
         test(old == null || old instanceof ConnectionObserverI);
-        if(connectionObserver == null)
+        if (connectionObserver == null)
         {
             connectionObserver = new ConnectionObserverI();
             connectionObserver.reset();
@@ -67,21 +63,19 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
         com.zeroc.Ice.Instrumentation.ThreadObserver old)
     {
         test(old == null || old instanceof ThreadObserverI);
-        if(threadObserver == null)
+        if (threadObserver == null)
         {
             threadObserver = new ThreadObserverI();
             threadObserver.reset();
         }
         return threadObserver;
-   }
+    }
 
     @Override
-    synchronized public com.zeroc.Ice.Instrumentation.InvocationObserver getInvocationObserver(
-        com.zeroc.Ice.ObjectPrx p,
-        String op,
-        java.util.Map<String, String> ctx)
+    synchronized public com.zeroc.Ice.Instrumentation.InvocationObserver
+    getInvocationObserver(com.zeroc.Ice.ObjectPrx p, String op, java.util.Map<String, String> ctx)
     {
-        if(invocationObserver == null)
+        if (invocationObserver == null)
         {
             invocationObserver = new InvocationObserverI();
             invocationObserver.reset();
@@ -90,11 +84,10 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
     }
 
     @Override
-    synchronized public com.zeroc.Ice.Instrumentation.DispatchObserver getDispatchObserver(
-        com.zeroc.Ice.Current current,
-        int s)
+    synchronized public com.zeroc.Ice.Instrumentation.DispatchObserver
+    getDispatchObserver(com.zeroc.Ice.Current current, int s)
     {
-        if(dispatchObserver == null)
+        if (dispatchObserver == null)
         {
             dispatchObserver = new DispatchObserverI();
             dispatchObserver.reset();
@@ -104,27 +97,27 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
 
     synchronized void reset()
     {
-        if(connectionEstablishmentObserver != null)
+        if (connectionEstablishmentObserver != null)
         {
             connectionEstablishmentObserver.reset();
         }
-        if(endpointLookupObserver != null)
+        if (endpointLookupObserver != null)
         {
             endpointLookupObserver.reset();
         }
-        if(connectionObserver != null)
+        if (connectionObserver != null)
         {
             connectionObserver.reset();
         }
-        if(threadObserver != null)
+        if (threadObserver != null)
         {
             threadObserver.reset();
         }
-        if(invocationObserver != null)
+        if (invocationObserver != null)
         {
             invocationObserver.reset();
         }
-        if(dispatchObserver != null)
+        if (dispatchObserver != null)
         {
             dispatchObserver.reset();
         }

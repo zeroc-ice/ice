@@ -4,21 +4,17 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
-
 import javax.swing.tree.DefaultTreeCellRenderer;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 class PlainServer extends Communicator implements Server
 {
-    static public ServerDescriptor
-    copyDescriptor(ServerDescriptor sd)
+    static public ServerDescriptor copyDescriptor(ServerDescriptor sd)
     {
         ServerDescriptor copy = sd.clone();
 
@@ -28,7 +24,7 @@ class PlainServer extends Communicator implements Server
 
         copy.distrib = copy.distrib.clone();
 
-        if(copy instanceof IceBoxDescriptor)
+        if (copy instanceof IceBoxDescriptor)
         {
             IceBoxDescriptor ib = (IceBoxDescriptor)copy;
             ib.services = ServiceInstance.copyDescriptors(ib.services);
@@ -98,30 +94,27 @@ class PlainServer extends Communicator implements Server
             new DistributionDescriptor("", new java.util.LinkedList<String>()),
             false, // Allocatable
             "",
-            new java.util.LinkedList<ServiceInstanceDescriptor>()
-            );
+            new java.util.LinkedList<ServiceInstanceDescriptor>());
     }
 
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
         Object clipboard = getCoordinator().getClipboard();
-        if(clipboard != null &&
-           (clipboard instanceof ServerDescriptor
-            || clipboard instanceof ServerInstanceDescriptor
-            || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-            || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy))))
+        if (clipboard != null &&
+            (clipboard instanceof ServerDescriptor || clipboard instanceof ServerInstanceDescriptor ||
+             (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
+             (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy))))
         {
             actions[PASTE] = true;
         }
 
         actions[DELETE] = true;
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             actions[COPY] = true;
             actions[SHOW_VARS] = true;
@@ -134,11 +127,10 @@ class PlainServer extends Communicator implements Server
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
@@ -149,17 +141,15 @@ class PlainServer extends Communicator implements Server
         return _popup;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (PlainServerEditor)getRoot().getEditor(PlainServerEditor.class, this);
         }
@@ -167,11 +157,7 @@ class PlainServer extends Communicator implements Server
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new PlainServerEditor();
-    }
+    @Override protected Editor createEditor() { return new PlainServerEditor(); }
 
     @Override
     public Component getTreeCellRendererComponent(
@@ -183,7 +169,7 @@ class PlainServer extends Communicator implements Server
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             //
             // Initialization
@@ -194,7 +180,7 @@ class PlainServer extends Communicator implements Server
             _iceboxServerIcon = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
         }
 
-        if(expanded)
+        if (expanded)
         {
             _cellRenderer.setOpenIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
         }
@@ -205,12 +191,11 @@ class PlainServer extends Communicator implements Server
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
         Node node = (Node)_parent;
 
-        if(_ephemeral)
+        if (_ephemeral)
         {
             node.removeServer(this);
         }
@@ -223,22 +208,16 @@ class PlainServer extends Communicator implements Server
         }
     }
 
-    @Override
-    public Object getDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override public Object getDescriptor() { return _descriptor; }
 
-    @Override
-    public Object saveDescriptor()
+    @Override public Object saveDescriptor()
     {
         ServerDescriptor clone = _descriptor.clone();
         clone.distrib = clone.distrib.clone();
         return clone;
     }
 
-    @Override
-    public void restoreDescriptor(Object savedDescriptor)
+    @Override public void restoreDescriptor(Object savedDescriptor)
     {
         shallowRestore((ServerDescriptor)savedDescriptor, _descriptor);
     }
@@ -246,9 +225,12 @@ class PlainServer extends Communicator implements Server
     //
     // Builds the server and all its sub-tree
     //
-    PlainServer(boolean brandNew, TreeNode parent, String serverId, Utils.Resolver resolver,
-                ServerDescriptor serverDescriptor)
-        throws UpdateFailedException
+    PlainServer(
+        boolean brandNew,
+        TreeNode parent,
+        String serverId,
+        Utils.Resolver resolver,
+        ServerDescriptor serverDescriptor) throws UpdateFailedException
     {
         super(parent, serverId);
         _ephemeral = false;
@@ -265,7 +247,7 @@ class PlainServer extends Communicator implements Server
         {
             rebuild(null, serverDescriptor);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false;
         }
@@ -275,31 +257,31 @@ class PlainServer extends Communicator implements Server
     {
         java.util.List<String[]> attributes = new java.util.LinkedList<>();
         attributes.add(createAttribute("id", descriptor.id));
-        if(descriptor.activation.length() > 0)
+        if (descriptor.activation.length() > 0)
         {
             attributes.add(createAttribute("activation", descriptor.activation));
         }
-        if(descriptor.activationTimeout.length() > 0)
+        if (descriptor.activationTimeout.length() > 0)
         {
             attributes.add(createAttribute("activation-timeout", descriptor.activationTimeout));
         }
-        if(!descriptor.applicationDistrib)
+        if (!descriptor.applicationDistrib)
         {
             attributes.add(createAttribute("application-distrib", "false"));
         }
-        if(descriptor.deactivationTimeout.length() > 0)
+        if (descriptor.deactivationTimeout.length() > 0)
         {
             attributes.add(createAttribute("deactivation-timeout", descriptor.deactivationTimeout));
         }
-        if(descriptor.exe.length() > 0)
+        if (descriptor.exe.length() > 0)
         {
             attributes.add(createAttribute("exe", descriptor.exe));
         }
-        if(descriptor.iceVersion.length() > 0)
+        if (descriptor.iceVersion.length() > 0)
         {
             attributes.add(createAttribute("ice-version", descriptor.iceVersion));
         }
-        if(descriptor.pwd.length() > 0)
+        if (descriptor.pwd.length() > 0)
         {
             attributes.add(createAttribute("pwd", descriptor.pwd));
         }
@@ -307,35 +289,31 @@ class PlainServer extends Communicator implements Server
         return attributes;
     }
 
-    static void writeOptions(XMLWriter writer, java.util.List<String> options)
-        throws java.io.IOException
+    static void writeOptions(XMLWriter writer, java.util.List<String> options) throws java.io.IOException
     {
-        for(String p : options)
+        for (String p : options)
         {
             writer.writeElement("option", p);
         }
     }
 
-    static void writeEnvs(XMLWriter writer, java.util.List<String> envs)
-        throws java.io.IOException
+    static void writeEnvs(XMLWriter writer, java.util.List<String> envs) throws java.io.IOException
     {
-        for(String p : envs)
+        for (String p : envs)
         {
             writer.writeElement("env", p);
         }
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
-            if(isIceBox())
+            if (isIceBox())
             {
                 writer.writeStartTag("icebox", createAttributes(_descriptor));
 
-                if(_descriptor.description.length() > 0)
+                if (_descriptor.description.length() > 0)
                 {
                     writer.writeElement("description", _descriptor.description);
                 }
@@ -354,7 +332,7 @@ class PlainServer extends Communicator implements Server
             {
                 writer.writeStartTag("server", createAttributes(_descriptor));
 
-                if(_descriptor.description.length() > 0)
+                if (_descriptor.description.length() > 0)
                 {
                     writer.writeElement("description", _descriptor.description);
                 }
@@ -372,28 +350,22 @@ class PlainServer extends Communicator implements Server
         }
     }
 
-    @Override
-    boolean isIceBox()
-    {
-        return _descriptor instanceof IceBoxDescriptor;
-    }
+    @Override boolean isIceBox() { return _descriptor instanceof IceBoxDescriptor; }
 
-    @Override
-    public Object rebuild(java.util.List<Editable> editables)
-        throws UpdateFailedException
+    @Override public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException
     {
         Node node = (Node)_parent;
         PlainServer newServer = node.createServer(false, _descriptor);
 
         Object backup = null;
 
-        if(_id.equals(newServer.getId()))
+        if (_id.equals(newServer.getId()))
         {
             //
             // A simple update. We can't simply rebuild server because
             // we need to keep a backup
             //
-            if(_editable.isModified())
+            if (_editable.isModified())
             {
                 newServer.getEditable().markModified();
             }
@@ -403,7 +375,7 @@ class PlainServer extends Communicator implements Server
             {
                 node.insertServer(newServer, true);
             }
-            catch(UpdateFailedException e)
+            catch (UpdateFailedException e)
             {
                 assert false; // impossible, we just removed a child with
                               // this id
@@ -423,7 +395,7 @@ class PlainServer extends Communicator implements Server
             {
                 node.insertServer(newServer, true);
             }
-            catch(UpdateFailedException e)
+            catch (UpdateFailedException e)
             {
                 restore(backup);
                 throw e;
@@ -433,20 +405,19 @@ class PlainServer extends Communicator implements Server
         return backup;
     }
 
-    @Override
-    public void restore(Object backupObj)
+    @Override public void restore(Object backupObj)
     {
         Editable backup = (Editable)backupObj;
         Node node = (Node)_parent;
 
-        if(backup != null)
+        if (backup != null)
         {
             node.getEditable().restore(backup);
         }
 
         TreeNode badServer = node.findChildWithDescriptor(_descriptor);
 
-        if(badServer != null)
+        if (badServer != null)
         {
             node.removeServer(badServer);
         }
@@ -454,22 +425,18 @@ class PlainServer extends Communicator implements Server
         {
             node.insertServer(this, true);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false; // impossible
         }
     }
 
-    void setServerDescriptor(ServerDescriptor descriptor)
-    {
-        _descriptor = descriptor;
-    }
+    void setServerDescriptor(ServerDescriptor descriptor) { _descriptor = descriptor; }
 
     //
     // Update the server and all its subtree
     //
-    void rebuild(Utils.Resolver resolver, ServerDescriptor serverDescriptor)
-        throws UpdateFailedException
+    void rebuild(Utils.Resolver resolver, ServerDescriptor serverDescriptor) throws UpdateFailedException
     {
         assert serverDescriptor != null;
         _resolver = resolver;
@@ -478,10 +445,10 @@ class PlainServer extends Communicator implements Server
         _adapters.clear();
         _services.clear();
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             _adapters.init(_descriptor.adapters);
-            if(isIceBox())
+            if (isIceBox())
             {
                 IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_descriptor;
                 _services.init(iceBoxDescriptor.services);
@@ -489,35 +456,15 @@ class PlainServer extends Communicator implements Server
         }
     }
 
-    @Override
-    CommunicatorDescriptor getCommunicatorDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override CommunicatorDescriptor getCommunicatorDescriptor() { return _descriptor; }
 
-    @Override
-    Utils.Resolver getResolver()
-    {
-        return _resolver;
-    }
+    @Override Utils.Resolver getResolver() { return _resolver; }
 
-    @Override
-    public Editable getEditable()
-    {
-        return _editable;
-    }
+    @Override public Editable getEditable() { return _editable; }
 
-    @Override
-    Editable getEnclosingEditable()
-    {
-        return _editable;
-    }
+    @Override Editable getEnclosingEditable() { return _editable; }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
     private ServerDescriptor _descriptor;
     private final boolean _ephemeral;

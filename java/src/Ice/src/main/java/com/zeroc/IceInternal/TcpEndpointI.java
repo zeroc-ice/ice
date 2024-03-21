@@ -6,8 +6,14 @@ package com.zeroc.IceInternal;
 
 final class TcpEndpointI extends IPEndpointI
 {
-    public TcpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti,
-                        String conId, boolean co)
+    public TcpEndpointI(
+        ProtocolInstance instance,
+        String ho,
+        int po,
+        java.net.InetSocketAddress sourceAddr,
+        int ti,
+        String conId,
+        boolean co)
     {
         super(instance, ho, po, sourceAddr, conId);
         _timeout = ti;
@@ -31,28 +37,14 @@ final class TcpEndpointI extends IPEndpointI
     //
     // Return the endpoint information.
     //
-    @Override
-    public com.zeroc.Ice.EndpointInfo getInfo()
+    @Override public com.zeroc.Ice.EndpointInfo getInfo()
     {
-        com.zeroc.Ice.TCPEndpointInfo info = new com.zeroc.Ice.TCPEndpointInfo()
-        {
-            @Override
-            public short type()
-            {
-                return TcpEndpointI.this.type();
-            }
+        com.zeroc.Ice.TCPEndpointInfo info = new com.zeroc.Ice.TCPEndpointInfo() {
+            @Override public short type() { return TcpEndpointI.this.type(); }
 
-            @Override
-            public boolean datagram()
-            {
-                return TcpEndpointI.this.datagram();
-            }
+            @Override public boolean datagram() { return TcpEndpointI.this.datagram(); }
 
-            @Override
-            public boolean secure()
-            {
-                return TcpEndpointI.this.secure();
-            }
+            @Override public boolean secure() { return TcpEndpointI.this.secure(); }
         };
         fillEndpointInfo(info);
         return info;
@@ -62,21 +54,16 @@ final class TcpEndpointI extends IPEndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    @Override
-    public int timeout()
-    {
-        return _timeout;
-    }
+    @Override public int timeout() { return _timeout; }
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    @Override
-    public EndpointI timeout(int timeout)
+    @Override public EndpointI timeout(int timeout)
     {
-        if(timeout == _timeout)
+        if (timeout == _timeout)
         {
             return this;
         }
@@ -90,21 +77,16 @@ final class TcpEndpointI extends IPEndpointI
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    @Override
-    public boolean compress()
-    {
-        return _compress;
-    }
+    @Override public boolean compress() { return _compress; }
 
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    @Override
-    public EndpointI compress(boolean compress)
+    @Override public EndpointI compress(boolean compress)
     {
-        if(compress == _compress)
+        if (compress == _compress)
         {
             return this;
         }
@@ -117,36 +99,24 @@ final class TcpEndpointI extends IPEndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
-    @Override
-    public boolean datagram()
-    {
-        return false;
-    }
+    @Override public boolean datagram() { return false; }
 
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //
-    @Override
-    public Transceiver transceiver()
-    {
-        return null;
-    }
+    @Override public Transceiver transceiver() { return null; }
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
     // is available.
     //
-    @Override
-    public Acceptor acceptor(String adapterName)
-    {
-        return new TcpAcceptor(this, _instance, _host, _port);
-    }
+    @Override public Acceptor acceptor(String adapterName) { return new TcpAcceptor(this, _instance, _host, _port); }
 
     public TcpEndpointI endpoint(TcpAcceptor acceptor)
     {
         int port = acceptor.effectivePort();
-        if(port == _port)
+        if (port == _port)
         {
             return this;
         }
@@ -156,8 +126,7 @@ final class TcpEndpointI extends IPEndpointI
         }
     }
 
-    @Override
-    public String options()
+    @Override public String options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -168,7 +137,7 @@ final class TcpEndpointI extends IPEndpointI
         //
         String s = super.options();
 
-        if(_timeout == -1)
+        if (_timeout == -1)
         {
             s += " -t infinite";
         }
@@ -177,7 +146,7 @@ final class TcpEndpointI extends IPEndpointI
             s += " -t " + _timeout;
         }
 
-        if(_compress)
+        if (_compress)
         {
             s += " -z";
         }
@@ -188,34 +157,33 @@ final class TcpEndpointI extends IPEndpointI
     //
     // Compare endpoints for sorting purposes
     //
-    @Override
-    public int compareTo(EndpointI obj) // From java.lang.Comparable
+    @Override public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
-        if(!(obj instanceof TcpEndpointI))
+        if (!(obj instanceof TcpEndpointI))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
         TcpEndpointI p = (TcpEndpointI)obj;
-        if(this == p)
+        if (this == p)
         {
             return 0;
         }
 
-        if(_timeout < p._timeout)
+        if (_timeout < p._timeout)
         {
             return -1;
         }
-        else if(p._timeout < _timeout)
+        else if (p._timeout < _timeout)
         {
             return 1;
         }
 
-        if(!_compress && p._compress)
+        if (!_compress && p._compress)
         {
             return -1;
         }
-        else if(!p._compress && _compress)
+        else if (!p._compress && _compress)
         {
             return 1;
         }
@@ -223,16 +191,14 @@ final class TcpEndpointI extends IPEndpointI
         return super.compareTo(obj);
     }
 
-    @Override
-    public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
+    @Override public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
     {
         super.streamWriteImpl(s);
         s.writeInt(_timeout);
         s.writeBool(_compress);
     }
 
-    @Override
-    public int hashInit(int h)
+    @Override public int hashInit(int h)
     {
         h = super.hashInit(h);
         h = HashUtil.hashAdd(h, _timeout);
@@ -240,25 +206,24 @@ final class TcpEndpointI extends IPEndpointI
         return h;
     }
 
-    @Override
-    protected boolean checkOption(String option, String argument, String endpoint)
+    @Override protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(super.checkOption(option, argument, endpoint))
+        if (super.checkOption(option, argument, endpoint))
         {
             return true;
         }
 
-        switch(option.charAt(1))
+        switch (option.charAt(1))
         {
             case 't':
             {
-                if(argument == null)
+                if (argument == null)
                 {
-                    throw new com.zeroc.Ice.EndpointParseException("no argument provided for -t option in endpoint " +
-                                                                   endpoint);
+                    throw new com.zeroc.Ice.EndpointParseException(
+                        "no argument provided for -t option in endpoint " + endpoint);
                 }
 
-                if(argument.equals("infinite"))
+                if (argument.equals("infinite"))
                 {
                     _timeout = -1;
                 }
@@ -267,16 +232,16 @@ final class TcpEndpointI extends IPEndpointI
                     try
                     {
                         _timeout = Integer.parseInt(argument);
-                        if(_timeout < 1)
+                        if (_timeout < 1)
                         {
-                            throw new com.zeroc.Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                                           "' in endpoint " + endpoint);
+                            throw new com.zeroc.Ice.EndpointParseException(
+                                "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                         }
                     }
-                    catch(NumberFormatException ex)
+                    catch (NumberFormatException ex)
                     {
-                        throw new com.zeroc.Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                                       "' in endpoint " + endpoint);
+                        throw new com.zeroc.Ice.EndpointParseException(
+                            "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                     }
                 }
 
@@ -285,10 +250,10 @@ final class TcpEndpointI extends IPEndpointI
 
             case 'z':
             {
-                if(argument != null)
+                if (argument != null)
                 {
-                    throw new com.zeroc.Ice.EndpointParseException("unexpected argument `" + argument +
-                                                                   "' provided for -z option in " + endpoint);
+                    throw new com.zeroc.Ice.EndpointParseException(
+                        "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
                 }
 
                 _compress = true;
@@ -303,14 +268,12 @@ final class TcpEndpointI extends IPEndpointI
         }
     }
 
-    @Override
-    protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
+    @Override protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
     {
         return new TcpConnector(_instance, addr, proxy, _sourceAddr, _timeout, _connectionId);
     }
 
-    @Override
-    protected IPEndpointI createEndpoint(String host, int port, String connectionId)
+    @Override protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
         return new TcpEndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
     }

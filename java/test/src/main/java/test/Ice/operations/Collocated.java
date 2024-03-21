@@ -11,7 +11,7 @@ public class Collocated extends test.TestHelper
     public void run(String[] args)
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
-        if(properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
+        if (properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
         {
             properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         }
@@ -24,7 +24,7 @@ public class Collocated extends test.TestHelper
         // scheduling so we supress this warning.
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             java.io.PrintWriter out = getWriter();
@@ -32,7 +32,7 @@ public class Collocated extends test.TestHelper
             com.zeroc.Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            if(prx.ice_getConnection() != null)
+            if (prx.ice_getConnection() != null)
             {
                 throw new RuntimeException();
             }

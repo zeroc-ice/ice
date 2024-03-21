@@ -16,17 +16,12 @@ public final class InitializationData implements Cloneable
     /**
      * Creates an instance with all members set to <code>null</code>.
      **/
-    public
-    InitializationData()
-    {
-    }
+    public InitializationData() {}
 
     /**
      * Creates and returns a copy of this object.
      **/
-    @Override
-    public InitializationData
-    clone()
+    @Override public InitializationData clone()
     {
         //
         // A member-wise copy is safe because the members are immutable.
@@ -36,7 +31,7 @@ public final class InitializationData implements Cloneable
         {
             c = (InitializationData)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false;
         }

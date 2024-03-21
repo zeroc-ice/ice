@@ -23,9 +23,9 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
         {
             c = (Value)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
-            assert(false);
+            assert (false);
         }
 
         return c;
@@ -35,27 +35,20 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
      * to override this method in order to validate its data members.
      **/
-    public void ice_preMarshal()
-    {
-    }
+    public void ice_preMarshal() {}
 
     /**
      * The Ice run time invokes this method after unmarshaling an object's data members. This allows a
      * subclass to override this method in order to perform additional initialization.
      **/
-    public void ice_postUnmarshal()
-    {
-    }
+    public void ice_postUnmarshal() {}
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
      * @return The return value is always <code>::Ice::Object</code>.
      **/
-    public String ice_id()
-    {
-        return ice_staticId();
-    }
+    public String ice_id() { return ice_staticId(); }
 
     /**
      * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
@@ -63,15 +56,9 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      *
      * @return The sliced data or null.
      **/
-    public SlicedData ice_getSlicedData()
-    {
-        return _slicedData;
-    }
+    public SlicedData ice_getSlicedData() { return _slicedData; }
 
-    public static String ice_staticId()
-    {
-        return "::Ice::Object";
-    }
+    public static String ice_staticId() { return "::Ice::Object"; }
 
     /**
      * @hidden
@@ -99,17 +86,13 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      * @hidden
      * @param ostr -
      **/
-    protected void _iceWriteImpl(OutputStream ostr)
-    {
-    }
+    protected void _iceWriteImpl(OutputStream ostr) {}
 
     /**
      * @hidden
      * @param istr -
      **/
-    protected void _iceReadImpl(InputStream istr)
-    {
-    }
+    protected void _iceReadImpl(InputStream istr) {}
 
     /** @hidden */
     public static final long serialVersionUID = 0L;

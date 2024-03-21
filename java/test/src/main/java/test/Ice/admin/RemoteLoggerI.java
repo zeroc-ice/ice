@@ -10,7 +10,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
     public synchronized void init(String prefix, com.zeroc.Ice.LogMessage[] logMessages, com.zeroc.Ice.Current current)
     {
         _prefix = prefix;
-        for(int i = 0; i < logMessages.length; ++i)
+        for (int i = 0; i < logMessages.length; ++i)
         {
             _initMessages.add(logMessages[i]);
         }
@@ -18,8 +18,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
         notifyAll();
     }
 
-    @Override
-    public synchronized void log(com.zeroc.Ice.LogMessage logMessage, com.zeroc.Ice.Current current)
+    @Override public synchronized void log(com.zeroc.Ice.LogMessage logMessage, com.zeroc.Ice.Current current)
     {
         _logMessages.add(logMessage);
         _receivedCalls++;
@@ -49,13 +48,13 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
     {
         _receivedCalls -= calls;
 
-        while(_receivedCalls < 0)
+        while (_receivedCalls < 0)
         {
             try
             {
                 wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 break;
             }
@@ -64,7 +63,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }

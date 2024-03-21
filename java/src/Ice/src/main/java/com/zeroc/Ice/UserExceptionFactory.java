@@ -19,6 +19,5 @@ public interface UserExceptionFactory
      * @param typeId The Slice type ID of the user exception to be created.
      * @throws UserException A user exception instance corresponding to the type ID.
      **/
-    void createAndThrow(String typeId)
-        throws UserException;
+    void createAndThrow(String typeId) throws UserException;
 }

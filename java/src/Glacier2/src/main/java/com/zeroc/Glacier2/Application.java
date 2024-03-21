@@ -4,8 +4,8 @@
 
 package com.zeroc.Glacier2;
 
-import com.zeroc.Ice.Util;
 import com.zeroc.Ice.ACMHeartbeat;
+import com.zeroc.Ice.Util;
 import com.zeroc.IceInternal.Ex;
 
 /**
@@ -55,9 +55,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      * Initializes an instance that calls {@link com.zeroc.Ice.Communicator#shutdown}
      * if a signal is received.
      **/
-    public Application()
-    {
-    }
+    public Application() {}
 
     /**
      * Initializes an instance that handles signals according to the signal
@@ -67,10 +65,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      *
      * @see com.zeroc.Ice.SignalPolicy
      **/
-    public Application(com.zeroc.Ice.SignalPolicy signalPolicy)
-    {
-        super(signalPolicy);
-    }
+    public Application(com.zeroc.Ice.SignalPolicy signalPolicy) { super(signalPolicy); }
 
     /**
      * Creates a new Glacier2 session. A call to
@@ -99,8 +94,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      *
      * @throws RestartSessionException If the session should be restarted.
      **/
-    public abstract int runWithSession(String[] args)
-        throws RestartSessionException;
+    public abstract int runWithSession(String[] args) throws RestartSessionException;
 
     /**
      * Called when the session refresh thread detects that the session has been
@@ -109,16 +103,13 @@ public abstract class Application extends com.zeroc.Ice.Application
      * according to the Ice invocation dipsatch rules (in other words, it
      * uses the same rules as an servant upcall or AMI callback).
      **/
-    public void sessionDestroyed()
-    {
-    }
+    public void sessionDestroyed() {}
 
     /**
      * Run should not be overridden for com.zeroc.Glacier2.Application. Instead
      * <code>runWithSession</code> should be used.
      */
-    @Override
-    final public int run(String[] args)
+    @Override final public int run(String[] args)
     {
         // This shouldn't be called.
         assert false;
@@ -132,29 +123,19 @@ public abstract class Application extends com.zeroc.Ice.Application
      *
      * @throws RestartSessionException This exception is always thrown.
      **/
-    public static void restart()
-        throws RestartSessionException
-    {
-        throw new RestartSessionException();
-    }
+    public static void restart() throws RestartSessionException { throw new RestartSessionException(); }
 
     /**
      * Returns the Glacier2 router proxy
      * @return The router proxy.
      **/
-    public static com.zeroc.Glacier2.RouterPrx router()
-    {
-        return _router;
-    }
+    public static com.zeroc.Glacier2.RouterPrx router() { return _router; }
 
     /**
      * Returns the Glacier2 session proxy
      * @return The session proxy.
      **/
-    public static com.zeroc.Glacier2.SessionPrx session()
-    {
-        return _session;
-    }
+    public static com.zeroc.Glacier2.SessionPrx session() { return _session; }
 
     /**
      * Returns the category to be used in the identities of all of the client's
@@ -163,10 +144,9 @@ public abstract class Application extends com.zeroc.Ice.Application
      * @return The category.
      * @throws SessionNotExistException No session exists.
      **/
-    public static String categoryForClient()
-        throws SessionNotExistException
+    public static String categoryForClient() throws SessionNotExistException
     {
-        if(_router == null)
+        if (_router == null)
         {
             throw new SessionNotExistException();
         }
@@ -179,8 +159,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      * @return The identity with the given name and a unique category.
      * @throws SessionNotExistException No session exists.
      **/
-    public static com.zeroc.Ice.Identity createCallbackIdentity(String name)
-        throws SessionNotExistException
+    public static com.zeroc.Ice.Identity createCallbackIdentity(String name) throws SessionNotExistException
     {
         return new com.zeroc.Ice.Identity(name, categoryForClient());
     }
@@ -191,8 +170,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      * @return The proxy for the servant.
      * @throws SessionNotExistException No session exists.
      **/
-    public static com.zeroc.Ice.ObjectPrx addWithUUID(com.zeroc.Ice.Object servant)
-        throws SessionNotExistException
+    public static com.zeroc.Ice.ObjectPrx addWithUUID(com.zeroc.Ice.Object servant) throws SessionNotExistException
     {
         return objectAdapter().add(servant, createCallbackIdentity(java.util.UUID.randomUUID().toString()));
     }
@@ -202,17 +180,16 @@ public abstract class Application extends com.zeroc.Ice.Application
      * @return The object adapter.
      * @throws SessionNotExistException No session exists.
      */
-    public static com.zeroc.Ice.ObjectAdapter objectAdapter()
-        throws SessionNotExistException
+    public static com.zeroc.Ice.ObjectAdapter objectAdapter() throws SessionNotExistException
     {
-        if(_router == null)
+        if (_router == null)
         {
             throw new SessionNotExistException();
         }
 
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
-            if(_adapter == null)
+            if (_adapter == null)
             {
                 _adapter = communicator().createObjectAdapterWithRouter("", _router);
                 _adapter.activate();
@@ -227,8 +204,7 @@ public abstract class Application extends com.zeroc.Ice.Application
         boolean restart;
     }
 
-    @Override
-    protected int doMain(String[] args, com.zeroc.Ice.InitializationData initData)
+    @Override protected int doMain(String[] args, com.zeroc.Ice.InitializationData initData)
     {
         //
         // Set the default properties for all Glacier2 applications.
@@ -248,8 +224,7 @@ public abstract class Application extends com.zeroc.Ice.Application
             String[] a = args.clone();
 
             r = doMainInternal(a, id);
-        }
-        while(r.restart);
+        } while (r.restart);
         return r.returnValue;
     }
 
@@ -274,7 +249,7 @@ public abstract class Application extends com.zeroc.Ice.Application
             _communicator = Util.initialize(args, initData, remainingArgs);
 
             _router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(communicator().getDefaultRouter());
-            if(_router == null)
+            if (_router == null)
             {
                 Util.getProcessLogger().error("no glacier2 router configured");
                 r.returnValue = 1;
@@ -284,7 +259,7 @@ public abstract class Application extends com.zeroc.Ice.Application
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(_signalPolicy == com.zeroc.Ice.SignalPolicy.HandleSignals)
+                if (_signalPolicy == com.zeroc.Ice.SignalPolicy.HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -297,32 +272,33 @@ public abstract class Application extends com.zeroc.Ice.Application
                     _session = createSession();
                     sessionCreated = true;
                 }
-                catch(com.zeroc.Ice.LocalException ex)
+                catch (com.zeroc.Ice.LocalException ex)
                 {
                     Util.getProcessLogger().error(Ex.toString(ex));
                     r.returnValue = 1;
                 }
 
-                if(sessionCreated)
+                if (sessionCreated)
                 {
                     int acmTimeout = 0;
                     try
                     {
                         acmTimeout = _router.getACMTimeout();
                     }
-                    catch(com.zeroc.Ice.OperationNotExistException ex)
+                    catch (com.zeroc.Ice.OperationNotExistException ex)
                     {
                     }
-                    if(acmTimeout <= 0)
+                    if (acmTimeout <= 0)
                     {
                         acmTimeout = (int)_router.getSessionTimeout();
                     }
-                    if(acmTimeout > 0)
+                    if (acmTimeout > 0)
                     {
                         com.zeroc.Ice.Connection connection = _router.ice_getCachedConnection();
-                        assert(connection != null);
+                        assert (connection != null);
                         connection.setACM(
-                            java.util.OptionalInt.of(acmTimeout), null,
+                            java.util.OptionalInt.of(acmTimeout),
+                            null,
                             java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
                         connection.setCloseCallback(con -> sessionDestroyed());
                     }
@@ -337,46 +313,46 @@ public abstract class Application extends com.zeroc.Ice.Application
         // indicate a programming logic error (i.e., marshal, protocol
         // failure, etc).
         //
-        catch(RestartSessionException ex)
+        catch (RestartSessionException ex)
         {
             r.restart = true;
         }
-        catch(com.zeroc.Ice.ConnectionRefusedException ex)
-        {
-            Util.getProcessLogger().error(Ex.toString(ex));
-            r.restart = true;
-        }
-        catch(com.zeroc.Ice.ConnectionLostException ex)
+        catch (com.zeroc.Ice.ConnectionRefusedException ex)
         {
             Util.getProcessLogger().error(Ex.toString(ex));
             r.restart = true;
         }
-        catch(com.zeroc.Ice.UnknownLocalException ex)
+        catch (com.zeroc.Ice.ConnectionLostException ex)
         {
             Util.getProcessLogger().error(Ex.toString(ex));
             r.restart = true;
         }
-        catch(com.zeroc.Ice.RequestFailedException ex)
+        catch (com.zeroc.Ice.UnknownLocalException ex)
         {
             Util.getProcessLogger().error(Ex.toString(ex));
             r.restart = true;
         }
-        catch(com.zeroc.Ice.TimeoutException ex)
+        catch (com.zeroc.Ice.RequestFailedException ex)
         {
             Util.getProcessLogger().error(Ex.toString(ex));
             r.restart = true;
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.TimeoutException ex)
+        {
+            Util.getProcessLogger().error(Ex.toString(ex));
+            r.restart = true;
+        }
+        catch (com.zeroc.Ice.LocalException ex)
         {
             Util.getProcessLogger().error(Ex.toString(ex));
             r.returnValue = 1;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             Util.getProcessLogger().error("unknown exception:\n" + Ex.toString(ex));
             r.returnValue = 1;
         }
-        catch(java.lang.Error err)
+        catch (java.lang.Error err)
         {
             //
             // We catch Error to avoid hangs in some non-fatal situations
@@ -388,25 +364,25 @@ public abstract class Application extends com.zeroc.Ice.Application
         //
         // This clears any set interrupt.
         //
-        if(_signalPolicy == com.zeroc.Ice.SignalPolicy.HandleSignals)
+        if (_signalPolicy == com.zeroc.Ice.SignalPolicy.HandleSignals)
         {
             defaultInterrupt();
         }
 
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
-            while(_callbackInProgress)
+            while (_callbackInProgress)
             {
                 try
                 {
                     _mutex.wait();
                 }
-                catch(java.lang.InterruptedException ex)
+                catch (java.lang.InterruptedException ex)
                 {
                 }
             }
 
-            if(_destroyed)
+            if (_destroyed)
             {
                 _communicator = null;
             }
@@ -421,25 +397,25 @@ public abstract class Application extends com.zeroc.Ice.Application
             }
         }
 
-        if(sessionCreated && _router != null)
+        if (sessionCreated && _router != null)
         {
             try
             {
                 _router.destroySession();
             }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
+            catch (com.zeroc.Ice.ConnectionLostException ex)
             {
                 //
                 // Expected if another thread invoked on an object from the session concurrently.
                 //
             }
-            catch(com.zeroc.Glacier2.SessionNotExistException ex)
+            catch (com.zeroc.Glacier2.SessionNotExistException ex)
             {
                 //
                 // This can also occur.
                 //
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 //
                 // Not expected.
@@ -449,15 +425,15 @@ public abstract class Application extends com.zeroc.Ice.Application
             _router = null;
         }
 
-        if(_communicator != null)
+        if (_communicator != null)
         {
             _communicator.destroy();
             _communicator = null;
         }
 
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
-            if(_appHook != null)
+            if (_appHook != null)
             {
                 _appHook.done();
             }

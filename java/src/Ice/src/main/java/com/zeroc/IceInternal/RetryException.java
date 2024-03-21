@@ -6,17 +6,9 @@ package com.zeroc.IceInternal;
 
 public class RetryException extends Exception
 {
-    public
-    RetryException(com.zeroc.Ice.LocalException ex)
-    {
-        _ex = ex;
-    }
+    public RetryException(com.zeroc.Ice.LocalException ex) { _ex = ex; }
 
-    public com.zeroc.Ice.LocalException
-    get()
-    {
-        return _ex;
-    }
+    public com.zeroc.Ice.LocalException get() { return _ex; }
 
     private com.zeroc.Ice.LocalException _ex;
 

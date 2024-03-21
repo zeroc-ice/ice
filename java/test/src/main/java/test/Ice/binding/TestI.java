@@ -8,13 +8,7 @@ import test.Ice.binding.Test.TestIntf;
 
 public class TestI implements TestIntf
 {
-    TestI()
-    {
-    }
+    TestI() {}
 
-    @Override
-    public String getAdapterName(com.zeroc.Ice.Current current)
-    {
-        return current.adapter.getName();
-    }
+    @Override public String getAdapterName(com.zeroc.Ice.Current current) { return current.adapter.getName(); }
 }

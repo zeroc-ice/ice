@@ -4,20 +4,17 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class ServerTemplate extends Communicator
 {
-    static public TemplateDescriptor
-    copyDescriptor(TemplateDescriptor templateDescriptor)
+    static public TemplateDescriptor copyDescriptor(TemplateDescriptor templateDescriptor)
     {
         TemplateDescriptor copy = templateDescriptor.clone();
 
@@ -35,16 +32,16 @@ class ServerTemplate extends Communicator
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _plainIcon = Utils.getIcon("/icons/16x16/server_template.png");
             _iceboxIcon = Utils.getIcon("/icons/16x16/icebox_server_template.png");
         }
 
-        if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+        if (_templateDescriptor.descriptor instanceof IceBoxDescriptor)
         {
-            if(expanded)
+            if (expanded)
             {
                 _cellRenderer.setOpenIcon(_iceboxIcon);
             }
@@ -55,7 +52,7 @@ class ServerTemplate extends Communicator
         }
         else
         {
-            if(expanded)
+            if (expanded)
             {
                 _cellRenderer.setOpenIcon(_plainIcon);
             }
@@ -71,27 +68,25 @@ class ServerTemplate extends Communicator
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
 
-        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        if (((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
         }
         else
         {
             Object clipboard = getCoordinator().getClipboard();
-            actions[PASTE] = clipboard != null &&
-                ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                 || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
+            actions[PASTE] = clipboard != null && ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
+                                                   (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
         }
 
         actions[DELETE] = true;
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             actions[NEW_ADAPTER] = !_services.initialized();
             actions[NEW_SERVICE] = _services.initialized();
@@ -101,18 +96,16 @@ class ServerTemplate extends Communicator
         return actions;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
@@ -123,10 +116,9 @@ class ServerTemplate extends Communicator
         return _popup;
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (ServerTemplateEditor)getRoot().getEditor(ServerTemplateEditor.class, this);
         }
@@ -134,18 +126,13 @@ class ServerTemplate extends Communicator
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new ServerTemplateEditor();
-    }
+    @Override protected Editor createEditor() { return new ServerTemplateEditor(); }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
         ServerTemplates serverTemplates = (ServerTemplates)_parent;
 
-        if(_ephemeral)
+        if (_ephemeral)
         {
             serverTemplates.removeChild(this);
         }
@@ -159,26 +146,13 @@ class ServerTemplate extends Communicator
         }
     }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
-    @Override
-    public Object getDescriptor()
-    {
-        return _templateDescriptor;
-    }
+    @Override public Object getDescriptor() { return _templateDescriptor; }
 
-    @Override
-    CommunicatorDescriptor getCommunicatorDescriptor()
-    {
-        return _templateDescriptor.descriptor;
-    }
+    @Override CommunicatorDescriptor getCommunicatorDescriptor() { return _templateDescriptor.descriptor; }
 
-    @Override
-    public Object saveDescriptor()
+    @Override public Object saveDescriptor()
     {
         //
         // Shallow copy
@@ -188,8 +162,7 @@ class ServerTemplate extends Communicator
         return clone;
     }
 
-    @Override
-    public void restoreDescriptor(Object savedDescriptor)
+    @Override public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
         //
@@ -197,11 +170,12 @@ class ServerTemplate extends Communicator
         //
         _templateDescriptor.parameters = clone.parameters;
 
-        PlainServer.shallowRestore((ServerDescriptor)clone.descriptor,
-                                   (ServerDescriptor)_templateDescriptor.descriptor);
+        PlainServer.shallowRestore(
+            (ServerDescriptor)clone.descriptor,
+            (ServerDescriptor)_templateDescriptor.descriptor);
     }
 
-     //
+    //
     // Application is needed to lookup service templates
     //
     ServerTemplate(boolean brandNew, ServerTemplates parent, String name, TemplateDescriptor descriptor)
@@ -221,30 +195,28 @@ class ServerTemplate extends Communicator
         {
             rebuild(descriptor);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false;
         }
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("server-template", attributes);
             writeParameters(writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
 
-            if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+            if (_templateDescriptor.descriptor instanceof IceBoxDescriptor)
             {
                 IceBoxDescriptor descriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 
                 writer.writeStartTag("icebox", PlainServer.createAttributes(descriptor));
 
-                if(descriptor.description.length() > 0)
+                if (descriptor.description.length() > 0)
                 {
                     writer.writeElement("description", descriptor.description);
                 }
@@ -265,7 +237,7 @@ class ServerTemplate extends Communicator
 
                 writer.writeStartTag("server", PlainServer.createAttributes(descriptor));
 
-                if(descriptor.description.length() > 0)
+                if (descriptor.description.length() > 0)
                 {
                     writer.writeElement("description", descriptor.description);
                 }
@@ -283,11 +255,7 @@ class ServerTemplate extends Communicator
         }
     }
 
-    @Override
-    boolean isIceBox()
-    {
-        return _templateDescriptor.descriptor instanceof IceBoxDescriptor;
-    }
+    @Override boolean isIceBox() { return _templateDescriptor.descriptor instanceof IceBoxDescriptor; }
 
     void rebuild(TemplateDescriptor descriptor) throws UpdateFailedException
     {
@@ -296,11 +264,11 @@ class ServerTemplate extends Communicator
         _adapters.clear();
         _services.clear();
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             _adapters.init(_templateDescriptor.descriptor.adapters);
 
-            if(isIceBox())
+            if (isIceBox())
             {
                 IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 
@@ -309,32 +277,15 @@ class ServerTemplate extends Communicator
         }
     }
 
-    void rebuild() throws UpdateFailedException
-    {
-        rebuild(_templateDescriptor);
-    }
+    void rebuild() throws UpdateFailedException { rebuild(_templateDescriptor); }
 
-    void commit()
-    {
-        _editable.commit();
-    }
+    void commit() { _editable.commit(); }
 
-    Editable getEditable()
-    {
-        return _editable;
-    }
+    Editable getEditable() { return _editable; }
 
-    @Override
-    Editable getEnclosingEditable()
-    {
-        return _editable;
-    }
+    @Override Editable getEnclosingEditable() { return _editable; }
 
-    @Override
-    java.util.List<? extends TemplateInstance> findInstances()
-    {
-        return getRoot().findServerInstances(_id);
-    }
+    @Override java.util.List<? extends TemplateInstance> findInstances() { return getRoot().findServerInstances(_id); }
 
     private TemplateDescriptor _templateDescriptor;
     private final boolean _ephemeral;

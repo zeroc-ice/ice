@@ -13,10 +13,9 @@ class RetryTask implements Runnable, CancellationHandler
         _outAsync = outAsync;
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
-        if(cancel())
+        if (cancel())
         {
             _outAsync.retry();
 
@@ -30,19 +29,18 @@ class RetryTask implements Runnable, CancellationHandler
         }
     }
 
-    @Override
-    public void asyncRequestCanceled(OutgoingAsyncBase outAsync, com.zeroc.Ice.LocalException ex)
+    @Override public void asyncRequestCanceled(OutgoingAsyncBase outAsync, com.zeroc.Ice.LocalException ex)
     {
-        if(_queue.remove(this) && cancel())
+        if (_queue.remove(this) && cancel())
         {
-            if(_instance.traceLevels().retry >= 1)
+            if (_instance.traceLevels().retry >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("operation retry canceled\n");
                 s.append(Ex.toString(ex));
                 _instance.initializationData().logger.trace(_instance.traceLevels().retryCat, s.toString());
             }
-            if(_outAsync.completed(ex))
+            if (_outAsync.completed(ex))
             {
                 _outAsync.invokeCompletedAsync();
             }
@@ -51,13 +49,13 @@ class RetryTask implements Runnable, CancellationHandler
 
     public boolean destroy()
     {
-        if(cancel())
+        if (cancel())
         {
             try
             {
                 _outAsync.abort(new com.zeroc.Ice.CommunicatorDestroyedException());
             }
-            catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+            catch (com.zeroc.Ice.CommunicatorDestroyedException ex)
             {
                 // Abort can throw if there's no callback, just ignore in this case
             }
@@ -69,7 +67,7 @@ class RetryTask implements Runnable, CancellationHandler
     synchronized public void setFuture(java.util.concurrent.Future<?> future)
     {
         _future = future;
-        if(_cancelled)
+        if (_cancelled)
         {
             _future.cancel(false);
         }
@@ -77,13 +75,13 @@ class RetryTask implements Runnable, CancellationHandler
 
     synchronized private boolean cancel()
     {
-        if(_cancelled)
+        if (_cancelled)
         {
             return false;
         }
         else
         {
-            if(_future != null)
+            if (_future != null)
             {
                 _future.cancel(false);
             }

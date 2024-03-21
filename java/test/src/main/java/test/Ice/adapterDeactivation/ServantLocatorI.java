@@ -31,21 +31,13 @@ public final class ServantLocatorI implements ServantLocator
         private int _nextPort = 23456;
     }
 
-    public ServantLocatorI()
-    {
-        _deactivated = false;
-    }
+    public ServantLocatorI() { _deactivated = false; }
 
-    @SuppressWarnings( "deprecation" )
-    protected synchronized void finalize()
-        throws Throwable
-    {
-        test(_deactivated);
-    }
+    @SuppressWarnings("deprecation") protected synchronized void finalize() throws Throwable { test(_deactivated); }
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -53,12 +45,9 @@ public final class ServantLocatorI implements ServantLocator
 
     public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current)
     {
-        synchronized(this)
-        {
-            test(!_deactivated);
-        }
+        synchronized (this) { test(!_deactivated); }
 
-        if(current.id.name.equals("router"))
+        if (current.id.name.equals("router"))
         {
             return new ServantLocator.LocateResult(_router, null);
         }
@@ -71,12 +60,9 @@ public final class ServantLocatorI implements ServantLocator
 
     public void finished(com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie)
     {
-        synchronized(this)
-        {
-            test(!_deactivated);
-        }
+        synchronized (this) { test(!_deactivated); }
 
-        if(current.id.name.equals("router"))
+        if (current.id.name.equals("router"))
         {
             return;
         }
@@ -87,7 +73,7 @@ public final class ServantLocatorI implements ServantLocator
 
     public synchronized void deactivate(String category)
     {
-        synchronized(this)
+        synchronized (this)
         {
             test(!_deactivated);
 

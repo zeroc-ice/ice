@@ -32,11 +32,12 @@ public class Client extends test.TestHelper
         // Setup the test transport plug-in.
         //
         properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+        properties.setProperty(
+            "Ice.Default.Protocol",
+            "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
 
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
             BackgroundPrx background = AllTests.allTests(plugin.getConfiguration(), this);

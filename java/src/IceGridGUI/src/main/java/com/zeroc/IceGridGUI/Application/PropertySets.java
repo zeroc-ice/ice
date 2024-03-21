@@ -4,10 +4,9 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JPopupMenu;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JPopupMenu;
 
 class PropertySets extends ListTreeNode implements PropertySetParent
 {
@@ -15,7 +14,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
     copyDescriptors(java.util.Map<String, PropertySetDescriptor> descriptors)
     {
         java.util.Map<String, PropertySetDescriptor> copy = new java.util.HashMap<>();
-        for(java.util.Map.Entry<String, PropertySetDescriptor> p : descriptors.entrySet())
+        for (java.util.Map.Entry<String, PropertySetDescriptor> p : descriptors.entrySet())
         {
             copy.put(p.getKey(), PropertySet.copyDescriptor(p.getValue()));
         }
@@ -25,13 +24,12 @@ class PropertySets extends ListTreeNode implements PropertySetParent
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
-        Object descriptor =  getCoordinator().getClipboard();
-        if(descriptor != null)
+        Object descriptor = getCoordinator().getClipboard();
+        if (descriptor != null)
         {
             actions[PASTE] = descriptor instanceof PropertySetDescriptor;
         }
@@ -40,11 +38,10 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_PROPERTY_SET));
@@ -53,30 +50,27 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         return _popup;
     }
 
-    @Override
-    public void newPropertySet()
+    @Override public void newPropertySet()
     {
         PropertySetDescriptor descriptor =
             new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>());
         newPropertySet(descriptor);
     }
 
-    @Override
-    public void paste()
+    @Override public void paste()
     {
-        Object descriptor =  getCoordinator().getClipboard();
+        Object descriptor = getCoordinator().getClipboard();
 
         PropertySetDescriptor d = PropertySet.copyDescriptor((PropertySetDescriptor)descriptor);
         newPropertySet(d);
     }
 
-    PropertySets(TreeNode parent, java.util.Map<String, PropertySetDescriptor> desc)
-        throws UpdateFailedException
+    PropertySets(TreeNode parent, java.util.Map<String, PropertySetDescriptor> desc) throws UpdateFailedException
     {
         super(false, parent, "Property Sets");
         _descriptors = desc;
 
-        for(java.util.Map.Entry<String, PropertySetDescriptor> p : _descriptors.entrySet())
+        for (java.util.Map.Entry<String, PropertySetDescriptor> p : _descriptors.entrySet())
         {
             String id = p.getKey();
             insertChild(new PropertySet(false, this, id, id, p.getValue()), false);
@@ -100,12 +94,12 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         //
         java.util.List<PropertySet> newChildren = new java.util.ArrayList<>();
 
-        for(java.util.Map.Entry<String, PropertySetDescriptor> p : updates.entrySet())
+        for (java.util.Map.Entry<String, PropertySetDescriptor> p : updates.entrySet())
         {
             String id = p.getKey();
             PropertySetDescriptor psd = p.getValue();
             PropertySet child = (PropertySet)findChild(id);
-            if(child == null)
+            if (child == null)
             {
                 newChildren.add(new PropertySet(false, this, id, id, psd));
             }
@@ -120,10 +114,10 @@ class PropertySets extends ListTreeNode implements PropertySetParent
     java.util.Map<String, PropertySetDescriptor> getUpdates()
     {
         java.util.Map<String, PropertySetDescriptor> updates = new java.util.HashMap<>();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             PropertySet ps = (PropertySet)p;
-            if(ps.getEditable().isNew() || ps.getEditable().isModified())
+            if (ps.getEditable().isNew() || ps.getEditable().isModified())
             {
                 updates.put(ps.getId(), (PropertySetDescriptor)ps.getDescriptor());
             }
@@ -134,31 +128,23 @@ class PropertySets extends ListTreeNode implements PropertySetParent
     void commit()
     {
         _editable.commit();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             PropertySet ps = (PropertySet)p;
             ps.commit();
         }
     }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptors;
-    }
+    @Override Object getDescriptor() { return _descriptors; }
 
-    @Override
-    public void tryAdd(String id, PropertySetDescriptor descriptor)
-        throws UpdateFailedException
+    @Override public void tryAdd(String id, PropertySetDescriptor descriptor) throws UpdateFailedException
     {
         insertChild(new PropertySet(true, this, id, id, descriptor), true);
 
         _descriptors.put(id, descriptor);
     }
 
-    @Override
-    public void tryRename(String oldId, String oldId2, String newId)
-        throws UpdateFailedException
+    @Override public void tryRename(String oldId, String oldId2, String newId) throws UpdateFailedException
     {
         PropertySet oldChild = (PropertySet)findChild(oldId);
         assert oldChild != null;
@@ -169,13 +155,13 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         {
             insertChild(new PropertySet(true, this, newId, newId, descriptor), true);
         }
-        catch(UpdateFailedException ex)
+        catch (UpdateFailedException ex)
         {
             try
             {
                 insertChild(oldChild, true);
             }
-            catch(UpdateFailedException ufe)
+            catch (UpdateFailedException ufe)
             {
                 assert false;
             }
@@ -187,30 +173,16 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         _descriptors.put(newId, descriptor);
     }
 
-    @Override
-    public void insertPropertySet(PropertySet nps, boolean fireEvent)
-        throws UpdateFailedException
+    @Override public void insertPropertySet(PropertySet nps, boolean fireEvent) throws UpdateFailedException
     {
         insertChild(nps, fireEvent);
     }
 
-    @Override
-    public void removePropertySet(PropertySet nps)
-    {
-        removeChild(nps);
-    }
+    @Override public void removePropertySet(PropertySet nps) { removeChild(nps); }
 
-    @Override
-    public void removeDescriptor(String id)
-    {
-        _descriptors.remove(id);
-    }
+    @Override public void removeDescriptor(String id) { _descriptors.remove(id); }
 
-    @Override
-    public Editable getEditable()
-    {
-        return super.getEditable();
-    }
+    @Override public Editable getEditable() { return super.getEditable(); }
 
     private void newPropertySet(PropertySetDescriptor descriptor)
     {
@@ -222,7 +194,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         {
             insertChild(propertySet, true);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false;
         }

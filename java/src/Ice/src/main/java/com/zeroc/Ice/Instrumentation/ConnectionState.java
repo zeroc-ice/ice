@@ -42,33 +42,27 @@ public enum ConnectionState
      **/
     ConnectionStateClosed(4);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ConnectionState valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return ConnectionStateValidating;
-        case 1:
-            return ConnectionStateHolding;
-        case 2:
-            return ConnectionStateActive;
-        case 3:
-            return ConnectionStateClosing;
-        case 4:
-            return ConnectionStateClosed;
+            case 0:
+                return ConnectionStateValidating;
+            case 1:
+                return ConnectionStateHolding;
+            case 2:
+                return ConnectionStateActive;
+            case 3:
+                return ConnectionStateClosing;
+            case 4:
+                return ConnectionStateClosed;
         }
         return null;
     }
 
-    private ConnectionState(int v)
-    {
-        _value = v;
-    }
+    private ConnectionState(int v) { _value = v; }
 
     private final int _value;
 }

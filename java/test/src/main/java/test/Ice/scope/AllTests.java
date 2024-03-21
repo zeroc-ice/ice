@@ -10,7 +10,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -30,7 +30,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[]{ s1 };
+            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[] {s1};
             test.Ice.scope.Test.I.OpSSeqResult opSSeqResult = i.opSSeq(sseq1);
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -46,7 +46,7 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[]{ c1 };
+            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[] {c1};
             test.Ice.scope.Test.I.OpCSeqResult opCSeqResult = i.opCSeq(cseq1);
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
@@ -76,7 +76,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[]{ s1 };
+            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[] {s1};
             test.Ice.scope.Test.I.OpSSeqResult opSSeqResult = i.opSSeqAsync(sseq1).join();
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -92,7 +92,7 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[]{ c1 };
+            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[] {c1};
             test.Ice.scope.Test.I.OpCSeqResult opCSeqResult = i.opCSeqAsync(cseq1).join();
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
@@ -122,7 +122,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[]{ s1 };
+            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[] {s1};
             test.Ice.scope.Test.Inner.I.OpSSeqResult opSSeqResult = i.opSSeq(sseq1);
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -139,13 +139,13 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[]{ c1 };
+            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[] {c1};
             test.Ice.scope.Test.Inner.I.OpCSeqResult opCSeqResult = i.opCSeq(cseq1);
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
 
-            java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> cmap1
-                = new java.util.HashMap<String, test.Ice.scope.Test.Inner.Inner2.C>();
+            java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> cmap1 =
+                new java.util.HashMap<String, test.Ice.scope.Test.Inner.Inner2.C>();
             cmap1.put("a", c1);
             test.Ice.scope.Test.Inner.I.OpCMapResult opCMapResult = i.opCMap(cmap1);
             test(opCMapResult.returnValue.get("a").s.equals(s1));
@@ -161,7 +161,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[]{ s1 };
+            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[] {s1};
             test.Ice.scope.Test.Inner.I.OpSSeqResult opSSeqResult = i.opSSeqAsync(sseq1).join();
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -178,7 +178,7 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[]{ c1 };
+            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[] {c1};
             test.Ice.scope.Test.Inner.I.OpCSeqResult opCSeqResult = i.opCSeqAsync(cseq1).join();
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
@@ -200,7 +200,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[]{ s1 };
+            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[] {s1};
             test.Ice.scope.Test.Inner.Inner2.I.OpSSeqResult opSSeqResult = i.opSSeq(sseq1);
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -217,13 +217,13 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[]{ c1 };
+            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[] {c1};
             test.Ice.scope.Test.Inner.Inner2.I.OpCSeqResult opCSeqResult = i.opCSeq(cseq1);
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
 
-            java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> cmap1
-                = new java.util.HashMap<String, test.Ice.scope.Test.Inner.Inner2.C>();
+            java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> cmap1 =
+                new java.util.HashMap<String, test.Ice.scope.Test.Inner.Inner2.C>();
             cmap1.put("a", c1);
             test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult opCMapResult = i.opCMap(cmap1);
             test(opCMapResult.returnValue.get("a").s.equals(s1));
@@ -239,7 +239,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[]{ s1 };
+            test.Ice.scope.Test.Inner.Inner2.S[] sseq1 = new test.Ice.scope.Test.Inner.Inner2.S[] {s1};
             test.Ice.scope.Test.Inner.Inner2.I.OpSSeqResult opSSeqResult = i.opSSeqAsync(sseq1).join();
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -256,7 +256,7 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[]{ c1 };
+            test.Ice.scope.Test.Inner.Inner2.C[] cseq1 = new test.Ice.scope.Test.Inner.Inner2.C[] {c1};
             test.Ice.scope.Test.Inner.Inner2.I.OpCSeqResult opCSeqResult = i.opCSeqAsync(cseq1).join();
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));
@@ -278,7 +278,7 @@ public class AllTests
             test(s1.equals(opSResult.returnValue));
             test(s1.equals(opSResult.s2));
 
-            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[]{ s1 };
+            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[] {s1};
             test.Ice.scope.Inner.Test.Inner2.I.OpSSeqResult opSSeqResult = i.opSSeqAsync(sseq1).join();
             test(opSSeqResult.returnValue[0].equals(s1));
             test(opSSeqResult.s2[0].equals(s1));
@@ -294,7 +294,7 @@ public class AllTests
             test(c1.s.equals(opCResult.returnValue.s));
             test(c1.s.equals(opCResult.c2.s));
 
-            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[]{ c1 };
+            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[] {c1};
             test.Ice.scope.Inner.Test.Inner2.I.OpCSeqResult opCSeqResult = i.opCSeqAsync(cseq1).join();
             test(opCSeqResult.returnValue[0].s.equals(s1));
             test(opCSeqResult.c2[0].s.equals(s1));

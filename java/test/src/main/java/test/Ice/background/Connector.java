@@ -6,30 +6,17 @@ package test.Ice.background;
 
 final class Connector implements com.zeroc.IceInternal.Connector
 {
-    @Override
-    public com.zeroc.IceInternal.Transceiver connect()
+    @Override public com.zeroc.IceInternal.Transceiver connect()
     {
         _configuration.checkConnectException();
         return new Transceiver(_configuration, _connector.connect());
     }
 
-    @Override
-    public short type()
-    {
-        return (short)(EndpointI.TYPE_BASE + _connector.type());
-    }
+    @Override public short type() { return (short)(EndpointI.TYPE_BASE + _connector.type()); }
 
-    @Override
-    public String toString()
-    {
-        return _connector.toString();
-    }
+    @Override public String toString() { return _connector.toString(); }
 
-    @Override
-    public int hashCode()
-    {
-        return _connector.hashCode();
-    }
+    @Override public int hashCode() { return _connector.hashCode(); }
 
     //
     // Only for use by Endpoint
@@ -40,8 +27,7 @@ final class Connector implements com.zeroc.IceInternal.Connector
         _connector = connector;
     }
 
-    @Override
-    public boolean equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
         Connector p = null;
 
@@ -49,12 +35,12 @@ final class Connector implements com.zeroc.IceInternal.Connector
         {
             p = (Connector)obj;
         }
-        catch(ClassCastException ex)
+        catch (ClassCastException ex)
         {
             return false;
         }
 
-        if(this == p)
+        if (this == p)
         {
             return true;
         }

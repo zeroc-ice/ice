@@ -23,10 +23,7 @@ package com.zeroc.Ice;
  **/
 public class ObjectAdapterDeactivatedException extends LocalException
 {
-    public ObjectAdapterDeactivatedException()
-    {
-        this.name = "";
-    }
+    public ObjectAdapterDeactivatedException() { this.name = ""; }
 
     public ObjectAdapterDeactivatedException(Throwable cause)
     {
@@ -34,10 +31,7 @@ public class ObjectAdapterDeactivatedException extends LocalException
         this.name = "";
     }
 
-    public ObjectAdapterDeactivatedException(String name)
-    {
-        this.name = name;
-    }
+    public ObjectAdapterDeactivatedException(String name) { this.name = name; }
 
     public ObjectAdapterDeactivatedException(String name, Throwable cause)
     {
@@ -45,10 +39,7 @@ public class ObjectAdapterDeactivatedException extends LocalException
         this.name = name;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::ObjectAdapterDeactivatedException";
-    }
+    public String ice_id() { return "::Ice::ObjectAdapterDeactivatedException"; }
 
     /**
      * Name of the adapter.

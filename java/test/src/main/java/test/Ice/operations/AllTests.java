@@ -5,7 +5,6 @@
 package test.Ice.operations;
 
 import java.io.PrintWriter;
-
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 

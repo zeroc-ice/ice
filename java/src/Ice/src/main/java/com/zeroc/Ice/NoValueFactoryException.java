@@ -49,10 +49,7 @@ public class NoValueFactoryException extends MarshalException
         this.type = type;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::NoValueFactoryException";
-    }
+    public String ice_id() { return "::Ice::NoValueFactoryException"; }
 
     /**
      * The Slice type ID of the class instance for which no factory could be found.

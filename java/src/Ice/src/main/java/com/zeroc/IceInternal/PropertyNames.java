@@ -9,8 +9,7 @@ package com.zeroc.IceInternal;
 
 public final class PropertyNames
 {
-    public static final Property IceProps[] =
-    {
+    public static final Property IceProps[] = {
         new Property("Ice\\.AcceptClassCycles", false, null),
         new Property("Ice\\.ACM\\.Client", true, null),
         new Property("Ice\\.ACM\\.Server", true, null),
@@ -188,22 +187,18 @@ public final class PropertyNames
         new Property("Ice\\.Warn\\.UnusedProperties", false, null),
         new Property("Ice\\.CacheMessageBuffers", false, null),
         new Property("Ice\\.ThreadInterruptSafe", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceMXProps[] =
-    {
+    public static final Property IceMXProps[] = {
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.GroupBy", false, null),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.Map", false, null),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.RetainDetached", false, null),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.Accept", false, null),
         new Property("IceMX\\.Metrics\\.[^\\s]+\\.Reject", false, null),
         new Property("IceMX\\.Metrics\\.[^\\s]+", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceDiscoveryProps[] =
-    {
+    public static final Property IceDiscoveryProps[] = {
         new Property("IceDiscovery\\.Multicast\\.ACM\\.Timeout", false, null),
         new Property("IceDiscovery\\.Multicast\\.ACM\\.Heartbeat", false, null),
         new Property("IceDiscovery\\.Multicast\\.ACM\\.Close", false, null),
@@ -323,11 +318,9 @@ public final class PropertyNames
         new Property("IceDiscovery\\.Port", false, null),
         new Property("IceDiscovery\\.Interface", false, null),
         new Property("IceDiscovery\\.DomainId", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceLocatorDiscoveryProps[] =
-    {
+    public static final Property IceLocatorDiscoveryProps[] = {
         new Property("IceLocatorDiscovery\\.Reply\\.ACM\\.Timeout", false, null),
         new Property("IceLocatorDiscovery\\.Reply\\.ACM\\.Heartbeat", false, null),
         new Property("IceLocatorDiscovery\\.Reply\\.ACM\\.Close", false, null),
@@ -411,11 +404,9 @@ public final class PropertyNames
         new Property("IceLocatorDiscovery\\.Interface", false, null),
         new Property("IceLocatorDiscovery\\.InstanceName", false, null),
         new Property("IceLocatorDiscovery\\.Trace\\.Lookup", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceBoxProps[] =
-    {
+    public static final Property IceBoxProps[] = {
         new Property("IceBox\\.InheritProperties", false, null),
         new Property("IceBox\\.InstanceName", true, null),
         new Property("IceBox\\.LoadOrder", false, null),
@@ -433,11 +424,9 @@ public final class PropertyNames
         new Property("IceBox\\.ServiceManager\\.ThreadPool\\.StackSize", true, null),
         new Property("IceBox\\.Trace\\.ServiceObserver", false, null),
         new Property("IceBox\\.UseSharedCommunicator\\.[^\\s]+", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceBoxAdminProps[] =
-    {
+    public static final Property IceBoxAdminProps[] = {
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy\\.EndpointSelection", false, null),
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy\\.ConnectionCached", false, null),
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy\\.PreferSecure", false, null),
@@ -448,11 +437,9 @@ public final class PropertyNames
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy\\.CollocationOptimized", false, null),
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy\\.Context\\.[^\\s]+", false, null),
         new Property("IceBoxAdmin\\.ServiceManager\\.Proxy", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceBridgeProps[] =
-    {
+    public static final Property IceBridgeProps[] = {
         new Property("IceBridge\\.Source\\.ACM\\.Timeout", false, null),
         new Property("IceBridge\\.Source\\.ACM\\.Heartbeat", false, null),
         new Property("IceBridge\\.Source\\.ACM\\.Close", false, null),
@@ -492,11 +479,9 @@ public final class PropertyNames
         new Property("IceBridge\\.Source\\.MessageSizeMax", false, null),
         new Property("IceBridge\\.Target\\.Endpoints", false, null),
         new Property("IceBridge\\.InstanceName", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceGridAdminProps[] =
-    {
+    public static final Property IceGridAdminProps[] = {
         new Property("IceGridAdmin\\.AuthenticateUsingSSL", false, null),
         new Property("IceGridAdmin\\.MetricsConfig", false, null),
         new Property("IceGridAdmin\\.Username", false, null),
@@ -621,11 +606,9 @@ public final class PropertyNames
         new Property("IceGridAdmin\\.Discovery\\.Locator\\.MessageSizeMax", false, null),
         new Property("IceGridAdmin\\.Trace\\.Observers", false, null),
         new Property("IceGridAdmin\\.Trace\\.SaveToRegistry", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceGridProps[] =
-    {
+    public static final Property IceGridProps[] = {
         new Property("IceGrid\\.AdminRouter\\.ACM\\.Timeout", false, null),
         new Property("IceGrid\\.AdminRouter\\.ACM\\.Heartbeat", false, null),
         new Property("IceGrid\\.AdminRouter\\.ACM\\.Close", false, null),
@@ -1025,11 +1008,9 @@ public final class PropertyNames
         new Property("IceGrid\\.Registry\\.Trace\\.Topic", false, null),
         new Property("IceGrid\\.Registry\\.Trace\\.TopicManager", false, null),
         new Property("IceGrid\\.Registry\\.UserAccounts", false, null),
-        null
-    };
+        null};
 
-    public static final Property IcePatch2Props[] =
-    {
+    public static final Property IcePatch2Props[] = {
         new Property("IcePatch2\\.ACM\\.Timeout", false, null),
         new Property("IcePatch2\\.ACM\\.Heartbeat", false, null),
         new Property("IcePatch2\\.ACM\\.Close", false, null),
@@ -1069,21 +1050,17 @@ public final class PropertyNames
         new Property("IcePatch2\\.MessageSizeMax", false, null),
         new Property("IcePatch2\\.Directory", false, null),
         new Property("IcePatch2\\.InstanceName", false, null),
-        null
-    };
+        null};
 
-    public static final Property IcePatch2ClientProps[] =
-    {
+    public static final Property IcePatch2ClientProps[] = {
         new Property("IcePatch2Client\\.ChunkSize", false, null),
         new Property("IcePatch2Client\\.Directory", false, null),
         new Property("IcePatch2Client\\.Proxy", false, null),
         new Property("IcePatch2Client\\.Remove", false, null),
         new Property("IcePatch2Client\\.Thorough", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceSSLProps[] =
-    {
+    public static final Property IceSSLProps[] = {
         new Property("IceSSL\\.Alias", false, null),
         new Property("IceSSL\\.CAs", false, null),
         new Property("IceSSL\\.CertAuthDir", true, "IceSSL.CAs"),
@@ -1130,26 +1107,20 @@ public final class PropertyNames
         new Property("IceSSL\\.UsePlatformCAs", false, null),
         new Property("IceSSL\\.VerifyDepthMax", false, null),
         new Property("IceSSL\\.VerifyPeer", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceStormAdminProps[] =
-    {
+    public static final Property IceStormAdminProps[] = {
         new Property("IceStormAdmin\\.TopicManager\\.[^\\s]+", false, null),
         new Property("IceStormAdmin\\.Host", false, null),
         new Property("IceStormAdmin\\.Port", false, null),
-        null
-    };
+        null};
 
-    public static final Property IceBTProps[] =
-    {
+    public static final Property IceBTProps[] = {
         new Property("IceBT\\.RcvSize", false, null),
         new Property("IceBT\\.SndSize", false, null),
-        null
-    };
+        null};
 
-    public static final Property Glacier2Props[] =
-    {
+    public static final Property Glacier2Props[] = {
         new Property("Glacier2\\.AddConnectionContext", false, null),
         new Property("Glacier2\\.Client\\.ACM\\.Timeout", false, null),
         new Property("Glacier2\\.Client\\.ACM\\.Heartbeat", false, null),
@@ -1289,18 +1260,14 @@ public final class PropertyNames
         new Property("Glacier2\\.SSLSessionManager", false, null),
         new Property("Glacier2\\.Trace\\.RoutingTable", false, null),
         new Property("Glacier2\\.Trace\\.Session", false, null),
-        null
-    };
+        null};
 
-    public static final Property Glacier2CryptPermissionsVerifierProps[] =
-    {
+    public static final Property Glacier2CryptPermissionsVerifierProps[] = {
         new Property("Glacier2CryptPermissionsVerifier\\.[^\\s]+\\.PermissionsVerifier", false, null),
         new Property("Glacier2CryptPermissionsVerifier\\.[^\\s]+\\.AdminPermissionsVerifier", false, null),
-        null
-    };
+        null};
 
-    public static final Property[] validProps[] =
-    {
+    public static final Property[] validProps[] = {
         IceProps,
         IceMXProps,
         IceDiscoveryProps,
@@ -1317,11 +1284,9 @@ public final class PropertyNames
         IceBTProps,
         Glacier2Props,
         Glacier2CryptPermissionsVerifierProps,
-        null
-    };
+        null};
 
-    public static final String clPropNames[] =
-    {
+    public static final String clPropNames[] = {
         "Ice",
         "IceMX",
         "IceDiscovery",
@@ -1338,6 +1303,5 @@ public final class PropertyNames
         "IceBT",
         "Glacier2",
         "Glacier2CryptPermissionsVerifier",
-        null
-    };
+        null};
 }

@@ -4,8 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -14,17 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class ServerInstanceEditor extends AbstractServerEditor
+@SuppressWarnings("unchecked") class ServerInstanceEditor extends AbstractServerEditor
 {
-    @Override
-    protected void writeDescriptor()
+    @Override protected void writeDescriptor()
     {
         ServerInstanceDescriptor descriptor = getDescriptor();
         ServerTemplate t = (ServerTemplate)_template.getSelectedItem();
@@ -35,12 +30,11 @@ class ServerInstanceEditor extends AbstractServerEditor
         descriptor.propertySet.references = _propertySets.getList().toArray(new String[0]);
         descriptor.propertySet.properties = _properties.getProperties();
 
-        ((ServerInstance)_target).isIceBox(
-            ((TemplateDescriptor)t.getDescriptor()).descriptor instanceof IceBoxDescriptor);
+        ((ServerInstance)_target)
+            .isIceBox(((TemplateDescriptor)t.getDescriptor()).descriptor instanceof IceBoxDescriptor);
     }
 
-    @Override
-    protected boolean isSimpleUpdate()
+    @Override protected boolean isSimpleUpdate()
     {
         ServerInstanceDescriptor descriptor = getDescriptor();
         ServerTemplate t = (ServerTemplate)_template.getSelectedItem();
@@ -55,19 +49,16 @@ class ServerInstanceEditor extends AbstractServerEditor
         //
         // Template
         //
-        Action gotoTemplate = new AbstractAction(
-            "", Utils.getIcon("/icons/16x16/goto.png"))
+        Action gotoTemplate = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
+                TreeNode t = (TreeNode)_template.getSelectedItem();
+                if (t != null)
                 {
-                    TreeNode t = (TreeNode)_template.getSelectedItem();
-                    if(t != null)
-                    {
-                        t.getRoot().setSelectedNode(t);
-                    }
+                    t.getRoot().setSelectedNode(t);
                 }
-            };
+            }
+        };
         gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this server template");
         _templateButton = new JButton(gotoTemplate);
 
@@ -79,19 +70,15 @@ class ServerInstanceEditor extends AbstractServerEditor
         _properties = new PropertiesField(this);
     }
 
-    ServerInstanceDescriptor getDescriptor()
-    {
-        return (ServerInstanceDescriptor)_target.getDescriptor();
-    }
+    ServerInstanceDescriptor getDescriptor() { return (ServerInstanceDescriptor)_target.getDescriptor(); }
 
     //
     // From Editor:
     //
 
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
-        if(_target.getCoordinator().substitute())
+        if (_target.getCoordinator().substitute())
         {
             return _target.getResolver();
         }
@@ -101,8 +88,7 @@ class ServerInstanceEditor extends AbstractServerEditor
         }
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template", _template);
         builder.append(_templateButton);
@@ -167,35 +153,29 @@ class ServerInstanceEditor extends AbstractServerEditor
         assert t != null;
         _template.setSelectedItem(t);
 
-        ListDataListener templateListener = new ListDataListener()
+        ListDataListener templateListener = new ListDataListener() {
+            @Override public void contentsChanged(ListDataEvent e)
             {
-                @Override
-                public void contentsChanged(ListDataEvent e)
-                {
-                    updated();
+                updated();
 
-                    ServerTemplate t = (ServerTemplate)_template.getModel().getSelectedItem();
+                ServerTemplate t = (ServerTemplate)_template.getModel().getSelectedItem();
 
-                    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+                TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
 
-                    //
-                    // Replace parameters but keep existing values
-                    //
-                    _parameters.set(td.parameters,
-                                    makeParameterValues(_parameters.getValues(), td.parameters),
-                                    td.parameterDefaults, null);
-                }
+                //
+                // Replace parameters but keep existing values
+                //
+                _parameters.set(
+                    td.parameters,
+                    makeParameterValues(_parameters.getValues(), td.parameters),
+                    td.parameterDefaults,
+                    null);
+            }
 
-                @Override
-                public void intervalAdded(ListDataEvent e)
-                {
-                }
+            @Override public void intervalAdded(ListDataEvent e) {}
 
-                @Override
-                public void intervalRemoved(ListDataEvent e)
-                {
-                }
-            };
+            @Override public void intervalRemoved(ListDataEvent e) {}
+        };
 
         _template.getModel().addListDataListener(templateListener);
         _template.setEnabled(isEditable);
@@ -211,7 +191,7 @@ class ServerInstanceEditor extends AbstractServerEditor
         _applyButton.setEnabled(server.isEphemeral());
         _discardButton.setEnabled(server.isEphemeral());
         detectUpdates(true);
-        if(server.isEphemeral())
+        if (server.isEphemeral())
         {
             updated();
         }

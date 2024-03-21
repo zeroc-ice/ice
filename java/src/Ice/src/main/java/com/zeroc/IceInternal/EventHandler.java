@@ -19,8 +19,7 @@ public abstract class EventHandler
     //
     // Get a textual representation of the event handler.
     //
-    @Override
-    abstract public String toString();
+    @Override abstract public String toString();
 
     //
     // Get the native information of the handler, this is used by the selector.

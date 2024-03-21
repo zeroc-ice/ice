@@ -4,24 +4,22 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class ServiceInstance extends TreeNode implements Service, Cloneable
 {
-    static public ServiceInstanceDescriptor
-    copyDescriptor(ServiceInstanceDescriptor instanceDescriptor)
+    static public ServiceInstanceDescriptor copyDescriptor(ServiceInstanceDescriptor instanceDescriptor)
     {
         ServiceInstanceDescriptor copy = instanceDescriptor.clone();
 
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
 
-        if(copy.descriptor != null)
+        if (copy.descriptor != null)
         {
             copy.descriptor = PlainService.copyDescriptor(copy.descriptor);
         }
@@ -32,7 +30,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
     copyDescriptors(java.util.List<ServiceInstanceDescriptor> descriptors)
     {
         java.util.List<ServiceInstanceDescriptor> copy = new java.util.LinkedList<>();
-        for(ServiceInstanceDescriptor p : descriptors)
+        for (ServiceInstanceDescriptor p : descriptors)
         {
             copy.add(copyDescriptor(p));
         }
@@ -49,7 +47,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/service.png"));
@@ -61,20 +59,19 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
 
-        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        if (((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
         }
 
         actions[DELETE] = true;
 
-        if(_parent instanceof Server && !_ephemeral)
+        if (_parent instanceof Server && !_ephemeral)
         {
             actions[SHOW_VARS] = true;
             actions[SUBSTITUTE_VARS] = true;
@@ -85,11 +82,10 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(MOVE_UP));
@@ -99,39 +95,21 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return _popup;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public void paste()
-    {
-        ((TreeNode)_parent).paste();
-    }
+    @Override public void paste() { ((TreeNode)_parent).paste(); }
 
-    @Override
-    public void moveUp()
-    {
-        move(true);
-    }
+    @Override public void moveUp() { move(true); }
 
-    @Override
-    public void moveDown()
-    {
-        move(false);
-    }
+    @Override public void moveDown() { move(false); }
 
-    @Override
-    public Object getDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override public Object getDescriptor() { return _descriptor; }
 
-    @Override
-    public Object saveDescriptor()
+    @Override public Object saveDescriptor()
     {
         //
         // Must be a shallow copy
@@ -141,8 +119,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return saved;
     }
 
-    @Override
-    public void restoreDescriptor(Object savedDescriptor)
+    @Override public void restoreDescriptor(Object savedDescriptor)
     {
         ServiceInstanceDescriptor sd = (ServiceInstanceDescriptor)savedDescriptor;
         _descriptor.template = sd.template;
@@ -150,16 +127,11 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         _descriptor.propertySet = sd.propertySet;
     }
 
-    @Override
-    public void destroy()
-    {
-        ((Communicator)_parent).getServices().destroyChild(this);
-    }
+    @Override public void destroy() { ((Communicator)_parent).getServices().destroyChild(this); }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (ServiceInstanceEditor)getRoot().getEditor(ServiceInstanceEditor.class, this);
         }
@@ -167,16 +139,11 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new ServiceInstanceEditor();
-    }
+    @Override protected Editor createEditor() { return new ServiceInstanceEditor(); }
 
-    @Override
-    public String toString()
+    @Override public String toString()
     {
-        if(_displayString != null)
+        if (_displayString != null)
         {
             return _displayString;
         }
@@ -188,7 +155,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 
     private boolean canMove(boolean up)
     {
-        if(_ephemeral)
+        if (_ephemeral)
         {
             return false;
         }
@@ -204,10 +171,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         ((Communicator)_parent).getServices().move(this, up);
     }
 
-    Editable getEnclosingEditable()
-    {
-        return ((Communicator)_parent).getEnclosingEditable();
-    }
+    Editable getEnclosingEditable() { return ((Communicator)_parent).getEnclosingEditable(); }
 
     static private class Backup
     {
@@ -215,25 +179,23 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         ServiceInstance clone;
     }
 
-    @Override
-    public Object rebuild(java.util.List<Editable> editables)
-        throws UpdateFailedException
+    @Override public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException
     {
         Backup backup = new Backup();
 
         //
         // Fix-up _descriptor if necessary
         //
-        if(_descriptor.template.length() > 0)
+        if (_descriptor.template.length() > 0)
         {
             TemplateDescriptor templateDescriptor = getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
             java.util.Set<String> parameters = new java.util.HashSet<>(templateDescriptor.parameters);
-            if(!parameters.equals(_descriptor.parameterValues.keySet()))
+            if (!parameters.equals(_descriptor.parameterValues.keySet()))
             {
                 backup.parameterValues = _descriptor.parameterValues;
-                _descriptor.parameterValues = Editor.makeParameterValues(
-                    _descriptor.parameterValues, templateDescriptor.parameters);
+                _descriptor.parameterValues =
+                    Editor.makeParameterValues(_descriptor.parameterValues, templateDescriptor.parameters);
                 editables.add(getEnclosingEditable());
             }
         }
@@ -246,9 +208,9 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         {
             newService = (ServiceInstance)services.createChild(_descriptor);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
-            if(backup.parameterValues != null)
+            if (backup.parameterValues != null)
             {
                 _descriptor.parameterValues = backup.parameterValues;
             }
@@ -259,14 +221,14 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         {
             backup.clone = (ServiceInstance)clone();
         }
-        catch(CloneNotSupportedException e)
+        catch (CloneNotSupportedException e)
         {
             assert false;
         }
 
         reset(newService);
 
-        if(backup.parameterValues != null)
+        if (backup.parameterValues != null)
         {
             editables.add(getEnclosingEditable());
         }
@@ -274,12 +236,11 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return backup;
     }
 
-    @Override
-    public void restore(Object backupObj)
+    @Override public void restore(Object backupObj)
     {
         Backup backup = (Backup)backupObj;
 
-        if(backup.parameterValues != null)
+        if (backup.parameterValues != null)
         {
             _descriptor.parameterValues = backup.parameterValues;
         }
@@ -295,12 +256,12 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         _resolver = from._resolver;
     }
 
-    ServiceInstance(Communicator parent,
-                    String name,
-                    String displayString,
-                    ServiceInstanceDescriptor instanceDescriptor,
-                    Utils.Resolver resolver)
-        throws UpdateFailedException
+    ServiceInstance(
+        Communicator parent,
+        String name,
+        String displayString,
+        ServiceInstanceDescriptor instanceDescriptor,
+        Utils.Resolver resolver) throws UpdateFailedException
     {
         super(parent, name);
         _displayString = displayString;
@@ -319,11 +280,9 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         _ephemeral = true;
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             TemplateDescriptor templateDescriptor = getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
@@ -331,7 +290,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
                 parameterValuesToAttributes(_descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
-            if(_descriptor.propertySet.references.length == 0 && _descriptor.propertySet.properties.size() == 0)
+            if (_descriptor.propertySet.references.length == 0 && _descriptor.propertySet.properties.size() == 0)
             {
                 writer.writeElement("service-instance", attributes);
             }
@@ -344,17 +303,9 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         }
     }
 
-    @Override
-    Utils.Resolver getResolver()
-    {
-        return _resolver;
-    }
+    @Override Utils.Resolver getResolver() { return _resolver; }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
     private ServiceInstanceDescriptor _descriptor;
 

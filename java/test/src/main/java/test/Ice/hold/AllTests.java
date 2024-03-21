@@ -4,18 +4,16 @@
 
 package test.Ice.hold;
 
+import com.zeroc.Ice.InvocationFuture;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
-
-import com.zeroc.Ice.InvocationFuture;
-
 import test.Ice.hold.Test.HoldPrx;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -23,20 +21,11 @@ public class AllTests
 
     static class Condition
     {
-        public Condition(boolean value)
-        {
-            _value = value;
-        }
+        public Condition(boolean value) { _value = value; }
 
-        synchronized public void set(boolean value)
-        {
-            _value = value;
-        }
+        synchronized public void set(boolean value) { _value = value; }
 
-        synchronized boolean value()
-        {
-            return _value;
-        }
+        synchronized boolean value() { return _value; }
 
         private boolean _value;
     }
@@ -51,7 +40,7 @@ public class AllTests
 
         public void response(int value)
         {
-            if(value != _expected)
+            if (value != _expected)
             {
                 _condition.set(false);
             }
@@ -89,19 +78,19 @@ public class AllTests
 
         out.print("changing state between active and hold rapidly... ");
         out.flush();
-        for(int i = 0; i < 100; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             hold.putOnHold(0);
         }
-        for(int i = 0; i < 100; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             holdOneway.putOnHold(0);
         }
-        for(int i = 0; i < 100; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             holdSerialized.putOnHold(0);
         }
-        for(int i = 0; i < 100; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             holdSerializedOneway.putOnHold(0);
         }
@@ -115,23 +104,22 @@ public class AllTests
             int value = 0;
             CompletableFuture<Integer> r = null;
             InvocationFuture<Integer> f = null;
-            while(cond.value())
+            while (cond.value())
             {
                 AMICheckSetValue cb = new AMICheckSetValue(cond, value);
                 r = hold.setAsync(value + 1, random.nextInt(5));
                 f = com.zeroc.Ice.Util.getInvocationFuture(r);
-                r.whenComplete((result, ex) ->
-                    {
-                        test(ex == null);
-                        cb.response(result);
-                    });
+                r.whenComplete((result, ex) -> {
+                    test(ex == null);
+                    cb.response(result);
+                });
                 ++value;
-                if(value % 100 == 0)
+                if (value % 100 == 0)
                 {
                     f.waitForSent();
                 }
 
-                if(value > 1000000)
+                if (value > 1000000)
                 {
                     // Don't continue, it's possible that out-of-order dispatch doesn't occur
                     // after 100000 iterations and we don't want the test to last for too long
@@ -151,18 +139,17 @@ public class AllTests
             int value = 0;
             CompletableFuture<Integer> r = null;
             InvocationFuture<Integer> f = null;
-            while(value < 3000 && cond.value())
+            while (value < 3000 && cond.value())
             {
                 AMICheckSetValue cb = new AMICheckSetValue(cond, value);
                 r = holdSerialized.setAsync(value + 1, random.nextInt(1));
                 f = com.zeroc.Ice.Util.getInvocationFuture(r);
-                r.whenComplete((result, ex) ->
-                    {
-                        test(ex == null);
-                        cb.response(result);
-                    });
+                r.whenComplete((result, ex) -> {
+                    test(ex == null);
+                    cb.response(result);
+                });
                 ++value;
-                if(value % 100 == 0)
+                if (value % 100 == 0)
                 {
                     f.waitForSent();
                 }
@@ -170,11 +157,11 @@ public class AllTests
             r.join();
             test(cond.value());
 
-            for(int i = 0; i < 10000; ++i)
+            for (int i = 0; i < 10000; ++i)
             {
                 holdSerializedOneway.setOneway(value + 1, value);
                 ++value;
-                if((i % 100) == 0)
+                if ((i % 100) == 0)
                 {
                     holdSerializedOneway.putOnHold(1);
                 }
@@ -190,13 +177,13 @@ public class AllTests
             CompletableFuture<Void> r = null;
             InvocationFuture<Void> f = null;
             int max = helper.isAndroid() ? 5000 : 10000;
-            for(int i = 0; i < max; ++i)
+            for (int i = 0; i < max; ++i)
             {
                 // Create a new proxy for each request
                 r = holdSerialized.ice_oneway().setOnewayAsync(value + 1, value);
                 f = com.zeroc.Ice.Util.getInvocationFuture(r);
                 ++value;
-                if((i % 100) == 0)
+                if ((i % 100) == 0)
                 {
                     f.waitForSent();
                     holdSerialized.ice_ping(); // Ensure everything's dispatched
@@ -212,10 +199,10 @@ public class AllTests
         {
             hold.waitForHold();
             hold.waitForHold();
-            for(int i = 0; i < 1000; ++i)
+            for (int i = 0; i < 1000; ++i)
             {
                 holdOneway.ice_ping();
-                if((i % 20) == 0)
+                if ((i % 20) == 0)
                 {
                     hold.putOnHold(0);
                 }

@@ -14,7 +14,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
         properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             InitialPrx initial = AllTests.allTests(this);
             initial.shutdown();

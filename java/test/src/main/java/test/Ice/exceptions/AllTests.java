@@ -6,7 +6,6 @@ package test.Ice.exceptions;
 
 import java.io.PrintWriter;
 import java.util.concurrent.CompletionException;
-
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
 import test.Ice.exceptions.Test.C;
@@ -18,7 +17,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -37,7 +36,7 @@ public class AllTests
             {
                 first = communicator.createObjectAdapter("TestAdapter0");
             }
-            catch(com.zeroc.Ice.InitializationException ex)
+            catch (com.zeroc.Ice.InitializationException ex)
             {
                 // Expected
             }
@@ -49,7 +48,7 @@ public class AllTests
                 communicator.createObjectAdapter("TestAdapter0");
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
                 // Expected
             }
@@ -59,7 +58,7 @@ public class AllTests
                 communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
                 // Expected
             }
@@ -78,7 +77,7 @@ public class AllTests
                 adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
 
@@ -87,7 +86,7 @@ public class AllTests
                 adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity(""));
                 test(false);
             }
-            catch(com.zeroc.Ice.IllegalIdentityException ex)
+            catch (com.zeroc.Ice.IllegalIdentityException ex)
             {
                 test(ex.id.name.equals(""));
             }
@@ -96,7 +95,7 @@ public class AllTests
                 adapter.add(null, com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(com.zeroc.Ice.IllegalServantException ex)
+            catch (com.zeroc.Ice.IllegalServantException ex)
             {
             }
 
@@ -106,7 +105,7 @@ public class AllTests
                 adapter.remove(com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(com.zeroc.Ice.NotRegisteredException ex)
+            catch (com.zeroc.Ice.NotRegisteredException ex)
             {
             }
             adapter.deactivate();
@@ -124,7 +123,7 @@ public class AllTests
                 adapter.addServantLocator(loc, "x");
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
 
@@ -141,7 +140,7 @@ public class AllTests
                 communicator.getValueFactoryManager().add(of, "::x");
                 test(false);
             }
-            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
+            catch (com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
             out.println("ok");
@@ -169,11 +168,11 @@ public class AllTests
             thrower.throwAasA(1);
             test(false);
         }
-        catch(A ex)
+        catch (A ex)
         {
             test(ex.aMem == 1);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -184,11 +183,11 @@ public class AllTests
             thrower.throwAorDasAorD(1);
             test(false);
         }
-        catch(A ex)
+        catch (A ex)
         {
             test(ex.aMem == 1);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -199,11 +198,11 @@ public class AllTests
             thrower.throwAorDasAorD(-1);
             test(false);
         }
-        catch(D ex)
+        catch (D ex)
         {
             test(ex.dMem == -1);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -214,12 +213,12 @@ public class AllTests
             thrower.throwBasB(1, 2);
             test(false);
         }
-        catch(B ex)
+        catch (B ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -230,13 +229,13 @@ public class AllTests
             thrower.throwCasC(1, 2, 3);
             test(false);
         }
-        catch(C ex)
+        catch (C ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -252,11 +251,11 @@ public class AllTests
             thrower.throwBasB(1, 2);
             test(false);
         }
-        catch(A ex)
+        catch (A ex)
         {
             test(ex.aMem == 1);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -267,12 +266,12 @@ public class AllTests
             thrower.throwCasC(1, 2, 3);
             test(false);
         }
-        catch(B ex)
+        catch (B ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -288,12 +287,12 @@ public class AllTests
             thrower.throwBasA(1, 2);
             test(false);
         }
-        catch(B ex)
+        catch (B ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -304,13 +303,13 @@ public class AllTests
             thrower.throwCasA(1, 2, 3);
             test(false);
         }
-        catch(C ex)
+        catch (C ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -321,13 +320,13 @@ public class AllTests
             thrower.throwCasB(1, 2, 3);
             test(false);
         }
-        catch(C ex)
+        catch (C ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -335,7 +334,7 @@ public class AllTests
 
         out.println("ok");
 
-        if(thrower.supportsUndeclaredExceptions())
+        if (thrower.supportsUndeclaredExceptions())
         {
             out.print("catching unknown user exception... ");
             out.flush();
@@ -345,10 +344,10 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
-            catch(com.zeroc.Ice.UnknownUserException ex)
+            catch (com.zeroc.Ice.UnknownUserException ex)
             {
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -359,10 +358,10 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
-            catch(com.zeroc.Ice.UnknownUserException ex)
+            catch (com.zeroc.Ice.UnknownUserException ex)
             {
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -373,10 +372,10 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
-            catch(com.zeroc.Ice.UnknownUserException ex)
+            catch (com.zeroc.Ice.UnknownUserException ex)
             {
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -385,7 +384,7 @@ public class AllTests
             out.println("ok");
         }
 
-        if(thrower.supportsAssertException())
+        if (thrower.supportsAssertException())
         {
             out.print("testing assert in the server... ");
             out.flush();
@@ -395,13 +394,13 @@ public class AllTests
                 thrower.throwAssertException();
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
+            catch (com.zeroc.Ice.ConnectionLostException ex)
             {
             }
-            catch(com.zeroc.Ice.UnknownException ex)
+            catch (com.zeroc.Ice.UnknownException ex)
             {
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -410,7 +409,7 @@ public class AllTests
             out.println("ok");
         }
 
-        if(thrower.ice_getConnection() != null && !bluetooth)
+        if (thrower.ice_getConnection() != null && !bluetooth)
         {
             out.print("testing memory limit marshal exception... ");
             out.flush();
@@ -419,10 +418,10 @@ public class AllTests
                 thrower.throwMemoryLimitException(null);
                 test(false);
             }
-            catch(com.zeroc.Ice.MemoryLimitException ex)
+            catch (com.zeroc.Ice.MemoryLimitException ex)
             {
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -433,18 +432,18 @@ public class AllTests
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
+            catch (com.zeroc.Ice.ConnectionLostException ex)
             {
             }
-            catch(com.zeroc.Ice.UnknownLocalException ex)
+            catch (com.zeroc.Ice.UnknownLocalException ex)
             {
                 // Expected with JS bidir server
             }
-            catch(com.zeroc.Ice.SocketException ex)
+            catch (com.zeroc.Ice.SocketException ex)
             {
                 // This can be raised if the connection is closed during the client's call to write().
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -452,27 +451,27 @@ public class AllTests
 
             try
             {
-                ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
-                                                                                          helper.getTestEndpoint(1)));
+                ThrowerPrx thrower2 =
+                    ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" + helper.getTestEndpoint(1)));
                 try
                 {
                     thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
                 }
-                catch(com.zeroc.Ice.MemoryLimitException ex)
+                catch (com.zeroc.Ice.MemoryLimitException ex)
                 {
                 }
-                ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
-                                                                                          helper.getTestEndpoint(2)));
+                ThrowerPrx thrower3 =
+                    ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
                 try
                 {
                     thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                     test(false);
                 }
-                catch(com.zeroc.Ice.ConnectionLostException ex)
+                catch (com.zeroc.Ice.ConnectionLostException ex)
                 {
                 }
             }
-            catch(com.zeroc.Ice.ConnectionRefusedException ex)
+            catch (com.zeroc.Ice.ConnectionRefusedException ex)
             {
                 // Expected with JS bidir server
             }
@@ -491,11 +490,11 @@ public class AllTests
                 thrower2.ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.ObjectNotExistException ex)
+            catch (com.zeroc.Ice.ObjectNotExistException ex)
             {
                 test(ex.id.equals(id));
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -515,12 +514,12 @@ public class AllTests
                 thrower2.ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.FacetNotExistException ex)
+            catch (com.zeroc.Ice.FacetNotExistException ex)
             {
                 test(ex.facet.equals("no such facet"));
             }
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -537,11 +536,11 @@ public class AllTests
             thrower2.noSuchOperation();
             test(false);
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
             test(ex.operation.equals("noSuchOperation"));
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -557,10 +556,10 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownLocalException ex)
+        catch (com.zeroc.Ice.UnknownLocalException ex)
         {
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -571,13 +570,13 @@ public class AllTests
             thrower.throwLocalExceptionIdempotent();
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownLocalException ex)
+        catch (com.zeroc.Ice.UnknownLocalException ex)
         {
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -593,10 +592,10 @@ public class AllTests
             thrower.throwNonIceException();
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownException ex)
+        catch (com.zeroc.Ice.UnknownException ex)
         {
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             out.println(ex);
             test(false);
@@ -611,11 +610,11 @@ public class AllTests
         {
             thrower.throwAfterResponse();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             out.println(ex);
             test(false);
@@ -626,14 +625,14 @@ public class AllTests
             thrower.throwAfterException();
             test(false);
         }
-        catch(A ex)
+        catch (A ex)
         {
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             out.println(ex);
             test(false);
@@ -649,7 +648,7 @@ public class AllTests
             thrower.throwAasAAsync(1).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof A);
             test(((A)ex.getCause()).aMem == 1);
@@ -660,7 +659,7 @@ public class AllTests
             thrower.throwAorDasAorDAsync(1).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof A);
             test(((A)ex.getCause()).aMem == 1);
@@ -671,7 +670,7 @@ public class AllTests
             thrower.throwAorDasAorDAsync(-1).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof D);
             test(((D)ex.getCause()).dMem == -1);
@@ -682,7 +681,7 @@ public class AllTests
             thrower.throwBasBAsync(1, 2).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof B);
             test(((B)ex.getCause()).aMem == 1);
@@ -694,7 +693,7 @@ public class AllTests
             thrower.throwCasCAsync(1, 2, 3).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof C);
             test(((C)ex.getCause()).aMem == 1);
@@ -712,7 +711,7 @@ public class AllTests
             thrower.throwBasAAsync(1, 2).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof B);
             test(((B)ex.getCause()).aMem == 1);
@@ -724,7 +723,7 @@ public class AllTests
             thrower.throwCasAAsync(1, 2, 3).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof C);
             test(((C)ex.getCause()).aMem == 1);
@@ -737,7 +736,7 @@ public class AllTests
             thrower.throwCasBAsync(1, 2, 3).join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof C);
             test(((C)ex.getCause()).aMem == 1);
@@ -747,7 +746,7 @@ public class AllTests
 
         out.println("ok");
 
-        if(thrower.supportsUndeclaredExceptions())
+        if (thrower.supportsUndeclaredExceptions())
         {
             out.print("catching unknown user exception with AMI mapping... ");
             out.flush();
@@ -757,7 +756,7 @@ public class AllTests
                 thrower.throwUndeclaredAAsync(1).join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
@@ -767,7 +766,7 @@ public class AllTests
                 thrower.throwUndeclaredBAsync(1, 2).join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
@@ -777,7 +776,7 @@ public class AllTests
                 thrower.throwUndeclaredCAsync(1, 2, 3).join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
@@ -785,7 +784,7 @@ public class AllTests
             out.println("ok");
         }
 
-        if(thrower.supportsAssertException())
+        if (thrower.supportsAssertException())
         {
             out.print("catching assert in the server with AMI mapping... ");
             out.flush();
@@ -795,10 +794,11 @@ public class AllTests
                 thrower.throwAssertExceptionAsync().join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
-                test(ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException ||
-                     ex.getCause() instanceof com.zeroc.Ice.UnknownException);
+                test(
+                    ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException ||
+                    ex.getCause() instanceof com.zeroc.Ice.UnknownException);
             }
 
             out.println("ok");
@@ -815,7 +815,7 @@ public class AllTests
                 thrower2.throwAasAAsync(1).join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.ObjectNotExistException);
                 test(((com.zeroc.Ice.ObjectNotExistException)ex.getCause()).id.name.equals("does not exist"));
@@ -833,7 +833,7 @@ public class AllTests
             {
                 thrower2.throwAasAAsync(1).join();
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.FacetNotExistException);
                 test(((com.zeroc.Ice.FacetNotExistException)ex.getCause()).facet.equals("no such facet"));
@@ -851,7 +851,7 @@ public class AllTests
             {
                 thrower2.noSuchOperationAsync().join();
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
                 test(((com.zeroc.Ice.OperationNotExistException)ex.getCause()).operation.equals("noSuchOperation"));
@@ -868,10 +868,11 @@ public class AllTests
             thrower.throwLocalExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
-            test(ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
-                 ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+            test(
+                ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
         }
 
         try
@@ -879,10 +880,11 @@ public class AllTests
             thrower.throwLocalExceptionIdempotentAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
-            test(ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
-                 ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+            test(
+                ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
         }
 
         out.println("ok");
@@ -895,7 +897,7 @@ public class AllTests
             thrower.throwNonIceExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof com.zeroc.Ice.UnknownException);
         }

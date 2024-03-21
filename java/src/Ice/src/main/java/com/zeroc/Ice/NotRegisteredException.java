@@ -50,10 +50,7 @@ public class NotRegisteredException extends LocalException
         this.id = id;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::NotRegisteredException";
-    }
+    public String ice_id() { return "::Ice::NotRegisteredException"; }
 
     /**
      * The kind of object that could not be removed: "servant", "facet", "object", "default servant",

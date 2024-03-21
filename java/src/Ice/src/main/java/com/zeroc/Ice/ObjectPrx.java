@@ -166,8 +166,8 @@ public interface ObjectPrx
      * @see Blobject
      * @see OperationMode
      **/
-    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                                     java.util.Map<String, String> context);
+    com.zeroc.Ice.Object.Ice_invokeResult
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> context);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -180,10 +180,8 @@ public interface ObjectPrx
      * @see Blobject
      * @see OperationMode
      **/
-    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-        String operation,
-        OperationMode mode,
-        byte[] inParams);
+    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>
+    ice_invokeAsync(String operation, OperationMode mode, byte[] inParams);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -198,11 +196,8 @@ public interface ObjectPrx
      * @see Blobject
      * @see OperationMode
      **/
-    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-        String operation,
-        OperationMode mode,
-        byte[] inParams,
-        java.util.Map<String, String> context);
+    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>
+    ice_invokeAsync(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> context);
 
     /**
      * Returns the identity embedded in this proxy.
@@ -233,10 +228,7 @@ public interface ObjectPrx
      * @param newContext The context for the new proxy.
      * @return The proxy with the new per-proxy context.
      **/
-    default ObjectPrx ice_context(java.util.Map<String, String> newContext)
-    {
-        return _ice_context(newContext);
-    }
+    default ObjectPrx ice_context(java.util.Map<String, String> newContext) { return _ice_context(newContext); }
 
     /**
      * Returns the facet for this proxy.
@@ -266,10 +258,7 @@ public interface ObjectPrx
      * @param newAdapterId The adapter ID for the new proxy.
      * @return The proxy with the new adapter ID.
      **/
-    default ObjectPrx ice_adapterId(String newAdapterId)
-    {
-        return _ice_adapterId(newAdapterId);
-    }
+    default ObjectPrx ice_adapterId(String newAdapterId) { return _ice_adapterId(newAdapterId); }
 
     /**
      * Returns the endpoints used by this proxy.
@@ -286,10 +275,7 @@ public interface ObjectPrx
      * @param newEndpoints The endpoints for the new proxy.
      * @return The proxy with the new endpoints.
      **/
-    default ObjectPrx ice_endpoints(Endpoint[] newEndpoints)
-    {
-        return _ice_endpoints(newEndpoints);
-    }
+    default ObjectPrx ice_endpoints(Endpoint[] newEndpoints) { return _ice_endpoints(newEndpoints); }
 
     /**
      * Returns the locator cache timeout of this proxy.
@@ -322,10 +308,7 @@ public interface ObjectPrx
      * @param connection The fixed proxy connection.
      * @return A fixed proxy bound to the given connection.
      */
-    default ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection)
-    {
-        return _ice_fixed(connection);
-    }
+    default ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection) { return _ice_fixed(connection); }
 
     /**
      * Returns whether this proxy is a fixed proxy.
@@ -342,10 +325,7 @@ public interface ObjectPrx
      *
      * @see Locator
      **/
-    default ObjectPrx ice_locatorCacheTimeout(int newTimeout)
-    {
-        return _ice_locatorCacheTimeout(newTimeout);
-    }
+    default ObjectPrx ice_locatorCacheTimeout(int newTimeout) { return _ice_locatorCacheTimeout(newTimeout); }
 
     /**
      * Returns a proxy that is identical to this proxy, except for the invocation timeout.
@@ -354,10 +334,7 @@ public interface ObjectPrx
      * @return The proxy with the new timeout.
      *
      **/
-    default ObjectPrx ice_invocationTimeout(int newTimeout)
-    {
-        return _ice_invocationTimeout(newTimeout);
-    }
+    default ObjectPrx ice_invocationTimeout(int newTimeout) { return _ice_invocationTimeout(newTimeout); }
 
     /**
      * Returns whether this proxy caches connections.
@@ -372,10 +349,7 @@ public interface ObjectPrx
      * @param newCache <code>true</code> if the new proxy should cache connections; <code>false</code> otherwise.
      * @return The proxy with the specified caching policy.
      **/
-    default ObjectPrx ice_connectionCached(boolean newCache)
-    {
-        return _ice_connectionCached(newCache);
-    }
+    default ObjectPrx ice_connectionCached(boolean newCache) { return _ice_connectionCached(newCache); }
 
     /**
      * Returns how this proxy selects endpoints (randomly or ordered).
@@ -394,10 +368,7 @@ public interface ObjectPrx
      *
      * @see EndpointSelectionType
      **/
-    default ObjectPrx ice_endpointSelection(EndpointSelectionType newType)
-    {
-        return _ice_endpointSelection(newType);
-    }
+    default ObjectPrx ice_endpointSelection(EndpointSelectionType newType) { return _ice_endpointSelection(newType); }
 
     /**
      * Returns whether this proxy uses only secure endpoints.
@@ -414,10 +385,7 @@ public interface ObjectPrx
      * endpoints.
      * @return The proxy with the specified selection policy.
      **/
-    default ObjectPrx ice_secure(boolean b)
-    {
-        return _ice_secure(b);
-    }
+    default ObjectPrx ice_secure(boolean b) { return _ice_secure(b); }
 
     /**
      * Returns a proxy that is identical to this proxy, except for the encoding used to marshal
@@ -426,10 +394,7 @@ public interface ObjectPrx
      * @param e The encoding version to use to marshal request parameters.
      * @return The proxy with the specified encoding version.
      **/
-    default ObjectPrx ice_encodingVersion(EncodingVersion e)
-    {
-        return _ice_encodingVersion(e);
-    }
+    default ObjectPrx ice_encodingVersion(EncodingVersion e) { return _ice_encodingVersion(e); }
 
     /**
      * Returns the encoding version used to marshal request parameters.
@@ -454,10 +419,7 @@ public interface ObjectPrx
      * <code>false</code>, the proxy prefers insecure endpoints to secure ones.
      * @return The proxy with the specified selection policy.
      **/
-    default ObjectPrx ice_preferSecure(boolean b)
-    {
-        return _ice_preferSecure(b);
-    }
+    default ObjectPrx ice_preferSecure(boolean b) { return _ice_preferSecure(b); }
 
     /**
      * Returns the router for this proxy.
@@ -473,10 +435,7 @@ public interface ObjectPrx
      * @param router The router for the new proxy.
      * @return The proxy with the specified router.
      **/
-    default ObjectPrx ice_router(RouterPrx router)
-    {
-        return _ice_router(router);
-    }
+    default ObjectPrx ice_router(RouterPrx router) { return _ice_router(router); }
 
     /**
      * Returns the locator for this proxy.
@@ -491,10 +450,7 @@ public interface ObjectPrx
      * @param locator The locator for the new proxy.
      * @return The proxy with the specified locator.
      **/
-    default ObjectPrx ice_locator(LocatorPrx locator)
-    {
-        return _ice_locator(locator);
-    }
+    default ObjectPrx ice_locator(LocatorPrx locator) { return _ice_locator(locator); }
 
     /**
      * Returns whether this proxy uses collocation optimization.
@@ -509,20 +465,14 @@ public interface ObjectPrx
      * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.
      * @return The proxy with the specified collocation optimization.
      **/
-    default ObjectPrx ice_collocationOptimized(boolean b)
-    {
-        return _ice_collocationOptimized(b);
-    }
+    default ObjectPrx ice_collocationOptimized(boolean b) { return _ice_collocationOptimized(b); }
 
     /**
      * Returns a proxy that is identical to this proxy, but uses twoway invocations.
      *
      * @return A proxy that uses twoway invocations.
      **/
-    default ObjectPrx ice_twoway()
-    {
-        return _ice_twoway();
-    }
+    default ObjectPrx ice_twoway() { return _ice_twoway(); }
 
     /**
      * Returns whether this proxy uses twoway invocations.
@@ -535,10 +485,7 @@ public interface ObjectPrx
      *
      * @return A proxy that uses oneway invocations.
      **/
-    default ObjectPrx ice_oneway()
-    {
-        return _ice_oneway();
-    }
+    default ObjectPrx ice_oneway() { return _ice_oneway(); }
 
     /**
      * Returns whether this proxy uses oneway invocations.
@@ -551,10 +498,7 @@ public interface ObjectPrx
      *
      * @return A new proxy that uses batch oneway invocations.
      **/
-    default ObjectPrx ice_batchOneway()
-    {
-        return _ice_batchOneway();
-    }
+    default ObjectPrx ice_batchOneway() { return _ice_batchOneway(); }
 
     /**
      * Returns whether this proxy uses batch oneway invocations.
@@ -567,10 +511,7 @@ public interface ObjectPrx
      *
      * @return A new proxy that uses datagram invocations.
      **/
-    default ObjectPrx ice_datagram()
-    {
-        return _ice_datagram();
-    }
+    default ObjectPrx ice_datagram() { return _ice_datagram(); }
 
     /**
      * Returns whether this proxy uses datagram invocations.
@@ -583,10 +524,7 @@ public interface ObjectPrx
      *
      * @return A new proxy that uses batch datagram invocations.
      **/
-    default ObjectPrx ice_batchDatagram()
-    {
-        return _ice_batchDatagram();
-    }
+    default ObjectPrx ice_batchDatagram() { return _ice_batchDatagram(); }
 
     /**
      * Returns whether this proxy uses batch datagram invocations.
@@ -601,10 +539,7 @@ public interface ObjectPrx
      * @param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.
      * @return A proxy with the specified compression setting.
      **/
-    default ObjectPrx ice_compress(boolean co)
-    {
-        return _ice_compress(co);
-    }
+    default ObjectPrx ice_compress(boolean co) { return _ice_compress(co); }
 
     /**
      * Obtains the compression override setting of this proxy.
@@ -621,10 +556,7 @@ public interface ObjectPrx
      * @param t The connection timeout for the proxy in milliseconds.
      * @return A proxy with the specified timeout.
      **/
-    default ObjectPrx ice_timeout(int t)
-    {
-        return _ice_timeout(t);
-    }
+    default ObjectPrx ice_timeout(int t) { return _ice_timeout(t); }
 
     /**
      * Obtains the timeout override of this proxy.
@@ -642,10 +574,7 @@ public interface ObjectPrx
      *
      * @return A proxy with the specified connection ID.
      **/
-    default ObjectPrx ice_connectionId(String connectionId)
-    {
-        return _ice_connectionId(connectionId);
-    }
+    default ObjectPrx ice_connectionId(String connectionId) { return _ice_connectionId(connectionId); }
 
     /**
      * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,
@@ -662,10 +591,7 @@ public interface ObjectPrx
      *
      * @return The Executor object.
      **/
-    default java.util.concurrent.Executor ice_executor()
-    {
-        return _getReference().getThreadPool();
-    }
+    default java.util.concurrent.Executor ice_executor() { return _getReference().getThreadPool(); }
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
@@ -704,8 +630,7 @@ public interface ObjectPrx
      * @param r The object to compare this proxy with.
      * @return <code>true</code> if this proxy is equal to <code>r</code>; <code>false</code> otherwise.
      **/
-    @Override
-    boolean equals(java.lang.Object r);
+    @Override boolean equals(java.lang.Object r);
 
     /**
      * The type ID of the target's interface: "::Ice::Object".
@@ -716,10 +641,7 @@ public interface ObjectPrx
      * Returns the Slice type ID associated with this type.
      * @return The Slice type ID.
      **/
-    static String ice_staticId()
-    {
-        return ice_staticId;
-    }
+    static String ice_staticId() { return ice_staticId; }
 
     /**
      * Casts a proxy to {@link ObjectPrx}. For user-defined types, this call contacts
@@ -729,10 +651,7 @@ public interface ObjectPrx
      * @param obj The proxy to cast to @{link ObjectPrx}.
      * @return <code>obj</code>.
      **/
-    static ObjectPrx checkedCast(ObjectPrx obj)
-    {
-        return obj;
-    }
+    static ObjectPrx checkedCast(ObjectPrx obj) { return obj; }
 
     /**
      * Casts a proxy to {@link ObjectPrx}. For user-defined types, this call contacts
@@ -743,10 +662,7 @@ public interface ObjectPrx
      * @param context The <code>Context</code> map for the invocation.
      * @return <code>obj</code>.
      **/
-    static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context)
-    {
-        return obj;
-    }
+    static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context) { return obj; }
 
     /**
      * Creates a new proxy that is identical to the passed proxy, except
@@ -758,10 +674,7 @@ public interface ObjectPrx
      * @param facet The facet for the new proxy.
      * @return The new proxy with the specified facet.
      **/
-    static ObjectPrx checkedCast(ObjectPrx obj, String facet)
-    {
-        return checkedCast(obj, facet, noExplicitContext);
-    }
+    static ObjectPrx checkedCast(ObjectPrx obj, String facet) { return checkedCast(obj, facet, noExplicitContext); }
 
     /**
      * Creates a new proxy that is identical to the passed proxy, except
@@ -777,17 +690,17 @@ public interface ObjectPrx
     static ObjectPrx checkedCast(ObjectPrx obj, String facet, java.util.Map<String, String> context)
     {
         ObjectPrx r = null;
-        if(obj != null)
+        if (obj != null)
         {
             ObjectPrx p = obj.ice_facet(facet);
             try
             {
                 boolean ok = p.ice_isA(ice_staticId, context);
-                assert(ok);
+                assert (ok);
                 r = new _ObjectPrxI();
                 r._copyFrom(p);
             }
-            catch(FacetNotExistException ex)
+            catch (FacetNotExistException ex)
             {
             }
         }
@@ -801,10 +714,7 @@ public interface ObjectPrx
      * @param obj The proxy to cast to {@link ObjectPrx}.
      * @return <code>obj</code>.
      **/
-    static ObjectPrx uncheckedCast(ObjectPrx obj)
-    {
-        return obj;
-    }
+    static ObjectPrx uncheckedCast(ObjectPrx obj) { return obj; }
 
     /**
      * Creates a new proxy that is identical to the passed proxy, except
@@ -817,7 +727,7 @@ public interface ObjectPrx
     static ObjectPrx uncheckedCast(ObjectPrx obj, String facet)
     {
         ObjectPrx r = null;
-        if(obj != null)
+        if (obj != null)
         {
             ObjectPrx p = obj.ice_facet(facet);
             r = new _ObjectPrxI();
@@ -832,10 +742,7 @@ public interface ObjectPrx
      * @param ostr The destination stream.
      * @param v The proxy to write to the stream.
      **/
-    static void write(OutputStream ostr, ObjectPrx v)
-    {
-        ostr.writeProxy(v);
-    }
+    static void write(OutputStream ostr, ObjectPrx v) { ostr.writeProxy(v); }
 
     /**
      * Reads a proxy from the stream.
@@ -843,10 +750,7 @@ public interface ObjectPrx
      * @param istr The source stream.
      * @return A new proxy or null for a nil proxy.
      **/
-    static ObjectPrx read(InputStream istr)
-    {
-        return istr.readProxy();
-    }
+    static ObjectPrx read(InputStream istr) { return istr.readProxy(); }
 
     /**
      * @hidden
@@ -872,8 +776,8 @@ public interface ObjectPrx
      * @param impl -
      * @return -
      **/
-    static <T> T _checkedCast(ObjectPrx obj, java.util.Map<String, String> ctx, String id, Class<T> proxy,
-                               Class<?> impl)
+    static <T>
+        T _checkedCast(ObjectPrx obj, java.util.Map<String, String> ctx, String id, Class<T> proxy, Class<?> impl)
     {
         return _checkedCast(obj, false, null, ctx, id, proxy, impl);
     }
@@ -904,8 +808,13 @@ public interface ObjectPrx
      * @param impl -
      * @return -
      **/
-    static <T> T _checkedCast(ObjectPrx obj, String facet, java.util.Map<String, String> ctx, String id,
-                               Class<T> proxy, Class<?> impl)
+    static <T> T _checkedCast(
+        ObjectPrx obj,
+        String facet,
+        java.util.Map<String, String> ctx,
+        String id,
+        Class<T> proxy,
+        Class<?> impl)
     {
         return _checkedCast(obj, true, facet, ctx, id, proxy, impl);
     }
@@ -922,17 +831,23 @@ public interface ObjectPrx
      * @param impl -
      * @return -
      **/
-    static <T> T _checkedCast(ObjectPrx obj, boolean explicitFacet, String facet, java.util.Map<String, String> ctx,
-                               String id, Class<T> proxy, Class<?> impl)
+    static <T> T _checkedCast(
+        ObjectPrx obj,
+        boolean explicitFacet,
+        String facet,
+        java.util.Map<String, String> ctx,
+        String id,
+        Class<T> proxy,
+        Class<?> impl)
     {
         T r = null;
-        if(obj != null)
+        if (obj != null)
         {
-            if(explicitFacet)
+            if (explicitFacet)
             {
                 obj = obj.ice_facet(facet);
             }
-            if(proxy.isInstance(obj))
+            if (proxy.isInstance(obj))
             {
                 r = proxy.cast(obj);
             }
@@ -941,26 +856,26 @@ public interface ObjectPrx
                 try
                 {
                     boolean ok = obj.ice_isA(id, ctx);
-                    if(ok)
+                    if (ok)
                     {
                         ObjectPrx h = null;
                         try
                         {
                             h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
                         }
-                        catch(NoSuchMethodException ex)
+                        catch (NoSuchMethodException ex)
                         {
                             throw new SyscallException(ex);
                         }
-                        catch(java.lang.reflect.InvocationTargetException ex)
+                        catch (java.lang.reflect.InvocationTargetException ex)
                         {
                             throw new SyscallException(ex);
                         }
-                        catch(InstantiationException ex)
+                        catch (InstantiationException ex)
                         {
                             throw new SyscallException(ex);
                         }
-                        catch(IllegalAccessException ex)
+                        catch (IllegalAccessException ex)
                         {
                             throw new SyscallException(ex);
                         }
@@ -968,7 +883,7 @@ public interface ObjectPrx
                         r = proxy.cast(h);
                     }
                 }
-                catch(FacetNotExistException ex)
+                catch (FacetNotExistException ex)
                 {
                 }
             }
@@ -1016,11 +931,11 @@ public interface ObjectPrx
     static <T> T _uncheckedCast(ObjectPrx obj, boolean explicitFacet, String facet, Class<T> proxy, Class<?> impl)
     {
         T r = null;
-        if(obj != null)
+        if (obj != null)
         {
             try
             {
-                if(explicitFacet)
+                if (explicitFacet)
                 {
                     ObjectPrx h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
                     h._copyFrom(obj.ice_facet(facet));
@@ -1028,7 +943,7 @@ public interface ObjectPrx
                 }
                 else
                 {
-                    if(proxy.isInstance(obj))
+                    if (proxy.isInstance(obj))
                     {
                         r = proxy.cast(obj);
                     }
@@ -1040,19 +955,19 @@ public interface ObjectPrx
                     }
                 }
             }
-            catch(NoSuchMethodException ex)
+            catch (NoSuchMethodException ex)
             {
                 throw new SyscallException(ex);
             }
-            catch(java.lang.reflect.InvocationTargetException ex)
+            catch (java.lang.reflect.InvocationTargetException ex)
             {
                 throw new SyscallException(ex);
             }
-            catch(InstantiationException ex)
+            catch (InstantiationException ex)
             {
                 throw new SyscallException(ex);
             }
-            catch(IllegalAccessException ex)
+            catch (IllegalAccessException ex)
             {
                 throw new SyscallException(ex);
             }
@@ -1102,12 +1017,12 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_adapterId(String newAdapterId)
     {
-        if(newAdapterId == null)
+        if (newAdapterId == null)
         {
             newAdapterId = "";
         }
 
-        if(newAdapterId.equals(_getReference().getAdapterId()))
+        if (newAdapterId.equals(_getReference().getAdapterId()))
         {
             return this;
         }
@@ -1124,7 +1039,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_endpoints(Endpoint[] newEndpoints)
     {
-        if(java.util.Arrays.equals(newEndpoints, _getReference().getEndpoints()))
+        if (java.util.Arrays.equals(newEndpoints, _getReference().getEndpoints()))
         {
             return this;
         }
@@ -1143,15 +1058,15 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_fixed(com.zeroc.Ice.Connection connection)
     {
-        if(connection == null)
+        if (connection == null)
         {
             throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
         }
-        if(!(connection instanceof com.zeroc.Ice.ConnectionI))
+        if (!(connection instanceof com.zeroc.Ice.ConnectionI))
         {
             throw new IllegalArgumentException("invalid connection passed to ice_fixed");
         }
-        if(connection == _getReference().getConnection())
+        if (connection == _getReference().getConnection())
         {
             return this;
         }
@@ -1168,11 +1083,11 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_locatorCacheTimeout(int newTimeout)
     {
-        if(newTimeout < -1)
+        if (newTimeout < -1)
         {
             throw new IllegalArgumentException("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
         }
-        if(newTimeout == _getReference().getLocatorCacheTimeout())
+        if (newTimeout == _getReference().getLocatorCacheTimeout())
         {
             return this;
         }
@@ -1189,11 +1104,11 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_invocationTimeout(int newTimeout)
     {
-        if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+        if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
         {
             throw new IllegalArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
         }
-        if(newTimeout == _getReference().getInvocationTimeout())
+        if (newTimeout == _getReference().getInvocationTimeout())
         {
             return this;
         }
@@ -1210,7 +1125,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_connectionCached(boolean newCache)
     {
-        if(newCache == _getReference().getCacheConnection())
+        if (newCache == _getReference().getCacheConnection())
         {
             return this;
         }
@@ -1227,7 +1142,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_endpointSelection(EndpointSelectionType newType)
     {
-        if(newType == _getReference().getEndpointSelection())
+        if (newType == _getReference().getEndpointSelection())
         {
             return this;
         }
@@ -1244,7 +1159,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_secure(boolean b)
     {
-        if(b == _getReference().getSecure())
+        if (b == _getReference().getSecure())
         {
             return this;
         }
@@ -1261,7 +1176,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_encodingVersion(EncodingVersion e)
     {
-        if(e.equals(_getReference().getEncoding()))
+        if (e.equals(_getReference().getEncoding()))
         {
             return this;
         }
@@ -1278,7 +1193,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_preferSecure(boolean b)
     {
-        if(b == _getReference().getPreferSecure())
+        if (b == _getReference().getPreferSecure())
         {
             return this;
         }
@@ -1296,7 +1211,7 @@ public interface ObjectPrx
     default ObjectPrx _ice_router(RouterPrx router)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeRouter(router);
-        if(ref.equals(_getReference()))
+        if (ref.equals(_getReference()))
         {
             return this;
         }
@@ -1314,7 +1229,7 @@ public interface ObjectPrx
     default ObjectPrx _ice_locator(LocatorPrx locator)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeLocator(locator);
-        if(ref.equals(_getReference()))
+        if (ref.equals(_getReference()))
         {
             return this;
         }
@@ -1331,7 +1246,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_collocationOptimized(boolean b)
     {
-        if(b == _getReference().getCollocationOptimized())
+        if (b == _getReference().getCollocationOptimized())
         {
             return this;
         }
@@ -1347,7 +1262,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_twoway()
     {
-        if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeTwoway)
+        if (_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeTwoway)
         {
             return this;
         }
@@ -1363,7 +1278,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_oneway()
     {
-        if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeOneway)
+        if (_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeOneway)
         {
             return this;
         }
@@ -1379,7 +1294,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_batchOneway()
     {
-        if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway)
+        if (_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway)
         {
             return this;
         }
@@ -1395,7 +1310,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_datagram()
     {
-        if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeDatagram)
+        if (_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeDatagram)
         {
             return this;
         }
@@ -1411,7 +1326,7 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_batchDatagram()
     {
-        if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram)
+        if (_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram)
         {
             return this;
         }
@@ -1429,7 +1344,7 @@ public interface ObjectPrx
     default ObjectPrx _ice_compress(boolean co)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeCompress(co);
-        if(ref.equals(_getReference()))
+        if (ref.equals(_getReference()))
         {
             return this;
         }
@@ -1446,12 +1361,12 @@ public interface ObjectPrx
      **/
     default ObjectPrx _ice_timeout(int t)
     {
-        if(t < 1 && t != -1)
+        if (t < 1 && t != -1)
         {
             throw new IllegalArgumentException("invalid value passed to ice_timeout: " + t);
         }
         com.zeroc.IceInternal.Reference ref = _getReference().changeTimeout(t);
-        if(ref.equals(_getReference()))
+        if (ref.equals(_getReference()))
         {
             return this;
         }
@@ -1469,7 +1384,7 @@ public interface ObjectPrx
     default ObjectPrx _ice_connectionId(String connectionId)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeConnectionId(connectionId);
-        if(ref.equals(_getReference()))
+        if (ref.equals(_getReference()))
         {
             return this;
         }

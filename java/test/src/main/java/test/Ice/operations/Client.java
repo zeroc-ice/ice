@@ -16,7 +16,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.Package.Test", "test.Ice.operations");
         properties.setProperty("Ice.BatchAutoFlushSize", "100");
         java.io.PrintWriter out = getWriter();
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             MyClassPrx myClass = AllTests.allTests(this);
 
@@ -28,7 +28,7 @@ public class Client extends test.TestHelper
                 myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
                 throw new RuntimeException();
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 out.println("ok");
             }

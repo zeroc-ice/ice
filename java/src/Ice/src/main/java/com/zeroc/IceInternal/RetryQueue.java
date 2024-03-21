@@ -6,14 +6,11 @@ package com.zeroc.IceInternal;
 
 public class RetryQueue
 {
-    RetryQueue(Instance instance)
-    {
-        _instance = instance;
-    }
+    RetryQueue(Instance instance) { _instance = instance; }
 
     synchronized public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             throw new com.zeroc.Ice.CommunicatorDestroyedException();
         }
@@ -25,15 +22,15 @@ public class RetryQueue
 
     synchronized public void destroy()
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             return; // Already destroyed.
         }
 
         java.util.HashSet<RetryTask> keep = new java.util.HashSet<>();
-        for(RetryTask task : _requests)
+        for (RetryTask task : _requests)
         {
-            if(!task.destroy())
+            if (!task.destroy())
             {
                 keep.add(task);
             }
@@ -47,18 +44,18 @@ public class RetryQueue
         // preserve the interrupt.
         //
         boolean interrupted = false;
-        while(!_requests.isEmpty())
+        while (!_requests.isEmpty())
         {
             try
             {
                 wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 interrupted = true;
             }
         }
-        if(interrupted)
+        if (interrupted)
         {
             Thread.currentThread().interrupt();
         }
@@ -67,7 +64,7 @@ public class RetryQueue
     synchronized boolean remove(RetryTask task)
     {
         boolean removed = _requests.remove(task);
-        if(_instance == null && _requests.isEmpty())
+        if (_instance == null && _requests.isEmpty())
         {
             notify();
         }

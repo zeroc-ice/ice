@@ -116,7 +116,10 @@ public interface Connection
      * @param close The close condition
      * @param heartbeat The hertbeat condition
      **/
-    void setACM(java.util.OptionalInt timeout, java.util.Optional<ACMClose> close, java.util.Optional<ACMHeartbeat> heartbeat);
+    void setACM(
+        java.util.OptionalInt timeout,
+        java.util.Optional<ACMClose> close,
+        java.util.Optional<ACMHeartbeat> heartbeat);
 
     /**
      * Get the ACM parameters.

@@ -6,8 +6,7 @@ package test.IceBox.configuration;
 
 public class TestServiceI implements com.zeroc.IceBox.Service
 {
-    @Override
-    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args)
+    @Override public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args)
     {
         communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
 
@@ -16,8 +15,5 @@ public class TestServiceI implements com.zeroc.IceBox.Service
         adapter.activate();
     }
 
-    @Override
-    public void stop()
-    {
-    }
+    @Override public void stop() {}
 }

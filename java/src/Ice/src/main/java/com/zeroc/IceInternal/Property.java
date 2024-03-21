@@ -13,23 +13,11 @@ public class Property
         _deprecatedBy = deprecatedBy;
     }
 
-    public String
-    pattern()
-    {
-        return _pattern;
-    }
+    public String pattern() { return _pattern; }
 
-    public boolean
-    deprecated()
-    {
-        return _deprecated;
-    }
+    public boolean deprecated() { return _deprecated; }
 
-    public String
-    deprecatedBy()
-    {
-        return _deprecatedBy;
-    }
+    public String deprecatedBy() { return _deprecatedBy; }
 
     private String _pattern;
     private boolean _deprecated;

@@ -6,36 +6,29 @@ package com.zeroc.IceInternal;
 
 class TcpAcceptor implements Acceptor
 {
-    @Override
-    public java.nio.channels.ServerSocketChannel fd()
-    {
-        return _fd;
-    }
+    @Override public java.nio.channels.ServerSocketChannel fd() { return _fd; }
 
-    @Override
-    public void setReadyCallback(ReadyCallback callback)
+    @Override public void setReadyCallback(ReadyCallback callback)
     {
         // No need to for the ready callback.
     }
 
-    @Override
-    public void close()
+    @Override public void close()
     {
-        if(_fd != null)
+        if (_fd != null)
         {
             Network.closeSocketNoThrow(_fd);
             _fd = null;
         }
     }
 
-    @Override
-    public EndpointI listen()
+    @Override public EndpointI listen()
     {
         try
         {
             _addr = Network.doBind(_fd, _addr, _backlog);
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             _fd = null;
             throw ex;
@@ -44,33 +37,23 @@ class TcpAcceptor implements Acceptor
         return _endpoint;
     }
 
-    @Override
-    public Transceiver accept()
+    @Override public Transceiver accept()
     {
         return new TcpTransceiver(_instance, new StreamSocket(_instance, Network.doAccept(_fd)));
     }
 
-    @Override
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    @Override public String protocol() { return _instance.protocol(); }
 
-    @Override
-    public String toString()
-    {
-        return Network.addrToString(_addr);
-    }
+    @Override public String toString() { return Network.addrToString(_addr); }
 
-    @Override
-    public String toDetailedString()
+    @Override public String toDetailedString()
     {
         StringBuffer s = new StringBuffer("local address = ");
         s.append(toString());
 
         java.util.List<String> intfs =
             Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
-        if(!intfs.isEmpty())
+        if (!intfs.isEmpty())
         {
             s.append("\nlocal interfaces = ");
             s.append(com.zeroc.IceUtilInternal.StringUtil.joinString(intfs, ", "));
@@ -78,10 +61,7 @@ class TcpAcceptor implements Acceptor
         return s.toString();
     }
 
-    int effectivePort()
-    {
-        return _addr.getPort();
-    }
+    int effectivePort() { return _addr.getPort(); }
 
     TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, String host, int port)
     {
@@ -94,7 +74,7 @@ class TcpAcceptor implements Acceptor
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
             Network.setTcpBufSize(_fd, instance);
-            if(!System.getProperty("os.name").startsWith("Windows"))
+            if (!System.getProperty("os.name").startsWith("Windows"))
             {
                 //
                 // Enable SO_REUSEADDR on Unix platforms to allow re-using the
@@ -113,23 +93,20 @@ class TcpAcceptor implements Acceptor
 
             _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
         }
-        catch(RuntimeException ex)
+        catch (RuntimeException ex)
         {
             _fd = null;
             throw ex;
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_fd == null);
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally

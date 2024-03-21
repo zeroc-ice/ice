@@ -14,14 +14,13 @@ public final class LocatorInfo
 
     private static class RequestCallback
     {
-        public void
-        response(LocatorInfo locatorInfo, com.zeroc.Ice.ObjectPrx proxy)
+        public void response(LocatorInfo locatorInfo, com.zeroc.Ice.ObjectPrx proxy)
         {
             EndpointI[] endpoints = null;
-            if(proxy != null)
+            if (proxy != null)
             {
                 Reference r = ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference();
-                if(_ref.isWellKnown() && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding()))
+                if (_ref.isWellKnown() && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding()))
                 {
                     //
                     // If a well-known proxy and the returned proxy
@@ -29,47 +28,49 @@ public final class LocatorInfo
                     // no compatible endpoint we can use.
                     //
                 }
-                else if(!r.isIndirect())
+                else if (!r.isIndirect())
                 {
                     endpoints = r.getEndpoints();
                 }
-                else if(_ref.isWellKnown() && !r.isWellKnown())
+                else if (_ref.isWellKnown() && !r.isWellKnown())
                 {
                     //
                     // We're resolving the endpoints of a well-known object and the proxy returned
                     // by the locator is an indirect proxy. We now need to resolve the endpoints
                     // of this indirect proxy.
                     //
-                    if(_ref.getInstance().traceLevels().location >= 1)
+                    if (_ref.getInstance().traceLevels().location >= 1)
                     {
-                        locatorInfo.trace("retrieved adapter for well-known object from locator, " +
-                                          "adding to locator cache", _ref, r);
+                        locatorInfo.trace(
+                            "retrieved adapter for well-known object from locator, "
+                                + "adding to locator cache",
+                            _ref,
+                            r);
                     }
                     locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
                     return;
                 }
             }
 
-            if(_ref.getInstance().traceLevels().location >= 1)
+            if (_ref.getInstance().traceLevels().location >= 1)
             {
                 locatorInfo.getEndpointsTrace(_ref, endpoints, false);
             }
-            if(_callback != null)
+            if (_callback != null)
             {
                 _callback.setEndpoints(endpoints == null ? new EndpointI[0] : endpoints, false);
             }
         }
 
-        public void
-        exception(LocatorInfo locatorInfo, Exception exc)
+        public void exception(LocatorInfo locatorInfo, Exception exc)
         {
             try
             {
                 locatorInfo.getEndpointsException(_ref, exc); // This throws.
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
-                if(_callback != null)
+                if (_callback != null)
                 {
                     _callback.setException(ex);
                 }
@@ -90,20 +91,20 @@ public final class LocatorInfo
 
     private abstract class Request
     {
-        public void
-        addCallback(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
+        public void addCallback(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
         {
             RequestCallback callback = new RequestCallback(ref, ttl, cb);
-            synchronized(this)
+            synchronized (this)
             {
-                if(!_response && _exception == null)
+                if (!_response && _exception == null)
                 {
                     _callbacks.add(callback);
-                    if(wellKnownRef != null) // This request is to resolve the endpoints of a cached well-known object ref
+                    if (wellKnownRef !=
+                        null) // This request is to resolve the endpoints of a cached well-known object ref
                     {
                         _wellKnownRefs.add(wellKnownRef);
                     }
-                    if(!_sent)
+                    if (!_sent)
                     {
                         _sent = true;
                         send();
@@ -112,13 +113,13 @@ public final class LocatorInfo
                 }
             }
 
-            if(_response)
+            if (_response)
             {
                 callback.response(_locatorInfo, _proxy);
             }
             else
             {
-                assert(_exception != null);
+                assert (_exception != null);
                 callback.exception(_locatorInfo, _exception);
             }
         }
@@ -131,32 +132,30 @@ public final class LocatorInfo
             _response = false;
         }
 
-        protected void
-        response(com.zeroc.Ice.ObjectPrx proxy)
+        protected void response(com.zeroc.Ice.ObjectPrx proxy)
         {
-            synchronized(this)
+            synchronized (this)
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
                 _response = true;
                 _proxy = proxy;
                 notifyAll();
             }
-            for(RequestCallback callback : _callbacks)
+            for (RequestCallback callback : _callbacks)
             {
                 callback.response(_locatorInfo, proxy);
             }
         }
 
-        protected void
-        exception(Exception ex)
+        protected void exception(Exception ex)
         {
-            synchronized(this)
+            synchronized (this)
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex instanceof com.zeroc.Ice.UserException);
                 _exception = ex;
                 notifyAll();
             }
-            for(RequestCallback callback : _callbacks)
+            for (RequestCallback callback : _callbacks)
             {
                 callback.exception(_locatorInfo, ex);
             }
@@ -180,25 +179,23 @@ public final class LocatorInfo
         public ObjectRequest(LocatorInfo locatorInfo, Reference reference)
         {
             super(locatorInfo, reference);
-            assert(reference.isWellKnown());
+            assert (reference.isWellKnown());
         }
 
-        @Override
-        protected void
-        send()
+        @Override protected void send()
         {
             try
             {
-                _locatorInfo.getLocator().findObjectByIdAsync(_ref.getIdentity()).whenComplete(
-                    (com.zeroc.Ice.ObjectPrx proxy, Throwable ex) ->
-                    {
-                        if(ex != null)
+                _locatorInfo.getLocator()
+                    .findObjectByIdAsync(_ref.getIdentity())
+                    .whenComplete((com.zeroc.Ice.ObjectPrx proxy, Throwable ex) -> {
+                        if (ex != null)
                         {
-                            if(ex instanceof com.zeroc.Ice.LocalException)
+                            if (ex instanceof com.zeroc.Ice.LocalException)
                             {
                                 exception((com.zeroc.Ice.LocalException)ex);
                             }
-                            else if(ex instanceof com.zeroc.Ice.UserException)
+                            else if (ex instanceof com.zeroc.Ice.UserException)
                             {
                                 exception((com.zeroc.Ice.UserException)ex);
                             }
@@ -213,7 +210,7 @@ public final class LocatorInfo
                         }
                     });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 exception(ex);
             }
@@ -225,25 +222,23 @@ public final class LocatorInfo
         public AdapterRequest(LocatorInfo locatorInfo, Reference reference)
         {
             super(locatorInfo, reference);
-            assert(reference.isIndirect());
+            assert (reference.isIndirect());
         }
 
-        @Override
-        protected void
-        send()
+        @Override protected void send()
         {
             try
             {
-                _locatorInfo.getLocator().findAdapterByIdAsync(_ref.getAdapterId()).whenComplete(
-                    (com.zeroc.Ice.ObjectPrx proxy, Throwable ex) ->
-                    {
-                        if(ex != null)
+                _locatorInfo.getLocator()
+                    .findAdapterByIdAsync(_ref.getAdapterId())
+                    .whenComplete((com.zeroc.Ice.ObjectPrx proxy, Throwable ex) -> {
+                        if (ex != null)
                         {
-                            if(ex instanceof com.zeroc.Ice.LocalException)
+                            if (ex instanceof com.zeroc.Ice.LocalException)
                             {
                                 exception((com.zeroc.Ice.LocalException)ex);
                             }
-                            else if(ex instanceof com.zeroc.Ice.UserException)
+                            else if (ex instanceof com.zeroc.Ice.UserException)
                             {
                                 exception((com.zeroc.Ice.UserException)ex);
                             }
@@ -258,7 +253,7 @@ public final class LocatorInfo
                         }
                     });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 exception(ex);
             }
@@ -272,23 +267,20 @@ public final class LocatorInfo
         _background = background;
     }
 
-    synchronized public void
-    destroy()
+    synchronized public void destroy()
     {
         _locatorRegistry = null;
         _table.clear();
     }
 
-    @Override
-    public boolean
-    equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(this == obj)
+        if (this == obj)
         {
             return true;
         }
 
-        if(obj instanceof LocatorInfo)
+        if (obj instanceof LocatorInfo)
         {
             return _locator.equals(((LocatorInfo)obj)._locator);
         }
@@ -296,15 +288,9 @@ public final class LocatorInfo
         return false;
     }
 
-    @Override
-    public int
-    hashCode()
-    {
-         return _locator.hashCode();
-    }
+    @Override public int hashCode() { return _locator.hashCode(); }
 
-    public com.zeroc.Ice.LocatorPrx
-    getLocator()
+    public com.zeroc.Ice.LocatorPrx getLocator()
     {
         //
         // No synchronization necessary, _locator is immutable.
@@ -312,12 +298,11 @@ public final class LocatorInfo
         return _locator;
     }
 
-    public com.zeroc.Ice.LocatorRegistryPrx
-    getLocatorRegistry()
+    public com.zeroc.Ice.LocatorRegistryPrx getLocatorRegistry()
     {
-        synchronized(this)
+        synchronized (this)
         {
-            if(_locatorRegistry != null)
+            if (_locatorRegistry != null)
             {
                 return _locatorRegistry;
             }
@@ -327,12 +312,12 @@ public final class LocatorInfo
         // Do not make locator calls from within sync.
         //
         com.zeroc.Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
-        if(locatorRegistry == null)
+        if (locatorRegistry == null)
         {
             return null;
         }
 
-        synchronized(this)
+        synchronized (this)
         {
             //
             // The locator registry can't be located. We use ordered
@@ -345,24 +330,22 @@ public final class LocatorInfo
         }
     }
 
-    public void
-    getEndpoints(Reference ref, int ttl, GetEndpointsCallback callback)
+    public void getEndpoints(Reference ref, int ttl, GetEndpointsCallback callback)
     {
         getEndpoints(ref, null, ttl, callback);
     }
 
-    public void
-    getEndpoints(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
+    public void getEndpoints(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
     {
-        assert(ref.isIndirect());
+        assert (ref.isIndirect());
         EndpointI[] endpoints = null;
         Holder<Boolean> cached = new Holder<>();
-        if(!ref.isWellKnown())
+        if (!ref.isWellKnown())
         {
             endpoints = _table.getAdapterEndpoints(ref.getAdapterId(), ttl, cached);
-            if(!cached.value)
+            if (!cached.value)
             {
-                if(_background && endpoints != null)
+                if (_background && endpoints != null)
                 {
                     getAdapterRequest(ref).addCallback(ref, wellKnownRef, ttl, null);
                 }
@@ -376,9 +359,9 @@ public final class LocatorInfo
         else
         {
             Reference r = _table.getObjectReference(ref.getIdentity(), ttl, cached);
-            if(!cached.value)
+            if (!cached.value)
             {
-                if(_background && r != null)
+                if (_background && r != null)
                 {
                     getObjectRequest(ref).addCallback(ref, null, ttl, null);
                 }
@@ -389,13 +372,13 @@ public final class LocatorInfo
                 }
             }
 
-            if(!r.isIndirect())
+            if (!r.isIndirect())
             {
                 endpoints = r.getEndpoints();
             }
-            else if(!r.isWellKnown())
+            else if (!r.isWellKnown())
             {
-                if(ref.getInstance().traceLevels().location >= 1)
+                if (ref.getInstance().traceLevels().location >= 1)
                 {
                     trace("found adapter for well-known object in locator cache", ref, r);
                 }
@@ -404,27 +387,26 @@ public final class LocatorInfo
             }
         }
 
-        assert(endpoints != null);
-        if(ref.getInstance().traceLevels().location >= 1)
+        assert (endpoints != null);
+        if (ref.getInstance().traceLevels().location >= 1)
         {
             getEndpointsTrace(ref, endpoints, true);
         }
-        if(callback != null)
+        if (callback != null)
         {
             callback.setEndpoints(endpoints, true);
         }
     }
 
-    public void
-    clearCache(Reference ref)
+    public void clearCache(Reference ref)
     {
-        assert(ref.isIndirect());
+        assert (ref.isIndirect());
 
-        if(!ref.isWellKnown())
+        if (!ref.isWellKnown())
         {
             EndpointI[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
 
-            if(endpoints != null && ref.getInstance().traceLevels().location >= 2)
+            if (endpoints != null && ref.getInstance().traceLevels().location >= 2)
             {
                 trace("removed endpoints for adapter from locator cache", ref, endpoints);
             }
@@ -432,18 +414,18 @@ public final class LocatorInfo
         else
         {
             Reference r = _table.removeObjectReference(ref.getIdentity());
-            if(r != null)
+            if (r != null)
             {
-                if(!r.isIndirect())
+                if (!r.isIndirect())
                 {
-                    if(ref.getInstance().traceLevels().location >= 2)
+                    if (ref.getInstance().traceLevels().location >= 2)
                     {
                         trace("removed endpoints for well-known object from locator cache", ref, r.getEndpoints());
                     }
                 }
-                else if(!r.isWellKnown())
+                else if (!r.isWellKnown())
                 {
-                    if(ref.getInstance().traceLevels().location >= 2)
+                    if (ref.getInstance().traceLevels().location >= 2)
                     {
                         trace("removed adapter for well-known object from locator cache", ref, r);
                     }
@@ -453,15 +435,14 @@ public final class LocatorInfo
         }
     }
 
-    private void
-    trace(String msg, Reference ref, EndpointI[] endpoints)
+    private void trace(String msg, Reference ref, EndpointI[] endpoints)
     {
-        assert(ref.isIndirect());
+        assert (ref.isIndirect());
 
         StringBuilder s = new StringBuilder(128);
         s.append(msg);
         s.append("\n");
-        if(!ref.isWellKnown())
+        if (!ref.isWellKnown())
         {
             s.append("adapter = ");
             s.append(ref.getAdapterId());
@@ -476,10 +457,10 @@ public final class LocatorInfo
 
         s.append("endpoints = ");
         final int sz = endpoints.length;
-        for(int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; i++)
         {
             s.append(endpoints[i].toString());
-            if(i + 1 < sz)
+            if (i + 1 < sz)
             {
                 s.append(":");
             }
@@ -488,10 +469,9 @@ public final class LocatorInfo
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
-    private void
-    trace(String msg, Reference ref, Reference resolved)
+    private void trace(String msg, Reference ref, Reference resolved)
     {
-        assert(ref.isWellKnown());
+        assert (ref.isWellKnown());
 
         StringBuilder s = new StringBuilder(128);
         s.append(msg);
@@ -505,19 +485,18 @@ public final class LocatorInfo
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
-    private void
-    getEndpointsException(Reference ref, Exception exc)
+    private void getEndpointsException(Reference ref, Exception exc)
     {
-        assert(ref.isIndirect());
+        assert (ref.isIndirect());
 
         try
         {
             throw exc;
         }
-        catch(com.zeroc.Ice.AdapterNotFoundException ex)
+        catch (com.zeroc.Ice.AdapterNotFoundException ex)
         {
             final Instance instance = ref.getInstance();
-            if(instance.traceLevels().location >= 1)
+            if (instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("adapter not found\n");
@@ -531,10 +510,10 @@ public final class LocatorInfo
             e.id = ref.getAdapterId();
             throw e;
         }
-        catch(com.zeroc.Ice.ObjectNotFoundException ex)
+        catch (com.zeroc.Ice.ObjectNotFoundException ex)
         {
             final Instance instance = ref.getInstance();
-            if(instance.traceLevels().location >= 1)
+            if (instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("object not found\n");
@@ -548,18 +527,18 @@ public final class LocatorInfo
             e.id = com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
             throw e;
         }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
+        catch (com.zeroc.Ice.NotRegisteredException ex)
         {
             throw ex;
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             final Instance instance = ref.getInstance();
-            if(instance.traceLevels().location >= 1)
+            if (instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("couldn't contact the locator to retrieve endpoints\n");
-                if(ref.getAdapterId().length() > 0)
+                if (ref.getAdapterId().length() > 0)
                 {
                     s.append("adapter = ");
                     s.append(ref.getAdapterId());
@@ -576,20 +555,19 @@ public final class LocatorInfo
             }
             throw ex;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            assert(false);
+            assert (false);
         }
     }
 
-    private void
-    getEndpointsTrace(Reference ref, EndpointI[] endpoints, boolean cached)
+    private void getEndpointsTrace(Reference ref, EndpointI[] endpoints, boolean cached)
     {
-        if(endpoints != null && endpoints.length > 0)
+        if (endpoints != null && endpoints.length > 0)
         {
-            if(cached)
+            if (cached)
             {
-                if(ref.isWellKnown())
+                if (ref.isWellKnown())
                 {
                     trace("found endpoints for well-known proxy in locator cache", ref, endpoints);
                 }
@@ -600,15 +578,16 @@ public final class LocatorInfo
             }
             else
             {
-                if(ref.isWellKnown())
+                if (ref.isWellKnown())
                 {
-                    trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
-                          ref, endpoints);
+                    trace(
+                        "retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                        ref,
+                        endpoints);
                 }
                 else
                 {
-                    trace("retrieved endpoints for adapter from locator, adding to locator cache",
-                          ref, endpoints);
+                    trace("retrieved endpoints for adapter from locator, adding to locator cache", ref, endpoints);
                 }
             }
         }
@@ -617,7 +596,7 @@ public final class LocatorInfo
             final Instance instance = ref.getInstance();
             StringBuilder s = new StringBuilder(128);
             s.append("no endpoints configured for ");
-            if(ref.getAdapterId().length() > 0)
+            if (ref.getAdapterId().length() > 0)
             {
                 s.append("adapter\n");
                 s.append("adapter = ");
@@ -635,10 +614,9 @@ public final class LocatorInfo
         }
     }
 
-    synchronized private Request
-    getAdapterRequest(Reference ref)
+    synchronized private Request getAdapterRequest(Reference ref)
     {
-        if(ref.getInstance().traceLevels().location >= 1)
+        if (ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = ref.getInstance();
             StringBuilder s = new StringBuilder(128);
@@ -649,7 +627,7 @@ public final class LocatorInfo
         }
 
         Request request = _adapterRequests.get(ref.getAdapterId());
-        if(request != null)
+        if (request != null)
         {
             return request;
         }
@@ -658,10 +636,9 @@ public final class LocatorInfo
         return request;
     }
 
-    synchronized private Request
-    getObjectRequest(Reference ref)
+    synchronized private Request getObjectRequest(Reference ref)
     {
-        if(ref.getInstance().traceLevels().location >= 1)
+        if (ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = ref.getInstance();
             StringBuilder s = new StringBuilder(128);
@@ -672,7 +649,7 @@ public final class LocatorInfo
         }
 
         Request request = _objectRequests.get(ref.getIdentity());
-        if(request != null)
+        if (request != null)
         {
             return request;
         }
@@ -681,56 +658,59 @@ public final class LocatorInfo
         return request;
     }
 
-    private void
-    finishRequest(Reference ref, java.util.List<Reference> wellKnownRefs, com.zeroc.Ice.ObjectPrx proxy,
-                  boolean notRegistered)
+    private void finishRequest(
+        Reference ref,
+        java.util.List<Reference> wellKnownRefs,
+        com.zeroc.Ice.ObjectPrx proxy,
+        boolean notRegistered)
     {
-        if(proxy == null || ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
+        if (proxy == null || ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
         {
             //
             // Remove the cached references of well-known objects for which we tried
             // to resolved the endpoints if these endpoints are empty.
             //
-            for(Reference r : wellKnownRefs)
+            for (Reference r : wellKnownRefs)
             {
                 _table.removeObjectReference(r.getIdentity());
             }
         }
 
-        if(!ref.isWellKnown())
+        if (!ref.isWellKnown())
         {
-            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
+            if (proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
             {
                 // Cache the adapter endpoints.
-                _table.addAdapterEndpoints(ref.getAdapterId(),
-                                           ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getEndpoints());
+                _table.addAdapterEndpoints(
+                    ref.getAdapterId(),
+                    ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getEndpoints());
             }
-            else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
+            else if (notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
             {
                 _table.removeAdapterEndpoints(ref.getAdapterId());
             }
 
-            synchronized(this)
+            synchronized (this)
             {
-                assert(_adapterRequests.get(ref.getAdapterId()) != null);
+                assert (_adapterRequests.get(ref.getAdapterId()) != null);
                 _adapterRequests.remove(ref.getAdapterId());
             }
         }
         else
         {
-            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isWellKnown())
+            if (proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isWellKnown())
             {
                 // Cache the well-known object reference.
                 _table.addObjectReference(ref.getIdentity(), ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference());
             }
-            else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
+            else if (notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
             {
                 _table.removeObjectReference(ref.getIdentity());
             }
 
-            synchronized(this)
+            synchronized (this)
             {
-                assert(_objectRequests.get(ref.getIdentity()) != null);
+                assert (_objectRequests.get(ref.getIdentity()) != null);
                 _objectRequests.remove(ref.getIdentity());
             }
         }

@@ -4,27 +4,23 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
-
+import java.text.NumberFormat;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import java.text.NumberFormat;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class Node extends Communicator
 {
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_NODE] = _up;
@@ -36,99 +32,81 @@ class Node extends Communicator
         return actions;
     }
 
-    @Override
-    public void retrieveOutput(final boolean stdout)
+    @Override public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory() {
+            @Override
+            public FileIteratorPrx open(int count)
+                throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException
             {
-                @Override
-                public FileIteratorPrx open(int count)
-                    throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException
+                AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                FileIteratorPrx result;
+                if (stdout)
                 {
-                    AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                    FileIteratorPrx result;
-                    if(stdout)
-                    {
-                        result = session.openNodeStdOut(_id, count);
-                    }
-                    else
-                    {
-                        result = session.openNodeStdErr(_id, count);
-                    }
-                    return result;
+                    result = session.openNodeStdOut(_id, count);
                 }
+                else
+                {
+                    result = session.openNodeStdErr(_id, count);
+                }
+                return result;
+            }
 
-                @Override
-                public String getTitle()
-                {
-                    return "Node " + _id + " " + (stdout ? "stdout" : "stderr");
-                }
+            @Override public String getTitle() { return "Node " + _id + " " + (stdout ? "stdout" : "stderr"); }
 
-                @Override
-                public String getDefaultFilename()
-                {
-                    return _id + (stdout ? ".out" : ".err");
-                }
-            });
+            @Override public String getDefaultFilename() { return _id + (stdout ? ".out" : ".err"); }
+        });
     }
 
-    @Override
-    public void shutdownNode()
+    @Override public void shutdownNode()
     {
         final String prefix = "Shutting down node '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
         try
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            getCoordinator().getAdmin().shutdownNodeAsync(_id).whenComplete((result, ex) ->
-                {
-                    amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                });
+            getCoordinator().getAdmin().shutdownNodeAsync(_id).whenComplete(
+                (result, ex) -> { amiComplete(prefix, "Failed to shutdown " + _id, ex); });
         }
-        catch(com.zeroc.Ice.LocalException e)
+        catch (com.zeroc.Ice.LocalException e)
         {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
-    @Override
-    public void startAllServers()
+    @Override public void startAllServers()
     {
-        for(Server server : _servers)
+        for (Server server : _servers)
         {
-            if(server.getAvailableActions()[START])
+            if (server.getAvailableActions()[START])
             {
                 server.start();
             }
         }
     }
 
-    @Override
-    public void stopAllServers()
+    @Override public void stopAllServers()
     {
-        for(Server server : _servers)
+        for (Server server : _servers)
         {
-            if(server.getAvailableActions()[STOP])
+            if (server.getAvailableActions()[STOP])
             {
                 server.stop();
             }
         }
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
 
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(la.get(RETRIEVE_ICE_LOG));
@@ -145,10 +123,9 @@ class Node extends Communicator
         return _popup;
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = new NodeEditor();
         }
@@ -166,7 +143,7 @@ class Node extends Communicator
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             //
             // Initialization
@@ -176,10 +153,10 @@ class Node extends Communicator
             _nodeDown = Utils.getIcon("/icons/16x16/node_down.png");
         }
 
-        if(_up)
+        if (_up)
         {
             _cellRenderer.setToolTipText("Up and running");
-            if(expanded)
+            if (expanded)
             {
                 _cellRenderer.setOpenIcon(_nodeUp);
             }
@@ -191,7 +168,7 @@ class Node extends Communicator
         else
         {
             _cellRenderer.setToolTipText("Not running");
-            if(expanded)
+            if (expanded)
             {
                 _cellRenderer.setOpenIcon(_nodeDown);
             }
@@ -208,29 +185,16 @@ class Node extends Communicator
     // Implement Communicator abstract methods
     //
 
-    @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
+    @Override protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
         return getRoot().getCoordinator().getAdmin().getNodeAdminAsync(_id);
     }
 
-    @Override
-    protected String getServerDisplayName()
-    {
-        return "Node " + _id;
-    }
+    @Override protected String getServerDisplayName() { return "Node " + _id; }
 
-    @Override
-    protected String getDisplayName()
-    {
-        return "Node " + _id;
-    }
+    @Override protected String getDisplayName() { return "Node " + _id; }
 
-    @Override
-    protected String getDefaultFileName()
-    {
-        return "node-" + _id;
-    }
+    @Override protected String getDefaultFileName() { return "node-" + _id; }
 
     Node(Root parent, NodeDynamicInfo info)
     {
@@ -269,9 +233,10 @@ class Node extends Communicator
     Utils.ExpandedPropertySet expand(PropertySetDescriptor descriptor, String applicationName, Utils.Resolver resolver)
     {
         Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
-        java.util.ArrayList<Utils.ExpandedPropertySet> references = new java.util.ArrayList<Utils.ExpandedPropertySet>();
+        java.util.ArrayList<Utils.ExpandedPropertySet> references =
+            new java.util.ArrayList<Utils.ExpandedPropertySet>();
 
-        for(String ref : descriptor.references)
+        for (String ref : descriptor.references)
         {
             PropertySetDescriptor resolved = findNamedPropertySet(resolver.substitute(ref), applicationName);
             if (resolved == null)
@@ -289,11 +254,11 @@ class Node extends Communicator
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
         ApplicationData appData = _map.get(applicationName);
-        if(appData != null)
+        if (appData != null)
         {
             NodeDescriptor descriptor = appData.descriptor;
             PropertySetDescriptor result = descriptor.propertySets.get(name);
-            if(result != null)
+            if (result != null)
             {
                 return result;
             }
@@ -301,17 +266,14 @@ class Node extends Communicator
         return getRoot().findNamedPropertySet(name, applicationName);
     }
 
-    boolean hasServersFromApplication(String name)
-    {
-        return _map.containsKey(name);
-    }
+    boolean hasServersFromApplication(String name) { return _map.containsKey(name); }
 
     void add(ApplicationDescriptor appDesc, NodeDescriptor nodeDesc)
     {
         ApplicationData data = new ApplicationData();
         data.descriptor = nodeDesc;
         @SuppressWarnings("unchecked")
-        Utils.Resolver resolver = new Utils.Resolver(new java.util.Map[]{nodeDesc.variables, appDesc.variables});
+        Utils.Resolver resolver = new Utils.Resolver(new java.util.Map[] {nodeDesc.variables, appDesc.variables});
         data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
@@ -319,12 +281,12 @@ class Node extends Communicator
 
         _map.put(appDesc.name, data);
 
-        for(ServerInstanceDescriptor p : nodeDesc.serverInstances)
+        for (ServerInstanceDescriptor p : nodeDesc.serverInstances)
         {
             insertServer(createServer(appDesc, data.resolver, p));
         }
 
-        for(ServerDescriptor p : nodeDesc.servers)
+        for (ServerDescriptor p : nodeDesc.servers)
         {
             insertServer(createServer(appDesc, data.resolver, p));
         }
@@ -333,7 +295,7 @@ class Node extends Communicator
     boolean remove(String appName)
     {
         _map.remove(appName);
-        if(_map.isEmpty() && !_up)
+        if (_map.isEmpty() && !_up)
         {
             return true;
         }
@@ -342,9 +304,9 @@ class Node extends Communicator
         int[] toRemoveIndices = new int[_servers.size()];
         int i = 0;
 
-        for(Server server : _servers)
+        for (Server server : _servers)
         {
-            if(server.getApplication().name.equals(appName))
+            if (server.getApplication().name.equals(appName))
             {
                 toRemove.add(server);
                 toRemoveIndices[i++] = getIndex(server);
@@ -357,14 +319,18 @@ class Node extends Communicator
         return false;
     }
 
-    void update(ApplicationDescriptor appDesc, NodeUpdateDescriptor update, boolean variablesChanged,
-                java.util.Set<String> serviceTemplates, java.util.Set<String> serverTemplates)
+    void update(
+        ApplicationDescriptor appDesc,
+        NodeUpdateDescriptor update,
+        boolean variablesChanged,
+        java.util.Set<String> serviceTemplates,
+        java.util.Set<String> serverTemplates)
     {
         ApplicationData data = _map.get(appDesc.name);
 
-        if(data == null)
+        if (data == null)
         {
-            if(update != null)
+            if (update != null)
             {
                 NodeDescriptor nodeDesc = new NodeDescriptor(
                     update.variables,
@@ -387,16 +353,16 @@ class Node extends Communicator
         NodeDescriptor nodeDesc = data.descriptor;
         java.util.Set<Server> freshServers = new java.util.HashSet<>();
 
-        if(update != null)
+        if (update != null)
         {
             //
             // Update various fields of nodeDesc
             //
-            if(update.description != null)
+            if (update.description != null)
             {
                 nodeDesc.description = update.description.value;
             }
-            if(update.loadFactor != null)
+            if (update.loadFactor != null)
             {
                 nodeDesc.loadFactor = update.loadFactor.value;
             }
@@ -404,7 +370,7 @@ class Node extends Communicator
             nodeDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.removeVariables));
             nodeDesc.variables.putAll(update.variables);
 
-            if(!variablesChanged)
+            if (!variablesChanged)
             {
                 variablesChanged = update.removeVariables.length > 0 || !update.variables.isEmpty();
             }
@@ -415,16 +381,16 @@ class Node extends Communicator
             //
             // Remove servers
             //
-            for(String id : update.removeServers)
+            for (String id : update.removeServers)
             {
                 Server server = findServer(id);
-                if(server == null)
+                if (server == null)
                 {
                     //
                     // This should never happen
                     //
-                    String errorMsg = "LiveDeployment/Node: unable to remove server '" + id +
-                        "'; please report this bug.";
+                    String errorMsg =
+                        "LiveDeployment/Node: unable to remove server '" + id + "'; please report this bug.";
 
                     getCoordinator().getCommunicator().getLogger().error(errorMsg);
                 }
@@ -434,19 +400,19 @@ class Node extends Communicator
                     removeDescriptor(nodeDesc, server);
                     int index = getIndex(server);
                     _servers.remove(server);
-                    getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
+                    getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {server});
                 }
             }
 
             //
             // Add/update servers
             //
-            for(ServerInstanceDescriptor desc : update.serverInstances)
+            for (ServerInstanceDescriptor desc : update.serverInstances)
             {
                 Server server = createServer(appDesc, data.resolver, desc);
 
                 Server oldServer = findServer(server.getId());
-                if(oldServer == null)
+                if (oldServer == null)
                 {
                     insertServer(server);
                     freshServers.add(server);
@@ -462,12 +428,12 @@ class Node extends Communicator
                 }
             }
 
-            for(ServerDescriptor desc : update.servers)
+            for (ServerDescriptor desc : update.servers)
             {
                 Server server = createServer(appDesc, data.resolver, desc);
 
                 Server oldServer = findServer(server.getId());
-                if(oldServer == null)
+                if (oldServer == null)
                 {
                     insertServer(server);
                     freshServers.add(server);
@@ -484,16 +450,16 @@ class Node extends Communicator
             }
         }
 
-        if(variablesChanged || !serviceTemplates.isEmpty() || !serverTemplates.isEmpty())
+        if (variablesChanged || !serviceTemplates.isEmpty() || !serverTemplates.isEmpty())
         {
             //
             // Rebuild every other server in this application
             //
-            for(Server server : _servers)
+            for (Server server : _servers)
             {
-                if(server.getApplication() == appDesc)
+                if (server.getApplication() == appDesc)
                 {
-                    if(!freshServers.contains(server))
+                    if (!freshServers.contains(server))
                     {
                         server.rebuild(data.resolver, variablesChanged, serviceTemplates, serverTemplates);
                     }
@@ -504,7 +470,7 @@ class Node extends Communicator
 
     NodeInfo getStaticInfo()
     {
-        if(_info == null)
+        if (_info == null)
         {
             return null;
         }
@@ -514,14 +480,11 @@ class Node extends Communicator
         }
     }
 
-    boolean isRunningWindows()
-    {
-        return _windows;
-    }
+    boolean isRunningWindows() { return _windows; }
 
     private boolean putInfoVariables(Utils.Resolver resolver)
     {
-        if(_info == null)
+        if (_info == null)
         {
             return false;
         }
@@ -547,15 +510,15 @@ class Node extends Communicator
         //
         // Update variables and rebuild all affected servers
         //
-        for(ApplicationData data : _map.values())
+        for (ApplicationData data : _map.values())
         {
-            if(putInfoVariables(data.resolver))
+            if (putInfoVariables(data.resolver))
             {
                 String appName = data.resolver.find("application");
 
-                for(Server server : _servers)
+                for (Server server : _servers)
                 {
-                    if(server.getApplication().name.equals(appName))
+                    if (server.getApplication().name.equals(appName))
                     {
                         server.rebuild(data.resolver, true, null, null);
                     }
@@ -567,18 +530,18 @@ class Node extends Communicator
         // Tell every server on this node
         //
         java.util.Set<Server> updatedServers = new java.util.HashSet<>();
-        for(ServerDynamicInfo sinfo : _info.servers)
+        for (ServerDynamicInfo sinfo : _info.servers)
         {
             Server server = findServer(sinfo.id);
-            if(server != null)
+            if (server != null)
             {
                 server.update(sinfo.state, sinfo.pid, sinfo.enabled, true);
                 updatedServers.add(server);
             }
         }
-        for(Server server : _servers)
+        for (Server server : _servers)
         {
-            if(!updatedServers.contains(server))
+            if (!updatedServers.contains(server))
             {
                 server.update(ServerState.Inactive, 0, true, true);
             }
@@ -589,13 +552,13 @@ class Node extends Communicator
         //
         java.util.Iterator<Server> p = _servers.iterator();
         int updateCount = 0;
-        while(p.hasNext() && updateCount < _info.adapters.size())
+        while (p.hasNext() && updateCount < _info.adapters.size())
         {
             Server server = p.next();
             updateCount += server.updateAdapters(_info.adapters);
         }
 
-        if(fireEvent)
+        if (fireEvent)
         {
             getRoot().getTreeModel().nodeChanged(this);
         }
@@ -607,18 +570,18 @@ class Node extends Communicator
         _info.servers.clear();
         _info.adapters.clear();
 
-        if(_showIceLogDialog != null)
+        if (_showIceLogDialog != null)
         {
             _showIceLogDialog.stopped();
         }
 
-        if(_servers.isEmpty())
+        if (_servers.isEmpty())
         {
             return true;
         }
         else
         {
-            for(Server server : _servers)
+            for (Server server : _servers)
             {
                 server.nodeDown();
             }
@@ -633,16 +596,16 @@ class Node extends Communicator
     {
         boolean destroyed = updatedInfo.state == ServerState.Destroyed;
 
-        if(_info != null)
+        if (_info != null)
         {
             java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
             boolean found = false;
-            while(p.hasNext())
+            while (p.hasNext())
             {
                 ServerDynamicInfo sinfo = p.next();
-                if(sinfo.id.equals(updatedInfo.id))
+                if (sinfo.id.equals(updatedInfo.id))
                 {
-                    if(destroyed)
+                    if (destroyed)
                     {
                         p.remove();
                     }
@@ -654,14 +617,14 @@ class Node extends Communicator
                     break;
                 }
             }
-            if(!found && !destroyed)
+            if (!found && !destroyed)
             {
                 _info.servers.add(updatedInfo);
             }
         }
 
         Server server = findServer(updatedInfo.id);
-        if(server != null)
+        if (server != null)
         {
             server.update(updatedInfo.state, updatedInfo.pid, updatedInfo.enabled, true);
         }
@@ -669,29 +632,29 @@ class Node extends Communicator
 
     void updateAdapter(AdapterDynamicInfo updatedInfo)
     {
-        if(_info != null)
+        if (_info != null)
         {
             java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
             boolean found = false;
-            while(p.hasNext())
+            while (p.hasNext())
             {
                 AdapterDynamicInfo ainfo = p.next();
-                if(ainfo.id.equals(updatedInfo.id))
+                if (ainfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
                     found = true;
                     break;
                 }
             }
-            if(!found)
+            if (!found)
             {
                 _info.adapters.add(updatedInfo);
             }
         }
 
-        for(Server server : _servers)
+        for (Server server : _servers)
         {
-            if(server.updateAdapter(updatedInfo))
+            if (server.updateAdapter(updatedInfo))
             {
                 break;
             }
@@ -700,13 +663,13 @@ class Node extends Communicator
 
     com.zeroc.Ice.ObjectPrx getProxy(String adapterId)
     {
-        if(_info != null)
+        if (_info != null)
         {
             java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
-            while(p.hasNext())
+            while (p.hasNext())
             {
                 AdapterDynamicInfo ainfo = p.next();
-                if(ainfo.id.equals(adapterId))
+                if (ainfo.id.equals(adapterId))
                 {
                     return ainfo.proxy;
                 }
@@ -719,12 +682,12 @@ class Node extends Communicator
     {
         java.util.SortedMap<String, String> result = new java.util.TreeMap<>();
 
-        for(java.util.Map.Entry<String, ApplicationData> p : _map.entrySet())
+        for (java.util.Map.Entry<String, ApplicationData> p : _map.entrySet())
         {
             ApplicationData ad = p.getValue();
 
             String val = ad.resolver.substitute(ad.descriptor.loadFactor);
-            if(val.length() == 0)
+            if (val.length() == 0)
             {
                 val = "Default";
             }
@@ -737,7 +700,7 @@ class Node extends Communicator
     void showLoad()
     {
         com.zeroc.IceGrid.AdminPrx admin = getCoordinator().getAdmin();
-        if(admin == null)
+        if (admin == null)
         {
             _editor.setLoad("Unknown", this);
         }
@@ -749,50 +712,48 @@ class Node extends Communicator
 
             try
             {
-                admin.getNodeLoadAsync(_id).whenComplete((result, ex) ->
+                admin.getNodeLoadAsync(_id).whenComplete((result, ex) -> {
+                    if (ex == null)
                     {
-                        if(ex == null)
+                        NumberFormat format;
+                        if (_windows)
                         {
-                            NumberFormat format;
-                            if(_windows)
-                            {
-                                format = NumberFormat.getPercentInstance();
-                                format.setMaximumFractionDigits(1);
-                                format.setMinimumFractionDigits(1);
-                            }
-                            else
-                            {
-                                format = NumberFormat.getNumberInstance();
-                                format.setMaximumFractionDigits(2);
-                                format.setMinimumFractionDigits(2);
-                            }
-
-                            final String load =
-                                format.format(result.avg1) + " " +
-                                format.format(result.avg5) + " " +
-                                format.format(result.avg15);
-
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    _editor.setLoad(load, Node.this);
-                                });
+                            format = NumberFormat.getPercentInstance();
+                            format.setMaximumFractionDigits(1);
+                            format.setMinimumFractionDigits(1);
                         }
                         else
                         {
-                            amiFailure(prefix, "Failed to retrieve load for " + getDisplayName(), ex);
+                            format = NumberFormat.getNumberInstance();
+                            format.setMaximumFractionDigits(2);
+                            format.setMinimumFractionDigits(2);
                         }
-                    });
+
+                        final String load = format.format(result.avg1) + " " + format.format(result.avg5) + " " +
+                                            format.format(result.avg15);
+
+                        SwingUtilities.invokeLater(() -> {
+                            success(prefix);
+                            _editor.setLoad(load, Node.this);
+                        });
+                    }
+                    else
+                    {
+                        amiFailure(prefix, "Failed to retrieve load for " + getDisplayName(), ex);
+                    }
+                });
             }
-            catch(com.zeroc.Ice.LocalException e)
+            catch (com.zeroc.Ice.LocalException e)
             {
                 getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + ".");
             }
         }
     }
 
-    private Server createServer(ApplicationDescriptor application, Utils.Resolver resolver,
-                                ServerInstanceDescriptor instanceDescriptor)
+    private Server createServer(
+        ApplicationDescriptor application,
+        Utils.Resolver resolver,
+        ServerInstanceDescriptor instanceDescriptor)
     {
         //
         // Find template
@@ -808,9 +769,7 @@ class Node extends Communicator
         // Build resolver
         //
         Utils.Resolver instanceResolver =
-            new Utils.Resolver(resolver,
-                               instanceDescriptor.parameterValues,
-                               templateDescriptor.parameterDefaults);
+            new Utils.Resolver(resolver, instanceDescriptor.parameterValues, templateDescriptor.parameterDefaults);
 
         String serverId = instanceResolver.substitute(serverDescriptor.id);
         instanceResolver.put("server", serverId);
@@ -821,11 +780,11 @@ class Node extends Communicator
         ServerState serverState = _up ? ServerState.Inactive : null;
         int pid = 0;
         boolean enabled = true;
-        if(_info != null)
+        if (_info != null)
         {
-            for(ServerDynamicInfo info : _info.servers)
+            for (ServerDynamicInfo info : _info.servers)
             {
-                if(info.id.equals(serverId))
+                if (info.id.equals(serverId))
                 {
                     serverState = info.state;
                     pid = info.pid;
@@ -838,12 +797,20 @@ class Node extends Communicator
         //
         // Create server
         //
-        return new Server(this, serverId, instanceResolver, instanceDescriptor, serverDescriptor, application,
-                          serverState, pid, enabled);
+        return new Server(
+            this,
+            serverId,
+            instanceResolver,
+            instanceDescriptor,
+            serverDescriptor,
+            application,
+            serverState,
+            pid,
+            enabled);
     }
 
-    private Server createServer(ApplicationDescriptor application, Utils.Resolver resolver,
-                                ServerDescriptor serverDescriptor)
+    private Server
+    createServer(ApplicationDescriptor application, Utils.Resolver resolver, ServerDescriptor serverDescriptor)
     {
         //
         // Build resolver
@@ -858,11 +825,11 @@ class Node extends Communicator
         ServerState serverState = _up ? ServerState.Inactive : null;
         int pid = 0;
         boolean enabled = true;
-        if(_info != null)
+        if (_info != null)
         {
-            for(ServerDynamicInfo info : _info.servers)
+            for (ServerDynamicInfo info : _info.servers)
             {
-                if(info.id.equals(serverId))
+                if (info.id.equals(serverId))
                 {
                     serverState = info.state;
                     pid = info.pid;
@@ -875,24 +842,26 @@ class Node extends Communicator
         //
         // Create server
         //
-        return new Server(this, serverId, instanceResolver, null, serverDescriptor, application, serverState, pid,
-                          enabled);
+        return new Server(
+            this,
+            serverId,
+            instanceResolver,
+            null,
+            serverDescriptor,
+            application,
+            serverState,
+            pid,
+            enabled);
     }
 
-    private void insertServer(Server server)
-    {
-        insertSortedChild(server, _servers, getRoot().getTreeModel());
-    }
+    private void insertServer(Server server) { insertSortedChild(server, _servers, getRoot().getTreeModel()); }
 
-    private Server findServer(String id)
-    {
-        return (Server)find(id, _servers);
-    }
+    private Server findServer(String id) { return (Server)find(id, _servers); }
 
     private void removeDescriptor(NodeDescriptor nodeDesc, Server server)
     {
         ServerInstanceDescriptor instanceDescriptor = server.getInstanceDescriptor();
-        if(instanceDescriptor != null)
+        if (instanceDescriptor != null)
         {
             removeDescriptor(nodeDesc, instanceDescriptor);
         }
@@ -908,9 +877,9 @@ class Node extends Communicator
         // A straight remove uses equals(), which is not the desired behavior
         //
         java.util.Iterator<ServerDescriptor> p = nodeDesc.servers.iterator();
-        while(p.hasNext())
+        while (p.hasNext())
         {
-            if(sd == p.next())
+            if (sd == p.next())
             {
                 p.remove();
                 break;
@@ -924,9 +893,9 @@ class Node extends Communicator
         // A straight remove uses equals(), which is not the desired behavior
         //
         java.util.Iterator<ServerInstanceDescriptor> p = nodeDesc.serverInstances.iterator();
-        while(p.hasNext())
+        while (p.hasNext())
         {
-            if(sd == p.next())
+            if (sd == p.next())
             {
                 p.remove();
                 break;
@@ -940,10 +909,7 @@ class Node extends Communicator
         Utils.Resolver resolver;
     }
 
-    public java.util.List<Server> getServers()
-    {
-        return new java.util.ArrayList<Server>(_servers);
-    }
+    public java.util.List<Server> getServers() { return new java.util.ArrayList<Server>(_servers); }
 
     //
     // Application name to ApplicationData

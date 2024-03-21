@@ -6,10 +6,9 @@ package com.zeroc.IceInternal;
 
 final class UdpConnector implements Connector
 {
-    @Override
-    public Transceiver connect()
+    @Override public Transceiver connect()
     {
-        if(Util.isAndroid() && _addr.getAddress().isMulticastAddress())
+        if (Util.isAndroid() && _addr.getAddress().isMulticastAddress())
         {
             return new UdpMulticastClientTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
         }
@@ -21,33 +20,26 @@ final class UdpConnector implements Connector
 
     public java.nio.channels.SelectableChannel fd()
     {
-        assert(false); // Shouldn't be called, startConnect always completes immediately.
+        assert (false); // Shouldn't be called, startConnect always completes immediately.
         return null;
     }
 
-    @Override
-    public short type()
-    {
-        return _instance.type();
-    }
+    @Override public short type() { return _instance.type(); }
 
-    @Override
-    public String toString()
-    {
-        return Network.addrToString(_addr);
-    }
+    @Override public String toString() { return Network.addrToString(_addr); }
 
-    @Override
-    public int hashCode()
-    {
-        return _hashCode;
-    }
+    @Override public int hashCode() { return _hashCode; }
 
     //
     // Only for use by UdpEndpointI
     //
-    UdpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, java.net.InetSocketAddress sourceAddr,
-                 String mcastInterface, int mcastTtl, String connectionId)
+    UdpConnector(
+        ProtocolInstance instance,
+        java.net.InetSocketAddress addr,
+        java.net.InetSocketAddress sourceAddr,
+        String mcastInterface,
+        int mcastTtl,
+        String connectionId)
     {
         _instance = instance;
         _addr = addr;
@@ -57,47 +49,46 @@ final class UdpConnector implements Connector
         _connectionId = connectionId;
 
         _hashCode = 5381;
-        _hashCode = HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
-        _hashCode = HashUtil.hashAdd(_hashCode , _addr.getPort());
-        if(_sourceAddr != null)
+        _hashCode = HashUtil.hashAdd(_hashCode, _addr.getAddress().getHostAddress());
+        _hashCode = HashUtil.hashAdd(_hashCode, _addr.getPort());
+        if (_sourceAddr != null)
         {
-            _hashCode = HashUtil.hashAdd(_hashCode , _sourceAddr.getAddress().getHostAddress());
+            _hashCode = HashUtil.hashAdd(_hashCode, _sourceAddr.getAddress().getHostAddress());
         }
-        _hashCode = HashUtil.hashAdd(_hashCode , _mcastInterface);
-        _hashCode = HashUtil.hashAdd(_hashCode , _mcastTtl);
-        _hashCode = HashUtil.hashAdd(_hashCode , _connectionId);
+        _hashCode = HashUtil.hashAdd(_hashCode, _mcastInterface);
+        _hashCode = HashUtil.hashAdd(_hashCode, _mcastTtl);
+        _hashCode = HashUtil.hashAdd(_hashCode, _connectionId);
     }
 
-    @Override
-    public boolean equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(!(obj instanceof UdpConnector))
+        if (!(obj instanceof UdpConnector))
         {
             return false;
         }
 
-        if(this == obj)
+        if (this == obj)
         {
             return true;
         }
 
         UdpConnector p = (UdpConnector)obj;
-        if(!_connectionId.equals(p._connectionId))
+        if (!_connectionId.equals(p._connectionId))
         {
             return false;
         }
 
-        if(_mcastTtl != p._mcastTtl)
+        if (_mcastTtl != p._mcastTtl)
         {
             return false;
         }
 
-        if(_mcastInterface.compareTo(p._mcastInterface) != 0)
+        if (_mcastInterface.compareTo(p._mcastInterface) != 0)
         {
             return false;
         }
 
-        if(Network.compareAddress(_sourceAddr, p._sourceAddr) != 0)
+        if (Network.compareAddress(_sourceAddr, p._sourceAddr) != 0)
         {
             return false;
         }

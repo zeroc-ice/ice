@@ -4,18 +4,16 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class ServiceTemplate extends Communicator
 {
-    static public TemplateDescriptor
-    copyDescriptor(TemplateDescriptor templateDescriptor)
+    static public TemplateDescriptor copyDescriptor(TemplateDescriptor templateDescriptor)
     {
         TemplateDescriptor copy = templateDescriptor.clone();
         copy.descriptor = PlainService.copyDescriptor((ServiceDescriptor)copy.descriptor);
@@ -32,7 +30,7 @@ class ServiceTemplate extends Communicator
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setOpenIcon(Utils.getIcon("/icons/16x16/service_template.png"));
@@ -45,25 +43,23 @@ class ServiceTemplate extends Communicator
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
-        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        if (((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
         }
         else
         {
             Object clipboard = getCoordinator().getClipboard();
-            actions[PASTE] = clipboard != null &&
-                (clipboard instanceof Adapter.AdapterCopy);
+            actions[PASTE] = clipboard != null && (clipboard instanceof Adapter.AdapterCopy);
         }
 
         actions[DELETE] = true;
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             actions[COPY] = true;
             actions[NEW_ADAPTER] = true;
@@ -72,18 +68,16 @@ class ServiceTemplate extends Communicator
         return actions;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
@@ -92,10 +86,9 @@ class ServiceTemplate extends Communicator
         return _popup;
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (ServiceTemplateEditor)getRoot().getEditor(ServiceTemplateEditor.class, this);
         }
@@ -103,11 +96,7 @@ class ServiceTemplate extends Communicator
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new ServiceTemplateEditor();
-    }
+    @Override protected Editor createEditor() { return new ServiceTemplateEditor(); }
 
     ServiceTemplate(boolean brandNew, ServiceTemplates parent, String name, TemplateDescriptor descriptor)
         throws UpdateFailedException
@@ -126,11 +115,9 @@ class ServiceTemplate extends Communicator
         _templateDescriptor = descriptor;
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override void write(XMLWriter writer) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
@@ -141,7 +128,7 @@ class ServiceTemplate extends Communicator
 
             writer.writeStartTag("service", PlainService.createAttributes(descriptor));
 
-            if(descriptor.description.length() > 0)
+            if (descriptor.description.length() > 0)
             {
                 writer.writeElement("description", descriptor.description);
             }
@@ -154,48 +141,31 @@ class ServiceTemplate extends Communicator
         }
     }
 
-    void rebuild(TemplateDescriptor descriptor)
-        throws UpdateFailedException
+    void rebuild(TemplateDescriptor descriptor) throws UpdateFailedException
     {
         _templateDescriptor = descriptor;
 
         _adapters.clear();
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             _adapters.init(_templateDescriptor.descriptor.adapters);
         }
     }
 
-    void commit()
-    {
-        _editable.commit();
-    }
+    void commit() { _editable.commit(); }
 
-    @Override
-    public Object getDescriptor()
-    {
-        return _templateDescriptor;
-    }
+    @Override public Object getDescriptor() { return _templateDescriptor; }
 
-    @Override
-    CommunicatorDescriptor getCommunicatorDescriptor()
-    {
-        return _templateDescriptor.descriptor;
-    }
+    @Override CommunicatorDescriptor getCommunicatorDescriptor() { return _templateDescriptor.descriptor; }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
         ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
 
-        if(_ephemeral)
+        if (_ephemeral)
         {
             serviceTemplates.removeChild(this);
         }
@@ -209,25 +179,13 @@ class ServiceTemplate extends Communicator
         }
     }
 
-    @Override
-    java.util.List<? extends TemplateInstance> findInstances()
-    {
-        return getRoot().findServiceInstances(_id);
-    }
+    @Override java.util.List<? extends TemplateInstance> findInstances() { return getRoot().findServiceInstances(_id); }
 
-    Editable getEditable()
-    {
-        return _editable;
-    }
+    Editable getEditable() { return _editable; }
 
-    @Override
-    Editable getEnclosingEditable()
-    {
-        return _editable;
-    }
+    @Override Editable getEnclosingEditable() { return _editable; }
 
-    @Override
-    public Object saveDescriptor()
+    @Override public Object saveDescriptor()
     {
         //
         // Shallow copy
@@ -237,8 +195,7 @@ class ServiceTemplate extends Communicator
         return clone;
     }
 
-    @Override
-    public void restoreDescriptor(Object savedDescriptor)
+    @Override public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
         //

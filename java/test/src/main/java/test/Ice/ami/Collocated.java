@@ -11,7 +11,7 @@ public class Collocated extends test.TestHelper
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.ami");
         properties.setProperty("Ice.Warn.AMICallback", "0");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

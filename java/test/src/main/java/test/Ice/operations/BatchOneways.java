@@ -5,14 +5,13 @@
 package test.Ice.operations;
 
 import java.io.PrintWriter;
-
 import test.Ice.operations.Test.MyClassPrx;
 
 class BatchOneways
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -25,20 +24,20 @@ class BatchOneways
             test(request.getOperation().equals("opByteSOneway") || request.getOperation().equals("ice_ping"));
             test(request.getProxy().ice_isBatchOneway());
 
-            if(count > 0)
+            if (count > 0)
             {
                 test(_lastRequestSize + _size == size);
             }
             _count = count;
             _size = size;
 
-            if(_size + request.getSize() > 25000)
+            if (_size + request.getSize() > 25000)
             {
                 request.getProxy().ice_flushBatchRequestsAsync();
                 _size = 18; // header
             }
 
-            if(_enabled)
+            if (_enabled)
             {
                 _lastRequestSize = request.getSize();
                 ++_count;
@@ -46,15 +45,9 @@ class BatchOneways
             }
         }
 
-        public void setEnqueue(boolean enabled)
-        {
-            _enabled = enabled;
-        }
+        public void setEnqueue(boolean enabled) { _enabled = enabled; }
 
-        public int count()
-        {
-            return _count;
-        }
+        public int count() { return _count; }
 
         private boolean _enabled;
         private int _count;
@@ -66,11 +59,11 @@ class BatchOneways
     {
         final com.zeroc.Ice.Communicator communicator = helper.communicator();
         final com.zeroc.Ice.Properties properties = communicator.getProperties();
-        final byte[] bs1 = new byte[10  * 1024];
+        final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
         batch.ice_flushBatchRequests(); // Empty flush
-        if(batch.ice_getConnection() != null)
+        if (batch.ice_getConnection() != null)
         {
             batch.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
         }
@@ -78,33 +71,33 @@ class BatchOneways
 
         p.opByteSOnewayCallCount(); // Reset the call count
 
-        for(int i = 0 ; i < 30 ; ++i)
+        for (int i = 0; i < 30; ++i)
         {
             try
             {
                 batch.opByteSOneway(bs1);
             }
-            catch(com.zeroc.Ice.MemoryLimitException ex)
+            catch (com.zeroc.Ice.MemoryLimitException ex)
             {
                 test(false);
             }
         }
 
         int count = 0;
-        while(count < 27) // 3 * 9 requests auto-flushed.
+        while (count < 27) // 3 * 9 requests auto-flushed.
         {
             count += p.opByteSOnewayCallCount();
             try
             {
                 Thread.sleep(10);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
 
         final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
-        if(batch.ice_getConnection() != null && !bluetooth)
+        if (batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch1 = p.ice_batchOneway();
             MyClassPrx batch2 = p.ice_batchOneway();
@@ -137,13 +130,13 @@ class BatchOneways
         batch.ice_flushBatchRequests();
         batch.ice_ping();
 
-        if(batch.ice_getConnection() != null && !bluetooth)
+        if (batch.ice_getConnection() != null && !bluetooth)
         {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = properties._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
-            try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
+            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData))
             {
                 batch = MyClassPrx.uncheckedCast(ic.stringToProxy(p.toString())).ice_batchOneway();
 
@@ -179,13 +172,13 @@ class BatchOneways
         {
             supportsCompress = p.supportsCompress();
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
         p.ice_ping();
-        if(supportsCompress && p.ice_getConnection() != null &&
-           properties.getProperty("Ice.Override.Compress").equals(""))
+        if (supportsCompress && p.ice_getConnection() != null &&
+            properties.getProperty("Ice.Override.Compress").equals(""))
         {
             com.zeroc.Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

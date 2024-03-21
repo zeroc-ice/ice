@@ -4,27 +4,20 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.IceInternal.OutgoingAsync;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import com.zeroc.IceInternal.OutgoingAsync;
 
 /**
  * Concrete proxy implementation.
  **/
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 {
-    public Communicator ice_getCommunicator()
-    {
-        return _reference.getCommunicator();
-    }
+    public Communicator ice_getCommunicator() { return _reference.getCommunicator(); }
 
-    public boolean ice_isA(String id)
-    {
-        return ice_isA(id, ObjectPrx.noExplicitContext);
-    }
+    public boolean ice_isA(String id) { return ice_isA(id, ObjectPrx.noExplicitContext); }
 
     public boolean ice_isA(String id, Map<String, String> context)
     {
@@ -48,20 +41,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return f;
     }
 
-    public void ice_ping()
-    {
-        ice_ping(ObjectPrx.noExplicitContext);
-    }
+    public void ice_ping() { ice_ping(ObjectPrx.noExplicitContext); }
 
-    public void ice_ping(Map<String, String> context)
-    {
-        _iceI_ice_pingAsync(context, true).waitForResponse();
-    }
+    public void ice_ping(Map<String, String> context) { _iceI_ice_pingAsync(context, true).waitForResponse(); }
 
-    public CompletableFuture<Void> ice_pingAsync()
-    {
-        return _iceI_ice_pingAsync(ObjectPrx.noExplicitContext, false);
-    }
+    public CompletableFuture<Void> ice_pingAsync() { return _iceI_ice_pingAsync(ObjectPrx.noExplicitContext, false); }
 
     public CompletableFuture<Void> ice_pingAsync(Map<String, String> context)
     {
@@ -75,20 +59,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return f;
     }
 
-    public String[] ice_ids()
-    {
-        return ice_ids(ObjectPrx.noExplicitContext);
-    }
+    public String[] ice_ids() { return ice_ids(ObjectPrx.noExplicitContext); }
 
-    public String[] ice_ids(Map<String, String> context)
-    {
-        return _iceI_ice_idsAsync(context, true).waitForResponse();
-    }
+    public String[] ice_ids(Map<String, String> context) { return _iceI_ice_idsAsync(context, true).waitForResponse(); }
 
-    public CompletableFuture<String[]> ice_idsAsync()
-    {
-        return _iceI_ice_idsAsync(ObjectPrx.noExplicitContext, false);
-    }
+    public CompletableFuture<String[]> ice_idsAsync() { return _iceI_ice_idsAsync(ObjectPrx.noExplicitContext, false); }
 
     public CompletableFuture<String[]> ice_idsAsync(Map<String, String> context)
     {
@@ -102,20 +77,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return f;
     }
 
-    public String ice_id()
-    {
-        return ice_id(ObjectPrx.noExplicitContext);
-    }
+    public String ice_id() { return ice_id(ObjectPrx.noExplicitContext); }
 
-    public String ice_id(Map<String, String> context)
-    {
-        return _iceI_ice_idAsync(context, true).waitForResponse();
-    }
+    public String ice_id(Map<String, String> context) { return _iceI_ice_idAsync(context, true).waitForResponse(); }
 
-    public CompletableFuture<String> ice_idAsync()
-    {
-        return _iceI_ice_idAsync(ObjectPrx.noExplicitContext, false);
-    }
+    public CompletableFuture<String> ice_idAsync() { return _iceI_ice_idAsync(ObjectPrx.noExplicitContext, false); }
 
     public CompletableFuture<String> ice_idAsync(Map<String, String> context)
     {
@@ -134,45 +100,45 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return ice_invoke(operation, mode, inParams, ObjectPrx.noExplicitContext);
     }
 
-    public Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                              Map<String, String> context)
+    public Object.Ice_invokeResult
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, Map<String, String> context)
     {
         return _iceI_ice_invokeAsync(operation, mode, inParams, context, true).waitForResponse();
     }
 
-    public CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode,
-                                                                      byte[] inParams)
+    public CompletableFuture<Object.Ice_invokeResult>
+    ice_invokeAsync(String operation, OperationMode mode, byte[] inParams)
     {
         return ice_invokeAsync(operation, mode, inParams, ObjectPrx.noExplicitContext);
     }
 
-    public CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode,
-                                                                      byte[] inParams, Map<String, String> context)
+    public CompletableFuture<Object.Ice_invokeResult>
+    ice_invokeAsync(String operation, OperationMode mode, byte[] inParams, Map<String, String> context)
     {
         return _iceI_ice_invokeAsync(operation, mode, inParams, context, false);
     }
 
-    private com.zeroc.IceInternal.ProxyIceInvoke _iceI_ice_invokeAsync(String operation, OperationMode mode,
-                                                                       byte[] inParams, Map<String, String> context,
-                                                                       boolean sync)
+    private com.zeroc.IceInternal.ProxyIceInvoke _iceI_ice_invokeAsync(
+        String operation,
+        OperationMode mode,
+        byte[] inParams,
+        Map<String, String> context,
+        boolean sync)
     {
         com.zeroc.IceInternal.ProxyIceInvoke f = new com.zeroc.IceInternal.ProxyIceInvoke(this, operation, mode, sync);
         f.invoke(inParams, context);
         return f;
     }
 
-    public Identity ice_getIdentity()
-    {
-        return _reference.getIdentity().clone();
-    }
+    public Identity ice_getIdentity() { return _reference.getIdentity().clone(); }
 
     public ObjectPrx ice_identity(Identity newIdentity)
     {
-        if(newIdentity.name == null || newIdentity.name.equals(""))
+        if (newIdentity.name == null || newIdentity.name.equals(""))
         {
             throw new IllegalIdentityException();
         }
-        if(newIdentity.equals(_reference.getIdentity()))
+        if (newIdentity.equals(_reference.getIdentity()))
         {
             return this;
         }
@@ -184,24 +150,18 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public Map<String, String> ice_getContext()
-    {
-        return new java.util.HashMap<>(_reference.getContext());
-    }
+    public Map<String, String> ice_getContext() { return new java.util.HashMap<>(_reference.getContext()); }
 
-    public String ice_getFacet()
-    {
-        return _reference.getFacet();
-    }
+    public String ice_getFacet() { return _reference.getFacet(); }
 
     public ObjectPrx ice_facet(String newFacet)
     {
-        if(newFacet == null)
+        if (newFacet == null)
         {
             newFacet = "";
         }
 
-        if(newFacet.equals(_reference.getFacet()))
+        if (newFacet.equals(_reference.getFacet()))
         {
             return this;
         }
@@ -213,60 +173,27 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public String ice_getAdapterId()
-    {
-        return _reference.getAdapterId();
-    }
+    public String ice_getAdapterId() { return _reference.getAdapterId(); }
 
-    public Endpoint[] ice_getEndpoints()
-    {
-        return _reference.getEndpoints().clone();
-    }
+    public Endpoint[] ice_getEndpoints() { return _reference.getEndpoints().clone(); }
 
-    public int ice_getLocatorCacheTimeout()
-    {
-        return _reference.getLocatorCacheTimeout();
-    }
+    public int ice_getLocatorCacheTimeout() { return _reference.getLocatorCacheTimeout(); }
 
-    public int ice_getInvocationTimeout()
-    {
-        return _reference.getInvocationTimeout();
-    }
+    public int ice_getInvocationTimeout() { return _reference.getInvocationTimeout(); }
 
-    public String ice_getConnectionId()
-    {
-        return _reference.getConnectionId();
-    }
+    public String ice_getConnectionId() { return _reference.getConnectionId(); }
 
-    public boolean ice_isConnectionCached()
-    {
-        return _reference.getCacheConnection();
-    }
+    public boolean ice_isConnectionCached() { return _reference.getCacheConnection(); }
 
-    public EndpointSelectionType ice_getEndpointSelection()
-    {
-        return _reference.getEndpointSelection();
-    }
+    public EndpointSelectionType ice_getEndpointSelection() { return _reference.getEndpointSelection(); }
 
-    public boolean ice_isFixed()
-    {
-        return _reference instanceof com.zeroc.IceInternal.FixedReference;
-    }
+    public boolean ice_isFixed() { return _reference instanceof com.zeroc.IceInternal.FixedReference; }
 
-    public boolean ice_isSecure()
-    {
-        return _reference.getSecure();
-    }
+    public boolean ice_isSecure() { return _reference.getSecure(); }
 
-    public EncodingVersion ice_getEncodingVersion()
-    {
-        return _reference.getEncoding().clone();
-    }
+    public EncodingVersion ice_getEncodingVersion() { return _reference.getEncoding().clone(); }
 
-    public boolean ice_isPreferSecure()
-    {
-        return _reference.getPreferSecure();
-    }
+    public boolean ice_isPreferSecure() { return _reference.getPreferSecure(); }
 
     public RouterPrx ice_getRouter()
     {
@@ -280,55 +207,31 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return ri != null ? ri.getLocator() : null;
     }
 
-    public boolean ice_isCollocationOptimized()
-    {
-        return _reference.getCollocationOptimized();
-    }
+    public boolean ice_isCollocationOptimized() { return _reference.getCollocationOptimized(); }
 
-    public boolean ice_isTwoway()
-    {
-        return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway;
-    }
+    public boolean ice_isTwoway() { return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway; }
 
-    public boolean ice_isOneway()
-    {
-        return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway;
-    }
+    public boolean ice_isOneway() { return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway; }
 
     public boolean ice_isBatchOneway()
     {
         return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway;
     }
 
-    public boolean ice_isDatagram()
-    {
-        return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram;
-    }
+    public boolean ice_isDatagram() { return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram; }
 
     public boolean ice_isBatchDatagram()
     {
         return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
     }
 
-    public java.util.Optional<Boolean> ice_getCompress()
-    {
-        return _reference.getCompress();
-    }
+    public java.util.Optional<Boolean> ice_getCompress() { return _reference.getCompress(); }
 
-    public java.util.OptionalInt ice_getTimeout()
-    {
-        return _reference.getTimeout();
-    }
+    public java.util.OptionalInt ice_getTimeout() { return _reference.getTimeout(); }
 
-    public Connection ice_getConnection()
-    {
-        return _iceI_ice_getConnectionAsync().waitForResponse();
-    }
+    public Connection ice_getConnection() { return _iceI_ice_getConnectionAsync().waitForResponse(); }
 
-    public CompletableFuture<Connection> ice_getConnectionAsync()
-    {
-        return _iceI_ice_getConnectionAsync();
-    }
+    public CompletableFuture<Connection> ice_getConnectionAsync() { return _iceI_ice_getConnectionAsync(); }
 
     private com.zeroc.IceInternal.ProxyGetConnection _iceI_ice_getConnectionAsync()
     {
@@ -340,33 +243,24 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     public Connection ice_getCachedConnection()
     {
         com.zeroc.IceInternal.RequestHandler handler = null;
-        synchronized(this)
-        {
-            handler = _requestHandler;
-        }
+        synchronized (this) { handler = _requestHandler; }
 
-        if(handler != null)
+        if (handler != null)
         {
             try
             {
                 return handler.getConnection();
             }
-            catch(LocalException ex)
+            catch (LocalException ex)
             {
             }
         }
         return null;
     }
 
-    public void ice_flushBatchRequests()
-    {
-        _iceI_ice_flushBatchRequestsAsync().waitForResponse();
-    }
+    public void ice_flushBatchRequests() { _iceI_ice_flushBatchRequestsAsync().waitForResponse(); }
 
-    public CompletableFuture<Void> ice_flushBatchRequestsAsync()
-    {
-        return _iceI_ice_flushBatchRequestsAsync();
-    }
+    public CompletableFuture<Void> ice_flushBatchRequestsAsync() { return _iceI_ice_flushBatchRequestsAsync(); }
 
     private com.zeroc.IceInternal.ProxyFlushBatch _iceI_ice_flushBatchRequestsAsync()
     {
@@ -375,22 +269,21 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         {
             f.invoke();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             f.abort(ex);
         }
         return f;
     }
 
-    @Override
-    public boolean equals(java.lang.Object r)
+    @Override public boolean equals(java.lang.Object r)
     {
-        if(this == r)
+        if (this == r)
         {
             return true;
         }
 
-        if(r instanceof _ObjectPrxI)
+        if (r instanceof _ObjectPrxI)
         {
             return _reference.equals(((_ObjectPrxI)r)._reference);
         }
@@ -398,29 +291,19 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return false;
     }
 
-    @Override
-    public final int hashCode()
-    {
-        return _reference.hashCode();
-    }
+    @Override public final int hashCode() { return _reference.hashCode(); }
 
-    @Override
-    public final String toString()
-    {
-        return _reference.toString();
-    }
+    @Override public final String toString() { return _reference.toString(); }
 
-    @Override
-    public void _write(OutputStream os)
+    @Override public void _write(OutputStream os)
     {
         _reference.getIdentity().ice_writeMembers(os);
         _reference.streamWrite(os);
     }
 
-    @Override
-    public void _copyFrom(ObjectPrx p)
+    @Override public void _copyFrom(ObjectPrx p)
     {
-        synchronized(p)
+        synchronized (p)
         {
             _ObjectPrxI h = (_ObjectPrxI)p;
             _reference = h._reference;
@@ -428,14 +311,9 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    @Override
-    public com.zeroc.IceInternal.Reference _getReference()
-    {
-        return _reference;
-    }
+    @Override public com.zeroc.IceInternal.Reference _getReference() { return _reference; }
 
-    @Override
-    public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref)
+    @Override public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref)
     {
         try
         {
@@ -443,7 +321,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
             proxy._setup(ref);
             return proxy;
         }
-        catch(NoSuchMethodException ex)
+        catch (NoSuchMethodException ex)
         {
             //
             // Impossible
@@ -451,7 +329,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
             assert false;
             return null;
         }
-        catch(java.lang.reflect.InvocationTargetException ex)
+        catch (java.lang.reflect.InvocationTargetException ex)
         {
             //
             // Impossible
@@ -459,7 +337,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
             assert false;
             return null;
         }
-        catch(InstantiationException e)
+        catch (InstantiationException e)
         {
             //
             // Impossible
@@ -467,7 +345,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
             assert false;
             return null;
         }
-        catch(IllegalAccessException e)
+        catch (IllegalAccessException e)
         {
             //
             // Impossible
@@ -479,9 +357,9 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     public StreamPair _getCachedMessageBuffers()
     {
-        synchronized(this)
+        synchronized (this)
         {
-            if(_streamCache != null && !_streamCache.isEmpty())
+            if (_streamCache != null && !_streamCache.isEmpty())
             {
                 return _streamCache.remove(0);
             }
@@ -491,9 +369,9 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     public void _cacheMessageBuffers(InputStream is, OutputStream os)
     {
-        synchronized(this)
+        synchronized (this)
         {
-            if(_streamCache == null)
+            if (_streamCache == null)
             {
                 _streamCache = new LinkedList<>();
             }
@@ -501,8 +379,13 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public int _handleException(Exception ex, com.zeroc.IceInternal.RequestHandler handler, OperationMode mode,
-                                 boolean sent, com.zeroc.IceInternal.Holder<Integer> interval, int cnt)
+    public int _handleException(
+        Exception ex,
+        com.zeroc.IceInternal.RequestHandler handler,
+        OperationMode mode,
+        boolean sent,
+        com.zeroc.IceInternal.Holder<Integer> interval,
+        int cnt)
     {
         _updateRequestHandler(handler, null); // Clear the request handler
 
@@ -521,19 +404,19 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         // If the request didn't get sent or if it's non-mutating or idempotent it can
         // also always be retried if the retry count isn't reached.
         //
-        if(ex instanceof LocalException && (!sent ||
-                                            mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
-                                            ex instanceof CloseConnectionException ||
-                                            ex instanceof ObjectNotExistException))
+        if (ex instanceof LocalException &&
+            (!sent || mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
+             ex instanceof CloseConnectionException || ex instanceof ObjectNotExistException))
         {
             try
             {
-                return _reference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
-                                                                                        _reference,
-                                                                                        interval,
-                                                                                        cnt);
+                return _reference.getInstance().proxyFactory().checkRetryAfterException(
+                    (LocalException)ex,
+                    _reference,
+                    interval,
+                    cnt);
             }
-            catch(CommunicatorDestroyedException exc)
+            catch (CommunicatorDestroyedException exc)
             {
                 //
                 // The communicator is already destroyed, so we cannot retry.
@@ -549,11 +432,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     public com.zeroc.IceInternal.RequestHandler _getRequestHandler()
     {
-        if(_reference.getCacheConnection())
+        if (_reference.getCacheConnection())
         {
-            synchronized(this)
+            synchronized (this)
             {
-                if(_requestHandler != null)
+                if (_requestHandler != null)
                 {
                     return _requestHandler;
                 }
@@ -564,7 +447,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     synchronized public com.zeroc.IceInternal.BatchRequestQueue _getBatchRequestQueue()
     {
-        if(_batchRequestQueue == null)
+        if (_batchRequestQueue == null)
         {
             _batchRequestQueue = _reference.getBatchRequestQueue();
         }
@@ -573,11 +456,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     public com.zeroc.IceInternal.RequestHandler _setRequestHandler(com.zeroc.IceInternal.RequestHandler handler)
     {
-        if(_reference.getCacheConnection())
+        if (_reference.getCacheConnection())
         {
-            synchronized(this)
+            synchronized (this)
             {
-                if(_requestHandler == null)
+                if (_requestHandler == null)
                 {
                     _requestHandler = handler;
                 }
@@ -587,14 +470,14 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return handler;
     }
 
-    public void _updateRequestHandler(com.zeroc.IceInternal.RequestHandler previous,
-                                       com.zeroc.IceInternal.RequestHandler handler)
+    public void
+    _updateRequestHandler(com.zeroc.IceInternal.RequestHandler previous, com.zeroc.IceInternal.RequestHandler handler)
     {
-        if(_reference.getCacheConnection() && previous != null)
+        if (_reference.getCacheConnection() && previous != null)
         {
-            synchronized(this)
+            synchronized (this)
             {
-                if(_requestHandler != null && _requestHandler != handler)
+                if (_requestHandler != null && _requestHandler != handler)
                 {
                     //
                     // Update the request handler only if "previous" is the same
@@ -619,40 +502,35 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         // upon initial initialization.
         //
 
-        assert(_reference == null);
-        assert(_requestHandler == null);
+        assert (_reference == null);
+        assert (_requestHandler == null);
 
         _reference = ref;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
-        throws java.io.IOException
-    {
-        out.writeUTF(toString());
-    }
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException { out.writeUTF(toString()); }
 
-    private void readObject(java.io.ObjectInputStream in)
-         throws java.io.IOException, ClassNotFoundException
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException
     {
         String s = in.readUTF();
         try
         {
             Communicator communicator = ((ObjectInputStream)in).getCommunicator();
-            if(communicator == null)
+            if (communicator == null)
             {
                 throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
             }
             _ObjectPrxI proxy = (_ObjectPrxI)communicator.stringToProxy(s);
             _reference = proxy._reference;
-            assert(proxy._requestHandler == null);
+            assert (proxy._requestHandler == null);
         }
-        catch(ClassCastException ex)
+        catch (ClassCastException ex)
         {
             java.io.IOException e = new java.io.IOException("Cannot deserialize proxy: ObjectInputStream not found");
             e.initCause(ex);
             throw e;
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy");
             e.initCause(ex);

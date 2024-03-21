@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import java.util.LinkedList;
 
 public class ControllerActivity extends ListActivity
@@ -27,19 +26,17 @@ public class ControllerActivity extends ListActivity
 
     private static final int REQUEST_ENABLE_BT = 1;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
+    @Override public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiManager.MulticastLock lock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
         lock.acquire();
     }
 
-    @Override
-    public void onStart()
+    @Override public void onStart()
     {
         super.onStart();
 
@@ -48,14 +45,15 @@ public class ControllerActivity extends ListActivity
         //
         BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bluetoothManager.getAdapter();
-        if(adapter == null)
+        if (adapter == null)
         {
             Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
             setup(false);
         }
-        else if(!adapter.isEnabled())
+        else if (!adapter.isEnabled())
         {
-            try {
+            try
+            {
                 Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
             }
@@ -71,12 +69,11 @@ public class ControllerActivity extends ListActivity
         }
     }
 
-    @Override
-    protected void onActivityResult(int req, int res, Intent data)
+    @Override protected void onActivityResult(int req, int res, Intent data)
     {
-        if(req == REQUEST_ENABLE_BT && _outputAdapter == null)
+        if (req == REQUEST_ENABLE_BT && _outputAdapter == null)
         {
-            if(res == Activity.RESULT_OK)
+            if (res == Activity.RESULT_OK)
             {
                 setup(true);
             }
@@ -94,41 +91,33 @@ public class ControllerActivity extends ListActivity
         setListAdapter(_outputAdapter);
         final ControllerApp app = (ControllerApp)getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
-        ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
+        ArrayAdapter<String> ipv4Adapter =
+            new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
         Spinner s = findViewById(R.id.ipv4);
         s.setAdapter(ipv4Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-                {
-                    app.setIpv4Address(ipv4Addresses.get((int)id));
-                }
+                app.setIpv4Address(ipv4Addresses.get((int)id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0)
-                {
-                }
-            });
+            @Override public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
 
         final java.util.List<String> ipv6Addresses = app.getAddresses(true);
-        ArrayAdapter<String> ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
+        ArrayAdapter<String> ipv6Adapter =
+            new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
         s = findViewById(R.id.ipv6);
         s.setAdapter(ipv6Adapter);
-        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
+        s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-                {
-                    app.setIpv6Address(ipv6Addresses.get((int)id));
-                }
+                app.setIpv6Address(ipv6Addresses.get((int)id));
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> arg0)
-                {
-                }
-            });
+            @Override public void onNothingSelected(AdapterView<?> arg0) {}
+        });
         s.setSelection(0);
         app.startController(this, bluetooth);
     }

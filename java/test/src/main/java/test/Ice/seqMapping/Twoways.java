@@ -4,14 +4,14 @@
 
 package test.Ice.seqMapping;
 
-import test.Ice.seqMapping.Test.*;
 import test.Ice.seqMapping.Serialize.*;
+import test.Ice.seqMapping.Test.*;
 
 class Twoways
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -39,7 +39,7 @@ class Twoways
                 test(r.o.i == 99);
                 test(r.returnValue.i == 99);
             }
-            catch(com.zeroc.Ice.OperationNotExistException ex)
+            catch (com.zeroc.Ice.OperationNotExistException ex)
             {
                 // OK, talking to non-Java server.
             }
@@ -83,7 +83,7 @@ class Twoways
                 test(r.returnValue.d9 == 9.0);
                 test(r.returnValue.d10 == 10.0);
             }
-            catch(com.zeroc.Ice.OperationNotExistException ex)
+            catch (com.zeroc.Ice.OperationNotExistException ex)
             {
                 // OK, talking to non-Java server.
             }
@@ -113,7 +113,7 @@ class Twoways
                 test(r.returnValue.s == null);
                 test(r.returnValue.s2.equals("Hello"));
             }
-            catch(com.zeroc.Ice.OperationNotExistException ex)
+            catch (com.zeroc.Ice.OperationNotExistException ex)
             {
                 // OK, talking to non-Java server.
             }

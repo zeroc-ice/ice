@@ -21,10 +21,9 @@ public class ServerManagerI implements ServerManager
         _properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
 
-    @Override
-    public void startServer(com.zeroc.Ice.Current current)
+    @Override public void startServer(com.zeroc.Ice.Current current)
     {
-        for(com.zeroc.Ice.Communicator c : _communicators)
+        for (com.zeroc.Ice.Communicator c : _communicators)
         {
             c.waitForShutdown();
             c.destroy();
@@ -47,22 +46,24 @@ public class ServerManagerI implements ServerManager
         // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
         //
         int nRetry = 10;
-        while(--nRetry > 0)
+        while (--nRetry > 0)
         {
             com.zeroc.Ice.ObjectAdapter adapter = null;
             com.zeroc.Ice.ObjectAdapter adapter2 = null;
             try
             {
-                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                               _helper.getTestEndpoint(_nextPort++));
-                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
-                                                               _helper.getTestEndpoint(_nextPort++));
+                serverCommunicator.getProperties().setProperty(
+                    "TestAdapter.Endpoints",
+                    _helper.getTestEndpoint(_nextPort++));
+                serverCommunicator.getProperties().setProperty(
+                    "TestAdapter2.Endpoints",
+                    _helper.getTestEndpoint(_nextPort++));
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-                com.zeroc.Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:"  +
-                                                                                   _helper.getTestEndpoint(0));
+                com.zeroc.Ice.ObjectPrx locator =
+                    serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
                 adapter.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
                 adapter2.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
 
@@ -75,20 +76,20 @@ public class ServerManagerI implements ServerManager
                 adapter2.activate();
                 break;
             }
-            catch(com.zeroc.Ice.SocketException ex)
+            catch (com.zeroc.Ice.SocketException ex)
             {
-                if(nRetry == 0)
+                if (nRetry == 0)
                 {
                     throw ex;
                 }
 
                 // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
                 // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                if(adapter != null)
+                if (adapter != null)
                 {
                     adapter.destroy();
                 }
-                if(adapter2 != null)
+                if (adapter2 != null)
                 {
                     adapter2.destroy();
                 }
@@ -96,10 +97,9 @@ public class ServerManagerI implements ServerManager
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
+    @Override public void shutdown(com.zeroc.Ice.Current current)
     {
-        for(com.zeroc.Ice.Communicator c : _communicators)
+        for (com.zeroc.Ice.Communicator c : _communicators)
         {
             c.destroy();
         }

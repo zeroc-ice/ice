@@ -29,7 +29,19 @@ public class UDPConnectionInfo extends IPConnectionInfo
         this.sndSize = 0;
     }
 
-    public UDPConnectionInfo(ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, String localAddress, int localPort, String remoteAddress, int remotePort, String mcastAddress, int mcastPort, int rcvSize, int sndSize)
+    public UDPConnectionInfo(
+        ConnectionInfo underlying,
+        boolean incoming,
+        String adapterName,
+        String connectionId,
+        String localAddress,
+        int localPort,
+        String remoteAddress,
+        int remotePort,
+        String mcastAddress,
+        int mcastPort,
+        int rcvSize,
+        int sndSize)
     {
         super(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
         this.mcastAddress = mcastAddress;
@@ -58,10 +70,7 @@ public class UDPConnectionInfo extends IPConnectionInfo
      **/
     public int sndSize;
 
-    public UDPConnectionInfo clone()
-    {
-        return (UDPConnectionInfo)super.clone();
-    }
+    public UDPConnectionInfo clone() { return (UDPConnectionInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = -8596817245040015144L;

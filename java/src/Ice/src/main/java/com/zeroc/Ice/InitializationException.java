@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class InitializationException extends LocalException
 {
-    public InitializationException()
-    {
-        this.reason = "";
-    }
+    public InitializationException() { this.reason = ""; }
 
     public InitializationException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class InitializationException extends LocalException
         this.reason = "";
     }
 
-    public InitializationException(String reason)
-    {
-        this.reason = reason;
-    }
+    public InitializationException(String reason) { this.reason = reason; }
 
     public InitializationException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class InitializationException extends LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::InitializationException";
-    }
+    public String ice_id() { return "::Ice::InitializationException"; }
 
     /**
      * The reason for the failure.

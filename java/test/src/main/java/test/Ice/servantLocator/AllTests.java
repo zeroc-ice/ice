@@ -4,24 +4,22 @@
 
 package test.Ice.servantLocator;
 
-import java.io.PrintWriter;
-
-import test.Ice.servantLocator.Test.TestImpossibleException;
-import test.Ice.servantLocator.Test.TestIntfUserException;
-import test.Ice.servantLocator.Test.TestIntfPrx;
-import test.Ice.servantLocator.Test.TestActivationPrx;
-
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
+import java.io.PrintWriter;
+import test.Ice.servantLocator.Test.TestActivationPrx;
+import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfPrx;
+import test.Ice.servantLocator.Test.TestIntfUserException;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -34,7 +32,7 @@ public class AllTests
             obj.requestFailedException();
             test(false);
         }
-        catch(ObjectNotExistException ex)
+        catch (ObjectNotExistException ex)
         {
             test(ex.id.equals(obj.ice_getIdentity()));
             test(ex.facet.equals(obj.ice_getFacet()));
@@ -46,7 +44,7 @@ public class AllTests
             obj.unknownUserException();
             test(false);
         }
-        catch(UnknownUserException ex)
+        catch (UnknownUserException ex)
         {
             test(ex.unknown.equals("reason"));
         }
@@ -56,7 +54,7 @@ public class AllTests
             obj.unknownLocalException();
             test(false);
         }
-        catch(UnknownLocalException ex)
+        catch (UnknownLocalException ex)
         {
             test(ex.unknown.equals("reason"));
         }
@@ -66,7 +64,7 @@ public class AllTests
             obj.unknownException();
             test(false);
         }
-        catch(UnknownException ex)
+        catch (UnknownException ex)
         {
             test(ex.unknown.equals("reason"));
         }
@@ -74,33 +72,32 @@ public class AllTests
         //
         // User exceptions are checked exceptions
         //
-//      try
-//      {
-//          obj.userException();
-//          test(false);
-//      }
-//      catch(UnknownUserException ex)
-//      {
-//          //System.err.println(ex.unknown);
-//          test(!collocated);
-//          test(ex.unknown.equals("Test::TestIntfUserException"));
-//      }
-//      catch(TestIntfUserException ex)
-//      {
-//          test(collocated);
-//      }
+        //      try
+        //      {
+        //          obj.userException();
+        //          test(false);
+        //      }
+        //      catch(UnknownUserException ex)
+        //      {
+        //          //System.err.println(ex.unknown);
+        //          test(!collocated);
+        //          test(ex.unknown.equals("Test::TestIntfUserException"));
+        //      }
+        //      catch(TestIntfUserException ex)
+        //      {
+        //          test(collocated);
+        //      }
 
         try
         {
             obj.localException();
             test(false);
         }
-        catch(UnknownLocalException ex)
+        catch (UnknownLocalException ex)
         {
-            test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
-                 ex.unknown.indexOf("Ice.SocketException") >= 0);
+            test(ex.unknown.indexOf("Ice::SocketException") >= 0 || ex.unknown.indexOf("Ice.SocketException") >= 0);
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -110,14 +107,14 @@ public class AllTests
             obj.javaException();
             test(false);
         }
-        catch(UnknownException ex)
+        catch (UnknownException ex)
         {
             test(ex.unknown.indexOf("java.lang.RuntimeException: message") >= 0);
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -128,11 +125,11 @@ public class AllTests
             obj.unknownExceptionWithServantException();
             test(false);
         }
-        catch(UnknownException ex)
+        catch (UnknownException ex)
         {
             test(ex.unknown.equals("reason"));
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -142,11 +139,11 @@ public class AllTests
             obj.impossibleException(false);
             test(false);
         }
-        catch(UnknownUserException ex)
+        catch (UnknownUserException ex)
         {
             // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -157,11 +154,11 @@ public class AllTests
             obj.impossibleException(true);
             test(false);
         }
-        catch(UnknownUserException ex)
+        catch (UnknownUserException ex)
         {
             // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -172,11 +169,11 @@ public class AllTests
             obj.intfUserException(false);
             test(false);
         }
-        catch(TestImpossibleException ex)
+        catch (TestImpossibleException ex)
         {
             // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -187,11 +184,11 @@ public class AllTests
             obj.intfUserException(true);
             test(false);
         }
-        catch(TestImpossibleException ex)
+        catch (TestImpossibleException ex)
         {
             // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -224,11 +221,11 @@ public class AllTests
             o.ice_ids();
             test(false);
         }
-        catch(UnknownUserException ex)
+        catch (UnknownUserException ex)
         {
             test(ex.unknown.equals("::Test::TestIntfUserException"));
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -239,11 +236,11 @@ public class AllTests
             o.ice_ids();
             test(false);
         }
-        catch(UnknownUserException ex)
+        catch (UnknownUserException ex)
         {
             test(ex.unknown.equals("::Test::TestIntfUserException"));
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -257,7 +254,7 @@ public class AllTests
         {
             TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
         }
-        catch(ObjectNotExistException ex)
+        catch (ObjectNotExistException ex)
         {
         }
         out.println("ok");
@@ -272,14 +269,14 @@ public class AllTests
         {
             TestIntfPrx.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
         }
-        catch(ObjectNotExistException ex)
+        catch (ObjectNotExistException ex)
         {
         }
         try
         {
             TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
         }
-        catch(ObjectNotExistException ex)
+        catch (ObjectNotExistException ex)
         {
         }
         out.println("ok");
@@ -304,11 +301,11 @@ public class AllTests
         {
             obj.asyncResponse();
         }
-        catch(TestIntfUserException ex)
+        catch (TestIntfUserException ex)
         {
             test(false);
         }
-        catch(TestImpossibleException ex)
+        catch (TestImpossibleException ex)
         {
             //
             // Called by finished().
@@ -322,11 +319,11 @@ public class AllTests
         {
             obj.asyncException();
         }
-        catch(TestIntfUserException ex)
+        catch (TestIntfUserException ex)
         {
             test(false);
         }
-        catch(TestImpossibleException ex)
+        catch (TestImpossibleException ex)
         {
             //
             // Called by finished().
@@ -345,7 +342,7 @@ public class AllTests
             obj.ice_ping();
             test(false);
         }
-        catch(ObjectNotExistException ex)
+        catch (ObjectNotExistException ex)
         {
             out.println("ok");
         }
@@ -357,7 +354,7 @@ public class AllTests
             obj.ice_ping();
             out.println("ok");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             test(false);
         }

@@ -6,38 +6,27 @@ package com.zeroc.IceSSL;
 
 final class AcceptorI implements com.zeroc.IceInternal.Acceptor
 {
-    @Override
-    public java.nio.channels.ServerSocketChannel fd()
-    {
-        return _delegate.fd();
-    }
+    @Override public java.nio.channels.ServerSocketChannel fd() { return _delegate.fd(); }
 
-    @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
+    @Override public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
     {
         _delegate.setReadyCallback(callback);
     }
 
-    @Override
-    public void close()
-    {
-        _delegate.close();
-    }
+    @Override public void close() { _delegate.close(); }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI listen()
+    @Override public com.zeroc.IceInternal.EndpointI listen()
     {
         _endpoint = _endpoint.endpoint(_delegate.listen());
         return _endpoint;
     }
 
-    @Override
-    public com.zeroc.IceInternal.Transceiver accept()
+    @Override public com.zeroc.IceInternal.Transceiver accept()
     {
         //
         // The plug-in may not be fully initialized.
         //
-        if(!_instance.initialized())
+        if (!_instance.initialized())
         {
             com.zeroc.Ice.PluginInitializationException ex = new com.zeroc.Ice.PluginInitializationException();
             ex.reason = "IceSSL: plug-in is not initialized";
@@ -47,23 +36,11 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor
         return new TransceiverI(_instance, _delegate.accept(), _adapterName, true);
     }
 
-    @Override
-    public String protocol()
-    {
-        return _delegate.protocol();
-    }
+    @Override public String protocol() { return _delegate.protocol(); }
 
-    @Override
-    public String toString()
-    {
-        return _delegate.toString();
-    }
+    @Override public String toString() { return _delegate.toString(); }
 
-    @Override
-    public String toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    @Override public String toDetailedString() { return _delegate.toDetailedString(); }
 
     AcceptorI(EndpointI endpoint, Instance instance, com.zeroc.IceInternal.Acceptor delegate, String adapterName)
     {

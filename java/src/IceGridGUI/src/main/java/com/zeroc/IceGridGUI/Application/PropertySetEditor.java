@@ -4,22 +4,19 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class PropertySetEditor extends Editor
 {
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         PropertySet nps = (PropertySet)_target;
         Root root = nps.getRoot();
@@ -28,7 +25,7 @@ class PropertySetEditor extends Editor
         try
         {
             PropertySetParent parent = (PropertySetParent)nps.getParent();
-            if(nps.isEphemeral())
+            if (nps.isEphemeral())
             {
                 writeDescriptor();
                 PropertySetDescriptor descriptor = (PropertySetDescriptor)nps.getDescriptor();
@@ -38,7 +35,7 @@ class PropertySetEditor extends Editor
                 {
                     parent.tryAdd(getIdText(), descriptor);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Add back ephemeral child
@@ -47,7 +44,7 @@ class PropertySetEditor extends Editor
                     {
                         parent.insertPropertySet(nps, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -66,12 +63,12 @@ class PropertySetEditor extends Editor
                 //
                 _target = ((TreeNode)parent).findChildWithDescriptor(descriptor);
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
-            else if(!isSimpleUpdate())
+            else if (!isSimpleUpdate())
             {
                 PropertySetDescriptor descriptor = (PropertySetDescriptor)nps.getDescriptor();
 
@@ -79,7 +76,7 @@ class PropertySetEditor extends Editor
                 {
                     parent.tryRename(_target.getId(), _oldId, getIdText());
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     JOptionPane.showMessageDialog(
                         root.getCoordinator().getMainFrame(),
@@ -95,7 +92,7 @@ class PropertySetEditor extends Editor
                 _target = ((TreeNode)parent).findChildWithDescriptor(descriptor);
                 writeDescriptor();
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
@@ -107,7 +104,7 @@ class PropertySetEditor extends Editor
                 nps.getEditable().markModified();
             }
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }
@@ -121,12 +118,11 @@ class PropertySetEditor extends Editor
         }
     }
 
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
         Root root = _target.getRoot();
 
-        if(root.getCoordinator().substitute())
+        if (root.getCoordinator().substitute())
         {
             return _target.getResolver();
         }
@@ -160,13 +156,9 @@ class PropertySetEditor extends Editor
         descriptor.properties = _properties.getProperties();
     }
 
-    boolean isSimpleUpdate()
-    {
-        return getIdText().equals(_oldId);
-    }
+    boolean isSimpleUpdate() { return getIdText().equals(_oldId); }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append(_idLabel);
         builder.append(getIdComponent(), 3);
@@ -192,18 +184,13 @@ class PropertySetEditor extends Editor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Named Property Set");
     }
 
-    @Override
-    protected boolean validate()
-    {
-        return check(new String[]{_idLabel.getText(), getIdText()});
-    }
+    @Override protected boolean validate() { return check(new String[] {_idLabel.getText(), getIdText()}); }
 
     void show(String unsubstitutedId, PropertySet nps)
     {
@@ -226,21 +213,15 @@ class PropertySetEditor extends Editor
         _applyButton.setEnabled(nps.isEphemeral());
         _discardButton.setEnabled(nps.isEphemeral());
         detectUpdates(true);
-        if(nps.isEphemeral())
+        if (nps.isEphemeral())
         {
             updated();
         }
     }
 
-    protected JComponent getIdComponent()
-    {
-        return _id;
-    }
+    protected JComponent getIdComponent() { return _id; }
 
-    protected String getIdText()
-    {
-        return _id.getText().trim();
-    }
+    protected String getIdText() { return _id.getText().trim(); }
 
     protected void showId(String unsubstitutedId, Utils.Resolver resolver)
     {
@@ -251,10 +232,7 @@ class PropertySetEditor extends Editor
         _id.setEditable(resolver == null);
     }
 
-    private PropertySet getPropertySet()
-    {
-        return (PropertySet)_target;
-    }
+    private PropertySet getPropertySet() { return (PropertySet)_target; }
 
     private String _oldId;
 

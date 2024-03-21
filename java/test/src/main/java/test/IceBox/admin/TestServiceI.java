@@ -21,20 +21,14 @@ public class TestServiceI implements com.zeroc.IceBox.Service
         //
         com.zeroc.Ice.Object propFacet =
             serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
-        if(propFacet != null)
+        if (propFacet != null)
         {
             com.zeroc.Ice.NativePropertiesAdmin admin = (com.zeroc.Ice.NativePropertiesAdmin)propFacet;
             admin.addUpdateCallback(facet);
         }
     }
 
-    @Override
-    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args)
-    {
-    }
+    @Override public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args) {}
 
-    @Override
-    public void stop()
-    {
-    }
+    @Override public void stop() {}
 }

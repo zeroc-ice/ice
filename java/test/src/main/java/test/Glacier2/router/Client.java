@@ -5,9 +5,7 @@
 package test.Glacier2.router;
 
 import java.io.PrintWriter;
-
 import java.util.stream.Stream;
-
 import test.Glacier2.router.Test.CallbackException;
 import test.Glacier2.router.Test.CallbackPrx;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
@@ -21,7 +19,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             com.zeroc.Ice.ObjectPrx routerBase;
 
@@ -84,18 +82,18 @@ public class Client extends test.TestHelper
                     base.ice_ping();
                     test(false);
                 }
-                catch(com.zeroc.Ice.ConnectionLostException ex)
+                catch (com.zeroc.Ice.ConnectionLostException ex)
                 {
                     out.println("ok");
                 }
-                catch(com.zeroc.Ice.SocketException ex)
+                catch (com.zeroc.Ice.SocketException ex)
                 {
                     //
                     // The JSSE implementation in the AIX JDK appears to have a
                     // bug that causes a "bad certificate" exception to be raised
                     // when the connection is forcefully dropped and a retry occurs.
                     //
-                    if(System.getProperty("os.name").equals("AIX"))
+                    if (System.getProperty("os.name").equals("AIX"))
                     {
                         out.println("ok");
                     }
@@ -115,11 +113,11 @@ public class Client extends test.TestHelper
                     router.createSession("userid", "xxx");
                     test(false);
                 }
-                catch(com.zeroc.Glacier2.PermissionDeniedException ex)
+                catch (com.zeroc.Glacier2.PermissionDeniedException ex)
                 {
                     out.println("ok");
                 }
-                catch(com.zeroc.Glacier2.CannotCreateSessionException ex)
+                catch (com.zeroc.Glacier2.CannotCreateSessionException ex)
                 {
                     test(false);
                 }
@@ -133,7 +131,7 @@ public class Client extends test.TestHelper
                     router.destroySession();
                     test(false);
                 }
-                catch(com.zeroc.Glacier2.SessionNotExistException ex)
+                catch (com.zeroc.Glacier2.SessionNotExistException ex)
                 {
                     out.println("ok");
                 }
@@ -146,11 +144,11 @@ public class Client extends test.TestHelper
                 {
                     router.createSession("userid", "abc123");
                 }
-                catch(com.zeroc.Glacier2.PermissionDeniedException ex)
+                catch (com.zeroc.Glacier2.PermissionDeniedException ex)
                 {
                     test(false);
                 }
-                catch(com.zeroc.Glacier2.CannotCreateSessionException ex)
+                catch (com.zeroc.Glacier2.CannotCreateSessionException ex)
                 {
                     test(false);
                 }
@@ -165,11 +163,11 @@ public class Client extends test.TestHelper
                     router.createSession("userid", "abc123");
                     test(false);
                 }
-                catch(com.zeroc.Glacier2.PermissionDeniedException ex)
+                catch (com.zeroc.Glacier2.PermissionDeniedException ex)
                 {
                     test(false);
                 }
-                catch(com.zeroc.Glacier2.CannotCreateSessionException ex)
+                catch (com.zeroc.Glacier2.CannotCreateSessionException ex)
                 {
                     out.println("ok");
                 }
@@ -190,7 +188,7 @@ public class Client extends test.TestHelper
                 {
                     baseC.ice_ping();
                 }
-                catch(com.zeroc.Ice.ObjectNotExistException ex)
+                catch (com.zeroc.Ice.ObjectNotExistException ex)
                 {
                 }
                 out.println("ok");
@@ -243,7 +241,8 @@ public class Client extends test.TestHelper
                 com.zeroc.Ice.Identity fakeCallbackReceiverIdent = new com.zeroc.Ice.Identity();
                 fakeCallbackReceiverIdent.name = "callbackReceiver";
                 fakeCallbackReceiverIdent.category = "dummy";
-                fakeTwowayR = CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
+                fakeTwowayR =
+                    CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
                 out.println("ok");
             }
 
@@ -279,7 +278,7 @@ public class Client extends test.TestHelper
                     twoway.initiateCallbackEx(twowayR, context);
                     test(false);
                 }
-                catch(CallbackException ex)
+                catch (CallbackException ex)
                 {
                     test(ex.someValue == 3.14);
                     test(ex.someString.equals("3.14"));
@@ -298,7 +297,7 @@ public class Client extends test.TestHelper
                     twoway.initiateCallback(fakeTwowayR, context);
                     test(false);
                 }
-                catch(com.zeroc.Ice.ObjectNotExistException ex)
+                catch (com.zeroc.Ice.ObjectNotExistException ex)
                 {
                     out.println("ok");
                 }
@@ -309,8 +308,8 @@ public class Client extends test.TestHelper
                 out.flush();
                 java.util.Map<String, String> context = new java.util.HashMap<>();
                 context.put("_fwd", "t");
-                CallbackPrx otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                                                                            twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("c2/callback")));
+                CallbackPrx otherCategoryTwoway =
+                    CallbackPrx.uncheckedCast(twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -324,11 +323,11 @@ public class Client extends test.TestHelper
                 try
                 {
                     CallbackPrx otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                                                                                twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("c3/callback")));
+                        twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
-                catch(com.zeroc.Ice.ObjectNotExistException ex)
+                catch (com.zeroc.Ice.ObjectNotExistException ex)
                 {
                     out.println("ok");
                 }
@@ -340,14 +339,14 @@ public class Client extends test.TestHelper
                 java.util.Map<String, String> context = new java.util.HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                                                                            twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("_userid/callback")));
+                    twoway.ice_identity(com.zeroc.Ice.Util.stringToIdentity("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
             }
 
             boolean shutdown = Stream.of(args).anyMatch(v -> v.equals("--shutdown"));
-            if(shutdown)
+            if (shutdown)
             {
                 out.print("testing server shutdown... ");
                 out.flush();
@@ -377,11 +376,11 @@ public class Client extends test.TestHelper
                 {
                     router.destroySession();
                 }
-                catch(com.zeroc.Glacier2.SessionNotExistException ex)
+                catch (com.zeroc.Glacier2.SessionNotExistException ex)
                 {
                     test(false);
                 }
-                catch(com.zeroc.Ice.LocalException ex)
+                catch (com.zeroc.Ice.LocalException ex)
                 {
                     test(false);
                 }
@@ -396,18 +395,18 @@ public class Client extends test.TestHelper
                     base.ice_ping();
                     test(false);
                 }
-                catch(com.zeroc.Ice.ConnectionLostException ex)
+                catch (com.zeroc.Ice.ConnectionLostException ex)
                 {
                     out.println("ok");
                 }
-                catch(com.zeroc.Ice.SocketException ex)
+                catch (com.zeroc.Ice.SocketException ex)
                 {
                     //
                     // The JSSE implementation in the AIX JDK appears to have a
                     // bug that causes a "bad certificate" exception to be raised
                     // when the connection is forcefully dropped and a retry occurs.
                     //
-                    if(System.getProperty("os.name").equals("AIX"))
+                    if (System.getProperty("os.name").equals("AIX"))
                     {
                         out.println("ok");
                     }
@@ -418,7 +417,7 @@ public class Client extends test.TestHelper
                 }
             }
 
-            if(shutdown)
+            if (shutdown)
             {
                 {
                     out.print("uninstalling router with communicator... ");
@@ -459,7 +458,7 @@ public class Client extends test.TestHelper
                     process.ice_ping();
                     test(false);
                 }
-                catch(com.zeroc.Ice.LocalException ex)
+                catch (com.zeroc.Ice.LocalException ex)
                 {
                     out.println("ok");
                 }

@@ -24,10 +24,7 @@ public abstract class Application
      * Initializes an instance that calls {@link Communicator#destroy} if
      * a signal is received.
      **/
-    public
-    Application()
-    {
-    }
+    public Application() {}
 
     /**
      * Initializes an instance that handles signals according to the signal
@@ -37,11 +34,7 @@ public abstract class Application
      *
      * @see SignalPolicy
      **/
-    public
-    Application(SignalPolicy signalPolicy)
-    {
-        _signalPolicy = signalPolicy;
-    }
+    public Application(SignalPolicy signalPolicy) { _signalPolicy = signalPolicy; }
 
     /**
      * The application must call <code>main</code> after it has
@@ -60,11 +53,7 @@ public abstract class Application
      * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
      * the return value is non-zero.
      **/
-    public final int
-    main(String appName, String[] args)
-    {
-        return main(appName, args, new InitializationData());
-    }
+    public final int main(String appName, String[] args) { return main(appName, args, new InitializationData()); }
 
     /**
      * The application must call <code>main</code> after it has
@@ -84,28 +73,27 @@ public abstract class Application
      * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
      * the return value is non-zero.
      **/
-    public final int
-    main(String appName, String[] args, String configFile)
+    public final int main(String appName, String[] args, String configFile)
     {
-        if(Util.getProcessLogger() instanceof LoggerI)
+        if (Util.getProcessLogger() instanceof LoggerI)
         {
             Util.setProcessLogger(new LoggerI(appName, ""));
         }
 
         InitializationData initData = new InitializationData();
-        if(configFile != null)
+        if (configFile != null)
         {
             try
             {
                 initData.properties = Util.createProperties();
                 initData.properties.load(configFile);
             }
-            catch(LocalException ex)
+            catch (LocalException ex)
             {
                 Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
                 return 1;
             }
-            catch(java.lang.Exception ex)
+            catch (java.lang.Exception ex)
             {
                 Util.getProcessLogger().error("unknown exception: " + com.zeroc.IceInternal.Ex.toString(ex));
                 return 1;
@@ -133,15 +121,14 @@ public abstract class Application
      *
      * @see InitializationData
      **/
-    public final int
-    main(String appName, String[] args, InitializationData initializationData)
+    public final int main(String appName, String[] args, InitializationData initializationData)
     {
-        if(Util.getProcessLogger() instanceof LoggerI)
+        if (Util.getProcessLogger() instanceof LoggerI)
         {
             Util.setProcessLogger(new LoggerI(appName, ""));
         }
 
-        if(_communicator != null)
+        if (_communicator != null)
         {
             Util.getProcessLogger().error("only one instance of the Application class can be used");
             return 1;
@@ -153,7 +140,7 @@ public abstract class Application
         // We parse the properties here to extract Ice.ProgramName.
         //
         InitializationData initData;
-        if(initializationData != null)
+        if (initializationData != null)
         {
             initData = initializationData.clone();
         }
@@ -167,12 +154,12 @@ public abstract class Application
         {
             initData.properties = Util.createProperties(args, initData.properties, remainingArgs);
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
             return 1;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             Util.getProcessLogger().error("unknown exception: " + com.zeroc.IceInternal.Ex.toString(ex));
             return 1;
@@ -183,7 +170,8 @@ public abstract class Application
         // If the process logger is the default logger, we replace it with a
         // a logger which is using the program name for the prefix.
         //
-        if(!initData.properties.getProperty("Ice.ProgramName").equals("") && Util.getProcessLogger() instanceof LoggerI)
+        if (!initData.properties.getProperty("Ice.ProgramName").equals("") && Util.getProcessLogger() instanceof
+                                                                                  LoggerI)
         {
             Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
         }
@@ -203,24 +191,24 @@ public abstract class Application
             //
             // The default is to destroy when a signal is received.
             //
-            if(_signalPolicy == SignalPolicy.HandleSignals)
+            if (_signalPolicy == SignalPolicy.HandleSignals)
             {
                 destroyOnInterrupt();
             }
 
             status = run(remainingArgs.toArray(new String[remainingArgs.size()]));
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
             status = 1;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             Util.getProcessLogger().error("unknown exception: " + com.zeroc.IceInternal.Ex.toString(ex));
             status = 1;
         }
-        catch(java.lang.Error err)
+        catch (java.lang.Error err)
         {
             //
             // We catch Error to avoid hangs in some non-fatal situations
@@ -230,31 +218,31 @@ public abstract class Application
         }
 
         // This clears any set interrupt.
-        if(_signalPolicy == SignalPolicy.HandleSignals)
+        if (_signalPolicy == SignalPolicy.HandleSignals)
         {
             defaultInterrupt();
         }
 
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
             boolean interrupted = false;
-            while(_callbackInProgress)
+            while (_callbackInProgress)
             {
                 try
                 {
                     _mutex.wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                     interrupted = true;
                 }
             }
-            if(interrupted)
+            if (interrupted)
             {
                 Thread.currentThread().interrupt();
             }
 
-            if(_destroyed)
+            if (_destroyed)
             {
                 _communicator = null;
             }
@@ -269,7 +257,7 @@ public abstract class Application
             }
         }
 
-        if(_communicator != null)
+        if (_communicator != null)
         {
             try
             {
@@ -277,7 +265,7 @@ public abstract class Application
                 {
                     _communicator.destroy();
                 }
-                catch(OperationInterruptedException ex)
+                catch (OperationInterruptedException ex)
                 {
                     Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
                     // Retry communicator destroy in case of an operation
@@ -286,12 +274,12 @@ public abstract class Application
                     _communicator.destroy();
                 }
             }
-            catch(LocalException ex)
+            catch (LocalException ex)
             {
                 Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
                 status = 1;
             }
-            catch(java.lang.Exception ex)
+            catch (java.lang.Exception ex)
             {
                 Util.getProcessLogger().error("unknown exception: " + com.zeroc.IceInternal.Ex.toString(ex));
                 status = 1;
@@ -299,9 +287,9 @@ public abstract class Application
             _communicator = null;
         }
 
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
-            if(_appHook != null)
+            if (_appHook != null)
             {
                 _appHook.done();
             }
@@ -323,8 +311,7 @@ public abstract class Application
      * @return The <code>run</code> method should return zero for successful termination, and
      * non-zero otherwise. <code>Application.main</code> returns the value returned by <code>run</code>.
      **/
-    public abstract int
-    run(String[] args);
+    public abstract int run(String[] args);
 
     /**
      * Returns the value of <code>appName</code> that is passed to <code>main</code> (which is also the
@@ -334,11 +321,7 @@ public abstract class Application
      *
      * @return The name of the application.
      **/
-    public static String
-    appName()
-    {
-        return _appName;
-    }
+    public static String appName() { return _appName; }
 
     /**
      * Returns the communicator for the application. Because <code>communicator</code> is a static method,
@@ -347,11 +330,7 @@ public abstract class Application
      *
      * @return The communicator for the application.
      **/
-    public static Communicator
-    communicator()
-    {
-        return _communicator;
-    }
+    public static Communicator communicator() { return _communicator; }
 
     /**
      * Instructs <code>Application</code> to call {@link Communicator#destroy} on receipt of a signal.
@@ -359,12 +338,11 @@ public abstract class Application
      *
      * @see Communicator#destroy
      **/
-    public static void
-    destroyOnInterrupt()
+    public static void destroyOnInterrupt()
     {
-        if(_signalPolicy == SignalPolicy.HandleSignals)
+        if (_signalPolicy == SignalPolicy.HandleSignals)
         {
-            synchronized(_mutex)
+            synchronized (_mutex)
             {
                 //
                 // As soon as the destroy hook ends all the threads are
@@ -375,9 +353,9 @@ public abstract class Application
                 {
                     changeHook(new DestroyHook());
                 }
-                catch(java.lang.IllegalStateException ex)
+                catch (java.lang.IllegalStateException ex)
                 {
-                    if(_communicator != null)
+                    if (_communicator != null)
                     {
                         _communicator.destroy();
                     }
@@ -396,12 +374,11 @@ public abstract class Application
      *
      * @see Communicator#shutdown
      **/
-    public static void
-    shutdownOnInterrupt()
+    public static void shutdownOnInterrupt()
     {
-        if(_signalPolicy == SignalPolicy.HandleSignals)
+        if (_signalPolicy == SignalPolicy.HandleSignals)
         {
-            synchronized(_mutex)
+            synchronized (_mutex)
             {
                 //
                 // As soon as the shutdown hook ends all the threads are
@@ -412,9 +389,9 @@ public abstract class Application
                 {
                     changeHook(new ShutdownHook());
                 }
-                catch(java.lang.IllegalStateException ex)
+                catch (java.lang.IllegalStateException ex)
                 {
-                    if(_communicator != null)
+                    if (_communicator != null)
                     {
                         _communicator.shutdown();
                     }
@@ -439,16 +416,15 @@ public abstract class Application
      *
      * @see java.lang.Runtime#addShutdownHook
      **/
-    public static void
-    setInterruptHook(Runnable newHook)
+    public static void setInterruptHook(Runnable newHook)
     {
-        if(_signalPolicy == SignalPolicy.HandleSignals)
+        if (_signalPolicy == SignalPolicy.HandleSignals)
         {
             try
             {
                 changeHook(new CustomHook(newHook));
             }
-            catch(java.lang.IllegalStateException ex)
+            catch (java.lang.IllegalStateException ex)
             {
                 // Ignore.
             }
@@ -464,10 +440,9 @@ public abstract class Application
      * Clears any shutdown hooks, including any hook established with {@link #destroyOnInterrupt} or
      * {@link #shutdownOnInterrupt}.
      **/
-    public static void
-    defaultInterrupt()
+    public static void defaultInterrupt()
     {
-        if(_signalPolicy == SignalPolicy.HandleSignals)
+        if (_signalPolicy == SignalPolicy.HandleSignals)
         {
             changeHook(null);
         }
@@ -484,33 +459,28 @@ public abstract class Application
      *
      * @return <code>true</code> if a shutdown hook caused the communicator to shut down; false otherwise.
      **/
-    public static boolean
-    interrupted()
+    public static boolean interrupted()
     {
-        synchronized(_mutex)
-        {
-            return _interrupted;
-        }
+        synchronized (_mutex) { return _interrupted; }
     }
 
-    private static void
-    changeHook(AppHook newHook)
+    private static void changeHook(AppHook newHook)
     {
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
             //
             // Remove any existing shutdown hooks.
             //
             try
             {
-                if(_appHook != null)
+                if (_appHook != null)
                 {
                     Runtime.getRuntime().removeShutdownHook(_appHook);
                     _appHook.done();
                     _appHook = null;
                 }
             }
-            catch(java.lang.IllegalStateException ex)
+            catch (java.lang.IllegalStateException ex)
             {
                 //
                 // Expected if we are in the process of shutting down.
@@ -521,7 +491,7 @@ public abstract class Application
             // Note that we let the IllegalStateException propagate
             // out if necessary.
             //
-            if(newHook != null)
+            if (newHook != null)
             {
                 Runtime.getRuntime().addShutdownHook(newHook);
                 _appHook = newHook;
@@ -529,12 +499,11 @@ public abstract class Application
         }
     }
 
-    private static boolean
-    setCallbackInProgress(boolean destroy)
+    private static boolean setCallbackInProgress(boolean destroy)
     {
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
-            if(_destroyed)
+            if (_destroyed)
             {
                 //
                 // Being destroyed by main thread
@@ -548,10 +517,9 @@ public abstract class Application
         }
     }
 
-    private static void
-    clearCallbackInProgress()
+    private static void clearCallbackInProgress()
     {
-        synchronized(_mutex)
+        synchronized (_mutex)
         {
             _callbackInProgress = false;
             _mutex.notify();
@@ -562,10 +530,9 @@ public abstract class Application
     /** @hidden */
     static public class AppHook extends Thread
     {
-        public void
-        done()
+        public void done()
         {
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
                 _done = true;
                 _doneMutex.notify();
@@ -578,32 +545,30 @@ public abstract class Application
 
     static class DestroyHook extends AppHook
     {
-        @Override
-        public void
-        run()
+        @Override public void run()
         {
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
-                if(!setCallbackInProgress(true))
+                if (!setCallbackInProgress(true))
                 {
                     return;
                 }
 
                 Communicator communicator = communicator();
-                if(communicator != null)
+                if (communicator != null)
                 {
                     communicator.destroy();
                 }
 
                 clearCallbackInProgress();
 
-                while(!_done)
+                while (!_done)
                 {
                     try
                     {
                         _doneMutex.wait();
                     }
-                    catch(InterruptedException ex)
+                    catch (InterruptedException ex)
                     {
                         break;
                     }
@@ -614,32 +579,30 @@ public abstract class Application
 
     static class ShutdownHook extends AppHook
     {
-        @Override
-        public void
-        run()
+        @Override public void run()
         {
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
-                if(!setCallbackInProgress(false))
+                if (!setCallbackInProgress(false))
                 {
                     return;
                 }
 
                 Communicator communicator = communicator();
-                if(communicator != null)
+                if (communicator != null)
                 {
                     communicator.shutdown();
                 }
 
                 clearCallbackInProgress();
 
-                while(!_done)
+                while (!_done)
                 {
                     try
                     {
                         _doneMutex.wait();
                     }
-                    catch(InterruptedException ex)
+                    catch (InterruptedException ex)
                     {
                         break;
                     }
@@ -654,18 +617,13 @@ public abstract class Application
     // support code.
     static class CustomHook extends AppHook
     {
-        CustomHook(Runnable hook)
-        {
-            _hook = hook;
-        }
+        CustomHook(Runnable hook) { _hook = hook; }
 
-        @Override
-        public void
-        run()
+        @Override public void run()
         {
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
-                if(!setCallbackInProgress(false))
+                if (!setCallbackInProgress(false))
                 {
                     return;
                 }

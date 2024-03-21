@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class ProtocolException extends LocalException
 {
-    public ProtocolException()
-    {
-        this.reason = "";
-    }
+    public ProtocolException() { this.reason = ""; }
 
     public ProtocolException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class ProtocolException extends LocalException
         this.reason = "";
     }
 
-    public ProtocolException(String reason)
-    {
-        this.reason = reason;
-    }
+    public ProtocolException(String reason) { this.reason = reason; }
 
     public ProtocolException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class ProtocolException extends LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::ProtocolException";
-    }
+    public String ice_id() { return "::Ice::ProtocolException"; }
 
     /**
      * The reason for the failure.

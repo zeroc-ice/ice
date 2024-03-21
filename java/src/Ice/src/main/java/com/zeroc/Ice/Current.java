@@ -77,7 +77,16 @@ public class Current implements java.lang.Cloneable
         this.encoding = new EncodingVersion();
     }
 
-    public Current(ObjectAdapter adapter, Connection con, Identity id, String facet, String operation, OperationMode mode, java.util.Map<java.lang.String, java.lang.String> ctx, int requestId, EncodingVersion encoding)
+    public Current(
+        ObjectAdapter adapter,
+        Connection con,
+        Identity id,
+        String facet,
+        String operation,
+        OperationMode mode,
+        java.util.Map<java.lang.String, java.lang.String> ctx,
+        int requestId,
+        EncodingVersion encoding)
     {
         this.adapter = adapter;
         this.con = con;
@@ -92,74 +101,74 @@ public class Current implements java.lang.Cloneable
 
     public boolean equals(java.lang.Object rhs)
     {
-        if(this == rhs)
+        if (this == rhs)
         {
             return true;
         }
         Current r = null;
-        if(rhs instanceof Current)
+        if (rhs instanceof Current)
         {
             r = (Current)rhs;
         }
 
-        if(r != null)
+        if (r != null)
         {
-            if(this.adapter != r.adapter)
+            if (this.adapter != r.adapter)
             {
-                if(this.adapter == null || r.adapter == null || !this.adapter.equals(r.adapter))
+                if (this.adapter == null || r.adapter == null || !this.adapter.equals(r.adapter))
                 {
                     return false;
                 }
             }
-            if(this.con != r.con)
+            if (this.con != r.con)
             {
-                if(this.con == null || r.con == null || !this.con.equals(r.con))
+                if (this.con == null || r.con == null || !this.con.equals(r.con))
                 {
                     return false;
                 }
             }
-            if(this.id != r.id)
+            if (this.id != r.id)
             {
-                if(this.id == null || r.id == null || !this.id.equals(r.id))
+                if (this.id == null || r.id == null || !this.id.equals(r.id))
                 {
                     return false;
                 }
             }
-            if(this.facet != r.facet)
+            if (this.facet != r.facet)
             {
-                if(this.facet == null || r.facet == null || !this.facet.equals(r.facet))
+                if (this.facet == null || r.facet == null || !this.facet.equals(r.facet))
                 {
                     return false;
                 }
             }
-            if(this.operation != r.operation)
+            if (this.operation != r.operation)
             {
-                if(this.operation == null || r.operation == null || !this.operation.equals(r.operation))
+                if (this.operation == null || r.operation == null || !this.operation.equals(r.operation))
                 {
                     return false;
                 }
             }
-            if(this.mode != r.mode)
+            if (this.mode != r.mode)
             {
-                if(this.mode == null || r.mode == null || !this.mode.equals(r.mode))
+                if (this.mode == null || r.mode == null || !this.mode.equals(r.mode))
                 {
                     return false;
                 }
             }
-            if(this.ctx != r.ctx)
+            if (this.ctx != r.ctx)
             {
-                if(this.ctx == null || r.ctx == null || !this.ctx.equals(r.ctx))
+                if (this.ctx == null || r.ctx == null || !this.ctx.equals(r.ctx))
                 {
                     return false;
                 }
             }
-            if(this.requestId != r.requestId)
+            if (this.requestId != r.requestId)
             {
                 return false;
             }
-            if(this.encoding != r.encoding)
+            if (this.encoding != r.encoding)
             {
-                if(this.encoding == null || r.encoding == null || !this.encoding.equals(r.encoding))
+                if (this.encoding == null || r.encoding == null || !this.encoding.equals(r.encoding))
                 {
                     return false;
                 }
@@ -194,7 +203,7 @@ public class Current implements java.lang.Cloneable
         {
             c = (Current)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false; // impossible
         }

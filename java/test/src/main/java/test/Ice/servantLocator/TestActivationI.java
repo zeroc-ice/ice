@@ -8,10 +8,9 @@ import test.Ice.servantLocator.Test.TestActivation;
 
 public final class TestActivationI implements TestActivation
 {
-    @Override
-    public void activateServantLocator(boolean activate, com.zeroc.Ice.Current current)
+    @Override public void activateServantLocator(boolean activate, com.zeroc.Ice.Current current)
     {
-        if(activate)
+        if (activate)
         {
             current.adapter.addServantLocator(new ServantLocatorI(""), "");
             current.adapter.addServantLocator(new ServantLocatorI("category"), "category");

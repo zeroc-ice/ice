@@ -8,8 +8,7 @@ import test.Ice.objects.Test.AlsoEmpty;
 
 public final class UnexpectedObjectExceptionTestI implements com.zeroc.Ice.Blobject
 {
-    @Override
-    public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inParams, com.zeroc.Ice.Current current)
+    @Override public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inParams, com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();

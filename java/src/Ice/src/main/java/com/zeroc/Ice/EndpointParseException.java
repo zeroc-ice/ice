@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class EndpointParseException extends LocalException
 {
-    public EndpointParseException()
-    {
-        this.str = "";
-    }
+    public EndpointParseException() { this.str = ""; }
 
     public EndpointParseException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class EndpointParseException extends LocalException
         this.str = "";
     }
 
-    public EndpointParseException(String str)
-    {
-        this.str = str;
-    }
+    public EndpointParseException(String str) { this.str = str; }
 
     public EndpointParseException(String str, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class EndpointParseException extends LocalException
         this.str = str;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::EndpointParseException";
-    }
+    public String ice_id() { return "::Ice::EndpointParseException"; }
 
     /**
      * Describes the failure and includes the string that could not be parsed.

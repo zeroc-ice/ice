@@ -4,20 +4,18 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 class Adapter extends TreeNode
 {
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = new AdapterEditor();
         }
@@ -35,14 +33,14 @@ class Adapter extends TreeNode
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _activeIcon = Utils.getIcon("/icons/16x16/adapter_active.png");
             _inactiveIcon = Utils.getIcon("/icons/16x16/adapter_inactive.png");
         }
 
-        if(_currentEndpoints == null || _currentEndpoints.length() == 0)
+        if (_currentEndpoints == null || _currentEndpoints.length() == 0)
         {
             _cellRenderer.setLeafIcon(_inactiveIcon);
         }
@@ -55,8 +53,13 @@ class Adapter extends TreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    Adapter(TreeNode parent, String adapterName, Utils.Resolver resolver, String adapterId,
-            AdapterDescriptor descriptor, com.zeroc.Ice.ObjectPrx proxy)
+    Adapter(
+        TreeNode parent,
+        String adapterName,
+        Utils.Resolver resolver,
+        String adapterId,
+        AdapterDescriptor descriptor,
+        com.zeroc.Ice.ObjectPrx proxy)
     {
         super(parent, adapterName);
         _resolver = resolver;
@@ -66,24 +69,15 @@ class Adapter extends TreeNode
         setCurrentEndpoints(proxy);
     }
 
-    AdapterDescriptor getDescriptor()
-    {
-        return _descriptor;
-    }
+    AdapterDescriptor getDescriptor() { return _descriptor; }
 
-    Utils.Resolver getResolver()
-    {
-        return _resolver;
-    }
+    Utils.Resolver getResolver() { return _resolver; }
 
-    String getCurrentEndpoints()
-    {
-        return _currentEndpoints;
-    }
+    String getCurrentEndpoints() { return _currentEndpoints; }
 
     java.util.Map<String, String> getProperties()
     {
-        if(_parent instanceof Server)
+        if (_parent instanceof Server)
         {
             return ((Server)_parent).getProperties();
         }
@@ -95,13 +89,13 @@ class Adapter extends TreeNode
 
     boolean update(AdapterDynamicInfo info)
     {
-        if(info == null)
+        if (info == null)
         {
             setCurrentEndpoints(null);
             getRoot().getTreeModel().nodeChanged(this);
             return true;
         }
-        else if(info.id.equals(_adapterId))
+        else if (info.id.equals(_adapterId))
         {
             setCurrentEndpoints(info.proxy);
             getRoot().getTreeModel().nodeChanged(this);
@@ -115,9 +109,9 @@ class Adapter extends TreeNode
 
     boolean update(java.util.List<AdapterDynamicInfo> infoList)
     {
-        for(AdapterDynamicInfo info : infoList)
+        for (AdapterDynamicInfo info : infoList)
         {
-            if(update(info))
+            if (update(info))
             {
                 return true;
             }
@@ -127,7 +121,7 @@ class Adapter extends TreeNode
 
     private void setCurrentEndpoints(com.zeroc.Ice.ObjectPrx proxy)
     {
-        if(proxy == null)
+        if (proxy == null)
         {
             _currentEndpoints = null;
             _toolTip = "Inactive";
@@ -136,7 +130,7 @@ class Adapter extends TreeNode
         {
             String str = proxy.toString();
             int index = str.indexOf(':');
-            if(index == -1 || index == str.length() - 1)
+            if (index == -1 || index == str.length() - 1)
             {
                 _currentEndpoints = "";
             }

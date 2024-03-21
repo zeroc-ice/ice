@@ -12,28 +12,17 @@ package com.zeroc.IceInternal;
 //
 abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
 {
-    public DispatchWorkItem()
-    {
-    }
+    public DispatchWorkItem() {}
 
-    public DispatchWorkItem(com.zeroc.Ice.Connection connection)
-    {
-        _connection = connection;
-    }
+    public DispatchWorkItem(com.zeroc.Ice.Connection connection) { _connection = connection; }
 
-    @Override
-    final public void
-    execute(ThreadPoolCurrent current)
+    @Override final public void execute(ThreadPoolCurrent current)
     {
         current.ioCompleted(); // Promote a follower
         current.dispatchFromThisThread(this);
     }
 
-    public com.zeroc.Ice.Connection
-    getConnection()
-    {
-        return _connection;
-    }
+    public com.zeroc.Ice.Connection getConnection() { return _connection; }
 
     private com.zeroc.Ice.Connection _connection;
 }

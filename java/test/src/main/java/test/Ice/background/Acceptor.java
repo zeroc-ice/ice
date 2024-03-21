@@ -6,59 +6,33 @@ package test.Ice.background;
 
 class Acceptor implements com.zeroc.IceInternal.Acceptor
 {
-    @Override
-    public java.nio.channels.ServerSocketChannel fd()
-    {
-        return _acceptor.fd();
-    }
+    @Override public java.nio.channels.ServerSocketChannel fd() { return _acceptor.fd(); }
 
-    @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
+    @Override public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
     {
         // No need to for the ready callback.
     }
 
-    @Override
-    public void close()
-    {
-        _acceptor.close();
-    }
+    @Override public void close() { _acceptor.close(); }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI listen()
+    @Override public com.zeroc.IceInternal.EndpointI listen()
     {
         _endpoint = _endpoint.endpoint(_acceptor.listen());
         return _endpoint;
     }
 
-    @Override
-    public com.zeroc.IceInternal.Transceiver accept()
+    @Override public com.zeroc.IceInternal.Transceiver accept()
     {
         return new Transceiver(_configuration, _acceptor.accept());
     }
 
-    @Override
-    public String protocol()
-    {
-        return _acceptor.protocol();
-    }
+    @Override public String protocol() { return _acceptor.protocol(); }
 
-    @Override
-    public String toString()
-    {
-        return _acceptor.toString();
-    }
+    @Override public String toString() { return _acceptor.toString(); }
 
-    @Override
-    public String toDetailedString()
-    {
-        return _acceptor.toDetailedString();
-    }
+    @Override public String toDetailedString() { return _acceptor.toDetailedString(); }
 
-    public com.zeroc.IceInternal.Acceptor delegate()
-    {
-        return _acceptor;
-    }
+    public com.zeroc.IceInternal.Acceptor delegate() { return _acceptor; }
 
     Acceptor(EndpointI endpoint, Configuration configuration, com.zeroc.IceInternal.Acceptor acceptor)
     {

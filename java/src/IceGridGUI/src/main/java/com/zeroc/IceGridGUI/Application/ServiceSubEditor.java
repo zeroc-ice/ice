@@ -4,12 +4,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JTextField;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JTextField;
 
 class ServiceSubEditor extends CommunicatorSubEditor
 {
@@ -29,13 +27,9 @@ class ServiceSubEditor extends CommunicatorSubEditor
             + "</html>");
     }
 
-    ServiceDescriptor getServiceDescriptor()
-    {
-        return (ServiceDescriptor)_mainEditor.getSubDescriptor();
-    }
+    ServiceDescriptor getServiceDescriptor() { return (ServiceDescriptor)_mainEditor.getSubDescriptor(); }
 
-    @Override
-    void appendProperties(DefaultFormBuilder builder)
+    @Override void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Service Name");
         builder.append(_name, 3);
@@ -59,16 +53,12 @@ class ServiceSubEditor extends CommunicatorSubEditor
         super.writeDescriptor(descriptor);
     }
 
-    boolean isSimpleUpdate()
-    {
-        return getServiceDescriptor().name.equals(_name.getText().trim());
-    }
+    boolean isSimpleUpdate() { return getServiceDescriptor().name.equals(_name.getText().trim()); }
 
     boolean validate()
     {
-        return _mainEditor.check(new String[]{
-            "Service Name", _name.getText().trim(),
-            "Entry Point", _entry.getText().trim()});
+        return _mainEditor.check(
+            new String[] {"Service Name", _name.getText().trim(), "Entry Point", _entry.getText().trim()});
     }
 
     void show(boolean isEditable)
@@ -78,7 +68,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
 
         isEditable = isEditable && (detailResolver == null);
 
-        if(detailResolver != null)
+        if (detailResolver != null)
         {
             _name.setText(detailResolver.find("service"));
         }

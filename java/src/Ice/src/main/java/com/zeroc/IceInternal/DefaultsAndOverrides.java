@@ -14,7 +14,7 @@ public final class DefaultsAndOverrides
         defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
         value = properties.getProperty("Ice.Default.Host");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             defaultHost = value;
         }
@@ -24,10 +24,10 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Default.SourceAddress");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             defaultSourceAddress = Network.getNumericAddress(value);
-            if(defaultSourceAddress == null)
+            if (defaultSourceAddress == null)
             {
                 throw new com.zeroc.Ice.InitializationException(
                     "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
@@ -39,11 +39,11 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.Timeout");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             overrideTimeout = true;
             intValue = properties.getPropertyAsInt("Ice.Override.Timeout");
-            if(intValue < 0 && intValue != -1)
+            if (intValue < 0 && intValue != -1)
             {
                 overrideTimeoutValue = -1;
                 StringBuffer msg = new StringBuffer("invalid value for Ice.Override.Timeout `");
@@ -53,7 +53,7 @@ public final class DefaultsAndOverrides
             }
             else
             {
-               overrideTimeoutValue = intValue;
+                overrideTimeoutValue = intValue;
             }
         }
         else
@@ -63,11 +63,11 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.ConnectTimeout");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             overrideConnectTimeout = true;
             intValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
-            if(intValue < 0 && intValue != -1)
+            if (intValue < 0 && intValue != -1)
             {
                 overrideConnectTimeoutValue = -1;
                 StringBuffer msg = new StringBuffer("invalid value for Ice.Override.ConnectTimeout `");
@@ -87,11 +87,11 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.CloseTimeout");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             overrideCloseTimeout = true;
             intValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
-            if(intValue < 0 && intValue != -1)
+            if (intValue < 0 && intValue != -1)
             {
                 overrideCloseTimeoutValue = -1;
                 StringBuffer msg = new StringBuffer("invalid value for Ice.Override.CloseTimeout `");
@@ -111,11 +111,11 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.Compress");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             overrideCompress = true;
             boolean b = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
-            if(b && !BZip2.supported())
+            if (b && !BZip2.supported())
             {
                 System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
@@ -129,7 +129,7 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.Secure");
-        if(!value.isEmpty())
+        if (!value.isEmpty())
         {
             overrideSecure = true;
             overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
@@ -144,11 +144,11 @@ public final class DefaultsAndOverrides
             properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
 
         value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
-        if(value.equals("Random"))
+        if (value.equals("Random"))
         {
             defaultEndpointSelection = com.zeroc.Ice.EndpointSelectionType.Random;
         }
-        else if(value.equals("Ordered"))
+        else if (value.equals("Ordered"))
         {
             defaultEndpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
         }
@@ -161,7 +161,7 @@ public final class DefaultsAndOverrides
         }
 
         intValue = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
-        if(intValue < 1 && intValue != -1)
+        if (intValue < 1 && intValue != -1)
         {
             defaultTimeout = 60000;
             StringBuffer msg = new StringBuffer("invalid value for Ice.Default.Timeout `");
@@ -175,7 +175,7 @@ public final class DefaultsAndOverrides
         }
 
         intValue = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
-        if(intValue < -1)
+        if (intValue < -1)
         {
             defaultLocatorCacheTimeout = -1;
             StringBuffer msg = new StringBuffer("invalid value for Ice.Default.LocatorCacheTimeout `");
@@ -189,7 +189,7 @@ public final class DefaultsAndOverrides
         }
 
         intValue = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
-        if(intValue < 1 && intValue != -1 && intValue != -2)
+        if (intValue < 1 && intValue != -1 && intValue != -2)
         {
             defaultInvocationTimeout = -1;
             StringBuffer msg = new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
@@ -204,8 +204,9 @@ public final class DefaultsAndOverrides
 
         defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
-        value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion",
-                                                  com.zeroc.Ice.Util.encodingVersionToString(Protocol.currentEncoding));
+        value = properties.getPropertyWithDefault(
+            "Ice.Default.EncodingVersion",
+            com.zeroc.Ice.Util.encodingVersionToString(Protocol.currentEncoding));
         defaultEncoding = com.zeroc.Ice.Util.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);
 

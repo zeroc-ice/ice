@@ -6,10 +6,11 @@ package com.zeroc.IceInternal;
 
 public class StreamSocket
 {
-    public StreamSocket(ProtocolInstance instance,
-                        NetworkProxy proxy,
-                        java.net.InetSocketAddress addr,
-                        java.net.InetSocketAddress sourceAddr)
+    public StreamSocket(
+        ProtocolInstance instance,
+        NetworkProxy proxy,
+        java.net.InetSocketAddress addr,
+        java.net.InetSocketAddress sourceAddr)
     {
         _instance = instance;
         _proxy = proxy;
@@ -20,14 +21,14 @@ public class StreamSocket
         try
         {
             init();
-            if(Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
+            if (Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
             {
                 _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            assert(!_fd.isOpen());
+            assert (!_fd.isOpen());
             _fd = null; // Necessary for the finalizer
             throw ex;
         }
@@ -47,9 +48,9 @@ public class StreamSocket
         {
             init();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            assert(!_fd.isOpen());
+            assert (!_fd.isOpen());
             _fd = null; // Necessary for the finalizer
             throw ex;
         }
@@ -57,16 +58,13 @@ public class StreamSocket
         _desc = Network.fdToString(_fd);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_fd == null);
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -75,36 +73,33 @@ public class StreamSocket
         }
     }
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) { Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance); }
 
     public int connect(Buffer readBuffer, Buffer writeBuffer)
     {
-        if(_state == StateNeedConnect)
+        if (_state == StateNeedConnect)
         {
             _state = StateConnectPending;
             return SocketOperation.Connect;
         }
-        else if(_state <= StateConnectPending)
+        else if (_state <= StateConnectPending)
         {
             Network.doFinishConnect(_fd);
             _desc = Network.fdToString(_fd, _proxy, _addr);
             _state = _proxy != null ? StateProxyWrite : StateConnected;
         }
 
-        if(_state == StateProxyWrite)
+        if (_state == StateProxyWrite)
         {
             _proxy.beginWrite(_addr, writeBuffer);
             return SocketOperation.Write;
         }
-        else if(_state == StateProxyRead)
+        else if (_state == StateProxyRead)
         {
             _proxy.beginRead(readBuffer);
             return SocketOperation.Read;
         }
-        else if(_state == StateProxyConnected)
+        else if (_state == StateProxyConnected)
         {
             _proxy.finish(readBuffer, writeBuffer);
 
@@ -114,33 +109,27 @@ public class StreamSocket
             _state = StateConnected;
         }
 
-        assert(_state == StateConnected);
+        assert (_state == StateConnected);
         return SocketOperation.None;
     }
 
-    public boolean isConnected()
-    {
-        return _state == StateConnected;
-    }
+    public boolean isConnected() { return _state == StateConnected; }
 
-    public java.nio.channels.SocketChannel fd()
-    {
-        return _fd;
-    }
+    public java.nio.channels.SocketChannel fd() { return _fd; }
 
     public int read(Buffer buf)
     {
-        if(_state == StateProxyRead)
+        if (_state == StateProxyRead)
         {
-            while(true)
+            while (true)
             {
                 int ret = read(buf.b);
-                if(ret == 0)
+                if (ret == 0)
                 {
                     return SocketOperation.Read;
                 }
                 _state = toState(_proxy.endRead(buf));
-                if(_state != StateProxyRead)
+                if (_state != StateProxyRead)
                 {
                     return SocketOperation.None;
                 }
@@ -152,17 +141,17 @@ public class StreamSocket
 
     public int write(Buffer buf)
     {
-        if(_state == StateProxyWrite)
+        if (_state == StateProxyWrite)
         {
-            while(true)
+            while (true)
             {
                 int ret = write(buf.b);
-                if(ret == 0)
+                if (ret == 0)
                 {
                     return SocketOperation.Write;
                 }
                 _state = toState(_proxy.endWrite(buf));
-                if(_state != StateProxyWrite)
+                if (_state != StateProxyWrite)
                 {
                     return SocketOperation.None;
                 }
@@ -174,31 +163,31 @@ public class StreamSocket
 
     public int read(java.nio.ByteBuffer buf)
     {
-        assert(_fd != null);
+        assert (_fd != null);
 
         int read = 0;
 
-        while(buf.hasRemaining())
+        while (buf.hasRemaining())
         {
             try
             {
                 int ret = _fd.read(buf);
-                if(ret == -1)
+                if (ret == -1)
                 {
                     throw new com.zeroc.Ice.ConnectionLostException();
                 }
-                else if(ret == 0)
+                else if (ret == 0)
                 {
                     return read;
                 }
 
                 read += ret;
             }
-            catch(java.io.InterruptedIOException ex)
+            catch (java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
                 throw new com.zeroc.Ice.ConnectionLostException(ex);
             }
@@ -208,15 +197,15 @@ public class StreamSocket
 
     public int write(java.nio.ByteBuffer buf)
     {
-        assert(_fd != null);
+        assert (_fd != null);
 
         int sent = 0;
-        while(buf.hasRemaining())
+        while (buf.hasRemaining())
         {
             try
             {
                 int ret;
-                if(_maxSendPacketSize > 0 && buf.remaining() > _maxSendPacketSize)
+                if (_maxSendPacketSize > 0 && buf.remaining() > _maxSendPacketSize)
                 {
                     int previous = buf.limit();
                     // Cast to java.nio.Buffer to avoid incompatible covariant
@@ -230,21 +219,21 @@ public class StreamSocket
                     ret = _fd.write(buf);
                 }
 
-                if(ret == -1)
+                if (ret == -1)
                 {
                     throw new com.zeroc.Ice.ConnectionLostException();
                 }
-                else if(ret == 0)
+                else if (ret == 0)
                 {
                     return sent;
                 }
                 sent += ret;
             }
-            catch(java.io.InterruptedIOException ex)
+            catch (java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
                 throw new com.zeroc.Ice.SocketException(ex);
             }
@@ -254,12 +243,12 @@ public class StreamSocket
 
     public void close()
     {
-        assert(_fd != null);
+        assert (_fd != null);
         try
         {
             _fd.close();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new com.zeroc.Ice.SocketException(ex);
         }
@@ -269,18 +258,14 @@ public class StreamSocket
         }
     }
 
-    @Override
-    public String toString()
-    {
-        return _desc;
-    }
+    @Override public String toString() { return _desc; }
 
     private void init()
     {
         Network.setBlock(_fd, false);
         Network.setTcpBufSize(_fd, _instance);
 
-        if(System.getProperty("os.name").startsWith("Windows"))
+        if (System.getProperty("os.name").startsWith("Windows"))
         {
             //
             // On Windows, limiting the buffer size is important to prevent
@@ -297,14 +282,14 @@ public class StreamSocket
 
     private int toState(int operation)
     {
-        switch(operation)
+        switch (operation)
         {
-        case SocketOperation.Read:
-            return StateProxyRead;
-        case SocketOperation.Write:
-            return StateProxyWrite;
-        default:
-            return StateProxyConnected;
+            case SocketOperation.Read:
+                return StateProxyRead;
+            case SocketOperation.Write:
+                return StateProxyWrite;
+            default:
+                return StateProxyConnected;
         }
     }
 

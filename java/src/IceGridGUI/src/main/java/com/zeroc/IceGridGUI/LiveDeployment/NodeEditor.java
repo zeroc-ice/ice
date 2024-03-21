@@ -4,19 +4,16 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
 
 class NodeEditor extends CommunicatorEditor
 {
@@ -27,18 +24,15 @@ class NodeEditor extends CommunicatorEditor
         _machineType.setEditable(false);
         _loadAverage.setEditable(false);
 
-        Action refreshLoad = new AbstractAction("Refresh")
+        Action refreshLoad = new AbstractAction("Refresh") {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _loadAverage.setText("");
-                    _loadRetrieved = false;
-                    ((Node)_target).showLoad();
-                }
-            };
-        refreshLoad.putValue(Action.SHORT_DESCRIPTION,
-                        "Fetch the latest values from this IceGrid Node");
+                _loadAverage.setText("");
+                _loadRetrieved = false;
+                ((Node)_target).showLoad();
+            }
+        };
+        refreshLoad.putValue(Action.SHORT_DESCRIPTION, "Fetch the latest values from this IceGrid Node");
         _refreshLoadButton = new JButton(refreshLoad);
     }
 
@@ -49,7 +43,7 @@ class NodeEditor extends CommunicatorEditor
 
         NodeInfo info = node.getStaticInfo();
 
-        if(info == null)
+        if (info == null)
         {
             _hostname.setText("Unknown");
             _os.setText("Unknown");
@@ -65,12 +59,10 @@ class NodeEditor extends CommunicatorEditor
             _hostname.setText(info.hostname);
             _os.setText(info.os + " " + info.release + " " + info.version);
             _os.setCaretPosition(0);
-            _machineType.setText(info.machine + " with " +
-                                 info.nProcessors
-                                 + " CPU thread"
-                                 + (info.nProcessors >= 2 ? "s" : ""));
+            _machineType.setText(
+                info.machine + " with " + info.nProcessors + " CPU thread" + (info.nProcessors >= 2 ? "s" : ""));
 
-            if(node.isRunningWindows())
+            if (node.isRunningWindows())
             {
                 _loadAverageLabel.setText("CPU Usage");
                 _loadAverage.setToolTipText("CPU usage in the past 1 min, 5 min and 15 min period");
@@ -81,7 +73,7 @@ class NodeEditor extends CommunicatorEditor
                 _loadAverage.setToolTipText("Load average in the past 1 min, 5 min and 15 min period");
             }
 
-            if(_target != previous || !_loadRetrieved)
+            if (_target != previous || !_loadRetrieved)
             {
                 _loadAverage.setText("Refreshing load...");
                 _loadRetrieved = true;
@@ -97,7 +89,7 @@ class NodeEditor extends CommunicatorEditor
 
     void setLoad(String load, Node node)
     {
-        if(node == _target)
+        if (node == _target)
         {
             _loadAverage.setText(load);
             _loadRetrieved = true;
@@ -107,8 +99,7 @@ class NodeEditor extends CommunicatorEditor
         //
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("System Information");
 
@@ -145,8 +136,7 @@ class NodeEditor extends CommunicatorEditor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Node Properties");

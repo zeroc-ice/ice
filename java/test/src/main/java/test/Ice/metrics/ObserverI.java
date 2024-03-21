@@ -13,39 +13,21 @@ class ObserverI implements com.zeroc.Ice.Instrumentation.Observer
         failedCount = 0;
     }
 
-    @Override
-    synchronized public void attach()
+    @Override synchronized public void attach()
     {
         ++total;
         ++current;
     }
 
-    @Override
-    synchronized public void detach()
-    {
-        --current;
-    }
+    @Override synchronized public void detach() { --current; }
 
-    @Override
-    synchronized public void failed(String s)
-    {
-        ++failedCount;
-    }
+    @Override synchronized public void failed(String s) { ++failedCount; }
 
-    synchronized int getTotal()
-    {
-        return total;
-    }
+    synchronized int getTotal() { return total; }
 
-    synchronized int getCurrent()
-    {
-        return current;
-    }
+    synchronized int getCurrent() { return current; }
 
-    synchronized int getFailedCount()
-    {
-        return failedCount;
-    }
+    synchronized int getFailedCount() { return failedCount; }
 
     int total;
     int current;

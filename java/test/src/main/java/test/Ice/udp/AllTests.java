@@ -4,15 +4,14 @@
 
 package test.Ice.udp;
 
-import test.Ice.udp.Test.*;
-
 import java.io.PrintWriter;
+import test.Ice.udp.Test.*;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -20,31 +19,27 @@ public class AllTests
 
     public static class PingReplyI implements PingReply
     {
-        @Override
-        public synchronized void reply(com.zeroc.Ice.Current current)
+        @Override public synchronized void reply(com.zeroc.Ice.Current current)
         {
             ++_replies;
             notify();
         }
 
-        public synchronized void reset()
-        {
-             _replies = 0;
-        }
+        public synchronized void reset() { _replies = 0; }
 
         public synchronized boolean waitReply(int expectedReplies, long timeout)
         {
             long end = System.currentTimeMillis() + timeout;
-            while(_replies < expectedReplies)
+            while (_replies < expectedReplies)
             {
                 long delay = end - System.currentTimeMillis();
-                if(delay > 0)
+                if (delay > 0)
                 {
                     try
                     {
                         wait(delay);
                     }
-                    catch(java.lang.InterruptedException ex)
+                    catch (java.lang.InterruptedException ex)
                     {
                     }
                 }
@@ -78,14 +73,14 @@ public class AllTests
 
         int nRetry = 5;
         boolean ret = false;
-        while(nRetry-- > 0)
+        while (nRetry-- > 0)
         {
             replyI.reset();
             obj.ping(reply);
             obj.ping(reply);
             obj.ping(reply);
             ret = replyI.waitReply(3, 2000);
-            if(ret)
+            if (ret)
             {
                 break; // Success
             }
@@ -97,7 +92,7 @@ public class AllTests
         }
         test(ret == true);
 
-        if(communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
+        if (communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
         {
             //
             // Only run this test if compression is disabled, the test expects fixed message size
@@ -107,7 +102,7 @@ public class AllTests
             try
             {
                 seq = new byte[1024];
-                while(true)
+                while (true)
                 {
                     seq = new byte[seq.length * 2 + 10];
                     replyI.reset();
@@ -115,7 +110,7 @@ public class AllTests
                     replyI.waitReply(1, 10000);
                 }
             }
-            catch(com.zeroc.Ice.DatagramLimitException ex)
+            catch (com.zeroc.Ice.DatagramLimitException ex)
             {
                 test(seq.length > 16384);
             }
@@ -132,7 +127,7 @@ public class AllTests
                 //
                 test(!replyI.waitReply(1, 500));
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -145,12 +140,12 @@ public class AllTests
         out.flush();
         {
             StringBuilder endpoint = new StringBuilder();
-            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            if (communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
             {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if(System.getProperty("os.name").contains("OS X") ||
-                   System.getProperty("os.name").startsWith("Windows"))
+                if (System.getProperty("os.name").contains("OS X") ||
+                    System.getProperty("os.name").startsWith("Windows"))
                 {
                     endpoint.append(" --interface \"::1\""); // Use loopback to prevent other machines to answer.
                 }
@@ -159,8 +154,8 @@ public class AllTests
             {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if(System.getProperty("os.name").contains("OS X") ||
-                   System.getProperty("os.name").startsWith("Windows"))
+                if (System.getProperty("os.name").contains("OS X") ||
+                    System.getProperty("os.name").startsWith("Windows"))
                 {
                     endpoint.append(" --interface 127.0.0.1"); // Use loopback to prevent other machines to answer.
                 }
@@ -175,16 +170,16 @@ public class AllTests
             final int numServers = helper.isAndroid() ? 1 : 5;
 
             nRetry = 5;
-            while(nRetry-- > 0)
+            while (nRetry-- > 0)
             {
                 replyI.reset();
                 try
                 {
                     objMcast.ping(reply);
                 }
-                catch(com.zeroc.Ice.SocketException ex)
+                catch (com.zeroc.Ice.SocketException ex)
                 {
-                    if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+                    if (communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
                     {
                         // Multicast IPv6 not supported on the platform. This occurs for example on macOS Big Sur
                         out.print("(not supported) ");
@@ -194,14 +189,14 @@ public class AllTests
                     throw ex;
                 }
                 ret = replyI.waitReply(numServers, 2000);
-                if(ret)
+                if (ret)
                 {
                     break; // Success
                 }
                 replyI = new PingReplyI();
                 reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
-            if(!ret)
+            if (!ret)
             {
                 out.println("failed (is a firewall enabled?)");
             }
@@ -214,14 +209,14 @@ public class AllTests
             out.flush();
             obj.ice_getConnection().setAdapter(adapter);
             nRetry = 5;
-            while(nRetry-- > 0)
+            while (nRetry-- > 0)
             {
                 replyI.reset();
                 obj.pingBiDir(reply.ice_getIdentity());
                 obj.pingBiDir(reply.ice_getIdentity());
                 obj.pingBiDir(reply.ice_getIdentity());
                 ret = replyI.waitReply(3, 2000);
-                if(ret)
+                if (ret)
                 {
                     break; // Success
                 }
@@ -238,28 +233,28 @@ public class AllTests
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
         //
-//         out.print("testing udp bi-dir connection... ");
-//         nRetry = 5;
-//         while(nRetry-- > 0)
-//         {
-//             replyI.reset();
-//             objMcast.pingBiDir(reply.ice_getIdentity());
-//             ret = replyI.waitReply(5, 2000);
-//             if(ret)
-//             {
-//                 break; // Success
-//             }
-//             replyI = new PingReplyI();
-//             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-//         }
+        //         out.print("testing udp bi-dir connection... ");
+        //         nRetry = 5;
+        //         while(nRetry-- > 0)
+        //         {
+        //             replyI.reset();
+        //             objMcast.pingBiDir(reply.ice_getIdentity());
+        //             ret = replyI.waitReply(5, 2000);
+        //             if(ret)
+        //             {
+        //                 break; // Success
+        //             }
+        //             replyI = new PingReplyI();
+        //             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        //         }
 
-//         if(!ret)
-//         {
-//             out.println("failed (is a firewall enabled?)");
-//         }
-//         else
-//         {
-//             out.println("ok");
-//         }
+        //         if(!ret)
+        //         {
+        //             out.println("failed (is a firewall enabled?)");
+        //         }
+        //         else
+        //         {
+        //             out.println("ok");
+        //         }
     }
 }

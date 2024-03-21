@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class IdentityParseException extends LocalException
 {
-    public IdentityParseException()
-    {
-        this.str = "";
-    }
+    public IdentityParseException() { this.str = ""; }
 
     public IdentityParseException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class IdentityParseException extends LocalException
         this.str = "";
     }
 
-    public IdentityParseException(String str)
-    {
-        this.str = str;
-    }
+    public IdentityParseException(String str) { this.str = str; }
 
     public IdentityParseException(String str, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class IdentityParseException extends LocalException
         this.str = str;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::IdentityParseException";
-    }
+    public String ice_id() { return "::Ice::IdentityParseException"; }
 
     /**
      * Describes the failure and includes the string that could not be parsed.

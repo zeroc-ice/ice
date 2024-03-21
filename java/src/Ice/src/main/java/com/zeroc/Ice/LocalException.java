@@ -9,14 +9,9 @@ package com.zeroc.Ice;
  **/
 public abstract class LocalException extends Exception
 {
-    public LocalException()
-    {
-    }
+    public LocalException() {}
 
-    public LocalException(Throwable cause)
-    {
-        super(cause);
-    }
+    public LocalException(Throwable cause) { super(cause); }
 
     public static final long serialVersionUID = 0L;
 }

@@ -4,31 +4,26 @@
 
 package test.Ice.operations;
 
-import java.io.PrintWriter;
-
-import com.zeroc.Ice.Util;
 import com.zeroc.Ice.LocalException;
-
+import com.zeroc.Ice.Util;
+import java.io.PrintWriter;
 import test.Ice.operations.Test.MyClassPrx;
 
 class BatchOnewaysAMI
 {
     private static class Callback
     {
-        Callback()
-        {
-            _called = false;
-        }
+        Callback() { _called = false; }
 
         public synchronized void check()
         {
-            while(!_called)
+            while (!_called)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
             }
@@ -48,7 +43,7 @@ class BatchOnewaysAMI
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -64,34 +59,31 @@ class BatchOnewaysAMI
         batch.ice_flushBatchRequestsAsync().join(); // Empty flush
 
         {
-            test(batch.ice_flushBatchRequestsAsync().isDone()); // Empty flush
-            test(Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync()).isSent()); // Empty flush
+            test(batch.ice_flushBatchRequestsAsync().isDone());                                      // Empty flush
+            test(Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync()).isSent());            // Empty flush
             test(Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync()).sentSynchronously()); // Empty flush
         }
 
-        for(int i = 0; i < 30; ++i)
+        for (int i = 0; i < 30; ++i)
         {
-            batch.opByteSOnewayAsync(bs1).whenComplete((result, ex) ->
-                {
-                    test(ex == null);
-                });
+            batch.opByteSOnewayAsync(bs1).whenComplete((result, ex) -> { test(ex == null); });
         }
 
         int count = 0;
-        while(count < 27) // 3 * 9 requests auto-flushed.
+        while (count < 27) // 3 * 9 requests auto-flushed.
         {
             count += p.opByteSOnewayCallCount();
             try
             {
                 Thread.sleep(10);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
 
         final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
-        if(batch.ice_getConnection() != null && !bluetooth)
+        if (batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch2 = p.ice_batchOneway();
 

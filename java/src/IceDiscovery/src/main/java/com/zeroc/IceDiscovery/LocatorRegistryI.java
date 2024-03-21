@@ -4,14 +4,14 @@
 
 package com.zeroc.IceDiscovery;
 
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.concurrent.CompletionStage;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
 {
@@ -21,12 +21,10 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
     }
 
     @Override
-    synchronized public CompletionStage<Void> setAdapterDirectProxyAsync(
-        String adapterId,
-        com.zeroc.Ice.ObjectPrx proxy,
-        com.zeroc.Ice.Current current)
+    synchronized public CompletionStage<Void>
+    setAdapterDirectProxyAsync(String adapterId, com.zeroc.Ice.ObjectPrx proxy, com.zeroc.Ice.Current current)
     {
-        if(proxy != null)
+        if (proxy != null)
         {
             _adapters.put(adapterId, proxy);
         }
@@ -44,11 +42,11 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
         com.zeroc.Ice.ObjectPrx proxy,
         com.zeroc.Ice.Current current)
     {
-        if(proxy != null)
+        if (proxy != null)
         {
             _adapters.put(adapterId, proxy);
             Set<String> s = _replicaGroups.get(replicaGroupId);
-            if(s == null)
+            if (s == null)
             {
                 s = new HashSet<>();
                 _replicaGroups.put(replicaGroupId, s);
@@ -59,10 +57,10 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
         {
             _adapters.remove(adapterId);
             Set<String> s = _replicaGroups.get(replicaGroupId);
-            if(s != null)
+            if (s != null)
             {
                 s.remove(adapterId);
-                if(s.isEmpty())
+                if (s.isEmpty())
                 {
                     _replicaGroups.remove(adapterId);
                 }
@@ -72,17 +70,15 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
     }
 
     @Override
-    public CompletionStage<Void> setServerProcessProxyAsync(
-        String serverId,
-        com.zeroc.Ice.ProcessPrx process,
-        com.zeroc.Ice.Current current)
+    public CompletionStage<Void>
+    setServerProcessProxyAsync(String serverId, com.zeroc.Ice.ProcessPrx process, com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture((Void)null);
     }
 
     synchronized com.zeroc.Ice.ObjectPrx findObject(com.zeroc.Ice.Identity id)
     {
-        if(id.name.length() == 0)
+        if (id.name.length() == 0)
         {
             return null;
         }
@@ -90,33 +86,33 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
         com.zeroc.Ice.ObjectPrx prx = _wellKnownProxy.ice_identity(id);
 
         List<String> adapterIds = new ArrayList<>();
-        for(String a : _replicaGroups.keySet())
+        for (String a : _replicaGroups.keySet())
         {
             try
             {
                 prx.ice_adapterId(a).ice_ping();
                 adapterIds.add(a);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
             }
         }
-        if(adapterIds.isEmpty())
+        if (adapterIds.isEmpty())
         {
-            for(String a : _adapters.keySet())
+            for (String a : _adapters.keySet())
             {
                 try
                 {
                     prx.ice_adapterId(a).ice_ping();
                     adapterIds.add(a);
                 }
-                catch(com.zeroc.Ice.LocalException ex)
+                catch (com.zeroc.Ice.LocalException ex)
                 {
                 }
             }
         }
 
-        if(adapterIds.isEmpty())
+        if (adapterIds.isEmpty())
         {
             return null;
         }
@@ -135,7 +131,7 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
         FindAdapterResult r = new FindAdapterResult();
 
         com.zeroc.Ice.ObjectPrx proxy = _adapters.get(adapterId);
-        if(proxy != null)
+        if (proxy != null)
         {
             r.isReplicaGroup = false;
             r.returnValue = proxy;
@@ -143,19 +139,19 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
         }
 
         Set<String> s = _replicaGroups.get(adapterId);
-        if(s != null)
+        if (s != null)
         {
             List<com.zeroc.Ice.Endpoint> endpoints = new ArrayList<>();
             com.zeroc.Ice.ObjectPrx prx = null;
-            for(String a : s)
+            for (String a : s)
             {
                 proxy = _adapters.get(a);
-                if(proxy == null)
+                if (proxy == null)
                 {
                     continue; // TODO: Inconsistency
                 }
 
-                if(prx == null)
+                if (prx == null)
                 {
                     prx = proxy;
                 }
@@ -163,7 +159,7 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry
                 endpoints.addAll(java.util.Arrays.asList(proxy.ice_getEndpoints()));
             }
 
-            if(prx != null)
+            if (prx != null)
             {
                 r.isReplicaGroup = true;
                 r.returnValue = prx.ice_endpoints(endpoints.toArray(new com.zeroc.Ice.Endpoint[endpoints.size()]));

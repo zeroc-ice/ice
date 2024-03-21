@@ -20,20 +20,11 @@ package com.zeroc.Ice;
  **/
 public class ConnectionTimeoutException extends TimeoutException
 {
-    public ConnectionTimeoutException()
-    {
-        super();
-    }
+    public ConnectionTimeoutException() { super(); }
 
-    public ConnectionTimeoutException(Throwable cause)
-    {
-        super(cause);
-    }
+    public ConnectionTimeoutException(Throwable cause) { super(cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::ConnectionTimeoutException";
-    }
+    public String ice_id() { return "::Ice::ConnectionTimeoutException"; }
 
     /** @hidden */
     public static final long serialVersionUID = 1630370601897802194L;

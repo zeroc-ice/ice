@@ -4,8 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBox;
@@ -14,14 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class ServerSubEditor extends CommunicatorSubEditor
+@SuppressWarnings("unchecked") class ServerSubEditor extends CommunicatorSubEditor
 {
     ServerSubEditor(Editor mainEditor)
     {
@@ -31,15 +27,17 @@ class ServerSubEditor extends CommunicatorSubEditor
         _id.setToolTipText("Must be unique within this IceGrid deployment");
 
         _exe.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-        _exe.setToolTipText("<html>Path to this server's executable, e.g.:<br>"
-                            + "icebox<br>"
-                            + "java<br>"
-                            + "myHelloServer<br>"
-                            + "C:\\testbed\\hello\\server</html>");
+        _exe.setToolTipText(
+            "<html>Path to this server's executable, e.g.:<br>"
+            + "icebox<br>"
+            + "java<br>"
+            + "myHelloServer<br>"
+            + "C:\\testbed\\hello\\server</html>");
 
         _iceVersion.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-        _iceVersion.setToolTipText("<html>The Ice version used by this server;<br>"
-                                   + "blank means 'same version as the IceGrid registry'.</html>");
+        _iceVersion.setToolTipText(
+            "<html>The Ice version used by this server;<br>"
+            + "blank means 'same version as the IceGrid registry'.</html>");
 
         _pwd.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _pwd.setToolTipText(
@@ -60,52 +58,47 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         _envs = new SimpleMapField(mainEditor, true, "Name", "Value");
 
-        _activation = new JComboBox(new String[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
-        _activation.setToolTipText("<html>always: IceGrid starts and keeps the server up all the time<br>"
-                                   + "manual: you start the server yourself<br>"
-                                   + "on-demand: IceGrid starts the server when a client needs it<br>"
-                                   + "session: IceGrid starts and shuts down the server for each session</html>");
+        _activation = new JComboBox(new String[] {ALWAYS, MANUAL, ON_DEMAND, SESSION});
+        _activation.setToolTipText(
+            "<html>always: IceGrid starts and keeps the server up all the time<br>"
+            + "manual: you start the server yourself<br>"
+            + "on-demand: IceGrid starts the server when a client needs it<br>"
+            + "session: IceGrid starts and shuts down the server for each session</html>");
 
         JTextField activationTextField = (JTextField)_activation.getEditor().getEditorComponent();
         activationTextField.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
 
         _activationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-        _activationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, "
-                                          + "the IceGrid Node<br> uses the value of its "
-                                          + "IceGrid.Node.WaitTime property</html>");
+        _activationTimeout.setToolTipText(
+            "<html>Number of seconds; if not set or set to 0, "
+            + "the IceGrid Node<br> uses the value of its "
+            + "IceGrid.Node.WaitTime property</html>");
         _deactivationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-        _deactivationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, "
-                                             + "the IceGrid Node<br> uses the value of its "
-                                             + "IceGrid.Node.WaitTime property</html>");
+        _deactivationTimeout.setToolTipText(
+            "<html>Number of seconds; if not set or set to 0, "
+            + "the IceGrid Node<br> uses the value of its "
+            + "IceGrid.Node.WaitTime property</html>");
 
-        Action allocatable = new AbstractAction("Allocatable")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _mainEditor.updated();
-                }
-            };
-        allocatable.putValue(Action.SHORT_DESCRIPTION,
-                             "<html>Check this box to ensure that the well-known objects<br>"
-                             + "of this server can only be allocated by one session at a time.</html>");
+        Action allocatable = new AbstractAction("Allocatable") {
+            @Override public void actionPerformed(ActionEvent e) { _mainEditor.updated(); }
+        };
+        allocatable.putValue(
+            Action.SHORT_DESCRIPTION,
+            "<html>Check this box to ensure that the well-known objects<br>"
+                + "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
 
-        Action appDistrib = new AbstractAction("Depends on the application distribution")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _mainEditor.updated();
-                }
-            };
-        appDistrib.putValue(Action.SHORT_DESCRIPTION,
-                            "<html>Check this box if this server needs to be restarted<br>"
-                            + "each time the distribution for your application is refreshed.</html>");
+        Action appDistrib = new AbstractAction("Depends on the application distribution") {
+            @Override public void actionPerformed(ActionEvent e) { _mainEditor.updated(); }
+        };
+        appDistrib.putValue(
+            Action.SHORT_DESCRIPTION,
+            "<html>Check this box if this server needs to be restarted<br>"
+                + "each time the distribution for your application is refreshed.</html>");
 
         _applicationDistrib = new JCheckBox(appDistrib);
 
-        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
+        _distrib = new JComboBox(new Object[] {NO_DISTRIB, DEFAULT_DISTRIB});
         _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
         JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
@@ -117,13 +110,9 @@ class ServerSubEditor extends CommunicatorSubEditor
             + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
     }
 
-    ServerDescriptor getServerDescriptor()
-    {
-        return (ServerDescriptor)_mainEditor.getSubDescriptor();
-    }
+    ServerDescriptor getServerDescriptor() { return (ServerDescriptor)_mainEditor.getSubDescriptor(); }
 
-    @Override
-    void appendProperties(DefaultFormBuilder builder)
+    @Override void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Server ID");
         builder.append(_id, 3);
@@ -201,7 +190,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         descriptor.user = _user.getText().trim();
 
         descriptor.envs = new java.util.LinkedList<>();
-        for(java.util.Map.Entry<String, String> p : _envs.get().entrySet())
+        for (java.util.Map.Entry<String, String> p : _envs.get().entrySet())
         {
             descriptor.envs.add(p.getKey() + "=" + p.getValue());
         }
@@ -214,7 +203,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         descriptor.applicationDistrib = _applicationDistrib.isSelected();
 
-        if(_distrib.getSelectedItem() == NO_DISTRIB)
+        if (_distrib.getSelectedItem() == NO_DISTRIB)
         {
             descriptor.distrib.icepatch = "";
         }
@@ -227,16 +216,12 @@ class ServerSubEditor extends CommunicatorSubEditor
         super.writeDescriptor(descriptor);
     }
 
-    boolean isSimpleUpdate()
-    {
-        return getServerDescriptor().id.equals(_id.getText().trim());
-    }
+    boolean isSimpleUpdate() { return getServerDescriptor().id.equals(_id.getText().trim()); }
 
     boolean validate()
     {
-        return _mainEditor.check(new String[]{
-            "Server ID", _id.getText().trim(),
-            "Path to Executable", _exe.getText().trim()});
+        return _mainEditor.check(
+            new String[] {"Server ID", _id.getText().trim(), "Path to Executable", _exe.getText().trim()});
     }
 
     void show(boolean isEditable)
@@ -246,7 +231,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         isEditable = isEditable && (detailResolver == null);
 
-        if(detailResolver != null)
+        if (detailResolver != null)
         {
             _id.setText(detailResolver.find("server"));
         }
@@ -271,10 +256,10 @@ class ServerSubEditor extends CommunicatorSubEditor
         _user.setEditable(isEditable);
 
         java.util.Map<String, String> envMap = new java.util.TreeMap<>();
-        for(String p : descriptor.envs)
+        for (String p : descriptor.envs)
         {
             int equal = p.indexOf('=');
-            if(equal == -1 || equal == p.length() - 1)
+            if (equal == -1 || equal == p.length() - 1)
             {
                 envMap.put(p, "");
             }
@@ -289,19 +274,19 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         _activation.setEnabled(true);
         _activation.setEditable(true);
-        if(activation.equals(ALWAYS))
+        if (activation.equals(ALWAYS))
         {
             _activation.setSelectedItem(ALWAYS);
         }
-        else if(activation.equals(MANUAL))
+        else if (activation.equals(MANUAL))
         {
             _activation.setSelectedItem(MANUAL);
         }
-        else if(activation.equals(ON_DEMAND))
+        else if (activation.equals(ON_DEMAND))
         {
             _activation.setSelectedItem(ON_DEMAND);
         }
-        else if(activation.equals(SESSION))
+        else if (activation.equals(SESSION))
         {
             _activation.setSelectedItem(SESSION);
         }
@@ -327,7 +312,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         _distrib.setEnabled(true);
         _distrib.setEditable(true);
         String icepatch = Utils.substitute(descriptor.distrib.icepatch, detailResolver);
-        if(icepatch.equals(""))
+        if (icepatch.equals(""))
         {
             _distrib.setSelectedItem(NO_DISTRIB);
         }
@@ -349,14 +334,9 @@ class ServerSubEditor extends CommunicatorSubEditor
     static private final String ON_DEMAND = "on-demand";
     static private final String SESSION = "session";
 
-    static private final Object NO_DISTRIB = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "None selected";
-            }
-        };
+    static private final Object NO_DISTRIB = new Object() {
+        @Override public String toString() { return "None selected"; }
+    };
 
     static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 

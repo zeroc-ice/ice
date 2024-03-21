@@ -19,7 +19,7 @@ public class Server extends test.TestHelper
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));

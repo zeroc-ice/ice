@@ -11,14 +11,9 @@ package com.zeroc.Ice;
  **/
 public abstract class SystemException extends Exception
 {
-    public SystemException()
-    {
-    }
+    public SystemException() {}
 
-    public SystemException(Throwable cause)
-    {
-        super(cause);
-    }
+    public SystemException(Throwable cause) { super(cause); }
 
     public static final long serialVersionUID = 0L;
 }

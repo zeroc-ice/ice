@@ -9,20 +9,16 @@ import test.Glacier2.router.Test.CallbackReceiver;
 
 final class CallbackReceiverI implements CallbackReceiver
 {
-    CallbackReceiverI()
-    {
-        _callback = false;
-    }
+    CallbackReceiverI() { _callback = false; }
 
     public synchronized void callback(com.zeroc.Ice.Current current)
     {
-        assert(!_callback);
+        assert (!_callback);
         _callback = true;
         notify();
     }
 
-    public void callbackEx(com.zeroc.Ice.Current current)
-        throws CallbackException
+    public void callbackEx(com.zeroc.Ice.Current current) throws CallbackException
     {
         callback(current);
         CallbackException ex = new CallbackException();
@@ -33,14 +29,14 @@ final class CallbackReceiverI implements CallbackReceiver
 
     synchronized void callbackOK()
     {
-        while(!_callback)
+        while (!_callback)
         {
             try
             {
                 wait(30000);
                 test.TestHelper.test(_callback);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }

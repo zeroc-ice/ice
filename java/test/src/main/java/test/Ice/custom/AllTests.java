@@ -5,19 +5,18 @@
 package test.Ice.custom;
 
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.FloatBuffer;
-import java.nio.DoubleBuffer;
-
 import test.Ice.custom.Test.C;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
@@ -28,7 +27,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -61,7 +60,7 @@ public class AllTests
             //
             C[] seq = new C[5];
             seq[0] = new C();
-            for(int i = 1; i < seq.length; i++)
+            for (int i = 1; i < seq.length; i++)
             {
                 seq[i] = seq[0];
             }
@@ -73,7 +72,7 @@ public class AllTests
             TestIntf.OpCSeqResult seqR = t.opCSeq(seq);
             test(seqR.returnValue.length == seq.length);
             test(seqR.outSeq.length == seq.length);
-            for(int i = 1; i < seq.length; i++)
+            for (int i = 1; i < seq.length; i++)
             {
                 test(seqR.returnValue[i] != null);
                 test(seqR.returnValue[i] == seqR.returnValue[0]);
@@ -84,7 +83,7 @@ public class AllTests
             TestIntf.OpCArrayResult arrR = t.opCArray(arr);
             test(arrR.returnValue.size() == arr.size());
             test(arrR.outSeq.size() == arr.size());
-            for(int i = 1; i < arr.size(); i++)
+            for (int i = 1; i < arr.size(); i++)
             {
                 test(arrR.returnValue.get(i) != null);
                 test(arrR.returnValue.get(i) == arrR.returnValue.get(0));
@@ -95,7 +94,7 @@ public class AllTests
             TestIntf.OpCListResult listR = t.opCList(list);
             test(listR.returnValue.size() == list.size());
             test(listR.outSeq.size() == list.size());
-            for(int i = 1; i < list.size(); i++)
+            for (int i = 1; i < list.size(); i++)
             {
                 test(listR.returnValue.get(i) != null);
                 test(listR.returnValue.get(i) == listR.returnValue.get(0));
@@ -104,7 +103,7 @@ public class AllTests
         }
 
         {
-            final Boolean[] seq = { Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE };
+            final Boolean[] seq = {Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE};
             ArrayList<Boolean> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpBoolSeqResult listR = t.opBoolSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -112,8 +111,8 @@ public class AllTests
         }
 
         {
-            final Byte[] seq = { Byte.valueOf((byte)0), Byte.valueOf((byte)1), Byte.valueOf((byte)2),
-                                 Byte.valueOf((byte)3) };
+            final Byte[] seq =
+                {Byte.valueOf((byte)0), Byte.valueOf((byte)1), Byte.valueOf((byte)2), Byte.valueOf((byte)3)};
             ArrayList<Byte> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpByteSeqResult listR = t.opByteSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -121,8 +120,8 @@ public class AllTests
         }
 
         {
-            final Short[] seq = { Short.valueOf((short)0), Short.valueOf((short)1), Short.valueOf((short)2),
-                                  Short.valueOf((short)3) };
+            final Short[] seq =
+                {Short.valueOf((short)0), Short.valueOf((short)1), Short.valueOf((short)2), Short.valueOf((short)3)};
             ArrayList<Short> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpShortSeqResult listR = t.opShortSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -130,7 +129,7 @@ public class AllTests
         }
 
         {
-            final Integer[] seq = { Integer.valueOf(0), Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3) };
+            final Integer[] seq = {Integer.valueOf(0), Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)};
             ArrayList<Integer> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpIntSeqResult listR = t.opIntSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -138,7 +137,7 @@ public class AllTests
         }
 
         {
-            final Long[] seq = { Long.valueOf(0), Long.valueOf(1), Long.valueOf(2), Long.valueOf(3) };
+            final Long[] seq = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
             ArrayList<Long> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpLongSeqResult listR = t.opLongSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -146,7 +145,7 @@ public class AllTests
         }
 
         {
-            final Float[] seq = { Float.valueOf(0), Float.valueOf(1), Float.valueOf(2), Float.valueOf(3) };
+            final Float[] seq = {Float.valueOf(0), Float.valueOf(1), Float.valueOf(2), Float.valueOf(3)};
             ArrayList<Float> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpFloatSeqResult listR = t.opFloatSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -154,7 +153,7 @@ public class AllTests
         }
 
         {
-            final Double[] seq = { Double.valueOf(0), Double.valueOf(1), Double.valueOf(2), Double.valueOf(3) };
+            final Double[] seq = {Double.valueOf(0), Double.valueOf(1), Double.valueOf(2), Double.valueOf(3)};
             ArrayList<Double> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpDoubleSeqResult listR = t.opDoubleSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -162,7 +161,7 @@ public class AllTests
         }
 
         {
-            final String[] seq = { "0", "1", "2", "3", "4" };
+            final String[] seq = {"0", "1", "2", "3", "4"};
             ArrayList<String> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpStringSeqResult listR = t.opStringSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -170,7 +169,7 @@ public class AllTests
         }
 
         {
-            final E[] seq = { E.E1, E.E2, E.E3 };
+            final E[] seq = {E.E1, E.E2, E.E3};
             ArrayList<E> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpESeqResult listR = t.opESeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -179,7 +178,7 @@ public class AllTests
 
         {
             S[] seq = new S[5];
-            for(int i = 0; i < seq.length; i++)
+            for (int i = 0; i < seq.length; i++)
             {
                 seq[i] = new S();
                 seq[i].en = E.values()[i % 3];
@@ -192,10 +191,10 @@ public class AllTests
 
         {
             ArrayList<Map<Integer, String>> list = new ArrayList<>();
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Map<Integer, String> m = new HashMap<>();
-                for(int j = 0; j < 4; j++)
+                for (int j = 0; j < 4; j++)
                 {
                     m.put(j, "" + j);
                 }
@@ -208,9 +207,9 @@ public class AllTests
 
         {
             List<List<String>> seq = new LinkedList<>();
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
-                final String[] arr = { "0", "1", "2", "3", "4" };
+                final String[] arr = {"0", "1", "2", "3", "4"};
                 seq.add(new ArrayList<>(Arrays.asList(arr)));
             }
             TestIntf.OpStringSeqSeqResult listR = t.opStringSeqSeq(seq);

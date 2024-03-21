@@ -4,9 +4,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.ButtonBarBuilder;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.zeroc.IceGridGUI.*;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -14,23 +17,17 @@ import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.zeroc.IceGridGUI.*;
-
 public class Editor extends EditorBase
 {
-    static public java.util.Map<String, String> makeParameterValues(
-        java.util.Map<String, String> oldParameterValues,
-        java.util.List<String> newParameters)
+    static public java.util.Map<String, String>
+    makeParameterValues(java.util.Map<String, String> oldParameterValues, java.util.List<String> newParameters)
     {
         java.util.Map<String, String> result = new java.util.HashMap<>();
 
-        for(String name : newParameters)
+        for (String name : newParameters)
         {
             String value = oldParameterValues.get(name);
-            if(value != null)
+            if (value != null)
             {
                 result.put(name, value);
             }
@@ -40,7 +37,7 @@ public class Editor extends EditorBase
 
     public boolean save(boolean refresh)
     {
-        if(_applyButton.isEnabled())
+        if (_applyButton.isEnabled())
         {
             return validate() && applyUpdate(refresh);
         }
@@ -50,10 +47,7 @@ public class Editor extends EditorBase
         }
     }
 
-    protected boolean validate()
-    {
-        return true;
-    }
+    protected boolean validate() { return true; }
 
     protected boolean applyUpdate(boolean refresh)
     {
@@ -61,16 +55,13 @@ public class Editor extends EditorBase
         return false;
     }
 
-    protected void detectUpdates(boolean val)
-    {
-        _detectUpdates = val;
-    }
+    protected void detectUpdates(boolean val) { _detectUpdates = val; }
 
     protected void discardUpdate()
     {
         Root root = _target.getRoot();
 
-        if(_target.isEphemeral())
+        if (_target.isEphemeral())
         {
             _target.delete();
         }
@@ -81,13 +72,9 @@ public class Editor extends EditorBase
         root.cancelEdit();
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
-    }
+    @Override protected void appendProperties(DefaultFormBuilder builder) {}
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(_applyButton, _discardButton).build();
@@ -100,81 +87,55 @@ public class Editor extends EditorBase
         //
         // _applyButton
         //
-        AbstractAction apply = new AbstractAction("Apply")
+        AbstractAction apply = new AbstractAction("Apply") {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
+                if (validate())
                 {
-                    if(validate())
+                    if (applyUpdate(true))
                     {
-                        if(applyUpdate(true))
-                        {
-                            _target.getRoot().getTree().grabFocus();
-                        }
+                        _target.getRoot().getTree().grabFocus();
                     }
                 }
-            };
+            }
+        };
         _applyButton = new JButton(apply);
         _applyButton.setEnabled(false);
 
         //
         // _discardButton
         //
-        AbstractAction discard = new AbstractAction("Discard")
+        AbstractAction discard = new AbstractAction("Discard") {
+            @Override public void actionPerformed(ActionEvent e)
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    discardUpdate();
-                    _target.getRoot().getTree().grabFocus();
-                }
-            };
+                discardUpdate();
+                _target.getRoot().getTree().grabFocus();
+            }
+        };
         _discardButton = new JButton(discard);
         _discardButton.setEnabled(false);
 
-        _updateListener = new DocumentListener()
-            {
-                @Override
-                public void changedUpdate(DocumentEvent e)
-                {
-                    updated();
-                }
+        _updateListener = new DocumentListener() {
+            @Override public void changedUpdate(DocumentEvent e) { updated(); }
 
-                @Override
-                public void insertUpdate(DocumentEvent e)
-                {
-                    updated();
-                }
+            @Override public void insertUpdate(DocumentEvent e) { updated(); }
 
-                @Override
-                public void removeUpdate(DocumentEvent e)
-                {
-                    updated();
-                }
-            };
+            @Override public void removeUpdate(DocumentEvent e) { updated(); }
+        };
     }
 
     //
     // Used by the sub-editor (when there is one)
     //
-    Object getSubDescriptor()
-    {
-        return null;
-    }
+    Object getSubDescriptor() { return null; }
 
-    Utils.Resolver getDetailResolver()
-    {
-        return null;
-    }
+    Utils.Resolver getDetailResolver() { return null; }
 
-    public TreeNode getTarget()
-    {
-        return _target;
-    }
+    public TreeNode getTarget() { return _target; }
 
     void updated()
     {
-        if(_detectUpdates)
+        if (_detectUpdates)
         {
             _target.getRoot().disableRegistryUpdates();
             _applyButton.setEnabled(true);
@@ -182,10 +143,7 @@ public class Editor extends EditorBase
         }
     }
 
-    DocumentListener getUpdateListener()
-    {
-        return _updateListener;
-    }
+    DocumentListener getUpdateListener() { return _updateListener; }
 
     //
     // Check that these 'val' are filled in
@@ -195,12 +153,12 @@ public class Editor extends EditorBase
         String emptyFields = "";
         int errorCount = 0;
 
-        for(int i = 1; i < nameValArray.length; i += 2)
+        for (int i = 1; i < nameValArray.length; i += 2)
         {
-            if(nameValArray[i] == null || nameValArray[i].length() == 0)
+            if (nameValArray[i] == null || nameValArray[i].length() == 0)
             {
                 errorCount++;
-                if(emptyFields.length() > 0)
+                if (emptyFields.length() > 0)
                 {
                     emptyFields += "\n";
                 }
@@ -208,11 +166,10 @@ public class Editor extends EditorBase
             }
         }
 
-        if(errorCount > 0)
+        if (errorCount > 0)
         {
-            String message = errorCount == 1 ?
-                emptyFields + " cannot be empty" :
-                "The following fields cannot be empty:\n" + emptyFields;
+            String message = errorCount == 1 ? emptyFields + " cannot be empty"
+                                             : "The following fields cannot be empty:\n" + emptyFields;
 
             JOptionPane.showMessageDialog(
                 _target.getCoordinator().getMainFrame(),

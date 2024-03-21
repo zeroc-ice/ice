@@ -52,7 +52,11 @@ public interface CommunicatorObserver
      * @param o The old connection observer if one is already set or a null reference otherwise.
      * @return The connection observer to instrument the connection.
      **/
-    ConnectionObserver getConnectionObserver(com.zeroc.Ice.ConnectionInfo c, com.zeroc.Ice.Endpoint e, ConnectionState s, ConnectionObserver o);
+    ConnectionObserver getConnectionObserver(
+        com.zeroc.Ice.ConnectionInfo c,
+        com.zeroc.Ice.Endpoint e,
+        ConnectionState s,
+        ConnectionObserver o);
 
     /**
      * This method should return a thread observer for the given thread. The Ice run-time calls this method for each
@@ -74,7 +78,10 @@ public interface CommunicatorObserver
      * @param ctx The context specified by the user.
      * @return The invocation observer to instrument the invocation.
      **/
-    InvocationObserver getInvocationObserver(com.zeroc.Ice.ObjectPrx prx, String operation, java.util.Map<java.lang.String, java.lang.String> ctx);
+    InvocationObserver getInvocationObserver(
+        com.zeroc.Ice.ObjectPrx prx,
+        String operation,
+        java.util.Map<java.lang.String, java.lang.String> ctx);
 
     /**
      * This method should return a dispatch observer for the given dispatch. The Ice run-time calls this method each

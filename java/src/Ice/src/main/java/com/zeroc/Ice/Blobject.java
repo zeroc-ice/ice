@@ -29,8 +29,7 @@ public interface Blobject extends com.zeroc.Ice.Object
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      **/
-    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
-        throws UserException;
+    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current) throws UserException;
 
     /** @hidden */
     @Override

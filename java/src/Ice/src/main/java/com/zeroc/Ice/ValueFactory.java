@@ -21,8 +21,7 @@ package com.zeroc.Ice;
  * registered with the communicator.
  **/
 @FunctionalInterface
-public interface ValueFactory
-{
+public interface ValueFactory {
     /**
      * Create a new value for a given value type. The type is the absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute Slice type id for an interface <code>Bar</code> in

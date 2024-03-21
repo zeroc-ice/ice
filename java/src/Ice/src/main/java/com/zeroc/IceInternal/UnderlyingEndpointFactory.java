@@ -27,7 +27,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory
         // our underlying factory.
         //
         EndpointFactory factory = _instance.getEndpointFactory(_type);
-        if(factory != null && factory instanceof EndpointFactoryWithUnderlying)
+        if (factory != null && factory instanceof EndpointFactoryWithUnderlying)
         {
             EndpointFactoryWithUnderlying f = (EndpointFactoryWithUnderlying)factory;
             _factory = f.cloneWithUnderlying(_instance, _underlying);
@@ -35,19 +35,13 @@ public class UnderlyingEndpointFactory implements EndpointFactory
         }
     }
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() { return _instance.type(); }
 
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    public String protocol() { return _instance.protocol(); }
 
     public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        if(_factory == null)
+        if (_factory == null)
         {
             return null;
         }
@@ -56,7 +50,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory
 
     public EndpointI read(com.zeroc.Ice.InputStream s)
     {
-        if(_factory == null)
+        if (_factory == null)
         {
             return null;
         }
@@ -65,7 +59,7 @@ public class UnderlyingEndpointFactory implements EndpointFactory
 
     public void destroy()
     {
-        if(_factory != null)
+        if (_factory != null)
         {
             _factory.destroy();
         }

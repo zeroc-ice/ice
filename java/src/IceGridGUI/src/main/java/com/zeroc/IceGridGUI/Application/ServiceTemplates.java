@@ -4,10 +4,9 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JPopupMenu;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JPopupMenu;
 
 class ServiceTemplates extends Templates
 {
@@ -15,7 +14,7 @@ class ServiceTemplates extends Templates
     copyDescriptors(java.util.Map<String, TemplateDescriptor> descriptors)
     {
         java.util.Map<String, TemplateDescriptor> copy = new java.util.HashMap<>();
-        for(java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet())
+        for (java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet())
         {
             copy.put(p.getKey(), ServiceTemplate.copyDescriptor(p.getValue()));
         }
@@ -25,14 +24,13 @@ class ServiceTemplates extends Templates
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[NEW_TEMPLATE_SERVICE] = true;
 
         Object clipboard = getCoordinator().getClipboard();
-        if(clipboard != null && clipboard instanceof TemplateDescriptor)
+        if (clipboard != null && clipboard instanceof TemplateDescriptor)
         {
             TemplateDescriptor d = (TemplateDescriptor)clipboard;
             actions[PASTE] = d.descriptor instanceof ServiceDescriptor;
@@ -40,11 +38,10 @@ class ServiceTemplates extends Templates
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_TEMPLATE_SERVICE));
@@ -53,8 +50,7 @@ class ServiceTemplates extends Templates
         return _popup;
     }
 
-    @Override
-    public void newTemplateService()
+    @Override public void newTemplateService()
     {
         ServiceDescriptor sd = new ServiceDescriptor(
             new java.util.LinkedList<AdapterDescriptor>(),
@@ -64,26 +60,24 @@ class ServiceTemplates extends Templates
             "",
             "");
 
-        newServiceTemplate(new TemplateDescriptor(sd, new java.util.LinkedList<String>(),
-                                                  new java.util.TreeMap<String, String>()));
+        newServiceTemplate(
+            new TemplateDescriptor(sd, new java.util.LinkedList<String>(), new java.util.TreeMap<String, String>()));
     }
 
-    @Override
-    public void paste()
+    @Override public void paste()
     {
         Object descriptor = getCoordinator().getClipboard();
         TemplateDescriptor td = (TemplateDescriptor)descriptor;
         newServiceTemplate(td);
     }
 
-    ServiceTemplates(Root parent, java.util.Map<String, TemplateDescriptor> descriptors)
-        throws UpdateFailedException
+    ServiceTemplates(Root parent, java.util.Map<String, TemplateDescriptor> descriptors) throws UpdateFailedException
     {
         super(parent, "Service templates");
 
         _descriptors = descriptors;
 
-        for(java.util.Map.Entry<String, TemplateDescriptor> p : _descriptors.entrySet())
+        for (java.util.Map.Entry<String, TemplateDescriptor> p : _descriptors.entrySet())
         {
             insertChild(new ServiceTemplate(false, this, p.getKey(), p.getValue()), false);
         }
@@ -92,11 +86,7 @@ class ServiceTemplates extends Templates
     //
     // Variable resolution does not make sense for templates / template children
     //
-    @Override
-    Utils.Resolver getResolver()
-    {
-        return null;
-    }
+    @Override Utils.Resolver getResolver() { return null; }
 
     void newServiceTemplate(TemplateDescriptor descriptor)
     {
@@ -107,16 +97,14 @@ class ServiceTemplates extends Templates
         {
             insertChild(t, true);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false;
         }
         getRoot().setSelectedNode(t);
     }
 
-    @Override
-    void tryAdd(String newId, TemplateDescriptor descriptor)
-        throws UpdateFailedException
+    @Override void tryAdd(String newId, TemplateDescriptor descriptor) throws UpdateFailedException
     {
         insertChild(new ServiceTemplate(true, this, newId, descriptor), true);
         _descriptors.put(newId, descriptor);
@@ -125,10 +113,10 @@ class ServiceTemplates extends Templates
     java.util.Map<String, TemplateDescriptor> getUpdates()
     {
         java.util.Map<String, TemplateDescriptor> updates = new java.util.HashMap<>();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             ServiceTemplate t = (ServiceTemplate)p;
-            if(t.getEditable().isNew() || t.getEditable().isModified())
+            if (t.getEditable().isNew() || t.getEditable().isModified())
             {
                 updates.put(t.getId(), (TemplateDescriptor)t.getDescriptor());
             }
@@ -139,7 +127,7 @@ class ServiceTemplates extends Templates
     void commit()
     {
         _editable.commit();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             ServiceTemplate st = (ServiceTemplate)p;
             st.commit();
@@ -164,12 +152,12 @@ class ServiceTemplates extends Templates
         java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<>();
         java.util.List<TreeNodeBase> updatedChildren = new java.util.LinkedList<>();
 
-        for(java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet())
+        for (java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet())
         {
             String name = p.getKey();
             TemplateDescriptor templateDescriptor = p.getValue();
             ServiceTemplate child = (ServiceTemplate)findChild(name);
-            if(child == null)
+            if (child == null)
             {
                 newChildren.add(new ServiceTemplate(false, this, name, templateDescriptor));
             }
@@ -184,16 +172,9 @@ class ServiceTemplates extends Templates
         insertChildren(newChildren, true);
     }
 
-    void removeDescriptor(String id)
-    {
-        _descriptors.remove(id);
-    }
+    void removeDescriptor(String id) { _descriptors.remove(id); }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptors;
-    }
+    @Override Object getDescriptor() { return _descriptors; }
 
     private java.util.Map<String, TemplateDescriptor> _descriptors;
 

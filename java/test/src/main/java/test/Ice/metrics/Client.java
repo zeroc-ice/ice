@@ -21,12 +21,12 @@ public class Client extends test.TestHelper
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         initData.observer = observer;
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             MetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
-        catch(com.zeroc.Ice.IceMX.UnknownMetricsView ex)
+        catch (com.zeroc.Ice.IceMX.UnknownMetricsView ex)
         {
             throw new RuntimeException(ex);
         }

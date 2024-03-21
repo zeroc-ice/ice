@@ -10,7 +10,7 @@ public class Server extends test.TestHelper
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");

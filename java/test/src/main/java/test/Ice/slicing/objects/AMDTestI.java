@@ -4,46 +4,41 @@
 
 package test.Ice.slicing.objects;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.CompletionStage;
 import test.Ice.slicing.objects.serverAMD.Test.*;
 
 public final class AMDTestI implements TestIntf
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<com.zeroc.Ice.Value> SBaseAsObjectAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<com.zeroc.Ice.Value> SBaseAsObjectAsync(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return CompletableFuture.completedFuture(sb);
     }
 
-    @Override
-    public CompletionStage<SBase> SBaseAsSBaseAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<SBase> SBaseAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return CompletableFuture.completedFuture(sb);
     }
 
-    @Override
-    public CompletionStage<SBase> SBSKnownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<SBase> SBSKnownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -60,8 +55,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(sbskd);
     }
 
-    @Override
-    public CompletionStage<SBase> SBSUnknownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<SBase> SBSUnknownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -69,8 +63,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(sbsud);
     }
 
-    @Override
-    public CompletionStage<SBase> SBSUnknownDerivedAsSBaseCompactAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<SBase> SBSUnknownDerivedAsSBaseCompactAsync(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -78,18 +71,16 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(sbsud);
     }
 
-    @Override
-    public CompletionStage<com.zeroc.Ice.Value> SUnknownAsObjectAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<com.zeroc.Ice.Value> SUnknownAsObjectAsync(com.zeroc.Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
         return CompletableFuture.completedFuture(su);
     }
 
-    @Override
-    public CompletionStage<Void> checkSUnknownAsync(com.zeroc.Ice.Value obj, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> checkSUnknownAsync(com.zeroc.Ice.Value obj, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(obj instanceof SUnknown));
         }
@@ -101,8 +92,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<B> oneElementCycleAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<B> oneElementCycleAsync(com.zeroc.Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
@@ -110,8 +100,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(b);
     }
 
-    @Override
-    public CompletionStage<B> twoElementCycleAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<B> twoElementCycleAsync(com.zeroc.Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -122,8 +111,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(b1);
     }
 
-    @Override
-    public CompletionStage<B> D1AsBAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<B> D1AsBAsync(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -138,8 +126,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(d1);
     }
 
-    @Override
-    public CompletionStage<D1> D1AsD1Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<D1> D1AsD1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -154,8 +141,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(d1);
     }
 
-    @Override
-    public CompletionStage<B> D2AsBAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<B> D2AsBAsync(com.zeroc.Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -170,8 +156,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(d2);
     }
 
-    @Override
-    public CompletionStage<TestIntf.ParamTest1Result> paramTest1Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ParamTest1Result> paramTest1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -186,8 +171,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ParamTest1Result(d1, d2));
     }
 
-    @Override
-    public CompletionStage<TestIntf.ParamTest2Result> paramTest2Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ParamTest2Result> paramTest2Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -202,8 +186,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ParamTest2Result(d2, d1));
     }
 
-    @Override
-    public CompletionStage<TestIntf.ParamTest3Result> paramTest3Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ParamTest3Result> paramTest3Async(com.zeroc.Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -231,8 +214,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ParamTest3Result(d3, d2, d4));
     }
 
-    @Override
-    public CompletionStage<TestIntf.ParamTest4Result> paramTest4Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ParamTest4Result> paramTest4Async(com.zeroc.Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -244,8 +226,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ParamTest4Result(d4.p2, d4));
     }
 
-    @Override
-    public CompletionStage<TestIntf.ReturnTest1Result> returnTest1Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ReturnTest1Result> returnTest1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -260,8 +241,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ReturnTest1Result(d2, d2, d1));
     }
 
-    @Override
-    public CompletionStage<TestIntf.ReturnTest2Result> returnTest2Async(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<TestIntf.ReturnTest2Result> returnTest2Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -276,14 +256,12 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(new TestIntf.ReturnTest2Result(d1, d1, d2));
     }
 
-    @Override
-    public CompletionStage<B> returnTest3Async(B p1, B p2, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<B> returnTest3Async(B p1, B p2, com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture(p1);
     }
 
-    @Override
-    public CompletionStage<SS3> sequenceTestAsync(SS1 p1, SS2 p2, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<SS3> sequenceTestAsync(SS1 p1, SS2 p2, com.zeroc.Ice.Current current)
     {
         SS3 ss = new SS3();
         ss.c1 = p1;
@@ -292,13 +270,13 @@ public final class AMDTestI implements TestIntf
     }
 
     @Override
-    public CompletionStage<TestIntf.DictionaryTestResult> dictionaryTestAsync(java.util.Map<Integer, B> bin,
-                                                                              com.zeroc.Ice.Current current)
+    public CompletionStage<TestIntf.DictionaryTestResult>
+    dictionaryTestAsync(java.util.Map<Integer, B> bin, com.zeroc.Ice.Current current)
     {
         TestIntf.DictionaryTestResult r = new TestIntf.DictionaryTestResult();
         r.bout = new java.util.HashMap<>();
         int i;
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             B b = bin.get(i);
             D2 d2 = new D2();
@@ -309,7 +287,7 @@ public final class AMDTestI implements TestIntf
             r.bout.put(i * 10, d2);
         }
         r.returnValue = new java.util.HashMap<>();
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
@@ -322,21 +300,19 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(r);
     }
 
-    @Override
-    public CompletionStage<PBase> exchangePBaseAsync(PBase pb, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<PBase> exchangePBaseAsync(PBase pb, com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture(pb);
     }
 
-    @Override
-    public CompletionStage<Preserved> PBSUnknownAsPreservedAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Preserved> PBSUnknownAsPreservedAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if(!current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (!current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -347,10 +323,9 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture(r);
     }
 
-    @Override
-    public CompletionStage<Void> checkPBSUnknownAsync(Preserved p, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> checkPBSUnknownAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -368,8 +343,7 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<Preserved> PBSUnknownAsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Preserved> PBSUnknownAsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
@@ -386,10 +360,9 @@ public final class AMDTestI implements TestIntf
         //r.graph.next.next.next = null; // Break the cycle.
     }
 
-    @Override
-    public CompletionStage<Void> checkPBSUnknownWithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> checkPBSUnknownWithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -404,13 +377,12 @@ public final class AMDTestI implements TestIntf
             test(pu.graph != pu.graph.next);
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
-            pu.graph.next.next.next = null;          // Break the cycle.
+            pu.graph.next.next.next = null; // Break the cycle.
         }
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<Preserved> PBSUnknown2AsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Preserved> PBSUnknown2AsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown2 r = new PSUnknown2();
         r.pi = 5;
@@ -423,10 +395,9 @@ public final class AMDTestI implements TestIntf
         //r.pb = null; // Break the cycle.
     }
 
-    @Override
-    public CompletionStage<Void> checkPBSUnknown2WithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> checkPBSUnknown2WithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown2));
             test(p.pi == 5);
@@ -443,15 +414,12 @@ public final class AMDTestI implements TestIntf
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<PNode> exchangePNodeAsync(PNode pn, com.zeroc.Ice.Current current)
+    @Override public CompletionStage<PNode> exchangePNodeAsync(PNode pn, com.zeroc.Ice.Current current)
     {
         return CompletableFuture.completedFuture(pn);
     }
 
-    @Override
-    public CompletionStage<Void> throwBaseAsBaseAsync(com.zeroc.Ice.Current current)
-        throws BaseException
+    @Override public CompletionStage<Void> throwBaseAsBaseAsync(com.zeroc.Ice.Current current) throws BaseException
     {
         BaseException be = new BaseException();
         be.sbe = "sbe";
@@ -463,9 +431,7 @@ public final class AMDTestI implements TestIntf
         return r;
     }
 
-    @Override
-    public CompletionStage<Void> throwDerivedAsBaseAsync(com.zeroc.Ice.Current current)
-        throws BaseException
+    @Override public CompletionStage<Void> throwDerivedAsBaseAsync(com.zeroc.Ice.Current current) throws BaseException
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -484,8 +450,7 @@ public final class AMDTestI implements TestIntf
     }
 
     @Override
-    public CompletionStage<Void> throwDerivedAsDerivedAsync(com.zeroc.Ice.Current current)
-        throws DerivedException
+    public CompletionStage<Void> throwDerivedAsDerivedAsync(com.zeroc.Ice.Current current) throws DerivedException
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -504,8 +469,7 @@ public final class AMDTestI implements TestIntf
     }
 
     @Override
-    public CompletionStage<Void> throwUnknownDerivedAsBaseAsync(com.zeroc.Ice.Current current)
-        throws BaseException
+    public CompletionStage<Void> throwUnknownDerivedAsBaseAsync(com.zeroc.Ice.Current current) throws BaseException
     {
         D2 d2 = new D2();
         d2.sb = "sb d2";
@@ -523,8 +487,7 @@ public final class AMDTestI implements TestIntf
         return r;
     }
 
-    @Override
-    public CompletionStage<Void> throwPreservedExceptionAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> throwPreservedExceptionAsync(com.zeroc.Ice.Current current)
     {
         PSUnknownException ue = new PSUnknownException();
         ue.p = new PSUnknown2();
@@ -540,8 +503,7 @@ public final class AMDTestI implements TestIntf
         //ue.p.pb = null; // Break the cycle.
     }
 
-    @Override
-    public CompletionStage<Forward> useForwardAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Forward> useForwardAsync(com.zeroc.Ice.Current current)
     {
         Forward f = new Forward();
         f = new Forward();

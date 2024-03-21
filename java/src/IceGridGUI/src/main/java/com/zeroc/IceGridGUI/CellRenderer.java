@@ -6,8 +6,8 @@ package com.zeroc.IceGridGUI;
 
 import java.awt.Component;
 import javax.swing.JTree;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 
 class CellRenderer implements TreeCellRenderer
 {
@@ -24,7 +24,7 @@ class CellRenderer implements TreeCellRenderer
         TreeCellRenderer node = (TreeCellRenderer)value;
         Component result = node.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        if(result == null)
+        if (result == null)
         {
             result = _defaultRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         }

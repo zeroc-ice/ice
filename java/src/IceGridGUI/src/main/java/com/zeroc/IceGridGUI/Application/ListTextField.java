@@ -5,7 +5,6 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGridGUI.*;
-
 import javax.swing.JTextField;
 
 //
@@ -14,21 +13,13 @@ import javax.swing.JTextField;
 
 public class ListTextField extends JTextField
 {
-    public ListTextField(int columns)
-    {
-        super(columns);
-    }
+    public ListTextField(int columns) { super(columns); }
 
     public void setList(java.util.List<String> list, final Utils.Resolver resolver)
     {
-        Utils.Stringifier stringifier =  new Utils.Stringifier()
-            {
-                @Override
-                public String toString(Object obj)
-                {
-                    return Utils.substitute((String)obj, resolver);
-                }
-            };
+        Utils.Stringifier stringifier = new Utils.Stringifier() {
+            @Override public String toString(Object obj) { return Utils.substitute((String)obj, resolver); }
+        };
 
         setText(Utils.stringify(list, stringifier, " ").returnValue);
     }
@@ -38,12 +29,12 @@ public class ListTextField extends JTextField
         String text = getText().trim();
         java.util.LinkedList<String> result = new java.util.LinkedList<>();
 
-        while(text.length() > 0)
+        while (text.length() > 0)
         {
-            if(text.startsWith("\""))
+            if (text.startsWith("\""))
             {
                 int last = text.indexOf("\"", 1);
-                if(last == -1)
+                if (last == -1)
                 {
                     result.add(text.substring(1));
                     text = "";
@@ -57,7 +48,7 @@ public class ListTextField extends JTextField
             else
             {
                 String[] strings = text.split("\\s", 2);
-                if(strings.length == 1)
+                if (strings.length == 1)
                 {
                     result.add(strings[0]);
                     text = "";

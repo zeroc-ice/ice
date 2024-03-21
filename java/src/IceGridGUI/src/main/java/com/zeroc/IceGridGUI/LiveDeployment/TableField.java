@@ -6,7 +6,6 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
-
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -20,7 +19,7 @@ public class TableField extends JTable
     public TableField(String... columns)
     {
         _columnNames = new java.util.Vector<>(columns.length);
-        for(String name : columns)
+        for (String name : columns)
         {
             _columnNames.add(name);
         }
@@ -30,7 +29,7 @@ public class TableField extends JTable
         //
         int fontSize = getFont().getSize();
         int minRowHeight = fontSize + fontSize / 3;
-        if(rowHeight < minRowHeight)
+        if (rowHeight < minRowHeight)
         {
             setRowHeight(minRowHeight);
         }
@@ -40,14 +39,9 @@ public class TableField extends JTable
 
     private void init()
     {
-        _model = new DefaultTableModel()
-            {
-                @Override
-                public boolean isCellEditable(int row, int column)
-                {
-                    return false;
-                }
-            };
+        _model = new DefaultTableModel() {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
         setModel(_model);
 
         setCellSelectionEnabled(false);
@@ -58,7 +52,7 @@ public class TableField extends JTable
     public void setProperties(java.util.List<PropertyDescriptor> properties, Utils.Resolver resolver)
     {
         java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
-        for(PropertyDescriptor p : properties)
+        for (PropertyDescriptor p : properties)
         {
             map.put(resolver.substitute(p.name), resolver.substitute(p.value));
         }
@@ -68,11 +62,13 @@ public class TableField extends JTable
     public void setObjects(java.util.List<ObjectDescriptor> objects, Utils.Resolver resolver)
     {
         java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
-        for(ObjectDescriptor p : objects)
+        for (ObjectDescriptor p : objects)
         {
             com.zeroc.Ice.Identity id =
                 new com.zeroc.Ice.Identity(resolver.substitute(p.id.name), resolver.substitute(p.id.category));
-            map.put(com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode), resolver.substitute(p.type));
+            map.put(
+                com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode),
+                resolver.substitute(p.type));
         }
         setSortedMap(map);
     }
@@ -80,7 +76,7 @@ public class TableField extends JTable
     public void setObjects(java.util.SortedMap<String, ObjectInfo> objects)
     {
         java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
-        for(ObjectInfo p : objects.values())
+        for (ObjectInfo p : objects.values())
         {
             map.put(p.proxy.toString(), p.type);
         }
@@ -91,12 +87,12 @@ public class TableField extends JTable
     {
         java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
 
-        for(String p : envs)
+        for (String p : envs)
         {
             String env = resolver.substitute(p);
 
             int equal = env.indexOf('=');
-            if(equal == -1 || equal == env.length() - 1)
+            if (equal == -1 || equal == env.length() - 1)
             {
                 map.put(env, "");
             }
@@ -111,14 +107,14 @@ public class TableField extends JTable
     public void setAdapters(java.util.SortedMap<String, AdapterInfo> adapters)
     {
         java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(adapters.size());
-        for(java.util.Map.Entry<String, AdapterInfo> p : adapters.entrySet())
+        for (java.util.Map.Entry<String, AdapterInfo> p : adapters.entrySet())
         {
             java.util.Vector<String> row = new java.util.Vector<>(3);
             row.add(p.getKey());
 
             AdapterInfo ai = p.getValue();
 
-            if(ai.proxy == null)
+            if (ai.proxy == null)
             {
                 row.add("");
             }
@@ -126,7 +122,7 @@ public class TableField extends JTable
             {
                 String str = ai.proxy.toString();
                 int index = str.indexOf(':');
-                if(index == -1 || index == str.length() - 1)
+                if (index == -1 || index == str.length() - 1)
                 {
                     row.add("");
                 }
@@ -149,7 +145,7 @@ public class TableField extends JTable
     public void setSortedMap(java.util.SortedMap<String, String> map)
     {
         java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(map.size());
-        for(java.util.Map.Entry<String, String> p : map.entrySet())
+        for (java.util.Map.Entry<String, String> p : map.entrySet())
         {
             java.util.Vector<String> row = new java.util.Vector<>(2);
             row.add(p.getKey());

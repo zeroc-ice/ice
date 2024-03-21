@@ -20,17 +20,16 @@ public class LoggerPlugin implements Plugin
      * @param communicator The communicator using the custom logger.
      * @param logger The custom logger for the communicator.
      **/
-    public
-    LoggerPlugin(Communicator communicator, Logger logger)
+    public LoggerPlugin(Communicator communicator, Logger logger)
     {
-        if(communicator == null)
+        if (communicator == null)
         {
             PluginInitializationException ex = new PluginInitializationException();
             ex.reason = "Communicator cannot be null";
             throw ex;
         }
 
-        if(logger == null)
+        if (logger == null)
         {
             PluginInitializationException ex = new PluginInitializationException();
             ex.reason = "Logger cannot be null";
@@ -46,20 +45,12 @@ public class LoggerPlugin implements Plugin
      * can override this method to perform any initialization that might be required
      * by a custom logger.
      **/
-    @Override
-    public void
-    initialize()
-    {
-    }
+    @Override public void initialize() {}
 
     /**
      * Called by the Ice run time when the communicator is destroyed. The derived class
      * can override this method to perform any finalization that might be required
      * by a custom logger.
      **/
-    @Override
-    public void
-    destroy()
-    {
-    }
+    @Override public void destroy() {}
 }

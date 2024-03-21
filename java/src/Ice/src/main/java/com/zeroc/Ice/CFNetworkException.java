@@ -44,10 +44,7 @@ public class CFNetworkException extends SocketException
         this.domain = domain;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::CFNetworkException";
-    }
+    public String ice_id() { return "::Ice::CFNetworkException"; }
 
     /**
      * The domain of the error.

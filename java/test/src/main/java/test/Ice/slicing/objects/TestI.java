@@ -4,45 +4,37 @@
 
 package test.Ice.slicing.objects;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.CompletionStage;
 import test.Ice.slicing.objects.server.Test.*;
 
 public final class TestI implements TestIntf
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 
-    @Override
-    public com.zeroc.Ice.Value SBaseAsObject(com.zeroc.Ice.Current current)
+    @Override public com.zeroc.Ice.Value SBaseAsObject(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    @Override
-    public SBase SBaseAsSBase(com.zeroc.Ice.Current current)
+    @Override public SBase SBaseAsSBase(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    @Override
-    public SBase SBSKnownDerivedAsSBase(com.zeroc.Ice.Current current)
+    @Override public SBase SBSKnownDerivedAsSBase(com.zeroc.Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -50,8 +42,7 @@ public final class TestI implements TestIntf
         return sbskd;
     }
 
-    @Override
-    public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(com.zeroc.Ice.Current current)
+    @Override public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(com.zeroc.Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -59,8 +50,7 @@ public final class TestI implements TestIntf
         return sbskd;
     }
 
-    @Override
-    public SBase SBSUnknownDerivedAsSBase(com.zeroc.Ice.Current current)
+    @Override public SBase SBSUnknownDerivedAsSBase(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -68,8 +58,7 @@ public final class TestI implements TestIntf
         return sbsud;
     }
 
-    @Override
-    public SBase SBSUnknownDerivedAsSBaseCompact(com.zeroc.Ice.Current current)
+    @Override public SBase SBSUnknownDerivedAsSBaseCompact(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -77,8 +66,7 @@ public final class TestI implements TestIntf
         return sbsud;
     }
 
-    @Override
-    public com.zeroc.Ice.Value SUnknownAsObject(com.zeroc.Ice.Current current)
+    @Override public com.zeroc.Ice.Value SUnknownAsObject(com.zeroc.Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
@@ -86,10 +74,9 @@ public final class TestI implements TestIntf
         return su;
     }
 
-    @Override
-    public void checkSUnknown(com.zeroc.Ice.Value obj, com.zeroc.Ice.Current current)
+    @Override public void checkSUnknown(com.zeroc.Ice.Value obj, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(obj instanceof SUnknown));
         }
@@ -100,8 +87,7 @@ public final class TestI implements TestIntf
         }
     }
 
-    @Override
-    public B oneElementCycle(com.zeroc.Ice.Current current)
+    @Override public B oneElementCycle(com.zeroc.Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
@@ -109,8 +95,7 @@ public final class TestI implements TestIntf
         return b;
     }
 
-    @Override
-    public B twoElementCycle(com.zeroc.Ice.Current current)
+    @Override public B twoElementCycle(com.zeroc.Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -121,8 +106,7 @@ public final class TestI implements TestIntf
         return b1;
     }
 
-    @Override
-    public B D1AsB(com.zeroc.Ice.Current current)
+    @Override public B D1AsB(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -137,8 +121,7 @@ public final class TestI implements TestIntf
         return d1;
     }
 
-    @Override
-    public D1 D1AsD1(com.zeroc.Ice.Current current)
+    @Override public D1 D1AsD1(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -153,8 +136,7 @@ public final class TestI implements TestIntf
         return d1;
     }
 
-    @Override
-    public B D2AsB(com.zeroc.Ice.Current current)
+    @Override public B D2AsB(com.zeroc.Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -169,8 +151,7 @@ public final class TestI implements TestIntf
         return d2;
     }
 
-    @Override
-    public TestIntf.ParamTest1Result paramTest1(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ParamTest1Result paramTest1(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -185,15 +166,13 @@ public final class TestI implements TestIntf
         return new TestIntf.ParamTest1Result(d1, d2);
     }
 
-    @Override
-    public TestIntf.ParamTest2Result paramTest2(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ParamTest2Result paramTest2(com.zeroc.Ice.Current current)
     {
         TestIntf.ParamTest1Result r1 = paramTest1(current);
         return new TestIntf.ParamTest2Result(r1.p2, r1.p1);
     }
 
-    @Override
-    public TestIntf.ParamTest3Result paramTest3(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ParamTest3Result paramTest3(com.zeroc.Ice.Current current)
     {
         TestIntf.ParamTest3Result r = new TestIntf.ParamTest3Result();
 
@@ -227,8 +206,7 @@ public final class TestI implements TestIntf
         return r;
     }
 
-    @Override
-    public TestIntf.ParamTest4Result paramTest4(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ParamTest4Result paramTest4(com.zeroc.Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -241,28 +219,21 @@ public final class TestI implements TestIntf
         return new TestIntf.ParamTest4Result(d4.p2, d4);
     }
 
-    @Override
-    public TestIntf.ReturnTest1Result returnTest1(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ReturnTest1Result returnTest1(com.zeroc.Ice.Current current)
     {
         TestIntf.ParamTest1Result r1 = paramTest1(current);
         return new TestIntf.ReturnTest1Result(r1.p1, r1.p1, r1.p2);
     }
 
-    @Override
-    public TestIntf.ReturnTest2Result returnTest2(com.zeroc.Ice.Current current)
+    @Override public TestIntf.ReturnTest2Result returnTest2(com.zeroc.Ice.Current current)
     {
         TestIntf.ParamTest1Result r1 = paramTest1(current);
         return new TestIntf.ReturnTest2Result(r1.p1, r1.p1, r1.p2);
     }
 
-    @Override
-    public B returnTest3(B p1, B p2, com.zeroc.Ice.Current current)
-    {
-        return p1;
-    }
+    @Override public B returnTest3(B p1, B p2, com.zeroc.Ice.Current current) { return p1; }
 
-    @Override
-    public SS3 sequenceTest(SS1 p1, SS2 p2, com.zeroc.Ice.Current current)
+    @Override public SS3 sequenceTest(SS1 p1, SS2 p2, com.zeroc.Ice.Current current)
     {
         SS3 ss = new SS3();
         ss.c1 = p1;
@@ -276,7 +247,7 @@ public final class TestI implements TestIntf
         TestIntf.DictionaryTestResult r = new TestIntf.DictionaryTestResult();
         r.bout = new java.util.HashMap<>();
         int i;
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             B b = bin.get(i);
             D2 d2 = new D2();
@@ -287,7 +258,7 @@ public final class TestI implements TestIntf
             r.bout.put(i * 10, d2);
         }
         r.returnValue = new java.util.HashMap<>();
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
@@ -300,21 +271,16 @@ public final class TestI implements TestIntf
         return r;
     }
 
-    @Override
-    public PBase exchangePBase(PBase pb, com.zeroc.Ice.Current current)
-    {
-        return pb;
-    }
+    @Override public PBase exchangePBase(PBase pb, com.zeroc.Ice.Current current) { return pb; }
 
-    @Override
-    public Preserved PBSUnknownAsPreserved(com.zeroc.Ice.Current current)
+    @Override public Preserved PBSUnknownAsPreserved(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if(!current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (!current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -325,10 +291,9 @@ public final class TestI implements TestIntf
         return r;
     }
 
-    @Override
-    public void checkPBSUnknown(Preserved p, com.zeroc.Ice.Current current)
+    @Override public void checkPBSUnknown(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -345,8 +310,7 @@ public final class TestI implements TestIntf
         }
     }
 
-    @Override
-    public CompletionStage<Preserved> PBSUnknownAsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Preserved> PBSUnknownAsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
@@ -363,10 +327,9 @@ public final class TestI implements TestIntf
         //r.graph.next.next.next = null; // Break the cycle.
     }
 
-    @Override
-    public void checkPBSUnknownWithGraph(Preserved p, com.zeroc.Ice.Current current)
+    @Override public void checkPBSUnknownWithGraph(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -381,12 +344,11 @@ public final class TestI implements TestIntf
             test(pu.graph != pu.graph.next);
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
-            pu.graph.next.next.next = null;          // Break the cycle.
+            pu.graph.next.next.next = null; // Break the cycle.
         }
     }
 
-    @Override
-    public CompletionStage<Preserved> PBSUnknown2AsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Preserved> PBSUnknown2AsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown2 r = new PSUnknown2();
         r.pi = 5;
@@ -399,10 +361,9 @@ public final class TestI implements TestIntf
         //r.pb = null; // Break the cycle.
     }
 
-    @Override
-    public void checkPBSUnknown2WithGraph(Preserved p, com.zeroc.Ice.Current current)
+    @Override public void checkPBSUnknown2WithGraph(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown2));
             test(p.pi == 5);
@@ -414,19 +375,13 @@ public final class TestI implements TestIntf
             test(pu.pi == 5);
             test(pu.ps.equals("preserved"));
             test(pu.pb == pu);
-            pu.pb = null;          // Break the cycle.
+            pu.pb = null; // Break the cycle.
         }
     }
 
-    @Override
-    public PNode exchangePNode(PNode pn, com.zeroc.Ice.Current current)
-    {
-        return pn;
-    }
+    @Override public PNode exchangePNode(PNode pn, com.zeroc.Ice.Current current) { return pn; }
 
-    @Override
-    public void throwBaseAsBase(com.zeroc.Ice.Current current)
-        throws BaseException
+    @Override public void throwBaseAsBase(com.zeroc.Ice.Current current) throws BaseException
     {
         BaseException be = new BaseException();
         be.sbe = "sbe";
@@ -436,9 +391,7 @@ public final class TestI implements TestIntf
         throw be;
     }
 
-    @Override
-    public void throwDerivedAsBase(com.zeroc.Ice.Current current)
-        throws BaseException
+    @Override public void throwDerivedAsBase(com.zeroc.Ice.Current current) throws BaseException
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -454,9 +407,7 @@ public final class TestI implements TestIntf
         throw de;
     }
 
-    @Override
-    public void throwDerivedAsDerived(com.zeroc.Ice.Current current)
-        throws DerivedException
+    @Override public void throwDerivedAsDerived(com.zeroc.Ice.Current current) throws DerivedException
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -472,9 +423,7 @@ public final class TestI implements TestIntf
         throw de;
     }
 
-    @Override
-    public void throwUnknownDerivedAsBase(com.zeroc.Ice.Current current)
-        throws BaseException
+    @Override public void throwUnknownDerivedAsBase(com.zeroc.Ice.Current current) throws BaseException
     {
         D2 d2 = new D2();
         d2.sb = "sb d2";
@@ -490,8 +439,7 @@ public final class TestI implements TestIntf
         throw ude;
     }
 
-    @Override
-    public CompletionStage<Void> throwPreservedExceptionAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> throwPreservedExceptionAsync(com.zeroc.Ice.Current current)
     {
         PSUnknownException ue = new PSUnknownException();
         ue.p = new PSUnknown2();
@@ -507,8 +455,7 @@ public final class TestI implements TestIntf
         //ue.p.pb = null; // Break the cycle.
     }
 
-    @Override
-    public Forward useForward(com.zeroc.Ice.Current current)
+    @Override public Forward useForward(com.zeroc.Ice.Current current)
     {
         Forward f = new Forward();
         f.h = new Hidden();

@@ -21,8 +21,7 @@ public class ProxyIdentityKey
      *
      * @param proxy The proxy for this instance.
      **/
-    public
-    ProxyIdentityKey(ObjectPrx proxy)
+    public ProxyIdentityKey(ObjectPrx proxy)
     {
         _proxy = proxy;
 
@@ -40,12 +39,7 @@ public class ProxyIdentityKey
      *
      * @return The hash value.
      **/
-    @Override
-    public int
-    hashCode()
-    {
-        return _hashCode;
-    }
+    @Override public int hashCode() { return _hashCode; }
 
     /**
      * Compares this proxy with the passed object for equality.
@@ -54,16 +48,14 @@ public class ProxyIdentityKey
      * @return <code>true</code> if the passed object is a proxy with the same object
      * identity; <code>false</code>, otherwise.
      **/
-    @Override
-    public boolean
-    equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(this == obj)
+        if (this == obj)
         {
             return true;
         }
 
-        if(obj instanceof ProxyIdentityKey)
+        if (obj instanceof ProxyIdentityKey)
         {
             ProxyIdentityKey other = (ProxyIdentityKey)obj;
             return (_hashCode == other._hashCode) && _identity.equals(other._identity);
@@ -72,11 +64,7 @@ public class ProxyIdentityKey
         return false;
     }
 
-    public ObjectPrx
-    getProxy()
-    {
-        return _proxy;
-    }
+    public ObjectPrx getProxy() { return _proxy; }
 
     final private ObjectPrx _proxy;
     final private Identity _identity;

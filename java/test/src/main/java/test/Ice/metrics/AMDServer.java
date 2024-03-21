@@ -16,7 +16,7 @@ public class AMDServer extends test.TestHelper
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.MessageSizeMax", "50000");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

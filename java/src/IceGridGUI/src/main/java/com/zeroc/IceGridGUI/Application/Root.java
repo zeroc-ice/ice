@@ -4,9 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
-
+import java.io.File;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -14,11 +16,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-
-import java.io.File;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 public class Root extends ListTreeNode
 {
@@ -57,7 +54,7 @@ public class Root extends ListTreeNode
         {
             init();
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             //
             // Impossible
@@ -66,8 +63,7 @@ public class Root extends ListTreeNode
         }
     }
 
-    private void init()
-        throws UpdateFailedException
+    private void init() throws UpdateFailedException
     {
         _resolver = new Utils.Resolver(_descriptor.variables);
         _resolver.put("application", _descriptor.name);
@@ -99,8 +95,7 @@ public class Root extends ListTreeNode
         am.put("paste", _coordinator.getActionsForMenu().get(PASTE));
     }
 
-    static public ApplicationDescriptor
-    copyDescriptor(ApplicationDescriptor ad)
+    static public ApplicationDescriptor copyDescriptor(ApplicationDescriptor ad)
     {
         ApplicationDescriptor copy = ad.clone();
 
@@ -118,18 +113,18 @@ public class Root extends ListTreeNode
         return copy;
     }
 
-    @Override
-    public void delete()
+    @Override public void delete()
     {
-        if(_file == null && !_live)
+        if (_file == null && !_live)
         {
-            int confirm = JOptionPane.showConfirmDialog(_coordinator.getMainFrame(),
-                                                        "You are about to remove application '" + _id + "'. "
-                                                        + "Do you want to proceed?",
-                                                        "Remove Confirmation",
-                                                        JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(
+                _coordinator.getMainFrame(),
+                "You are about to remove application '" + _id + "'. "
+                    + "Do you want to proceed?",
+                "Remove Confirmation",
+                JOptionPane.YES_NO_OPTION);
 
-            if(confirm == JOptionPane.YES_OPTION)
+            if (confirm == JOptionPane.YES_OPTION)
             {
                 super.delete();
             }
@@ -140,10 +135,9 @@ public class Root extends ListTreeNode
         }
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (ApplicationEditor)getEditor(ApplicationEditor.class, this);
         }
@@ -151,27 +145,23 @@ public class Root extends ListTreeNode
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new ApplicationEditor();
-    }
+    @Override protected Editor createEditor() { return new ApplicationEditor(); }
 
     public TreeNode findNodeLike(TreePath path, boolean exactMatch)
     {
         TreeNode result = null;
-        if(path == null)
+        if (path == null)
         {
             return null;
         }
 
-        for(int i = 0; i < path.getPathCount(); ++i)
+        for (int i = 0; i < path.getPathCount(); ++i)
         {
             TreeNode node = (TreeNode)path.getPathComponent(i);
 
-            if(result == null)
+            if (result == null)
             {
-                if(node.getId().equals(_id))
+                if (node.getId().equals(_id))
                 {
                     result = this;
                 }
@@ -183,9 +173,9 @@ public class Root extends ListTreeNode
             else
             {
                 TreeNode newNode = result.findChildLike(node);
-                if(newNode == null)
+                if (newNode == null)
                 {
-                    if(exactMatch)
+                    if (exactMatch)
                     {
                         return null;
                     }
@@ -209,10 +199,10 @@ public class Root extends ListTreeNode
     //
     public boolean hasNode(TreeNode node)
     {
-        while(node != this)
+        while (node != this)
         {
             TreeNode parent = (TreeNode)node.getParent();
-            if(parent == null || parent.getIndex(node) == -1)
+            if (parent == null || parent.getIndex(node) == -1)
             {
                 return false;
             }
@@ -224,15 +214,12 @@ public class Root extends ListTreeNode
         return true;
     }
 
-    public void setSelectedNode(TreeNode node)
-    {
-        _tree.setSelectionPath(node.getPath());
-    }
+    public void setSelectedNode(TreeNode node) { _tree.setSelectionPath(node.getPath()); }
 
     public TreeNode getSelectedNode()
     {
         TreePath path = _tree.getSelectionPath();
-        if(path == null)
+        if (path == null)
         {
             return null;
         }
@@ -245,14 +232,14 @@ public class Root extends ListTreeNode
     public void selectServer(String nodeName, String serverId)
     {
         TreeNode target = _nodes;
-        if(target != null)
+        if (target != null)
         {
             Node node = (Node)target.findChild(nodeName);
-            if(node != null)
+            if (node != null)
             {
                 target = node;
                 Server server = node.findServer(serverId);
-                if(server != null)
+                if (server != null)
                 {
                     target = (TreeNode)server;
                 }
@@ -271,7 +258,7 @@ public class Root extends ListTreeNode
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setOpenIcon(Utils.getIcon("/icons/16x16/application_open.png"));
@@ -281,16 +268,15 @@ public class Root extends ListTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
         actions[COPY] = true;
         actions[DELETE] = true;
 
-        Object descriptor =  _coordinator.getClipboard();
-        if(descriptor != null)
+        Object descriptor = _coordinator.getClipboard();
+        if (descriptor != null)
         {
             actions[PASTE] = descriptor instanceof ApplicationDescriptor;
         }
@@ -307,11 +293,10 @@ public class Root extends ListTreeNode
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = _coordinator.getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_NODE));
@@ -327,65 +312,36 @@ public class Root extends ListTreeNode
         return _popup;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         _coordinator.setClipboard(copyDescriptor(_descriptor));
         _coordinator.getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public void paste()
-    {
-        _coordinator.pasteApplication();
-    }
+    @Override public void paste() { _coordinator.pasteApplication(); }
 
-    @Override
-    public void newNode()
-    {
-        _nodes.newNode();
-    }
+    @Override public void newNode() { _nodes.newNode(); }
 
-    @Override
-    public void newPropertySet()
-    {
-        _propertySets.newPropertySet();
-    }
+    @Override public void newPropertySet() { _propertySets.newPropertySet(); }
 
-    @Override
-    public void newReplicaGroup()
-    {
-        _replicaGroups.newReplicaGroup();
-    }
+    @Override public void newReplicaGroup() { _replicaGroups.newReplicaGroup(); }
 
-    @Override
-    public void newTemplateServer()
-    {
-        _serverTemplates.newTemplateServer();
-    }
+    @Override public void newTemplateServer() { _serverTemplates.newTemplateServer(); }
 
-    @Override
-    public void newTemplateServerIceBox()
-    {
-        _serverTemplates.newTemplateServerIceBox();
-    }
+    @Override public void newTemplateServerIceBox() { _serverTemplates.newTemplateServerIceBox(); }
 
-    @Override
-    public void newTemplateService()
-    {
-        _serviceTemplates.newTemplateService();
-    }
+    @Override public void newTemplateService() { _serviceTemplates.newTemplateService(); }
 
     public void save()
     {
-        if(_live)
+        if (_live)
         {
             saveToRegistry(true);
         }
-        else if(_file != null)
+        else if (_file != null)
         {
             File file = _coordinator.saveToFile(false, this, _file);
-            if(file != null)
+            if (file != null)
             {
                 _file = file;
                 commit();
@@ -404,310 +360,300 @@ public class Root extends ListTreeNode
         //
         // To be run in GUI thread when exclusive write access is acquired
         //
-        Runnable runnable = new Runnable()
+        Runnable runnable = new Runnable() {
+            private void release()
             {
-                private void release()
+                _coordinator.releaseExclusiveWriteAccess();
+                _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+
+            private void handleFailure(String prefix, String title, String message)
+            {
+                release();
+
+                if (isSelected())
                 {
-                    _coordinator.releaseExclusiveWriteAccess();
-                    _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    _coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() || hasFile());
+                    _coordinator.getSaveToRegistryAction().setEnabled(true);
+                    _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(true);
+                    _coordinator.getDiscardUpdatesAction().setEnabled(true);
                 }
 
-                private void handleFailure(String prefix, String title, String message)
+                _coordinator.getStatusBar().setText(prefix + "failed!");
+
+                JOptionPane.showMessageDialog(_coordinator.getMainFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+            }
+
+            @Override public void run()
+            {
+                _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                boolean asyncRelease = false;
+
+                try
                 {
-                    release();
-
-                    if(isSelected())
+                    if (_live && _canUseUpdateDescriptor)
                     {
-                        _coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() ||
-                                                                hasFile());
-                        _coordinator.getSaveToRegistryAction().setEnabled(true);
-                        _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(true);
-                        _coordinator.getDiscardUpdatesAction().setEnabled(true);
-                    }
-
-                    _coordinator.getStatusBar().setText(prefix + "failed!");
-
-                    JOptionPane.showMessageDialog(
-                        _coordinator.getMainFrame(),
-                        message,
-                        title,
-                        JOptionPane.ERROR_MESSAGE);
-                }
-
-                @Override
-                public void run()
-                {
-                    _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    boolean asyncRelease = false;
-
-                    try
-                    {
-                        if(_live && _canUseUpdateDescriptor)
+                        ApplicationUpdateDescriptor updateDescriptor = createUpdateDescriptor();
+                        if (updateDescriptor != null)
                         {
-                            ApplicationUpdateDescriptor updateDescriptor = createUpdateDescriptor();
-                            if(updateDescriptor != null)
+                            final String prefix = "Updating application '" + _id + "'...";
+                            _coordinator.getStatusBar().setText(prefix);
+
+                            if (_traceSaveToRegistry)
                             {
-                                final String prefix = "Updating application '" + _id + "'...";
-                                _coordinator.getStatusBar().setText(prefix);
+                                _coordinator.traceSaveToRegistry("sending updateApplication for application " + _id);
+                            }
 
-                                if(_traceSaveToRegistry)
-                                {
-                                    _coordinator.traceSaveToRegistry("sending updateApplication for application " + _id);
-                                }
-
-                                java.util.concurrent.CompletableFuture<Void> r;
-                                if(restart)
-                                {
-                                    r = _coordinator.getAdmin().updateApplicationAsync(updateDescriptor);
-                                }
-                                else
-                                {
-                                    r = _coordinator.getAdmin().updateApplicationWithoutRestartAsync(updateDescriptor);
-                                }
-
-                                r.whenComplete((result, ex) ->
-                                    {
-                                        if(_traceSaveToRegistry)
-                                        {
-                                            _coordinator.traceSaveToRegistry("updateApplication for application " +
-                                                                             _id +
-                                                                             (ex == null ? ": success" : ": failed"));
-                                        }
-
-                                        if(ex == null)
-                                        {
-                                            SwingUtilities.invokeLater(() ->
-                                                {
-                                                    commit();
-                                                    release();
-                                                    _coordinator.getStatusBar().setText(prefix + "done.");
-                                                });
-                                        }
-                                        else
-                                        {
-                                            SwingUtilities.invokeLater(() ->
-                                                {
-                                                    _skipUpdates--;
-                                                    if(ex instanceof com.zeroc.Ice.UserException)
-                                                    {
-                                                        handleFailure(prefix, "Update failed",
-                                                                      "IceGrid exception: " + ex.toString());
-                                                    }
-                                                    else
-                                                    {
-                                                        handleFailure(prefix, "Update failed",
-                                                                      "Communication exception: " + ex.toString());
-                                                    }
-                                                });
-                                        }
-                                    });
-                                asyncRelease = true;
-
-                                //
-                                // If the update fails, we know we can't get other updates
-                                // since we have exclusive write access
-                                //
-                                _skipUpdates++;
+                            java.util.concurrent.CompletableFuture<Void> r;
+                            if (restart)
+                            {
+                                r = _coordinator.getAdmin().updateApplicationAsync(updateDescriptor);
                             }
                             else
                             {
-                                final String prefix = "Application '" + _id + "' is already up-to-date";
-                                _coordinator.getStatusBar().setText(prefix);
-                                commit();
+                                r = _coordinator.getAdmin().updateApplicationWithoutRestartAsync(updateDescriptor);
                             }
+
+                            r.whenComplete((result, ex) -> {
+                                if (_traceSaveToRegistry)
+                                {
+                                    _coordinator.traceSaveToRegistry(
+                                        "updateApplication for application " + _id +
+                                        (ex == null ? ": success" : ": failed"));
+                                }
+
+                                if (ex == null)
+                                {
+                                    SwingUtilities.invokeLater(() -> {
+                                        commit();
+                                        release();
+                                        _coordinator.getStatusBar().setText(prefix + "done.");
+                                    });
+                                }
+                                else
+                                {
+                                    SwingUtilities.invokeLater(() -> {
+                                        _skipUpdates--;
+                                        if (ex instanceof com.zeroc.Ice.UserException)
+                                        {
+                                            handleFailure(
+                                                prefix,
+                                                "Update failed",
+                                                "IceGrid exception: " + ex.toString());
+                                        }
+                                        else
+                                        {
+                                            handleFailure(
+                                                prefix,
+                                                "Update failed",
+                                                "Communication exception: " + ex.toString());
+                                        }
+                                    });
+                                }
+                            });
+                            asyncRelease = true;
+
+                            //
+                            // If the update fails, we know we can't get other updates
+                            // since we have exclusive write access
+                            //
+                            _skipUpdates++;
                         }
                         else
                         {
-                            //
-                            // Add or sync application
-                            //
-                            if(_coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id) == null)
+                            final String prefix = "Application '" + _id + "' is already up-to-date";
+                            _coordinator.getStatusBar().setText(prefix);
+                            commit();
+                        }
+                    }
+                    else
+                    {
+                        //
+                        // Add or sync application
+                        //
+                        if (_coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id) == null)
+                        {
+                            assert _live == false;
+
+                            final String prefix = "Adding application '" + _id + "'...";
+                            _coordinator.getStatusBar().setText(prefix);
+
+                            if (_traceSaveToRegistry)
                             {
-                                assert _live == false;
-
-                                final String prefix = "Adding application '" + _id + "'...";
-                                _coordinator.getStatusBar().setText(prefix);
-
-                                if(_traceSaveToRegistry)
-                                {
-                                    _coordinator.traceSaveToRegistry("sending addApplication for application " + _id);
-                                }
-
-                                _coordinator.getAdmin().addApplicationAsync(_descriptor).whenComplete((result, ex) ->
-                                    {
-                                        if(_traceSaveToRegistry)
-                                        {
-                                            _coordinator.traceSaveToRegistry("addApplication for application " + _id +
-                                                                             (ex == null ? ": success" : ": failed"));
-                                        }
-
-                                        if(ex == null)
-                                        {
-                                            SwingUtilities.invokeLater(() ->
-                                                {
-                                                    commit();
-                                                    liveReset();
-                                                    _coordinator.addLiveApplication(Root.this);
-                                                    release();
-                                                    _coordinator.getStatusBar().setText(prefix + "done.");
-                                                });
-                                        }
-                                        else
-                                        {
-                                            if(ex instanceof com.zeroc.Ice.UserException)
-                                            {
-                                                SwingUtilities.invokeLater(() ->
-                                                    {
-                                                        handleFailure(prefix, "Add failed",
-                                                                      "IceGrid exception: " + ex.toString());
-                                                    });
-                                            }
-                                            else
-                                            {
-                                                SwingUtilities.invokeLater(() ->
-                                                    {
-                                                        handleFailure(prefix, "Add failed",
-                                                                      "Communication exception: " + ex.toString());
-                                                    });
-                                            }
-                                        }
-                                    });
-                                asyncRelease = true;
+                                _coordinator.traceSaveToRegistry("sending addApplication for application " + _id);
                             }
-                            else
-                            {
-                                final String prefix = "Synchronizing application '" + _id + "'...";
-                                _coordinator.getStatusBar().setText(prefix);
 
-                                if(_traceSaveToRegistry)
+                            _coordinator.getAdmin().addApplicationAsync(_descriptor).whenComplete((result, ex) -> {
+                                if (_traceSaveToRegistry)
                                 {
-                                    _coordinator.traceSaveToRegistry("sending syncApplication for application " + _id);
+                                    _coordinator.traceSaveToRegistry(
+                                        "addApplication for application " + _id +
+                                        (ex == null ? ": success" : ": failed"));
                                 }
 
-                                java.util.concurrent.CompletableFuture<Void> r;
-                                if(restart)
+                                if (ex == null)
                                 {
-                                    r = _coordinator.getAdmin().syncApplicationAsync(_descriptor);
+                                    SwingUtilities.invokeLater(() -> {
+                                        commit();
+                                        liveReset();
+                                        _coordinator.addLiveApplication(Root.this);
+                                        release();
+                                        _coordinator.getStatusBar().setText(prefix + "done.");
+                                    });
                                 }
                                 else
                                 {
-                                    r = _coordinator.getAdmin().syncApplicationWithoutRestartAsync(_descriptor);
+                                    if (ex instanceof com.zeroc.Ice.UserException)
+                                    {
+                                        SwingUtilities.invokeLater(() -> {
+                                            handleFailure(prefix, "Add failed", "IceGrid exception: " + ex.toString());
+                                        });
+                                    }
+                                    else
+                                    {
+                                        SwingUtilities.invokeLater(() -> {
+                                            handleFailure(
+                                                prefix,
+                                                "Add failed",
+                                                "Communication exception: " + ex.toString());
+                                        });
+                                    }
+                                }
+                            });
+                            asyncRelease = true;
+                        }
+                        else
+                        {
+                            final String prefix = "Synchronizing application '" + _id + "'...";
+                            _coordinator.getStatusBar().setText(prefix);
+
+                            if (_traceSaveToRegistry)
+                            {
+                                _coordinator.traceSaveToRegistry("sending syncApplication for application " + _id);
+                            }
+
+                            java.util.concurrent.CompletableFuture<Void> r;
+                            if (restart)
+                            {
+                                r = _coordinator.getAdmin().syncApplicationAsync(_descriptor);
+                            }
+                            else
+                            {
+                                r = _coordinator.getAdmin().syncApplicationWithoutRestartAsync(_descriptor);
+                            }
+
+                            r.whenComplete((result, ex) -> {
+                                if (_traceSaveToRegistry)
+                                {
+                                    _coordinator.traceSaveToRegistry(
+                                        "syncApplication for application " + _id +
+                                        (ex == null ? ": success" : ": failed"));
                                 }
 
-                                r.whenComplete((result, ex) ->
-                                    {
-                                        if(_traceSaveToRegistry)
+                                if (ex == null)
+                                {
+                                    SwingUtilities.invokeLater(() -> {
+                                        commit();
+                                        if (!_live)
                                         {
-                                            _coordinator.traceSaveToRegistry("syncApplication for application " + _id +
-                                                                             (ex == null ? ": success" : ": failed"));
+                                            //
+                                            // Make this tab live or close it if there is one already
+                                            // open
+                                            //
+                                            ApplicationPane app = _coordinator.getLiveApplication(_id);
+                                            if (app == null)
+                                            {
+                                                liveReset();
+                                                _coordinator.addLiveApplication(Root.this);
+                                            }
+                                            else
+                                            {
+                                                boolean selected = isSelected();
+                                                _coordinator.getMainPane().removeApplication(Root.this);
+                                                if (selected)
+                                                {
+                                                    _coordinator.getMainPane().setSelectedComponent(app);
+                                                }
+                                            }
                                         }
 
-                                        if(ex == null)
+                                        release();
+                                        _coordinator.getStatusBar().setText(prefix + "done.");
+                                    });
+                                }
+                                else
+                                {
+                                    SwingUtilities.invokeLater(() -> {
+                                        if (_live)
                                         {
-                                            SwingUtilities.invokeLater(() ->
-                                                {
-                                                    commit();
-                                                    if(!_live)
-                                                    {
-                                                        //
-                                                        // Make this tab live or close it if there is one already
-                                                        // open
-                                                        //
-                                                        ApplicationPane app = _coordinator.getLiveApplication(_id);
-                                                        if(app == null)
-                                                        {
-                                                            liveReset();
-                                                            _coordinator.addLiveApplication(Root.this);
-                                                        }
-                                                        else
-                                                        {
-                                                            boolean selected = isSelected();
-                                                            _coordinator.getMainPane().removeApplication(Root.this);
-                                                            if(selected)
-                                                            {
-                                                                _coordinator.getMainPane().setSelectedComponent(app);
-                                                            }
-                                                        }
-                                                    }
+                                            _skipUpdates--;
+                                        }
 
-                                                    release();
-                                                    _coordinator.getStatusBar().setText(prefix + "done.");
-                                                });
+                                        if (ex instanceof com.zeroc.Ice.UserException)
+                                        {
+                                            handleFailure(prefix, "Sync failed", "IceGrid exception: " + ex.toString());
                                         }
                                         else
                                         {
-                                            SwingUtilities.invokeLater(() ->
-                                                {
-                                                    if(_live)
-                                                    {
-                                                        _skipUpdates--;
-                                                    }
-
-                                                    if(ex instanceof com.zeroc.Ice.UserException)
-                                                    {
-                                                        handleFailure(prefix, "Sync failed",
-                                                                      "IceGrid exception: " + ex.toString());
-                                                    }
-                                                    else
-                                                    {
-                                                        handleFailure(prefix, "Sync failed",
-                                                                      "Communication exception: " +
-                                                                      ex.toString());
-                                                    }
-                                                });
+                                            handleFailure(
+                                                prefix,
+                                                "Sync failed",
+                                                "Communication exception: " + ex.toString());
                                         }
                                     });
-
-                                asyncRelease = true;
-                                if(_live)
-                                {
-                                    _skipUpdates++;
                                 }
+                            });
+
+                            asyncRelease = true;
+                            if (_live)
+                            {
+                                _skipUpdates++;
                             }
                         }
-
-                        if(isSelected())
-                        {
-                            _coordinator.getSaveAction().setEnabled(false);
-                            _coordinator.getSaveToRegistryAction().setEnabled(false);
-                            _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(false);
-                            _coordinator.getDiscardUpdatesAction().setEnabled(false);
-                        }
                     }
-                    catch(com.zeroc.Ice.LocalException e)
-                    {
-                        if(_traceSaveToRegistry)
-                        {
-                            _coordinator.traceSaveToRegistry("Ice communications exception while saving application " +
-                                                             _id);
-                        }
 
-                        JOptionPane.showMessageDialog(
-                            _coordinator.getMainFrame(),
-                            e.toString(),
-                            "Communication Exception",
-                            JOptionPane.ERROR_MESSAGE);
-                    }
-                    finally
+                    if (isSelected())
                     {
-                        if(!asyncRelease)
-                        {
-                            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            _coordinator.releaseExclusiveWriteAccess();
-                        }
+                        _coordinator.getSaveAction().setEnabled(false);
+                        _coordinator.getSaveToRegistryAction().setEnabled(false);
+                        _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(false);
+                        _coordinator.getDiscardUpdatesAction().setEnabled(false);
                     }
                 }
-            };
+                catch (com.zeroc.Ice.LocalException e)
+                {
+                    if (_traceSaveToRegistry)
+                    {
+                        _coordinator.traceSaveToRegistry(
+                            "Ice communications exception while saving application " + _id);
+                    }
+
+                    JOptionPane.showMessageDialog(
+                        _coordinator.getMainFrame(),
+                        e.toString(),
+                        "Communication Exception",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+                finally
+                {
+                    if (!asyncRelease)
+                    {
+                        _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        _coordinator.releaseExclusiveWriteAccess();
+                    }
+                }
+            }
+        };
 
         try
         {
             _coordinator.acquireExclusiveWriteAccess(runnable);
         }
-        catch(AccessDeniedException e)
+        catch (AccessDeniedException e)
         {
             _coordinator.accessDenied(e);
         }
-        catch(com.zeroc.Ice.LocalException e)
+        catch (com.zeroc.Ice.LocalException e)
         {
             JOptionPane.showMessageDialog(
                 _coordinator.getMainFrame(),
@@ -720,7 +666,7 @@ public class Root extends ListTreeNode
     public void saveToFile()
     {
         File file = _coordinator.saveToFile(true, this, _file);
-        if(file != null)
+        if (file != null)
         {
             _file = file;
             _live = false;
@@ -740,16 +686,16 @@ public class Root extends ListTreeNode
     {
         ApplicationDescriptor desc = null;
 
-        if(_live)
+        if (_live)
         {
             desc = _coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id);
             assert desc != null;
             desc = com.zeroc.IceGridGUI.Application.Root.copyDescriptor(desc);
         }
-        else if(_file != null)
+        else if (_file != null)
         {
             desc = _coordinator.parseFile(_file);
-            if(desc == null)
+            if (desc == null)
             {
                 return;
             }
@@ -765,7 +711,7 @@ public class Root extends ListTreeNode
         {
             newRoot = new Root(_coordinator, desc, _live, _file);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             JOptionPane.showMessageDialog(
                 _coordinator.getMainFrame(),
@@ -780,7 +726,7 @@ public class Root extends ListTreeNode
         app.setRoot(newRoot);
 
         TreeNode node = newRoot.findNodeLike(_tree.getSelectionPath(), false);
-        if(node == null)
+        if (node == null)
         {
             newRoot.setSelectedNode(newRoot);
         }
@@ -803,12 +749,12 @@ public class Root extends ListTreeNode
     {
         ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();
         update.name = _descriptor.name;
-        if(_editable.isModified())
+        if (_editable.isModified())
         {
             //
             // Diff description
             //
-            if(!_descriptor.description.equals(_origDescription))
+            if (!_descriptor.description.equals(_origDescription))
             {
                 update.description = new com.zeroc.IceGrid.BoxedString(_descriptor.description);
             }
@@ -819,18 +765,18 @@ public class Root extends ListTreeNode
             update.variables = new java.util.TreeMap<>(_descriptor.variables);
             java.util.List<String> removeVariables = new java.util.LinkedList<>();
 
-            for(java.util.Map.Entry<String, String> p : _origVariables.entrySet())
+            for (java.util.Map.Entry<String, String> p : _origVariables.entrySet())
             {
                 String key = p.getKey();
-                String newValue =  update.variables.get(key);
-                if(newValue == null)
+                String newValue = update.variables.get(key);
+                if (newValue == null)
                 {
                     removeVariables.add(key);
                 }
                 else
                 {
                     String value = p.getValue();
-                    if(newValue.equals(value))
+                    if (newValue.equals(value))
                     {
                         update.variables.remove(key);
                     }
@@ -841,7 +787,7 @@ public class Root extends ListTreeNode
             //
             // Diff distribution
             //
-            if(!_descriptor.distrib.equals(_origDistrib))
+            if (!_descriptor.distrib.equals(_origDistrib))
             {
                 update.distrib = new com.zeroc.IceGrid.BoxedDistributionDescriptor(_descriptor.distrib);
             }
@@ -874,7 +820,7 @@ public class Root extends ListTreeNode
         // Service Templates
         //
         update.removeServiceTemplates = _serviceTemplates.getEditable().removedElements(ServiceTemplate.class);
-        update.serviceTemplates =_serviceTemplates.getUpdates();
+        update.serviceTemplates = _serviceTemplates.getUpdates();
 
         //
         // Nodes
@@ -885,17 +831,11 @@ public class Root extends ListTreeNode
         //
         // Return null if nothing changed
         //
-        if(!_editable.isModified() &&
-           update.removePropertySets.length == 0 &&
-           update.propertySets.size() == 0 &&
-           update.removeReplicaGroups.length == 0 &&
-           update.replicaGroups.size() == 0 &&
-           update.removeServerTemplates.length == 0 &&
-           update.serverTemplates.size() == 0 &&
-           update.removeServiceTemplates.length == 0 &&
-           update.serviceTemplates.size() == 0 &&
-           update.removeNodes.length == 0 &&
-           update.nodes.size() == 0)
+        if (!_editable.isModified() && update.removePropertySets.length == 0 && update.propertySets.size() == 0 &&
+            update.removeReplicaGroups.length == 0 && update.replicaGroups.size() == 0 &&
+            update.removeServerTemplates.length == 0 && update.serverTemplates.size() == 0 &&
+            update.removeServiceTemplates.length == 0 && update.serviceTemplates.size() == 0 &&
+            update.removeNodes.length == 0 && update.nodes.size() == 0)
         {
             return null;
         }
@@ -925,29 +865,24 @@ public class Root extends ListTreeNode
         _serviceTemplates.commit();
     }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return false;
-    }
+    @Override public boolean isEphemeral() { return false; }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
-        if(!_live && _file == null)
+        if (!_live && _file == null)
         {
             _coordinator.getMainPane().removeApplication(this);
         }
-        else if(_live)
+        else if (_live)
         {
             int confirm = JOptionPane.showConfirmDialog(
                 _coordinator.getMainFrame(),
                 "You are about to remove application '" + _id + "' from the IceGrid registry. "
-                + "Do you want to proceed?",
+                    + "Do you want to proceed?",
                 "Remove Confirmation",
                 JOptionPane.YES_NO_OPTION);
 
-            if(confirm == JOptionPane.YES_OPTION)
+            if (confirm == JOptionPane.YES_OPTION)
             {
                 _coordinator.removeApplicationFromRegistry(_id);
                 _discardMe = true;
@@ -960,13 +895,13 @@ public class Root extends ListTreeNode
             int confirm = JOptionPane.showConfirmDialog(
                 _coordinator.getMainFrame(),
                 "You are about to remove application '" + _id + "' and its associated file. "
-                + "Do you want to proceed?",
+                    + "Do you want to proceed?",
                 "Remove Confirmation",
                 JOptionPane.YES_NO_OPTION);
 
-            if(confirm == JOptionPane.YES_OPTION)
+            if (confirm == JOptionPane.YES_OPTION)
             {
-                if(_file.delete())
+                if (_file.delete())
                 {
                     _coordinator.getMainPane().removeApplication(this);
                 }
@@ -978,15 +913,15 @@ public class Root extends ListTreeNode
     {
         assert _live == true;
 
-        if(_skipUpdates > 0)
+        if (_skipUpdates > 0)
         {
             _skipUpdates--;
             return false;
         }
 
-        if(!_registryUpdatesEnabled)
+        if (!_registryUpdatesEnabled)
         {
-            if(_updated)
+            if (_updated)
             {
                 _canUseUpdateDescriptor = false;
             }
@@ -1002,7 +937,7 @@ public class Root extends ListTreeNode
             //
             // Description
             //
-            if(desc.description != null)
+            if (desc.description != null)
             {
                 _descriptor.description = desc.description.value;
                 _origDescription = _descriptor.description;
@@ -1011,7 +946,7 @@ public class Root extends ListTreeNode
             //
             // Variables
             //
-            for(String name : desc.removeVariables)
+            for (String name : desc.removeVariables)
             {
                 _descriptor.variables.remove(name);
             }
@@ -1020,7 +955,7 @@ public class Root extends ListTreeNode
             //
             // Distrib
             //
-            if(desc.distrib != null)
+            if (desc.distrib != null)
             {
                 _descriptor.distrib = desc.distrib.value;
                 _origDistrib = _descriptor.distrib.clone();
@@ -1029,7 +964,7 @@ public class Root extends ListTreeNode
             //
             // Property Sets
             //
-            for(String id : desc.removePropertySets)
+            for (String id : desc.removePropertySets)
             {
                 _descriptor.propertySets.remove(id);
             }
@@ -1039,7 +974,7 @@ public class Root extends ListTreeNode
             //
             // Replica groups
             //
-            for(String id : desc.removeReplicaGroups)
+            for (String id : desc.removeReplicaGroups)
             {
                 _descriptor.replicaGroups.remove(id);
             }
@@ -1049,7 +984,7 @@ public class Root extends ListTreeNode
             //
             // Service templates
             //
-            for(String id : desc.removeServiceTemplates)
+            for (String id : desc.removeServiceTemplates)
             {
                 _descriptor.serviceTemplates.remove(id);
             }
@@ -1059,7 +994,7 @@ public class Root extends ListTreeNode
             //
             // Server templates
             //
-            for(String id : desc.removeServerTemplates)
+            for (String id : desc.removeServerTemplates)
             {
                 _descriptor.serverTemplates.remove(id);
             }
@@ -1069,7 +1004,7 @@ public class Root extends ListTreeNode
             //
             // Nodes
             //
-            for(String id : desc.removeNodes)
+            for (String id : desc.removeNodes)
             {
                 _descriptor.nodes.remove(id);
             }
@@ -1079,7 +1014,7 @@ public class Root extends ListTreeNode
             //
             _nodes.update(desc.nodes, desc.removeNodes, desc.serverTemplates.keySet(), desc.serviceTemplates.keySet());
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             //
             // Received invalid update from IceGrid registry: a bug!
@@ -1090,52 +1025,33 @@ public class Root extends ListTreeNode
         return true;
     }
 
-    public JTree getTree()
-    {
-        return _tree;
-    }
+    public JTree getTree() { return _tree; }
 
-    public DefaultTreeModel getTreeModel()
-    {
-        return _treeModel;
-    }
+    public DefaultTreeModel getTreeModel() { return _treeModel; }
 
-    @Override
-    public Coordinator getCoordinator()
-    {
-        return _coordinator;
-    }
+    @Override public Coordinator getCoordinator() { return _coordinator; }
 
-    public boolean isSelectionListenerEnabled()
-    {
-        return _selectionListenerEnabled;
-    }
+    public boolean isSelectionListenerEnabled() { return _selectionListenerEnabled; }
 
-    public void enableSelectionListener()
-    {
-        _selectionListenerEnabled = true;
-    }
+    public void enableSelectionListener() { _selectionListenerEnabled = true; }
 
-    public void disableSelectionListener()
-    {
-        _selectionListenerEnabled = false;
-    }
+    public void disableSelectionListener() { _selectionListenerEnabled = false; }
 
     public void cancelEdit()
     {
-        if(!_updated)
+        if (!_updated)
         {
             _registryUpdatesEnabled = true;
 
             //
             // Apply now any delayed concurrent update
             //
-            for(ApplicationUpdateDescriptor p : _concurrentUpdates)
+            for (ApplicationUpdateDescriptor p : _concurrentUpdates)
             {
                 boolean ok = update(p);
                 assert ok;
             }
-            if(!_concurrentUpdates.isEmpty())
+            if (!_concurrentUpdates.isEmpty())
             {
                 _applicationPane.refresh();
                 _concurrentUpdates.clear();
@@ -1143,8 +1059,7 @@ public class Root extends ListTreeNode
 
             _coordinator.getSaveAction().setEnabled(false);
             _coordinator.getDiscardUpdatesAction().setEnabled(false);
-            _coordinator.getSaveToRegistryAction().setEnabled(
-                hasFile() && _coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryAction().setEnabled(hasFile() && _coordinator.connectedToMaster());
             _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(
                 hasFile() && _coordinator.connectedToMaster());
         }
@@ -1154,7 +1069,7 @@ public class Root extends ListTreeNode
     {
         _live = false;
 
-        if(_registryUpdatesEnabled || _discardMe)
+        if (_registryUpdatesEnabled || _discardMe)
         {
             return true;
         }
@@ -1166,35 +1081,20 @@ public class Root extends ListTreeNode
         }
     }
 
-    public boolean isLive()
-    {
-        return _live;
-    }
+    public boolean isLive() { return _live; }
 
-    public boolean hasFile()
-    {
-        return _file != null;
-    }
+    public boolean hasFile() { return _file != null; }
 
-    public boolean needsSaving()
-    {
-        return _updated || !_registryUpdatesEnabled;
-    }
+    public boolean needsSaving() { return _updated || !_registryUpdatesEnabled; }
 
-    public void setPane(ApplicationPane app)
-    {
-        _applicationPane = app;
-    }
+    public void setPane(ApplicationPane app) { _applicationPane = app; }
 
-    public ApplicationPane getPane()
-    {
-        return _applicationPane;
-    }
+    public ApplicationPane getPane() { return _applicationPane; }
 
     Editor getEditor(Class c, TreeNode node)
     {
         Editor result = _editorMap.get(c);
-        if(result == null)
+        if (result == null)
         {
             result = node.createEditor();
             _editorMap.put(c, result);
@@ -1202,11 +1102,7 @@ public class Root extends ListTreeNode
         return result;
     }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override Object getDescriptor() { return _descriptor; }
 
     ApplicationDescriptor saveDescriptor()
     {
@@ -1224,9 +1120,7 @@ public class Root extends ListTreeNode
         _descriptor.description = clone.description;
     }
 
-    @Override
-    public void write(XMLWriter writer)
-        throws java.io.IOException
+    @Override public void write(XMLWriter writer) throws java.io.IOException
     {
         writer.writeStartTag("icegrid");
 
@@ -1235,7 +1129,7 @@ public class Root extends ListTreeNode
 
         writer.writeStartTag("application", attributes);
 
-        if(_descriptor.description.length() > 0)
+        if (_descriptor.description.length() > 0)
         {
             writer.writeElement("description", _descriptor.description);
         }
@@ -1257,7 +1151,7 @@ public class Root extends ListTreeNode
     //
     void disableRegistryUpdates()
     {
-        if(_registryUpdatesEnabled)
+        if (_registryUpdatesEnabled)
         {
             _registryUpdatesEnabled = false;
             _coordinator.getSaveAction().setEnabled(_live && _coordinator.connectedToMaster() || _file != null);
@@ -1275,8 +1169,7 @@ public class Root extends ListTreeNode
         _concurrentUpdates.clear();
     }
 
-    void rebuild()
-        throws UpdateFailedException
+    void rebuild() throws UpdateFailedException
     {
         Utils.Resolver oldResolver = _resolver;
         String oldId = _id;
@@ -1288,7 +1181,7 @@ public class Root extends ListTreeNode
         {
             _nodes.rebuild();
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             _id = oldId;
             _resolver = oldResolver;
@@ -1300,10 +1193,7 @@ public class Root extends ListTreeNode
     // Called when a server-template is deleted, to remove all
     // corresponding instances.
     //
-    void removeServerInstances(String templateId)
-    {
-        _nodes.removeServerInstances(templateId);
-    }
+    void removeServerInstances(String templateId) { _nodes.removeServerInstances(templateId); }
 
     //
     // Called when a service-template is deleted, to remove all
@@ -1315,30 +1205,15 @@ public class Root extends ListTreeNode
         _serverTemplates.removeServiceInstances(templateId);
     }
 
-    ServerTemplate findServerTemplate(String id)
-    {
-        return (ServerTemplate)_serverTemplates.findChild(id);
-    }
+    ServerTemplate findServerTemplate(String id) { return (ServerTemplate)_serverTemplates.findChild(id); }
 
-    ServiceTemplate findServiceTemplate(String id)
-    {
-        return (ServiceTemplate)_serviceTemplates.findChild(id);
-    }
+    ServiceTemplate findServiceTemplate(String id) { return (ServiceTemplate)_serviceTemplates.findChild(id); }
 
-    ReplicaGroup findReplicaGroup(String id)
-    {
-        return (ReplicaGroup)_replicaGroups.findChild(id);
-    }
+    ReplicaGroup findReplicaGroup(String id) { return (ReplicaGroup)_replicaGroups.findChild(id); }
 
-    Node findNode(String id)
-    {
-        return (Node)_nodes.findChild(id);
-    }
+    Node findNode(String id) { return (Node)_nodes.findChild(id); }
 
-    java.util.List<ServerInstance> findServerInstances(String template)
-    {
-        return _nodes.findServerInstances(template);
-    }
+    java.util.List<ServerInstance> findServerInstances(String template) { return _nodes.findServerInstances(template); }
 
     java.util.List<ServiceInstance> findServiceInstances(String template)
     {
@@ -1357,20 +1232,11 @@ public class Root extends ListTreeNode
         return _descriptor.serviceTemplates.get(templateName);
     }
 
-    ServerTemplates getServerTemplates()
-    {
-        return _serverTemplates;
-    }
+    ServerTemplates getServerTemplates() { return _serverTemplates; }
 
-    ServiceTemplates getServiceTemplates()
-    {
-        return _serviceTemplates;
-    }
+    ServiceTemplates getServiceTemplates() { return _serviceTemplates; }
 
-    ReplicaGroups getReplicaGroups()
-    {
-        return _replicaGroups;
-    }
+    ReplicaGroups getReplicaGroups() { return _replicaGroups; }
 
     boolean pasteIceBox(IceBoxDescriptor ibd)
     {
@@ -1378,13 +1244,13 @@ public class Root extends ListTreeNode
         // During paste, check that all service instances refer to existing services,
         // and remove any extra template parameters
         //
-        for(ServiceInstanceDescriptor p : ibd.services)
+        for (ServiceInstanceDescriptor p : ibd.services)
         {
-            if(p.template.length() > 0)
+            if (p.template.length() > 0)
             {
                 TemplateDescriptor td = findServiceTemplateDescriptor(p.template);
 
-                if(td == null)
+                if (td == null)
                 {
                     JOptionPane.showMessageDialog(
                         _coordinator.getMainFrame(),
@@ -1400,29 +1266,18 @@ public class Root extends ListTreeNode
         return true;
     }
 
-    @Override
-    public Root getRoot()
-    {
-        return this;
-    }
+    @Override public Root getRoot() { return this; }
 
-    @Override
-    Utils.Resolver getResolver()
-    {
-        return _resolver;
-    }
+    @Override Utils.Resolver getResolver() { return _resolver; }
 
     //
     // Should only be used for reading
     //
-    java.util.Map<String, String> getVariables()
-    {
-        return _descriptor.variables;
-    }
+    java.util.Map<String, String> getVariables() { return _descriptor.variables; }
 
     private boolean isSelected()
     {
-        if(_coordinator.getCurrentTab() instanceof ApplicationPane)
+        if (_coordinator.getCurrentTab() instanceof ApplicationPane)
         {
             return ((ApplicationPane)_coordinator.getCurrentTab()).getRoot() == Root.this;
         }

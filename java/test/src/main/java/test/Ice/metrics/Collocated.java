@@ -13,7 +13,7 @@ public class Collocated extends test.TestHelper
         CommunicatorObserverI observer = new CommunicatorObserverI();
         com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.properties = createTestProperties(args);
-        if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
+        if (initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             // With background IO, collocated invocations are
             // dispatched on the server thread pool. This test needs
@@ -29,7 +29,7 @@ public class Collocated extends test.TestHelper
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         initData.observer = observer;
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
@@ -45,7 +45,7 @@ public class Collocated extends test.TestHelper
             MetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
-        catch(com.zeroc.Ice.IceMX.UnknownMetricsView ex)
+        catch (com.zeroc.Ice.IceMX.UnknownMetricsView ex)
         {
             throw new RuntimeException(ex);
         }

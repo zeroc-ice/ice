@@ -21,34 +21,31 @@ public final class Network
     private final static String ipv4Pattern =
         "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private final static String ipv6Pattern =
-        "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-" +
-        "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1" +
-        ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1," +
-        "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-" +
-        "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])" +
-        "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}" +
-        "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+        "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
+        + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
+        + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
+        + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
+        + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+        + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
+        + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
 
     static
     {
         try
         {
-            IPV4_PATTERN =
-                java.util.regex.Pattern.compile(ipv4Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
-            IPV6_PATTERN =
-                java.util.regex.Pattern.compile(ipv6Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+            IPV4_PATTERN = java.util.regex.Pattern.compile(ipv4Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+            IPV6_PATTERN = java.util.regex.Pattern.compile(ipv6Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
         }
         catch (java.util.regex.PatternSyntaxException ex)
         {
-            assert(false);
+            assert (false);
         }
     }
 
-    public static boolean
-    isNumericAddress(String ipAddress)
+    public static boolean isNumericAddress(String ipAddress)
     {
         java.util.regex.Matcher ipv4 = IPV4_PATTERN.matcher(ipAddress);
-        if(ipv4.matches())
+        if (ipv4.matches())
         {
             return true;
         }
@@ -56,8 +53,7 @@ public final class Network
         return ipv6.matches();
     }
 
-    public static boolean
-    connectionRefused(java.net.ConnectException ex)
+    public static boolean connectionRefused(java.net.ConnectException ex)
     {
         //
         // The JDK raises a generic ConnectException when the server
@@ -68,19 +64,18 @@ public final class Network
 
         String msg = ex.getMessage();
 
-        if(msg != null)
+        if (msg != null)
         {
             msg = msg.toLowerCase();
 
-            final String[] msgs =
-            {
-                "connection refused", // ECONNREFUSED
+            final String[] msgs = {
+                "connection refused",                                // ECONNREFUSED
                 "remote host refused an attempted connect operation" // ECONNREFUSED (AIX JDK 1.4.2)
             };
 
-            for(String m : msgs)
+            for (String m : msgs)
             {
-                if(msg.indexOf(m) != -1)
+                if (msg.indexOf(m) != -1)
                 {
                     return true;
                 }
@@ -90,24 +85,22 @@ public final class Network
         return false;
     }
 
-    public static boolean
-    noMoreFds(java.lang.Throwable ex)
+    public static boolean noMoreFds(java.lang.Throwable ex)
     {
         String msg = ex.getMessage();
-        if(msg != null)
+        if (msg != null)
         {
             msg = msg.toLowerCase();
 
-            final String[] msgs =
-            {
-                "too many open files", // EMFILE
-                "file table overflow", // ENFILE
+            final String[] msgs = {
+                "too many open files",          // EMFILE
+                "file table overflow",          // ENFILE
                 "too many open files in system" // ENFILE
             };
 
-            for(String m : msgs)
+            for (String m : msgs)
             {
-                if(msg.indexOf(m) != -1)
+                if (msg.indexOf(m) != -1)
                 {
                     return true;
                 }
@@ -117,8 +110,7 @@ public final class Network
         return false;
     }
 
-    public static boolean
-    isIPv6Supported()
+    public static boolean isIPv6Supported()
     {
         try
         {
@@ -127,14 +119,13 @@ public final class Network
             socket.close();
             return true;
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             return false;
         }
     }
 
-    public static java.nio.channels.SocketChannel
-    createTcpSocket()
+    public static java.nio.channels.SocketChannel createTcpSocket()
     {
         try
         {
@@ -144,14 +135,13 @@ public final class Network
             socket.setKeepAlive(true);
             return fd;
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.ServerSocketChannel
-    createTcpServerSocket()
+    public static java.nio.channels.ServerSocketChannel createTcpServerSocket()
     {
         try
         {
@@ -165,14 +155,13 @@ public final class Network
             //socket.setKeepAlive(true);
             return fd;
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.DatagramChannel
-    createUdpSocket(java.net.InetSocketAddress addr)
+    public static java.nio.channels.DatagramChannel createUdpSocket(java.net.InetSocketAddress addr)
     {
         try
         {
@@ -181,7 +170,7 @@ public final class Network
             // java.net.StandardProtocolFamily is new in JDK 1.7
             //
             Class<?> c = Util.findClass("java.net.StandardProtocolFamily", null);
-            if(addr.getAddress().isMulticastAddress() && c != null)
+            if (addr.getAddress().isMulticastAddress() && c != null)
             {
                 //
                 // For multicast sockets with JDK 7 we must use the open overload that accepts
@@ -189,16 +178,17 @@ public final class Network
                 // type of the multicast groups that the channel will join.
                 //
                 String family = "INET";
-                if(addr.getAddress() instanceof java.net.Inet6Address)
+                if (addr.getAddress() instanceof java.net.Inet6Address)
                 {
                     family = "INET6";
                 }
-                java.lang.reflect.Method valueOf = c.getDeclaredMethod("valueOf", new Class<?>[]{String.class});
+                java.lang.reflect.Method valueOf = c.getDeclaredMethod("valueOf", new Class<?>[] {String.class});
 
-                Object[] args = new Object[]{valueOf.invoke(null, new Object[]{family})};
+                Object[] args = new Object[] {valueOf.invoke(null, new Object[] {family})};
 
                 java.lang.reflect.Method open = java.nio.channels.DatagramChannel.class.getDeclaredMethod(
-                                            "open", new Class<?>[]{Util.findClass("java.net.ProtocolFamily", null)});
+                    "open",
+                    new Class<?>[] {Util.findClass("java.net.ProtocolFamily", null)});
                 return (java.nio.channels.DatagramChannel)open.invoke(null, args);
             }
             else
@@ -206,109 +196,104 @@ public final class Network
                 return java.nio.channels.DatagramChannel.open();
             }
         }
-        catch(IllegalAccessException ex)
+        catch (IllegalAccessException ex)
         {
             throw new SocketException(ex);
         }
-        catch(java.lang.reflect.InvocationTargetException ex)
+        catch (java.lang.reflect.InvocationTargetException ex)
         {
             throw new SocketException(ex);
         }
-        catch(NoSuchMethodException ex)
+        catch (NoSuchMethodException ex)
         {
             throw new SocketException(ex);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static void
-    closeSocketNoThrow(java.nio.channels.SelectableChannel fd)
+    public static void closeSocketNoThrow(java.nio.channels.SelectableChannel fd)
     {
         try
         {
             fd.close();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             // Ignore
         }
     }
 
-    public static void
-    closeSocket(java.nio.channels.SelectableChannel fd)
+    public static void closeSocket(java.nio.channels.SelectableChannel fd)
     {
         try
         {
             fd.close();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static java.net.NetworkInterface
-    getInterface(String intf)
+    public static java.net.NetworkInterface getInterface(String intf)
     {
         java.net.NetworkInterface iface;
         try
         {
             iface = java.net.NetworkInterface.getByName(intf);
-            if(iface != null)
+            if (iface != null)
             {
                 return iface;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
         }
         try
         {
             iface = java.net.NetworkInterface.getByInetAddress(java.net.InetAddress.getByName(intf));
-            if(iface != null)
+            if (iface != null)
             {
                 return iface;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
         }
         throw new IllegalArgumentException("couldn't find interface `" + intf + "'");
     }
 
-    public static void
-    setMcastInterface(java.nio.channels.DatagramChannel fd, String intf)
+    public static void setMcastInterface(java.nio.channels.DatagramChannel fd, String intf)
     {
         try
         {
             fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_IF, getInterface(intf));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.SocketException(ex);
         }
     }
 
-    public static void
-    setMcastGroup(java.net.MulticastSocket fd, java.net.InetSocketAddress group, String intf)
+    public static void setMcastGroup(java.net.MulticastSocket fd, java.net.InetSocketAddress group, String intf)
     {
         try
         {
             java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
-            for(String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
+            for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
             {
                 java.net.NetworkInterface intf2 = getInterface(address);
-                if(!interfaces.contains(intf2))
+                if (!interfaces.contains(intf2))
                 {
                     interfaces.add(intf2);
                     fd.joinGroup(group, intf2);
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.SocketException(ex);
         }
@@ -320,71 +305,67 @@ public final class Network
         try
         {
             java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
-            for(String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
+            for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
             {
                 java.net.NetworkInterface intf2 = getInterface(address);
-                if(!interfaces.contains(intf2))
+                if (!interfaces.contains(intf2))
                 {
                     interfaces.add(intf2);
                     fd.join(group.getAddress(), intf2);
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.SocketException(ex);
         }
     }
 
-    public static void
-    setMcastTtl(java.nio.channels.DatagramChannel fd, int ttl)
+    public static void setMcastTtl(java.nio.channels.DatagramChannel fd, int ttl)
     {
         try
         {
             fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new com.zeroc.Ice.SocketException(ex);
         }
     }
 
-    public static void
-    setBlock(java.nio.channels.SelectableChannel fd, boolean block)
+    public static void setBlock(java.nio.channels.SelectableChannel fd, boolean block)
     {
         try
         {
             fd.configureBlocking(block);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void
-    setReuseAddress(java.nio.channels.DatagramChannel fd, boolean reuse)
+    public static void setReuseAddress(java.nio.channels.DatagramChannel fd, boolean reuse)
     {
         try
         {
             fd.socket().setReuseAddress(reuse);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void
-    setReuseAddress(java.nio.channels.ServerSocketChannel fd, boolean reuse)
+    public static void setReuseAddress(java.nio.channels.ServerSocketChannel fd, boolean reuse)
     {
         try
         {
             fd.socket().setReuseAddress(reuse);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -400,7 +381,7 @@ public final class Network
             sock.bind(addr, backlog);
             return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -416,27 +397,26 @@ public final class Network
             sock.bind(addr);
             return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.SocketChannel
-    doAccept(java.nio.channels.ServerSocketChannel afd)
+    public static java.nio.channels.SocketChannel doAccept(java.nio.channels.ServerSocketChannel afd)
     {
         java.nio.channels.SocketChannel fd = null;
-        while(true)
+        while (true)
         {
             try
             {
                 fd = afd.accept();
                 break;
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
-                if(interrupted(ex))
+                if (interrupted(ex))
                 {
                     continue;
                 }
@@ -451,7 +431,7 @@ public final class Network
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
@@ -459,17 +439,18 @@ public final class Network
         return fd;
     }
 
-    public static boolean
-    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr,
-              java.net.InetSocketAddress sourceAddr)
+    public static boolean doConnect(
+        java.nio.channels.SocketChannel fd,
+        java.net.InetSocketAddress addr,
+        java.net.InetSocketAddress sourceAddr)
     {
-        if(sourceAddr != null)
+        if (sourceAddr != null)
         {
             try
             {
                 fd.bind(sourceAddr);
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
                 closeSocketNoThrow(fd);
                 throw new SocketException(ex);
@@ -478,16 +459,16 @@ public final class Network
 
         try
         {
-            if(!fd.connect(addr))
+            if (!fd.connect(addr))
             {
                 return false;
             }
         }
-        catch(java.net.ConnectException ex)
+        catch (java.net.ConnectException ex)
         {
             closeSocketNoThrow(fd);
 
-            if(connectionRefused(ex))
+            if (connectionRefused(ex))
             {
                 throw new ConnectionRefusedException(ex);
             }
@@ -496,25 +477,25 @@ public final class Network
                 throw new ConnectFailedException(ex);
             }
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        catch(java.lang.SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
 
-        if(System.getProperty("os.name").equals("Linux"))
+        if (System.getProperty("os.name").equals("Linux"))
         {
             //
             // Prevent self connect (self connect happens on Linux when a client tries to connect to
             // a server which was just deactivated if the client socket re-uses the same ephemeral
             // port as the server).
             //
-            if(addr.equals(fd.socket().getLocalSocketAddress()))
+            if (addr.equals(fd.socket().getLocalSocketAddress()))
             {
                 closeSocketNoThrow(fd);
                 throw new ConnectionRefusedException();
@@ -523,8 +504,7 @@ public final class Network
         return true;
     }
 
-    public static void
-    doFinishConnect(java.nio.channels.SocketChannel fd)
+    public static void doFinishConnect(java.nio.channels.SocketChannel fd)
     {
         //
         // Note: we don't close the socket if there's an exception. It's the responsibility
@@ -533,12 +513,12 @@ public final class Network
 
         try
         {
-            if(!fd.finishConnect())
+            if (!fd.finishConnect())
             {
                 throw new ConnectFailedException();
             }
 
-            if(System.getProperty("os.name").equals("Linux"))
+            if (System.getProperty("os.name").equals("Linux"))
             {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to connect to
@@ -546,15 +526,15 @@ public final class Network
                 // port as the server).
                 //
                 java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
-                if(addr != null && addr.equals(fd.socket().getLocalSocketAddress()))
+                if (addr != null && addr.equals(fd.socket().getLocalSocketAddress()))
                 {
                     throw new ConnectionRefusedException();
                 }
             }
         }
-        catch(java.net.ConnectException ex)
+        catch (java.net.ConnectException ex)
         {
-            if(connectionRefused(ex))
+            if (connectionRefused(ex))
             {
                 throw new ConnectionRefusedException(ex);
             }
@@ -563,17 +543,18 @@ public final class Network
                 throw new ConnectFailedException(ex);
             }
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static void
-    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr,
-              java.net.InetSocketAddress sourceAddr)
+    public static void doConnect(
+        java.nio.channels.DatagramChannel fd,
+        java.net.InetSocketAddress addr,
+        java.net.InetSocketAddress sourceAddr)
     {
-        if(sourceAddr != null)
+        if (sourceAddr != null)
         {
             doBind(fd, sourceAddr);
         }
@@ -582,11 +563,11 @@ public final class Network
         {
             fd.connect(addr);
         }
-        catch(java.net.ConnectException ex)
+        catch (java.net.ConnectException ex)
         {
             closeSocketNoThrow(fd);
 
-            if(connectionRefused(ex))
+            if (connectionRefused(ex))
             {
                 throw new ConnectionRefusedException(ex);
             }
@@ -595,30 +576,28 @@ public final class Network
                 throw new ConnectFailedException(ex);
             }
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void
-    setSendBufferSize(java.nio.channels.SocketChannel fd, int size)
+    public static void setSendBufferSize(java.nio.channels.SocketChannel fd, int size)
     {
         try
         {
             java.net.Socket socket = fd.socket();
             socket.setSendBufferSize(size);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int
-    getSendBufferSize(java.nio.channels.SocketChannel fd)
+    public static int getSendBufferSize(java.nio.channels.SocketChannel fd)
     {
         int size;
         try
@@ -626,7 +605,7 @@ public final class Network
             java.net.Socket socket = fd.socket();
             size = socket.getSendBufferSize();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -634,23 +613,21 @@ public final class Network
         return size;
     }
 
-    public static void
-    setRecvBufferSize(java.nio.channels.SocketChannel fd, int size)
+    public static void setRecvBufferSize(java.nio.channels.SocketChannel fd, int size)
     {
         try
         {
             java.net.Socket socket = fd.socket();
             socket.setReceiveBufferSize(size);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int
-    getRecvBufferSize(java.nio.channels.SocketChannel fd)
+    public static int getRecvBufferSize(java.nio.channels.SocketChannel fd)
     {
         int size;
         try
@@ -658,7 +635,7 @@ public final class Network
             java.net.Socket socket = fd.socket();
             size = socket.getReceiveBufferSize();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -666,23 +643,21 @@ public final class Network
         return size;
     }
 
-    public static void
-    setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
+    public static void setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
     {
         try
         {
             java.net.ServerSocket socket = fd.socket();
             socket.setReceiveBufferSize(size);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int
-    getRecvBufferSize(java.nio.channels.ServerSocketChannel fd)
+    public static int getRecvBufferSize(java.nio.channels.ServerSocketChannel fd)
     {
         int size;
         try
@@ -690,7 +665,7 @@ public final class Network
             java.net.ServerSocket socket = fd.socket();
             size = socket.getReceiveBufferSize();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -698,23 +673,21 @@ public final class Network
         return size;
     }
 
-    public static void
-    setSendBufferSize(java.nio.channels.DatagramChannel fd, int size)
+    public static void setSendBufferSize(java.nio.channels.DatagramChannel fd, int size)
     {
         try
         {
             java.net.DatagramSocket socket = fd.socket();
             socket.setSendBufferSize(size);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int
-    getSendBufferSize(java.nio.channels.DatagramChannel fd)
+    public static int getSendBufferSize(java.nio.channels.DatagramChannel fd)
     {
         int size;
         try
@@ -722,7 +695,7 @@ public final class Network
             java.net.DatagramSocket socket = fd.socket();
             size = socket.getSendBufferSize();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -730,23 +703,21 @@ public final class Network
         return size;
     }
 
-    public static void
-    setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size)
+    public static void setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size)
     {
         try
         {
             java.net.DatagramSocket socket = fd.socket();
             socket.setReceiveBufferSize(size);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int
-    getRecvBufferSize(java.nio.channels.DatagramChannel fd)
+    public static int getRecvBufferSize(java.nio.channels.DatagramChannel fd)
     {
         int size;
         try
@@ -754,7 +725,7 @@ public final class Network
             java.net.DatagramSocket socket = fd.socket();
             size = socket.getReceiveBufferSize();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
@@ -762,8 +733,7 @@ public final class Network
         return size;
     }
 
-    public static int
-    getProtocolSupport(java.net.InetSocketAddress addr)
+    public static int getProtocolSupport(java.net.InetSocketAddress addr)
     {
         return addr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
     }
@@ -771,11 +741,11 @@ public final class Network
     public static java.net.InetSocketAddress
     getAddressForServer(String host, int port, int protocol, boolean preferIPv6)
     {
-        if(host == null || host.length() == 0)
+        if (host == null || host.length() == 0)
         {
             try
             {
-                if(protocol != EnableIPv4)
+                if (protocol != EnableIPv4)
                 {
                     return new java.net.InetSocketAddress(java.net.InetAddress.getByName("::0"), port);
                 }
@@ -784,12 +754,12 @@ public final class Network
                     return new java.net.InetSocketAddress(java.net.InetAddress.getByName("0.0.0.0"), port);
                 }
             }
-            catch(java.net.UnknownHostException ex)
+            catch (java.net.UnknownHostException ex)
             {
-                assert(false);
+                assert (false);
                 return null;
             }
-            catch(java.lang.SecurityException ex)
+            catch (java.lang.SecurityException ex)
             {
                 throw new SocketException(ex);
             }
@@ -797,12 +767,11 @@ public final class Network
         return getAddresses(host, port, protocol, EndpointSelectionType.Ordered, preferIPv6, true).get(0);
     }
 
-    public static int
-    compareAddress(java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2)
+    public static int compareAddress(java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2)
     {
-        if(addr1 == null)
+        if (addr1 == null)
         {
-            if(addr2 == null)
+            if (addr2 == null)
             {
                 return 0;
             }
@@ -811,39 +780,39 @@ public final class Network
                 return -1;
             }
         }
-        else if(addr2 == null)
+        else if (addr2 == null)
         {
             return 1;
         }
 
-        if(addr1.getPort() < addr2.getPort())
+        if (addr1.getPort() < addr2.getPort())
         {
             return -1;
         }
-        else if(addr2.getPort() < addr1.getPort())
+        else if (addr2.getPort() < addr1.getPort())
         {
             return 1;
         }
 
         byte[] larr = addr1.getAddress().getAddress();
         byte[] rarr = addr2.getAddress().getAddress();
-        if(larr.length < rarr.length)
+        if (larr.length < rarr.length)
         {
             return -1;
         }
-        else if(rarr.length < larr.length)
+        else if (rarr.length < larr.length)
         {
             return 1;
         }
-        assert(larr.length == rarr.length);
+        assert (larr.length == rarr.length);
 
-        for(int i = 0; i < larr.length; i++)
+        for (int i = 0; i < larr.length; i++)
         {
-            if(larr[i] < rarr[i])
+            if (larr[i] < rarr[i])
             {
                 return -1;
             }
-            else if(rarr[i] < larr[i])
+            else if (rarr[i] < larr[i])
             {
                 return 1;
             }
@@ -852,8 +821,7 @@ public final class Network
         return 0;
     }
 
-    public static java.net.InetAddress
-    getLocalAddress(int protocol)
+    public static java.net.InetAddress getLocalAddress(int protocol)
     {
         java.net.InetAddress addr = null;
 
@@ -861,20 +829,20 @@ public final class Network
         {
             addr = java.net.InetAddress.getLocalHost();
         }
-        catch(java.net.UnknownHostException ex)
+        catch (java.net.UnknownHostException ex)
         {
             //
             // May be raised on DHCP systems.
             //
         }
-        catch(NullPointerException ex)
+        catch (NullPointerException ex)
         {
             //
             // Workaround for bug in JDK.
             //
         }
 
-        if(addr == null || !isValidAddr(addr, protocol))
+        if (addr == null || !isValidAddr(addr, protocol))
         {
             //
             // Iterate over the network interfaces and pick an IP
@@ -882,32 +850,36 @@ public final class Network
             //
             java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocol, false, false);
             java.util.Iterator<java.net.InetAddress> iter = addrs.iterator();
-            while(addr == null && iter.hasNext())
+            while (addr == null && iter.hasNext())
             {
                 java.net.InetAddress a = iter.next();
-                if(protocol == EnableBoth || isValidAddr(a, protocol))
+                if (protocol == EnableBoth || isValidAddr(a, protocol))
                 {
                     addr = a;
                 }
             }
 
-            if(addr == null)
+            if (addr == null)
             {
                 addr = getLoopbackAddresses(protocol)[0]; // Use the loopback address as the last resort.
             }
         }
 
-        assert(addr != null);
+        assert (addr != null);
         return addr;
     }
 
-    public static java.util.List<java.net.InetSocketAddress>
-    getAddresses(String host, int port, int protocol, EndpointSelectionType selType, boolean preferIPv6,
-                 boolean blocking)
+    public static java.util.List<java.net.InetSocketAddress> getAddresses(
+        String host,
+        int port,
+        int protocol,
+        EndpointSelectionType selType,
+        boolean preferIPv6,
+        boolean blocking)
     {
-        if(!blocking)
+        if (!blocking)
         {
-            if(!isNumericAddress(host))
+            if (!isNumericAddress(host))
             {
                 return null; // Can't get the address without blocking.
             }
@@ -917,9 +889,9 @@ public final class Network
             {
                 addrs.add(new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port));
             }
-            catch(java.net.UnknownHostException ex)
+            catch (java.net.UnknownHostException ex)
             {
-                assert(false);
+                assert (false);
             }
             return addrs;
         }
@@ -928,7 +900,7 @@ public final class Network
         try
         {
             java.net.InetAddress[] addrs;
-            if(host == null || host.length() == 0)
+            if (host == null || host.length() == 0)
             {
                 addrs = getLoopbackAddresses(protocol);
             }
@@ -937,22 +909,22 @@ public final class Network
                 addrs = java.net.InetAddress.getAllByName(host);
             }
 
-            for(java.net.InetAddress addr : addrs)
+            for (java.net.InetAddress addr : addrs)
             {
-                if(protocol == EnableBoth || isValidAddr(addr, protocol))
+                if (protocol == EnableBoth || isValidAddr(addr, protocol))
                 {
                     addresses.add(new java.net.InetSocketAddress(addr, port));
                 }
             }
 
-            if(selType == EndpointSelectionType.Random)
+            if (selType == EndpointSelectionType.Random)
             {
                 java.util.Collections.shuffle(addresses);
             }
 
-            if(protocol == EnableBoth)
+            if (protocol == EnableBoth)
             {
-                if(preferIPv6)
+                if (preferIPv6)
                 {
                     java.util.Collections.sort(addresses, _preferIPv6Comparator);
                 }
@@ -962,11 +934,11 @@ public final class Network
                 }
             }
         }
-        catch(java.net.UnknownHostException ex)
+        catch (java.net.UnknownHostException ex)
         {
             throw new com.zeroc.Ice.DNSException(0, host, ex);
         }
-        catch(java.lang.SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             throw new SocketException(ex);
         }
@@ -974,7 +946,7 @@ public final class Network
         //
         // No Inet4Address/Inet6Address available.
         //
-        if(addresses.isEmpty())
+        if (addresses.isEmpty())
         {
             throw new com.zeroc.Ice.DNSException(0, host);
         }
@@ -989,19 +961,18 @@ public final class Network
         try
         {
             java.util.Enumeration<java.net.NetworkInterface> ifaces = java.net.NetworkInterface.getNetworkInterfaces();
-            while(ifaces.hasMoreElements())
+            while (ifaces.hasMoreElements())
             {
                 java.net.NetworkInterface iface = ifaces.nextElement();
                 java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
-                while(addrs.hasMoreElements())
+                while (addrs.hasMoreElements())
                 {
                     java.net.InetAddress addr = addrs.nextElement();
-                    if(!result.contains(addr) &&
-                       (includeLoopback || !addr.isLoopbackAddress()) &&
-                       (protocol == EnableBoth || isValidAddr(addr, protocol)))
+                    if (!result.contains(addr) && (includeLoopback || !addr.isLoopbackAddress()) &&
+                        (protocol == EnableBoth || isValidAddr(addr, protocol)))
                     {
                         result.add(addr);
-                        if(singleAddressPerInterface)
+                        if (singleAddressPerInterface)
                         {
                             break;
                         }
@@ -1009,11 +980,11 @@ public final class Network
                 }
             }
         }
-        catch(java.net.SocketException ex)
+        catch (java.net.SocketException ex)
         {
             throw new SocketException(ex);
         }
-        catch(java.lang.SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             throw new SocketException(ex);
         }
@@ -1027,8 +998,7 @@ public final class Network
         public java.nio.channels.WritableByteChannel sink;
     }
 
-    public static SocketPair
-    createPipe()
+    public static SocketPair createPipe()
     {
         SocketPair fds = new SocketPair();
         try
@@ -1037,7 +1007,7 @@ public final class Network
             fds.sink = pipe.sink();
             fds.source = pipe.source();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new SocketException(ex);
         }
@@ -1048,23 +1018,23 @@ public final class Network
     getHostsForEndpointExpand(String host, int protocolSupport, boolean includeLoopback)
     {
         java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
-        if(isWildcard(host))
+        if (isWildcard(host))
         {
-            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, includeLoopback, false))
+            for (java.net.InetAddress addr : getLocalAddresses(protocolSupport, includeLoopback, false))
             {
                 //
                 // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
                 // be accessed in general with a scope-id.
                 //
-                if(!addr.isLinkLocalAddress())
+                if (!addr.isLinkLocalAddress())
                 {
                     hosts.add(addr.getHostAddress());
                 }
             }
-            if(hosts.isEmpty())
+            if (hosts.isEmpty())
             {
                 // Return loopback if no other local addresses are available.
-                for(java.net.InetAddress addr : getLoopbackAddresses(protocolSupport))
+                for (java.net.InetAddress addr : getLoopbackAddresses(protocolSupport))
                 {
                     hosts.add(addr.getHostAddress());
                 }
@@ -1073,33 +1043,31 @@ public final class Network
         return hosts;
     }
 
-    public static java.util.List<String>
-    getInterfacesForMulticast(String intf, int protocolSupport)
+    public static java.util.List<String> getInterfacesForMulticast(String intf, int protocolSupport)
     {
         java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
-        if(isWildcard(intf))
+        if (isWildcard(intf))
         {
-            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, true, true))
+            for (java.net.InetAddress addr : getLocalAddresses(protocolSupport, true, true))
             {
                 interfaces.add(addr.getHostAddress());
             }
         }
-        if(interfaces.isEmpty())
+        if (interfaces.isEmpty())
         {
             interfaces.add(intf);
         }
         return interfaces;
     }
 
-    public static void
-    setTcpBufSize(java.nio.channels.SocketChannel socket, ProtocolInstance instance)
+    public static void setTcpBufSize(java.nio.channels.SocketChannel socket, ProtocolInstance instance)
     {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix
         // platforms, we use the system defaults.
         //
         int dfltBufSize = 0;
-        if(System.getProperty("os.name").startsWith("Windows"))
+        if (System.getProperty("os.name").startsWith("Windows"))
         {
             dfltBufSize = 128 * 1024;
         }
@@ -1113,7 +1081,7 @@ public final class Network
     public static void
     setTcpBufSize(java.nio.channels.SocketChannel socket, int rcvSize, int sndSize, ProtocolInstance instance)
     {
-        if(rcvSize > 0)
+        if (rcvSize > 0)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
@@ -1122,21 +1090,21 @@ public final class Network
             //
             setRecvBufferSize(socket, rcvSize);
             int size = getRecvBufferSize(socket);
-            if(size < rcvSize)
+            if (size < rcvSize)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
-                if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
+                if (!winfo.rcvWarn || rcvSize != winfo.rcvSize)
                 {
-                    instance.logger().warning("TCP receive buffer size: requested size of " + rcvSize +
-                                              " adjusted to " + size);
+                    instance.logger().warning(
+                        "TCP receive buffer size: requested size of " + rcvSize + " adjusted to " + size);
                     instance.setRcvBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, rcvSize);
                 }
             }
         }
 
-        if(sndSize > 0)
+        if (sndSize > 0)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
@@ -1145,30 +1113,29 @@ public final class Network
             //
             setSendBufferSize(socket, sndSize);
             int size = getSendBufferSize(socket);
-            if(size < sndSize)
+            if (size < sndSize)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
-                if(!winfo.sndWarn || sndSize != winfo.sndSize)
+                if (!winfo.sndWarn || sndSize != winfo.sndSize)
                 {
-                    instance.logger().warning("TCP send buffer size: requested size of " + sndSize +
-                                              " adjusted to " + size);
+                    instance.logger().warning(
+                        "TCP send buffer size: requested size of " + sndSize + " adjusted to " + size);
                     instance.setSndBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, sndSize);
                 }
             }
         }
     }
 
-    public static void
-    setTcpBufSize(java.nio.channels.ServerSocketChannel socket, ProtocolInstance instance)
+    public static void setTcpBufSize(java.nio.channels.ServerSocketChannel socket, ProtocolInstance instance)
     {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix
         // platforms, we use the system defaults.
         //
         int dfltBufSize = 0;
-        if(System.getProperty("os.name").startsWith("Windows"))
+        if (System.getProperty("os.name").startsWith("Windows"))
         {
             dfltBufSize = 128 * 1024;
         }
@@ -1177,7 +1144,7 @@ public final class Network
         // Get property for buffer size.
         //
         int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-        if(sizeRequested > 0)
+        if (sizeRequested > 0)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
@@ -1186,15 +1153,15 @@ public final class Network
             //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
-            if(size < sizeRequested)
+            if (size < sizeRequested)
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
-                if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
+                if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
                 {
-                    instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
-                                              " adjusted to " + size);
+                    instance.logger().warning(
+                        "TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
                     instance.setRcvBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, sizeRequested);
                 }
             }
@@ -1204,7 +1171,7 @@ public final class Network
     public static String
     fdToString(java.nio.channels.SelectableChannel fd, NetworkProxy proxy, java.net.InetSocketAddress target)
     {
-        if(fd == null)
+        if (fd == null)
         {
             return "<closed>";
         }
@@ -1212,7 +1179,7 @@ public final class Network
         java.net.InetAddress localAddr = null, remoteAddr = null;
         int localPort = -1, remotePort = -1;
 
-        if(fd instanceof java.nio.channels.SocketChannel)
+        if (fd instanceof java.nio.channels.SocketChannel)
         {
             java.net.Socket socket = ((java.nio.channels.SocketChannel)fd).socket();
             localAddr = socket.getLocalAddress();
@@ -1220,7 +1187,7 @@ public final class Network
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
         }
-        else if(fd instanceof java.nio.channels.DatagramChannel)
+        else if (fd instanceof java.nio.channels.DatagramChannel)
         {
             java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)fd).socket();
             localAddr = socket.getLocalAddress();
@@ -1230,16 +1197,15 @@ public final class Network
         }
         else
         {
-            assert(false);
+            assert (false);
         }
 
         return addressesToString(localAddr, localPort, remoteAddr, remotePort, proxy, target);
     }
 
-    public static String
-    fdToString(java.nio.channels.SelectableChannel fd)
+    public static String fdToString(java.nio.channels.SelectableChannel fd)
     {
-        if(fd == null)
+        if (fd == null)
         {
             return "<closed>";
         }
@@ -1247,7 +1213,7 @@ public final class Network
         java.net.InetAddress localAddr = null, remoteAddr = null;
         int localPort = -1, remotePort = -1;
 
-        if(fd instanceof java.nio.channels.SocketChannel)
+        if (fd instanceof java.nio.channels.SocketChannel)
         {
             java.net.Socket socket = ((java.nio.channels.SocketChannel)fd).socket();
             localAddr = socket.getLocalAddress();
@@ -1255,7 +1221,7 @@ public final class Network
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
         }
-        else if(fd instanceof java.nio.channels.DatagramChannel)
+        else if (fd instanceof java.nio.channels.DatagramChannel)
         {
             java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)fd).socket();
             localAddr = socket.getLocalAddress();
@@ -1265,23 +1231,27 @@ public final class Network
         }
         else
         {
-            assert(false);
+            assert (false);
         }
 
         return addressesToString(localAddr, localPort, remoteAddr, remotePort);
     }
 
-    public static String
-    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort,
-                      NetworkProxy proxy, java.net.InetSocketAddress target)
+    public static String addressesToString(
+        java.net.InetAddress localAddr,
+        int localPort,
+        java.net.InetAddress remoteAddr,
+        int remotePort,
+        NetworkProxy proxy,
+        java.net.InetSocketAddress target)
     {
         StringBuilder s = new StringBuilder(128);
         s.append("local address = ");
         s.append(addrToString(localAddr, localPort));
 
-        if(proxy != null)
+        if (proxy != null)
         {
-            if(remoteAddr == null)
+            if (remoteAddr == null)
             {
                 java.net.InetSocketAddress addr = proxy.getAddress();
                 remoteAddr = addr.getAddress();
@@ -1296,13 +1266,13 @@ public final class Network
         }
         else
         {
-            if(remoteAddr == null && target != null)
+            if (remoteAddr == null && target != null)
             {
                 remoteAddr = target.getAddress();
                 remotePort = target.getPort();
             }
 
-            if(remoteAddr == null)
+            if (remoteAddr == null)
             {
                 s.append("\nremote address = <not connected>");
             }
@@ -1322,8 +1292,7 @@ public final class Network
         return addressesToString(localAddr, localPort, remoteAddr, remotePort, null, null);
     }
 
-    public static String
-    addrToString(java.net.InetSocketAddress addr)
+    public static String addrToString(java.net.InetSocketAddress addr)
     {
         StringBuilder s = new StringBuilder(128);
         s.append(addr.getAddress().getHostAddress());
@@ -1332,27 +1301,20 @@ public final class Network
         return s.toString();
     }
 
-    public static boolean
-    interrupted(java.io.IOException ex)
+    public static boolean interrupted(java.io.IOException ex) { return ex instanceof java.io.InterruptedIOException; }
+
+    private static boolean isValidAddr(java.net.InetAddress addr, int protocol)
     {
-        return ex instanceof java.io.InterruptedIOException;
+        byte[] bytes = null;
+        if (addr != null)
+        {
+            bytes = addr.getAddress();
+        }
+        return bytes != null &&
+            ((bytes.length == 16 && protocol == EnableIPv6) || (bytes.length == 4 && protocol == EnableIPv4));
     }
 
-    private static boolean
-    isValidAddr(java.net.InetAddress addr, int protocol)
-    {
-         byte[] bytes = null;
-         if(addr != null)
-         {
-             bytes = addr.getAddress();
-         }
-         return bytes != null &&
-               ((bytes.length == 16 && protocol == EnableIPv6) ||
-                (bytes.length == 4 && protocol == EnableIPv4));
-    }
-
-    public static String
-    addrToString(java.net.InetAddress addr, int port)
+    public static String addrToString(java.net.InetAddress addr, int port)
     {
         StringBuffer s = new StringBuffer();
 
@@ -1361,7 +1323,7 @@ public final class Network
         // port information.
         //
 
-        if(addr == null || addr.isAnyLocalAddress())
+        if (addr == null || addr.isAnyLocalAddress())
         {
             s.append("<not available>");
         }
@@ -1370,7 +1332,7 @@ public final class Network
             s.append(addr.getHostAddress());
         }
 
-        if(port > 0)
+        if (port > 0)
         {
             s.append(':');
             s.append(port);
@@ -1379,55 +1341,52 @@ public final class Network
         return s.toString();
     }
 
-    private static java.net.InetAddress[]
-    getLoopbackAddresses(int protocol)
+    private static java.net.InetAddress[] getLoopbackAddresses(int protocol)
     {
         try
         {
             java.net.InetAddress[] addrs = new java.net.InetAddress[protocol == EnableBoth ? 2 : 1];
             int i = 0;
-            if(protocol != EnableIPv6)
+            if (protocol != EnableIPv6)
             {
                 addrs[i++] = java.net.InetAddress.getByName("127.0.0.1");
             }
-            if(protocol != EnableIPv4)
+            if (protocol != EnableIPv4)
             {
                 addrs[i++] = java.net.InetAddress.getByName("::1");
             }
             return addrs;
         }
-        catch(java.net.UnknownHostException ex)
+        catch (java.net.UnknownHostException ex)
         {
-            assert(false);
+            assert (false);
             return null;
         }
-        catch(java.lang.SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             throw new SocketException(ex);
         }
     }
 
-    public static java.net.InetSocketAddress
-    getNumericAddress(String address)
+    public static java.net.InetSocketAddress getNumericAddress(String address)
     {
         java.net.InetSocketAddress addr = null;
-        if(!address.isEmpty() && isNumericAddress(address))
+        if (!address.isEmpty() && isNumericAddress(address))
         {
             try
             {
                 addr = new java.net.InetSocketAddress(java.net.InetAddress.getByName(address), 0);
             }
-            catch(java.net.UnknownHostException ex)
+            catch (java.net.UnknownHostException ex)
             {
             }
         }
         return addr;
     }
 
-    private static boolean
-    isWildcard(String host)
+    private static boolean isWildcard(String host)
     {
-        if(host == null || host.length() == 0)
+        if (host == null || host.length() == 0)
         {
             return true;
         }
@@ -1435,10 +1394,10 @@ public final class Network
         {
             return java.net.InetAddress.getByName(host).isAnyLocalAddress();
         }
-        catch(java.net.UnknownHostException ex)
+        catch (java.net.UnknownHostException ex)
         {
         }
-        catch(java.lang.SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             throw new SocketException(ex);
         }
@@ -1447,20 +1406,15 @@ public final class Network
 
     static class IPAddressComparator implements java.util.Comparator<java.net.InetSocketAddress>
     {
-        IPAddressComparator(boolean ipv6)
-        {
-            _ipv6 = ipv6;
-        }
+        IPAddressComparator(boolean ipv6) { _ipv6 = ipv6; }
 
-        @Override
-        public int
-        compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs)
+        @Override public int compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs)
         {
-            if(lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length)
+            if (lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length)
             {
                 return _ipv6 ? 1 : -1;
             }
-            else if(lhs.getAddress().getAddress().length > rhs.getAddress().getAddress().length)
+            else if (lhs.getAddress().getAddress().length > rhs.getAddress().getAddress().length)
             {
                 return _ipv6 ? -1 : 1;
             }

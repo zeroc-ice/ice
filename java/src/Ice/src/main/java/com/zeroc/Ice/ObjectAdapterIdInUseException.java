@@ -21,10 +21,7 @@ package com.zeroc.Ice;
  **/
 public class ObjectAdapterIdInUseException extends LocalException
 {
-    public ObjectAdapterIdInUseException()
-    {
-        this.id = "";
-    }
+    public ObjectAdapterIdInUseException() { this.id = ""; }
 
     public ObjectAdapterIdInUseException(Throwable cause)
     {
@@ -32,10 +29,7 @@ public class ObjectAdapterIdInUseException extends LocalException
         this.id = "";
     }
 
-    public ObjectAdapterIdInUseException(String id)
-    {
-        this.id = id;
-    }
+    public ObjectAdapterIdInUseException(String id) { this.id = id; }
 
     public ObjectAdapterIdInUseException(String id, Throwable cause)
     {
@@ -43,10 +37,7 @@ public class ObjectAdapterIdInUseException extends LocalException
         this.id = id;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::ObjectAdapterIdInUseException";
-    }
+    public String ice_id() { return "::Ice::ObjectAdapterIdInUseException"; }
 
     /**
      * Adapter ID.

@@ -48,10 +48,7 @@ public class AlreadyRegisteredException extends LocalException
         this.id = id;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::AlreadyRegisteredException";
-    }
+    public String ice_id() { return "::Ice::AlreadyRegisteredException"; }
 
     /**
      * The kind of object that could not be removed: "servant", "facet", "object", "default servant",

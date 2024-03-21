@@ -8,11 +8,10 @@ import java.util.concurrent.ThreadFactory;
 
 public final class Util
 {
-    static String
-    createThreadName(final com.zeroc.Ice.Properties properties, final String name)
+    static String createThreadName(final com.zeroc.Ice.Properties properties, final String name)
     {
         String threadName = properties.getProperty("Ice.ProgramName");
-        if(threadName.length() > 0)
+        if (threadName.length() > 0)
         {
             threadName += "-";
         }
@@ -21,18 +20,15 @@ public final class Util
         return threadName;
     }
 
-    static ThreadFactory
-    createThreadFactory(final com.zeroc.Ice.Properties properties, final String name)
+    static ThreadFactory createThreadFactory(final com.zeroc.Ice.Properties properties, final String name)
     {
-        return new java.util.concurrent.ThreadFactory()
-        {
-            @Override
-            public Thread newThread(Runnable r)
+        return new java.util.concurrent.ThreadFactory() {
+            @Override public Thread newThread(Runnable r)
             {
                 Thread t = new Thread(r);
                 t.setName(name);
 
-                if(properties.getProperty("Ice.ThreadPriority").length() > 0)
+                if (properties.getProperty("Ice.ThreadPriority").length() > 0)
                 {
                     t.setPriority(Util.getThreadPriorityProperty(properties, "Ice"));
                 }
@@ -41,15 +37,13 @@ public final class Util
         };
     }
 
-    public static Instance
-    getInstance(com.zeroc.Ice.Communicator communicator)
+    public static Instance getInstance(com.zeroc.Ice.Communicator communicator)
     {
         com.zeroc.Ice.CommunicatorI p = (com.zeroc.Ice.CommunicatorI)communicator;
         return p.getInstance();
     }
 
-    public static ProtocolPluginFacade
-    getProtocolPluginFacade(com.zeroc.Ice.Communicator communicator)
+    public static ProtocolPluginFacade getProtocolPluginFacade(com.zeroc.Ice.Communicator communicator)
     {
         return new ProtocolPluginFacadeI(communicator);
     }
@@ -59,9 +53,7 @@ public final class Util
     // treated as absolute). If that fails, fall back to the file system. Returns null
     // if the file does not exist and raises IOException if an error occurs.
     //
-    public static java.io.InputStream
-    openResource(ClassLoader cl, String path)
-        throws java.io.IOException
+    public static java.io.InputStream openResource(ClassLoader cl, String path) throws java.io.IOException
     {
         //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
@@ -75,7 +67,7 @@ public final class Util
         {
             stream = cl.getResourceAsStream(path);
         }
-        catch(IllegalArgumentException ex)
+        catch (IllegalArgumentException ex)
         {
             //
             // With JDK-7 this can happen if the result url (base url + path) produces a
@@ -86,17 +78,17 @@ public final class Util
             // java.io.InputStream in = Util.openResource(cl, "c:\\foo.txt");
             //
         }
-        if(stream == null)
+        if (stream == null)
         {
             try
             {
                 java.io.File f = new java.io.File(path);
-                if(f.exists())
+                if (f.exists())
                 {
                     stream = new java.io.FileInputStream(f);
                 }
             }
-            catch(java.lang.SecurityException ex)
+            catch (java.lang.SecurityException ex)
             {
                 // Ignore - a security manager may forbid access to the local file system.
             }
@@ -105,9 +97,7 @@ public final class Util
         return stream;
     }
 
-    public static Class<?>
-    findClass(String className, ClassLoader cl)
-        throws LinkageError
+    public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError
     {
         //
         // Try to load the class using the given class loader (if any). If that fails (or
@@ -120,7 +110,7 @@ public final class Util
 
         Class<?> c = null;
 
-        if(cl != null)
+        if (cl != null)
         {
             c = loadClass(className, cl);
         }
@@ -128,17 +118,17 @@ public final class Util
         //
         // Try using the current thread's class loader.
         //
-        if(c == null)
+        if (c == null)
         {
             try
             {
                 cl = Thread.currentThread().getContextClassLoader();
-                if(cl != null)
+                if (cl != null)
                 {
                     c = loadClass(className, cl);
                 }
             }
-            catch(SecurityException ex)
+            catch (SecurityException ex)
             {
             }
         }
@@ -148,12 +138,12 @@ public final class Util
         //
         try
         {
-            if(c == null)
+            if (c == null)
             {
                 c = Class.forName(className);
             }
         }
-        catch(ClassNotFoundException ex)
+        catch (ClassNotFoundException ex)
         {
             // Ignore
         }
@@ -161,17 +151,17 @@ public final class Util
         //
         // Fall back to the system class loader (which knows about CLASSPATH).
         //
-        if(c == null)
+        if (c == null)
         {
             try
             {
                 cl = ClassLoader.getSystemClassLoader();
-                if(cl != null)
+                if (cl != null)
                 {
                     c = loadClass(className, cl);
                 }
             }
-            catch(SecurityException ex)
+            catch (SecurityException ex)
             {
             }
         }
@@ -179,16 +169,15 @@ public final class Util
         return c;
     }
 
-    private static Class<?>
-    loadClass(String className, ClassLoader cl)
+    private static Class<?> loadClass(String className, ClassLoader cl)
     {
-        if(cl != null)
+        if (cl != null)
         {
             try
             {
                 return cl.loadClass(className);
             }
-            catch(ClassNotFoundException ex)
+            catch (ClassNotFoundException ex)
             {
                 // Ignore
             }
@@ -197,19 +186,18 @@ public final class Util
         return null;
     }
 
-    public static int
-    getThreadPriorityProperty(com.zeroc.Ice.Properties properties, String prefix)
+    public static int getThreadPriorityProperty(com.zeroc.Ice.Properties properties, String prefix)
     {
         String pri = properties.getProperty(prefix + ".ThreadPriority");
-        if(pri.equals("MIN_PRIORITY") || pri.equals("java.lang.Thread.MIN_PRIORITY"))
+        if (pri.equals("MIN_PRIORITY") || pri.equals("java.lang.Thread.MIN_PRIORITY"))
         {
             return java.lang.Thread.MIN_PRIORITY;
         }
-        else if(pri.equals("NORM_PRIORITY") || pri.equals("java.lang.Thread.NORM_PRIORITY"))
+        else if (pri.equals("NORM_PRIORITY") || pri.equals("java.lang.Thread.NORM_PRIORITY"))
         {
             return java.lang.Thread.NORM_PRIORITY;
         }
-        else if(pri.equals("MAX_PRIORITY") || pri.equals("java.lang.Thread.MAX_PRIORITY"))
+        else if (pri.equals("MAX_PRIORITY") || pri.equals("java.lang.Thread.MAX_PRIORITY"))
         {
             return java.lang.Thread.MAX_PRIORITY;
         }
@@ -218,7 +206,7 @@ public final class Util
         {
             return Integer.parseInt(pri);
         }
-        catch(NumberFormatException ex)
+        catch (NumberFormatException ex)
         {
         }
         return java.lang.Thread.NORM_PRIORITY;
@@ -227,8 +215,5 @@ public final class Util
     //
     // Return true if we're running on Android.
     //
-    public static boolean isAndroid()
-    {
-        return System.getProperty("java.vm.name").startsWith("Dalvik");
-    }
+    public static boolean isAndroid() { return System.getProperty("java.vm.name").startsWith("Dalvik"); }
 }

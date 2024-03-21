@@ -12,7 +12,7 @@ public class Base64
 {
     public static String encode(byte[] plainSeq)
     {
-        if(plainSeq == null || plainSeq.length == 0)
+        if (plainSeq == null || plainSeq.length == 0)
         {
             return "";
         }
@@ -31,20 +31,20 @@ public class Base64
         int by6;
         int by7;
 
-        for(int i = 0; i < plainSeq.length; i += 3)
+        for (int i = 0; i < plainSeq.length; i += 3)
         {
             by1 = plainSeq[i] & 0xff;
             by2 = 0;
             by3 = 0;
 
-            if((i + 1) < plainSeq.length)
+            if ((i + 1) < plainSeq.length)
             {
-                by2 = plainSeq[i+1] & 0xff;
+                by2 = plainSeq[i + 1] & 0xff;
             }
 
-            if((i + 2) < plainSeq.length)
+            if ((i + 2) < plainSeq.length)
             {
-                by3 = plainSeq[i+2] & 0xff;
+                by3 = plainSeq[i + 2] & 0xff;
             }
 
             by4 = (by1 >> 2) & 0xff;
@@ -55,7 +55,7 @@ public class Base64
             retval.append(encode((byte)by4));
             retval.append(encode((byte)by5));
 
-            if((i + 1) < plainSeq.length)
+            if ((i + 1) < plainSeq.length)
             {
                 retval.append(encode((byte)by6));
             }
@@ -64,7 +64,7 @@ public class Base64
                 retval.append('=');
             }
 
-            if((i + 2) < plainSeq.length)
+            if ((i + 2) < plainSeq.length)
             {
                 retval.append(encode((byte)by7));
             }
@@ -77,7 +77,7 @@ public class Base64
         StringBuilder outString = new StringBuilder(totalBytes);
         int iter = 0;
 
-        while((retval.length() - iter) > 76)
+        while ((retval.length() - iter) > 76)
         {
             outString.append(retval.substring(iter, iter + 76));
             outString.append("\r\n");
@@ -93,21 +93,21 @@ public class Base64
     {
         StringBuilder newStr = new StringBuilder(str.length());
 
-        for(int j = 0; j < str.length(); j++)
+        for (int j = 0; j < str.length(); j++)
         {
             char c = str.charAt(j);
-            if(isBase64(c))
+            if (isBase64(c))
             {
                 newStr.append(c);
             }
             else
             {
-                throw new IllegalArgumentException("invalid base64 character `" + str.charAt(j) + "' (ordinal " +
-                                                   ((int)str.charAt(j)) + ")");
+                throw new IllegalArgumentException(
+                    "invalid base64 character `" + str.charAt(j) + "' (ordinal " + ((int)str.charAt(j)) + ")");
             }
         }
 
-        if(newStr.length() == 0)
+        if (newStr.length() == 0)
         {
             return null;
         }
@@ -130,7 +130,7 @@ public class Base64
         char c1, c2, c3, c4;
 
         int pos = 0;
-        for(int i = 0; i < newStr.length(); i += 4)
+        for (int i = 0; i < newStr.length(); i += 4)
         {
             c1 = 'A';
             c2 = 'A';
@@ -139,17 +139,17 @@ public class Base64
 
             c1 = newStr.charAt(i);
 
-            if((i + 1) < newStr.length())
+            if ((i + 1) < newStr.length())
             {
                 c2 = newStr.charAt(i + 1);
             }
 
-            if((i + 2) < newStr.length())
+            if ((i + 2) < newStr.length())
             {
                 c3 = newStr.charAt(i + 2);
             }
 
-            if((i + 3) < newStr.length())
+            if ((i + 3) < newStr.length())
             {
                 c4 = newStr.charAt(i + 3);
             }
@@ -162,13 +162,13 @@ public class Base64
             retval.put((byte)((by1 << 2) | (by2 >> 4)));
             ++pos;
 
-            if(c3 != '=')
+            if (c3 != '=')
             {
                 retval.put((byte)(((by2 & 0xf) << 4) | (by3 >> 2)));
                 ++pos;
             }
 
-            if(c4 != '=')
+            if (c4 != '=')
             {
                 retval.put((byte)(((by3 & 0x3) << 6) | by4));
                 ++pos;
@@ -182,32 +182,32 @@ public class Base64
 
     private static boolean isBase64(char c)
     {
-        if(c >= 'A' && c <= 'Z')
+        if (c >= 'A' && c <= 'Z')
         {
             return true;
         }
 
-        if(c >= 'a' && c <= 'z')
+        if (c >= 'a' && c <= 'z')
         {
             return true;
         }
 
-        if(c >= '0' && c <= '9')
+        if (c >= '0' && c <= '9')
         {
             return true;
         }
 
-        if(c == '+')
+        if (c == '+')
         {
             return true;
         }
 
-        if(c == '/')
+        if (c == '/')
         {
             return true;
         }
 
-        if(c == '=')
+        if (c == '=')
         {
             return true;
         }
@@ -217,22 +217,22 @@ public class Base64
 
     private static char encode(byte uc)
     {
-        if(uc < 26)
+        if (uc < 26)
         {
             return (char)('A' + uc);
         }
 
-        if(uc < 52)
+        if (uc < 52)
         {
             return (char)('a' + (uc - 26));
         }
 
-        if(uc < 62)
+        if (uc < 62)
         {
             return (char)('0' + (uc - 52));
         }
 
-        if(uc == 62)
+        if (uc == 62)
         {
             return '+';
         }
@@ -242,22 +242,22 @@ public class Base64
 
     private static byte decode(char c)
     {
-        if(c >= 'A' && c <= 'Z')
+        if (c >= 'A' && c <= 'Z')
         {
             return (byte)(c - 'A');
         }
 
-        if(c >= 'a' && c <= 'z')
+        if (c >= 'a' && c <= 'z')
         {
             return (byte)(c - 'a' + 26);
         }
 
-        if(c >= '0' && c <= '9')
+        if (c >= '0' && c <= '9')
         {
             return (byte)(c - '0' + 52);
         }
 
-        if(c == '+')
+        if (c == '+')
         {
             return 62;
         }

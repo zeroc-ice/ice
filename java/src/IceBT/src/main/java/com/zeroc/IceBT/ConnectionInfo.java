@@ -32,7 +32,18 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
         this.sndSize = 0;
     }
 
-    public ConnectionInfo(com.zeroc.Ice.ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, String localAddress, int localChannel, String remoteAddress, int remoteChannel, String uuid, int rcvSize, int sndSize)
+    public ConnectionInfo(
+        com.zeroc.Ice.ConnectionInfo underlying,
+        boolean incoming,
+        String adapterName,
+        String connectionId,
+        String localAddress,
+        int localChannel,
+        String remoteAddress,
+        int remoteChannel,
+        String uuid,
+        int rcvSize,
+        int sndSize)
     {
         super(underlying, incoming, adapterName, connectionId);
         this.localAddress = localAddress;
@@ -79,10 +90,7 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo
      **/
     public int sndSize;
 
-    public ConnectionInfo clone()
-    {
-        return (ConnectionInfo)super.clone();
-    }
+    public ConnectionInfo clone() { return (ConnectionInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = -1320122761309365325L;

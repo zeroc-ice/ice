@@ -6,25 +6,13 @@ package com.zeroc.IceGridGUI.Application;
 
 class Editable implements Cloneable
 {
-    Editable(boolean brandNew)
-    {
-        _isNew = brandNew;
-    }
+    Editable(boolean brandNew) { _isNew = brandNew; }
 
-    boolean isNew()
-    {
-        return _isNew;
-    }
+    boolean isNew() { return _isNew; }
 
-    boolean isModified()
-    {
-        return _modified;
-    }
+    boolean isModified() { return _modified; }
 
-    void markModified()
-    {
-        _modified = true;
-    }
+    void markModified() { _modified = true; }
 
     void commit()
     {
@@ -33,17 +21,14 @@ class Editable implements Cloneable
         _removedElements.clear();
     }
 
-    void markNew()
-    {
-        _isNew = true;
-    }
+    void markNew() { _isNew = true; }
 
     void removeElement(String id, Editable editable, Class forClass)
     {
-        if(!editable.isNew())
+        if (!editable.isNew())
         {
             java.util.TreeSet<String> set = _removedElements.get(forClass);
-            if(set == null)
+            if (set == null)
             {
                 set = new java.util.TreeSet<>();
                 _removedElements.put(forClass, set);
@@ -55,7 +40,7 @@ class Editable implements Cloneable
     String[] removedElements(Class forClass)
     {
         java.util.TreeSet<String> set = _removedElements.get(forClass);
-        if(set == null)
+        if (set == null)
         {
             return new String[0];
         }
@@ -71,7 +56,7 @@ class Editable implements Cloneable
         {
             Editable result = (Editable)clone();
             java.util.HashMap<Class, java.util.TreeSet<String>> removedElements = new java.util.HashMap<>();
-            for(java.util.Map.Entry<Class, java.util.TreeSet<String>> p : result._removedElements.entrySet())
+            for (java.util.Map.Entry<Class, java.util.TreeSet<String>> p : result._removedElements.entrySet())
             {
                 java.util.TreeSet<String> val = new java.util.TreeSet<>(p.getValue());
                 removedElements.put(p.getKey(), val);
@@ -79,7 +64,7 @@ class Editable implements Cloneable
             result._removedElements = removedElements;
             return result;
         }
-        catch(CloneNotSupportedException e)
+        catch (CloneNotSupportedException e)
         {
             assert false;
             return null;

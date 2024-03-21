@@ -19,71 +19,30 @@ public abstract class Reference implements Cloneable
         void setException(com.zeroc.Ice.LocalException ex);
     }
 
-    public final int
-    getMode()
-    {
-        return _mode;
-    }
+    public final int getMode() { return _mode; }
 
-    public final boolean
-    getSecure()
-    {
-        return _secure;
-    }
+    public final boolean getSecure() { return _secure; }
 
-    public final com.zeroc.Ice.ProtocolVersion
-    getProtocol()
-    {
-        return _protocol;
-    }
+    public final com.zeroc.Ice.ProtocolVersion getProtocol() { return _protocol; }
 
-    public final com.zeroc.Ice.EncodingVersion
-    getEncoding()
-    {
-        return _encoding;
-    }
+    public final com.zeroc.Ice.EncodingVersion getEncoding() { return _encoding; }
 
-    public final com.zeroc.Ice.Identity
-    getIdentity()
-    {
-        return _identity;
-    }
+    public final com.zeroc.Ice.Identity getIdentity() { return _identity; }
 
-    public final String
-    getFacet()
-    {
-        return _facet;
-    }
+    public final String getFacet() { return _facet; }
 
-    public final Instance
-    getInstance()
-    {
-        return _instance;
-    }
+    public final Instance getInstance() { return _instance; }
 
-    public final java.util.Map<String, String>
-    getContext()
-    {
-        return _context;
-    }
+    public final java.util.Map<String, String> getContext() { return _context; }
 
-    public int
-    getInvocationTimeout()
-    {
-        return _invocationTimeout;
-    }
+    public int getInvocationTimeout() { return _invocationTimeout; }
 
-    public java.util.Optional<Boolean>
-    getCompress()
+    public java.util.Optional<Boolean> getCompress()
     {
         return _overrideCompress ? java.util.Optional.of(_compress) : java.util.Optional.empty();
     }
 
-    public final com.zeroc.Ice.Communicator
-    getCommunicator()
-    {
-        return _communicator;
-    }
+    public final com.zeroc.Ice.Communicator getCommunicator() { return _communicator; }
 
     public abstract EndpointI[] getEndpoints();
     public abstract String getAdapterId();
@@ -104,15 +63,14 @@ public abstract class Reference implements Cloneable
     // a new reference based on the existing one, with the
     // corresponding value changed.
     //
-    public final Reference
-    changeContext(java.util.Map<String, String> newContext)
+    public final Reference changeContext(java.util.Map<String, String> newContext)
     {
-        if(newContext == null)
+        if (newContext == null)
         {
             newContext = _emptyContext;
         }
         Reference r = _instance.referenceFactory().copy(this);
-        if(newContext.isEmpty())
+        if (newContext.isEmpty())
         {
             r._context = _emptyContext;
         }
@@ -123,10 +81,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public final Reference
-    changeMode(int newMode)
+    public final Reference changeMode(int newMode)
     {
-        if(newMode == _mode)
+        if (newMode == _mode)
         {
             return this;
         }
@@ -135,10 +92,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public Reference
-    changeSecure(boolean newSecure)
+    public Reference changeSecure(boolean newSecure)
     {
-        if(newSecure == _secure)
+        if (newSecure == _secure)
         {
             return this;
         }
@@ -147,10 +103,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public final Reference
-    changeIdentity(com.zeroc.Ice.Identity newIdentity)
+    public final Reference changeIdentity(com.zeroc.Ice.Identity newIdentity)
     {
-        if(newIdentity.equals(_identity))
+        if (newIdentity.equals(_identity))
         {
             return this;
         }
@@ -159,10 +114,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public final Reference
-    changeFacet(String newFacet)
+    public final Reference changeFacet(String newFacet)
     {
-        if(newFacet.equals(_facet))
+        if (newFacet.equals(_facet))
         {
             return this;
         }
@@ -171,10 +125,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public final Reference
-    changeInvocationTimeout(int newTimeout)
+    public final Reference changeInvocationTimeout(int newTimeout)
     {
-        if(newTimeout == _invocationTimeout)
+        if (newTimeout == _invocationTimeout)
         {
             return this;
         }
@@ -183,10 +136,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public Reference
-    changeEncoding(com.zeroc.Ice.EncodingVersion newEncoding)
+    public Reference changeEncoding(com.zeroc.Ice.EncodingVersion newEncoding)
     {
-        if(newEncoding.equals(_encoding))
+        if (newEncoding.equals(_encoding))
         {
             return this;
         }
@@ -195,10 +147,9 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public Reference
-    changeCompress(boolean newCompress)
+    public Reference changeCompress(boolean newCompress)
     {
-        if(_overrideCompress && _compress == newCompress)
+        if (_overrideCompress && _compress == newCompress)
         {
             return this;
         }
@@ -222,11 +173,9 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeConnectionId(String connectionId);
     public abstract Reference changeConnection(com.zeroc.Ice.ConnectionI connection);
 
-    @Override
-    public synchronized int
-    hashCode()
+    @Override public synchronized int hashCode()
     {
-        if(_hashInitialized)
+        if (_hashInitialized)
         {
             return _hashValue;
         }
@@ -238,7 +187,7 @@ public abstract class Reference implements Cloneable
         h = HashUtil.hashAdd(h, _context);
         h = HashUtil.hashAdd(h, _facet);
         h = HashUtil.hashAdd(h, _overrideCompress);
-        if(_overrideCompress)
+        if (_overrideCompress)
         {
             h = HashUtil.hashAdd(h, _compress);
         }
@@ -252,15 +201,14 @@ public abstract class Reference implements Cloneable
         return _hashValue;
     }
 
-    public java.lang.Boolean
-    getCompressOverride()
+    public java.lang.Boolean getCompressOverride()
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress)
         {
             return Boolean.valueOf(defaultsAndOverrides.overrideCompressValue);
         }
-        else if(_overrideCompress)
+        else if (_overrideCompress)
         {
             return Boolean.valueOf(_compress);
         }
@@ -276,8 +224,7 @@ public abstract class Reference implements Cloneable
     //
     // Marshal the reference.
     //
-    public void
-    streamWrite(com.zeroc.Ice.OutputStream s)
+    public void streamWrite(com.zeroc.Ice.OutputStream s)
     {
         //
         // Don't write the identity here. Operations calling streamWrite
@@ -287,13 +234,13 @@ public abstract class Reference implements Cloneable
         //
         // For compatibility with the old FacetPath.
         //
-        if(_facet.length() == 0)
+        if (_facet.length() == 0)
         {
             s.writeStringSeq(null);
         }
         else
         {
-            String[] facetPath = { _facet };
+            String[] facetPath = {_facet};
             s.writeStringSeq(facetPath);
         }
 
@@ -301,7 +248,7 @@ public abstract class Reference implements Cloneable
 
         s.writeBool(_secure);
 
-        if(!s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (!s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             _protocol.ice_writeMembers(s);
             _encoding.ice_writeMembers(s);
@@ -313,9 +260,7 @@ public abstract class Reference implements Cloneable
     //
     // Convert the reference to its string form.
     //
-    @Override
-    public String
-    toString()
+    @Override public String toString()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -337,7 +282,7 @@ public abstract class Reference implements Cloneable
         // the identity string in quotes.
         //
 
-        if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(id, separators) != -1)
+        if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(id, separators) != -1)
         {
             s.append('"');
             s.append(id);
@@ -348,7 +293,7 @@ public abstract class Reference implements Cloneable
             s.append(id);
         }
 
-        if(_facet.length() > 0)
+        if (_facet.length() > 0)
         {
             //
             // If the encoded facet string contains characters which
@@ -357,7 +302,7 @@ public abstract class Reference implements Cloneable
             //
             s.append(" -f ");
             String fs = com.zeroc.IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
-            if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(fs, separators) != -1)
+            if (com.zeroc.IceUtilInternal.StringUtil.findFirstOf(fs, separators) != -1)
             {
                 s.append('"');
                 s.append(fs);
@@ -369,7 +314,7 @@ public abstract class Reference implements Cloneable
             }
         }
 
-        switch(_mode)
+        switch (_mode)
         {
             case ModeTwoway:
             {
@@ -402,12 +347,12 @@ public abstract class Reference implements Cloneable
             }
         }
 
-        if(_secure)
+        if (_secure)
         {
             s.append(" -s");
         }
 
-        if(!_protocol.equals(com.zeroc.Ice.Util.Protocol_1_0))
+        if (!_protocol.equals(com.zeroc.Ice.Util.Protocol_1_0))
         {
             //
             // We only print the protocol if it's not 1.0. It's fine as
@@ -441,9 +386,7 @@ public abstract class Reference implements Cloneable
 
     public abstract BatchRequestQueue getBatchRequestQueue();
 
-    @Override
-    public boolean
-    equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
         //
         // Note: if(this == obj) and type test are performed by each non-abstract derived class.
@@ -451,51 +394,51 @@ public abstract class Reference implements Cloneable
 
         Reference r = (Reference)obj; // Guaranteed to succeed.
 
-        if(_mode != r._mode)
+        if (_mode != r._mode)
         {
             return false;
         }
 
-        if(_secure != r._secure)
+        if (_secure != r._secure)
         {
             return false;
         }
 
-        if(!_identity.equals(r._identity))
+        if (!_identity.equals(r._identity))
         {
             return false;
         }
 
-        if(!_context.equals(r._context))
+        if (!_context.equals(r._context))
         {
             return false;
         }
 
-        if(!_facet.equals(r._facet))
+        if (!_facet.equals(r._facet))
         {
             return false;
         }
 
-        if(_overrideCompress != r._overrideCompress)
+        if (_overrideCompress != r._overrideCompress)
         {
-           return false;
+            return false;
         }
-        if(_overrideCompress && _compress != r._compress)
+        if (_overrideCompress && _compress != r._compress)
         {
             return false;
         }
 
-        if(!_protocol.equals(r._protocol))
+        if (!_protocol.equals(r._protocol))
         {
             return false;
         }
 
-        if(!_encoding.equals(r._encoding))
+        if (!_encoding.equals(r._encoding))
         {
             return false;
         }
 
-        if(_invocationTimeout != r._invocationTimeout)
+        if (_invocationTimeout != r._invocationTimeout)
         {
             return false;
         }
@@ -503,15 +446,14 @@ public abstract class Reference implements Cloneable
         return true;
     }
 
-    @Override
-    public Reference clone()
+    @Override public Reference clone()
     {
         Reference c = null;
         try
         {
             c = (Reference)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false;
         }
@@ -536,24 +478,24 @@ public abstract class Reference implements Cloneable
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
 
-    protected
-    Reference(Instance instance,
-              com.zeroc.Ice.Communicator communicator,
-              com.zeroc.Ice.Identity identity,
-              String facet,
-              int mode,
-              boolean secure,
-              com.zeroc.Ice.ProtocolVersion protocol,
-              com.zeroc.Ice.EncodingVersion encoding,
-              int invocationTimeout,
-              java.util.Map<String, String> context)
+    protected Reference(
+        Instance instance,
+        com.zeroc.Ice.Communicator communicator,
+        com.zeroc.Ice.Identity identity,
+        String facet,
+        int mode,
+        boolean secure,
+        com.zeroc.Ice.ProtocolVersion protocol,
+        com.zeroc.Ice.EncodingVersion encoding,
+        int invocationTimeout,
+        java.util.Map<String, String> context)
     {
         //
         // Validate string arguments.
         //
-        assert(identity.name != null);
-        assert(identity.category != null);
-        assert(facet != null);
+        assert (identity.name != null);
+        assert (identity.category != null);
+        assert (facet != null);
 
         _instance = instance;
         _communicator = communicator;

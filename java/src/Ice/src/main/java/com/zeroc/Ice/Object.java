@@ -4,9 +4,8 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.CompletionStage;
-
 import com.zeroc.IceInternal.Incoming;
+import java.util.concurrent.CompletionStage;
 
 /**
  * The base interface for servants.
@@ -14,10 +13,7 @@ import com.zeroc.IceInternal.Incoming;
 public interface Object
 {
     /** @hidden */
-    final static String[] _iceIds =
-    {
-        "::Ice::Object"
-    };
+    final static String[] _iceIds = {"::Ice::Object"};
 
     /**
      * Holds the results of a call to <code>ice_invoke</code>.
@@ -27,9 +23,7 @@ public interface Object
         /**
          * Default initializes the members.
          **/
-        public Ice_invokeResult()
-        {
-        }
+        public Ice_invokeResult() {}
 
         /**
          * One-shot constructor to initialize the members.
@@ -90,10 +84,7 @@ public interface Object
      * @param current The {@link Current} object for the invocation.
      * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
      **/
-    default String[] ice_ids(Current current)
-    {
-        return _iceIds;
-    }
+    default String[] ice_ids(Current current) { return _iceIds; }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
@@ -101,29 +92,17 @@ public interface Object
      * @param current The {@link Current} object for the invocation.
      * @return The Slice type ID of the most-derived interface.
      **/
-    default String ice_id(Current current)
-    {
-        return ice_staticId();
-    }
+    default String ice_id(Current current) { return ice_staticId(); }
 
     /**
      * Returns the Slice type ID of the interface supported by this object.
      *
      * @return The return value is always ::Ice::Object.
      **/
-    public static String ice_staticId()
-    {
-        return _iceIds[0];
-    }
+    public static String ice_staticId() { return _iceIds[0]; }
 
     /** @hidden */
-    final static String[] _iceOps =
-    {
-        "ice_id",
-        "ice_ids",
-        "ice_isA",
-        "ice_ping"
-    };
+    final static String[] _iceOps = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
 
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
@@ -135,8 +114,7 @@ public interface Object
      *
      * @see DispatchInterceptor
      **/
-    default CompletionStage<OutputStream> ice_dispatch(Request request)
-        throws UserException
+    default CompletionStage<OutputStream> ice_dispatch(Request request) throws UserException
     {
         Incoming in = (Incoming)request;
         in.startOver();
@@ -150,16 +128,15 @@ public interface Object
      * @return -
      * @throws UserException -
      **/
-    default CompletionStage<OutputStream> _iceDispatch(Incoming in, Current current)
-        throws UserException
+    default CompletionStage<OutputStream> _iceDispatch(Incoming in, Current current) throws UserException
     {
         int pos = java.util.Arrays.binarySearch(_iceOps, current.operation);
-        if(pos < 0)
+        if (pos < 0)
         {
             throw new OperationNotExistException(current.id, current.facet, current.operation);
         }
 
-        switch(pos)
+        switch (pos)
         {
             case 0:
             {
@@ -179,7 +156,7 @@ public interface Object
             }
         }
 
-        assert(false);
+        assert (false);
         throw new OperationNotExistException(current.id, current.facet, current.operation);
     }
 
@@ -189,18 +166,16 @@ public interface Object
      **/
     default void _iceWrite(OutputStream ostr)
     {
-         ostr.startValue(null);
-         _iceWriteImpl(ostr);
-         ostr.endValue();
+        ostr.startValue(null);
+        _iceWriteImpl(ostr);
+        ostr.endValue();
     }
 
     /**
      * @hidden
      * @param ostr -
      **/
-    default void _iceWriteImpl(OutputStream ostr)
-    {
-    }
+    default void _iceWriteImpl(OutputStream ostr) {}
 
     /**
      * @hidden
@@ -208,18 +183,16 @@ public interface Object
      **/
     default void _iceRead(InputStream istr)
     {
-         istr.startValue();
-         _iceReadImpl(istr);
-         istr.endValue();
+        istr.startValue();
+        _iceReadImpl(istr);
+        istr.endValue();
     }
 
     /**
      * @hidden
      * @param istr -
      **/
-    default void _iceReadImpl(InputStream istr)
-    {
-    }
+    default void _iceReadImpl(InputStream istr) {}
 
     /**
      * @hidden
@@ -295,16 +268,16 @@ public interface Object
      **/
     static String _iceOperationModeToString(OperationMode mode)
     {
-        if(mode == OperationMode.Normal)
+        if (mode == OperationMode.Normal)
         {
             return "::Ice::Normal";
         }
-        if(mode == OperationMode.Nonmutating)
+        if (mode == OperationMode.Nonmutating)
         {
             return "::Ice::Nonmutating";
         }
 
-        if(mode == OperationMode.Idempotent)
+        if (mode == OperationMode.Idempotent)
         {
             return "::Ice::Idempotent";
         }
@@ -319,14 +292,14 @@ public interface Object
      **/
     static void _iceCheckMode(OperationMode expected, OperationMode received)
     {
-        if(expected == null)
+        if (expected == null)
         {
             expected = OperationMode.Normal;
         }
 
-        if(expected != received)
+        if (expected != received)
         {
-            if(expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
+            if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
             {
                 //
                 // Fine: typically an old client still using the
@@ -336,9 +309,8 @@ public interface Object
             else
             {
                 MarshalException ex = new MarshalException();
-                ex.reason = "unexpected operation mode. expected = "
-                    + _iceOperationModeToString(expected) + " received = "
-                    + _iceOperationModeToString(received);
+                ex.reason = "unexpected operation mode. expected = " + _iceOperationModeToString(expected) +
+                            " received = " + _iceOperationModeToString(received);
                 throw ex;
             }
         }

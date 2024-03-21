@@ -12,7 +12,7 @@ public class Client extends test.TestHelper
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.slicing.objects.client");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             TestIntfPrx test = AllTests.allTests(this, false);
             test.shutdown();

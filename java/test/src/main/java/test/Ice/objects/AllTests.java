@@ -6,51 +6,47 @@ package test.Ice.objects;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
-
+import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B;
+import test.Ice.objects.Test.B1;
+import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.C;
 import test.Ice.objects.Test.D;
-import test.Ice.objects.Test.E;
-import test.Ice.objects.Test.F;
-import test.Ice.objects.Test.G;
-import test.Ice.objects.Test.I;
-import test.Ice.objects.Test.K;
-import test.Ice.objects.Test.L;
-import test.Ice.objects.Test.Initial.OpValueResult;
-import test.Ice.objects.Test.Initial.OpValueSeqResult;
-import test.Ice.objects.Test.Initial.OpValueMapResult;
-import test.Ice.objects.Test.L;
-import test.Ice.objects.Test.A1;
-import test.Ice.objects.Test.B1;
 import test.Ice.objects.Test.D1;
+import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.EDerived;
-import test.Ice.objects.Test.Base;
-import test.Ice.objects.Test.S;
-import test.Ice.objects.Test.Initial;
-import test.Ice.objects.Test.InitialPrx;
-import test.Ice.objects.Test.J;
-import test.Ice.objects.Test.Recursive;
-import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
-import test.Ice.objects.Test.M;
-import test.Ice.objects.Test.StructKey;
-import test.Ice.objects.Test.Initial.OpMResult;
-
+import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.F1;
 import test.Ice.objects.Test.F2Prx;
 import test.Ice.objects.Test.F3;
+import test.Ice.objects.Test.G;
+import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.Initial.OpMResult;
+import test.Ice.objects.Test.Initial.OpValueMapResult;
+import test.Ice.objects.Test.Initial.OpValueResult;
+import test.Ice.objects.Test.Initial.OpValueSeqResult;
+import test.Ice.objects.Test.InitialPrx;
+import test.Ice.objects.Test.J;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.Recursive;
+import test.Ice.objects.Test.S;
+import test.Ice.objects.Test.StructKey;
+import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public static InitialPrx allTests(test.TestHelper helper)
+    @SuppressWarnings("deprecation") public static InitialPrx allTests(test.TestHelper helper)
     {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
@@ -172,7 +168,7 @@ public class AllTests
             test((E.class.getDeclaredField("i").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
             test((E.class.getDeclaredField("s").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
         }
-        catch(NoSuchFieldException ex)
+        catch (NoSuchFieldException ex)
         {
             ex.printStackTrace(out);
             test(false);
@@ -185,7 +181,7 @@ public class AllTests
             test((F.class.getDeclaredField("e1").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
             test((F.class.getDeclaredField("e2").getModifiers() & java.lang.reflect.Modifier.PROTECTED) == 0);
         }
-        catch(NoSuchFieldException ex)
+        catch (NoSuchFieldException ex)
         {
             ex.printStackTrace(out);
             test(false);
@@ -211,7 +207,7 @@ public class AllTests
         }
         {
             L l = new L("l");
-            com.zeroc.Ice.Value[] v1 = { l };
+            com.zeroc.Ice.Value[] v1 = {l};
             OpValueSeqResult result = initial.opValueSeq(v1);
             test(((L)result.returnValue[0]).data.equals("l"));
             test(((L)result.v2[0]).data.equals("l"));
@@ -243,7 +239,7 @@ public class AllTests
             initial.throwEDerived();
             test(false);
         }
-        catch(EDerived ederived)
+        catch (EDerived ederived)
         {
             test(ederived.a1.name.equals("a1"));
             test(ederived.a2.name.equals("a2"));
@@ -258,7 +254,7 @@ public class AllTests
         {
             initial.setG(new G(new S("hello"), "g"));
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
         out.println("ok");
@@ -276,7 +272,7 @@ public class AllTests
             sr = initial.opBaseSeq(inS);
             test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
         out.println("ok");
@@ -288,29 +284,27 @@ public class AllTests
         int depth = 0;
         try
         {
-            for(; depth <= 20000; ++depth)
+            for (; depth <= 20000; ++depth)
             {
                 p.v = new Recursive();
                 p = p.v;
-                if((depth < 10 && (depth % 10) == 0) ||
-                   (depth < 1000 && (depth % 100) == 0) ||
-                   (depth < 10000 && (depth % 1000) == 0) ||
-                   (depth % 10000) == 0)
+                if ((depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0) ||
+                    (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0)
                 {
                     initial.setRecursive(top);
                 }
             }
             test(!initial.supportsClassGraphDepthMax());
         }
-        catch(com.zeroc.Ice.UnknownLocalException ex)
+        catch (com.zeroc.Ice.UnknownLocalException ex)
         {
             // Expected marshal exception from the server (max class graph depth reached)
         }
-        catch(com.zeroc.Ice.UnknownException ex)
+        catch (com.zeroc.Ice.UnknownException ex)
         {
             // Expected stack overflow from the server (Java only)
         }
-        catch(java.lang.StackOverflowError ex)
+        catch (java.lang.StackOverflowError ex)
         {
             // Stack overflow while writing instances
         }
@@ -323,7 +317,7 @@ public class AllTests
         {
             test(initial.getCompact() != null);
         }
-        catch(com.zeroc.Ice.OperationNotExistException ex)
+        catch (com.zeroc.Ice.OperationNotExistException ex)
         {
         }
         out.println("ok");
@@ -348,12 +342,12 @@ public class AllTests
             uoet.op();
             test(false);
         }
-        catch(com.zeroc.Ice.UnexpectedObjectException ex)
+        catch (com.zeroc.Ice.UnexpectedObjectException ex)
         {
             test(ex.type.equals("::Test::AlsoEmpty"));
             test(ex.expectedType.equals("::Test::Empty"));
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             out.println(ex);
             test(false);
@@ -379,7 +373,6 @@ public class AllTests
 
             test(opMResult.returnValue.v.get(k2).data.equals("two"));
             test(opMResult.v2.v.get(k2).data.equals("two"));
-
         }
         out.println("ok");
 
@@ -396,10 +389,10 @@ public class AllTests
             opF2Result.returnValue.op();
             test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
 
-            if(initial.hasF3())
+            if (initial.hasF3())
             {
-                Initial.OpF3Result opF3Result = initial.opF3(new F3(new F1("F11"),
-                                                                    F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+                Initial.OpF3Result opF3Result =
+                    initial.opF3(new F3(new F1("F11"), F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
                 test(opF3Result.returnValue.f1.name.equals("F11"));
                 test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
 
@@ -420,7 +413,7 @@ public class AllTests
                 initial.setCycle(rec);
                 test(acceptsCycles);
             }
-            catch(com.zeroc.Ice.UnknownLocalException ex)
+            catch (com.zeroc.Ice.UnknownLocalException ex)
             {
                 test(!acceptsCycles);
             }

@@ -6,7 +6,9 @@ package com.zeroc.IceInternal;
 
 class ConnectionACMMonitor implements ACMMonitor
 {
-    ConnectionACMMonitor(FactoryACMMonitor parent, java.util.concurrent.ScheduledExecutorService timer,
+    ConnectionACMMonitor(
+        FactoryACMMonitor parent,
+        java.util.concurrent.ScheduledExecutorService timer,
         ACMConfig config)
     {
         _parent = parent;
@@ -14,17 +16,13 @@ class ConnectionACMMonitor implements ACMMonitor
         _config = config;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_connection == null);
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -33,52 +31,41 @@ class ConnectionACMMonitor implements ACMMonitor
         }
     }
 
-    @Override
-    public synchronized void
-    add(com.zeroc.Ice.ConnectionI connection)
+    @Override public synchronized void add(com.zeroc.Ice.ConnectionI connection)
     {
-        assert(_connection == null);
+        assert (_connection == null);
         _connection = connection;
-        if(_config.timeout > 0)
+        if (_config.timeout > 0)
         {
-            _future = _timer.scheduleAtFixedRate(() -> { monitorConnection(); },
-                                                 _config.timeout / 2,
-                                                 _config.timeout / 2,
-                                                 java.util.concurrent.TimeUnit.MILLISECONDS);
+            _future = _timer.scheduleAtFixedRate(() -> {
+                monitorConnection();
+            }, _config.timeout / 2, _config.timeout / 2, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }
 
-    @Override
-    public synchronized void
-    remove(com.zeroc.Ice.ConnectionI connection)
+    @Override public synchronized void remove(com.zeroc.Ice.ConnectionI connection)
     {
-        assert(_connection == connection);
+        assert (_connection == connection);
         _connection = null;
-        if(_config.timeout > 0)
+        if (_config.timeout > 0)
         {
             _future.cancel(false);
             _future = null;
         }
     }
 
-    @Override
-    public void
-    reap(com.zeroc.Ice.ConnectionI connection)
-    {
-        _parent.reap(connection);
-    }
+    @Override public void reap(com.zeroc.Ice.ConnectionI connection) { _parent.reap(connection); }
 
     @Override
     public ACMMonitor
-    acm(java.util.OptionalInt timeout, java.util.Optional<com.zeroc.Ice.ACMClose> close,
+    acm(java.util.OptionalInt timeout,
+        java.util.Optional<com.zeroc.Ice.ACMClose> close,
         java.util.Optional<com.zeroc.Ice.ACMHeartbeat> heartbeat)
     {
         return _parent.acm(timeout, close, heartbeat);
     }
 
-    @Override
-    public com.zeroc.Ice.ACM
-    getACM()
+    @Override public com.zeroc.Ice.ACM getACM()
     {
         com.zeroc.Ice.ACM acm = new com.zeroc.Ice.ACM();
         acm.timeout = _config.timeout / 1000;
@@ -87,13 +74,12 @@ class ConnectionACMMonitor implements ACMMonitor
         return acm;
     }
 
-    private void
-    monitorConnection()
+    private void monitorConnection()
     {
         com.zeroc.Ice.ConnectionI connection;
-        synchronized(this)
+        synchronized (this)
         {
-            if(_connection == null)
+            if (_connection == null)
             {
                 return;
             }
@@ -104,7 +90,7 @@ class ConnectionACMMonitor implements ACMMonitor
         {
             connection.monitor(Time.currentMonotonicTimeMillis(), _config);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _parent.handleException(ex);
         }

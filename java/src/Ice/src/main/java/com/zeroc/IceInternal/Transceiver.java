@@ -18,8 +18,7 @@ public interface Transceiver
     int read(Buffer buf);
 
     String protocol();
-    @Override
-    String toString();
+    @Override String toString();
     String toDetailedString();
     com.zeroc.Ice.ConnectionInfo getInfo();
     void checkSendSize(Buffer buf);

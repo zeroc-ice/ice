@@ -26,7 +26,7 @@ public class Collocated extends test.TestHelper
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
@@ -41,7 +41,7 @@ public class Collocated extends test.TestHelper
             //adapter2.activate(); // Don't activate OA to ensure collocation is used.
             AllTests.allTests(this);
         }
-        catch(InterruptedException ex)
+        catch (InterruptedException ex)
         {
             throw new RuntimeException(ex);
         }

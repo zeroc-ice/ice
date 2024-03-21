@@ -21,7 +21,7 @@ public final class Selector
         {
             _selector = java.nio.channels.Selector.open();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
             throw new com.zeroc.Ice.SyscallException(ex);
         }
@@ -39,7 +39,7 @@ public final class Selector
         {
             _selector.close();
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
         }
         _selector = null;
@@ -47,7 +47,7 @@ public final class Selector
 
     void initialize(EventHandler handler)
     {
-        if(handler.fd() != null)
+        if (handler.fd() != null)
         {
             updateImpl(handler);
         }
@@ -58,12 +58,12 @@ public final class Selector
         int previous = handler._registered;
         handler._registered = handler._registered & ~remove;
         handler._registered = handler._registered | add;
-        if(previous == handler._registered)
+        if (previous == handler._registered)
         {
             return;
         }
 
-        if(handler.fd() != null)
+        if (handler.fd() != null)
         {
             updateImpl(handler);
         }
@@ -73,13 +73,13 @@ public final class Selector
 
     void enable(EventHandler handler, int status)
     {
-        if((handler._disabled & status) == 0)
+        if ((handler._disabled & status) == 0)
         {
             return;
         }
         handler._disabled = handler._disabled & ~status;
 
-        if(handler._key != null && (handler._registered & status) != 0)
+        if (handler._key != null && (handler._registered & status) != 0)
         {
             updateImpl(handler); // If registered with the selector, update the registration.
         }
@@ -88,13 +88,13 @@ public final class Selector
 
     void disable(EventHandler handler, int status)
     {
-        if((handler._disabled & status) != 0)
+        if ((handler._disabled & status) != 0)
         {
             return;
         }
         handler._disabled = handler._disabled | status;
 
-        if(handler._key != null && (handler._registered & status) != 0)
+        if (handler._key != null && (handler._registered & status) != 0)
         {
             updateImpl(handler); // If registered with the selector, update the registration.
         }
@@ -104,7 +104,7 @@ public final class Selector
     boolean finish(EventHandler handler, boolean closeNow)
     {
         handler._registered = 0;
-        if(handler._key != null)
+        if (handler._key != null)
         {
             handler._key.cancel();
             handler._key = null;
@@ -116,12 +116,12 @@ public final class Selector
 
     void ready(EventHandler handler, int status, boolean value)
     {
-        if(((handler._ready & status) != 0) == value)
+        if (((handler._ready & status) != 0) == value)
         {
             return; // Nothing to do if ready state already correctly set.
         }
 
-        if(value)
+        if (value)
         {
             handler._ready |= status;
         }
@@ -134,7 +134,7 @@ public final class Selector
 
     void startSelect()
     {
-        if(!_changes.isEmpty())
+        if (!_changes.isEmpty())
         {
             updateSelector();
         }
@@ -149,9 +149,10 @@ public final class Selector
 
     void finishSelect(java.util.List<EventHandlerOpPair> handlers)
     {
-        assert(handlers.isEmpty());
+        assert (handlers.isEmpty());
 
-        if(_keys.isEmpty() && _readyHandlers.isEmpty() && !_interrupted) // If key set is empty and we weren't woken up.
+        if (_keys.isEmpty() && _readyHandlers.isEmpty() &&
+            !_interrupted) // If key set is empty and we weren't woken up.
         {
             //
             // This is necessary to prevent a busy loop in case of a spurious wake-up which
@@ -162,14 +163,14 @@ public final class Selector
             {
                 Thread.sleep(1);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 //
                 // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
                 //
             }
 
-            if(++_spuriousWakeUp > 100)
+            if (++_spuriousWakeUp > 100)
             {
                 _spuriousWakeUp = 0;
                 _instance.initializationData().logger.warning("spurious selector wake up");
@@ -179,7 +180,7 @@ public final class Selector
         _interrupted = false;
         _spuriousWakeUp = 0;
 
-        for(java.nio.channels.SelectionKey key : _keys)
+        for (java.nio.channels.SelectionKey key : _keys)
         {
             EventHandler handler = (EventHandler)key.attachment();
             try
@@ -189,25 +190,25 @@ public final class Selector
                 // report the operations in which the handler is still interested.
                 //
                 final int op = fromJavaOps(key.readyOps() & key.interestOps());
-                if(!_readyHandlers.contains(handler)) // Handler will be added by the loop below
+                if (!_readyHandlers.contains(handler)) // Handler will be added by the loop below
                 {
                     handlers.add(new EventHandlerOpPair(handler, op));
                 }
             }
-            catch(java.nio.channels.CancelledKeyException ex)
+            catch (java.nio.channels.CancelledKeyException ex)
             {
-                assert(handler._registered == 0);
+                assert (handler._registered == 0);
             }
         }
 
-        for(EventHandler handler : _readyHandlers)
+        for (EventHandler handler : _readyHandlers)
         {
             int op = handler._ready & ~handler._disabled & handler._registered;
-            if(handler._key != null && _keys.contains(handler._key))
+            if (handler._key != null && _keys.contains(handler._key))
             {
                 op |= fromJavaOps(handler._key.readyOps() & handler._key.interestOps());
             }
-            if(op > 0)
+            if (op > 0)
             {
                 handlers.add(new EventHandlerOpPair(handler, op));
             }
@@ -217,18 +218,17 @@ public final class Selector
         _selecting = false;
     }
 
-    void select(long timeout)
-        throws TimeoutException
+    void select(long timeout) throws TimeoutException
     {
-        while(true)
+        while (true)
         {
             try
             {
-                if(_selectNow)
+                if (_selectNow)
                 {
                     _selector.selectNow();
                 }
-                else if(timeout > 0)
+                else if (timeout > 0)
                 {
                     //
                     // NOTE: On some platforms, select() sometime returns slightly before
@@ -237,9 +237,9 @@ public final class Selector
                     // the configured timeout (10ms).
                     //
                     long before = Time.currentMonotonicTimeMillis();
-                    if(_selector.select(timeout * 1000 + 10) == 0)
+                    if (_selector.select(timeout * 1000 + 10) == 0)
                     {
-                        if(Time.currentMonotonicTimeMillis() - before >= timeout * 1000)
+                        if (Time.currentMonotonicTimeMillis() - before >= timeout * 1000)
                         {
                             throw new TimeoutException();
                         }
@@ -250,12 +250,12 @@ public final class Selector
                     _selector.select();
                 }
             }
-            catch(java.nio.channels.CancelledKeyException ex)
+            catch (java.nio.channels.CancelledKeyException ex)
             {
                 // This sometime occurs on macOS, ignore.
                 continue;
             }
-            catch(java.io.IOException ex)
+            catch (java.io.IOException ex)
             {
                 //
                 // Pressing Ctrl-C causes select() to raise an
@@ -263,7 +263,7 @@ public final class Selector
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
-                if(Network.interrupted(ex))
+                if (Network.interrupted(ex))
                 {
                     continue;
                 }
@@ -275,12 +275,12 @@ public final class Selector
                     {
                         _instance.initializationData().logger.error(s);
                     }
-                    catch(Throwable ex1)
+                    catch (Throwable ex1)
                     {
                         System.out.println(s);
                     }
                 }
-                catch(Throwable ex2)
+                catch (Throwable ex2)
                 {
                     // Ignore
                 }
@@ -289,7 +289,7 @@ public final class Selector
                 {
                     Thread.sleep(1);
                 }
-                catch(InterruptedException ex2)
+                catch (InterruptedException ex2)
                 {
                 }
             }
@@ -306,21 +306,21 @@ public final class Selector
 
     private void updateSelector()
     {
-        for(EventHandler handler : _changes)
+        for (EventHandler handler : _changes)
         {
             int status = handler._registered & ~handler._disabled;
             int ops = toJavaOps(handler, status);
-            if(handler._key == null)
+            if (handler._key == null)
             {
-                if(handler._registered != 0)
+                if (handler._registered != 0)
                 {
                     try
                     {
                         handler._key = handler.fd().register(_selector, ops, handler);
                     }
-                    catch(java.nio.channels.ClosedChannelException ex)
+                    catch (java.nio.channels.ClosedChannelException ex)
                     {
-                        assert(false);
+                        assert (false);
                     }
                 }
             }
@@ -334,10 +334,10 @@ public final class Selector
 
     private void checkReady(EventHandler handler)
     {
-        if((handler._ready & ~handler._disabled & handler._registered) != 0)
+        if ((handler._ready & ~handler._disabled & handler._registered) != 0)
         {
             _readyHandlers.add(handler);
-            if(_selecting)
+            if (_selecting)
             {
                 wakeup();
             }
@@ -350,7 +350,7 @@ public final class Selector
 
     private void wakeup()
     {
-        if(_selecting && !_interrupted)
+        if (_selecting && !_interrupted)
         {
             _selector.wakeup();
             _interrupted = true;
@@ -360,9 +360,9 @@ public final class Selector
     private int toJavaOps(EventHandler handler, int o)
     {
         int op = 0;
-        if((o & SocketOperation.Read) != 0)
+        if ((o & SocketOperation.Read) != 0)
         {
-            if((handler.fd().validOps() & java.nio.channels.SelectionKey.OP_READ) != 0)
+            if ((handler.fd().validOps() & java.nio.channels.SelectionKey.OP_READ) != 0)
             {
                 op |= java.nio.channels.SelectionKey.OP_READ;
             }
@@ -371,11 +371,11 @@ public final class Selector
                 op |= java.nio.channels.SelectionKey.OP_ACCEPT;
             }
         }
-        if((o & SocketOperation.Write) != 0)
+        if ((o & SocketOperation.Write) != 0)
         {
             op |= java.nio.channels.SelectionKey.OP_WRITE;
         }
-        if((o & SocketOperation.Connect) != 0)
+        if ((o & SocketOperation.Connect) != 0)
         {
             op |= java.nio.channels.SelectionKey.OP_CONNECT;
         }
@@ -385,15 +385,15 @@ public final class Selector
     private int fromJavaOps(int o)
     {
         int op = 0;
-        if((o & (java.nio.channels.SelectionKey.OP_READ | java.nio.channels.SelectionKey.OP_ACCEPT)) != 0)
+        if ((o & (java.nio.channels.SelectionKey.OP_READ | java.nio.channels.SelectionKey.OP_ACCEPT)) != 0)
         {
             op |= SocketOperation.Read;
         }
-        if((o & java.nio.channels.SelectionKey.OP_WRITE) != 0)
+        if ((o & java.nio.channels.SelectionKey.OP_WRITE) != 0)
         {
             op |= SocketOperation.Write;
         }
-        if((o & java.nio.channels.SelectionKey.OP_CONNECT) != 0)
+        if ((o & java.nio.channels.SelectionKey.OP_CONNECT) != 0)
         {
             op |= SocketOperation.Connect;
         }

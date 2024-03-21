@@ -4,11 +4,10 @@
 
 package com.zeroc.IceInternal;
 
-public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
-                           java.util.function.Consumer<java.util.Map<String, String>>
+public class MetricsAdminI
+    implements com.zeroc.Ice.IceMX.MetricsAdmin, java.util.function.Consumer<java.util.Map<String, String>>
 {
-    final static private String[] suffixes =
-    {
+    final static private String[] suffixes = {
         "Disabled",
         "GroupBy",
         "Accept.*",
@@ -21,30 +20,30 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     {
         java.util.Map<String, String> props = properties.getPropertiesForPrefix(prefix);
         java.util.List<String> unknownProps = new java.util.ArrayList<>();
-        for(String prop : props.keySet())
+        for (String prop : props.keySet())
         {
             boolean valid = false;
-            for(String suffix : suffixes)
+            for (String suffix : suffixes)
             {
-                if(com.zeroc.IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
+                if (com.zeroc.IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
                 {
                     valid = true;
                     break;
                 }
             }
 
-            if(!valid)
+            if (!valid)
             {
                 unknownProps.add(prop);
             }
         }
 
-        if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
             message.append(prefix.substring(0, prefix.length() - 1));
             message.append("':");
-            for(String p : unknownProps)
+            for (String p : unknownProps)
             {
                 message.append("\n    ");
                 message.append(p);
@@ -61,15 +60,13 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
             _class = cl;
         }
 
-        public void
-        update()
+        public void update()
         {
-            assert(_updater != null);
+            assert (_updater != null);
             _updater.run();
         }
 
-        public MetricsMap<T>
-        create(String mapPrefix, com.zeroc.Ice.Properties properties)
+        public MetricsMap<T> create(String mapPrefix, com.zeroc.Ice.Properties properties)
         {
             return new MetricsMap<T>(mapPrefix, _class, properties, _subMaps);
         }
@@ -94,30 +91,30 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
 
     public void updateViews()
     {
-        java.util.Set<MetricsMapFactory<?> > updatedMaps = new java.util.HashSet<>();
-        synchronized(this)
+        java.util.Set<MetricsMapFactory<?>> updatedMaps = new java.util.HashSet<>();
+        synchronized (this)
         {
             String viewsPrefix = "IceMX.Metrics.";
             java.util.Map<String, String> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
             java.util.Map<String, MetricsViewI> views = new java.util.HashMap<>();
             _disabledViews.clear();
-            for(java.util.Map.Entry<String, String> e : viewsProps.entrySet())
+            for (java.util.Map.Entry<String, String> e : viewsProps.entrySet())
             {
                 String viewName = e.getKey().substring(viewsPrefix.length());
                 int dotPos = viewName.indexOf('.');
-                if(dotPos > 0)
+                if (dotPos > 0)
                 {
                     viewName = viewName.substring(0, dotPos);
                 }
 
-                if(views.containsKey(viewName) || _disabledViews.contains(viewName))
+                if (views.containsKey(viewName) || _disabledViews.contains(viewName))
                 {
                     continue; // View already configured.
                 }
 
                 validateProperties(viewsPrefix + viewName + ".", _properties);
 
-                if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
+                if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                 {
                     _disabledViews.add(viewName);
                     continue; // The view is disabled
@@ -127,15 +124,15 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
                 // Create the view or update it.
                 //
                 MetricsViewI v = _views.get(viewName);
-                if(v == null)
+                if (v == null)
                 {
                     v = new MetricsViewI(viewName);
                 }
                 views.put(viewName, v);
 
-                for(java.util.Map.Entry<String, MetricsMapFactory<?>> f : _factories.entrySet())
+                for (java.util.Map.Entry<String, MetricsMapFactory<?>> f : _factories.entrySet())
                 {
-                    if(v.addOrUpdateMap(_properties, f.getKey(), f.getValue(), _logger))
+                    if (v.addOrUpdateMap(_properties, f.getKey(), f.getValue(), _logger))
                     {
                         updatedMaps.add(f.getValue());
                     }
@@ -148,11 +145,11 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
             //
             // Go through removed views to collect maps to update.
             //
-            for(java.util.Map.Entry<String, MetricsViewI> v : views.entrySet())
+            for (java.util.Map.Entry<String, MetricsViewI> v : views.entrySet())
             {
-                if(!_views.containsKey(v.getKey()))
+                if (!_views.containsKey(v.getKey()))
                 {
-                    for(String n : v.getValue().getMaps())
+                    for (String n : v.getValue().getMaps())
                     {
                         updatedMaps.add(_factories.get(n));
                     }
@@ -163,15 +160,15 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
         //
         // Call the updaters to update the maps.
         //
-        for(MetricsMapFactory<?> f : updatedMaps)
+        for (MetricsMapFactory<?> f : updatedMaps)
         {
             f.update();
         }
     }
 
     @Override
-    synchronized public com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(
-        com.zeroc.Ice.Current current)
+    synchronized public com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult
+    getMetricsViewNames(com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult r =
             new com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult();
@@ -181,11 +178,10 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     }
 
     @Override
-    public void
-    enableMetricsView(String name, com.zeroc.Ice.Current current)
+    public void enableMetricsView(String name, com.zeroc.Ice.Current current)
         throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
-        synchronized(this)
+        synchronized (this)
         {
             getMetricsView(name); // Throws if unknown view.
             _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "0");
@@ -197,7 +193,7 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     public void disableMetricsView(String name, com.zeroc.Ice.Current current)
         throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
-        synchronized(this)
+        synchronized (this)
         {
             getMetricsView(name); // Throws if unknown view.
             _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "1");
@@ -206,15 +202,14 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult getMetricsView(
-        String viewName,
-        com.zeroc.Ice.Current current)
-        throws com.zeroc.Ice.IceMX.UnknownMetricsView
+    synchronized public com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult
+    getMetricsView(String viewName, com.zeroc.Ice.Current current) throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
-        com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult r = new com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult();
+        com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult r =
+            new com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewResult();
         MetricsViewI view = getMetricsView(viewName);
         r.timestamp = Time.currentMonotonicTimeMillis();
-        if(view != null)
+        if (view != null)
         {
             r.returnValue = view.getMetrics();
         }
@@ -226,12 +221,12 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.Ice.IceMX.MetricsFailures[] getMapMetricsFailures(String viewName, String mapName,
-                                                                                com.zeroc.Ice.Current current)
+    synchronized public com.zeroc.Ice.IceMX.MetricsFailures[]
+    getMapMetricsFailures(String viewName, String mapName, com.zeroc.Ice.Current current)
         throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
         MetricsViewI view = getMetricsView(viewName);
-        if(view != null)
+        if (view != null)
         {
             return view.getFailures(mapName);
         }
@@ -239,12 +234,12 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     }
 
     @Override
-    synchronized public com.zeroc.Ice.IceMX.MetricsFailures getMetricsFailures(String viewName, String mapName, String id,
-                                                                           com.zeroc.Ice.Current current)
+    synchronized public com.zeroc.Ice.IceMX.MetricsFailures
+    getMetricsFailures(String viewName, String mapName, String id, com.zeroc.Ice.Current current)
         throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
         MetricsViewI view = getMetricsView(viewName);
-        if(view != null)
+        if (view != null)
         {
             return view.getFailures(mapName, id);
         }
@@ -255,27 +250,27 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     {
         boolean updated;
         MetricsMapFactory<T> factory;
-        synchronized(this)
+        synchronized (this)
         {
             factory = new MetricsMapFactory<T>(updater, cl);
             _factories.put(map, factory);
             updated = addOrUpdateMap(map, factory);
         }
-        if(updated)
+        if (updated)
         {
             factory.update();
         }
     }
 
-    synchronized public <S extends com.zeroc.Ice.IceMX.Metrics> void registerSubMap(String map, String subMap, Class<S> cl,
-                                                                                java.lang.reflect.Field field)
+    synchronized public <S extends com.zeroc.Ice.IceMX.Metrics> void
+    registerSubMap(String map, String subMap, Class<S> cl, java.lang.reflect.Field field)
     {
         boolean updated;
         MetricsMapFactory<?> factory;
-        synchronized(this)
+        synchronized (this)
         {
             factory = _factories.get(map);
-            if(factory == null)
+            if (factory == null)
             {
                 return;
             }
@@ -283,7 +278,7 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
             removeMap(map);
             updated = addOrUpdateMap(map, factory);
         }
-        if(updated)
+        if (updated)
         {
             factory.update();
         }
@@ -293,16 +288,16 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     {
         boolean updated;
         MetricsMapFactory<?> factory;
-        synchronized(this)
+        synchronized (this)
         {
             factory = _factories.remove(mapName);
-            if(factory == null)
+            if (factory == null)
             {
                 return;
             }
             updated = removeMap(mapName);
         }
-        if(updated)
+        if (updated)
         {
             factory.update();
         }
@@ -311,10 +306,10 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     public <T extends com.zeroc.Ice.IceMX.Metrics> java.util.List<MetricsMap<T>> getMaps(String mapName, Class<T> cl)
     {
         java.util.List<MetricsMap<T>> maps = new java.util.ArrayList<>();
-        for(MetricsViewI v : _views.values())
+        for (MetricsViewI v : _views.values())
         {
             MetricsMap<T> map = v.getMap(mapName, cl);
-            if(map != null)
+            if (map != null)
             {
                 maps.add(map);
             }
@@ -322,40 +317,35 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
         return maps;
     }
 
-    public com.zeroc.Ice.Logger getLogger()
-    {
-        return _logger;
-    }
+    public com.zeroc.Ice.Logger getLogger() { return _logger; }
 
-    @Override
-    public void accept(java.util.Map<String, String> props)
+    @Override public void accept(java.util.Map<String, String> props)
     {
-        for(java.util.Map.Entry<String, String> e : props.entrySet())
+        for (java.util.Map.Entry<String, String> e : props.entrySet())
         {
-            if(e.getKey().indexOf("IceMX.") == 0)
+            if (e.getKey().indexOf("IceMX.") == 0)
             {
                 // Update the metrics views using the new configuration.
                 try
                 {
                     updateViews();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    _logger.warning("unexpected exception while updating metrics view configuration:\n" +
-                                    ex.toString());
+                    _logger.warning(
+                        "unexpected exception while updating metrics view configuration:\n" + ex.toString());
                 }
                 return;
             }
         }
     }
 
-    private MetricsViewI getMetricsView(String name)
-        throws com.zeroc.Ice.IceMX.UnknownMetricsView
+    private MetricsViewI getMetricsView(String name) throws com.zeroc.Ice.IceMX.UnknownMetricsView
     {
         MetricsViewI view = _views.get(name);
-        if(view == null)
+        if (view == null)
         {
-            if(!_disabledViews.contains(name))
+            if (!_disabledViews.contains(name))
             {
                 throw new com.zeroc.Ice.IceMX.UnknownMetricsView();
             }
@@ -367,7 +357,7 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     private boolean addOrUpdateMap(String mapName, MetricsMapFactory<?> factory)
     {
         boolean updated = false;
-        for(MetricsViewI v : _views.values())
+        for (MetricsViewI v : _views.values())
         {
             updated |= v.addOrUpdateMap(_properties, mapName, factory, _logger);
         }
@@ -377,7 +367,7 @@ public class MetricsAdminI implements com.zeroc.Ice.IceMX.MetricsAdmin,
     private boolean removeMap(String mapName)
     {
         boolean updated = false;
-        for(MetricsViewI v : _views.values())
+        for (MetricsViewI v : _views.values())
         {
             updated |= v.removeMap(mapName);
         }

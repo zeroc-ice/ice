@@ -10,7 +10,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -68,9 +68,9 @@ public class AllTests
             java.util.Map<String, String> setProps = new java.util.HashMap<>();
             setProps.put("Prop1", "10"); // Changed
             setProps.put("Prop2", "20"); // Changed
-            setProps.put("Prop3", ""); // Removed
-            setProps.put("Prop4", "4"); // Added
-            setProps.put("Prop5", "5"); // Added
+            setProps.put("Prop3", "");   // Removed
+            setProps.put("Prop4", "4");  // Added
+            setProps.put("Prop5", "5");  // Added
             pa.setProperties(setProps);
             test(pa.getProperty("Prop1").equals("10"));
             test(pa.getProperty("Prop2").equals("20"));
@@ -113,8 +113,10 @@ public class AllTests
             test(r.returnValue.length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics").
-                 getMetricsViewNames().returnValue.length == 0);
+            test(
+                com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics")
+                    .getMetricsViewNames()
+                    .returnValue.length == 0);
         }
         System.out.println("ok");
     }

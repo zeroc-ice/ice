@@ -10,11 +10,9 @@ public final class PluginManagerI implements PluginManager
 {
     private static String _kindOfObject = "plugin";
 
-    @Override
-    public synchronized void
-    initializePlugins()
+    @Override public synchronized void initializePlugins()
     {
-        if(_initialized)
+        if (_initialized)
         {
             InitializationException ex = new InitializationException();
             ex.reason = "plug-ins already initialized";
@@ -27,17 +25,17 @@ public final class PluginManagerI implements PluginManager
         java.util.List<Plugin> initializedPlugins = new java.util.ArrayList<>();
         try
         {
-            for(PluginInfo p : _plugins)
+            for (PluginInfo p : _plugins)
             {
                 try
                 {
                     p.plugin.initialize();
                 }
-                catch(PluginInitializationException ex)
+                catch (PluginInitializationException ex)
                 {
                     throw ex;
                 }
-                catch(RuntimeException ex)
+                catch (RuntimeException ex)
                 {
                     PluginInitializationException e = new PluginInitializationException();
                     e.reason = "plugin `" + p.name + "' initialization failed";
@@ -47,21 +45,21 @@ public final class PluginManagerI implements PluginManager
                 initializedPlugins.add(p.plugin);
             }
         }
-        catch(RuntimeException ex)
+        catch (RuntimeException ex)
         {
             //
             // Destroy the plug-ins that have been successfully initialized, in the
             // reverse order.
             //
             java.util.ListIterator<Plugin> i = initializedPlugins.listIterator(initializedPlugins.size());
-            while(i.hasPrevious())
+            while (i.hasPrevious())
             {
                 Plugin p = i.previous();
                 try
                 {
                     p.destroy();
                 }
-                catch(RuntimeException e)
+                catch (RuntimeException e)
                 {
                     // Ignore.
                 }
@@ -72,29 +70,25 @@ public final class PluginManagerI implements PluginManager
         _initialized = true;
     }
 
-    @Override
-    public synchronized String[]
-    getPlugins()
+    @Override public synchronized String[] getPlugins()
     {
         java.util.ArrayList<String> names = new java.util.ArrayList<>();
-        for(PluginInfo p : _plugins)
+        for (PluginInfo p : _plugins)
         {
             names.add(p.name);
         }
         return names.toArray(new String[0]);
     }
 
-    @Override
-    public synchronized Plugin
-    getPlugin(String name)
+    @Override public synchronized Plugin getPlugin(String name)
     {
-        if(_communicator == null)
+        if (_communicator == null)
         {
             throw new CommunicatorDestroyedException();
         }
 
         Plugin p = findPlugin(name);
-        if(p != null)
+        if (p != null)
         {
             return p;
         }
@@ -105,16 +99,14 @@ public final class PluginManagerI implements PluginManager
         throw ex;
     }
 
-    @Override
-    public synchronized void
-    addPlugin(String name, Plugin plugin)
+    @Override public synchronized void addPlugin(String name, Plugin plugin)
     {
-        if(_communicator == null)
+        if (_communicator == null)
         {
             throw new CommunicatorDestroyedException();
         }
 
-        if(findPlugin(name) != null)
+        if (findPlugin(name) != null)
         {
             AlreadyRegisteredException ex = new AlreadyRegisteredException();
             ex.id = name;
@@ -128,26 +120,24 @@ public final class PluginManagerI implements PluginManager
         _plugins.add(info);
     }
 
-    @Override
-    public synchronized void
-    destroy()
+    @Override public synchronized void destroy()
     {
-        if(_communicator != null)
+        if (_communicator != null)
         {
-            if(_initialized)
+            if (_initialized)
             {
                 java.util.ListIterator<PluginInfo> i = _plugins.listIterator(_plugins.size());
-                while(i.hasPrevious())
+                while (i.hasPrevious())
                 {
                     PluginInfo p = i.previous();
                     try
                     {
                         p.plugin.destroy();
                     }
-                    catch(RuntimeException ex)
+                    catch (RuntimeException ex)
                     {
-                        Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
-                                                        p.name + "' destruction:\n" + ex.toString());
+                        Util.getProcessLogger().warning(
+                            "unexpected exception raised by plug-in `" + p.name + "' destruction:\n" + ex.toString());
                     }
                 }
             }
@@ -157,7 +147,7 @@ public final class PluginManagerI implements PluginManager
 
         _plugins.clear();
 
-        if(_classLoaders != null)
+        if (_classLoaders != null)
         {
             _classLoaders.clear();
         }
@@ -172,7 +162,7 @@ public final class PluginManagerI implements PluginManager
 
     public String[] loadPlugins(String[] cmdArgs)
     {
-        assert(_communicator != null);
+        assert (_communicator != null);
 
         //
         // Load and initialize the plug-ins defined in the property set
@@ -190,9 +180,9 @@ public final class PluginManagerI implements PluginManager
         java.util.Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
         final String[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
-        for(String name : loadOrder)
+        for (String name : loadOrder)
         {
-            if(findPlugin(name) != null)
+            if (findPlugin(name) != null)
             {
                 PluginInitializationException ex = new PluginInitializationException();
                 ex.reason = "plug-in `" + name + "' already loaded";
@@ -201,7 +191,7 @@ public final class PluginManagerI implements PluginManager
 
             String key = "Ice.Plugin." + name + ".java";
             boolean hasKey = plugins.containsKey(key);
-            if(hasKey)
+            if (hasKey)
             {
                 plugins.remove("Ice.Plugin." + name);
             }
@@ -211,7 +201,7 @@ public final class PluginManagerI implements PluginManager
                 hasKey = plugins.containsKey(key);
             }
 
-            if(hasKey)
+            if (hasKey)
             {
                 final String value = plugins.get(key);
                 cmdArgs = loadPlugin(name, value, cmdArgs);
@@ -228,25 +218,25 @@ public final class PluginManagerI implements PluginManager
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        while(!plugins.isEmpty())
+        while (!plugins.isEmpty())
         {
-            java.util.Iterator<java.util.Map.Entry<String, String> > p = plugins.entrySet().iterator();
+            java.util.Iterator<java.util.Map.Entry<String, String>> p = plugins.entrySet().iterator();
             java.util.Map.Entry<String, String> entry = p.next();
 
             String name = entry.getKey().substring(prefix.length());
 
             int dotPos = name.lastIndexOf('.');
-            if(dotPos != -1)
+            if (dotPos != -1)
             {
                 String suffix = name.substring(dotPos + 1);
-                if(suffix.equals("cpp") || suffix.equals("clr"))
+                if (suffix.equals("cpp") || suffix.equals("clr"))
                 {
                     //
                     // Ignored
                     //
                     p.remove();
                 }
-                else if(suffix.equals("java"))
+                else if (suffix.equals("java"))
                 {
                     name = name.substring(0, dotPos);
                     cmdArgs = loadPlugin(name, entry.getValue(), cmdArgs);
@@ -266,7 +256,7 @@ public final class PluginManagerI implements PluginManager
                 }
             }
 
-            if(dotPos == -1)
+            if (dotPos == -1)
             {
                 //
                 // Is there a .java entry?
@@ -275,7 +265,7 @@ public final class PluginManagerI implements PluginManager
                 p.remove();
 
                 String javaValue = plugins.remove("Ice.Plugin." + name + ".java");
-                if(javaValue != null)
+                if (javaValue != null)
                 {
                     value = javaValue;
                 }
@@ -289,7 +279,7 @@ public final class PluginManagerI implements PluginManager
 
     private String[] loadPlugin(String name, String pluginSpec, String[] cmdArgs)
     {
-        assert(_communicator != null);
+        assert (_communicator != null);
 
         //
         // We support the following formats:
@@ -306,13 +296,13 @@ public final class PluginManagerI implements PluginManager
         {
             args = com.zeroc.IceUtilInternal.Options.split(pluginSpec);
         }
-        catch(com.zeroc.IceUtilInternal.Options.BadQuote ex)
+        catch (com.zeroc.IceUtilInternal.Options.BadQuote ex)
         {
-            throw new PluginInitializationException("invalid arguments for plug-in `" + name + "':\n" +
-                                                    ex.getMessage());
+            throw new PluginInitializationException(
+                "invalid arguments for plug-in `" + name + "':\n" + ex.getMessage());
         }
 
-        assert(args.length > 0);
+        assert (args.length > 0);
 
         final String entryPoint = args[0];
 
@@ -323,16 +313,16 @@ public final class PluginManagerI implements PluginManager
         // Find first ':' that isn't part of the file path.
         //
         int pos = entryPoint.indexOf(':');
-        if(isWindows)
+        if (isWindows)
         {
             final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            if(pos == 1 && entryPoint.length() > 2 && driveLetters.indexOf(entryPoint.charAt(0)) != -1 &&
-               (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/'))
+            if (pos == 1 && entryPoint.length() > 2 && driveLetters.indexOf(entryPoint.charAt(0)) != -1 &&
+                (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/'))
             {
                 absolutePath = true;
                 pos = entryPoint.indexOf(':', pos + 1);
             }
-            if(!absolutePath)
+            if (!absolutePath)
             {
                 absolutePath = entryPoint.startsWith("\\\\");
             }
@@ -342,7 +332,7 @@ public final class PluginManagerI implements PluginManager
             absolutePath = entryPoint.startsWith("/");
         }
 
-        if((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1))
+        if ((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1))
         {
             //
             // Class name is missing.
@@ -356,7 +346,7 @@ public final class PluginManagerI implements PluginManager
         String classDir = null; // Path name of JAR file or subdirectory.
         String className;
 
-        if(pos == -1)
+        if (pos == -1)
         {
             className = entryPoint;
         }
@@ -393,17 +383,17 @@ public final class PluginManagerI implements PluginManager
             //
             // Use a class loader if the user specified a JAR file or class directory.
             //
-            if(classDir != null)
+            if (classDir != null)
             {
                 try
                 {
-                    if(!absolutePath)
+                    if (!absolutePath)
                     {
-                        classDir = new java.io.File(System.getProperty("user.dir") + java.io.File.separator +
-                            classDir).getCanonicalPath();
+                        classDir = new java.io.File(System.getProperty("user.dir") + java.io.File.separator + classDir)
+                                       .getCanonicalPath();
                     }
 
-                    if(!classDir.endsWith(java.io.File.separator) && !classDir.toLowerCase().endsWith(".jar"))
+                    if (!classDir.endsWith(java.io.File.separator) && !classDir.toLowerCase().endsWith(".jar"))
                     {
                         classDir += java.io.File.separator;
                     }
@@ -415,7 +405,7 @@ public final class PluginManagerI implements PluginManager
                     //
                     ClassLoader cl = null;
 
-                    if(_classLoaders == null)
+                    if (_classLoaders == null)
                     {
                         _classLoaders = new java.util.HashMap<>();
                     }
@@ -424,14 +414,14 @@ public final class PluginManagerI implements PluginManager
                         cl = _classLoaders.get(classDir);
                     }
 
-                    if(cl == null)
+                    if (cl == null)
                     {
-                        final java.net.URL[] url = new java.net.URL[] { new java.net.URL("file", null, classDir) };
+                        final java.net.URL[] url = new java.net.URL[] {new java.net.URL("file", null, classDir)};
 
                         //
                         // Use the custom class loader (if any) as the parent.
                         //
-                        if(_instance.initializationData().classLoader != null)
+                        if (_instance.initializationData().classLoader != null)
                         {
                             cl = new java.net.URLClassLoader(url, _instance.initializationData().classLoader);
                         }
@@ -445,15 +435,15 @@ public final class PluginManagerI implements PluginManager
 
                     c = cl.loadClass(className);
                 }
-                catch(java.net.MalformedURLException ex)
+                catch (java.net.MalformedURLException ex)
                 {
                     throw new PluginInitializationException("invalid entry point format `" + pluginSpec + "'", ex);
                 }
-                catch(java.io.IOException ex)
+                catch (java.io.IOException ex)
                 {
                     throw new PluginInitializationException("invalid path in entry point `" + pluginSpec + "'", ex);
                 }
-                catch(java.lang.ClassNotFoundException ex)
+                catch (java.lang.ClassNotFoundException ex)
                 {
                     // Ignored
                 }
@@ -463,7 +453,7 @@ public final class PluginManagerI implements PluginManager
                 c = com.zeroc.IceInternal.Util.getInstance(_communicator).findClass(className);
             }
 
-            if(c == null)
+            if (c == null)
             {
                 throw new PluginInitializationException("class " + className + " not found");
             }
@@ -473,25 +463,24 @@ public final class PluginManagerI implements PluginManager
             {
                 pluginFactory = (PluginFactory)obj;
             }
-            catch(ClassCastException ex)
+            catch (ClassCastException ex)
             {
-                throw new PluginInitializationException("class " + className + " does not implement PluginFactory",
-                                                        ex);
+                throw new PluginInitializationException("class " + className + " does not implement PluginFactory", ex);
             }
         }
-        catch(NoSuchMethodException ex)
+        catch (NoSuchMethodException ex)
         {
             throw new PluginInitializationException("unable to instantiate class " + className, ex);
         }
-        catch(java.lang.reflect.InvocationTargetException ex)
+        catch (java.lang.reflect.InvocationTargetException ex)
         {
             throw new PluginInitializationException("unable to instantiate class " + className, ex);
         }
-        catch(IllegalAccessException ex)
+        catch (IllegalAccessException ex)
         {
             throw new PluginInitializationException("unable to access default constructor in class " + className, ex);
         }
-        catch(InstantiationException ex)
+        catch (InstantiationException ex)
         {
             throw new PluginInitializationException("unable to instantiate class " + className, ex);
         }
@@ -504,16 +493,16 @@ public final class PluginManagerI implements PluginManager
         {
             plugin = pluginFactory.create(_communicator, name, args);
         }
-        catch(PluginInitializationException ex)
+        catch (PluginInitializationException ex)
         {
             throw ex;
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             throw new PluginInitializationException("exception in factory " + className, ex);
         }
 
-        if(plugin == null)
+        if (plugin == null)
         {
             throw new PluginInitializationException("failure in factory " + className);
         }
@@ -528,9 +517,9 @@ public final class PluginManagerI implements PluginManager
 
     private Plugin findPlugin(String name)
     {
-        for(PluginInfo p : _plugins)
+        for (PluginInfo p : _plugins)
         {
-            if(name.equals(p.name))
+            if (name.equals(p.name))
             {
                 return p.plugin;
             }

@@ -28,7 +28,7 @@ public class Server extends test.TestHelper
         //
         properties.setProperty("Ice.Warn.Connections", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

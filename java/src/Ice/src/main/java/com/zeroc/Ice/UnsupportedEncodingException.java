@@ -48,10 +48,7 @@ public class UnsupportedEncodingException extends ProtocolException
         this.supported = supported;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::UnsupportedEncodingException";
-    }
+    public String ice_id() { return "::Ice::UnsupportedEncodingException"; }
 
     /**
      * The version of the unsupported encoding.

@@ -18,9 +18,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
      * @param stream The input stream to read from.
      * @throws java.io.IOException If an I/O error occurs.
      **/
-    public
-    ObjectInputStream(Communicator communicator, java.io.InputStream stream)
-        throws java.io.IOException
+    public ObjectInputStream(Communicator communicator, java.io.InputStream stream) throws java.io.IOException
     {
         super(stream);
         _communicator = communicator;
@@ -30,11 +28,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
      * Returns the communicator for this stream.
      * @return The communicator.
      **/
-    public Communicator
-    getCommunicator()
-    {
-        return _communicator;
-    }
+    public Communicator getCommunicator() { return _communicator; }
 
     private Communicator _communicator;
 }

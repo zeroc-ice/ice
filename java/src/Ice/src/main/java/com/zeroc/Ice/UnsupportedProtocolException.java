@@ -48,10 +48,7 @@ public class UnsupportedProtocolException extends ProtocolException
         this.supported = supported;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::UnsupportedProtocolException";
-    }
+    public String ice_id() { return "::Ice::UnsupportedProtocolException"; }
 
     /**
      * The version of the unsupported protocol.

@@ -11,65 +11,51 @@ package com.zeroc.IceInternal;
 //
 public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> implements OutgoingAsyncBase
 {
-    @Override
-    public boolean sent()
-    {
-        return sent(true);
-    }
+    @Override public boolean sent() { return sent(true); }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public boolean completed(com.zeroc.Ice.InputStream is)
     {
-        assert(false); // Must be implemented by classes that handle responses
+        assert (false); // Must be implemented by classes that handle responses
         return false;
     }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.Exception ex)
-    {
-        return finished(ex);
-    }
+    @Override public boolean completed(com.zeroc.Ice.Exception ex) { return finished(ex); }
 
     @Override
-    public final void attachRemoteObserver(com.zeroc.Ice.ConnectionInfo info, com.zeroc.Ice.Endpoint endpt,
-                                           int requestId)
+    public final void
+    attachRemoteObserver(com.zeroc.Ice.ConnectionInfo info, com.zeroc.Ice.Endpoint endpt, int requestId)
     {
         com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
-        if(observer != null)
+        if (observer != null)
         {
             final int size = _os.size() - Protocol.headerSize - 4;
             _childObserver = observer.getRemoteObserver(info, endpt, requestId, size);
-            if(_childObserver != null)
+            if (_childObserver != null)
             {
                 _childObserver.attach();
             }
         }
     }
 
-    @Override
-    public final void attachCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId)
+    @Override public final void attachCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId)
     {
         com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
-        if(observer != null)
+        if (observer != null)
         {
             final int size = _os.size() - Protocol.headerSize - 4;
             _childObserver = observer.getCollocatedObserver(adapter, requestId, size);
-            if(_childObserver != null)
+            if (_childObserver != null)
             {
                 _childObserver.attach();
             }
         }
     }
 
-    @Override
-    public final com.zeroc.Ice.OutputStream getOs()
-    {
-        return _os;
-    }
+    @Override public final com.zeroc.Ice.OutputStream getOs() { return _os; }
 
     public T waitForResponse()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -78,21 +64,21 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
         {
             return get();
         }
-        catch(InterruptedException ex)
+        catch (InterruptedException ex)
         {
             throw new com.zeroc.Ice.OperationInterruptedException(ex);
         }
-        catch(java.util.concurrent.ExecutionException ee)
+        catch (java.util.concurrent.ExecutionException ee)
         {
             try
             {
                 throw ee.getCause().fillInStackTrace();
             }
-            catch(RuntimeException ex) // Includes LocalException
+            catch (RuntimeException ex) // Includes LocalException
             {
                 throw ex;
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 throw new com.zeroc.Ice.UnknownException(ex);
             }
@@ -105,19 +91,21 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
         _os = new com.zeroc.Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
     }
 
-    protected OutgoingAsyncBaseI(com.zeroc.Ice.Communicator com, Instance instance, String op,
-                                 com.zeroc.Ice.OutputStream os)
+    protected OutgoingAsyncBaseI(
+        com.zeroc.Ice.Communicator com,
+        Instance instance,
+        String op,
+        com.zeroc.Ice.OutputStream os)
     {
         super(com, instance, op);
         _os = os;
     }
 
-    @Override
-    protected boolean sent(boolean done)
+    @Override protected boolean sent(boolean done)
     {
-        if(done)
+        if (done)
         {
-            if(_childObserver != null)
+            if (_childObserver != null)
             {
                 _childObserver.detach();
                 _childObserver = null;
@@ -126,10 +114,9 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
         return super.sent(done);
     }
 
-    @Override
-    protected boolean finished(com.zeroc.Ice.Exception ex)
+    @Override protected boolean finished(com.zeroc.Ice.Exception ex)
     {
-        if(_childObserver != null)
+        if (_childObserver != null)
         {
             _childObserver.failed(ex.ice_id());
             _childObserver.detach();

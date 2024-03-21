@@ -8,22 +8,11 @@ import test.Ice.facets.Test.G;
 
 public final class GI implements G
 {
-    public GI(com.zeroc.Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public GI(com.zeroc.Ice.Communicator communicator) { _communicator = communicator; }
 
-    @Override
-    public String callG(com.zeroc.Ice.Current current)
-    {
-        return "G";
-    }
+    @Override public String callG(com.zeroc.Ice.Current current) { return "G"; }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        _communicator.shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { _communicator.shutdown(); }
 
     private com.zeroc.Ice.Communicator _communicator;
 }

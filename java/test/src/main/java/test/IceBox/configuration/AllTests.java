@@ -5,7 +5,6 @@
 package test.IceBox.configuration;
 
 import java.io.PrintWriter;
-
 import test.IceBox.configuration.Test.TestIntfPrx;
 
 public class AllTests
@@ -31,7 +30,7 @@ public class AllTests
         TestIntfPrx service4 =
             TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(3)));
 
-        if(service1.getProperty("IceBox.InheritProperties").equals(""))
+        if (service1.getProperty("IceBox.InheritProperties").equals(""))
         {
             out.print("testing service properties... ");
             out.flush();

@@ -20,15 +20,9 @@ package com.zeroc.Ice;
  **/
 public class BadMagicException extends ProtocolException
 {
-    public BadMagicException()
-    {
-        super();
-    }
+    public BadMagicException() { super(); }
 
-    public BadMagicException(Throwable cause)
-    {
-        super(cause);
-    }
+    public BadMagicException(Throwable cause) { super(cause); }
 
     public BadMagicException(String reason, byte[] badMagic)
     {
@@ -42,10 +36,7 @@ public class BadMagicException extends ProtocolException
         this.badMagic = badMagic;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::BadMagicException";
-    }
+    public String ice_id() { return "::Ice::BadMagicException"; }
 
     /**
      * A sequence containing the first four bytes of the incorrect message.

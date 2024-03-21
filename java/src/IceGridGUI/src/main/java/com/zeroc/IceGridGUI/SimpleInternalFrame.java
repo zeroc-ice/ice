@@ -30,12 +30,10 @@
 
 package com.zeroc.IceGridGUI;
 
+import com.jgoodies.common.base.SystemUtils;
 import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
-
-import com.jgoodies.common.base.SystemUtils;
 
 /**
  * A <code>JPanel</code> subclass that has a drop shadow border and
@@ -63,12 +61,12 @@ import com.jgoodies.common.base.SystemUtils;
  * @see    javax.swing.JDesktopPane
  */
 
-public class SimpleInternalFrame extends JPanel {
-
-    private JLabel        titleLabel;
+public class SimpleInternalFrame extends JPanel
+{
+    private JLabel titleLabel;
     private GradientPanel gradientPanel;
-    private JPanel        headerPanel;
-    private boolean       selected;
+    private JPanel headerPanel;
+    private boolean selected;
 
     // Instance Creation ****************************************************
 
@@ -79,9 +77,7 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @param title       the initial title
      */
-    public SimpleInternalFrame(String title) {
-        this(null, title, null, null);
-    }
+    public SimpleInternalFrame(String title) { this(null, title, null, null); }
 
     /**
      * Constructs a SimpleInternalFrame with the specified
@@ -90,9 +86,7 @@ public class SimpleInternalFrame extends JPanel {
      * @param icon        the initial icon
      * @param title       the initial title
      */
-    public SimpleInternalFrame(Icon icon, String title) {
-        this(icon, title, null, null);
-    }
+    public SimpleInternalFrame(Icon icon, String title) { this(icon, title, null, null); }
 
     /**
      * Constructs a SimpleInternalFrame with the specified
@@ -102,9 +96,7 @@ public class SimpleInternalFrame extends JPanel {
      * @param bar         the initial tool bar
      * @param content     the initial content pane
      */
-    public SimpleInternalFrame(String title, JToolBar bar, JComponent content) {
-        this(null, title, bar, content);
-    }
+    public SimpleInternalFrame(String title, JToolBar bar, JComponent content) { this(null, title, bar, content); }
 
     /**
      * Constructs a SimpleInternalFrame with the specified
@@ -115,18 +107,16 @@ public class SimpleInternalFrame extends JPanel {
      * @param bar         the initial tool bar
      * @param content     the initial content pane
      */
-    public SimpleInternalFrame(
-        Icon icon,
-        String title,
-        JToolBar bar,
-        JComponent content) {
+    public SimpleInternalFrame(Icon icon, String title, JToolBar bar, JComponent content)
+    {
         super(new BorderLayout());
         this.selected = false;
         this.titleLabel = new JLabel(title, icon, SwingConstants.LEADING);
         JPanel top = buildHeader(titleLabel, bar);
 
         add(top, BorderLayout.NORTH);
-        if (content != null) {
+        if (content != null)
+        {
             setContent(content);
         }
         setBorder(new ShadowBorder());
@@ -141,16 +131,15 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @return the frame's icon
      */
-    public Icon getFrameIcon() {
-        return titleLabel.getIcon();
-    }
+    public Icon getFrameIcon() { return titleLabel.getIcon(); }
 
     /**
      * Sets a new frame icon.
      *
      * @param newIcon   the icon to be set
      */
-    public void setFrameIcon(Icon newIcon) {
+    public void setFrameIcon(Icon newIcon)
+    {
         Icon oldIcon = getFrameIcon();
         titleLabel.setIcon(newIcon);
         firePropertyChange("frameIcon", oldIcon, newIcon);
@@ -159,18 +148,15 @@ public class SimpleInternalFrame extends JPanel {
     /**
      * Returns the frame's title text.
      *      * @return String   the current title text     */
-    public String getTitle() {
-        return titleLabel.getText();
-    }
+    public String getTitle() { return titleLabel.getText(); }
 
-    public JLabel getTitleLabel() {
-        return titleLabel;
-    }
+    public JLabel getTitleLabel() { return titleLabel; }
 
     /**
      * Sets a new title text.
      *      * @param newText the title text tp be set     */
-    public void setTitle(String newText) {
+    public void setTitle(String newText)
+    {
         String oldText = getTitle();
         titleLabel.setText(newText);
         firePropertyChange("title", oldText, newText);
@@ -181,10 +167,9 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @return the current toolbar - if any
      */
-    public JToolBar getToolBar() {
-        return headerPanel.getComponentCount() > 1
-            ? (JToolBar) headerPanel.getComponent(1)
-            : null;
+    public JToolBar getToolBar()
+    {
+        return headerPanel.getComponentCount() > 1 ? (JToolBar)headerPanel.getComponent(1) : null;
     }
 
     /**
@@ -192,15 +177,19 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @param newToolBar the tool bar to be set in the header
      */
-    public void setToolBar(JToolBar newToolBar) {
+    public void setToolBar(JToolBar newToolBar)
+    {
         JToolBar oldToolBar = getToolBar();
-        if (oldToolBar == newToolBar) {
+        if (oldToolBar == newToolBar)
+        {
             return;
         }
-        if (oldToolBar != null) {
+        if (oldToolBar != null)
+        {
             headerPanel.remove(oldToolBar);
         }
-        if (newToolBar != null) {
+        if (newToolBar != null)
+        {
             newToolBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
             headerPanel.add(newToolBar, BorderLayout.EAST);
         }
@@ -211,16 +200,16 @@ public class SimpleInternalFrame extends JPanel {
     /**
      * Returns the content - null, if none has been set.
      *      * @return the current content     */
-    public Component getContent() {
-        return hasContent() ? getComponent(1) : null;
-    }
+    public Component getContent() { return hasContent() ? getComponent(1) : null; }
 
     /**
      * Sets a new panel content; replaces any existing content, if existing.
      *      * @param newContent   the panel's new content     */
-    public void setContent(Component newContent) {
+    public void setContent(Component newContent)
+    {
         Component oldContent = getContent();
-        if (hasContent()) {
+        if (hasContent())
+        {
             remove(oldContent);
         }
         add(newContent, BorderLayout.CENTER);
@@ -235,9 +224,7 @@ public class SimpleInternalFrame extends JPanel {
      * @return boolean a boolean, where true means the frame is selected
      *                 (currently active) and false means it is not
      */
-    public boolean isSelected() {
-        return selected;
-    }
+    public boolean isSelected() { return selected; }
 
     /**
      * This panel draws its title bar differently if it is selected,
@@ -248,7 +235,8 @@ public class SimpleInternalFrame extends JPanel {
      * @param newValue a boolean, where true means the frame is selected
      *                 (currently active) and false means it is not
      */
-    public void setSelected(boolean newValue) {
+    public void setSelected(boolean newValue)
+    {
         boolean oldValue = isSelected();
         selected = newValue;
         updateHeader();
@@ -265,9 +253,9 @@ public class SimpleInternalFrame extends JPanel {
      * @param bar     the panel's tool bar
      * @return the panel's built header area
      */
-    private JPanel buildHeader(JLabel label, JToolBar bar) {
-        gradientPanel =
-            new GradientPanel(new BorderLayout(), getHeaderBackground());
+    private JPanel buildHeader(JLabel label, JToolBar bar)
+    {
+        gradientPanel = new GradientPanel(new BorderLayout(), getHeaderBackground());
         label.setOpaque(false);
 
         gradientPanel.add(label, BorderLayout.WEST);
@@ -291,7 +279,8 @@ public class SimpleInternalFrame extends JPanel {
     /**
      * Updates the header.
      */
-    private void updateHeader() {
+    private void updateHeader()
+    {
         gradientPanel.setBackground(getHeaderBackground());
         gradientPanel.setOpaque(isSelected());
         titleLabel.setForeground(getTextForeground(isSelected()));
@@ -302,10 +291,11 @@ public class SimpleInternalFrame extends JPanel {
      * Updates the UI. In addition to the superclass behavior, we need
      * to update the header component.
      */
-    @Override
-    public void updateUI() {
+    @Override public void updateUI()
+    {
         super.updateUI();
-        if (titleLabel != null) {
+        if (titleLabel != null)
+        {
             updateHeader();
         }
     }
@@ -317,10 +307,8 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @return true if the panel has a content, false if it's empty
      */
-    private boolean hasContent() {
-        return getComponentCount() > 1;
-    }
-        /**
+    private boolean hasContent() { return getComponentCount() > 1; }
+    /**
      * Determines and answers the header's text foreground color.
      * Tries to lookup a special color from the L&amp;F.
      * In case it is absent, it uses the standard internal frame forground.
@@ -328,20 +316,15 @@ public class SimpleInternalFrame extends JPanel {
      * @param isSelected   true to lookup the active color, false for the inactive
      * @return the color of the foreground text
      */
-    protected Color getTextForeground(boolean isSelected) {
-        Color c =
-            UIManager.getColor(
-                isSelected
-                    ? "SimpleInternalFrame.activeTitleForeground"
-                    : "SimpleInternalFrame.inactiveTitleForeground");
-        if (c != null) {
+    protected Color getTextForeground(boolean isSelected)
+    {
+        Color c = UIManager.getColor(
+            isSelected ? "SimpleInternalFrame.activeTitleForeground" : "SimpleInternalFrame.inactiveTitleForeground");
+        if (c != null)
+        {
             return c;
         }
-        return UIManager.getColor(
-            isSelected
-                ? "InternalFrame.activeTitleForeground"
-                : "Label.foreground");
-
+        return UIManager.getColor(isSelected ? "InternalFrame.activeTitleForeground" : "Label.foreground");
     }
 
     /**
@@ -351,66 +334,53 @@ public class SimpleInternalFrame extends JPanel {
      *
      * @return the color of the header's background
      */
-    protected Color getHeaderBackground() {
-        Color c =
-            UIManager.getColor("SimpleInternalFrame.activeTitleBackground");
+    protected Color getHeaderBackground()
+    {
+        Color c = UIManager.getColor("SimpleInternalFrame.activeTitleBackground");
         if (c != null)
             return c;
         if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED)
             c = UIManager.getColor("InternalFrame.activeTitleGradient");
-        return c != null
-            ? c
-            : UIManager.getColor("InternalFrame.activeTitleBackground");
+        return c != null ? c : UIManager.getColor("InternalFrame.activeTitleBackground");
     }
 
     // Helper Classes *******************************************************
 
     // A custom border for the raised header pseudo 3D effect.
-    private static class RaisedHeaderBorder extends AbstractBorder {
-
+    private static class RaisedHeaderBorder extends AbstractBorder
+    {
         private static final Insets INSETS = new Insets(1, 1, 1, 0);
 
-        @Override
-        public Insets getBorderInsets(Component c) { return INSETS; }
+        @Override public Insets getBorderInsets(Component c) { return INSETS; }
 
-        @Override
-        public void paintBorder(Component c, Graphics g,
-            int x, int y, int w, int h) {
-
+        @Override public void paintBorder(Component c, Graphics g, int x, int y, int w, int h)
+        {
             g.translate(x, y);
             g.setColor(UIManager.getColor("controlLtHighlight"));
-            g.fillRect(0, 0,   w, 1);
-            g.fillRect(0, 1,   1, h-1);
+            g.fillRect(0, 0, w, 1);
+            g.fillRect(0, 1, 1, h - 1);
             g.setColor(UIManager.getColor("controlShadow"));
-            g.fillRect(0, h-1, w, 1);
+            g.fillRect(0, h - 1, w, 1);
             g.translate(-x, -y);
         }
     }
 
     // A custom border that has a shadow on the right and lower sides.
-    private static class ShadowBorder extends AbstractBorder {
-
+    private static class ShadowBorder extends AbstractBorder
+    {
         private static final Insets INSETS = new Insets(1, 1, 3, 3);
 
-        @Override
-        public Insets getBorderInsets(Component c) { return INSETS; }
+        @Override public Insets getBorderInsets(Component c) { return INSETS; }
 
-        @Override
-        public void paintBorder(Component c, Graphics g,
-            int x, int y, int w, int h) {
-
-            Color shadow        = UIManager.getColor("controlShadow");
-            if (shadow == null) {
+        @Override public void paintBorder(Component c, Graphics g, int x, int y, int w, int h)
+        {
+            Color shadow = UIManager.getColor("controlShadow");
+            if (shadow == null)
+            {
                 shadow = Color.GRAY;
             }
-            Color lightShadow   = new Color(shadow.getRed(),
-                                            shadow.getGreen(),
-                                            shadow.getBlue(),
-                                            170);
-            Color lighterShadow = new Color(shadow.getRed(),
-                                            shadow.getGreen(),
-                                            shadow.getBlue(),
-                                            70);
+            Color lightShadow = new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 170);
+            Color lighterShadow = new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 70);
             g.translate(x, y);
 
             g.setColor(shadow);
@@ -428,7 +398,7 @@ public class SimpleInternalFrame extends JPanel {
             g.setColor(lighterShadow);
             g.fillRect(w - 2, 0, 1, 1);
             g.fillRect(0, h - 2, 1, 1);
-            g.fillRect(w-2, h-2, 1, 1);
+            g.fillRect(w - 2, h - 2, 1, 1);
             g.fillRect(w - 1, 1, 1, h - 2);
             g.fillRect(1, h - 1, w - 2, 1);
             g.translate(-x, -y);
@@ -436,30 +406,30 @@ public class SimpleInternalFrame extends JPanel {
     }
 
     // A panel with a horizontal gradient background.
-    private static class GradientPanel extends JPanel {
-
-        private GradientPanel(LayoutManager lm, Color background) {
+    private static class GradientPanel extends JPanel
+    {
+        private GradientPanel(LayoutManager lm, Color background)
+        {
             super(lm);
             setBackground(background);
         }
 
-        @Override
-        public void paintComponent(Graphics g) {
+        @Override public void paintComponent(Graphics g)
+        {
             super.paintComponent(g);
-            if (!isOpaque()) {
+            if (!isOpaque())
+            {
                 return;
             }
             Color control = UIManager.getColor("control");
-            int width  = getWidth();
+            int width = getWidth();
             int height = getHeight();
 
-            Graphics2D g2 = (Graphics2D) g;
+            Graphics2D g2 = (Graphics2D)g;
             Paint storedPaint = g2.getPaint();
-            g2.setPaint(
-                new GradientPaint(0, 0, getBackground(), width, 0, control));
+            g2.setPaint(new GradientPaint(0, 0, getBackground(), width, 0, control));
             g2.fillRect(0, 0, width, height);
             g2.setPaint(storedPaint);
         }
     }
-
 }

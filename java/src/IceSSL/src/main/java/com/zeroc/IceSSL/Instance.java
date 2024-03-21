@@ -12,25 +12,13 @@ class Instance extends com.zeroc.IceInternal.ProtocolInstance
         _engine = engine;
     }
 
-    SSLEngine engine()
-    {
-        return _engine;
-    }
+    SSLEngine engine() { return _engine; }
 
-    int securityTraceLevel()
-    {
-        return _engine.securityTraceLevel();
-    }
+    int securityTraceLevel() { return _engine.securityTraceLevel(); }
 
-    String securityTraceCategory()
-    {
-        return _engine.securityTraceCategory();
-    }
+    String securityTraceCategory() { return _engine.securityTraceCategory(); }
 
-    boolean initialized()
-    {
-        return _engine.initialized();
-    }
+    boolean initialized() { return _engine.initialized(); }
 
     javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
     {
@@ -42,10 +30,7 @@ class Instance extends com.zeroc.IceInternal.ProtocolInstance
         _engine.traceConnection(desc, engine, incoming);
     }
 
-    void verifyPeer(String address, ConnectionInfo info, String desc)
-    {
-        _engine.verifyPeer(address, info, desc);
-    }
+    void verifyPeer(String address, ConnectionInfo info, String desc) { _engine.verifyPeer(address, info, desc); }
 
     void trustManagerFailure(boolean incoming, java.security.cert.CertificateException ex)
         throws java.security.cert.CertificateException

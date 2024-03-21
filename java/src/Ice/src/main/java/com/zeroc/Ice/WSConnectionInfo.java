@@ -20,12 +20,14 @@ package com.zeroc.Ice;
  **/
 public class WSConnectionInfo extends ConnectionInfo
 {
-    public WSConnectionInfo()
-    {
-        super();
-    }
+    public WSConnectionInfo() { super(); }
 
-    public WSConnectionInfo(ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, java.util.Map<java.lang.String, java.lang.String> headers)
+    public WSConnectionInfo(
+        ConnectionInfo underlying,
+        boolean incoming,
+        String adapterName,
+        String connectionId,
+        java.util.Map<java.lang.String, java.lang.String> headers)
     {
         super(underlying, incoming, adapterName, connectionId);
         this.headers = headers;
@@ -36,10 +38,7 @@ public class WSConnectionInfo extends ConnectionInfo
      **/
     public java.util.Map<java.lang.String, java.lang.String> headers;
 
-    public WSConnectionInfo clone()
-    {
-        return (WSConnectionInfo)super.clone();
-    }
+    public WSConnectionInfo clone() { return (WSConnectionInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 9085761366886580254L;

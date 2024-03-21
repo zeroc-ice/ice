@@ -6,42 +6,30 @@ package test.Ice.metrics;
 
 class InvocationObserverI extends ObserverI implements com.zeroc.Ice.Instrumentation.InvocationObserver
 {
-    @Override
-    public synchronized void reset()
+    @Override public synchronized void reset()
     {
         super.reset();
         retriedCount = 0;
         userExceptionCount = 0;
-        if(remoteObserver != null)
+        if (remoteObserver != null)
         {
             remoteObserver.reset();
         }
-        if(collocatedObserver != null)
+        if (collocatedObserver != null)
         {
             collocatedObserver.reset();
         }
     }
 
-    @Override
-    public synchronized void retried()
-    {
-        ++retriedCount;
-    }
+    @Override public synchronized void retried() { ++retriedCount; }
+
+    @Override public synchronized void userException() { ++userExceptionCount; }
 
     @Override
-    public synchronized void userException()
+    public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver
+    getRemoteObserver(com.zeroc.Ice.ConnectionInfo c, com.zeroc.Ice.Endpoint e, int a, int b)
     {
-        ++userExceptionCount;
-    }
-
-    @Override
-    public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
-        com.zeroc.Ice.ConnectionInfo c,
-        com.zeroc.Ice.Endpoint e,
-        int a,
-        int b)
-    {
-        if(remoteObserver == null)
+        if (remoteObserver == null)
         {
             remoteObserver = new RemoteObserverI();
             remoteObserver.reset();
@@ -50,12 +38,10 @@ class InvocationObserverI extends ObserverI implements com.zeroc.Ice.Instrumenta
     }
 
     @Override
-    public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
-        com.zeroc.Ice.ObjectAdapter adapter,
-        int a,
-        int b)
+    public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver
+    getCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int a, int b)
     {
-        if(collocatedObserver == null)
+        if (collocatedObserver == null)
         {
             collocatedObserver = new CollocatedObserverI();
             collocatedObserver.reset();

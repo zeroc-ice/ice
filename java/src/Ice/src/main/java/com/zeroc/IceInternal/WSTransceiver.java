@@ -4,34 +4,28 @@
 
 package com.zeroc.IceInternal;
 
-import java.security.*;
 import com.zeroc.IceUtilInternal.Base64;
+import java.security.*;
 
 final class WSTransceiver implements Transceiver
 {
-    @Override
-    public java.nio.channels.SelectableChannel fd()
-    {
-        return _delegate.fd();
-    }
+    @Override public java.nio.channels.SelectableChannel fd() { return _delegate.fd(); }
 
-    @Override
-    public void setReadyCallback(ReadyCallback callback)
+    @Override public void setReadyCallback(ReadyCallback callback)
     {
         _readyCallback = callback;
         _delegate.setReadyCallback(callback);
     }
 
-    @Override
-    public int initialize(Buffer readBuffer, Buffer writeBuffer)
+    @Override public int initialize(Buffer readBuffer, Buffer writeBuffer)
     {
         //
         // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
         //
-        if(_state == StateInitializeDelegate)
+        if (_state == StateInitializeDelegate)
         {
             int op = _delegate.initialize(readBuffer, writeBuffer);
-            if(op != 0)
+            if (op != 0)
             {
                 return op;
             }
@@ -40,7 +34,7 @@ final class WSTransceiver implements Transceiver
 
         try
         {
-            if(_state == StateConnected)
+            if (_state == StateConnected)
             {
                 //
                 // We don't know how much we'll need to read.
@@ -54,7 +48,7 @@ final class WSTransceiver implements Transceiver
                 // client sends the upgrade request.
                 //
                 _state = StateUpgradeRequestPending;
-                if(!_incoming)
+                if (!_incoming)
                 {
                     //
                     // Compose the upgrade request.
@@ -87,26 +81,26 @@ final class WSTransceiver implements Transceiver
             //
             // Try to write the client's upgrade request.
             //
-            if(_state == StateUpgradeRequestPending && !_incoming)
+            if (_state == StateUpgradeRequestPending && !_incoming)
             {
-                if(_writeBuffer.b.hasRemaining())
+                if (_writeBuffer.b.hasRemaining())
                 {
                     int s = _delegate.write(_writeBuffer);
-                    if(s != 0)
+                    if (s != 0)
                     {
                         return s;
                     }
                 }
-                assert(!_writeBuffer.b.hasRemaining());
+                assert (!_writeBuffer.b.hasRemaining());
                 _state = StateUpgradeResponsePending;
             }
 
-            while(true)
+            while (true)
             {
-                if(_readBuffer.b.hasRemaining())
+                if (_readBuffer.b.hasRemaining())
                 {
                     int s = _delegate.read(_readBuffer);
-                    if(s == SocketOperation.Write || _readBuffer.b.position() == 0)
+                    if (s == SocketOperation.Write || _readBuffer.b.position() == 0)
                     {
                         return s;
                     }
@@ -115,16 +109,16 @@ final class WSTransceiver implements Transceiver
                 //
                 // Try to read the client's upgrade request or the server's response.
                 //
-                if((_state == StateUpgradeRequestPending && _incoming) ||
-                   (_state == StateUpgradeResponsePending && !_incoming))
+                if ((_state == StateUpgradeRequestPending && _incoming) ||
+                    (_state == StateUpgradeResponsePending && !_incoming))
                 {
                     //
                     // Check if we have enough data for a complete message.
                     //
                     int p = _parser.isCompleteMessage(_readBuffer.b, 0, _readBuffer.b.position());
-                    if(p == -1)
+                    if (p == -1)
                     {
-                        if(_readBuffer.b.hasRemaining())
+                        if (_readBuffer.b.hasRemaining())
                         {
                             return SocketOperation.Read;
                         }
@@ -133,7 +127,7 @@ final class WSTransceiver implements Transceiver
                         // Enlarge the buffer and try to read more.
                         //
                         final int oldSize = _readBuffer.b.position();
-                        if(oldSize + 1024 > _instance.messageSizeMax())
+                        if (oldSize + 1024 > _instance.messageSizeMax())
                         {
                             throw new com.zeroc.Ice.MemoryLimitException();
                         }
@@ -159,9 +153,9 @@ final class WSTransceiver implements Transceiver
                 //
                 // Parse the client's upgrade request.
                 //
-                if(_state == StateUpgradeRequestPending && _incoming)
+                if (_state == StateUpgradeRequestPending && _incoming)
                 {
-                    if(_parser.parse(_readBuffer.b, 0, _readBufferPos))
+                    if (_parser.parse(_readBuffer.b, 0, _readBufferPos))
                     {
                         handleRequest(_writeBuffer);
                         _state = StateUpgradeResponsePending;
@@ -172,14 +166,14 @@ final class WSTransceiver implements Transceiver
                     }
                 }
 
-                if(_state == StateUpgradeResponsePending)
+                if (_state == StateUpgradeResponsePending)
                 {
-                    if(_incoming)
+                    if (_incoming)
                     {
-                        if(_writeBuffer.b.hasRemaining())
+                        if (_writeBuffer.b.hasRemaining())
                         {
                             int s = _delegate.write(_writeBuffer);
-                            if(s != 0)
+                            if (s != 0)
                             {
                                 return s;
                             }
@@ -190,7 +184,7 @@ final class WSTransceiver implements Transceiver
                         //
                         // Parse the server's response
                         //
-                        if(_parser.parse(_readBuffer.b, 0, _readBufferPos))
+                        if (_parser.parse(_readBuffer.b, 0, _readBufferPos))
                         {
                             handleResponse();
                         }
@@ -201,7 +195,7 @@ final class WSTransceiver implements Transceiver
                     }
                 }
             }
-            catch(WebSocketException ex)
+            catch (WebSocketException ex)
             {
                 throw new com.zeroc.Ice.ProtocolException(ex.getMessage(), ex);
             }
@@ -209,31 +203,34 @@ final class WSTransceiver implements Transceiver
             _state = StateOpened;
             _nextState = StateOpened;
 
-            if(_readBufferPos < _readBuffer.b.position())
+            if (_readBufferPos < _readBuffer.b.position())
             {
                 _readyCallback.ready(SocketOperation.Read, true);
             }
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
-            if(_instance.traceLevel() >= 2)
+            if (_instance.traceLevel() >= 2)
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     protocol() + " connection HTTP upgrade request failed\n" + toString() + "\n" + ex);
             }
             throw ex;
         }
 
-        if(_instance.traceLevel() >= 1)
+        if (_instance.traceLevel() >= 1)
         {
-            if(_incoming)
+            if (_incoming)
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     "accepted " + protocol() + " connection HTTP upgrade request\n" + toString());
             }
             else
             {
-                _instance.logger().trace(_instance.traceCategory(),
+                _instance.logger().trace(
+                    _instance.traceCategory(),
                     protocol() + " connection HTTP upgrade request accepted\n" + toString());
             }
         }
@@ -241,18 +238,18 @@ final class WSTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
-    @Override
-    public int closing(boolean initiator, com.zeroc.Ice.LocalException reason)
+    @Override public int closing(boolean initiator, com.zeroc.Ice.LocalException reason)
     {
-        if(_instance.traceLevel() >= 1)
+        if (_instance.traceLevel() >= 1)
         {
-            _instance.logger().trace(_instance.traceCategory(),
+            _instance.logger().trace(
+                _instance.traceCategory(),
                 "gracefully closing " + protocol() + " connection\n" + toString());
         }
 
         int s = _nextState == StateOpened ? _state : _nextState;
 
-        if(s == StateClosingRequestPending && _closingInitiator)
+        if (s == StateClosingRequestPending && _closingInitiator)
         {
             //
             // If we initiated a close connection but also received a
@@ -262,35 +259,36 @@ final class WSTransceiver implements Transceiver
             // time we don't hang having both peer waiting for the close
             // frame of the other.
             //
-            assert(!initiator);
+            assert (!initiator);
             _closingInitiator = false;
             return SocketOperation.Write;
         }
-        else if(s >= StateClosingRequestPending)
+        else if (s >= StateClosingRequestPending)
         {
             return SocketOperation.None;
         }
 
         _closingInitiator = initiator;
-        if(reason instanceof com.zeroc.Ice.CloseConnectionException)
+        if (reason instanceof com.zeroc.Ice.CloseConnectionException)
         {
             _closingReason = CLOSURE_NORMAL;
         }
-        else if(reason instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException ||
-                reason instanceof com.zeroc.Ice.CommunicatorDestroyedException)
+        else if (
+            reason instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException ||
+            reason instanceof com.zeroc.Ice.CommunicatorDestroyedException)
         {
             _closingReason = CLOSURE_SHUTDOWN;
         }
-        else if(reason instanceof com.zeroc.Ice.ProtocolException)
+        else if (reason instanceof com.zeroc.Ice.ProtocolException)
         {
-            _closingReason  = CLOSURE_PROTOCOL_ERROR;
+            _closingReason = CLOSURE_PROTOCOL_ERROR;
         }
-        else if(reason instanceof com.zeroc.Ice.MemoryLimitException)
+        else if (reason instanceof com.zeroc.Ice.MemoryLimitException)
         {
             _closingReason = CLOSURE_TOO_BIG;
         }
 
-        if(_state == StateOpened)
+        if (_state == StateOpened)
         {
             _state = StateClosingRequestPending;
             return initiator ? SocketOperation.Read : SocketOperation.Write;
@@ -302,8 +300,7 @@ final class WSTransceiver implements Transceiver
         }
     }
 
-    @Override
-    public void close()
+    @Override public void close()
     {
         _delegate.close();
         _state = StateClosed;
@@ -315,19 +312,17 @@ final class WSTransceiver implements Transceiver
         _readBuffer.clear();
     }
 
-    @Override
-    public EndpointI bind()
+    @Override public EndpointI bind()
     {
-        assert(false);
+        assert (false);
         return null;
     }
 
-    @Override
-    public int write(Buffer buf)
+    @Override public int write(Buffer buf)
     {
-        if(_state < StateOpened)
+        if (_state < StateOpened)
         {
-            if(_state < StateConnected)
+            if (_state < StateConnected)
             {
                 return _delegate.write(buf);
             }
@@ -340,52 +335,50 @@ final class WSTransceiver implements Transceiver
         int s = SocketOperation.None;
         do
         {
-            if(preWrite(buf))
+            if (preWrite(buf))
             {
-                if(_writeState == WriteStateFlush)
+                if (_writeState == WriteStateFlush)
                 {
                     //
                     // Invoke write() even though there's nothing to write.
                     //
-                    assert(!buf.b.hasRemaining());
+                    assert (!buf.b.hasRemaining());
                     s = _delegate.write(buf);
                 }
 
-                if(s == SocketOperation.None && _writeBuffer.b.hasRemaining())
+                if (s == SocketOperation.None && _writeBuffer.b.hasRemaining())
                 {
                     s = _delegate.write(_writeBuffer);
                 }
-                else if(s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload)
+                else if (s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload)
                 {
                     s = _delegate.write(buf);
                 }
             }
-        }
-        while(postWrite(buf, s));
+        } while (postWrite(buf, s));
 
-        if(s != SocketOperation.None)
+        if (s != SocketOperation.None)
         {
             return s;
         }
-        if(_state == StateClosingResponsePending && !_closingInitiator)
+        if (_state == StateClosingResponsePending && !_closingInitiator)
         {
             return SocketOperation.Read;
         }
         return SocketOperation.None;
     }
 
-    @Override
-    public int read(Buffer buf)
+    @Override public int read(Buffer buf)
     {
-        if(_state < StateOpened)
+        if (_state < StateOpened)
         {
-            if(_state < StateConnected)
+            if (_state < StateConnected)
             {
                 return _delegate.read(buf);
             }
             else
             {
-                if(_delegate.read(_readBuffer) == SocketOperation.Write)
+                if (_delegate.read(_readBuffer) == SocketOperation.Write)
                 {
                     return SocketOperation.Write;
                 }
@@ -396,9 +389,9 @@ final class WSTransceiver implements Transceiver
             }
         }
 
-        if(!buf.b.hasRemaining())
+        if (!buf.b.hasRemaining())
         {
-            if(_readBufferPos < _readBuffer.b.position())
+            if (_readBufferPos < _readBuffer.b.position())
             {
                 _readyCallback.ready(SocketOperation.Read, true);
             }
@@ -408,9 +401,9 @@ final class WSTransceiver implements Transceiver
         int s = SocketOperation.None;
         do
         {
-            if(preRead(buf))
+            if (preRead(buf))
             {
-                if(_readState == ReadStatePayload)
+                if (_readState == ReadStatePayload)
                 {
                     //
                     // If the payload length is smaller than what remains to be read, we read
@@ -418,7 +411,7 @@ final class WSTransceiver implements Transceiver
                     // sent over in another frame.
                     //
                     int readSz = _readPayloadLength - (buf.b.position() - _readStart);
-                    if(buf.b.remaining() > readSz)
+                    if (buf.b.remaining() > readSz)
                     {
                         int size = buf.size();
                         buf.resize(buf.b.position() + readSz, true);
@@ -435,18 +428,17 @@ final class WSTransceiver implements Transceiver
                     s = _delegate.read(_readBuffer);
                 }
 
-                if(s == SocketOperation.Write)
+                if (s == SocketOperation.Write)
                 {
                     postRead(buf);
                     return s;
                 }
             }
-        }
-        while(postRead(buf));
+        } while (postRead(buf));
 
-        if(!buf.b.hasRemaining())
+        if (!buf.b.hasRemaining())
         {
-            if(_readBufferPos < _readBuffer.b.position())
+            if (_readBufferPos < _readBuffer.b.position())
             {
                 _readyCallback.ready(SocketOperation.Read, true);
             }
@@ -458,11 +450,10 @@ final class WSTransceiver implements Transceiver
             s = SocketOperation.Read;
         }
 
-        if(((_state == StateClosingRequestPending && !_closingInitiator) ||
-            (_state == StateClosingResponsePending && _closingInitiator) ||
-            _state == StatePingPending ||
-            _state == StatePongPending) &&
-           _writeState == WriteStateHeader)
+        if (((_state == StateClosingRequestPending && !_closingInitiator) ||
+             (_state == StateClosingResponsePending && _closingInitiator) || _state == StatePingPending ||
+             _state == StatePongPending) &&
+            _writeState == WriteStateHeader)
         {
             // We have things to write, ask to be notified when writes are ready.
             s |= SocketOperation.Write;
@@ -471,26 +462,13 @@ final class WSTransceiver implements Transceiver
         return s;
     }
 
-    @Override
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    @Override public String protocol() { return _instance.protocol(); }
 
-    @Override
-    public String toString()
-    {
-        return _delegate.toString();
-    }
+    @Override public String toString() { return _delegate.toString(); }
 
-    @Override
-    public String toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    @Override public String toDetailedString() { return _delegate.toDetailedString(); }
 
-    @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo()
+    @Override public com.zeroc.Ice.ConnectionInfo getInfo()
     {
         com.zeroc.Ice.WSConnectionInfo info = new com.zeroc.Ice.WSConnectionInfo();
         info.underlying = _delegate.getInfo();
@@ -498,17 +476,9 @@ final class WSTransceiver implements Transceiver
         return info;
     }
 
-    @Override
-    public void checkSendSize(Buffer buf)
-    {
-        _delegate.checkSendSize(buf);
-    }
+    @Override public void checkSendSize(Buffer buf) { _delegate.checkSendSize(buf); }
 
-    @Override
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    @Override public void setBufferSize(int rcvSize, int sndSize) { _delegate.setBufferSize(rcvSize, sndSize); }
 
     WSTransceiver(ProtocolInstance instance, Transceiver del, String host, String resource)
     {
@@ -529,8 +499,8 @@ final class WSTransceiver implements Transceiver
         //
         // Write and read buffer size must be large enough to hold the frame header!
         //
-        assert(_writeBufferSize > 256);
-        assert(_readBufferSize > 256);
+        assert (_writeBufferSize > 256);
+        assert (_readBufferSize > 256);
     }
 
     WSTransceiver(ProtocolInstance instance, Transceiver del)
@@ -543,8 +513,8 @@ final class WSTransceiver implements Transceiver
         //
         // Write and read buffer size must be large enough to hold the frame header!
         //
-        assert(_writeBufferSize > 256);
-        assert(_readBufferSize > 256);
+        assert (_writeBufferSize > 256);
+        assert (_readBufferSize > 256);
     }
 
     private void init(ProtocolInstance instance, Transceiver del)
@@ -576,7 +546,7 @@ final class WSTransceiver implements Transceiver
         //
         // HTTP/1.1
         //
-        if(_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
+        if (_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
         {
             throw new WebSocketException("unsupported HTTP version");
         }
@@ -586,11 +556,11 @@ final class WSTransceiver implements Transceiver
         //  treated as an ASCII case-insensitive value."
         //
         String val = _parser.getHeader("Upgrade", true);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for Upgrade field");
         }
-        else if(!val.equals("websocket"))
+        else if (!val.equals("websocket"))
         {
             throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
         }
@@ -600,11 +570,11 @@ final class WSTransceiver implements Transceiver
         //  treated as an ASCII case-insensitive value.
         //
         val = _parser.getHeader("Connection", true);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if(val.indexOf("upgrade") == -1)
+        else if (val.indexOf("upgrade") == -1)
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
@@ -613,11 +583,11 @@ final class WSTransceiver implements Transceiver
         // "A |Sec-WebSocket-Version| header field, with a value of 13."
         //
         val = _parser.getHeader("Sec-WebSocket-Version", false);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for WebSocket version");
         }
-        else if(!val.equals("13"))
+        else if (!val.equals("13"))
         {
             throw new WebSocketException("unsupported WebSocket version `" + val + "'");
         }
@@ -629,16 +599,16 @@ final class WSTransceiver implements Transceiver
         //
         boolean addProtocol = false;
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
-        if(val != null)
+        if (val != null)
         {
             String[] protocols = com.zeroc.IceUtilInternal.StringUtil.splitString(val, ",");
-            if(protocols == null)
+            if (protocols == null)
             {
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
             }
-            for(String p : protocols)
+            for (String p : protocols)
             {
-                if(!p.trim().equals(_iceProtocol))
+                if (!p.trim().equals(_iceProtocol))
                 {
                     throw new WebSocketException("unknown value `" + p + "' for WebSocket protocol");
                 }
@@ -651,7 +621,7 @@ final class WSTransceiver implements Transceiver
         //  value that, when decoded, is 16 bytes in length."
         //
         String key = _parser.getHeader("Sec-WebSocket-Key", false);
-        if(key == null)
+        if (key == null)
         {
             throw new WebSocketException("missing value for WebSocket key");
         }
@@ -659,12 +629,12 @@ final class WSTransceiver implements Transceiver
         try
         {
             byte[] decodedKey = Base64.decode(key);
-            if(decodedKey.length != 16)
+            if (decodedKey.length != 16)
             {
                 throw new WebSocketException("WebSocket key `" + key + "' has invalid length");
             }
         }
-        catch(IllegalArgumentException ex)
+        catch (IllegalArgumentException ex)
         {
             throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
         }
@@ -681,7 +651,7 @@ final class WSTransceiver implements Transceiver
         out.append("HTTP/1.1 101 Switching Protocols\r\n");
         out.append("Upgrade: websocket\r\n");
         out.append("Connection: Upgrade\r\n");
-        if(addProtocol)
+        if (addProtocol)
         {
             out.append("Sec-WebSocket-Protocol: " + _iceProtocol + "\r\n");
         }
@@ -703,15 +673,17 @@ final class WSTransceiver implements Transceiver
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
             final byte[] hash = sha1.digest();
-            out.append(Base64.encode(hash) + "\r\n" + "\r\n"); // EOM
+            out.append(
+                Base64.encode(hash) + "\r\n"
+                + "\r\n"); // EOM
         }
-        catch(NoSuchAlgorithmException ex)
+        catch (NoSuchAlgorithmException ex)
         {
             throw new WebSocketException(ex);
         }
 
         final byte[] bytes = out.toString().getBytes(_ascii);
-        assert(bytes.length == out.length());
+        assert (bytes.length == out.length());
         responseBuffer.resize(bytes.length, false);
         responseBuffer.position(0);
         responseBuffer.b.put(bytes);
@@ -725,7 +697,7 @@ final class WSTransceiver implements Transceiver
         //
         // HTTP/1.1
         //
-        if(_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
+        if (_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
         {
             throw new WebSocketException("unsupported HTTP version");
         }
@@ -738,10 +710,10 @@ final class WSTransceiver implements Transceiver
         //  using a 3xx status code (but clients are not required to follow
         //  them), etc."
         //
-        if(_parser.status() != 101)
+        if (_parser.status() != 101)
         {
             StringBuffer out = new StringBuffer("unexpected status value " + _parser.status());
-            if(_parser.reason().length() > 0)
+            if (_parser.reason().length() > 0)
             {
                 out.append(":\n" + _parser.reason());
             }
@@ -755,11 +727,11 @@ final class WSTransceiver implements Transceiver
         //  _Fail the WebSocket Connection_."
         //
         val = _parser.getHeader("Upgrade", true);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for Upgrade field");
         }
-        else if(!val.equals("websocket"))
+        else if (!val.equals("websocket"))
         {
             throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
         }
@@ -771,11 +743,11 @@ final class WSTransceiver implements Transceiver
         //  MUST _Fail the WebSocket Connection_."
         //
         val = _parser.getHeader("Connection", true);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if(val.indexOf("upgrade") == -1)
+        else if (val.indexOf("upgrade") == -1)
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
@@ -788,7 +760,7 @@ final class WSTransceiver implements Transceiver
         //  the WebSocket Connection_."
         //
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
-        if(val != null && !val.equals(_iceProtocol))
+        if (val != null && !val.equals(_iceProtocol))
         {
             throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
         }
@@ -803,7 +775,7 @@ final class WSTransceiver implements Transceiver
         //  Connection_."
         //
         val = _parser.getHeader("Sec-WebSocket-Accept", false);
-        if(val == null)
+        if (val == null)
         {
             throw new WebSocketException("missing value for Sec-WebSocket-Accept");
         }
@@ -813,12 +785,12 @@ final class WSTransceiver implements Transceiver
             final String input = _key + _wsUUID;
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
-            if(!val.equals(Base64.encode(sha1.digest())))
+            if (!val.equals(Base64.encode(sha1.digest())))
             {
                 throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
             }
         }
-        catch(NoSuchAlgorithmException ex)
+        catch (NoSuchAlgorithmException ex)
         {
             throw new WebSocketException(ex);
         }
@@ -826,14 +798,14 @@ final class WSTransceiver implements Transceiver
 
     private boolean preRead(Buffer buf)
     {
-        while(true)
+        while (true)
         {
-            if(_readState == ReadStateOpcode)
+            if (_readState == ReadStateOpcode)
             {
                 //
                 // Is there enough data available to read the opcode?
                 //
-                if(!readBuffered(2))
+                if (!readBuffered(2))
                 {
                     return true;
                 }
@@ -844,7 +816,7 @@ final class WSTransceiver implements Transceiver
                 // opcode.
                 //
                 int ch = _readBuffer.b.get(_readBufferPos++);
-                if(ch < 0)
+                if (ch < 0)
                 {
                     ch += 256;
                 }
@@ -855,17 +827,17 @@ final class WSTransceiver implements Transceiver
                 // continuation frame, this is only for protocol
                 // correctness checking purpose.
                 //
-                if(_readOpCode == OP_DATA)
+                if (_readOpCode == OP_DATA)
                 {
-                    if(!_readLastFrame)
+                    if (!_readLastFrame)
                     {
                         throw new com.zeroc.Ice.ProtocolException("invalid data frame, no FIN on previous frame");
                     }
                     _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                 }
-                else if(_readOpCode == OP_CONT)
+                else if (_readOpCode == OP_CONT)
                 {
-                    if(_readLastFrame)
+                    if (_readLastFrame)
                     {
                         throw new com.zeroc.Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
                     }
@@ -873,7 +845,7 @@ final class WSTransceiver implements Transceiver
                 }
 
                 ch = _readBuffer.b.get(_readBufferPos++);
-                if(ch < 0)
+                if (ch < 0)
                 {
                     ch += 256;
                 }
@@ -883,7 +855,7 @@ final class WSTransceiver implements Transceiver
                 // messages sent by a server must not be masked.
                 //
                 final boolean masked = (ch & FLAG_MASKED) == FLAG_MASKED;
-                if(masked != _incoming)
+                if (masked != _incoming)
                 {
                     throw new com.zeroc.Ice.ProtocolException("invalid masking");
                 }
@@ -896,11 +868,11 @@ final class WSTransceiver implements Transceiver
                 // 127:   The subsequent eight bytes contain the payload length
                 //
                 _readPayloadLength = (ch & 0x7f);
-                if(_readPayloadLength < 126)
+                if (_readPayloadLength < 126)
                 {
                     _readHeaderLength = 0;
                 }
-                else if(_readPayloadLength == 126)
+                else if (_readPayloadLength == 126)
                 {
                     _readHeaderLength = 2; // Need to read a 16-bit payload length.
                 }
@@ -908,7 +880,7 @@ final class WSTransceiver implements Transceiver
                 {
                     _readHeaderLength = 8; // Need to read a 64-bit payload length.
                 }
-                if(masked)
+                if (masked)
                 {
                     _readHeaderLength += 4; // Need to read a 32-bit mask.
                 }
@@ -916,30 +888,30 @@ final class WSTransceiver implements Transceiver
                 _readState = ReadStateHeader;
             }
 
-            if(_readState == ReadStateHeader)
+            if (_readState == ReadStateHeader)
             {
                 //
                 // Is there enough data available to read the header?
                 //
-                if(_readHeaderLength > 0 && !readBuffered(_readHeaderLength))
+                if (_readHeaderLength > 0 && !readBuffered(_readHeaderLength))
                 {
                     return true;
                 }
 
-                if(_readPayloadLength == 126)
+                if (_readPayloadLength == 126)
                 {
                     _readPayloadLength = _readBuffer.b.getShort(_readBufferPos); // Uses network byte order.
-                    if(_readPayloadLength < 0)
+                    if (_readPayloadLength < 0)
                     {
                         _readPayloadLength += 65536;
                     }
                     _readBufferPos += 2;
                 }
-                else if(_readPayloadLength == 127)
+                else if (_readPayloadLength == 127)
                 {
                     long l = _readBuffer.b.getLong(_readBufferPos); // Uses network byte order.
                     _readBufferPos += 8;
-                    if(l < 0 || l > Integer.MAX_VALUE)
+                    if (l < 0 || l > Integer.MAX_VALUE)
                     {
                         throw new com.zeroc.Ice.ProtocolException("invalid WebSocket payload length: " + l);
                     }
@@ -949,121 +921,128 @@ final class WSTransceiver implements Transceiver
                 //
                 // Read the mask if this is an incoming connection.
                 //
-                if(_incoming)
+                if (_incoming)
                 {
-                    assert(_readBuffer.b.position() - _readBufferPos >= 4); // We must have needed to read the mask.
-                    for(int i = 0; i < 4; ++i)
+                    assert (_readBuffer.b.position() - _readBufferPos >= 4); // We must have needed to read the mask.
+                    for (int i = 0; i < 4; ++i)
                     {
                         _readMask[i] = _readBuffer.b.get(_readBufferPos++); // Copy the mask.
                     }
                 }
 
-                switch(_readOpCode)
+                switch (_readOpCode)
                 {
-                case OP_TEXT: // Text frame
-                {
-                    throw new com.zeroc.Ice.ProtocolException("text frames not supported");
-                }
-                case OP_CONT: // Continuation frame
-                case OP_DATA: // Data frame
-                {
-                    if(_instance.traceLevel() >= 2)
+                    case OP_TEXT: // Text frame
                     {
-                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
-                                                 (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                 " frame with payload length of " + _readPayloadLength + " bytes\n" +
-                                                 toString());
+                        throw new com.zeroc.Ice.ProtocolException("text frames not supported");
                     }
-
-                    if(_readPayloadLength <= 0)
+                    case OP_CONT: // Continuation frame
+                    case OP_DATA: // Data frame
                     {
-                        throw new com.zeroc.Ice.ProtocolException("payload length is 0");
-                    }
-                    _readState = ReadStatePayload;
-                    assert(buf.b.hasRemaining());
-                    _readFrameStart = buf.b.position();
-                    break;
-                }
-                case OP_CLOSE: // Connection close
-                {
-                    if(_instance.traceLevel() >= 2)
-                    {
-                        _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
-                                                 " connection close frame\n" + toString());
-                    }
-
-                    int s = _nextState == StateOpened ? _state : _nextState;
-                    if(s == StateClosingRequestPending)
-                    {
-                        //
-                        // If we receive a close frame while we were actually
-                        // waiting to send one, change the role and send a
-                        // close frame response.
-                        //
-                        if(!_closingInitiator)
+                        if (_instance.traceLevel() >= 2)
                         {
-                            _closingInitiator = true;
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
+                                "received " + protocol() + (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                    " frame with payload length of " + _readPayloadLength + " bytes\n" + toString());
                         }
-                        if(_state == StateClosingRequestPending)
+
+                        if (_readPayloadLength <= 0)
                         {
-                            _state = StateClosingResponsePending;
+                            throw new com.zeroc.Ice.ProtocolException("payload length is 0");
+                        }
+                        _readState = ReadStatePayload;
+                        assert (buf.b.hasRemaining());
+                        _readFrameStart = buf.b.position();
+                        break;
+                    }
+                    case OP_CLOSE: // Connection close
+                    {
+                        if (_instance.traceLevel() >= 2)
+                        {
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
+                                "received " + protocol() + " connection close frame\n" + toString());
+                        }
+
+                        int s = _nextState == StateOpened ? _state : _nextState;
+                        if (s == StateClosingRequestPending)
+                        {
+                            //
+                            // If we receive a close frame while we were actually
+                            // waiting to send one, change the role and send a
+                            // close frame response.
+                            //
+                            if (!_closingInitiator)
+                            {
+                                _closingInitiator = true;
+                            }
+                            if (_state == StateClosingRequestPending)
+                            {
+                                _state = StateClosingResponsePending;
+                            }
+                            else
+                            {
+                                _nextState = StateClosingResponsePending;
+                            }
+                            return false; // No longer interested in reading
                         }
                         else
                         {
-                            _nextState = StateClosingResponsePending;
+                            throw new com.zeroc.Ice.ConnectionLostException();
                         }
-                        return false; // No longer interested in reading
                     }
-                    else
+                    case OP_PING:
                     {
-                        throw new com.zeroc.Ice.ConnectionLostException();
+                        if (_instance.traceLevel() >= 2)
+                        {
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
+                                "received " + protocol() + " connection ping frame\n" + toString());
+                        }
+                        _readState = ReadStateControlFrame;
+                        break;
                     }
-                }
-                case OP_PING:
-                {
-                    if(_instance.traceLevel() >= 2)
+                    case OP_PONG: // Pong
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
-                            "received " + protocol() + " connection ping frame\n" + toString());
+                        if (_instance.traceLevel() >= 2)
+                        {
+                            _instance.logger().trace(
+                                _instance.traceCategory(),
+                                "received " + protocol() + " connection pong frame\n" + toString());
+                        }
+                        _readState = ReadStateControlFrame;
+                        break;
                     }
-                    _readState = ReadStateControlFrame;
-                    break;
-                }
-                case OP_PONG: // Pong
-                {
-                    if(_instance.traceLevel() >= 2)
+                    default:
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
-                            "received " + protocol() + " connection pong frame\n" + toString());
+                        throw new com.zeroc.Ice.ProtocolException("unsupported opcode: " + _readOpCode);
                     }
-                    _readState = ReadStateControlFrame;
-                    break;
-                }
-                default:
-                {
-                    throw new com.zeroc.Ice.ProtocolException("unsupported opcode: " + _readOpCode);
-                }
                 }
             }
 
-            if(_readState == ReadStateControlFrame)
+            if (_readState == ReadStateControlFrame)
             {
-                if(_readPayloadLength > 0 && !readBuffered(_readPayloadLength))
+                if (_readPayloadLength > 0 && !readBuffered(_readPayloadLength))
                 {
                     return true;
                 }
 
-                if(_readPayloadLength > 0 && _readOpCode == OP_PING)
+                if (_readPayloadLength > 0 && _readOpCode == OP_PING)
                 {
                     _pingPayload = new byte[_readPayloadLength];
-                    if(_readBuffer.b.hasArray())
+                    if (_readBuffer.b.hasArray())
                     {
-                        System.arraycopy(_readBuffer.b.array(), _readBuffer.b.arrayOffset() + _readBufferPos,
-                                         _pingPayload, 0, _readPayloadLength);
+                        System.arraycopy(
+                            _readBuffer.b.array(),
+                            _readBuffer.b.arrayOffset() + _readBufferPos,
+                            _pingPayload,
+                            0,
+                            _readPayloadLength);
                     }
                     else
                     {
-                        for(int i = 0; i < _readPayloadLength; ++i)
+                        for (int i = 0; i < _readPayloadLength; ++i)
                         {
                             _pingPayload[i] = _readBuffer.b.get(_readBufferPos + i);
                         }
@@ -1073,13 +1052,13 @@ final class WSTransceiver implements Transceiver
                 _readBufferPos += _readPayloadLength;
                 _readPayloadLength = 0;
 
-                if(_readOpCode == OP_PING)
+                if (_readOpCode == OP_PING)
                 {
-                    if(_state == StateOpened)
+                    if (_state == StateOpened)
                     {
                         _state = StatePongPending; // Send pong frame now
                     }
-                    else if(_nextState < StatePongPending)
+                    else if (_nextState < StatePongPending)
                     {
                         _nextState = StatePongPending; // Send pong frame next
                     }
@@ -1092,7 +1071,7 @@ final class WSTransceiver implements Transceiver
                 _readState = ReadStateOpcode;
             }
 
-            if(_readState == ReadStatePayload)
+            if (_readState == ReadStatePayload)
             {
                 //
                 // This must be assigned before the check for the buffer. If the buffer is empty
@@ -1100,27 +1079,31 @@ final class WSTransceiver implements Transceiver
                 //
                 _readStart = buf.b.position();
 
-                if(buf.empty() || !buf.b.hasRemaining())
+                if (buf.empty() || !buf.b.hasRemaining())
                 {
                     return false;
                 }
 
                 int n = Math.min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
-                if(n > _readPayloadLength)
+                if (n > _readPayloadLength)
                 {
                     n = _readPayloadLength;
                 }
-                if(n > 0)
+                if (n > 0)
                 {
-                    if(buf.b.hasArray() && _readBuffer.b.hasArray())
+                    if (buf.b.hasArray() && _readBuffer.b.hasArray())
                     {
-                        System.arraycopy(_readBuffer.b.array(), _readBuffer.b.arrayOffset() + _readBufferPos,
-                                        buf.b.array(), buf.b.arrayOffset() + buf.b.position(), n);
+                        System.arraycopy(
+                            _readBuffer.b.array(),
+                            _readBuffer.b.arrayOffset() + _readBufferPos,
+                            buf.b.array(),
+                            buf.b.arrayOffset() + buf.b.position(),
+                            n);
                         buf.position(buf.b.position() + n);
                     }
                     else
                     {
-                        for(int i = 0; i < n; ++i)
+                        for (int i = 0; i < n; ++i)
                         {
                             buf.b.put(_readBuffer.b.get(_readBufferPos + i));
                         }
@@ -1138,35 +1121,35 @@ final class WSTransceiver implements Transceiver
 
     private boolean postRead(Buffer buf)
     {
-        if(_readState != ReadStatePayload)
+        if (_readState != ReadStatePayload)
         {
             return _readStart < _readBuffer.b.position(); // Returns true if data was read.
         }
 
-        if(_readStart == buf.b.position())
+        if (_readStart == buf.b.position())
         {
             return false; // Nothing was read or nothing to read.
         }
-        assert(_readStart < buf.b.position());
+        assert (_readStart < buf.b.position());
 
-        if(_incoming)
+        if (_incoming)
         {
             //
             // Unmask the data we just read.
             //
             final int pos = buf.b.position();
-            if(buf.b.hasArray())
+            if (buf.b.hasArray())
             {
                 byte[] arr = buf.b.array();
                 int offset = buf.b.arrayOffset();
-                for(int n = _readStart; n < pos; ++n)
+                for (int n = _readStart; n < pos; ++n)
                 {
                     arr[n + offset] = (byte)(arr[n + offset] ^ _readMask[(n - _readFrameStart) % 4]);
                 }
             }
             else
             {
-                for(int n = _readStart; n < pos; ++n)
+                for (int n = _readStart; n < pos; ++n)
                 {
                     final byte b = (byte)(buf.b.get(n) ^ _readMask[(n - _readFrameStart) % 4]);
                     buf.b.put(n, b);
@@ -1176,7 +1159,7 @@ final class WSTransceiver implements Transceiver
 
         _readPayloadLength -= buf.b.position() - _readStart;
         _readStart = buf.b.position();
-        if(_readPayloadLength == 0)
+        if (_readPayloadLength == 0)
         {
             //
             // We've read the complete payload, we're ready to read a new frame.
@@ -1188,31 +1171,31 @@ final class WSTransceiver implements Transceiver
 
     private boolean preWrite(Buffer buf)
     {
-        if(_writeState == WriteStateHeader)
+        if (_writeState == WriteStateHeader)
         {
-            if(_state == StateOpened)
+            if (_state == StateOpened)
             {
-                if(buf.empty() || !buf.b.hasRemaining())
+                if (buf.empty() || !buf.b.hasRemaining())
                 {
                     return false;
                 }
 
-                assert(buf.b.position() == 0);
+                assert (buf.b.position() == 0);
                 prepareWriteHeader((byte)OP_DATA, buf.size());
 
                 _writeState = WriteStatePayload;
             }
-            else if(_state == StatePingPending)
+            else if (_state == StatePingPending)
             {
                 prepareWriteHeader((byte)OP_PING, 0); // Don't send any payload
 
                 _writeState = WriteStateControlFrame;
                 _writeBuffer.flip();
             }
-            else if(_state == StatePongPending)
+            else if (_state == StatePongPending)
             {
                 prepareWriteHeader((byte)OP_PONG, _pingPayload.length);
-                if(_pingPayload.length > _writeBuffer.b.remaining())
+                if (_pingPayload.length > _writeBuffer.b.remaining())
                 {
                     final int pos = _writeBuffer.b.position();
                     _writeBuffer.resize(pos + _pingPayload.length, false);
@@ -1224,15 +1207,16 @@ final class WSTransceiver implements Transceiver
                 _writeState = WriteStateControlFrame;
                 _writeBuffer.flip();
             }
-            else if((_state == StateClosingRequestPending && !_closingInitiator) ||
-                    (_state == StateClosingResponsePending && _closingInitiator))
+            else if (
+                (_state == StateClosingRequestPending && !_closingInitiator) ||
+                (_state == StateClosingResponsePending && _closingInitiator))
             {
                 prepareWriteHeader((byte)OP_CLOSE, 2);
 
                 // Write closing reason
                 _writeBuffer.b.putShort((short)_closingReason);
 
-                if(!_incoming)
+                if (!_incoming)
                 {
                     byte b;
                     int pos = _writeBuffer.b.position() - 2;
@@ -1248,14 +1232,14 @@ final class WSTransceiver implements Transceiver
             }
             else
             {
-                assert(_state != StateClosed);
+                assert (_state != StateClosed);
                 return false; // Nothing to write in this state
             }
 
             _writePayloadLength = 0;
         }
 
-        if(_writeState == WriteStatePayload)
+        if (_writeState == WriteStatePayload)
         {
             //
             // For an outgoing connection, each message must be masked with a random
@@ -1266,16 +1250,16 @@ final class WSTransceiver implements Transceiver
             // copying.
             //
 
-            if(!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining()))
+            if (!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining()))
             {
-                if(!_writeBuffer.b.hasRemaining())
+                if (!_writeBuffer.b.hasRemaining())
                 {
                     _writeBuffer.position(0);
                 }
 
                 int n = buf.b.position();
                 final int sz = buf.size();
-                if(buf.b.hasArray() && _writeBuffer.b.hasArray())
+                if (buf.b.hasArray() && _writeBuffer.b.hasArray())
                 {
                     int pos = _writeBuffer.b.position();
                     final int count = Math.min(sz - n, _writeBuffer.b.remaining());
@@ -1283,7 +1267,7 @@ final class WSTransceiver implements Transceiver
                     final int srcOff = buf.b.arrayOffset();
                     final byte[] dest = _writeBuffer.b.array();
                     final int destOff = _writeBuffer.b.arrayOffset();
-                    for(int i = 0; i < count; ++i, ++n, ++pos)
+                    for (int i = 0; i < count; ++i, ++n, ++pos)
                     {
                         dest[destOff + pos] = (byte)(src[srcOff + n] ^ _writeMask[n % 4]);
                     }
@@ -1291,7 +1275,7 @@ final class WSTransceiver implements Transceiver
                 }
                 else
                 {
-                    for(; n < sz && _writeBuffer.b.hasRemaining(); ++n)
+                    for (; n < sz && _writeBuffer.b.hasRemaining(); ++n)
                     {
                         final byte b = (byte)(buf.b.get(n) ^ _writeMask[n % 4]);
                         _writeBuffer.b.put(b);
@@ -1300,14 +1284,14 @@ final class WSTransceiver implements Transceiver
                 _writePayloadLength = n;
                 _writeBuffer.flip();
             }
-            else if(_writePayloadLength == 0)
+            else if (_writePayloadLength == 0)
             {
-                assert(_incoming);
-                if(_writeBuffer.b.hasRemaining())
+                assert (_incoming);
+                if (_writeBuffer.b.hasRemaining())
                 {
-                    assert(buf.b.position() == 0);
+                    assert (buf.b.position() == 0);
                     int n = _writeBuffer.b.remaining();
-                    if(buf.b.remaining() > n)
+                    if (buf.b.remaining() > n)
                     {
                         int limit = buf.b.limit();
                         buf.limit(n);
@@ -1326,49 +1310,53 @@ final class WSTransceiver implements Transceiver
             }
             return true;
         }
-        else if(_writeState == WriteStateControlFrame)
+        else if (_writeState == WriteStateControlFrame)
         {
             return _writeBuffer.b.hasRemaining();
         }
         else
         {
-            assert(_writeState == WriteStateFlush);
+            assert (_writeState == WriteStateFlush);
             return true;
         }
     }
 
     private boolean postWrite(Buffer buf, int status)
     {
-        if(_state > StateOpened && _writeState == WriteStateControlFrame)
+        if (_state > StateOpened && _writeState == WriteStateControlFrame)
         {
-            if(!_writeBuffer.b.hasRemaining())
+            if (!_writeBuffer.b.hasRemaining())
             {
-                if(_state == StatePingPending)
+                if (_state == StatePingPending)
                 {
-                    if(_instance.traceLevel() >= 2)
+                    if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection ping frame\n" + toString());
                     }
                 }
-                else if(_state == StatePongPending)
+                else if (_state == StatePongPending)
                 {
-                    if(_instance.traceLevel() >= 2)
+                    if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection pong frame\n" + toString());
                     }
                 }
-                else if((_state == StateClosingRequestPending && !_closingInitiator) ||
-                        (_state == StateClosingResponsePending && _closingInitiator))
+                else if (
+                    (_state == StateClosingRequestPending && !_closingInitiator) ||
+                    (_state == StateClosingResponsePending && _closingInitiator))
                 {
-                    if(_instance.traceLevel() >= 2)
+                    if (_instance.traceLevel() >= 2)
                     {
-                        _instance.logger().trace(_instance.traceCategory(),
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
                             "sent " + protocol() + " connection close frame\n" + toString());
                     }
 
-                    if(_state == StateClosingRequestPending && !_closingInitiator)
+                    if (_state == StateClosingRequestPending && !_closingInitiator)
                     {
                         _writeState = WriteStateHeader;
                         _state = StateClosingResponsePending;
@@ -1379,7 +1367,7 @@ final class WSTransceiver implements Transceiver
                         throw new com.zeroc.Ice.ConnectionLostException();
                     }
                 }
-                else if(_state == StateClosed)
+                else if (_state == StateClosed)
                 {
                     return false;
                 }
@@ -1394,15 +1382,15 @@ final class WSTransceiver implements Transceiver
             }
         }
 
-        if((!_incoming || buf.b.position() == 0) && _writePayloadLength > 0)
+        if ((!_incoming || buf.b.position() == 0) && _writePayloadLength > 0)
         {
-            if(!_writeBuffer.b.hasRemaining())
+            if (!_writeBuffer.b.hasRemaining())
             {
                 buf.position(_writePayloadLength);
             }
         }
 
-        if(status == SocketOperation.Write && !buf.b.hasRemaining() && !_writeBuffer.b.hasRemaining())
+        if (status == SocketOperation.Write && !buf.b.hasRemaining() && !_writeBuffer.b.hasRemaining())
         {
             //
             // Our buffers are empty but the delegate needs another call to write().
@@ -1410,18 +1398,17 @@ final class WSTransceiver implements Transceiver
             _writeState = WriteStateFlush;
             return false;
         }
-        else if(!buf.b.hasRemaining())
+        else if (!buf.b.hasRemaining())
         {
             _writeState = WriteStateHeader;
-            if(_state == StatePingPending ||
-               _state == StatePongPending ||
-               (_state == StateClosingRequestPending && !_closingInitiator) ||
-               (_state == StateClosingResponsePending && _closingInitiator))
+            if (_state == StatePingPending || _state == StatePongPending ||
+                (_state == StateClosingRequestPending && !_closingInitiator) ||
+                (_state == StateClosingResponsePending && _closingInitiator))
             {
                 return true;
             }
         }
-        else if(_state == StateOpened)
+        else if (_state == StateOpened)
         {
             return status == SocketOperation.None;
         }
@@ -1431,7 +1418,7 @@ final class WSTransceiver implements Transceiver
 
     private boolean readBuffered(int sz)
     {
-        if(_readBufferPos == _readBuffer.b.position())
+        if (_readBufferPos == _readBuffer.b.position())
         {
             _readBuffer.resize(_readBufferSize, true);
             _readBufferPos = 0;
@@ -1440,14 +1427,14 @@ final class WSTransceiver implements Transceiver
         else
         {
             final int available = _readBuffer.b.position() - _readBufferPos;
-            if(available < sz)
+            if (available < sz)
             {
-                if(_readBufferPos > 0)
+                if (_readBufferPos > 0)
                 {
                     _readBuffer.limit(_readBuffer.b.position());
                     _readBuffer.position(_readBufferPos);
                     _readBuffer.b.compact();
-                    assert(_readBuffer.b.position() == available);
+                    assert (_readBuffer.b.position() == available);
                 }
                 _readBuffer.resize(Math.max(_readBufferSize, sz), true);
                 _readBufferPos = 0;
@@ -1456,11 +1443,11 @@ final class WSTransceiver implements Transceiver
         }
 
         _readStart = _readBuffer.b.position();
-        if(_readBufferPos + sz > _readBuffer.b.position())
+        if (_readBufferPos + sz > _readBuffer.b.position())
         {
             return false; // Not enough read.
         }
-        assert(_readBuffer.b.position() > _readBufferPos);
+        assert (_readBuffer.b.position() > _readBufferPos);
         return true;
     }
 
@@ -1481,11 +1468,11 @@ final class WSTransceiver implements Transceiver
         //
         // Set the payload length.
         //
-        if(payloadLength <= 125)
+        if (payloadLength <= 125)
         {
             _writeBuffer.b.put((byte)payloadLength);
         }
-        else if(payloadLength > 125 && payloadLength <= 65535)
+        else if (payloadLength > 125 && payloadLength <= 65535)
         {
             //
             // Use an extra 16 bits to encode the payload length.
@@ -1493,7 +1480,7 @@ final class WSTransceiver implements Transceiver
             _writeBuffer.b.put((byte)126);
             _writeBuffer.b.putShort((short)payloadLength);
         }
-        else if(payloadLength > 65535)
+        else if (payloadLength > 65535)
         {
             //
             // Use an extra 64 bits to encode the payload length.
@@ -1502,7 +1489,7 @@ final class WSTransceiver implements Transceiver
             _writeBuffer.b.putLong(payloadLength);
         }
 
-        if(!_incoming)
+        if (!_incoming)
         {
             //
             // Add a random 32-bit mask to every outgoing frame, copy the payload data,
@@ -1577,39 +1564,29 @@ final class WSTransceiver implements Transceiver
     //
     // WebSocket opcodes
     //
-    final static private int OP_CONT     = 0x0;    // Continuation frame
-    final static private int OP_TEXT     = 0x1;    // Text frame
-    final static private int OP_DATA     = 0x2;    // Data frame
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0x3  = 0x3;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0x4  = 0x4;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0x5  = 0x5;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0x6  = 0x6;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0x7  = 0x7;    // Reserved
-    final static private int OP_CLOSE    = 0x8;    // Connection close
-    final static private int OP_PING     = 0x9;    // Ping
-    final static private int OP_PONG     = 0xA;    // Pong
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0xB  = 0xB;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0xC  = 0xC;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0xD  = 0xD;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0xE  = 0xE;    // Reserved
-    @SuppressWarnings("unused")
-    final static private int OP_RES_0xF  = 0xF;    // Reserved
-    final static private int FLAG_FINAL  = 0x80;   // Last frame
-    final static private int FLAG_MASKED = 0x80;   // Payload is masked
+    final static private int OP_CONT = 0x0;                                // Continuation frame
+    final static private int OP_TEXT = 0x1;                                // Text frame
+    final static private int OP_DATA = 0x2;                                // Data frame
+    @SuppressWarnings("unused") final static private int OP_RES_0x3 = 0x3; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0x4 = 0x4; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0x5 = 0x5; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0x6 = 0x6; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0x7 = 0x7; // Reserved
+    final static private int OP_CLOSE = 0x8;                               // Connection close
+    final static private int OP_PING = 0x9;                                // Ping
+    final static private int OP_PONG = 0xA;                                // Pong
+    @SuppressWarnings("unused") final static private int OP_RES_0xB = 0xB; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0xC = 0xC; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0xD = 0xD; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0xE = 0xE; // Reserved
+    @SuppressWarnings("unused") final static private int OP_RES_0xF = 0xF; // Reserved
+    final static private int FLAG_FINAL = 0x80;                            // Last frame
+    final static private int FLAG_MASKED = 0x80;                           // Payload is masked
 
-    final static private int CLOSURE_NORMAL         = 1000;
-    final static private int CLOSURE_SHUTDOWN       = 1001;
+    final static private int CLOSURE_NORMAL = 1000;
+    final static private int CLOSURE_SHUTDOWN = 1001;
     final static private int CLOSURE_PROTOCOL_ERROR = 1002;
-    final static private int CLOSURE_TOO_BIG        = 1009;
+    final static private int CLOSURE_TOO_BIG = 1009;
 
     final static private String _iceProtocol = "ice.zeroc.com";
     final static private String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

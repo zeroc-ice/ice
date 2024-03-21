@@ -20,10 +20,7 @@ package com.zeroc.IceBT;
  **/
 public class BluetoothException extends com.zeroc.Ice.LocalException
 {
-    public BluetoothException()
-    {
-        this.reason = "";
-    }
+    public BluetoothException() { this.reason = ""; }
 
     public BluetoothException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class BluetoothException extends com.zeroc.Ice.LocalException
         this.reason = "";
     }
 
-    public BluetoothException(String reason)
-    {
-        this.reason = reason;
-    }
+    public BluetoothException(String reason) { this.reason = reason; }
 
     public BluetoothException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class BluetoothException extends com.zeroc.Ice.LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::IceBT::BluetoothException";
-    }
+    public String ice_id() { return "::IceBT::BluetoothException"; }
 
     /**
      * Provides more information about the failure.

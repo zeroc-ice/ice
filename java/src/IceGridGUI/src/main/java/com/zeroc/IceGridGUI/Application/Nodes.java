@@ -4,10 +4,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 class Nodes extends ListTreeNode
 {
@@ -15,20 +15,19 @@ class Nodes extends ListTreeNode
     copyDescriptors(java.util.Map<String, NodeDescriptor> descriptors)
     {
         java.util.Map<String, NodeDescriptor> copy = new java.util.HashMap<>();
-        for(java.util.Map.Entry<String, NodeDescriptor> p : descriptors.entrySet())
+        for (java.util.Map.Entry<String, NodeDescriptor> p : descriptors.entrySet())
         {
             copy.put(p.getKey(), Node.copyDescriptor(p.getValue()));
         }
         return copy;
     }
 
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
-        Object descriptor =  getCoordinator().getClipboard();
-        if(descriptor != null)
+        Object descriptor = getCoordinator().getClipboard();
+        if (descriptor != null)
         {
             actions[PASTE] = descriptor instanceof NodeDescriptor;
         }
@@ -36,11 +35,10 @@ class Nodes extends ListTreeNode
         return actions;
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_NODE));
@@ -49,8 +47,7 @@ class Nodes extends ListTreeNode
         return _popup;
     }
 
-    @Override
-    public void paste()
+    @Override public void paste()
     {
         Object descriptor = getCoordinator().getClipboard();
         NodeDescriptor nd = Node.copyDescriptor((NodeDescriptor)descriptor);
@@ -59,10 +56,10 @@ class Nodes extends ListTreeNode
         // Verify / fix all template instances
         //
 
-        for(ServerInstanceDescriptor p : nd.serverInstances)
+        for (ServerInstanceDescriptor p : nd.serverInstances)
         {
             TemplateDescriptor td = getRoot().findServerTemplateDescriptor(p.template);
-            if(td == null)
+            if (td == null)
             {
                 JOptionPane.showMessageDialog(
                     getCoordinator().getMainFrame(),
@@ -77,11 +74,11 @@ class Nodes extends ListTreeNode
             }
         }
 
-        for(ServerDescriptor p : nd.servers)
+        for (ServerDescriptor p : nd.servers)
         {
-            if(p instanceof IceBoxDescriptor)
+            if (p instanceof IceBoxDescriptor)
             {
-                if(!getRoot().pasteIceBox((IceBoxDescriptor)p))
+                if (!getRoot().pasteIceBox((IceBoxDescriptor)p))
                 {
                     return;
                 }
@@ -91,25 +88,23 @@ class Nodes extends ListTreeNode
         newNode(nd);
     }
 
-    @Override
-    public void newNode()
+    @Override public void newNode()
     {
         newNode(new NodeDescriptor(
-                    new java.util.TreeMap<String, String>(),
-                    new java.util.LinkedList<ServerInstanceDescriptor>(),
-                    new java.util.LinkedList<ServerDescriptor>(),
-                    "",
-                    "",
-                    new java.util.HashMap<String, PropertySetDescriptor>()));
+            new java.util.TreeMap<String, String>(),
+            new java.util.LinkedList<ServerInstanceDescriptor>(),
+            new java.util.LinkedList<ServerDescriptor>(),
+            "",
+            "",
+            new java.util.HashMap<String, PropertySetDescriptor>()));
     }
 
-    Nodes(TreeNode parent, java.util.Map<String, NodeDescriptor> descriptors)
-        throws UpdateFailedException
+    Nodes(TreeNode parent, java.util.Map<String, NodeDescriptor> descriptors) throws UpdateFailedException
     {
         super(false, parent, "Nodes");
         _descriptors = descriptors;
 
-        for(java.util.Map.Entry<String, NodeDescriptor> p : _descriptors.entrySet())
+        for (java.util.Map.Entry<String, NodeDescriptor> p : _descriptors.entrySet())
         {
             String nodeName = p.getKey();
             NodeDescriptor nodeDescriptor = p.getValue();
@@ -121,22 +116,21 @@ class Nodes extends ListTreeNode
     // Try to rebuild all my children
     // No-op if it fails
     //
-    void rebuild()
-        throws UpdateFailedException
+    void rebuild() throws UpdateFailedException
     {
         java.util.List<Node.Backup> backupList = new java.util.ArrayList<>();
         java.util.List<Editable> editables = new java.util.LinkedList<>();
 
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             try
             {
                 backupList.add(node.rebuild(editables));
             }
-            catch(UpdateFailedException e)
+            catch (UpdateFailedException e)
             {
-                for(int i = backupList.size() - 1; i >= 0; --i)
+                for (int i = backupList.size() - 1; i >= 0; --i)
                 {
                     ((Node)_children.get(i)).restore(backupList.get(i));
                 }
@@ -147,7 +141,7 @@ class Nodes extends ListTreeNode
         //
         // Success
         //
-        for(Editable p : editables)
+        for (Editable p : editables)
         {
             p.markModified();
         }
@@ -156,7 +150,7 @@ class Nodes extends ListTreeNode
     void commit()
     {
         _editable.commit();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             node.commit();
@@ -166,11 +160,11 @@ class Nodes extends ListTreeNode
     java.util.LinkedList<NodeUpdateDescriptor> getUpdates()
     {
         java.util.LinkedList<NodeUpdateDescriptor> updates = new java.util.LinkedList<>();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             NodeUpdateDescriptor d = node.getUpdate();
-            if(d != null)
+            if (d != null)
             {
                 updates.add(d);
             }
@@ -180,7 +174,7 @@ class Nodes extends ListTreeNode
 
     void removeServerInstances(String templateId)
     {
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             node.removeServerInstances(templateId);
@@ -190,7 +184,7 @@ class Nodes extends ListTreeNode
     java.util.List<ServiceInstance> findServiceInstances(String template)
     {
         java.util.List<ServiceInstance> result = new java.util.LinkedList<>();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             result.addAll(node.findServiceInstances(template));
@@ -200,16 +194,18 @@ class Nodes extends ListTreeNode
 
     void removeServiceInstances(String templateId)
     {
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             node.removeServiceInstances(templateId);
         }
     }
 
-    void update(java.util.List<NodeUpdateDescriptor> updates, String[] removeNodes,
-                java.util.Set<String> serverTemplates, java.util.Set<String> serviceTemplates)
-        throws UpdateFailedException
+    void update(
+        java.util.List<NodeUpdateDescriptor> updates,
+        String[] removeNodes,
+        java.util.Set<String> serverTemplates,
+        java.util.Set<String> serviceTemplates) throws UpdateFailedException
     {
         Root root = getRoot();
 
@@ -229,19 +225,19 @@ class Nodes extends ListTreeNode
         java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<>();
         java.util.Set<Node> updatedNodes = new java.util.HashSet<>();
 
-        for(NodeUpdateDescriptor update : updates)
+        for (NodeUpdateDescriptor update : updates)
         {
             Node node = findNode(update.name);
 
-            if(node == null)
+            if (node == null)
             {
-                NodeDescriptor nodeDescriptor =
-                    new NodeDescriptor(update.variables,
-                                       update.serverInstances,
-                                       update.servers,
-                                       update.loadFactor == null ? "" : update.loadFactor.value,
-                                       update.description == null ? "" : update.description.value,
-                                       new java.util.HashMap<String, PropertySetDescriptor>());
+                NodeDescriptor nodeDescriptor = new NodeDescriptor(
+                    update.variables,
+                    update.serverInstances,
+                    update.servers,
+                    update.loadFactor == null ? "" : update.loadFactor.value,
+                    update.description == null ? "" : update.description.value,
+                    new java.util.HashMap<String, PropertySetDescriptor>());
                 _descriptors.put(update.name, nodeDescriptor);
                 node = new Node(false, this, update.name, nodeDescriptor);
                 newChildren.add(node);
@@ -256,10 +252,10 @@ class Nodes extends ListTreeNode
         //
         // Some nodes are only affected by template updates
         //
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
-            if(!updatedNodes.contains(node))
+            if (!updatedNodes.contains(node))
             {
                 node.update(null, serverTemplates, serviceTemplates);
             }
@@ -268,15 +264,12 @@ class Nodes extends ListTreeNode
         insertChildren(newChildren, true);
     }
 
-    Node findNode(String nodeName)
-    {
-        return (Node)findChild(nodeName);
-    }
+    Node findNode(String nodeName) { return (Node)findChild(nodeName); }
 
     java.util.List<ServerInstance> findServerInstances(String template)
     {
         java.util.List<ServerInstance> result = new java.util.LinkedList<>();
-        for(TreeNodeBase p : _children)
+        for (TreeNodeBase p : _children)
         {
             Node node = (Node)p;
             result.addAll(node.findServerInstances(template));
@@ -284,24 +277,13 @@ class Nodes extends ListTreeNode
         return result;
     }
 
-    void addDescriptor(String nodeName, NodeDescriptor descriptor)
-    {
-        _descriptors.put(nodeName, descriptor);
-    }
+    void addDescriptor(String nodeName, NodeDescriptor descriptor) { _descriptors.put(nodeName, descriptor); }
 
-    void removeDescriptor(String nodeName)
-    {
-        _descriptors.remove(nodeName);
-    }
+    void removeDescriptor(String nodeName) { _descriptors.remove(nodeName); }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptors;
-    }
+    @Override Object getDescriptor() { return _descriptors; }
 
-    void tryAdd(String nodeName, NodeDescriptor descriptor)
-        throws UpdateFailedException
+    void tryAdd(String nodeName, NodeDescriptor descriptor) throws UpdateFailedException
     {
         Node node = new Node(true, this, nodeName, descriptor);
         insertChild(node, true);
@@ -317,7 +299,7 @@ class Nodes extends ListTreeNode
         {
             insertChild(node, true);
         }
-        catch(UpdateFailedException e)
+        catch (UpdateFailedException e)
         {
             assert false;
         }

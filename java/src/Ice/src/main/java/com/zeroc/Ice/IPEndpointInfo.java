@@ -29,7 +29,13 @@ public abstract class IPEndpointInfo extends EndpointInfo
         this.sourceAddress = "";
     }
 
-    public IPEndpointInfo(EndpointInfo underlying, int timeout, boolean compress, String host, int port, String sourceAddress)
+    public IPEndpointInfo(
+        EndpointInfo underlying,
+        int timeout,
+        boolean compress,
+        String host,
+        int port,
+        String sourceAddress)
     {
         super(underlying, timeout, compress);
         this.host = host;
@@ -52,10 +58,7 @@ public abstract class IPEndpointInfo extends EndpointInfo
      **/
     public String sourceAddress;
 
-    public IPEndpointInfo clone()
-    {
-        return (IPEndpointInfo)super.clone();
-    }
+    public IPEndpointInfo clone() { return (IPEndpointInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 1740540942649122045L;

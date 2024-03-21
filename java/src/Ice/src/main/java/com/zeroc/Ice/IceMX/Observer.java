@@ -6,60 +6,52 @@ package com.zeroc.Ice.IceMX;
 
 import com.zeroc.IceInternal.MetricsMap;
 
-public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopWatch
-    implements com.zeroc.Ice.Instrumentation.Observer
+public class Observer<T extends Metrics>
+    extends com.zeroc.IceUtilInternal.StopWatch implements com.zeroc.Ice.Instrumentation.Observer
 {
     public interface MetricsUpdate<T>
     {
         void update(T m);
     }
 
-    @Override
-    public void
-    attach()
+    @Override public void attach()
     {
-        if(!isStarted())
+        if (!isStarted())
         {
             start();
         }
     }
 
-    @Override
-    public void
-    detach()
+    @Override public void detach()
     {
         long lifetime = _previousDelay + stop();
-        for(MetricsMap<T>.Entry e : _objects)
+        for (MetricsMap<T>.Entry e : _objects)
         {
             e.detach(lifetime);
         }
     }
 
-    @Override
-    public void
-    failed(String exceptionName)
+    @Override public void failed(String exceptionName)
     {
-        for(MetricsMap<T>.Entry e : _objects)
+        for (MetricsMap<T>.Entry e : _objects)
         {
             e.failed(exceptionName);
         }
     }
 
-    public void
-    forEach(MetricsUpdate<T> u)
+    public void forEach(MetricsUpdate<T> u)
     {
-        for(MetricsMap<T>.Entry e : _objects)
+        for (MetricsMap<T>.Entry e : _objects)
         {
             e.execute(u);
         }
     }
 
-    public void
-    init(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects, Observer<T> previous)
+    public void init(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects, Observer<T> previous)
     {
         _objects = objects;
 
-        if(previous == null)
+        if (previous == null)
         {
             return;
         }
@@ -70,25 +62,25 @@ public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopW
         // Detach entries from previous observer which are no longer
         // attached to this new observer.
         //
-        for(MetricsMap<T>.Entry p : previous._objects)
+        for (MetricsMap<T>.Entry p : previous._objects)
         {
-            if(!_objects.contains(p))
+            if (!_objects.contains(p))
             {
                 p.detach(_previousDelay);
             }
         }
     }
 
-    public <S extends Metrics, ObserverImpl extends Observer<S>> ObserverImpl
-    getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl)
+    public <S extends Metrics, ObserverImpl extends Observer<S>>
+        ObserverImpl getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl)
     {
         java.util.List<MetricsMap<S>.Entry> metricsObjects = null;
-        for(MetricsMap<T>.Entry entry : _objects)
+        for (MetricsMap<T>.Entry entry : _objects)
         {
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper, mcl);
-            if(e != null)
+            if (e != null)
             {
-                if(metricsObjects == null)
+                if (metricsObjects == null)
                 {
                     metricsObjects = new java.util.ArrayList<>(_objects.size());
                 }
@@ -96,7 +88,7 @@ public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopW
             }
         }
 
-        if(metricsObjects == null)
+        if (metricsObjects == null)
         {
             return null;
         }
@@ -107,19 +99,18 @@ public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopW
             obsv.init(helper, metricsObjects, null);
             return obsv;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            assert(false);
+            assert (false);
             return null;
         }
     }
 
-    public MetricsMap<T>.Entry
-    getEntry(MetricsMap<?> map)
+    public MetricsMap<T>.Entry getEntry(MetricsMap<?> map)
     {
-        for(MetricsMap<T>.Entry e : _objects)
+        for (MetricsMap<T>.Entry e : _objects)
         {
-            if(e.getMap() == map)
+            if (e.getMap() == map)
             {
                 return e;
             }

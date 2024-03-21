@@ -23,41 +23,32 @@ public enum OptionalFormat
     FSize(6),
     Class(7);
 
-    private
-    OptionalFormat(int value)
-    {
-        _value = value;
-    }
+    private OptionalFormat(int value) { _value = value; }
 
-    public int
-    value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
-    public static OptionalFormat
-    valueOf(int v)
+    public static OptionalFormat valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return F1;
-        case 1:
-            return F2;
-        case 2:
-            return F4;
-        case 3:
-            return F8;
-        case 4:
-            return Size;
-        case 5:
-            return VSize;
-        case 6:
-            return FSize;
-        case 7:
-            return Class;
-        default:
-            throw new IllegalArgumentException();
+            case 0:
+                return F1;
+            case 1:
+                return F2;
+            case 2:
+                return F4;
+            case 3:
+                return F8;
+            case 4:
+                return Size;
+            case 5:
+                return VSize;
+            case 6:
+                return FSize;
+            case 7:
+                return Class;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 

@@ -14,32 +14,24 @@ public class InterfaceByValue extends Value
      *
      * @param id The Slice type ID of the interface.
      **/
-    public InterfaceByValue(String id)
-    {
-        _id = id;
-    }
+    public InterfaceByValue(String id) { _id = id; }
 
     /**
      * Returns the Slice type ID of the interface being passed by value.
      *
      * @return The Slice type ID.
      **/
-    public String ice_id()
-    {
-        return _id;
-    }
+    public String ice_id() { return _id; }
 
     /** @hidden */
-    @Override
-    protected void _iceWriteImpl(OutputStream ostr)
+    @Override protected void _iceWriteImpl(OutputStream ostr)
     {
         ostr.startSlice(ice_id(), -1, true);
         ostr.endSlice();
     }
 
     /** @hidden */
-    @Override
-    protected void _iceReadImpl(InputStream istr)
+    @Override protected void _iceReadImpl(InputStream istr)
     {
         istr.startSlice();
         istr.endSlice();

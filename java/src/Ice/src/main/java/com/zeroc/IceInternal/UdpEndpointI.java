@@ -8,8 +8,16 @@ import com.zeroc.Ice.EndpointParseException;
 
 final class UdpEndpointI extends IPEndpointI
 {
-    public UdpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr,
-                        String mcastInterface, int mttl, boolean conn, String conId, boolean co)
+    public UdpEndpointI(
+        ProtocolInstance instance,
+        String ho,
+        int po,
+        java.net.InetSocketAddress sourceAddr,
+        String mcastInterface,
+        int mttl,
+        boolean conn,
+        String conId,
+        boolean co)
     {
         super(instance, ho, po, sourceAddr, conId);
         _mcastInterface = mcastInterface;
@@ -28,7 +36,7 @@ final class UdpEndpointI extends IPEndpointI
     public UdpEndpointI(ProtocolInstance instance, com.zeroc.Ice.InputStream s)
     {
         super(instance, s);
-        if(s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             s.readByte();
             s.readByte();
@@ -44,28 +52,14 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Return the endpoint information.
     //
-    @Override
-    public com.zeroc.Ice.EndpointInfo getInfo()
+    @Override public com.zeroc.Ice.EndpointInfo getInfo()
     {
-        com.zeroc.Ice.UDPEndpointInfo info = new com.zeroc.Ice.UDPEndpointInfo()
-        {
-            @Override
-            public short type()
-            {
-                return UdpEndpointI.this.type();
-            }
+        com.zeroc.Ice.UDPEndpointInfo info = new com.zeroc.Ice.UDPEndpointInfo() {
+            @Override public short type() { return UdpEndpointI.this.type(); }
 
-            @Override
-            public boolean datagram()
-            {
-                return UdpEndpointI.this.datagram();
-            }
+            @Override public boolean datagram() { return UdpEndpointI.this.datagram(); }
 
-            @Override
-            public boolean secure()
-            {
-                return UdpEndpointI.this.secure();
-            }
+            @Override public boolean secure() { return UdpEndpointI.this.secure(); }
         };
         fillEndpointInfo(info);
         return info;
@@ -75,71 +69,61 @@ final class UdpEndpointI extends IPEndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    @Override
-    public int timeout()
-    {
-        return -1;
-    }
+    @Override public int timeout() { return -1; }
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    @Override
-    public EndpointI timeout(int timeout)
-    {
-        return this;
-    }
+    @Override public EndpointI timeout(int timeout) { return this; }
 
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    @Override
-    public boolean compress()
-    {
-        return _compress;
-    }
+    @Override public boolean compress() { return _compress; }
 
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    @Override
-    public EndpointI compress(boolean compress)
+    @Override public EndpointI compress(boolean compress)
     {
-        if(compress == _compress)
+        if (compress == _compress)
         {
             return this;
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                    _connectionId, compress);
+            return new UdpEndpointI(
+                _instance,
+                _host,
+                _port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connect,
+                _connectionId,
+                compress);
         }
     }
 
     //
     // Return true if the endpoint is datagram-based.
     //
-    @Override
-    public boolean datagram()
-    {
-        return true;
-    }
+    @Override public boolean datagram() { return true; }
 
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //
-    @Override
-    public Transceiver transceiver()
+    @Override public Transceiver transceiver()
     {
         java.net.InetSocketAddress addr =
             Network.getAddressForServer(_host, _port, _instance.protocolSupport(), _instance.preferIPv6());
-        if(Util.isAndroid() && addr.getAddress().isMulticastAddress())
+        if (Util.isAndroid() && addr.getAddress().isMulticastAddress())
         {
             return new UdpMulticastServerTransceiver(this, _instance, addr, _mcastInterface);
         }
@@ -147,61 +131,71 @@ final class UdpEndpointI extends IPEndpointI
         {
             return new UdpTransceiver(this, _instance, addr, _mcastInterface, _connect);
         }
-
     }
 
     //
     // Return an acceptor for this endpoint, or null if no acceptor is available.
     //
-    @Override
-    public Acceptor acceptor(String adapterName)
-    {
-        return null;
-    }
+    @Override public Acceptor acceptor(String adapterName) { return null; }
 
     public UdpEndpointI endpoint(UdpTransceiver transceiver)
     {
         int port = transceiver.effectivePort();
-        if(port == _port)
+        if (port == _port)
         {
             return this;
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                    _connectionId, _compress);
+            return new UdpEndpointI(
+                _instance,
+                _host,
+                port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connect,
+                _connectionId,
+                _compress);
         }
     }
 
     public UdpEndpointI endpoint(UdpMulticastServerTransceiver transceiver)
     {
         int port = transceiver.effectivePort();
-        if(port == _port)
+        if (port == _port)
         {
             return this;
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                    _connectionId, _compress);
+            return new UdpEndpointI(
+                _instance,
+                _host,
+                port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connect,
+                _connectionId,
+                _compress);
         }
     }
 
-    @Override
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
+    @Override public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
         super.initWithOptions(args, oaEndpoint);
 
-        if(_mcastInterface.equals("*"))
+        if (_mcastInterface.equals("*"))
         {
-            if(oaEndpoint)
+            if (oaEndpoint)
             {
                 _mcastInterface = "";
             }
             else
             {
-                throw new com.zeroc.Ice.EndpointParseException("`--interface *' not valid for proxy endpoint `" +
-                                                               toString() + "'");
+                throw new com.zeroc.Ice.EndpointParseException(
+                    "`--interface *' not valid for proxy endpoint `" + toString() + "'");
             }
         }
     }
@@ -209,8 +203,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Convert the endpoint to its string form
     //
-    @Override
-    public String options()
+    @Override public String options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -221,32 +214,32 @@ final class UdpEndpointI extends IPEndpointI
         //
         String s = super.options();
 
-        if(_mcastInterface.length() != 0)
+        if (_mcastInterface.length() != 0)
         {
             s += " --interface ";
             boolean addQuote = _mcastInterface.indexOf(':') != -1;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
             s += _mcastInterface;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
         }
 
-        if(_mcastTtl != -1)
+        if (_mcastTtl != -1)
         {
             s += " --ttl " + _mcastTtl;
         }
 
-        if(_connect)
+        if (_connect)
         {
             s += " -c";
         }
 
-        if(_compress)
+        if (_compress)
         {
             s += " -z";
         }
@@ -254,49 +247,48 @@ final class UdpEndpointI extends IPEndpointI
         return s;
     }
 
-    @Override
-    public int compareTo(EndpointI obj) // From java.lang.Comparable
+    @Override public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
-        if(!(obj instanceof UdpEndpointI))
+        if (!(obj instanceof UdpEndpointI))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
         UdpEndpointI p = (UdpEndpointI)obj;
-        if(this == p)
+        if (this == p)
         {
             return 0;
         }
 
-        if(!_connect && p._connect)
+        if (!_connect && p._connect)
         {
             return -1;
         }
-        else if(!p._connect && _connect)
+        else if (!p._connect && _connect)
         {
             return 1;
         }
 
-        if(!_compress && p._compress)
+        if (!_compress && p._compress)
         {
             return -1;
         }
-        else if(!p._compress && _compress)
+        else if (!p._compress && _compress)
         {
             return 1;
         }
 
-        if(_mcastTtl < p._mcastTtl)
+        if (_mcastTtl < p._mcastTtl)
         {
             return -1;
         }
-        else if(p._mcastTtl < _mcastTtl)
+        else if (p._mcastTtl < _mcastTtl)
         {
             return 1;
         }
 
         int rc = _mcastInterface.compareTo(p._mcastInterface);
-        if(rc != 0)
+        if (rc != 0)
         {
             return rc;
         }
@@ -307,11 +299,10 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Marshal the endpoint
     //
-    @Override
-    public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
+    @Override public void streamWriteImpl(com.zeroc.Ice.OutputStream s)
     {
         super.streamWriteImpl(s);
-        if(s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
+        if (s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             com.zeroc.Ice.Util.Protocol_1_0.ice_writeMembers(s);
             com.zeroc.Ice.Util.Encoding_1_0.ice_writeMembers(s);
@@ -321,8 +312,7 @@ final class UdpEndpointI extends IPEndpointI
         s.writeBool(_compress);
     }
 
-    @Override
-    public int hashInit(int h)
+    @Override public int hashInit(int h)
     {
         h = super.hashInit(h);
         h = HashUtil.hashAdd(h, _mcastInterface);
@@ -332,11 +322,10 @@ final class UdpEndpointI extends IPEndpointI
         return h;
     }
 
-    @Override
-    public void fillEndpointInfo(com.zeroc.Ice.IPEndpointInfo info)
+    @Override public void fillEndpointInfo(com.zeroc.Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
-        if(info instanceof com.zeroc.Ice.UDPEndpointInfo)
+        if (info instanceof com.zeroc.Ice.UDPEndpointInfo)
         {
             com.zeroc.Ice.UDPEndpointInfo udpInfo = (com.zeroc.Ice.UDPEndpointInfo)info;
             udpInfo.mcastInterface = _mcastInterface;
@@ -344,59 +333,58 @@ final class UdpEndpointI extends IPEndpointI
         }
     }
 
-    @Override
-    protected boolean checkOption(String option, String argument, String endpoint)
+    @Override protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(super.checkOption(option, argument, endpoint))
+        if (super.checkOption(option, argument, endpoint))
         {
             return true;
         }
 
-        if(option.equals("-c"))
+        if (option.equals("-c"))
         {
-            if(argument != null)
+            if (argument != null)
             {
-                throw new EndpointParseException("unexpected argument `" + argument + "' provided for -c option in " +
-                                                 endpoint);
+                throw new EndpointParseException(
+                    "unexpected argument `" + argument + "' provided for -c option in " + endpoint);
             }
 
             _connect = true;
         }
-        else if(option.equals("-z"))
+        else if (option.equals("-z"))
         {
-            if(argument != null)
+            if (argument != null)
             {
-                throw new EndpointParseException("unexpected argument `" + argument + "' provided for -z option in " +
-                                                 endpoint);
+                throw new EndpointParseException(
+                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
             }
 
             _compress = true;
         }
-        else if(option.equals("-v") || option.equals("-e"))
+        else if (option.equals("-v") || option.equals("-e"))
         {
-            if(argument == null)
+            if (argument == null)
             {
-                throw new EndpointParseException("no argument provided for " + option + " option in endpoint " +
-                                                 endpoint);
+                throw new EndpointParseException(
+                    "no argument provided for " + option + " option in endpoint " + endpoint);
             }
 
             try
             {
                 com.zeroc.Ice.EncodingVersion v = com.zeroc.Ice.Util.stringToEncodingVersion(argument);
-                if(v.major != 1 || v.minor != 0)
+                if (v.major != 1 || v.minor != 0)
                 {
                     _instance.logger().warning("deprecated udp endpoint option: " + option);
                 }
             }
-            catch(com.zeroc.Ice.VersionParseException e)
+            catch (com.zeroc.Ice.VersionParseException e)
             {
-                throw new EndpointParseException("invalid version `" + argument + "' in endpoint " + endpoint + ":\n" +
-                                                 e.str);
+                throw new EndpointParseException(
+                    "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + e.str);
             }
         }
-        else if(option.equals("--ttl"))
+        else if (option.equals("--ttl"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for --ttl option in endpoint " + endpoint);
             }
@@ -405,19 +393,19 @@ final class UdpEndpointI extends IPEndpointI
             {
                 _mcastTtl = Integer.parseInt(argument);
             }
-            catch(NumberFormatException ex)
+            catch (NumberFormatException ex)
             {
                 throw new EndpointParseException("invalid TTL value `" + argument + "' in endpoint " + endpoint);
             }
 
-            if(_mcastTtl < 0)
+            if (_mcastTtl < 0)
             {
                 throw new EndpointParseException("TTL value `" + argument + "' out of range in endpoint " + endpoint);
             }
         }
-        else if(option.equals("--interface"))
+        else if (option.equals("--interface"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for --interface option in endpoint " + endpoint);
             }
@@ -430,17 +418,23 @@ final class UdpEndpointI extends IPEndpointI
         return true;
     }
 
-    @Override
-    protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
+    @Override protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
     {
         return new UdpConnector(_instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }
 
-    @Override
-    protected IPEndpointI createEndpoint(String host, int port, String connectionId)
+    @Override protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
-        return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,
-                                connectionId, _compress);
+        return new UdpEndpointI(
+            _instance,
+            host,
+            port,
+            _sourceAddr,
+            _mcastInterface,
+            _mcastTtl,
+            _connect,
+            connectionId,
+            _compress);
     }
 
     private String _mcastInterface = "";

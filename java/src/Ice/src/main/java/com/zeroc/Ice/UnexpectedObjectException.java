@@ -51,10 +51,7 @@ public class UnexpectedObjectException extends MarshalException
         this.expectedType = expectedType;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::UnexpectedObjectException";
-    }
+    public String ice_id() { return "::Ice::UnexpectedObjectException"; }
 
     /**
      * The Slice type ID of the class instance that was unmarshaled.

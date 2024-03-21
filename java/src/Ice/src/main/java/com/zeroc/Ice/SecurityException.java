@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class SecurityException extends LocalException
 {
-    public SecurityException()
-    {
-        this.reason = "";
-    }
+    public SecurityException() { this.reason = ""; }
 
     public SecurityException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class SecurityException extends LocalException
         this.reason = "";
     }
 
-    public SecurityException(String reason)
-    {
-        this.reason = reason;
-    }
+    public SecurityException(String reason) { this.reason = reason; }
 
     public SecurityException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class SecurityException extends LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::SecurityException";
-    }
+    public String ice_id() { return "::Ice::SecurityException"; }
 
     /**
      * The reason for the failure.

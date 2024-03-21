@@ -32,9 +32,7 @@ public interface ServantLocator
         /**
          * Default constructor.
          **/
-        public LocateResult()
-        {
-        }
+        public LocateResult() {}
 
         /**
          * This constructor makes shallow copies of the results for operation Locate.
@@ -77,8 +75,7 @@ public interface ServantLocator
      * @see Current
      * @see #finished
      **/
-    ServantLocator.LocateResult locate(Current curr)
-        throws UserException;
+    ServantLocator.LocateResult locate(Current curr) throws UserException;
 
     /**
      * Called by the object adapter after a request has been made. This operation is only called if
@@ -100,8 +97,7 @@ public interface ServantLocator
      * @see Current
      * @see #locate
      **/
-    void finished(Current curr, Object servant, java.lang.Object cookie)
-        throws UserException;
+    void finished(Current curr, Object servant, java.lang.Object cookie) throws UserException;
 
     /**
      * Called when the object adapter in which this servant locator is installed is destroyed.

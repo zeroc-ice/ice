@@ -4,9 +4,9 @@
 
 package test.Ice.logger;
 
-import com.zeroc.Ice.Util;
-import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,24 +16,23 @@ public class Client extends test.TestHelper
 {
     public static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public void run(String[] args)
+    @Override public void run(String[] args)
     {
         System.out.print("testing Ice.LogFile... ");
-        if(new File("log.txt").exists())
+        if (new File("log.txt").exists())
         {
             new File("log.txt").delete();
         }
 
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.LogFile", "log.txt");
-        try(Communicator communicator = initialize(properties))
+        try (Communicator communicator = initialize(properties))
         {
             communicator.getLogger().trace("info", "my logger");
         }
@@ -42,7 +41,7 @@ public class Client extends test.TestHelper
         {
             test(new String(Files.readAllBytes(Paths.get("log.txt"))).contains("my logger"));
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             test(false);
         }

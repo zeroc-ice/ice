@@ -4,20 +4,18 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.zeroc.Ice.*;
-
 import test.Ice.operations.Test.*;
 
 class Twoways
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -25,13 +23,9 @@ class Twoways
 
     static class PerThreadContextInvokeThread extends Thread
     {
-        public PerThreadContextInvokeThread(MyClassPrx proxy)
-        {
-            _proxy = proxy;
-        }
+        public PerThreadContextInvokeThread(MyClassPrx proxy) { _proxy = proxy; }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
             java.util.Map<String, String> ctx = _proxy.ice_getCommunicator().getImplicitContext().getContext();
             test(ctx.isEmpty());
@@ -50,82 +44,64 @@ class Twoways
 
         String[] literals = p.opStringLiterals();
 
-        test(s0.value.equals("\\") &&
-             s0.value.equals(sw0.value) &&
-             s0.value.equals(literals[0]) &&
-             s0.value.equals(literals[11]));
+        test(
+            s0.value.equals("\\") && s0.value.equals(sw0.value) && s0.value.equals(literals[0]) &&
+            s0.value.equals(literals[11]));
 
-        test(s1.value.equals("A") &&
-             s1.value.equals(sw1.value) &&
-             s1.value.equals(literals[1]) &&
-             s1.value.equals(literals[12]));
+        test(
+            s1.value.equals("A") && s1.value.equals(sw1.value) && s1.value.equals(literals[1]) &&
+            s1.value.equals(literals[12]));
 
-        test(s2.value.equals("Ice") &&
-             s2.value.equals(sw2.value) &&
-             s2.value.equals(literals[2]) &&
-             s2.value.equals(literals[13]));
+        test(
+            s2.value.equals("Ice") && s2.value.equals(sw2.value) && s2.value.equals(literals[2]) &&
+            s2.value.equals(literals[13]));
 
-        test(s3.value.equals("A21") &&
-             s3.value.equals(sw3.value) &&
-             s3.value.equals(literals[3]) &&
-             s3.value.equals(literals[14]));
+        test(
+            s3.value.equals("A21") && s3.value.equals(sw3.value) && s3.value.equals(literals[3]) &&
+            s3.value.equals(literals[14]));
 
-        test(s4.value.equals("\\u0041 \\U00000041") &&
-             s4.value.equals(sw4.value) &&
-             s4.value.equals(literals[4]) &&
-             s4.value.equals(literals[15]));
+        test(
+            s4.value.equals("\\u0041 \\U00000041") && s4.value.equals(sw4.value) && s4.value.equals(literals[4]) &&
+            s4.value.equals(literals[15]));
 
-        test(s5.value.equals("\u00FF") &&
-             s5.value.equals(sw5.value) &&
-             s5.value.equals(literals[5]) &&
-             s5.value.equals(literals[16]));
+        test(
+            s5.value.equals("\u00FF") && s5.value.equals(sw5.value) && s5.value.equals(literals[5]) &&
+            s5.value.equals(literals[16]));
 
-        test(s6.value.equals("\u03FF") &&
-             s6.value.equals(sw6.value) &&
-             s6.value.equals(literals[6]) &&
-             s6.value.equals(literals[17]));
+        test(
+            s6.value.equals("\u03FF") && s6.value.equals(sw6.value) && s6.value.equals(literals[6]) &&
+            s6.value.equals(literals[17]));
 
-        test(s7.value.equals("\u05F0") &&
-             s7.value.equals(sw7.value) &&
-             s7.value.equals(literals[7]) &&
-             s7.value.equals(literals[18]));
+        test(
+            s7.value.equals("\u05F0") && s7.value.equals(sw7.value) && s7.value.equals(literals[7]) &&
+            s7.value.equals(literals[18]));
 
-        test(s8.value.equals("\uD800\uDC00") &&
-             s8.value.equals(sw8.value) &&
-             s8.value.equals(literals[8]) &&
-             s8.value.equals(literals[19]));
+        test(
+            s8.value.equals("\uD800\uDC00") && s8.value.equals(sw8.value) && s8.value.equals(literals[8]) &&
+            s8.value.equals(literals[19]));
 
-        test(s9.value.equals("\uD83C\uDF4C") &&
-             s9.value.equals(sw9.value) &&
-             s9.value.equals(literals[9]) &&
-             s9.value.equals(literals[20]));
+        test(
+            s9.value.equals("\uD83C\uDF4C") && s9.value.equals(sw9.value) && s9.value.equals(literals[9]) &&
+            s9.value.equals(literals[20]));
 
-        test(s10.value.equals("\u0DA7") &&
-             s10.value.equals(sw10.value) &&
-             s10.value.equals(literals[10]) &&
-             s10.value.equals(literals[21]));
+        test(
+            s10.value.equals("\u0DA7") && s10.value.equals(sw10.value) && s10.value.equals(literals[10]) &&
+            s10.value.equals(literals[21]));
 
-        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") &&
-             ss0.value.equals(ss1.value) &&
-             ss0.value.equals(ss2.value) &&
-             ss0.value.equals(literals[22]) &&
-             ss0.value.equals(literals[23]) &&
-             ss0.value.equals(literals[24]));
+        test(
+            ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") && ss0.value.equals(ss1.value) &&
+            ss0.value.equals(ss2.value) && ss0.value.equals(literals[22]) && ss0.value.equals(literals[23]) &&
+            ss0.value.equals(literals[24]));
 
-        test(ss3.value.equals("\\\\U\\u\\") &&
-             ss3.value.equals(literals[25]));
+        test(ss3.value.equals("\\\\U\\u\\") && ss3.value.equals(literals[25]));
 
-        test(ss4.value.equals("\\A\\") &&
-             ss4.value.equals(literals[26]));
+        test(ss4.value.equals("\\A\\") && ss4.value.equals(literals[26]));
 
-        test(ss5.value.equals("\\u0041\\") &&
-             ss5.value.equals(literals[27]));
+        test(ss5.value.equals("\\u0041\\") && ss5.value.equals(literals[27]));
 
-        test(su0.value.equals(su1.value) &&
-             su0.value.equals(su2.value) &&
-             su0.value.equals(literals[28]) &&
-             su0.value.equals(literals[29]) &&
-             su0.value.equals(literals[30]));
+        test(
+            su0.value.equals(su1.value) && su0.value.equals(su2.value) && su0.value.equals(literals[28]) &&
+            su0.value.equals(literals[29]) && su0.value.equals(literals[30]));
 
         p.ice_ping();
 
@@ -150,9 +126,9 @@ class Twoways
         }
 
         {
-            MyClass.OpByteResult r = p.opByte((byte) 0xff, (byte) 0x0f);
-            test(r.p3 == (byte) 0xf0);
-            test(r.returnValue == (byte) 0xff);
+            MyClass.OpByteResult r = p.opByte((byte)0xff, (byte)0x0f);
+            test(r.p3 == (byte)0xf0);
+            test(r.returnValue == (byte)0xff);
         }
 
         {
@@ -162,7 +138,7 @@ class Twoways
         }
 
         {
-            MyClass.OpShortIntLongResult r = p.opShortIntLong((short) 10, 11, 12L);
+            MyClass.OpShortIntLongResult r = p.opShortIntLong((short)10, 11, 12L);
             test(r.p4 == 10);
             test(r.p5 == 11);
             test(r.p6 == 12);
@@ -233,7 +209,7 @@ class Twoways
                 r.p3.opVoid();
                 test(false);
             }
-            catch(ObjectNotExistException ex)
+            catch (ObjectNotExistException ex)
             {
             }
 
@@ -281,36 +257,24 @@ class Twoways
         }
 
         {
-            final byte[] bsi1 =
-                    {
-                            (byte) 0x01,
-                            (byte) 0x11,
-                            (byte) 0x12,
-                            (byte) 0x22
-                    };
-            final byte[] bsi2 =
-                    {
-                            (byte) 0xf1,
-                            (byte) 0xf2,
-                            (byte) 0xf3,
-                            (byte) 0xf4
-                    };
+            final byte[] bsi1 = {(byte)0x01, (byte)0x11, (byte)0x12, (byte)0x22};
+            final byte[] bsi2 = {(byte)0xf1, (byte)0xf2, (byte)0xf3, (byte)0xf4};
 
             MyClass.OpByteSResult r = p.opByteS(bsi1, bsi2);
             test(r.p3.length == 4);
-            test(r.p3[0] == (byte) 0x22);
-            test(r.p3[1] == (byte) 0x12);
-            test(r.p3[2] == (byte) 0x11);
-            test(r.p3[3] == (byte) 0x01);
+            test(r.p3[0] == (byte)0x22);
+            test(r.p3[1] == (byte)0x12);
+            test(r.p3[2] == (byte)0x11);
+            test(r.p3[3] == (byte)0x01);
             test(r.returnValue.length == 8);
-            test(r.returnValue[0] == (byte) 0x01);
-            test(r.returnValue[1] == (byte) 0x11);
-            test(r.returnValue[2] == (byte) 0x12);
-            test(r.returnValue[3] == (byte) 0x22);
-            test(r.returnValue[4] == (byte) 0xf1);
-            test(r.returnValue[5] == (byte) 0xf2);
-            test(r.returnValue[6] == (byte) 0xf3);
-            test(r.returnValue[7] == (byte) 0xf4);
+            test(r.returnValue[0] == (byte)0x01);
+            test(r.returnValue[1] == (byte)0x11);
+            test(r.returnValue[2] == (byte)0x12);
+            test(r.returnValue[3] == (byte)0x22);
+            test(r.returnValue[4] == (byte)0xf1);
+            test(r.returnValue[5] == (byte)0xf2);
+            test(r.returnValue[6] == (byte)0xf3);
+            test(r.returnValue[7] == (byte)0xf4);
         }
 
         {
@@ -373,8 +337,8 @@ class Twoways
             test(r.returnValue[0] == 1.1E10);
             test(r.returnValue[1] == 1.2E10);
             test(r.returnValue[2] == 1.3E10);
-            test((float) r.returnValue[3] == 3.14f);
-            test((float) r.returnValue[4] == 1.11f);
+            test((float)r.returnValue[3] == 3.14f);
+            test((float)r.returnValue[4] == 1.11f);
         }
 
         {
@@ -394,51 +358,35 @@ class Twoways
         }
 
         {
-            final byte[][] bsi1 =
-                    {
-                            {(byte) 0x01, (byte) 0x11, (byte) 0x12},
-                            {(byte) 0xff}
-                    };
-            final byte[][] bsi2 =
-                    {
-                            {(byte) 0x0e},
-                            {(byte) 0xf2, (byte) 0xf1}
-                    };
+            final byte[][] bsi1 = {{(byte)0x01, (byte)0x11, (byte)0x12}, {(byte)0xff}};
+            final byte[][] bsi2 = {{(byte)0x0e}, {(byte)0xf2, (byte)0xf1}};
 
             MyClass.OpByteSSResult r = p.opByteSS(bsi1, bsi2);
             test(r.p3.length == 2);
             test(r.p3[0].length == 1);
-            test(r.p3[0][0] == (byte) 0xff);
+            test(r.p3[0][0] == (byte)0xff);
             test(r.p3[1].length == 3);
-            test(r.p3[1][0] == (byte) 0x01);
-            test(r.p3[1][1] == (byte) 0x11);
-            test(r.p3[1][2] == (byte) 0x12);
+            test(r.p3[1][0] == (byte)0x01);
+            test(r.p3[1][1] == (byte)0x11);
+            test(r.p3[1][2] == (byte)0x12);
             test(r.returnValue.length == 4);
             test(r.returnValue[0].length == 3);
-            test(r.returnValue[0][0] == (byte) 0x01);
-            test(r.returnValue[0][1] == (byte) 0x11);
-            test(r.returnValue[0][2] == (byte) 0x12);
+            test(r.returnValue[0][0] == (byte)0x01);
+            test(r.returnValue[0][1] == (byte)0x11);
+            test(r.returnValue[0][2] == (byte)0x12);
             test(r.returnValue[1].length == 1);
-            test(r.returnValue[1][0] == (byte) 0xff);
+            test(r.returnValue[1][0] == (byte)0xff);
             test(r.returnValue[2].length == 1);
-            test(r.returnValue[2][0] == (byte) 0x0e);
+            test(r.returnValue[2][0] == (byte)0x0e);
             test(r.returnValue[3].length == 2);
-            test(r.returnValue[3][0] == (byte) 0xf2);
-            test(r.returnValue[3][1] == (byte) 0xf1);
+            test(r.returnValue[3][0] == (byte)0xf2);
+            test(r.returnValue[3][1] == (byte)0xf1);
         }
 
         {
-            final boolean[][] bsi1 =
-                    {
-                            {true},
-                            {false},
-                            {true, true}
-                    };
+            final boolean[][] bsi1 = {{true}, {false}, {true, true}};
 
-            final boolean[][] bsi2 =
-                    {
-                            {false, false, true}
-                    };
+            final boolean[][] bsi2 = {{false, false, true}};
 
             MyClass.OpBoolSSResult r = p.opBoolSS(bsi1, bsi2);
             test(r.p3.length == 4);
@@ -464,21 +412,11 @@ class Twoways
         }
 
         {
-            final short[][] ssi =
-                    {
-                            {1, 2, 5},
-                            {13},
-                            {}
-                    };
-            final int[][] isi =
-                    {
-                            {24, 98},
-                            {42}
-                    };
-            final long[][] lsi =
-                    {
-                            {496, 1729},
-                    };
+            final short[][] ssi = {{1, 2, 5}, {13}, {}};
+            final int[][] isi = {{24, 98}, {42}};
+            final long[][] lsi = {
+                {496, 1729},
+            };
 
             MyClass.OpShortIntLongSSResult r = p.opShortIntLongSS(ssi, isi, lsi);
             test(r.returnValue.length == 1);
@@ -509,16 +447,12 @@ class Twoways
         }
 
         {
-            final float[][] fsi =
-                    {
-                            {3.14f},
-                            {1.11f},
-                            {},
-                    };
-            final double[][] dsi =
-                    {
-                            {1.1E10, 1.2E10, 1.3E10}
-                    };
+            final float[][] fsi = {
+                {3.14f},
+                {1.11f},
+                {},
+            };
+            final double[][] dsi = {{1.1E10, 1.2E10, 1.3E10}};
 
             MyClass.OpFloatDoubleSSResult r = p.opFloatDoubleSS(fsi, dsi);
             test(r.p3.length == 3);
@@ -544,17 +478,8 @@ class Twoways
         }
 
         {
-            final String[][] ssi1 =
-                    {
-                            {"abc"},
-                            {"de", "fghi"}
-                    };
-            final String[][] ssi2 =
-                    {
-                            {},
-                            {},
-                            {"xyz"}
-                    };
+            final String[][] ssi1 = {{"abc"}, {"de", "fghi"}};
+            final String[][] ssi2 = {{}, {}, {"xyz"}};
 
             MyClass.OpStringSSResult r = p.opStringSS(ssi1, ssi2);
             test(r.p3.length == 5);
@@ -575,41 +500,9 @@ class Twoways
         }
 
         {
-            final String[][][] sssi1 =
-                    {
-                            {
-                                    {
-                                            "abc", "de"
-                                    },
-                                    {
-                                            "xyz"
-                                    }
-                            },
-                            {
-                                    {
-                                            "hello"
-                                    }
-                            }
-                    };
+            final String[][][] sssi1 = {{{"abc", "de"}, {"xyz"}}, {{"hello"}}};
 
-            final String[][][] sssi2 =
-                    {
-                            {
-                                    {
-                                            "", ""
-                                    },
-                                    {
-                                            "abcd"
-                                    }
-                            },
-                            {
-                                    {
-                                            ""
-                                    }
-                            },
-                            {
-                            }
-                    };
+            final String[][][] sssi2 = {{{"", ""}, {"abcd"}}, {{""}}, {}};
 
             MyClass.OpStringSSSResult r = p.opStringSSS(sssi1, sssi2);
             test(r.p3.length == 5);
@@ -648,40 +541,40 @@ class Twoways
 
         {
             Map<Byte, Boolean> di1 = new HashMap<>();
-            di1.put((byte) 10, Boolean.TRUE);
-            di1.put((byte) 100, Boolean.FALSE);
+            di1.put((byte)10, Boolean.TRUE);
+            di1.put((byte)100, Boolean.FALSE);
             Map<Byte, Boolean> di2 = new HashMap<>();
-            di2.put((byte) 10, Boolean.TRUE);
-            di2.put((byte) 11, Boolean.FALSE);
-            di2.put((byte) 101, Boolean.TRUE);
+            di2.put((byte)10, Boolean.TRUE);
+            di2.put((byte)11, Boolean.FALSE);
+            di2.put((byte)101, Boolean.TRUE);
 
             MyClass.OpByteBoolDResult r = p.opByteBoolD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
-            test(r.returnValue.get((byte) 10));
-            test(!r.returnValue.get((byte) 11));
-            test(!r.returnValue.get((byte) 100));
-            test(r.returnValue.get((byte) 101));
+            test(r.returnValue.get((byte)10));
+            test(!r.returnValue.get((byte)11));
+            test(!r.returnValue.get((byte)100));
+            test(r.returnValue.get((byte)101));
         }
 
         {
             Map<Short, Integer> di1 = new HashMap<>();
-            di1.put((short) 110, -1);
-            di1.put((short) 1100, 123123);
+            di1.put((short)110, -1);
+            di1.put((short)1100, 123123);
             Map<Short, Integer> di2 = new HashMap<>();
-            di2.put((short) 110, -1);
-            di2.put((short) 111, -100);
-            di2.put((short) 1101, 0);
+            di2.put((short)110, -1);
+            di2.put((short)111, -100);
+            di2.put((short)1101, 0);
 
             MyClass.OpShortIntDResult r = p.opShortIntD(di1, di2);
 
             test(r.p3.equals(di1));
             test(r.returnValue.size() == 4);
-            test(r.returnValue.get((short) 110) == -1);
-            test(r.returnValue.get((short) 111) == -100);
-            test(r.returnValue.get((short) 1100) == 123123);
-            test(r.returnValue.get((short) 1101) == 0);
+            test(r.returnValue.get((short)110) == -1);
+            test(r.returnValue.get((short)111) == -100);
+            test(r.returnValue.get((short)1100) == 123123);
+            test(r.returnValue.get((short)1101) == 0);
         }
 
         {
@@ -786,15 +679,15 @@ class Twoways
             List<Map<Byte, Boolean>> dsi2 = new ArrayList<>();
 
             Map<Byte, Boolean> di1 = new HashMap<>();
-            di1.put((byte) 10, Boolean.TRUE);
-            di1.put((byte) 100, Boolean.FALSE);
+            di1.put((byte)10, Boolean.TRUE);
+            di1.put((byte)100, Boolean.FALSE);
             Map<Byte, Boolean> di2 = new HashMap<>();
-            di2.put((byte) 10, Boolean.TRUE);
-            di2.put((byte) 11, Boolean.FALSE);
-            di2.put((byte) 101, Boolean.TRUE);
+            di2.put((byte)10, Boolean.TRUE);
+            di2.put((byte)11, Boolean.FALSE);
+            di2.put((byte)101, Boolean.TRUE);
             Map<Byte, Boolean> di3 = new HashMap<>();
-            di3.put((byte) 100, Boolean.FALSE);
-            di3.put((byte) 101, Boolean.FALSE);
+            di3.put((byte)100, Boolean.FALSE);
+            di3.put((byte)101, Boolean.FALSE);
 
             dsi1.add(di1);
             dsi1.add(di2);
@@ -804,24 +697,24 @@ class Twoways
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
-            test(r.returnValue.get(0).get((byte) 10));
-            test(!r.returnValue.get(0).get((byte) 11));
-            test(r.returnValue.get(0).get((byte) 101));
+            test(r.returnValue.get(0).get((byte)10));
+            test(!r.returnValue.get(0).get((byte)11));
+            test(r.returnValue.get(0).get((byte)101));
             test(r.returnValue.get(1).size() == 2);
-            test(r.returnValue.get(1).get((byte) 10));
-            test(!r.returnValue.get(1).get((byte) 100));
+            test(r.returnValue.get(1).get((byte)10));
+            test(!r.returnValue.get(1).get((byte)100));
 
             test(r.p3.size() == 3);
             test(r.p3.get(0).size() == 2);
-            test(!r.p3.get(0).get((byte) 100));
-            test(!r.p3.get(0).get((byte) 101));
+            test(!r.p3.get(0).get((byte)100));
+            test(!r.p3.get(0).get((byte)101));
             test(r.p3.get(1).size() == 2);
-            test(r.p3.get(1).get((byte) 10));
-            test(!r.p3.get(1).get((byte) 100));
+            test(r.p3.get(1).get((byte)10));
+            test(!r.p3.get(1).get((byte)100));
             test(r.p3.get(2).size() == 3);
-            test(r.p3.get(2).get((byte) 10));
-            test(!r.p3.get(2).get((byte) 11));
-            test(r.p3.get(2).get((byte) 101));
+            test(r.p3.get(2).get((byte)10));
+            test(!r.p3.get(2).get((byte)11));
+            test(r.p3.get(2).get((byte)101));
         }
 
         {
@@ -829,14 +722,14 @@ class Twoways
             List<Map<Short, Integer>> dsi2 = new ArrayList<>();
 
             Map<Short, Integer> di1 = new HashMap<>();
-            di1.put((short) 110, -1);
-            di1.put((short) 1100, 123123);
+            di1.put((short)110, -1);
+            di1.put((short)1100, 123123);
             Map<Short, Integer> di2 = new HashMap<>();
-            di2.put((short) 110, -1);
-            di2.put((short) 111, -100);
-            di2.put((short) 1101, 0);
+            di2.put((short)110, -1);
+            di2.put((short)111, -100);
+            di2.put((short)1101, 0);
             Map<Short, Integer> di3 = new HashMap<>();
-            di3.put((short) 100, -1001);
+            di3.put((short)100, -1001);
 
             dsi1.add(di1);
             dsi1.add(di2);
@@ -846,23 +739,23 @@ class Twoways
 
             test(r.returnValue.size() == 2);
             test(r.returnValue.get(0).size() == 3);
-            test(r.returnValue.get(0).get((short) 110) == -1);
-            test(r.returnValue.get(0).get((short) 111) == -100);
-            test(r.returnValue.get(0).get((short) 1101) == 0);
+            test(r.returnValue.get(0).get((short)110) == -1);
+            test(r.returnValue.get(0).get((short)111) == -100);
+            test(r.returnValue.get(0).get((short)1101) == 0);
             test(r.returnValue.get(1).size() == 2);
-            test(r.returnValue.get(1).get((short) 110) == -1);
-            test(r.returnValue.get(1).get((short) 1100) == 123123);
+            test(r.returnValue.get(1).get((short)110) == -1);
+            test(r.returnValue.get(1).get((short)1100) == 123123);
 
             test(r.p3.size() == 3);
             test(r.p3.get(0).size() == 1);
-            test(r.p3.get(0).get((short) 100) == -1001);
+            test(r.p3.get(0).get((short)100) == -1001);
             test(r.p3.get(1).size() == 2);
-            test(r.p3.get(1).get((short) 110) == -1);
-            test(r.p3.get(1).get((short) 1100) == 123123);
+            test(r.p3.get(1).get((short)110) == -1);
+            test(r.p3.get(1).get((short)1100) == 123123);
             test(r.p3.get(2).size() == 3);
-            test(r.p3.get(2).get((short) 110) == -1);
-            test(r.p3.get(2).get((short) 111) == -100);
-            test(r.p3.get(2).get((short) 1101) == 0);
+            test(r.p3.get(2).get((short)110) == -1);
+            test(r.p3.get(2).get((short)111) == -100);
+            test(r.p3.get(2).get((short)1101) == 0);
         }
 
         {
@@ -1074,29 +967,29 @@ class Twoways
             java.util.Map<Byte, byte[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<Byte, byte[]> sdi2 = new java.util.HashMap<>();
 
-            final byte[] si1 = {(byte) 0x01, (byte) 0x11};
-            final byte[] si2 = {(byte) 0x12};
-            final byte[] si3 = {(byte) 0xf2, (byte) 0xf3};
+            final byte[] si1 = {(byte)0x01, (byte)0x11};
+            final byte[] si2 = {(byte)0x12};
+            final byte[] si3 = {(byte)0xf2, (byte)0xf3};
 
-            sdi1.put((byte) 0x01, si1);
-            sdi1.put((byte) 0x22, si2);
-            sdi2.put((byte) 0xf1, si3);
+            sdi1.put((byte)0x01, si1);
+            sdi1.put((byte)0x22, si2);
+            sdi2.put((byte)0xf1, si3);
 
             MyClass.OpByteByteSDResult r = p.opByteByteSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
-            test(r.p3.get((byte) 0xf1).length == 2);
-            test(r.p3.get((byte) 0xf1)[0] == (byte) 0xf2);
-            test(r.p3.get((byte) 0xf1)[1] == (byte) 0xf3);
+            test(r.p3.get((byte)0xf1).length == 2);
+            test(r.p3.get((byte)0xf1)[0] == (byte)0xf2);
+            test(r.p3.get((byte)0xf1)[1] == (byte)0xf3);
             test(r.returnValue.size() == 3);
-            test(r.returnValue.get((byte) 0x01).length == 2);
-            test(r.returnValue.get((byte) 0x01)[0] == (byte) 0x01);
-            test(r.returnValue.get((byte) 0x01)[1] == (byte) 0x11);
-            test(r.returnValue.get((byte) 0x22).length == 1);
-            test(r.returnValue.get((byte) 0x22)[0] == (byte) 0x12);
-            test(r.returnValue.get((byte) 0xf1).length == 2);
-            test(r.returnValue.get((byte) 0xf1)[0] == (byte) 0xf2);
-            test(r.returnValue.get((byte) 0xf1)[1] == (byte) 0xf3);
+            test(r.returnValue.get((byte)0x01).length == 2);
+            test(r.returnValue.get((byte)0x01)[0] == (byte)0x01);
+            test(r.returnValue.get((byte)0x01)[1] == (byte)0x11);
+            test(r.returnValue.get((byte)0x22).length == 1);
+            test(r.returnValue.get((byte)0x22)[0] == (byte)0x12);
+            test(r.returnValue.get((byte)0xf1).length == 2);
+            test(r.returnValue.get((byte)0xf1)[0] == (byte)0xf2);
+            test(r.returnValue.get((byte)0xf1)[1] == (byte)0xf3);
         }
 
         {
@@ -1134,27 +1027,27 @@ class Twoways
             final short[] si2 = {4, 5};
             final short[] si3 = {6, 7};
 
-            sdi1.put((short) 1, si1);
-            sdi1.put((short) 2, si2);
-            sdi2.put((short) 4, si3);
+            sdi1.put((short)1, si1);
+            sdi1.put((short)2, si2);
+            sdi2.put((short)4, si3);
 
             MyClass.OpShortShortSDResult r = p.opShortShortSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
-            test(r.p3.get((short) 4).length == 2);
-            test(r.p3.get((short) 4)[0] == 6);
-            test(r.p3.get((short) 4)[1] == 7);
+            test(r.p3.get((short)4).length == 2);
+            test(r.p3.get((short)4)[0] == 6);
+            test(r.p3.get((short)4)[1] == 7);
             test(r.returnValue.size() == 3);
-            test(r.returnValue.get((short) 1).length == 3);
-            test(r.returnValue.get((short) 1)[0] == 1);
-            test(r.returnValue.get((short) 1)[1] == 2);
-            test(r.returnValue.get((short) 1)[2] == 3);
-            test(r.returnValue.get((short) 2).length == 2);
-            test(r.returnValue.get((short) 2)[0] == 4);
-            test(r.returnValue.get((short) 2)[1] == 5);
-            test(r.returnValue.get((short) 4).length == 2);
-            test(r.returnValue.get((short) 4)[0] == 6);
-            test(r.returnValue.get((short) 4)[1] == 7);
+            test(r.returnValue.get((short)1).length == 3);
+            test(r.returnValue.get((short)1)[0] == 1);
+            test(r.returnValue.get((short)1)[1] == 2);
+            test(r.returnValue.get((short)1)[2] == 3);
+            test(r.returnValue.get((short)2).length == 2);
+            test(r.returnValue.get((short)2)[0] == 4);
+            test(r.returnValue.get((short)2)[1] == 5);
+            test(r.returnValue.get((short)4).length == 2);
+            test(r.returnValue.get((short)4)[0] == 6);
+            test(r.returnValue.get((short)4)[1] == 7);
         }
 
         {
@@ -1254,12 +1147,12 @@ class Twoways
             java.util.Map<String, double[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<String, double[]> sdi2 = new java.util.HashMap<>();
 
-            double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
-            double[] si2 = new double[] { 1.4E10, 1.5E10 };
-            double[] si3 = new double[] { 1.6E10, 1.7E10 };
+            double[] si1 = new double[] {1.1E10, 1.2E10, 1.3E10};
+            double[] si2 = new double[] {1.4E10, 1.5E10};
+            double[] si3 = new double[] {1.6E10, 1.7E10};
 
             sdi1.put("Hello!!", si1);
-            sdi1.put("Goodbye",  si2);
+            sdi1.put("Goodbye", si2);
             sdi2.put("", si3);
 
             MyClass.OpStringDoubleSDResult r = p.opStringDoubleSD(sdi1, sdi2);
@@ -1268,7 +1161,7 @@ class Twoways
             test(r.p3.get("").length == 2);
             test(r.p3.get("")[0] == 1.6E10);
             test(r.p3.get("")[1] == 1.7E10);
-            test(r.returnValue.size()== 3);
+            test(r.returnValue.size() == 3);
             test(r.returnValue.get("Hello!!").length == 3);
             test(r.returnValue.get("Hello!!")[0] == 1.1E10);
             test(r.returnValue.get("Hello!!")[1] == 1.2E10);
@@ -1276,7 +1169,7 @@ class Twoways
             test(r.returnValue.get("Goodbye").length == 2);
             test(r.returnValue.get("Goodbye")[0] == 1.4E10);
             test(r.returnValue.get("Goodbye")[1] == 1.5E10);
-            test(r.returnValue.get("").length== 2);
+            test(r.returnValue.get("").length == 2);
             test(r.returnValue.get("")[0] == 1.6E10);
             test(r.returnValue.get("")[1] == 1.7E10);
         }
@@ -1285,9 +1178,9 @@ class Twoways
             java.util.Map<String, String[]> sdi1 = new java.util.HashMap<String, String[]>();
             java.util.Map<String, String[]> sdi2 = new java.util.HashMap<String, String[]>();
 
-            String[] si1 = new String[] { "abc", "de", "fghi" };
-            String[] si2 = new String[] { "xyz", "or" };
-            String[] si3 = new String[] { "and", "xor" };
+            String[] si1 = new String[] {"abc", "de", "fghi"};
+            String[] si2 = new String[] {"xyz", "or"};
+            String[] si3 = new String[] {"and", "xor"};
 
             sdi1.put("abc", si1);
             sdi1.put("def", si2);
@@ -1296,10 +1189,10 @@ class Twoways
             MyClass.OpStringStringSDResult r = p.opStringStringSD(sdi1, sdi2);
 
             test(r.p3.size() == 1);
-            test(r.p3.get("ghi").length== 2);
+            test(r.p3.get("ghi").length == 2);
             test(r.p3.get("ghi")[0].equals("and"));
             test(r.p3.get("ghi")[1].equals("xor"));
-            test(r.returnValue.size()== 3);
+            test(r.returnValue.size() == 3);
             test(r.returnValue.get("abc").length == 3);
             test(r.returnValue.get("abc")[0].equals("abc"));
             test(r.returnValue.get("abc")[1].equals("de"));
@@ -1316,9 +1209,9 @@ class Twoways
             java.util.Map<MyEnum, MyEnum[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<MyEnum, MyEnum[]> sdi2 = new java.util.HashMap<>();
 
-            final MyEnum[] si1 = new MyEnum[] { MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 };
-            final MyEnum[] si2 = new MyEnum[] { MyEnum.enum1, MyEnum.enum2 };
-            final MyEnum[] si3 = new MyEnum[] { MyEnum.enum3, MyEnum.enum3 };
+            final MyEnum[] si1 = new MyEnum[] {MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si2 = new MyEnum[] {MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum3};
 
             sdi1.put(MyEnum.enum3, si1);
             sdi1.put(MyEnum.enum2, si2);
@@ -1330,7 +1223,7 @@ class Twoways
             test(r.p3.get(MyEnum.enum1).length == 2);
             test(r.p3.get(MyEnum.enum1)[0] == MyEnum.enum3);
             test(r.p3.get(MyEnum.enum1)[1] == MyEnum.enum3);
-            test(r.returnValue.size()== 3);
+            test(r.returnValue.size() == 3);
             test(r.returnValue.get(MyEnum.enum3).length == 3);
             test(r.returnValue.get(MyEnum.enum3)[0] == MyEnum.enum1);
             test(r.returnValue.get(MyEnum.enum3)[1] == MyEnum.enum1);
@@ -1346,16 +1239,16 @@ class Twoways
         {
             int[] lengths = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-            for(int l : lengths)
+            for (int l : lengths)
             {
                 int[] s = new int[l];
-                for(int i = 0; i < l; ++i)
+                for (int i = 0; i < l; ++i)
                 {
                     s[i] = i;
                 }
                 int[] r = p.opIntS(s);
                 test(r.length == l);
-                for(int j = 0; j < r.length; ++j)
+                for (int j = 0; j < r.length; ++j)
                 {
                     test(r[j] == -j);
                 }
@@ -1387,21 +1280,20 @@ class Twoways
             }
         }
 
-        if(p.ice_getConnection() != null && !bluetooth)
+        if (p.ice_getConnection() != null && !bluetooth)
         {
             //
             // Test implicit context propagation
             //
 
             String[] impls = {"Shared", "PerThread"};
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                try(Communicator ic = helper.initialize(properties))
+                try (Communicator ic = helper.initialize(properties))
                 {
-
                     Map<String, String> ctx = new HashMap<>();
                     ctx.put("one", "ONE");
                     ctx.put("two", "TWO");
@@ -1441,7 +1333,7 @@ class Twoways
 
                     test(ic.getImplicitContext().remove("one").equals("ONE"));
 
-                    if(impls[i].equals("PerThread"))
+                    if (impls[i].equals("PerThread"))
                     {
                         Thread thread = new PerThreadContextInvokeThread(p3.ice_context(null));
                         thread.start();
@@ -1449,7 +1341,7 @@ class Twoways
                         {
                             thread.join();
                         }
-                        catch(InterruptedException ex)
+                        catch (InterruptedException ex)
                         {
                         }
                     }
@@ -1460,7 +1352,7 @@ class Twoways
         {
             double d = 1278312346.0 / 13.0;
             double[] ds = new double[5];
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 ds[i] = d;
             }

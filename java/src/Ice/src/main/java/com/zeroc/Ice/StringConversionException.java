@@ -20,30 +20,15 @@ package com.zeroc.Ice;
  **/
 public class StringConversionException extends MarshalException
 {
-    public StringConversionException()
-    {
-        super();
-    }
+    public StringConversionException() { super(); }
 
-    public StringConversionException(Throwable cause)
-    {
-        super(cause);
-    }
+    public StringConversionException(Throwable cause) { super(cause); }
 
-    public StringConversionException(String reason)
-    {
-        super(reason);
-    }
+    public StringConversionException(String reason) { super(reason); }
 
-    public StringConversionException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+    public StringConversionException(String reason, Throwable cause) { super(reason, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::StringConversionException";
-    }
+    public String ice_id() { return "::Ice::StringConversionException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -7504009091360618574L;

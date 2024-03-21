@@ -4,8 +4,6 @@
 
 package test.Ice.info;
 
-import java.io.PrintWriter;
-
 import com.zeroc.Ice.ConnectionInfo;
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointInfo;
@@ -22,14 +20,14 @@ import com.zeroc.Ice.WSConnectionInfo;
 import com.zeroc.Ice.WSEndpointInfo;
 import com.zeroc.Ice.WSEndpointType;
 import com.zeroc.Ice.WSSEndpointType;
-
+import java.io.PrintWriter;
 import test.Ice.info.Test.TestIntfPrx;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -37,9 +35,9 @@ public class AllTests
 
     private static TCPEndpointInfo getTCPEndpointInfo(EndpointInfo info)
     {
-        for(EndpointInfo p = info; p != null; p = p.underlying)
+        for (EndpointInfo p = info; p != null; p = p.underlying)
         {
-            if(p instanceof TCPEndpointInfo)
+            if (p instanceof TCPEndpointInfo)
             {
                 return (TCPEndpointInfo)p;
             }
@@ -49,9 +47,9 @@ public class AllTests
 
     private static TCPConnectionInfo getTCPConnectionInfo(ConnectionInfo info)
     {
-        for(ConnectionInfo p = info; p != null; p = p.underlying)
+        for (ConnectionInfo p = info; p != null; p = p.underlying)
         {
-            if(p instanceof TCPConnectionInfo)
+            if (p instanceof TCPConnectionInfo)
             {
                 return (TCPConnectionInfo)p;
             }
@@ -67,9 +65,9 @@ public class AllTests
         out.flush();
         {
             com.zeroc.Ice.ObjectPrx p1 = communicator.stringToProxy(
-                                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
-                                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
-                                "opaque -e 1.8 -t 100 -v ABCD");
+                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
+                + "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
+                + "opaque -e 1.8 -t 100 -v ABCD");
 
             Endpoint[] endps = p1.ice_getEndpoints();
             EndpointInfo info = endps[0].getInfo();
@@ -80,15 +78,17 @@ public class AllTests
             test(tcpEndpoint.sourceAddress.equals("10.10.10.10"));
             test(tcpEndpoint.compress);
             test(!tcpEndpoint.datagram());
-            test(tcpEndpoint.type() == TCPEndpointType.value && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == SSLEndpointType.value && tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == WSEndpointType.value && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == WSSEndpointType.value && tcpEndpoint.secure());
+            test(
+                tcpEndpoint.type() == TCPEndpointType.value && !tcpEndpoint.secure() ||
+                tcpEndpoint.type() == SSLEndpointType.value && tcpEndpoint.secure() ||
+                tcpEndpoint.type() == WSEndpointType.value && !tcpEndpoint.secure() ||
+                tcpEndpoint.type() == WSSEndpointType.value && tcpEndpoint.secure());
 
-            test(tcpEndpoint.type() == TCPEndpointType.value && info instanceof TCPEndpointInfo ||
-                 tcpEndpoint.type() == SSLEndpointType.value && info instanceof com.zeroc.IceSSL.EndpointInfo ||
-                 tcpEndpoint.type() == WSEndpointType.value && info instanceof WSEndpointInfo ||
-                 tcpEndpoint.type() == WSSEndpointType.value && info instanceof WSEndpointInfo);
+            test(
+                tcpEndpoint.type() == TCPEndpointType.value && info instanceof TCPEndpointInfo ||
+                tcpEndpoint.type() == SSLEndpointType.value && info instanceof com.zeroc.IceSSL.EndpointInfo ||
+                tcpEndpoint.type() == WSEndpointType.value && info instanceof WSEndpointInfo ||
+                tcpEndpoint.type() == WSSEndpointType.value && info instanceof WSEndpointInfo);
 
             UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.equals("udphost"));
@@ -111,8 +111,9 @@ public class AllTests
         out.flush();
         {
             final String host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
-                "\" -t 15000:udp -h \"" + host + "\"");
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints",
+                "tcp -h \"" + host + "\" -t 15000:udp -h \"" + host + "\"");
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 
             Endpoint[] endpoints = adapter.getEndpoints();
@@ -121,8 +122,9 @@ public class AllTests
             test(java.util.Arrays.equals(endpoints, publishedEndpoints));
 
             TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
-            test(tcpEndpoint.type() == TCPEndpointType.value || tcpEndpoint.type() == SSLEndpointType.value ||
-                 tcpEndpoint.type() == WSEndpointType.value || tcpEndpoint.type() == WSSEndpointType.value);
+            test(
+                tcpEndpoint.type() == TCPEndpointType.value || tcpEndpoint.type() == SSLEndpointType.value ||
+                tcpEndpoint.type() == WSEndpointType.value || tcpEndpoint.type() == WSSEndpointType.value);
             test(tcpEndpoint.host.equals(host));
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
@@ -132,7 +134,7 @@ public class AllTests
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
-            endpoints = new Endpoint[]{endpoints[0]};
+            endpoints = new Endpoint[] {endpoints[0]};
             test(endpoints.length == 1);
             adapter.setPublishedEndpoints(endpoints);
             publishedEndpoints = adapter.getPublishedEndpoints();
@@ -150,7 +152,7 @@ public class AllTests
             publishedEndpoints = adapter.getPublishedEndpoints();
             test(publishedEndpoints.length == 1);
 
-            for(Endpoint endpoint : endpoints)
+            for (Endpoint endpoint : endpoints)
             {
                 tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
                 test(tcpEndpoint.port == port);
@@ -164,9 +166,8 @@ public class AllTests
         }
         out.println("ok");
 
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("test:" +
-                                                                  helper.getTestEndpoint(0) + ":" +
-                                                                  helper.getTestEndpoint(0, "udp"));
+        com.zeroc.Ice.ObjectPrx base =
+            communicator.stringToProxy("test:" + helper.getTestEndpoint(0) + ":" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrx.checkedCast(base);
 
         int endpointPort = helper.getTestPort(0);
@@ -205,7 +206,7 @@ public class AllTests
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
             test(info.remotePort == endpointPort);
-            if(defaultHost.equals("127.0.0.1"))
+            if (defaultHost.equals("127.0.0.1"))
             {
                 test(info.remoteAddress.equals(defaultHost));
                 test(info.localAddress.equals(defaultHost));
@@ -227,7 +228,7 @@ public class AllTests
             test(ctx.get("remotePort").equals(Integer.toString(info.localPort)));
             test(ctx.get("localPort").equals(Integer.toString(info.remotePort)));
 
-            if(base.ice_getConnection().type().equals("ws") || base.ice_getConnection().type().equals("wss"))
+            if (base.ice_getConnection().type().equals("ws") || base.ice_getConnection().type().equals("wss"))
             {
                 java.util.Map<String, String> headers = ((WSConnectionInfo)connection.getInfo()).headers;
                 test(headers.get("Upgrade").equals("websocket"));
@@ -250,7 +251,7 @@ public class AllTests
             test(udpinfo.adapterName.length() == 0);
             test(udpinfo.localPort > 0);
             test(udpinfo.remotePort == endpointPort);
-            if(defaultHost.equals("127.0.0.1"))
+            if (defaultHost.equals("127.0.0.1"))
             {
                 test(udpinfo.remoteAddress.equals(defaultHost));
                 test(udpinfo.localAddress.equals(defaultHost));

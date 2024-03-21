@@ -6,21 +6,16 @@ package test.Ice.plugin.plugins;
 
 public class PluginOneFailFactory implements com.zeroc.Ice.PluginFactory
 {
-    @Override
-    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
+    @Override public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginOneFail(communicator);
     }
 
     static class PluginOneFail extends BasePluginFail
     {
-        public PluginOneFail(com.zeroc.Ice.Communicator communicator)
-        {
-            super(communicator);
-        }
+        public PluginOneFail(com.zeroc.Ice.Communicator communicator) { super(communicator); }
 
-        @Override
-        public void initialize()
+        @Override public void initialize()
         {
             _two = (BasePluginFail)_communicator.getPluginManager().getPlugin("PluginTwoFail");
             test(!_two.isInitialized());
@@ -29,8 +24,7 @@ public class PluginOneFailFactory implements com.zeroc.Ice.PluginFactory
             _initialized = true;
         }
 
-        @Override
-        public void destroy()
+        @Override public void destroy()
         {
             test(_two.isDestroyed());
             //
@@ -40,17 +34,15 @@ public class PluginOneFailFactory implements com.zeroc.Ice.PluginFactory
             _destroyed = true;
         }
 
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void finalize() throws Throwable
+        @SuppressWarnings("deprecation") @Override protected void finalize() throws Throwable
         {
             try
             {
-                if(!_initialized)
+                if (!_initialized)
                 {
                     System.out.println(getClass().getName() + " not initialized");
                 }
-                if(!_destroyed)
+                if (!_destroyed)
                 {
                     System.out.println(getClass().getName() + " not destroyed");
                 }

@@ -4,27 +4,23 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.BorderStyle;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class ServiceEditor extends CommunicatorEditor
 {
-    @Override
-    public JToolBar getToolBar()
+    @Override public JToolBar getToolBar()
     {
-        if(_toolBar == null)
+        if (_toolBar == null)
         {
             _toolBar = new ToolBar();
         }
@@ -53,7 +49,7 @@ class ServiceEditor extends CommunicatorEditor
         Server server = (Server)service.getParent();
         int iceIntVersion = server.getIceVersion();
 
-        if(server.getState() == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
+        if (server.getState() == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
         {
             showRuntimeProperties(previous);
         }
@@ -63,8 +59,7 @@ class ServiceEditor extends CommunicatorEditor
         }
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("Runtime Status");
 
@@ -79,8 +74,7 @@ class ServiceEditor extends CommunicatorEditor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Properties");

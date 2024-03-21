@@ -16,10 +16,7 @@ public final class Util
      *
      * @return A new empty property set.
      **/
-    public static Properties createProperties()
-    {
-        return new PropertiesI();
-    }
+    public static Properties createProperties() { return new PropertiesI(); }
 
     /**
      * Creates a property set initialized from an argument vector.
@@ -33,10 +30,7 @@ public final class Util
      * @return A new property set initialized with the property settings
      * that were removed from the argument vector.
      **/
-    public static Properties createProperties(String[] args)
-    {
-        return createProperties(args, null, null);
-    }
+    public static Properties createProperties(String[] args) { return createProperties(args, null, null); }
 
     /**
      * Creates a property set initialized from an argument vector and
@@ -98,9 +92,7 @@ public final class Util
      * @return A new property set initialized with the property settings
      * that were removed from the argument vector.
      **/
-    public static Properties createProperties(String[] args,
-                                              Properties defaults,
-                                              java.util.List<String> remainingArgs)
+    public static Properties createProperties(String[] args, Properties defaults, java.util.List<String> remainingArgs)
     {
         PropertiesI properties = new PropertiesI();
         properties.init(args, defaults, remainingArgs);
@@ -112,10 +104,7 @@ public final class Util
      *
      * @return A new communicator instance.
      **/
-    public static Communicator initialize()
-    {
-        return initialize(new InitializationData());
-    }
+    public static Communicator initialize() { return initialize(new InitializationData()); }
 
     /**
      * Creates a communicator.
@@ -125,10 +114,7 @@ public final class Util
      *
      * @return The new communicator.
      **/
-    public static Communicator initialize(String[] args)
-    {
-        return initialize(args, (InitializationData)null, null);
-    }
+    public static Communicator initialize(String[] args) { return initialize(args, (InitializationData)null, null); }
 
     /**
      * Creates a communicator.
@@ -153,10 +139,7 @@ public final class Util
      *
      * @return The new communicator.
      **/
-    public static Communicator initialize(InitializationData initData)
-    {
-        return initialize(null, initData, null);
-    }
+    public static Communicator initialize(InitializationData initData) { return initialize(null, initData, null); }
 
     /**
      * Creates a communicator.
@@ -205,11 +188,10 @@ public final class Util
      *
      * @see InitializationData
      **/
-    public static Communicator initialize(String[] args,
-                                          InitializationData initData,
-                                          java.util.List<String> remainingArgs)
+    public static Communicator
+    initialize(String[] args, InitializationData initData, java.util.List<String> remainingArgs)
     {
-        if(initData == null)
+        if (initData == null)
         {
             initData = new InitializationData();
         }
@@ -218,7 +200,7 @@ public final class Util
             initData = initData.clone();
         }
 
-        if(args != null)
+        if (args != null)
         {
             java.util.List<String> rArgs = new java.util.ArrayList<>();
             initData.properties = createProperties(args, initData.properties, rArgs);
@@ -244,12 +226,10 @@ public final class Util
      *
      * @return The new communicator.
      **/
-    public static Communicator initialize(String[] args,
-                                          String configFile,
-                                          java.util.List<String> remainingArgs)
+    public static Communicator initialize(String[] args, String configFile, java.util.List<String> remainingArgs)
     {
         InitializationData initData = null;
-        if(configFile != null)
+        if (configFile != null)
         {
             initData = new InitializationData();
             initData.properties = Util.createProperties();
@@ -275,10 +255,10 @@ public final class Util
         // backslash before the separator.
         //
         int slash = -1, pos = 0;
-        while((pos = s.indexOf('/', pos)) != -1)
+        while ((pos = s.indexOf('/', pos)) != -1)
         {
             int escapes = 0;
-            while(pos - escapes > 0 && s.charAt(pos - escapes - 1) == '\\')
+            while (pos - escapes > 0 && s.charAt(pos - escapes - 1) == '\\')
             {
                 escapes++;
             }
@@ -286,9 +266,9 @@ public final class Util
             //
             // We ignore escaped escapes
             //
-            if(escapes % 2 == 0)
+            if (escapes % 2 == 0)
             {
-                if(slash == -1)
+                if (slash == -1)
                 {
                     slash = pos;
                 }
@@ -305,14 +285,14 @@ public final class Util
             pos++;
         }
 
-        if(slash == -1)
+        if (slash == -1)
         {
             ident.category = "";
             try
             {
                 ident.name = StringUtil.unescapeString(s, 0, s.length(), "/");
             }
-            catch(IllegalArgumentException e)
+            catch (IllegalArgumentException e)
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = "invalid identity name `" + s + "': " + e.getMessage();
@@ -325,19 +305,19 @@ public final class Util
             {
                 ident.category = StringUtil.unescapeString(s, 0, slash, "/");
             }
-            catch(IllegalArgumentException e)
+            catch (IllegalArgumentException e)
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = "invalid category in identity `" + s + "': " + e.getMessage();
                 throw ex;
             }
-            if(slash + 1 < s.length())
+            if (slash + 1 < s.length())
             {
                 try
                 {
                     ident.name = StringUtil.unescapeString(s, slash + 1, s.length(), "/");
                 }
-                catch(IllegalArgumentException e)
+                catch (IllegalArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid name in identity `" + s + "': " + e.getMessage();
@@ -364,7 +344,7 @@ public final class Util
      **/
     public static String identityToString(Identity ident, ToStringMode toStringMode)
     {
-        if(ident.category == null || ident.category.length() == 0)
+        if (ident.category == null || ident.category.length() == 0)
         {
             return StringUtil.escapeString(ident.name, "/", toStringMode);
         }
@@ -382,10 +362,7 @@ public final class Util
      *
      * @return The string representation of the object identity using the default mode (Unicode)
      **/
-    public static String identityToString(Identity ident)
-    {
-        return identityToString(ident, ToStringMode.Unicode);
-    }
+    public static String identityToString(Identity ident) { return identityToString(ident, ToStringMode.Unicode); }
 
     /**
      * Compares the object identities of two proxies.
@@ -402,15 +379,15 @@ public final class Util
      **/
     public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-        if(lhs == null && rhs == null)
+        if (lhs == null && rhs == null)
         {
             return 0;
         }
-        else if(lhs == null && rhs != null)
+        else if (lhs == null && rhs != null)
         {
             return -1;
         }
-        else if(lhs != null && rhs == null)
+        else if (lhs != null && rhs == null)
         {
             return 1;
         }
@@ -419,7 +396,7 @@ public final class Util
             Identity lhsIdentity = lhs.ice_getIdentity();
             Identity rhsIdentity = rhs.ice_getIdentity();
             int n;
-            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            if ((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
             {
                 return n;
             }
@@ -442,15 +419,15 @@ public final class Util
      **/
     public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-        if(lhs == null && rhs == null)
+        if (lhs == null && rhs == null)
         {
             return 0;
         }
-        else if(lhs == null && rhs != null)
+        else if (lhs == null && rhs != null)
         {
             return -1;
         }
-        else if(lhs != null && rhs == null)
+        else if (lhs != null && rhs == null)
         {
             return 1;
         }
@@ -459,26 +436,26 @@ public final class Util
             Identity lhsIdentity = lhs.ice_getIdentity();
             Identity rhsIdentity = rhs.ice_getIdentity();
             int n;
-            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            if ((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
             {
                 return n;
             }
-            if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
+            if ((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
             {
                 return n;
             }
 
             String lhsFacet = lhs.ice_getFacet();
             String rhsFacet = rhs.ice_getFacet();
-            if(lhsFacet == null && rhsFacet == null)
+            if (lhsFacet == null && rhsFacet == null)
             {
                 return 0;
             }
-            else if(lhsFacet == null)
+            else if (lhsFacet == null)
             {
                 return -1;
             }
-            else if(rhsFacet == null)
+            else if (rhsFacet == null)
             {
                 return 1;
             }
@@ -493,9 +470,9 @@ public final class Util
      **/
     public static Logger getProcessLogger()
     {
-        synchronized(_processLoggerMutex)
+        synchronized (_processLoggerMutex)
         {
-            if(_processLogger == null)
+            if (_processLogger == null)
             {
                 //
                 // TODO: Would be nice to be able to use process name as prefix by default.
@@ -514,10 +491,7 @@ public final class Util
      **/
     public static void setProcessLogger(Logger logger)
     {
-        synchronized(_processLoggerMutex)
-        {
-            _processLogger = logger;
-        }
+        synchronized (_processLoggerMutex) { _processLogger = logger; }
     }
 
     /**
@@ -575,10 +549,7 @@ public final class Util
      *
      * @return The converted string.
      **/
-    static public String protocolVersionToString(ProtocolVersion v)
-    {
-        return majorMinorToString(v.major, v.minor);
-    }
+    static public String protocolVersionToString(ProtocolVersion v) { return majorMinorToString(v.major, v.minor); }
 
     /**
      * Converts an encoding version to a string.
@@ -587,30 +558,21 @@ public final class Util
      *
      * @return The converted string.
      **/
-    static public String encodingVersionToString(EncodingVersion v)
-    {
-        return majorMinorToString(v.major, v.minor);
-    }
+    static public String encodingVersionToString(EncodingVersion v) { return majorMinorToString(v.major, v.minor); }
 
     /**
      * Returns the supported Ice protocol version.
      *
      * @return The Ice protocol version.
      **/
-    static public ProtocolVersion currentProtocol()
-    {
-        return com.zeroc.IceInternal.Protocol.currentProtocol.clone();
-    }
+    static public ProtocolVersion currentProtocol() { return com.zeroc.IceInternal.Protocol.currentProtocol.clone(); }
 
     /**
      * Returns the supported Ice encoding version.
      *
      * @return The Ice encoding version.
      **/
-    static public EncodingVersion currentEncoding()
-    {
-        return com.zeroc.IceInternal.Protocol.currentEncoding.clone();
-    }
+    static public EncodingVersion currentEncoding() { return com.zeroc.IceInternal.Protocol.currentEncoding.clone(); }
 
     /**
      * Returns the InvocationFuture equivalent of the given CompletableFuture.
@@ -621,7 +583,7 @@ public final class Util
      **/
     static public <T> InvocationFuture<T> getInvocationFuture(java.util.concurrent.CompletableFuture<T> f)
     {
-        if(!(f instanceof InvocationFuture))
+        if (!(f instanceof InvocationFuture))
         {
             throw new IllegalArgumentException("future did not originate from an asynchronous proxy invocation");
         }
@@ -636,7 +598,7 @@ public final class Util
      **/
     static public String typeIdToClass(String id)
     {
-        if(!id.startsWith("::"))
+        if (!id.startsWith("::"))
         {
             return null;
         }
@@ -644,11 +606,11 @@ public final class Util
         StringBuilder buf = new StringBuilder(id.length());
         int start = 2;
         boolean done = false;
-        while(!done)
+        while (!done)
         {
             int end = id.indexOf(':', start);
             String s;
-            if(end != -1)
+            if (end != -1)
             {
                 s = id.substring(start, end);
                 start = end + 2;
@@ -658,7 +620,7 @@ public final class Util
                 s = id.substring(start);
                 done = true;
             }
-            if(buf.length() > 0)
+            if (buf.length() > 0)
             {
                 buf.append('.');
             }
@@ -675,26 +637,23 @@ public final class Util
         // are not Java keywords, but are in this list to prevent illegal code being generated if
         // someone defines Slice operations with that name.
         //
-        final String[] keywordList =
-        {
-            "abstract", "assert", "boolean", "break", "byte", "case", "catch",
-            "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
-            "double", "else", "enum", "equals", "extends", "false", "final", "finalize",
-            "finally", "float", "for", "getClass", "goto", "hashCode", "if",
-            "implements", "import", "instanceof", "int", "interface", "long",
-            "native", "new", "notify", "notifyAll", "null", "package", "private",
-            "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-            "synchronized", "this", "throw", "throws", "toString", "transient",
-            "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
-        };
-        boolean found =  java.util.Arrays.binarySearch(keywordList, name) >= 0;
+        final String[] keywordList = {
+            "abstract",    "assert",  "boolean",   "break",         "byte",     "case",     "catch",      "char",
+            "checkedCast", "class",   "clone",     "const",         "continue", "default",  "do",         "double",
+            "else",        "enum",    "equals",    "extends",       "false",    "final",    "finalize",   "finally",
+            "float",       "for",     "getClass",  "goto",          "hashCode", "if",       "implements", "import",
+            "instanceof",  "int",     "interface", "long",          "native",   "new",      "notify",     "notifyAll",
+            "null",        "package", "private",   "protected",     "public",   "return",   "short",      "static",
+            "strictfp",    "super",   "switch",    "synchronized",  "this",     "throw",    "throws",     "toString",
+            "transient",   "true",    "try",       "uncheckedCast", "void",     "volatile", "wait",       "while"};
+        boolean found = java.util.Arrays.binarySearch(keywordList, name) >= 0;
         return found ? "_" + name : name;
     }
 
     static private byte stringToMajor(String str)
     {
         int pos = str.indexOf('.');
-        if(pos == -1)
+        if (pos == -1)
         {
             throw new VersionParseException("malformed version value `" + str + "'");
         }
@@ -705,12 +664,12 @@ public final class Util
         {
             majVersion = Integer.parseInt(majStr);
         }
-        catch(NumberFormatException ex)
+        catch (NumberFormatException ex)
         {
             throw new VersionParseException("invalid version value `" + str + "'");
         }
 
-        if(majVersion < 1 || majVersion > 255)
+        if (majVersion < 1 || majVersion > 255)
         {
             throw new VersionParseException("range error in version `" + str + "'");
         }
@@ -721,7 +680,7 @@ public final class Util
     static private byte stringToMinor(String str)
     {
         int pos = str.indexOf('.');
-        if(pos == -1)
+        if (pos == -1)
         {
             throw new VersionParseException("malformed version value `" + str + "'");
         }
@@ -732,12 +691,12 @@ public final class Util
         {
             minVersion = Integer.parseInt(minStr);
         }
-        catch(NumberFormatException ex)
+        catch (NumberFormatException ex)
         {
             throw new VersionParseException("invalid version value `" + str + "'");
         }
 
-        if(minVersion < 0 || minVersion > 255)
+        if (minVersion < 0 || minVersion > 255)
         {
             throw new VersionParseException("range error in version `" + str + "'");
         }

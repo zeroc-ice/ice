@@ -22,10 +22,7 @@ package com.zeroc.Ice;
  **/
 public class UnknownException extends LocalException
 {
-    public UnknownException()
-    {
-        this.unknown = "";
-    }
+    public UnknownException() { this.unknown = ""; }
 
     public UnknownException(Throwable cause)
     {
@@ -33,10 +30,7 @@ public class UnknownException extends LocalException
         this.unknown = "";
     }
 
-    public UnknownException(String unknown)
-    {
-        this.unknown = unknown;
-    }
+    public UnknownException(String unknown) { this.unknown = unknown; }
 
     public UnknownException(String unknown, Throwable cause)
     {
@@ -44,10 +38,7 @@ public class UnknownException extends LocalException
         this.unknown = unknown;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::UnknownException";
-    }
+    public String ice_id() { return "::Ice::UnknownException"; }
 
     /**
      * This field is set to the textual representation of the unknown exception if available.

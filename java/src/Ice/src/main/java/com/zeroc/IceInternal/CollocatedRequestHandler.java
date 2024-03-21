@@ -8,8 +8,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 {
     private class InvokeAllAsync extends DispatchWorkItem
     {
-        private InvokeAllAsync(OutgoingAsyncBase outAsync, com.zeroc.Ice.OutputStream os, int requestId,
-                               int batchRequestNum)
+        private InvokeAllAsync(
+            OutgoingAsyncBase outAsync,
+            com.zeroc.Ice.OutputStream os,
+            int requestId,
+            int batchRequestNum)
         {
             _outAsync = outAsync;
             _os = os;
@@ -17,10 +20,9 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             _batchRequestNum = batchRequestNum;
         }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
-            if(sentAsync(_outAsync))
+            if (sentAsync(_outAsync))
             {
                 invokeAll(_os, _requestId, _batchRequestNum);
             }
@@ -32,8 +34,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         private final int _batchRequestNum;
     }
 
-    public
-    CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter)
+    public CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter)
     {
         _reference = ref;
         _dispatcher = ref.getInstance().initializationData().dispatcher != null;
@@ -41,36 +42,27 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _response = _reference.getMode() == Reference.ModeTwoway;
 
         _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
-        _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
+        _traceLevels = _reference.getInstance().traceLevels();          // Cached for better performance.
         _requestId = 0;
     }
 
-    @Override
-    public RequestHandler
-    update(RequestHandler previousHandler, RequestHandler newHandler)
+    @Override public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
     {
         return previousHandler == this ? newHandler : this;
     }
 
-    @Override
-    public int
-    sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
-    {
-        return outAsync.invokeCollocated(this);
-    }
+    @Override public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync) { return outAsync.invokeCollocated(this); }
 
-    @Override
-    synchronized public void
-    asyncRequestCanceled(OutgoingAsyncBase outAsync, com.zeroc.Ice.LocalException ex)
+    @Override synchronized public void asyncRequestCanceled(OutgoingAsyncBase outAsync, com.zeroc.Ice.LocalException ex)
     {
         Integer requestId = _sendAsyncRequests.remove(outAsync);
-        if(requestId != null)
+        if (requestId != null)
         {
-            if(requestId > 0)
+            if (requestId > 0)
             {
                 _asyncRequests.remove(requestId);
             }
-            if(outAsync.completed(ex))
+            if (outAsync.completed(ex))
             {
                 outAsync.invokeCompletedAsync();
             }
@@ -78,14 +70,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             return;
         }
 
-        if(outAsync instanceof OutgoingAsync)
+        if (outAsync instanceof OutgoingAsync)
         {
-            for(java.util.Map.Entry<Integer, OutgoingAsyncBase> e : _asyncRequests.entrySet())
+            for (java.util.Map.Entry<Integer, OutgoingAsyncBase> e : _asyncRequests.entrySet())
             {
-                if(e.getValue() == outAsync)
+                if (e.getValue() == outAsync)
                 {
                     _asyncRequests.remove(e.getKey());
-                    if(outAsync.completed(ex))
+                    if (outAsync.completed(ex))
                     {
                         outAsync.invokeCompletedAsync();
                     }
@@ -95,16 +87,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    @Override
-    public void
-    sendResponse(int requestId, final com.zeroc.Ice.OutputStream os, byte status, boolean amd)
+    @Override public void sendResponse(int requestId, final com.zeroc.Ice.OutputStream os, byte status, boolean amd)
     {
         OutgoingAsyncBase outAsync = null;
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_response);
+            assert (_response);
 
-            if(_traceLevels.protocol >= 1)
+            if (_traceLevels.protocol >= 1)
             {
                 fillInValue(os, 10, os.size());
             }
@@ -115,26 +105,26 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
             is.pos(Protocol.replyHdr.length + 4);
 
-            if(_traceLevels.protocol >= 1)
+            if (_traceLevels.protocol >= 1)
             {
                 TraceUtil.traceRecv(is, _logger, _traceLevels);
             }
 
             outAsync = _asyncRequests.remove(requestId);
-            if(outAsync != null && !outAsync.completed(is))
+            if (outAsync != null && !outAsync.completed(is))
             {
                 outAsync = null;
             }
         }
 
-        if(outAsync != null)
+        if (outAsync != null)
         {
             //
             // If called from an AMD dispatch, invoke asynchronously
             // the completion callback since this might be called from
             // the user code.
             //
-            if(amd)
+            if (amd)
             {
                 outAsync.invokeCompletedAsync();
             }
@@ -146,16 +136,9 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _adapter.decDirectCount();
     }
 
-    @Override
-    public void
-    sendNoResponse()
-    {
-        _adapter.decDirectCount();
-    }
+    @Override public void sendNoResponse() { _adapter.decDirectCount(); }
 
-    @Override
-    public boolean
-    systemException(int requestId, com.zeroc.Ice.SystemException ex, boolean amd)
+    @Override public boolean systemException(int requestId, com.zeroc.Ice.SystemException ex, boolean amd)
     {
         handleException(requestId, ex, amd);
         _adapter.decDirectCount();
@@ -163,26 +146,15 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     @Override
-    public void
-    invokeException(int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd)
+    public void invokeException(int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd)
     {
         handleException(requestId, ex, amd);
         _adapter.decDirectCount();
     }
 
-    @Override
-    public Reference
-    getReference()
-    {
-        return _reference;
-    }
+    @Override public Reference getReference() { return _reference; }
 
-    @Override
-    public com.zeroc.Ice.ConnectionI
-    getConnection()
-    {
-        return null;
-    }
+    @Override public com.zeroc.Ice.ConnectionI getConnection() { return null; }
 
     int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean sync)
     {
@@ -195,11 +167,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         int requestId = 0;
         try
         {
-            synchronized(this)
+            synchronized (this)
             {
                 outAsync.cancelable(this); // This will throw if the request is canceled
 
-                if(_response)
+                if (_response)
                 {
                     requestId = ++_requestId;
                     _asyncRequests.put(requestId, outAsync);
@@ -208,7 +180,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 _sendAsyncRequests.put(outAsync, requestId);
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _adapter.decDirectCount();
             throw ex;
@@ -216,23 +188,19 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         outAsync.attachCollocatedObserver(_adapter, requestId);
 
-        if(!sync || !_response || _reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
+        if (!sync || !_response || _reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
         {
-            _adapter.getThreadPool().dispatch(new InvokeAllAsync(outAsync,
-                                                                 outAsync.getOs(),
-                                                                 requestId,
-                                                                 batchRequestNum));
+            _adapter.getThreadPool().dispatch(
+                new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
         }
-        else if(_dispatcher)
+        else if (_dispatcher)
         {
-            _adapter.getThreadPool().dispatchFromThisThread(new InvokeAllAsync(outAsync,
-                                                                               outAsync.getOs(),
-                                                                               requestId,
-                                                                               batchRequestNum));
+            _adapter.getThreadPool().dispatchFromThisThread(
+                new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
         }
         else // Optimization: directly call invokeAll if there's no dispatcher.
         {
-            if(sentAsync(outAsync))
+            if (sentAsync(outAsync))
             {
                 invokeAll(outAsync.getOs(), requestId, batchRequestNum);
             }
@@ -240,12 +208,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         return AsyncStatus.Queued;
     }
 
-    private boolean
-    sentAsync(final OutgoingAsyncBase outAsync)
+    private boolean sentAsync(final OutgoingAsyncBase outAsync)
     {
-        synchronized(this)
+        synchronized (this)
         {
-            if(_sendAsyncRequests.remove(outAsync) == null)
+            if (_sendAsyncRequests.remove(outAsync) == null)
             {
                 return false; // The request timed-out.
             }
@@ -255,7 +222,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             // ensure completed(ex) can't be called concurrently if
             // the request is canceled.
             //
-            if(!outAsync.sent())
+            if (!outAsync.sent())
             {
                 return true;
             }
@@ -265,17 +232,16 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         return true;
     }
 
-    private void
-    invokeAll(com.zeroc.Ice.OutputStream os, int requestId, int batchRequestNum)
+    private void invokeAll(com.zeroc.Ice.OutputStream os, int requestId, int batchRequestNum)
     {
-        if(_traceLevels.protocol >= 1)
+        if (_traceLevels.protocol >= 1)
         {
             fillInValue(os, 10, os.size());
-            if(requestId > 0)
+            if (requestId > 0)
             {
                 fillInValue(os, Protocol.headerSize, requestId);
             }
-            else if(batchRequestNum > 0)
+            else if (batchRequestNum > 0)
             {
                 fillInValue(os, Protocol.headerSize, batchRequestNum);
             }
@@ -285,7 +251,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         com.zeroc.Ice.InputStream is =
             new com.zeroc.Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
 
-        if(batchRequestNum > 0)
+        if (batchRequestNum > 0)
         {
             is.pos(Protocol.requestBatchHdr.length);
         }
@@ -298,7 +264,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         ServantManager servantManager = _adapter.getServantManager();
         try
         {
-            while(invokeNum > 0)
+            while (invokeNum > 0)
             {
                 //
                 // Increase the direct count for the dispatch. We increase it again here for
@@ -310,23 +276,23 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 {
                     _adapter.incDirectCount();
                 }
-                catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
+                catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
                 {
                     handleException(requestId, ex, false);
                     break;
                 }
 
-                Incoming in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
-                                           requestId);
+                Incoming in =
+                    new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0, requestId);
                 in.invoke(servantManager, is);
                 --invokeNum;
             }
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
         }
-        catch(ServantError ex)
+        catch (ServantError ex)
         {
             //
             // ServantError is thrown when an Error has been raised by servant (or servant locator)
@@ -336,14 +302,13 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             //
             // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
             //
-            if(!(t instanceof java.lang.AssertionError ||
-                 t instanceof java.lang.OutOfMemoryError ||
-                 t instanceof java.lang.StackOverflowError))
+            if (!(t instanceof java.lang.AssertionError || t instanceof java.lang.OutOfMemoryError ||
+                  t instanceof java.lang.StackOverflowError))
             {
                 throw (java.lang.Error)t;
             }
         }
-        catch(java.lang.Error ex)
+        catch (java.lang.Error ex)
         {
             //
             // An Error was raised outside of servant code (i.e., by Ice code).
@@ -363,9 +328,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             //
             // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
             //
-            if(!(ex instanceof java.lang.AssertionError ||
-                 ex instanceof java.lang.OutOfMemoryError ||
-                 ex instanceof java.lang.StackOverflowError))
+            if (!(ex instanceof java.lang.AssertionError || ex instanceof java.lang.OutOfMemoryError ||
+                  ex instanceof java.lang.StackOverflowError))
             {
                 throw ex;
             }
@@ -376,32 +340,31 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    private void
-    handleException(int requestId, com.zeroc.Ice.Exception ex, boolean amd)
+    private void handleException(int requestId, com.zeroc.Ice.Exception ex, boolean amd)
     {
-        if(requestId == 0)
+        if (requestId == 0)
         {
             return; // Ignore exception for oneway messages.
         }
 
         OutgoingAsyncBase outAsync = null;
-        synchronized(this)
+        synchronized (this)
         {
             outAsync = _asyncRequests.remove(requestId);
-            if(outAsync != null && !outAsync.completed(ex))
+            if (outAsync != null && !outAsync.completed(ex))
             {
                 outAsync = null;
             }
         }
 
-        if(outAsync != null)
+        if (outAsync != null)
         {
             //
             // If called from an AMD dispatch, invoke asynchronously
             // the completion callback since this might be called from
             // the user code.
             //
-            if(amd)
+            if (amd)
             {
                 outAsync.invokeCompletedAsync();
             }
@@ -412,11 +375,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    private void
-    fillInValue(com.zeroc.Ice.OutputStream os, int pos, int value)
-    {
-        os.rewriteInt(value, pos);
-    }
+    private void fillInValue(com.zeroc.Ice.OutputStream os, int pos, int value) { os.rewriteInt(value, pos); }
 
     private final Reference _reference;
     private final boolean _dispatcher;

@@ -14,7 +14,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             ThrowerPrx thrower = AllTests.allTests(this);
             thrower.shutdown();

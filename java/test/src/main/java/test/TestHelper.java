@@ -10,7 +10,7 @@ public abstract class TestHelper
 {
     public static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -24,20 +24,14 @@ public abstract class TestHelper
         void serverReady();
     }
 
-    public String getTestEndpoint()
-    {
-        return getTestEndpoint(_communicator.getProperties(), 0, "");
-    }
+    public String getTestEndpoint() { return getTestEndpoint(_communicator.getProperties(), 0, ""); }
 
     static public String getTestEndpoint(com.zeroc.Ice.Properties properties)
     {
         return getTestEndpoint(properties, 0, "");
     }
 
-    public String getTestEndpoint(int num)
-    {
-        return getTestEndpoint(_communicator.getProperties(), num, "");
-    }
+    public String getTestEndpoint(int num) { return getTestEndpoint(_communicator.getProperties(), num, ""); }
 
     static public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num)
     {
@@ -52,20 +46,20 @@ public abstract class TestHelper
     static public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num, String prot)
     {
         String protocol = prot;
-        if(protocol.isEmpty())
+        if (protocol.isEmpty())
         {
             protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
         }
 
         int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
 
-        if(protocol.indexOf("bt") == 0)
+        if (protocol.indexOf("bt") == 0)
         {
             //
             // For Bluetooth, there's no need to specify a port (channel) number.
             // The client locates the server using its address and a UUID.
             //
-            switch(num)
+            switch (num)
             {
                 case 0:
                 {
@@ -81,47 +75,35 @@ public abstract class TestHelper
                 }
                 default:
                 {
-                    assert(false);
+                    assert (false);
                 }
             }
         }
         return protocol + " -p " + Integer.toString(basePort + num);
     }
 
-    public String getTestHost()
-    {
-        return getTestHost(_communicator.getProperties());
-    }
+    public String getTestHost() { return getTestHost(_communicator.getProperties()); }
 
     static public String getTestHost(com.zeroc.Ice.Properties properties)
     {
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
     }
 
-    public String getTestProtocol()
-    {
-        return getTestProtocol(_communicator.getProperties());
-    }
+    public String getTestProtocol() { return getTestProtocol(_communicator.getProperties()); }
 
     static public String getTestProtocol(com.zeroc.Ice.Properties properties)
     {
         return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
     }
 
-    public int getTestPort(int num)
-    {
-        return getTestPort(_communicator.getProperties(), num);
-    }
+    public int getTestPort(int num) { return getTestPort(_communicator.getProperties(), num); }
 
     static public int getTestPort(com.zeroc.Ice.Properties properties, int num)
     {
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
-    public Properties createTestProperties(String[] args)
-    {
-        return createTestProperties(args, null);
-    }
+    public Properties createTestProperties(String[] args) { return createTestProperties(args, null); }
 
     public Properties createTestProperties(String[] args, java.util.List<String> rArgs)
     {
@@ -149,18 +131,18 @@ public abstract class TestHelper
 
     public Communicator initialize(InitializationData initData)
     {
-        if(_classLoader != null && initData.classLoader == null)
+        if (_classLoader != null && initData.classLoader == null)
         {
             initData.classLoader = _classLoader;
         }
 
         Communicator communicator = Util.initialize(initData);
-        if(_communicator == null)
+        if (_communicator == null)
         {
             _communicator = communicator;
         }
 
-        if(_controllerHelper != null)
+        if (_controllerHelper != null)
         {
             _controllerHelper.communicatorInitialized(communicator);
         }
@@ -168,52 +150,31 @@ public abstract class TestHelper
         return communicator;
     }
 
-    public void setControllerHelper(ControllerHelper controllerHelper)
-    {
-        _controllerHelper = controllerHelper;
-    }
+    public void setControllerHelper(ControllerHelper controllerHelper) { _controllerHelper = controllerHelper; }
 
     public void serverReady()
     {
-        if(_controllerHelper != null)
+        if (_controllerHelper != null)
         {
             _controllerHelper.serverReady();
         }
     }
 
-    static public boolean isAndroid()
-    {
-        return com.zeroc.IceInternal.Util.isAndroid();
-    }
+    static public boolean isAndroid() { return com.zeroc.IceInternal.Util.isAndroid(); }
 
-    public void setWriter(java.io.Writer writer)
-    {
-        _printWriter = new java.io.PrintWriter(writer);
-    }
+    public void setWriter(java.io.Writer writer) { _printWriter = new java.io.PrintWriter(writer); }
 
-    public java.io.PrintWriter getWriter()
-    {
-        return _printWriter;
-    }
+    public java.io.PrintWriter getWriter() { return _printWriter; }
 
-    public void setClassLoader(ClassLoader classLoader)
-    {
-        _classLoader = classLoader;
-    }
+    public void setClassLoader(ClassLoader classLoader) { _classLoader = classLoader; }
 
-    public ClassLoader getClassLoader()
-    {
-        return _classLoader;
-    }
+    public ClassLoader getClassLoader() { return _classLoader; }
 
-    public Communicator communicator()
-    {
-        return _communicator;
-    }
+    public Communicator communicator() { return _communicator; }
 
     public void shutdown()
     {
-        if(_communicator != null)
+        if (_communicator != null)
         {
             _communicator.shutdown();
         }
@@ -222,5 +183,6 @@ public abstract class TestHelper
     private ControllerHelper _controllerHelper;
     private ClassLoader _classLoader;
     private Communicator _communicator;
-    private java.io.PrintWriter _printWriter = new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out), true);
+    private java.io.PrintWriter _printWriter =
+        new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out), true);
 }

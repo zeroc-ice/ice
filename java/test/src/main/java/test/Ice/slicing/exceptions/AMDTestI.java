@@ -4,23 +4,19 @@
 
 package test.Ice.slicing.exceptions;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.CompletionStage;
 import test.Ice.slicing.exceptions.serverAMD.Test.*;
 
 public final class AMDTestI implements TestIntf
 {
-    @Override
-    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
+    @Override public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void)null);
     }
 
-    @Override
-    public CompletionStage<Void> baseAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> baseAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         Base b = new Base();
         b.b = "Base.b";
@@ -29,9 +25,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> unknownDerivedAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> unknownDerivedAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         UnknownDerived d = new UnknownDerived();
         d.b = "UnknownDerived.b";
@@ -41,9 +35,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> knownDerivedAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> knownDerivedAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -54,8 +46,7 @@ public final class AMDTestI implements TestIntf
     }
 
     @Override
-    public CompletionStage<Void> knownDerivedAsKnownDerivedAsync(com.zeroc.Ice.Current current)
-        throws KnownDerived
+    public CompletionStage<Void> knownDerivedAsKnownDerivedAsync(com.zeroc.Ice.Current current) throws KnownDerived
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -65,9 +56,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> unknownIntermediateAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> unknownIntermediateAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         UnknownIntermediate ui = new UnknownIntermediate();
         ui.b = "UnknownIntermediate.b";
@@ -77,9 +66,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> knownIntermediateAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> knownIntermediateAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -89,9 +76,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> knownMostDerivedAsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> knownMostDerivedAsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -128,8 +113,7 @@ public final class AMDTestI implements TestIntf
     }
 
     @Override
-    public CompletionStage<Void>
-    knownMostDerivedAsKnownMostDerivedAsync(com.zeroc.Ice.Current current)
+    public CompletionStage<Void> knownMostDerivedAsKnownMostDerivedAsync(com.zeroc.Ice.Current current)
         throws KnownMostDerived
     {
         KnownMostDerived kmd = new KnownMostDerived();
@@ -141,9 +125,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> unknownMostDerived1AsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> unknownMostDerived1AsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
@@ -167,9 +149,7 @@ public final class AMDTestI implements TestIntf
         return f;
     }
 
-    @Override
-    public CompletionStage<Void> unknownMostDerived2AsBaseAsync(com.zeroc.Ice.Current current)
-        throws Base
+    @Override public CompletionStage<Void> unknownMostDerived2AsBaseAsync(com.zeroc.Ice.Current current) throws Base
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";

@@ -20,9 +20,7 @@ package com.zeroc.Ice;
  **/
 public abstract class EndpointInfo implements java.lang.Cloneable
 {
-    public EndpointInfo()
-    {
-    }
+    public EndpointInfo() {}
 
     public EndpointInfo(EndpointInfo underlying, int timeout, boolean compress)
     {
@@ -70,7 +68,7 @@ public abstract class EndpointInfo implements java.lang.Cloneable
         {
             c = (EndpointInfo)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false; // impossible
         }

@@ -4,18 +4,18 @@
 
 package test.Ice.ami;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import test.Ice.ami.Test.CloseMode;
+import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
-import test.Ice.ami.Test.PingReplyPrx;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CompletableFuture;
 
 public class TestI implements TestIntf
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             new Throwable().printStackTrace();
             //
@@ -25,125 +25,70 @@ public class TestI implements TestIntf
         }
     }
 
-    TestI()
-    {
-    }
+    TestI() {}
 
-    @Override
-    public void op(com.zeroc.Ice.Current current)
-    {
-    }
+    @Override public void op(com.zeroc.Ice.Current current) {}
 
-    @Override
-    public int opWithResult(com.zeroc.Ice.Current current)
-    {
-        return 15;
-    }
+    @Override public int opWithResult(com.zeroc.Ice.Current current) { return 15; }
 
-    @Override
-    public void opWithUE(com.zeroc.Ice.Current current)
-        throws TestIntfException
+    @Override public void opWithUE(com.zeroc.Ice.Current current) throws TestIntfException
     {
         throw new TestIntfException();
     }
 
-    @Override
-    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current)
-    {
-    }
+    @Override public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {}
 
-    @Override
-    public synchronized void opBatch(com.zeroc.Ice.Current current)
+    @Override public synchronized void opBatch(com.zeroc.Ice.Current current)
     {
         ++_batchCount;
         notify();
     }
 
-    @Override
-    public synchronized int opBatchCount(com.zeroc.Ice.Current current)
-    {
-        return _batchCount;
-    }
+    @Override public synchronized int opBatchCount(com.zeroc.Ice.Current current) { return _batchCount; }
 
-    @Override
-    public boolean supportsAMD(com.zeroc.Ice.Current current)
-    {
-        return true;
-    }
+    @Override public boolean supportsAMD(com.zeroc.Ice.Current current) { return true; }
 
-    @Override
-    public boolean supportsFunctionalTests(com.zeroc.Ice.Current current)
-    {
-        return true;
-    }
+    @Override public boolean supportsFunctionalTests(com.zeroc.Ice.Current current) { return true; }
 
-    @Override
-    public boolean opBool(boolean b, com.zeroc.Ice.Current current)
-    {
-        return b;
-    }
+    @Override public boolean opBool(boolean b, com.zeroc.Ice.Current current) { return b; }
 
-    @Override
-    public byte opByte(byte b, com.zeroc.Ice.Current current)
-    {
-        return b;
-    }
+    @Override public byte opByte(byte b, com.zeroc.Ice.Current current) { return b; }
 
-    @Override
-    public short opShort(short s, com.zeroc.Ice.Current current)
-    {
-        return s;
-    }
+    @Override public short opShort(short s, com.zeroc.Ice.Current current) { return s; }
 
-    @Override
-    public int opInt(int i, com.zeroc.Ice.Current current)
-    {
-        return i;
-    }
+    @Override public int opInt(int i, com.zeroc.Ice.Current current) { return i; }
 
-    @Override
-    public long opLong(long l, com.zeroc.Ice.Current current)
-    {
-        return l;
-    }
+    @Override public long opLong(long l, com.zeroc.Ice.Current current) { return l; }
 
-    @Override
-    public float opFloat(float f, com.zeroc.Ice.Current current)
-    {
-        return f;
-    }
+    @Override public float opFloat(float f, com.zeroc.Ice.Current current) { return f; }
 
-    @Override
-    public double opDouble(double d, com.zeroc.Ice.Current current)
-    {
-        return d;
-    }
+    @Override public double opDouble(double d, com.zeroc.Ice.Current current) { return d; }
 
-    @Override
-    public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current)
+    @Override public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current)
     {
         reply = reply.ice_fixed(current.con);
         final Thread dispatchThread = Thread.currentThread();
-        reply.replyAsync().whenCompleteAsync(
-            (result, ex) ->
-            {
-                Thread callbackThread = Thread.currentThread();
-                test(callbackThread != dispatchThread);
-                test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
-            }, reply.ice_executor()).join();
+        reply.replyAsync()
+            .whenCompleteAsync(
+                (result, ex)
+                    -> {
+                    Thread callbackThread = Thread.currentThread();
+                    test(callbackThread != dispatchThread);
+                    test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
+                },
+                reply.ice_executor())
+            .join();
     }
 
-    @Override
-    public synchronized boolean
-    waitForBatch(int count, com.zeroc.Ice.Current current)
+    @Override public synchronized boolean waitForBatch(int count, com.zeroc.Ice.Current current)
     {
-        while(_batchCount < count)
+        while (_batchCount < count)
         {
             try
             {
                 wait(5000);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
@@ -152,31 +97,25 @@ public class TestI implements TestIntf
         return result;
     }
 
-    @Override
-    public void
-    close(CloseMode mode, com.zeroc.Ice.Current current)
+    @Override public void close(CloseMode mode, com.zeroc.Ice.Current current)
     {
         current.con.close(com.zeroc.Ice.ConnectionClose.valueOf(mode.value()));
     }
 
-    @Override
-    public void
-    sleep(int ms, com.zeroc.Ice.Current current)
+    @Override public void sleep(int ms, com.zeroc.Ice.Current current)
     {
         try
         {
             Thread.sleep(ms);
         }
-        catch(InterruptedException ex)
+        catch (InterruptedException ex)
         {
         }
     }
 
-    @Override
-    public synchronized CompletionStage<Void>
-    startDispatchAsync(com.zeroc.Ice.Current current)
+    @Override public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current)
     {
-        if(_shutdown)
+        if (_shutdown)
         {
             // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
             // before start dispatch.
@@ -184,7 +123,7 @@ public class TestI implements TestIntf
             v.complete(null);
             return v;
         }
-        else if(_pending != null)
+        else if (_pending != null)
         {
             _pending.complete(null);
         }
@@ -192,27 +131,23 @@ public class TestI implements TestIntf
         return _pending;
     }
 
-    @Override
-    public synchronized void
-    finishDispatch(com.zeroc.Ice.Current current)
+    @Override public synchronized void finishDispatch(com.zeroc.Ice.Current current)
     {
-        if(_shutdown)
+        if (_shutdown)
         {
             return;
         }
-        else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        else if (_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
         {
             _pending.complete(null);
             _pending = null;
         }
     }
 
-    @Override
-    public synchronized void
-    shutdown(com.zeroc.Ice.Current current)
+    @Override public synchronized void shutdown(com.zeroc.Ice.Current current)
     {
         _shutdown = true;
-        if(_pending != null)
+        if (_pending != null)
         {
             _pending.complete(null);
             _pending = null;

@@ -50,32 +50,32 @@ public class ACM implements java.lang.Cloneable
 
     public boolean equals(java.lang.Object rhs)
     {
-        if(this == rhs)
+        if (this == rhs)
         {
             return true;
         }
         ACM r = null;
-        if(rhs instanceof ACM)
+        if (rhs instanceof ACM)
         {
             r = (ACM)rhs;
         }
 
-        if(r != null)
+        if (r != null)
         {
-            if(this.timeout != r.timeout)
+            if (this.timeout != r.timeout)
             {
                 return false;
             }
-            if(this.close != r.close)
+            if (this.close != r.close)
             {
-                if(this.close == null || r.close == null || !this.close.equals(r.close))
+                if (this.close == null || r.close == null || !this.close.equals(r.close))
                 {
                     return false;
                 }
             }
-            if(this.heartbeat != r.heartbeat)
+            if (this.heartbeat != r.heartbeat)
             {
-                if(this.heartbeat == null || r.heartbeat == null || !this.heartbeat.equals(r.heartbeat))
+                if (this.heartbeat == null || r.heartbeat == null || !this.heartbeat.equals(r.heartbeat))
                 {
                     return false;
                 }
@@ -104,7 +104,7 @@ public class ACM implements java.lang.Cloneable
         {
             c = (ACM)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false; // impossible
         }

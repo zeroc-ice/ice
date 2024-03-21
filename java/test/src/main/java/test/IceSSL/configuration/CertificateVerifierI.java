@@ -6,32 +6,28 @@ package test.IceSSL.configuration;
 
 public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifier
 {
-    public CertificateVerifierI()
-    {
-        reset();
-    }
+    public CertificateVerifierI() { reset(); }
 
-    @Override
-    public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
+    @Override public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
     {
-        if(info.certs != null)
+        if (info.certs != null)
         {
             try
             {
-                java.util.Collection<java.util.List<?> > subjectAltNames =
+                java.util.Collection<java.util.List<?>> subjectAltNames =
                     ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
                 test(subjectAltNames != null);
                 java.util.List<String> ipAddresses = new java.util.ArrayList<>();
                 java.util.List<String> dnsNames = new java.util.ArrayList<>();
-                for(java.util.List<?> l : subjectAltNames)
+                for (java.util.List<?> l : subjectAltNames)
                 {
                     test(!l.isEmpty());
                     Integer n = (Integer)l.get(0);
-                    if(n.intValue() == 7)
+                    if (n.intValue() == 7)
                     {
                         ipAddresses.add((String)l.get(1));
                     }
-                    else if(n.intValue() == 2)
+                    else if (n.intValue() == 2)
                     {
                         dnsNames.add((String)l.get(1));
                     }
@@ -40,7 +36,7 @@ public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifie
                 test(dnsNames.contains("server"));
                 test(ipAddresses.contains("127.0.0.1"));
             }
-            catch(java.security.cert.CertificateParsingException ex)
+            catch (java.security.cert.CertificateParsingException ex)
             {
                 test(false);
             }
@@ -58,24 +54,15 @@ public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifie
         _hadCert = false;
     }
 
-    void returnValue(boolean b)
-    {
-        _returnValue = b;
-    }
+    void returnValue(boolean b) { _returnValue = b; }
 
-    boolean invoked()
-    {
-        return _invoked;
-    }
+    boolean invoked() { return _invoked; }
 
-    boolean hadCert()
-    {
-        return _hadCert;
-    }
+    boolean hadCert() { return _hadCert; }
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }

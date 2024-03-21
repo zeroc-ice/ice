@@ -28,7 +28,15 @@ public abstract class UDPEndpointInfo extends IPEndpointInfo
         this.mcastInterface = "";
     }
 
-    public UDPEndpointInfo(EndpointInfo underlying, int timeout, boolean compress, String host, int port, String sourceAddress, String mcastInterface, int mcastTtl)
+    public UDPEndpointInfo(
+        EndpointInfo underlying,
+        int timeout,
+        boolean compress,
+        String host,
+        int port,
+        String sourceAddress,
+        String mcastInterface,
+        int mcastTtl)
     {
         super(underlying, timeout, compress, host, port, sourceAddress);
         this.mcastInterface = mcastInterface;
@@ -45,10 +53,7 @@ public abstract class UDPEndpointInfo extends IPEndpointInfo
      **/
     public int mcastTtl;
 
-    public UDPEndpointInfo clone()
-    {
-        return (UDPEndpointInfo)super.clone();
-    }
+    public UDPEndpointInfo clone() { return (UDPEndpointInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 6545930812316183136L;

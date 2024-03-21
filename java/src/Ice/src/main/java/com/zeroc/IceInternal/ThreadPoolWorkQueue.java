@@ -14,15 +14,13 @@ final class ThreadPoolWorkQueue extends EventHandler
         _registered = SocketOperation.Read;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void finalize() throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_destroyed);
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -34,7 +32,7 @@ final class ThreadPoolWorkQueue extends EventHandler
     void destroy()
     {
         // Called with the thread pool locked
-        assert(!_destroyed);
+        assert (!_destroyed);
         _destroyed = true;
         _selector.ready(this, SocketOperation.Read, true);
     }
@@ -42,63 +40,49 @@ final class ThreadPoolWorkQueue extends EventHandler
     void queue(ThreadPoolWorkItem item)
     {
         // Called with the thread pool locked
-        assert(item != null);
+        assert (item != null);
         _workItems.add(item);
-        if(_workItems.size() == 1)
+        if (_workItems.size() == 1)
         {
             _selector.ready(this, SocketOperation.Read, true);
         }
     }
 
-    @Override
-    public void message(ThreadPoolCurrent current)
+    @Override public void message(ThreadPoolCurrent current)
     {
         ThreadPoolWorkItem workItem = null;
-        synchronized(_threadPool)
+        synchronized (_threadPool)
         {
-            if(!_workItems.isEmpty())
+            if (!_workItems.isEmpty())
             {
                 workItem = _workItems.removeFirst();
-                assert(workItem != null);
+                assert (workItem != null);
             }
-            if(_workItems.isEmpty() && !_destroyed)
+            if (_workItems.isEmpty() && !_destroyed)
             {
                 _selector.ready(this, SocketOperation.Read, false);
             }
         }
 
-        if(workItem != null)
+        if (workItem != null)
         {
             workItem.execute(current);
         }
         else
         {
-            assert(_destroyed);
+            assert (_destroyed);
             _threadPool.ioCompleted(current);
             throw new ThreadPool.DestroyedException();
         }
     }
 
-    @Override
-    public void finished(ThreadPoolCurrent current, boolean close)
-    {
-        assert(false);
-    }
+    @Override public void finished(ThreadPoolCurrent current, boolean close) { assert (false); }
 
-    @Override
-    public String toString()
-    {
-        return "work queue";
-    }
+    @Override public String toString() { return "work queue"; }
 
-    @Override
-    public java.nio.channels.SelectableChannel fd()
-    {
-        return null;
-    }
+    @Override public java.nio.channels.SelectableChannel fd() { return null; }
 
-    @Override
-    public void setReadyCallback(ReadyCallback callback)
+    @Override public void setReadyCallback(ReadyCallback callback)
     {
         // Ignore, we don't use the ready callback.
     }

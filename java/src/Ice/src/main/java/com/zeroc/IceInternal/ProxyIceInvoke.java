@@ -6,8 +6,11 @@ package com.zeroc.IceInternal;
 
 public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object.Ice_invokeResult>
 {
-    public ProxyIceInvoke(com.zeroc.Ice.ObjectPrx prx, String operation, com.zeroc.Ice.OperationMode mode,
-                          boolean synchronous)
+    public ProxyIceInvoke(
+        com.zeroc.Ice.ObjectPrx prx,
+        String operation,
+        com.zeroc.Ice.OperationMode mode,
+        boolean synchronous)
     {
         super((com.zeroc.Ice._ObjectPrxI)prx, operation);
         _mode = mode == null ? com.zeroc.Ice.OperationMode.Normal : mode;
@@ -23,7 +26,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
             prepare(ctx);
             writeParamEncaps(inParams);
 
-            if(isBatch())
+            if (isBatch())
             {
                 //
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
@@ -42,7 +45,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
                 invokeImpl(true); // userThread = true
             }
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             abort(ex);
         }
@@ -50,7 +53,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
 
     public com.zeroc.Ice.Object.Ice_invokeResult waitForResponse()
     {
-        if(isBatch())
+        if (isBatch())
         {
             //
             // The future will not be completed for a batch invocation.
@@ -60,8 +63,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         return super.waitForResponse();
     }
 
-    @Override
-    public boolean sent()
+    @Override public boolean sent()
     {
         return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
     }
@@ -74,11 +76,10 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
 
-    @Override
-    public int invokeCollocated(CollocatedRequestHandler handler)
+    @Override public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
+        if (!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -86,10 +87,9 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         return handler.invokeAsyncRequest(this, 0, _synchronous);
     }
 
-    @Override
-    public void abort(com.zeroc.Ice.Exception ex)
+    @Override public void abort(com.zeroc.Ice.Exception ex)
     {
-        if(isBatch())
+        if (isBatch())
         {
             //
             // If we didn't finish a batch oneway or datagram request, we
@@ -102,10 +102,9 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         super.abort(ex);
     }
 
-    @Override
-    protected void markCompleted()
+    @Override protected void markCompleted()
     {
-        if(!_proxy.ice_isTwoway())
+        if (!_proxy.ice_isTwoway())
         {
             //
             // For a non-twoway proxy, the invocation is completed after it is sent.
@@ -121,8 +120,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         }
     }
 
-    @Override
-    public final boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public final boolean completed(com.zeroc.Ice.InputStream is)
     {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
@@ -131,7 +129,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         //
 
         // _is can already be initialized if the invocation is retried
-        if(_is == null)
+        if (_is == null)
         {
             _is = new com.zeroc.Ice.InputStream(_instance, Protocol.currentProtocolEncoding);
         }
@@ -142,7 +140,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
 
     private void writeParamEncaps(byte[] encaps)
     {
-        if(encaps == null || encaps.length == 0)
+        if (encaps == null || encaps.length == 0)
         {
             _os.writeEmptyEncapsulation(_encoding);
         }
@@ -152,10 +150,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         }
     }
 
-    private byte[] readParamEncaps()
-    {
-        return _is.readEncapsulation(null);
-    }
+    private byte[] readParamEncaps() { return _is.readEncapsulation(null); }
 
     final private com.zeroc.Ice.EncodingVersion _encoding;
     private com.zeroc.Ice.InputStream _is;

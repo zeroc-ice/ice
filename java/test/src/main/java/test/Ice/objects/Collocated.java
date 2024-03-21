@@ -10,34 +10,33 @@ public class Collocated extends test.TestHelper
 {
     private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
     {
-        @Override
-        public com.zeroc.Ice.Value create(String type)
+        @Override public com.zeroc.Ice.Value create(String type)
         {
-            if(type.equals("::Test::B"))
+            if (type.equals("::Test::B"))
             {
                 return new BI();
             }
-            else if(type.equals("::Test::C"))
+            else if (type.equals("::Test::C"))
             {
                 return new CI();
             }
-            else if(type.equals("::Test::D"))
+            else if (type.equals("::Test::D"))
             {
                 return new DI();
             }
-            else if(type.equals("::Test::E"))
+            else if (type.equals("::Test::E"))
             {
                 return new EI();
             }
-            else if(type.equals("::Test::F"))
+            else if (type.equals("::Test::F"))
             {
                 return new FI();
             }
-            else if(type.equals("::Test::I"))
+            else if (type.equals("::Test::I"))
             {
                 return new II();
             }
-            else if(type.equals("::Test::J"))
+            else if (type.equals("::Test::J"))
             {
                 return new JI();
             }
@@ -53,7 +52,7 @@ public class Collocated extends test.TestHelper
         properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
             communicator.getValueFactoryManager().add(factory, "::Test::B");

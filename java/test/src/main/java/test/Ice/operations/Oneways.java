@@ -10,7 +10,7 @@ class Oneways
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -30,7 +30,7 @@ class Oneways
             p.opByte((byte)0xff, (byte)0x0f);
             test(false);
         }
-        catch(com.zeroc.Ice.TwowayOnlyException ex)
+        catch (com.zeroc.Ice.TwowayOnlyException ex)
         {
         }
     }

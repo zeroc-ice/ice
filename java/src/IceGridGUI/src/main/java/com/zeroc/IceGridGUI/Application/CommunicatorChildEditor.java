@@ -12,19 +12,15 @@ abstract class CommunicatorChildEditor extends Editor
     abstract boolean isSimpleUpdate();
     abstract Communicator.ChildList getChildList();
 
-    void postUpdate()
-    {
-    }
+    void postUpdate() {}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    protected boolean applyUpdate(boolean refresh)
+    @Override @SuppressWarnings("unchecked") protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
         root.disableSelectionListener();
         try
         {
-            if(_target.isEphemeral())
+            if (_target.isEphemeral())
             {
                 Communicator.ChildList childList = getChildList();
 
@@ -37,7 +33,7 @@ abstract class CommunicatorChildEditor extends Editor
                     //@SuppressWarnings("unchecked")
                     childList.tryAdd(descriptor);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Restore ephemeral
@@ -46,7 +42,7 @@ abstract class CommunicatorChildEditor extends Editor
                     {
                         childList.addChild(_target, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -67,12 +63,12 @@ abstract class CommunicatorChildEditor extends Editor
                 //@SuppressWarnings("unchecked")
                 _target = childList.findChildWithDescriptor(descriptor);
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
-            else if(isSimpleUpdate())
+            else if (isSimpleUpdate())
             {
                 writeDescriptor();
                 root.updated();
@@ -90,7 +86,7 @@ abstract class CommunicatorChildEditor extends Editor
                 {
                     childList.tryUpdate(_target);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     ((DescriptorHolder)_target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
@@ -106,7 +102,7 @@ abstract class CommunicatorChildEditor extends Editor
                 //
                 _target = childList.findChildWithDescriptor(_target.getDescriptor());
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
@@ -114,7 +110,7 @@ abstract class CommunicatorChildEditor extends Editor
 
             postUpdate();
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }

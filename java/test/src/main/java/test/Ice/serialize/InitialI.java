@@ -5,7 +5,6 @@
 package test.Ice.serialize;
 
 import java.io.*;
-
 import test.Ice.serialize.Test.*;
 
 public final class InitialI implements Initial
@@ -28,10 +27,10 @@ public final class InitialI implements Initial
         _d.b = _d;
         _d.o = _d;
         _d.s = _s;
-        _d.seq1 = new byte[] { 0, 1, 2, 3, 4 };
-        _d.seq2 = new int[] { 5, 6, 7, 8, 9 };
-        _d.seq3 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
-        _d.seq4 = new Base[] { _d };
+        _d.seq1 = new byte[] {0, 1, 2, 3, 4};
+        _d.seq2 = new int[] {5, 6, 7, 8, 9};
+        _d.seq3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+        _d.seq4 = new Base[] {_d};
         _d.d1 = new java.util.HashMap<>();
         _d.d1.put((byte)1, true);
         _d.d2 = new java.util.HashMap<>();
@@ -43,8 +42,7 @@ public final class InitialI implements Initial
         _d.p = _s.p;
     }
 
-    @Override
-    public byte[] getStruct1(com.zeroc.Ice.Current current)
+    @Override public byte[] getStruct1(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -53,7 +51,7 @@ public final class InitialI implements Initial
             stream.writeObject(_s);
             return byteStream.toByteArray();
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
@@ -61,8 +59,7 @@ public final class InitialI implements Initial
         }
     }
 
-    @Override
-    public byte[] getBase(com.zeroc.Ice.Current current)
+    @Override public byte[] getBase(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -71,7 +68,7 @@ public final class InitialI implements Initial
             stream.writeObject(_d);
             return byteStream.toByteArray();
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
@@ -79,8 +76,7 @@ public final class InitialI implements Initial
         }
     }
 
-    @Override
-    public byte[] getEx(com.zeroc.Ice.Current current)
+    @Override public byte[] getEx(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -93,7 +89,7 @@ public final class InitialI implements Initial
             stream.writeObject(ex);
             return byteStream.toByteArray();
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
@@ -101,11 +97,7 @@ public final class InitialI implements Initial
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 
     private Struct1 _s;
     private Derived _d;

@@ -33,29 +33,23 @@ public enum CompressBatch
      **/
     BasedOnProxy(2);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static CompressBatch valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return Yes;
-        case 1:
-            return No;
-        case 2:
-            return BasedOnProxy;
+            case 0:
+                return Yes;
+            case 1:
+                return No;
+            case 2:
+                return BasedOnProxy;
         }
         return null;
     }
 
-    private CompressBatch(int v)
-    {
-        _value = v;
-    }
+    private CompressBatch(int v) { _value = v; }
 
     private final int _value;
 }

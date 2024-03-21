@@ -5,8 +5,8 @@
 package test.Slice.macros;
 
 import test.Slice.macros.Test.Default;
-import test.Slice.macros.Test.NoDefault;
 import test.Slice.macros.Test.JavaOnly;
+import test.Slice.macros.Test.NoDefault;
 
 public class Client extends test.TestHelper
 {

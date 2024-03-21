@@ -11,7 +11,6 @@ import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
-
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfUserException;
 
@@ -24,45 +23,37 @@ public final class ServantLocatorI implements ServantLocator
         _requestId = -1;
     }
 
-    @SuppressWarnings( "deprecation" )
-    @Override
-    protected synchronized void finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         test(_deactivated);
     }
 
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current)
-        throws UserException
+    @Override public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current) throws UserException
     {
-        synchronized(this)
-        {
-            test(!_deactivated);
-        }
+        synchronized (this) { test(!_deactivated); }
 
         test(current.id.category.equals(_category) || _category.length() == 0);
 
-        if(current.id.name.equals("unknown"))
+        if (current.id.name.equals("unknown"))
         {
             return new ServantLocator.LocateResult();
         }
 
-        if(current.id.name.equals("invalidReturnValue") || current.id.name.equals("invalidReturnType"))
+        if (current.id.name.equals("invalidReturnValue") || current.id.name.equals("invalidReturnType"))
         {
             return new ServantLocator.LocateResult();
         }
 
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
-        if(current.id.name.equals("locate"))
+        if (current.id.name.equals("locate"))
         {
             exception(current);
         }
@@ -80,10 +71,7 @@ public final class ServantLocatorI implements ServantLocator
     public void finished(com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie)
         throws UserException
     {
-        synchronized(this)
-        {
-            test(!_deactivated);
-        }
+        synchronized (this) { test(!_deactivated); }
 
         //
         // Ensure finished() is only called once per request.
@@ -91,10 +79,10 @@ public final class ServantLocatorI implements ServantLocator
         test(_requestId == current.requestId);
         _requestId = -1;
 
-        test(current.id.category.equals(_category)  || _category.length() == 0);
+        test(current.id.category.equals(_category) || _category.length() == 0);
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
 
-        if(current.id.name.equals("finished"))
+        if (current.id.name.equals("finished"))
         {
             exception(current);
         }
@@ -103,10 +91,9 @@ public final class ServantLocatorI implements ServantLocator
         test(co.message().equals("blahblah"));
     }
 
-    @Override
-    public synchronized void deactivate(String category)
+    @Override public synchronized void deactivate(String category)
     {
-        synchronized(this)
+        synchronized (this)
         {
             test(!_deactivated);
 
@@ -114,26 +101,25 @@ public final class ServantLocatorI implements ServantLocator
         }
     }
 
-    private void exception(com.zeroc.Ice.Current current)
-        throws UserException
+    private void exception(com.zeroc.Ice.Current current) throws UserException
     {
-        if(current.operation.equals("ice_ids"))
+        if (current.operation.equals("ice_ids"))
         {
             throw new TestIntfUserException();
         }
-        else if(current.operation.equals("requestFailedException"))
+        else if (current.operation.equals("requestFailedException"))
         {
             throw new ObjectNotExistException();
         }
-        else if(current.operation.equals("unknownUserException"))
+        else if (current.operation.equals("unknownUserException"))
         {
             throw new UnknownUserException("reason");
         }
-        else if(current.operation.equals("unknownLocalException"))
+        else if (current.operation.equals("unknownLocalException"))
         {
             throw new UnknownLocalException("reason");
         }
-        else if(current.operation.equals("unknownException"))
+        else if (current.operation.equals("unknownException"))
         {
             throw new UnknownException("reason");
         }
@@ -141,35 +127,35 @@ public final class ServantLocatorI implements ServantLocator
         // User exceptions are checked exceptions in Java, so it's not
         // possible to throw it from the servant locator.
         //
-//      else if(current.operation.equals("userException"))
-//      {
-//          throw new TestIntfUserException();
-//      }
-        else if(current.operation.equals("localException"))
+        //      else if(current.operation.equals("userException"))
+        //      {
+        //          throw new TestIntfUserException();
+        //      }
+        else if (current.operation.equals("localException"))
         {
             throw new SocketException(0);
         }
-        else if(current.operation.equals("javaException"))
+        else if (current.operation.equals("javaException"))
         {
             throw new java.lang.RuntimeException("message");
         }
-        else if(current.operation.equals("unknownExceptionWithServantException"))
+        else if (current.operation.equals("unknownExceptionWithServantException"))
         {
             throw new UnknownException("reason");
         }
-        else if(current.operation.equals("impossibleException"))
+        else if (current.operation.equals("impossibleException"))
         {
             throw new TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.
         }
-        else if(current.operation.equals("intfUserException"))
+        else if (current.operation.equals("intfUserException"))
         {
             throw new TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
         }
-        else if(current.operation.equals("asyncResponse"))
+        else if (current.operation.equals("asyncResponse"))
         {
             throw new TestImpossibleException();
         }
-        else if(current.operation.equals("asyncException"))
+        else if (current.operation.equals("asyncException"))
         {
             throw new TestImpossibleException();
         }

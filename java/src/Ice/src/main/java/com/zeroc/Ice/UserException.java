@@ -9,22 +9,16 @@ package com.zeroc.Ice;
  **/
 public abstract class UserException extends java.lang.Exception implements Cloneable
 {
-    public UserException()
-    {
-    }
+    public UserException() {}
 
-    public UserException(Throwable cause)
-    {
-        super(cause);
-    }
+    public UserException(Throwable cause) { super(cause); }
 
     /**
      * Creates a copy of this exception.
      *
      * @return The copy of this exception.
      **/
-    @Override
-    public UserException clone()
+    @Override public UserException clone()
     {
         UserException c = null;
 
@@ -32,7 +26,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
         {
             c = (UserException)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false;
         }
@@ -46,11 +40,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      *
      * @deprecated ice_name() is deprecated, use ice_id() instead.
      **/
-    @Deprecated
-    public String ice_name()
-    {
-        return ice_id().substring(2);
-    }
+    @Deprecated public String ice_name() { return ice_id().substring(2); }
 
     /**
      * Returns the type id of this exception.
@@ -64,8 +54,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      *
      * @return A string representation of this exception.
      **/
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -104,10 +93,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      * @hidden
      * @return -
      **/
-    public boolean _usesClasses()
-    {
-        return false;
-    }
+    public boolean _usesClasses() { return false; }
 
     /**
      * @hidden
@@ -121,6 +107,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
      **/
     protected abstract void _readImpl(InputStream is);
 
-     /** @hidden */
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 }

@@ -4,8 +4,15 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -15,23 +22,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.BorderStyle;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
 class ServerEditor extends CommunicatorEditor
 {
-    @Override
-    public JToolBar getToolBar()
+    @Override public JToolBar getToolBar()
     {
-        if(_toolBar == null)
+        if (_toolBar == null)
         {
             _toolBar = new ToolBar();
         }
@@ -61,14 +56,9 @@ class ServerEditor extends CommunicatorEditor
         _icepatch.setEditable(false);
         _directories.setEditable(false);
 
-        Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    ((Server)_target).openDefinition();
-                }
-            };
+        Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+            @Override public void actionPerformed(ActionEvent e) { ((Server)_target).openDefinition(); }
+        };
         gotoApplication.putValue(Action.SHORT_DESCRIPTION, "View/Edit this application");
         _gotoApplication = new JButton(gotoApplication);
     }
@@ -82,7 +72,7 @@ class ServerEditor extends CommunicatorEditor
         ServerDescriptor descriptor = server.getServerDescriptor();
         final Utils.Resolver resolver = server.getResolver();
 
-        if(state == null)
+        if (state == null)
         {
             _currentState.setText("Unknown");
             _enabled.setSelected(false);
@@ -95,7 +85,7 @@ class ServerEditor extends CommunicatorEditor
             _enabled.setSelected(server.isEnabled());
 
             int pid = server.getPid();
-            if(pid == 0)
+            if (pid == 0)
             {
                 _currentPid.setText("");
             }
@@ -105,7 +95,7 @@ class ServerEditor extends CommunicatorEditor
             }
 
             int iceIntVersion = server.getIceVersion();
-            if(state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
+            if (state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
             {
                 showRuntimeProperties(previousServer);
             }
@@ -123,14 +113,9 @@ class ServerEditor extends CommunicatorEditor
         _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
         _pwd.setText(resolver.substitute(descriptor.pwd));
 
-        Utils.Stringifier stringifier =  new Utils.Stringifier()
-            {
-                @Override
-                public String toString(Object obj)
-                {
-                    return resolver.substitute((String)obj);
-                }
-            };
+        Utils.Stringifier stringifier = new Utils.Stringifier() {
+            @Override public String toString(Object obj) { return resolver.substitute((String)obj); }
+        };
 
         Utils.StringifyResult r = Utils.stringify(descriptor.options, stringifier, " ");
         _options.setText(r.returnValue);
@@ -154,7 +139,7 @@ class ServerEditor extends CommunicatorEditor
 
         String toolTip = "<html>Include only these directories";
 
-        if(r.toolTip != null)
+        if (r.toolTip != null)
         {
             toolTip += ":<br>" + r.toolTip;
         }
@@ -162,8 +147,7 @@ class ServerEditor extends CommunicatorEditor
         _directories.setToolTipText(toolTip);
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("Runtime Status");
 
@@ -241,8 +225,7 @@ class ServerEditor extends CommunicatorEditor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Server Properties");

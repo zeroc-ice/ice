@@ -14,21 +14,14 @@ public final class UnknownSlicedValue extends Value
      *
      * @param unknownTypeId The Slice type ID of the unknown object.
      **/
-    public UnknownSlicedValue(String unknownTypeId)
-    {
-        _unknownTypeId = unknownTypeId;
-    }
+    public UnknownSlicedValue(String unknownTypeId) { _unknownTypeId = unknownTypeId; }
 
     /**
      * Determine the Slice type ID associated with this object.
      *
      * @return The type ID.
      **/
-    @Override
-    public String ice_id()
-    {
-        return _unknownTypeId;
-    }
+    @Override public String ice_id() { return _unknownTypeId; }
 
     private final String _unknownTypeId;
 

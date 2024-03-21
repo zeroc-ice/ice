@@ -16,7 +16,7 @@ public class Server extends test.TestHelper
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        try(com.zeroc.Ice.Communicator communicator = initialize(args))
+        try (com.zeroc.Ice.Communicator communicator = initialize(args))
         {
             communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
 
@@ -28,7 +28,7 @@ public class Server extends test.TestHelper
             {
                 adapter.activate();
             }
-            catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
+            catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
             {
             }
             communicator().waitForShutdown();

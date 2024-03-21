@@ -15,37 +15,20 @@ public class BatchRequestQueue
             _size = size;
         }
 
-        @Override
-        public void enqueue()
-        {
-            enqueueBatchRequest(_proxy);
-        }
+        @Override public void enqueue() { enqueueBatchRequest(_proxy); }
 
-        @Override
-        public com.zeroc.Ice.ObjectPrx getProxy()
-        {
-            return _proxy;
-        }
+        @Override public com.zeroc.Ice.ObjectPrx getProxy() { return _proxy; }
 
-        @Override
-        public String getOperation()
-        {
-            return _operation;
-        }
+        @Override public String getOperation() { return _operation; }
 
-        @Override
-        public int getSize()
-        {
-            return _size;
-        }
+        @Override public int getSize() { return _size; }
 
         private com.zeroc.Ice.ObjectPrx _proxy;
         private String _operation;
         private int _size;
     }
 
-    public
-    BatchRequestQueue(Instance instance, boolean datagram)
+    public BatchRequestQueue(Instance instance, boolean datagram)
     {
         com.zeroc.Ice.InitializationData initData = instance.initializationData();
         _interceptor = initData.batchRequestInterceptor;
@@ -58,20 +41,19 @@ public class BatchRequestQueue
         _request = new BatchRequestI();
 
         _maxSize = instance.batchAutoFlushSize();
-        if(_maxSize > 0 && datagram)
+        if (_maxSize > 0 && datagram)
         {
             int udpSndSize = initData.properties.getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - _udpOverhead);
-            if(udpSndSize < _maxSize)
+            if (udpSndSize < _maxSize)
             {
                 _maxSize = udpSndSize;
             }
         }
     }
 
-    synchronized public void
-    prepareBatchRequest(com.zeroc.Ice.OutputStream os)
+    synchronized public void prepareBatchRequest(com.zeroc.Ice.OutputStream os)
     {
-        if(_exception != null)
+        if (_exception != null)
         {
             throw (com.zeroc.Ice.LocalException)_exception.fillInStackTrace();
         }
@@ -81,27 +63,26 @@ public class BatchRequestQueue
         _batchStream.swap(os);
     }
 
-    public void
-    finishBatchRequest(com.zeroc.Ice.OutputStream os, com.zeroc.Ice.ObjectPrx proxy, String operation)
+    public void finishBatchRequest(com.zeroc.Ice.OutputStream os, com.zeroc.Ice.ObjectPrx proxy, String operation)
     {
         //
         // No need for synchronization, no other threads are supposed
         // to modify the queue since we set _batchStreamInUse to true.
         //
-        assert(_batchStreamInUse);
+        assert (_batchStreamInUse);
         _batchStream.swap(os);
 
         try
         {
             _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
 
-            if(_maxSize > 0 && _batchStream.size() >= _maxSize)
+            if (_maxSize > 0 && _batchStream.size() >= _maxSize)
             {
                 proxy.ice_flushBatchRequestsAsync(); // Auto flush
             }
 
-            assert(_batchMarker < _batchStream.size());
-            if(_interceptor != null)
+            assert (_batchMarker < _batchStream.size());
+            if (_interceptor != null)
             {
                 _request.reset(proxy, operation, _batchStream.size() - _batchMarker);
                 _interceptor.enqueue(_request, _batchRequestNum, _batchMarker);
@@ -109,7 +90,7 @@ public class BatchRequestQueue
             else
             {
                 Boolean compress = proxy._getReference().getCompressOverride();
-                if(compress != null)
+                if (compress != null)
                 {
                     _batchCompress |= compress.booleanValue();
                 }
@@ -119,7 +100,7 @@ public class BatchRequestQueue
         }
         finally
         {
-            synchronized(this)
+            synchronized (this)
             {
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
@@ -129,10 +110,9 @@ public class BatchRequestQueue
         }
     }
 
-    synchronized public void
-    abortBatchRequest(com.zeroc.Ice.OutputStream os)
+    synchronized public void abortBatchRequest(com.zeroc.Ice.OutputStream os)
     {
-        if(_batchStreamInUse)
+        if (_batchStreamInUse)
         {
             _batchStream.swap(os);
             _batchStream.resize(_batchMarker);
@@ -147,10 +127,9 @@ public class BatchRequestQueue
         public boolean compress;
     };
 
-    synchronized public SwapResult
-    swap(com.zeroc.Ice.OutputStream os)
+    synchronized public SwapResult swap(com.zeroc.Ice.OutputStream os)
     {
-        if(_batchRequestNum == 0)
+        if (_batchRequestNum == 0)
         {
             return null;
         }
@@ -158,7 +137,7 @@ public class BatchRequestQueue
         waitStreamInUse(true);
 
         byte[] lastRequest = null;
-        if(_batchMarker < _batchStream.size())
+        if (_batchMarker < _batchStream.size())
         {
             lastRequest = new byte[_batchStream.size() - _batchMarker];
             Buffer buffer = _batchStream.getBuffer();
@@ -179,27 +158,18 @@ public class BatchRequestQueue
         _batchCompress = false;
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
-        if(lastRequest != null)
+        if (lastRequest != null)
         {
             _batchStream.writeBlob(lastRequest);
         }
         return result;
     }
 
-    synchronized public void
-    destroy(com.zeroc.Ice.LocalException ex)
-    {
-        _exception = ex;
-    }
+    synchronized public void destroy(com.zeroc.Ice.LocalException ex) { _exception = ex; }
 
-    synchronized public boolean
-    isEmpty()
-    {
-        return _batchStream.size() == Protocol.requestBatchHdr.length;
-    }
+    synchronized public boolean isEmpty() { return _batchStream.size() == Protocol.requestBatchHdr.length; }
 
-    private void
-    waitStreamInUse(boolean flush)
+    private void waitStreamInUse(boolean flush)
     {
         //
         // This is similar to a mutex lock in that the stream is
@@ -208,13 +178,13 @@ public class BatchRequestQueue
         // restored.
         //
         boolean interrupted = false;
-        while(_batchStreamInUse && !(flush && _batchStreamCanFlush))
+        while (_batchStreamInUse && !(flush && _batchStreamCanFlush))
         {
             try
             {
                 wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 interrupted = true;
             }
@@ -222,7 +192,7 @@ public class BatchRequestQueue
         //
         // Restore the interrupted flag if we were interrupted.
         //
-        if(interrupted)
+        if (interrupted)
         {
             Thread.currentThread().interrupt();
         }
@@ -230,9 +200,9 @@ public class BatchRequestQueue
 
     private void enqueueBatchRequest(com.zeroc.Ice.ObjectPrx proxy)
     {
-        assert(_batchMarker < _batchStream.size());
+        assert (_batchMarker < _batchStream.size());
         Boolean compress = proxy._getReference().getCompressOverride();
-        if(compress != null)
+        if (compress != null)
         {
             _batchCompress |= compress.booleanValue();
         }

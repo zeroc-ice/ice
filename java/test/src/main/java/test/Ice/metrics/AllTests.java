@@ -4,20 +4,18 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.IceMX.*;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-
-import com.zeroc.Ice.IceMX.*;
-
 import test.Ice.metrics.Test.*;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -36,7 +34,7 @@ public class AllTests
             MetricsAdmin.GetMetricsViewResult r = metrics.getMetricsView("View");
             s = (ConnectionMetrics)r.returnValue.get("Connection")[0];
             int nRetry = 30;
-            while(s.sentBytes != expected && nRetry-- > 0)
+            while (s.sentBytes != expected && nRetry-- > 0)
             {
                 // On some platforms, it's necessary to wait a little before obtaining the server metrics
                 // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
@@ -46,7 +44,7 @@ public class AllTests
                 {
                     Thread.sleep(100);
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
                 r = metrics.getMetricsView("View");
@@ -54,24 +52,24 @@ public class AllTests
             }
             return s;
         }
-        catch(UnknownMetricsView ex)
+        catch (UnknownMetricsView ex)
         {
-            assert(false);
+            assert (false);
             return null;
         }
     }
 
     static void waitForObserverCurrent(ObserverI observer, int value)
     {
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
-            if(observer.getCurrent() != value)
+            if (observer.getCurrent() != value)
             {
                 try
                 {
                     Thread.sleep(10);
                 }
-                catch(java.lang.InterruptedException ex)
+                catch (java.lang.InterruptedException ex)
                 {
                 }
             }
@@ -84,10 +82,7 @@ public class AllTests
 
     static class Callback
     {
-        public Callback()
-        {
-            _wait = true;
-        }
+        public Callback() { _wait = true; }
 
         synchronized public void completed()
         {
@@ -97,13 +92,13 @@ public class AllTests
 
         synchronized public void waitForResponse()
         {
-            while(_wait)
+            while (_wait)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
             }
@@ -113,20 +108,20 @@ public class AllTests
         private boolean _wait;
     }
 
-    static private Map<String, String> getClientProps(com.zeroc.Ice.PropertiesAdminPrx p,
-                                                      Map<String, String> orig, String m)
+    static private Map<String, String>
+    getClientProps(com.zeroc.Ice.PropertiesAdminPrx p, Map<String, String> orig, String m)
     {
         Map<String, String> props = p.getPropertiesForPrefix("IceMX.Metrics");
-        for(Map.Entry<String, String> e : props.entrySet())
+        for (Map.Entry<String, String> e : props.entrySet())
         {
             e.setValue("");
         }
-        for(Map.Entry<String, String> e : orig.entrySet())
+        for (Map.Entry<String, String> e : orig.entrySet())
         {
             props.put(e.getKey(), e.getValue());
         }
         String map = "";
-        if(!m.isEmpty())
+        if (!m.isEmpty())
         {
             map += "Map." + m + '.';
         }
@@ -136,20 +131,20 @@ public class AllTests
         return props;
     }
 
-    static private Map<String, String> getServerProps(com.zeroc.Ice.PropertiesAdminPrx p,
-                                                      Map<String, String> orig, String m)
+    static private Map<String, String>
+    getServerProps(com.zeroc.Ice.PropertiesAdminPrx p, Map<String, String> orig, String m)
     {
         Map<String, String> props = p.getPropertiesForPrefix("IceMX.Metrics");
-        for(Map.Entry<String, String> e : props.entrySet())
+        for (Map.Entry<String, String> e : props.entrySet())
         {
             e.setValue("");
         }
-        for(Map.Entry<String, String> e : orig.entrySet())
+        for (Map.Entry<String, String> e : orig.entrySet())
         {
             props.put(e.getKey(), e.getValue());
         }
         String map = "";
-        if(!m.isEmpty())
+        if (!m.isEmpty())
         {
             map += "Map." + m + '.';
         }
@@ -161,20 +156,20 @@ public class AllTests
     static void waitForCurrent(MetricsAdminPrx metrics, String viewName, String map, int value)
         throws UnknownMetricsView
     {
-        while(true)
+        while (true)
         {
             MetricsAdmin.GetMetricsViewResult r = metrics.getMetricsView(viewName);
             test(r.returnValue.containsKey(map));
             boolean ok = true;
-            for(com.zeroc.Ice.IceMX.Metrics m : r.returnValue.get(map))
+            for (com.zeroc.Ice.IceMX.Metrics m : r.returnValue.get(map))
             {
-                if(m.current != value)
+                if (m.current != value)
                 {
                     ok = false;
                     break;
                 }
             }
-            if(ok)
+            if (ok)
             {
                 break;
             }
@@ -182,24 +177,24 @@ public class AllTests
             {
                 Thread.sleep(50);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
     }
 
-    static void testAttribute(MetricsAdminPrx metrics,
-                              com.zeroc.Ice.PropertiesAdminPrx props,
-                              String map,
-                              String attr,
-                              String value,
-                              Runnable func,
-                              PrintWriter out)
-        throws UnknownMetricsView
+    static void testAttribute(
+        MetricsAdminPrx metrics,
+        com.zeroc.Ice.PropertiesAdminPrx props,
+        String map,
+        String attr,
+        String value,
+        Runnable func,
+        PrintWriter out) throws UnknownMetricsView
     {
         Map<String, String> dict = new java.util.HashMap<>();
         dict.put("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
-        if(props.ice_getIdentity().category.equals("client"))
+        if (props.ice_getIdentity().category.equals("client"))
         {
             props.setProperties(getClientProps(props, dict, map));
         }
@@ -210,22 +205,22 @@ public class AllTests
 
         func.run();
         MetricsAdmin.GetMetricsViewResult r = metrics.getMetricsView("View");
-        if(!r.returnValue.containsKey(map) || r.returnValue.get(map).length == 0)
+        if (!r.returnValue.containsKey(map) || r.returnValue.get(map).length == 0)
         {
-            if(!value.isEmpty())
+            if (!value.isEmpty())
             {
                 out.println("no map `" + map + "' for group by = `" + attr + "'");
                 test(false);
             }
         }
-        else if(!r.returnValue.get(map)[0].id.equals(value))
+        else if (!r.returnValue.get(map)[0].id.equals(value))
         {
             out.println("invalid attribute value: " + attr + " = " + value + " got " + r.returnValue.get(map)[0].id);
             test(false);
         }
 
         dict.clear();
-        if(props.ice_getIdentity().category.equals("client"))
+        if (props.ice_getIdentity().category.equals("client"))
         {
             props.setProperties(getClientProps(props, dict, map));
         }
@@ -237,23 +232,16 @@ public class AllTests
 
     static class Noop implements Runnable
     {
-        @Override
-        public void run()
-        {
-        }
+        @Override public void run() {}
     }
 
     static class Connect implements Runnable
     {
-        public Connect(com.zeroc.Ice.ObjectPrx proxy)
-        {
-            this.proxy = proxy;
-        }
+        public Connect(com.zeroc.Ice.ObjectPrx proxy) { this.proxy = proxy; }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
-            if(proxy.ice_getCachedConnection() != null)
+            if (proxy.ice_getCachedConnection() != null)
             {
                 proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
@@ -262,11 +250,11 @@ public class AllTests
             {
                 proxy.ice_ping();
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
             }
 
-            if(proxy.ice_getCachedConnection() != null)
+            if (proxy.ice_getCachedConnection() != null)
             {
                 proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
@@ -277,13 +265,9 @@ public class AllTests
 
     static class InvokeOp implements Runnable
     {
-        public InvokeOp(MetricsPrx proxy)
-        {
-            this.proxy = proxy;
-        }
+        public InvokeOp(MetricsPrx proxy) { this.proxy = proxy; }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
             Map<String, String> ctx = new java.util.HashMap<>();
             ctx.put("entry1", "test");
@@ -294,23 +278,24 @@ public class AllTests
         final private MetricsPrx proxy;
     }
 
-    static void testAttribute(MetricsAdminPrx metrics,
-                              com.zeroc.Ice.PropertiesAdminPrx props,
-                              String map,
-                              String attr,
-                              String value,
-                              PrintWriter out)
-        throws UnknownMetricsView
+    static void testAttribute(
+        MetricsAdminPrx metrics,
+        com.zeroc.Ice.PropertiesAdminPrx props,
+        String map,
+        String attr,
+        String value,
+        PrintWriter out) throws UnknownMetricsView
     {
         testAttribute(metrics, props, map, attr, value, new Noop(), out);
     }
 
-    static void updateProps(com.zeroc.Ice.PropertiesAdminPrx cprops,
-                            com.zeroc.Ice.PropertiesAdminPrx sprops,
-                            Map<String, String> props,
-                            String map)
+    static void updateProps(
+        com.zeroc.Ice.PropertiesAdminPrx cprops,
+        com.zeroc.Ice.PropertiesAdminPrx sprops,
+        Map<String, String> props,
+        String map)
     {
-        if(sprops.ice_getConnection() != null)
+        if (sprops.ice_getConnection() != null)
         {
             cprops.setProperties(getClientProps(cprops, props, map));
             sprops.setProperties(getServerProps(sprops, props, map));
@@ -349,12 +334,12 @@ public class AllTests
         throws UnknownMetricsView
     {
         MetricsFailures f = m.getMetricsFailures("View", map, id);
-        if(!f.failures.containsKey(failure))
+        if (!f.failures.containsKey(failure))
         {
             out.println("couldn't find failure `" + failure + "' for `" + id + "'");
             test(false);
         }
-        if(count > 0 && f.failures.get(failure) != count)
+        if (count > 0 && f.failures.get(failure) != count)
         {
             out.print("count for failure `" + failure + "' of `" + id + "' is different from expected: ");
             out.println(count + " != " + f.failures.get(failure));
@@ -365,15 +350,14 @@ public class AllTests
     static Map<String, com.zeroc.Ice.IceMX.Metrics> toMap(com.zeroc.Ice.IceMX.Metrics[] mmap)
     {
         Map<String, com.zeroc.Ice.IceMX.Metrics> m = new java.util.HashMap<>();
-        for(com.zeroc.Ice.IceMX.Metrics e : mmap)
+        for (com.zeroc.Ice.IceMX.Metrics e : mmap)
         {
             m.put(e.id, e);
         }
         return m;
     }
 
-    static MetricsPrx allTests(test.TestHelper helper, CommunicatorObserverI obsv)
-        throws UnknownMetricsView
+    static MetricsPrx allTests(test.TestHelper helper, CommunicatorObserverI obsv) throws UnknownMetricsView
     {
         PrintWriter out = helper.getWriter();
         com.zeroc.Ice.Communicator communicator = helper.communicator();
@@ -388,7 +372,7 @@ public class AllTests
         boolean collocated = metrics.ice_getConnection() == null;
 
         int threadCount = 4;
-        if(collocated && communicator.getProperties().getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
+        if (collocated && communicator.getProperties().getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             threadCount = 6;
         }
@@ -417,13 +401,15 @@ public class AllTests
         props.put("IceMX.Metrics.View.GroupBy", "none");
         updateProps(clientProps, serverProps, props, "");
         MetricsAdmin.GetMetricsViewResult r = clientMetrics.getMetricsView("View");
-        if(!collocated)
+        if (!collocated)
         {
-            test(r.returnValue.get("Connection").length == 1 && r.returnValue.get("Connection")[0].current == 1 &&
-                 r.returnValue.get("Connection")[0].total == 1);
+            test(
+                r.returnValue.get("Connection").length == 1 && r.returnValue.get("Connection")[0].current == 1 &&
+                r.returnValue.get("Connection")[0].total == 1);
         }
-        test(r.returnValue.get("Thread").length == 1 && r.returnValue.get("Thread")[0].current == threadCount &&
-             r.returnValue.get("Thread")[0].total == threadCount);
+        test(
+            r.returnValue.get("Thread").length == 1 && r.returnValue.get("Thread")[0].current == threadCount &&
+            r.returnValue.get("Thread")[0].total == threadCount);
         out.println("ok");
 
         out.print("testing group by id...");
@@ -443,7 +429,7 @@ public class AllTests
 
         r = clientMetrics.getMetricsView("View");
         test(r.returnValue.get("Thread").length == threadCount);
-        if(!collocated)
+        if (!collocated)
         {
             test(r.returnValue.get("Connection").length == 2);
         }
@@ -451,7 +437,7 @@ public class AllTests
 
         InvocationMetrics invoke = (InvocationMetrics)r.returnValue.get("Invocation")[0];
         test(invoke.id.indexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
-        if(!collocated)
+        if (!collocated)
         {
             test(invoke.remotes.length == 2);
             test(invoke.remotes[0].total >= 2 && invoke.remotes[1].total >= 2);
@@ -463,7 +449,7 @@ public class AllTests
             test(invoke.collocated[0].total == 5);
         }
         r = serverMetrics.getMetricsView("View");
-        if(!collocated)
+        if (!collocated)
         {
             test(r.returnValue.get("Thread").length > 3);
             test(r.returnValue.get("Connection").length == 2);
@@ -472,7 +458,7 @@ public class AllTests
         test(r.returnValue.get("Dispatch")[0].current == 0 && r.returnValue.get("Dispatch")[0].total == 5);
         test(r.returnValue.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
-        if(!collocated)
+        if (!collocated)
         {
             metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             metrics.ice_connectionId("Con1").ice_getConnection().close(
@@ -487,16 +473,16 @@ public class AllTests
 
         String type = "";
         String isSecure = "";
-        if(!collocated)
+        if (!collocated)
         {
             com.zeroc.Ice.EndpointInfo endpointInfo = metrics.ice_getConnection().getEndpoint().getInfo();
             type = Short.toString(endpointInfo.type());
-            isSecure = endpointInfo.secure() ? "true": "false";
+            isSecure = endpointInfo.secure() ? "true" : "false";
         }
 
         Map<String, com.zeroc.Ice.IceMX.Metrics> map;
 
-        if(!collocated)
+        if (!collocated)
         {
             out.print("testing connection metrics... ");
             out.flush();
@@ -519,7 +505,7 @@ public class AllTests
             cm2 = (ConnectionMetrics)clientMetrics.getMetricsView("View").returnValue.get("Connection")[0];
             sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
-            test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for ice_ping request
+            test(cm2.sentBytes - cm1.sentBytes == 45);         // 45 for ice_ping request
             test(cm2.receivedBytes - cm1.receivedBytes == 25); // 25 bytes for ice_ping response
             test(sm2.receivedBytes - sm1.receivedBytes == 45);
             test(sm2.sentBytes - sm1.sentBytes == 25);
@@ -570,8 +556,8 @@ public class AllTests
 
             test(map.get("active").current == 1);
 
-            ControllerPrx controller = ControllerPrx.checkedCast(
-                communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
+            ControllerPrx controller =
+                ControllerPrx.checkedCast(communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
@@ -603,16 +589,16 @@ public class AllTests
                 metrics.ice_timeout(500).opByteS(new byte[10000000]);
                 test(false);
             }
-            catch(com.zeroc.Ice.TimeoutException ex)
+            catch (com.zeroc.Ice.TimeoutException ex)
             {
             }
             controller.resume();
 
             cm1 = (ConnectionMetrics)clientMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-            while(true)
+            while (true)
             {
                 sm1 = (ConnectionMetrics)serverMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-                if(sm1.failures >= 2)
+                if (sm1.failures >= 2)
                 {
                     break;
                 }
@@ -620,7 +606,7 @@ public class AllTests
                 {
                     Thread.sleep(10);
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
             }
@@ -635,8 +621,7 @@ public class AllTests
 
             testAttribute(clientMetrics, clientProps, "Connection", "parent", "Communicator", out);
             //testAttribute(clientMetrics, clientProps, "Connection", "id", "");
-            testAttribute(clientMetrics, clientProps, "Connection", "endpoint",
-                          endpoint + " -t 500", out);
+            testAttribute(clientMetrics, clientProps, "Connection", "endpoint", endpoint + " -t 500", out);
 
             testAttribute(clientMetrics, clientProps, "Connection", "endpointType", type, out);
             testAttribute(clientMetrics, clientProps, "Connection", "endpointIsDatagram", "false", out);
@@ -684,10 +669,10 @@ public class AllTests
                 communicator.stringToProxy("test:" + endpoint).ice_timeout(10).ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            catch (com.zeroc.Ice.ConnectTimeoutException ex)
             {
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 test(false);
             }
@@ -699,26 +684,24 @@ public class AllTests
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2, out);
 
             Connect c = new Connect(metrics);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "parent", "Communicator", c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "id", hostAndPort, c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpoint",
-                          endpoint + " -t 60000", c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "parent", "Communicator", c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "id", hostAndPort, c, out);
+            testAttribute(
+                clientMetrics,
+                clientProps,
+                "ConnectionEstablishment",
+                "endpoint",
+                endpoint + " -t 60000",
+                c,
+                out);
 
             testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointType", type, c, out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointIsDatagram", "false",
-                          c, out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointIsSecure", isSecure, c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointTimeout", "60000", c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointCompress", "false", c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointHost", host, c,
-                          out);
-            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointPort", port, c,
-                          out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointIsDatagram", "false", c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointIsSecure", isSecure, c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointTimeout", "60000", c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointCompress", "false", c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointHost", host, c, out);
+            testAttribute(clientMetrics, clientProps, "ConnectionEstablishment", "endpointPort", port, c, out);
 
             out.println("ok");
 
@@ -736,7 +719,7 @@ public class AllTests
                 prx.ice_ping();
                 prx.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
             }
 
@@ -750,23 +733,24 @@ public class AllTests
                 communicator.stringToProxy("test:tcp -t 500 -h unknownfoo.zeroc.com -p " + port).ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.DNSException ex)
+            catch (com.zeroc.Ice.DNSException ex)
             {
                 dnsException = true;
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
             test(clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length == 2);
             m1 = clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup")[0];
-            if(!m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+            if (!m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
             {
                 m1 = clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup")[1];
             }
-            test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
-                 (!dnsException || m1.failures == 2));
-            if(dnsException)
+            test(
+                m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
+                (!dnsException || m1.failures == 2));
+            if (dnsException)
             {
                 checkFailure(clientMetrics, "EndpointLookup", m1.id, "::Ice::DNSException", 2, out);
             }
@@ -774,10 +758,22 @@ public class AllTests
             c = new Connect(prx);
 
             testAttribute(clientMetrics, clientProps, "EndpointLookup", "parent", "Communicator", c, out);
-            testAttribute(clientMetrics, clientProps, "EndpointLookup", "id",
-                          prx.ice_getConnection().getEndpoint().toString(), c, out);
-            testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpoint",
-                          prx.ice_getConnection().getEndpoint().toString(), c, out);
+            testAttribute(
+                clientMetrics,
+                clientProps,
+                "EndpointLookup",
+                "id",
+                prx.ice_getConnection().getEndpoint().toString(),
+                c,
+                out);
+            testAttribute(
+                clientMetrics,
+                clientProps,
+                "EndpointLookup",
+                "endpoint",
+                prx.ice_getConnection().getEndpoint().toString(),
+                c,
+                out);
 
             testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpointType", type, c, out);
             testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpointIsDatagram", "false", c, out);
@@ -803,7 +799,7 @@ public class AllTests
             metrics.opWithUserException();
             test(false);
         }
-        catch(UserEx ex)
+        catch (UserEx ex)
         {
         }
         try
@@ -811,7 +807,7 @@ public class AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch(com.zeroc.Ice.RequestFailedException ex)
+        catch (com.zeroc.Ice.RequestFailedException ex)
         {
         }
         try
@@ -819,7 +815,7 @@ public class AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -827,17 +823,17 @@ public class AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownException ex)
+        catch (com.zeroc.Ice.UnknownException ex)
         {
         }
-        if(!collocated)
+        if (!collocated)
         {
             try
             {
-            metrics.fail();
-            test(false);
+                metrics.fail();
+                test(false);
             }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
+            catch (com.zeroc.Ice.ConnectionLostException ex)
             {
             }
         }
@@ -849,7 +845,7 @@ public class AllTests
         test(dm1.size == 21 && dm1.replySize == 7);
 
         dm1 = (DispatchMetrics)map.get("opWithUserException");
-        test(dm1.current <= 1 &dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
+        test(dm1.current <= 1 & dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
         test(dm1.size == 38 && dm1.replySize == 27);
 
         dm1 = (DispatchMetrics)map.get("opWithLocalException");
@@ -871,10 +867,9 @@ public class AllTests
 
         testAttribute(serverMetrics, serverProps, "Dispatch", "parent", "TestAdapter", op, out);
         testAttribute(serverMetrics, serverProps, "Dispatch", "id", "metrics [op]", op, out);
-        if(!collocated)
+        if (!collocated)
         {
-            testAttribute(serverMetrics, serverProps, "Dispatch", "endpoint",
-                          endpoint + " -t 60000", op, out);
+            testAttribute(serverMetrics, serverProps, "Dispatch", "endpoint", endpoint + " -t 60000", op, out);
             //testAttribute(serverMetrics, serverProps, "Dispatch", "connection", "", op);
 
             testAttribute(serverMetrics, serverProps, "Dispatch", "endpointType", type, op, out);
@@ -923,11 +918,10 @@ public class AllTests
         //
         metrics.op();
         metrics.opAsync().join();
-        metrics.opAsync().whenComplete((response, ex) ->
-            {
-                test(ex == null);
-                cb.completed();
-            });
+        metrics.opAsync().whenComplete((response, ex) -> {
+            test(ex == null);
+            cb.completed();
+        });
         cb.waitForResponse();
 
         try
@@ -935,7 +929,7 @@ public class AllTests
             metrics.opWithUserException();
             test(false);
         }
-        catch(UserEx ex)
+        catch (UserEx ex)
         {
         }
 
@@ -944,16 +938,15 @@ public class AllTests
             metrics.opWithUserExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof UserEx);
         }
 
-        metrics.opWithUserExceptionAsync().whenComplete((response, ex) ->
-            {
-                test(ex instanceof UserEx);
-                cb.completed();
-            });
+        metrics.opWithUserExceptionAsync().whenComplete((response, ex) -> {
+            test(ex instanceof UserEx);
+            cb.completed();
+        });
         cb.waitForResponse();
 
         try
@@ -961,7 +954,7 @@ public class AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch(com.zeroc.Ice.RequestFailedException ex)
+        catch (com.zeroc.Ice.RequestFailedException ex)
         {
         }
 
@@ -970,16 +963,15 @@ public class AllTests
             metrics.opWithRequestFailedExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof com.zeroc.Ice.RequestFailedException);
         }
 
-        metrics.opWithRequestFailedExceptionAsync().whenComplete((result, ex) ->
-            {
-                test(ex instanceof com.zeroc.Ice.RequestFailedException);
-                cb.completed();
-            });
+        metrics.opWithRequestFailedExceptionAsync().whenComplete((result, ex) -> {
+            test(ex instanceof com.zeroc.Ice.RequestFailedException);
+            cb.completed();
+        });
         cb.waitForResponse();
 
         try
@@ -987,7 +979,7 @@ public class AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
         }
 
@@ -996,16 +988,15 @@ public class AllTests
             metrics.opWithLocalExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof com.zeroc.Ice.LocalException);
         }
 
-        metrics.opWithLocalExceptionAsync().whenComplete((result, ex) ->
-            {
-                test(ex instanceof com.zeroc.Ice.LocalException);
-                cb.completed();
-            });
+        metrics.opWithLocalExceptionAsync().whenComplete((result, ex) -> {
+            test(ex instanceof com.zeroc.Ice.LocalException);
+            cb.completed();
+        });
         cb.waitForResponse();
 
         try
@@ -1013,7 +1004,7 @@ public class AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownException ex)
+        catch (com.zeroc.Ice.UnknownException ex)
         {
         }
 
@@ -1022,26 +1013,25 @@ public class AllTests
             metrics.opWithUnknownExceptionAsync().join();
             test(false);
         }
-        catch(CompletionException ex)
+        catch (CompletionException ex)
         {
             test(ex.getCause() instanceof com.zeroc.Ice.UnknownException);
         }
 
-        metrics.opWithUnknownExceptionAsync().whenComplete((result, ex) ->
-            {
-                test(ex instanceof com.zeroc.Ice.UnknownException);
-                cb.completed();
-            });
+        metrics.opWithUnknownExceptionAsync().whenComplete((result, ex) -> {
+            test(ex instanceof com.zeroc.Ice.UnknownException);
+            cb.completed();
+        });
         cb.waitForResponse();
 
-        if(!collocated)
+        if (!collocated)
         {
             try
             {
                 metrics.fail();
                 test(false);
             }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
+            catch (com.zeroc.Ice.ConnectionLostException ex)
             {
             }
 
@@ -1050,16 +1040,15 @@ public class AllTests
                 metrics.failAsync().join();
                 test(false);
             }
-            catch(CompletionException ex)
+            catch (CompletionException ex)
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException);
             }
 
-            metrics.failAsync().whenComplete((result, ex) ->
-                {
-                    test(ex instanceof com.zeroc.Ice.ConnectionLostException);
-                    cb.completed();
-                });
+            metrics.failAsync().whenComplete((result, ex) -> {
+                test(ex instanceof com.zeroc.Ice.ConnectionLostException);
+                cb.completed();
+            });
             cb.waitForResponse();
         }
 
@@ -1107,7 +1096,7 @@ public class AllTests
         test(rim1.size == 123 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownException", 3, out);
 
-        if(!collocated)
+        if (!collocated)
         {
             im1 = (InvocationMetrics)map.get("fail");
             test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.length == 1);
@@ -1126,8 +1115,14 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, "Invocation", "facet", "", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "encoding", "1.1", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "mode", "twoway", op, out);
-        testAttribute(clientMetrics, clientProps, "Invocation", "proxy",
-                      "metrics -t -e 1.1:" + endpoint + " -t 60000", op, out);
+        testAttribute(
+            clientMetrics,
+            clientProps,
+            "Invocation",
+            "proxy",
+            "metrics -t -e 1.1:" + endpoint + " -t 60000",
+            op,
+            out);
 
         testAttribute(clientMetrics, clientProps, "Invocation", "context.entry1", "test", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "context.entry2", "", op, out);
@@ -1159,8 +1154,7 @@ public class AllTests
         test(rim1.current <= 1 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 63 && rim1.replySize == 0);
 
-        testAttribute(clientMetrics, clientProps, "Invocation", "mode", "oneway", new InvokeOp(metricsOneway),
-                      out);
+        testAttribute(clientMetrics, clientProps, "Invocation", "mode", "oneway", new InvokeOp(metricsOneway), out);
 
         //
         // Batch oneway tests
@@ -1181,8 +1175,14 @@ public class AllTests
         test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.length == 0);
 
-        testAttribute(clientMetrics, clientProps, "Invocation", "mode", "batch-oneway",
-                      new InvokeOp(metricsBatchOneway), out);
+        testAttribute(
+            clientMetrics,
+            clientProps,
+            "Invocation",
+            "mode",
+            "batch-oneway",
+            new InvokeOp(metricsBatchOneway),
+            out);
 
         //
         // Tests flushBatchRequests
@@ -1202,12 +1202,12 @@ public class AllTests
 
         im1 = (InvocationMetrics)map.get("ice_flushBatchRequests");
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(im1.remotes.length == 1); // The first operation got sent over a connection
         }
 
-        if(!collocated)
+        if (!collocated)
         {
             clearView(clientProps, serverProps);
 
@@ -1271,7 +1271,7 @@ public class AllTests
         {
             clientMetrics.enableMetricsView("UnknownView");
         }
-        catch(UnknownMetricsView ex)
+        catch (UnknownMetricsView ex)
         {
         }
 
@@ -1281,7 +1281,7 @@ public class AllTests
         out.flush();
 
         test(obsv.threadObserver.getTotal() > 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getTotal() > 0);
             test(obsv.connectionEstablishmentObserver.getTotal() > 0);
@@ -1296,7 +1296,7 @@ public class AllTests
         test(obsv.invocationObserver.getTotal() > 0);
 
         test(obsv.threadObserver.getCurrent() > 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getCurrent() > 0);
             test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
@@ -1315,7 +1315,7 @@ public class AllTests
         test(obsv.invocationObserver.getCurrent() == 0);
 
         test(obsv.threadObserver.getFailedCount() == 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getFailedCount() > 0);
             test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
@@ -1325,7 +1325,7 @@ public class AllTests
         //test(obsv.dispatchObserver.getFailedCount() > 0);
         test(obsv.invocationObserver.getFailedCount() > 0);
 
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.threadObserver.states > 0);
             test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);

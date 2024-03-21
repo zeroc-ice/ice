@@ -5,14 +5,13 @@
 package test.Ice.serialize;
 
 import java.io.*;
-
 import test.Ice.serialize.Test.*;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -46,11 +45,11 @@ public class AllTests
             ois.readObject();
             test(false);
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             // Expected.
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -73,7 +72,7 @@ public class AllTests
                 ois.close();
             }
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -89,7 +88,7 @@ public class AllTests
             com.zeroc.Ice.ObjectInputStream ois = new com.zeroc.Ice.ObjectInputStream(communicator, bais);
             try
             {
-                Base b = (Base) ois.readObject();
+                Base b = (Base)ois.readObject();
                 checkBase(b);
             }
             finally
@@ -97,7 +96,7 @@ public class AllTests
                 ois.close();
             }
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -121,7 +120,7 @@ public class AllTests
                 ois.close();
             }
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -151,10 +150,10 @@ public class AllTests
         test(b.b == b);
         test(b.o == b);
         checkStruct1(b.s);
-        test(java.util.Arrays.equals(b.seq1, new byte[] { 0, 1, 2, 3, 4 }));
-        test(java.util.Arrays.equals(b.seq2, new int[] { 5, 6, 7, 8, 9 }));
-        test(java.util.Arrays.equals(b.seq3, new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 }));
-        test(java.util.Arrays.equals(b.seq4, new Base[] { b }));
+        test(java.util.Arrays.equals(b.seq1, new byte[] {0, 1, 2, 3, 4}));
+        test(java.util.Arrays.equals(b.seq2, new int[] {5, 6, 7, 8, 9}));
+        test(java.util.Arrays.equals(b.seq3, new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
+        test(java.util.Arrays.equals(b.seq4, new Base[] {b}));
         test(b.d1.get(Byte.valueOf((byte)1)).equals(Boolean.TRUE));
         test(b.d2.get(Short.valueOf((short)2)).equals(Integer.valueOf(3)));
         test(b.d3.get("enum3") == MyEnum.enum3);

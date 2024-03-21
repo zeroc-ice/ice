@@ -4,18 +4,15 @@
 
 package com.zeroc.Ice;
 
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-
-import com.zeroc.IceInternal.IncomingConnectionFactory;
 import com.zeroc.IceInternal.EndpointI;
+import com.zeroc.IceInternal.IncomingConnectionFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
-    @Override
-    public String
-    getName()
+    @Override public String getName()
     {
         //
         // No mutex lock necessary, _name is immutable.
@@ -23,21 +20,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _noConfig ? "" : _name;
     }
 
-    @Override
-    public Communicator
-    getCommunicator()
-    {
-        return _communicator;
-    }
+    @Override public Communicator getCommunicator() { return _communicator; }
 
-    @Override
-    public void
-    activate()
+    @Override public void activate()
     {
         com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
         boolean printAdapterReady = false;
 
-        synchronized(this)
+        synchronized (this)
         {
             checkForDeactivation();
 
@@ -45,9 +35,9 @@ public final class ObjectAdapterI implements ObjectAdapter
             // If we've previously been initialized we just need to activate the
             // incoming connection factories and we're done.
             //
-            if(_state != StateUninitialized)
+            if (_state != StateUninitialized)
             {
-                for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+                for (IncomingConnectionFactory factory : _incomingConnectionFactories)
                 {
                     factory.activate();
                 }
@@ -64,7 +54,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _state = StateActivating;
 
             locatorInfo = _locatorInfo;
-            if(!_noConfig)
+            if (!_noConfig)
             {
                 final Properties properties = _instance.initializationData().properties;
                 printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
@@ -77,7 +67,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             dummy.name = "dummy";
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             //
             // If we couldn't update the locator registry, we let the
@@ -85,7 +75,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             // allow to user code to retry activating the adapter
             // later.
             //
-            synchronized(this)
+            synchronized (this)
             {
                 _state = StateUninitialized;
                 notifyAll();
@@ -93,14 +83,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             throw ex;
         }
 
-        if(printAdapterReady)
+        if (printAdapterReady)
         {
             System.out.println(_name + " ready");
         }
 
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_state == StateActivating);
+            assert (_state == StateActivating);
 
             //
             // Signal threads waiting for the activation.
@@ -108,81 +98,75 @@ public final class ObjectAdapterI implements ObjectAdapter
             _state = StateActive;
             notifyAll();
 
-            for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+            for (IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
                 factory.activate();
             }
         }
     }
 
-    @Override
-    public synchronized void
-    hold()
+    @Override public synchronized void hold()
     {
         checkForDeactivation();
         _state = StateHeld;
-        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+        for (IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.hold();
         }
     }
 
-    @Override
-    public void
-    waitForHold()
+    @Override public void waitForHold()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
 
         List<IncomingConnectionFactory> incomingConnectionFactories;
-        synchronized(this)
+        synchronized (this)
         {
             checkForDeactivation();
             incomingConnectionFactories = new ArrayList<>(_incomingConnectionFactories);
         }
 
-        for(IncomingConnectionFactory factory : incomingConnectionFactories)
+        for (IncomingConnectionFactory factory : incomingConnectionFactories)
         {
             try
             {
                 factory.waitUntilHolding();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
                 throw new OperationInterruptedException(ex);
             }
         }
     }
 
-    @Override
-    public void
-    deactivate()
+    @Override public void deactivate()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
 
-        synchronized(this)
+        synchronized (this)
         {
             //
             // Wait for activation to complete. This is necessary to
             // not get out of order locator updates.
             //
-            while(_state == StateActivating)
+            while (_state == StateActivating)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                     throw new OperationInterruptedException(ex);
                 }
             }
-            if(_state > StateDeactivating)
+            if (_state > StateDeactivating)
             {
                 return;
             }
@@ -196,7 +180,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         try
         {
-            if(_routerInfo != null)
+            if (_routerInfo != null)
             {
                 //
                 // Remove entry from the router manager.
@@ -211,7 +195,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
             updateLocatorRegistry(_locatorInfo, null);
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             //
             // We can't throw exceptions in deactivate so we ignore
@@ -219,25 +203,23 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
         }
 
-        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+        for (IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.destroy();
         }
 
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
-        synchronized(this)
+        synchronized (this)
         {
             _state = StateDeactivated;
             notifyAll();
         }
     }
 
-    @Override
-    public void
-    waitForDeactivate()
+    @Override public void waitForDeactivate()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
@@ -245,18 +227,18 @@ public final class ObjectAdapterI implements ObjectAdapter
         try
         {
             List<IncomingConnectionFactory> incomingConnectionFactories;
-            synchronized(this)
+            synchronized (this)
             {
                 //
                 // Wait for deactivation of the adapter itself, and
                 // for the return of all direct method calls using
                 // this adapter.
                 //
-                while((_state < StateDeactivated) || _directCount > 0)
+                while ((_state < StateDeactivated) || _directCount > 0)
                 {
                     wait();
                 }
-                if(_state > StateDeactivated)
+                if (_state > StateDeactivated)
                 {
                     return;
                 }
@@ -268,29 +250,22 @@ public final class ObjectAdapterI implements ObjectAdapter
             // finished (the incoming connection factory list is immutable
             // at this point).
             //
-            for(IncomingConnectionFactory f : incomingConnectionFactories)
+            for (IncomingConnectionFactory f : incomingConnectionFactories)
             {
                 f.waitUntilFinished();
             }
         }
-        catch(InterruptedException e)
+        catch (InterruptedException e)
         {
             throw new OperationInterruptedException();
         }
     }
 
-    @Override
-    public synchronized boolean
-    isDeactivated()
-    {
-        return _state >= StateDeactivated;
-    }
+    @Override public synchronized boolean isDeactivated() { return _state >= StateDeactivated; }
 
-    @Override
-    public void
-    destroy()
+    @Override public void destroy()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
@@ -301,27 +276,27 @@ public final class ObjectAdapterI implements ObjectAdapter
         deactivate();
         waitForDeactivate();
 
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_state >= StateDeactivated);
+            assert (_state >= StateDeactivated);
 
             //
             // Only a single thread is allowed to destroy the object
             // adapter. Other threads wait for the destruction to be
             // completed.
             //
-            while(_state == StateDestroying)
+            while (_state == StateDestroying)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                     throw new OperationInterruptedException(ex);
                 }
             }
-            if(_state == StateDestroyed)
+            if (_state == StateDestroyed)
             {
                 return;
             }
@@ -338,7 +313,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         // Destroy the thread pool.
         //
-        if(_threadPool != null)
+        if (_threadPool != null)
         {
             _threadPool.destroy();
             try
@@ -353,7 +328,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         _objectAdapterFactory.removeObjectAdapter(this);
 
-        synchronized(this)
+        synchronized (this)
         {
             _incomingConnectionFactories.clear();
 
@@ -376,16 +351,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    @Override
-    public ObjectPrx
-    add(com.zeroc.Ice.Object object, Identity ident)
-    {
-        return addFacet(object, ident, "");
-    }
+    @Override public ObjectPrx add(com.zeroc.Ice.Object object, Identity ident) { return addFacet(object, ident, ""); }
 
-    @Override
-    public synchronized ObjectPrx
-    addFacet(com.zeroc.Ice.Object object, Identity ident, String facet)
+    @Override public synchronized ObjectPrx addFacet(com.zeroc.Ice.Object object, Identity ident, String facet)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -404,16 +372,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newProxy(id, facet);
     }
 
-    @Override
-    public ObjectPrx
-    addWithUUID(com.zeroc.Ice.Object object)
-    {
-        return addFacetWithUUID(object, "");
-    }
+    @Override public ObjectPrx addWithUUID(com.zeroc.Ice.Object object) { return addFacetWithUUID(object, ""); }
 
-    @Override
-    public ObjectPrx
-    addFacetWithUUID(com.zeroc.Ice.Object object, String facet)
+    @Override public ObjectPrx addFacetWithUUID(com.zeroc.Ice.Object object, String facet)
     {
         Identity ident = new Identity();
         ident.category = "";
@@ -422,9 +383,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return addFacet(object, ident, facet);
     }
 
-    @Override
-    public synchronized void
-    addDefaultServant(com.zeroc.Ice.Object servant, String category)
+    @Override public synchronized void addDefaultServant(com.zeroc.Ice.Object servant, String category)
     {
         checkServant(servant);
         checkForDeactivation();
@@ -432,16 +391,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         _servantManager.addDefaultServant(servant, category);
     }
 
-    @Override
-    public com.zeroc.Ice.Object
-    remove(Identity ident)
-    {
-        return removeFacet(ident, "");
-    }
+    @Override public com.zeroc.Ice.Object remove(Identity ident) { return removeFacet(ident, ""); }
 
-    @Override
-    public synchronized com.zeroc.Ice.Object
-    removeFacet(Identity ident, String facet)
+    @Override public synchronized com.zeroc.Ice.Object removeFacet(Identity ident, String facet)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -449,9 +401,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeServant(ident, facet);
     }
 
-    @Override
-    public synchronized Map<String, Object>
-    removeAllFacets(Identity ident)
+    @Override public synchronized Map<String, Object> removeAllFacets(Identity ident)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -459,25 +409,16 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeAllFacets(ident);
     }
 
-    @Override
-    public synchronized com.zeroc.Ice.Object
-    removeDefaultServant(String category)
+    @Override public synchronized com.zeroc.Ice.Object removeDefaultServant(String category)
     {
         checkForDeactivation();
 
         return _servantManager.removeDefaultServant(category);
     }
 
-    @Override
-    public com.zeroc.Ice.Object
-    find(Identity ident)
-    {
-        return findFacet(ident, "");
-    }
+    @Override public com.zeroc.Ice.Object find(Identity ident) { return findFacet(ident, ""); }
 
-    @Override
-    public synchronized com.zeroc.Ice.Object
-    findFacet(Identity ident, String facet)
+    @Override public synchronized com.zeroc.Ice.Object findFacet(Identity ident, String facet)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -485,9 +426,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findServant(ident, facet);
     }
 
-    @Override
-    public synchronized java.util.Map<String, com.zeroc.Ice.Object>
-    findAllFacets(Identity ident)
+    @Override public synchronized java.util.Map<String, com.zeroc.Ice.Object> findAllFacets(Identity ident)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -495,9 +434,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findAllFacets(ident);
     }
 
-    @Override
-    public synchronized com.zeroc.Ice.Object
-    findByProxy(ObjectPrx proxy)
+    @Override public synchronized com.zeroc.Ice.Object findByProxy(ObjectPrx proxy)
     {
         checkForDeactivation();
 
@@ -505,45 +442,35 @@ public final class ObjectAdapterI implements ObjectAdapter
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
-    @Override
-    public synchronized com.zeroc.Ice.Object
-    findDefaultServant(String category)
+    @Override public synchronized com.zeroc.Ice.Object findDefaultServant(String category)
     {
         checkForDeactivation();
 
         return _servantManager.findDefaultServant(category);
     }
 
-    @Override
-    public synchronized void
-    addServantLocator(ServantLocator locator, String prefix)
+    @Override public synchronized void addServantLocator(ServantLocator locator, String prefix)
     {
         checkForDeactivation();
 
         _servantManager.addServantLocator(locator, prefix);
     }
 
-    @Override
-    public synchronized ServantLocator
-    removeServantLocator(String prefix)
+    @Override public synchronized ServantLocator removeServantLocator(String prefix)
     {
         checkForDeactivation();
 
         return _servantManager.removeServantLocator(prefix);
     }
 
-    @Override
-    public synchronized ServantLocator
-    findServantLocator(String prefix)
+    @Override public synchronized ServantLocator findServantLocator(String prefix)
     {
         checkForDeactivation();
 
         return _servantManager.findServantLocator(prefix);
     }
 
-    @Override
-    public synchronized ObjectPrx
-    createProxy(Identity ident)
+    @Override public synchronized ObjectPrx createProxy(Identity ident)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -551,9 +478,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newProxy(ident, "");
     }
 
-    @Override
-    public synchronized ObjectPrx
-    createDirectProxy(Identity ident)
+    @Override public synchronized ObjectPrx createDirectProxy(Identity ident)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -561,9 +486,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newDirectProxy(ident, "");
     }
 
-    @Override
-    public synchronized ObjectPrx
-    createIndirectProxy(Identity ident)
+    @Override public synchronized ObjectPrx createIndirectProxy(Identity ident)
     {
         checkForDeactivation();
         checkIdentity(ident);
@@ -571,20 +494,16 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newIndirectProxy(ident, "", _id);
     }
 
-    @Override
-    public synchronized void
-    setLocator(LocatorPrx locator)
+    @Override public synchronized void setLocator(LocatorPrx locator)
     {
         checkForDeactivation();
 
         _locatorInfo = _instance.locatorManager().get(locator);
     }
 
-    @Override
-    public synchronized LocatorPrx
-    getLocator()
+    @Override public synchronized LocatorPrx getLocator()
     {
-        if(_locatorInfo == null)
+        if (_locatorInfo == null)
         {
             return null;
         }
@@ -594,26 +513,22 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    @Override
-    public synchronized Endpoint[]
-    getEndpoints()
+    @Override public synchronized Endpoint[] getEndpoints()
     {
         List<Endpoint> endpoints = new ArrayList<>();
-        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+        for (IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             endpoints.add(factory.endpoint());
         }
         return endpoints.toArray(new Endpoint[0]);
     }
 
-    @Override
-    public void
-    refreshPublishedEndpoints()
+    @Override public void refreshPublishedEndpoints()
     {
         com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
-        synchronized(this)
+        synchronized (this)
         {
             checkForDeactivation();
 
@@ -629,9 +544,9 @@ public final class ObjectAdapterI implements ObjectAdapter
             dummy.name = "dummy";
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
-            synchronized(this)
+            synchronized (this)
             {
                 //
                 // Restore the old published endpoints.
@@ -642,27 +557,23 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    @Override
-    public synchronized Endpoint[]
-    getPublishedEndpoints()
+    @Override public synchronized Endpoint[] getPublishedEndpoints()
     {
         return java.util.Arrays.copyOf(_publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
     }
 
-    @Override
-    public void
-    setPublishedEndpoints(Endpoint[] newEndpoints)
+    @Override public void setPublishedEndpoints(Endpoint[] newEndpoints)
     {
         com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
-        synchronized(this)
+        synchronized (this)
         {
             checkForDeactivation();
-            if(_routerInfo != null)
+            if (_routerInfo != null)
             {
                 throw new IllegalArgumentException(
-                                   "can't set published endpoints on object adapter associated with a router");
+                    "can't set published endpoints on object adapter associated with a router");
             }
 
             oldPublishedEndpoints = _publishedEndpoints;
@@ -676,9 +587,9 @@ public final class ObjectAdapterI implements ObjectAdapter
             dummy.name = "dummy";
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
-            synchronized(this)
+            synchronized (this)
             {
                 //
                 // Restore the old published endpoints.
@@ -689,8 +600,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    public boolean
-    isLocal(ObjectPrx proxy)
+    public boolean isLocal(ObjectPrx proxy)
     {
         //
         // NOTE: it's important that isLocal() doesn't perform any blocking operations as
@@ -698,7 +608,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
 
         com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy)._getReference();
-        if(ref.isWellKnown())
+        if (ref.isWellKnown())
         {
             //
             // Check the active servant map to see if the well-known
@@ -706,7 +616,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             return _servantManager.hasServant(ref.getIdentity());
         }
-        else if(ref.isIndirect())
+        else if (ref.isIndirect())
         {
             //
             // Proxy is local if the reference adapter id matches this
@@ -718,7 +628,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             com.zeroc.IceInternal.EndpointI[] endpoints = ref.getEndpoints();
 
-            synchronized(this)
+            synchronized (this)
             {
                 checkForDeactivation();
 
@@ -727,18 +637,18 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // endpoints used by this object adapter's incoming connection
                 // factories are considered local.
                 //
-                for(com.zeroc.IceInternal.EndpointI endpoint : endpoints)
+                for (com.zeroc.IceInternal.EndpointI endpoint : endpoints)
                 {
-                    for(com.zeroc.IceInternal.EndpointI p : _publishedEndpoints)
+                    for (com.zeroc.IceInternal.EndpointI p : _publishedEndpoints)
                     {
-                        if(endpoint.equivalent(p))
+                        if (endpoint.equivalent(p))
                         {
                             return true;
                         }
                     }
-                    for(IncomingConnectionFactory p : _incomingConnectionFactories)
+                    for (IncomingConnectionFactory p : _incomingConnectionFactories)
                     {
-                        if(p.isLocal(endpoint))
+                        if (p.isLocal(endpoint))
                         {
                             return true;
                         }
@@ -750,74 +660,60 @@ public final class ObjectAdapterI implements ObjectAdapter
         return false;
     }
 
-    public void
-    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch,
-                            com.zeroc.IceInternal.CommunicatorFlushBatch outAsync)
+    public void flushAsyncBatchRequests(
+        com.zeroc.Ice.CompressBatch compressBatch,
+        com.zeroc.IceInternal.CommunicatorFlushBatch outAsync)
     {
         List<IncomingConnectionFactory> f;
-        synchronized(this)
-        {
-            f = new ArrayList<>(_incomingConnectionFactories);
-        }
-        for(IncomingConnectionFactory p : f)
+        synchronized (this) { f = new ArrayList<>(_incomingConnectionFactories); }
+        for (IncomingConnectionFactory p : f)
         {
             p.flushAsyncBatchRequests(compressBatch, outAsync);
         }
     }
 
-    public void
-    updateConnectionObservers()
+    public void updateConnectionObservers()
     {
         List<IncomingConnectionFactory> f;
-        synchronized(this)
-        {
-            f = new ArrayList<>(_incomingConnectionFactories);
-        }
-        for(IncomingConnectionFactory p : f)
+        synchronized (this) { f = new ArrayList<>(_incomingConnectionFactories); }
+        for (IncomingConnectionFactory p : f)
         {
             p.updateConnectionObservers();
         }
     }
 
-    public void
-    updateThreadObservers()
+    public void updateThreadObservers()
     {
         com.zeroc.IceInternal.ThreadPool threadPool = null;
-        synchronized(this)
-        {
-            threadPool = _threadPool;
-        }
-        if(threadPool != null)
+        synchronized (this) { threadPool = _threadPool; }
+        if (threadPool != null)
         {
             threadPool.updateObservers();
         }
     }
 
-    public synchronized void
-    incDirectCount()
+    public synchronized void incDirectCount()
     {
         checkForDeactivation();
 
-        assert(_directCount >= 0);
+        assert (_directCount >= 0);
         ++_directCount;
     }
 
-    public synchronized void
-    decDirectCount()
+    public synchronized void decDirectCount()
     {
         // Not check for deactivation here!
 
-        assert(_instance != null); // Must not be called after destroy().
+        assert (_instance != null); // Must not be called after destroy().
 
-        assert(_directCount > 0);
-        if(--_directCount == 0)
+        assert (_directCount > 0);
+        if (--_directCount == 0)
         {
             notifyAll();
         }
     }
 
-    public com.zeroc.IceInternal.ThreadPool
-    getThreadPool()
+    public com.zeroc.IceInternal.ThreadPool getThreadPool()
     {
         // No mutex lock necessary, _threadPool and _instance are
         // immutable after creation until they are removed in
@@ -825,9 +721,9 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         // Not check for deactivation here!
 
-        assert(_instance != null); // Must not be called after destroy().
+        assert (_instance != null); // Must not be called after destroy().
 
-        if(_threadPool != null)
+        if (_threadPool != null)
         {
             return _threadPool;
         }
@@ -837,8 +733,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    public com.zeroc.IceInternal.ServantManager
-    getServantManager()
+    public com.zeroc.IceInternal.ServantManager getServantManager()
     {
         //
         // No mutex lock necessary, _servantManager is immutable.
@@ -846,23 +741,20 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager;
     }
 
-    public com.zeroc.IceInternal.ACMConfig
-    getACM()
+    public com.zeroc.IceInternal.ACMConfig getACM()
     {
         // No check for deactivation here!
-        assert(_instance != null); // Must not be called after destroy().
+        assert (_instance != null); // Must not be called after destroy().
         return _acm;
     }
 
-    public synchronized void
-    setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection)
+    public synchronized void setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection)
     {
         checkForDeactivation();
         connection.setAdapterAndServantManager(this, _servantManager);
     }
 
-    public int
-    messageSizeMax()
+    public int messageSizeMax()
     {
         // No mutex lock, immutable.
         return _messageSizeMax;
@@ -871,10 +763,13 @@ public final class ObjectAdapterI implements ObjectAdapter
     //
     // Only for use by com.zeroc.IceInternal.ObjectAdapterFactory
     //
-    public
-    ObjectAdapterI(com.zeroc.IceInternal.Instance instance, Communicator communicator,
-                   com.zeroc.IceInternal.ObjectAdapterFactory objectAdapterFactory, String name,
-                   RouterPrx router, boolean noConfig)
+    public ObjectAdapterI(
+        com.zeroc.IceInternal.Instance instance,
+        Communicator communicator,
+        com.zeroc.IceInternal.ObjectAdapterFactory objectAdapterFactory,
+        String name,
+        RouterPrx router,
+        boolean noConfig)
     {
         _instance = instance;
         _communicator = communicator;
@@ -884,7 +779,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         _directCount = 0;
         _noConfig = noConfig;
 
-        if(_noConfig)
+        if (_noConfig)
         {
             _id = "";
             _replicaGroupId = "";
@@ -901,12 +796,12 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         // Warn about unknown object adapter properties.
         //
-        if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuffer message = new StringBuffer("found unknown properties for object adapter `");
             message.append(_name);
             message.append("':");
-            for(String p : unknownProps)
+            for (String p : unknownProps)
             {
                 message.append("\n    ");
                 message.append(p);
@@ -917,7 +812,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         // Make sure named adapter has some configuration.
         //
-        if(router == null && noProps)
+        if (router == null && noProps)
         {
             //
             // These need to be set to prevent finalizer from complaining.
@@ -943,20 +838,20 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         }
-        catch(ProxyParseException e)
+        catch (ProxyParseException e)
         {
             InitializationException ex = new InitializationException();
             ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
             throw ex;
         }
 
-        _acm = new com.zeroc.IceInternal.ACMConfig(properties, communicator.getLogger(), _name + ".ACM",
-                                                   instance.serverACM());
+        _acm = new com.zeroc.IceInternal
+                   .ACMConfig(properties, communicator.getLogger(), _name + ".ACM", instance.serverACM());
 
         {
             final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
             int num = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
-            if(num < 1 || num > 0x7fffffff / 1024)
+            if (num < 1 || num > 0x7fffffff / 1024)
             {
                 _messageSizeMax = 0x7fffffff;
             }
@@ -974,27 +869,28 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             // Create the per-adapter thread pool, if necessary.
             //
-            if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+            if (threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
                 _threadPool = new com.zeroc.IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
-            if(router == null)
+            if (router == null)
             {
                 router = RouterPrx.uncheckedCast(_instance.proxyFactory().propertyToProxy(name + ".Router"));
             }
-            if(router != null)
+            if (router != null)
             {
                 _routerInfo = _instance.routerManager().get(router);
-                assert(_routerInfo != null);
+                assert (_routerInfo != null);
 
                 //
                 // Make sure this router is not already registered with another adapter.
                 //
-                if(_routerInfo.getAdapter() != null)
+                if (_routerInfo.getAdapter() != null)
                 {
-                    throw new AlreadyRegisteredException("object adapter with router",
-                                                         _communicator.identityToString(router.ice_getIdentity()));
+                    throw new AlreadyRegisteredException(
+                        "object adapter with router",
+                        _communicator.identityToString(router.ice_getIdentity()));
                 }
 
                 //
@@ -1018,26 +914,24 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // factory might change it, for example, to fill in the real port number.
                 //
                 List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                for(EndpointI endp : endpoints)
+                for (EndpointI endp : endpoints)
                 {
                     EndpointI.ExpandHostResult result = endp.expandHost();
-                    for(EndpointI expanded : result.endpoints)
+                    for (EndpointI expanded : result.endpoints)
                     {
-
-                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
-                                                                                          expanded,
-                                                                                          result.publish,
-                                                                                          this);
+                        IncomingConnectionFactory factory =
+                            new IncomingConnectionFactory(instance, expanded, result.publish, this);
                         _incomingConnectionFactories.add(factory);
                     }
                 }
-                if(endpoints.isEmpty())
+                if (endpoints.isEmpty())
                 {
                     com.zeroc.IceInternal.TraceLevels tl = _instance.traceLevels();
-                    if(tl.network >= 2)
+                    if (tl.network >= 2)
                     {
-                        _instance.initializationData().logger.trace(tl.networkCat,
-                                                                    "created adapter `" + name + "' without endpoints");
+                        _instance.initializationData().logger.trace(
+                            tl.networkCat,
+                            "created adapter `" + name + "' without endpoints");
                     }
                 }
             }
@@ -1047,7 +941,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             _publishedEndpoints = computePublishedEndpoints();
 
-            if(properties.getProperty(_name + ".Locator").length() > 0)
+            if (properties.getProperty(_name + ".Locator").length() > 0)
             {
                 setLocator(LocatorPrx.uncheckedCast(_instance.proxyFactory().propertyToProxy(_name + ".Locator")));
             }
@@ -1056,30 +950,26 @@ public final class ObjectAdapterI implements ObjectAdapter
                 setLocator(_instance.referenceFactory().getDefaultLocator());
             }
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             destroy();
             throw ex;
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
-            if(_state < StateDeactivated)
+            if (_state < StateDeactivated)
             {
-                _instance.initializationData().logger.warning("object adapter `" + getName() +
-                                                              "' has not been deactivated");
+                _instance.initializationData().logger.warning(
+                    "object adapter `" + getName() + "' has not been deactivated");
             }
-            else if(_state != StateDestroyed)
+            else if (_state != StateDestroyed)
             {
-                _instance.initializationData().logger.warning("object adapter `" + getName() +
-                                                              "' has not been destroyed");
+                _instance.initializationData().logger.warning(
+                    "object adapter `" + getName() + "' has not been destroyed");
             }
             else
             {
@@ -1090,7 +980,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
             }
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -1099,14 +989,13 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    private ObjectPrx
-    newProxy(Identity ident, String facet)
+    private ObjectPrx newProxy(Identity ident, String facet)
     {
-        if(_id.length() == 0)
+        if (_id.length() == 0)
         {
             return newDirectProxy(ident, facet);
         }
-        else if(_replicaGroupId.length() == 0)
+        else if (_replicaGroupId.length() == 0)
         {
             return newIndirectProxy(ident, facet, _id);
         }
@@ -1116,19 +1005,17 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    private ObjectPrx
-    newDirectProxy(Identity ident, String facet)
+    private ObjectPrx newDirectProxy(Identity ident, String facet)
     {
         //
         // Create a reference and return a proxy for this reference.
         //
-        com.zeroc.IceInternal.Reference ref = _instance.referenceFactory().create(ident, facet, _reference,
-                                                                                  _publishedEndpoints);
+        com.zeroc.IceInternal.Reference ref =
+            _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
-    private ObjectPrx
-    newIndirectProxy(Identity ident, String facet, String id)
+    private ObjectPrx newIndirectProxy(Identity ident, String facet, String id)
     {
         //
         // Create a reference with the adapter id and return a proxy
@@ -1138,10 +1025,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
-    private void
-    checkForDeactivation()
+    private void checkForDeactivation()
     {
-        if(_state >= StateDeactivating)
+        if (_state >= StateDeactivating)
         {
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
             ex.name = getName();
@@ -1149,31 +1035,28 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    private static void
-    checkIdentity(Identity ident)
+    private static void checkIdentity(Identity ident)
     {
-        if(ident.name == null || ident.name.length() == 0)
+        if (ident.name == null || ident.name.length() == 0)
         {
             throw new IllegalIdentityException(ident);
         }
 
-        if(ident.category == null)
+        if (ident.category == null)
         {
             ident.category = "";
         }
     }
 
-    private static void
-    checkServant(com.zeroc.Ice.Object servant)
+    private static void checkServant(com.zeroc.Ice.Object servant)
     {
-        if(servant == null)
+        if (servant == null)
         {
             throw new IllegalServantException("cannot add null servant to Object Adapter");
         }
     }
 
-    private List<com.zeroc.IceInternal.EndpointI>
-    parseEndpoints(String endpts, boolean oaEndpoints)
+    private List<com.zeroc.IceInternal.EndpointI> parseEndpoints(String endpts, boolean oaEndpoints)
     {
         int beg;
         int end = 0;
@@ -1181,12 +1064,12 @@ public final class ObjectAdapterI implements ObjectAdapter
         final String delim = " \t\n\r";
 
         List<com.zeroc.IceInternal.EndpointI> endpoints = new ArrayList<>();
-        while(end < endpts.length())
+        while (end < endpts.length())
         {
             beg = com.zeroc.IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
-            if(beg == -1)
+            if (beg == -1)
             {
-                if(!endpoints.isEmpty())
+                if (!endpoints.isEmpty())
                 {
                     throw new EndpointParseException("invalid empty object adapter endpoint");
                 }
@@ -1194,10 +1077,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
 
             end = beg;
-            while(true)
+            while (true)
             {
                 end = endpts.indexOf(':', end);
-                if(end == -1)
+                if (end == -1)
                 {
                     end = endpts.length();
                     break;
@@ -1206,21 +1089,21 @@ public final class ObjectAdapterI implements ObjectAdapter
                 {
                     boolean quoted = false;
                     int quote = beg;
-                    while(true)
+                    while (true)
                     {
                         quote = endpts.indexOf('\"', quote);
-                        if(quote == -1 || end < quote)
+                        if (quote == -1 || end < quote)
                         {
                             break;
                         }
                         else
                         {
                             quote = endpts.indexOf('\"', ++quote);
-                            if(quote == -1)
+                            if (quote == -1)
                             {
                                 break;
                             }
-                            else if(end < quote)
+                            else if (end < quote)
                             {
                                 quoted = true;
                                 break;
@@ -1228,7 +1111,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                             ++quote;
                         }
                     }
-                    if(!quoted)
+                    if (!quoted)
                     {
                         break;
                     }
@@ -1236,14 +1119,14 @@ public final class ObjectAdapterI implements ObjectAdapter
                 }
             }
 
-            if(end == beg)
+            if (end == beg)
             {
                 throw new EndpointParseException("invalid empty object adapter endpoint");
             }
 
             String s = endpts.substring(beg, end);
             com.zeroc.IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
-            if(endp == null)
+            if (endp == null)
             {
                 throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
             }
@@ -1255,19 +1138,18 @@ public final class ObjectAdapterI implements ObjectAdapter
         return endpoints;
     }
 
-    private EndpointI[]
-    computePublishedEndpoints()
+    private EndpointI[] computePublishedEndpoints()
     {
         List<EndpointI> endpoints;
-        if(_routerInfo != null)
+        if (_routerInfo != null)
         {
             //
             // Get the router's server proxy endpoints and use them as the published endpoints.
             //
             endpoints = new ArrayList<>();
-            for(EndpointI endpt : _routerInfo.getServerEndpoints())
+            for (EndpointI endpt : _routerInfo.getServerEndpoints())
             {
-                if(!endpoints.contains(endpt))
+                if (!endpoints.contains(endpt))
                 {
                     endpoints.add(endpt);
                 }
@@ -1281,23 +1163,23 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
             endpoints = parseEndpoints(endpts, false);
-            if(endpoints.isEmpty())
+            if (endpoints.isEmpty())
             {
                 //
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints
                 // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                 // to include actual addresses in the published endpoints.
                 //
-                for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+                for (IncomingConnectionFactory factory : _incomingConnectionFactories)
                 {
-                    for(EndpointI endpt : factory.endpoint().expandIfWildcard())
+                    for (EndpointI endpt : factory.endpoint().expandIfWildcard())
                     {
                         //
                         // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
                         // expands to multiple addresses. In this case, multiple incoming connection
                         // factories can point to the same published endpoint.
                         //
-                        if(!endpoints.contains(endpt))
+                        if (!endpoints.contains(endpt))
                         {
                             endpoints.add(endpt);
                         }
@@ -1306,15 +1188,15 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
         }
 
-        if(_instance.traceLevels().network >= 1 && !endpoints.isEmpty())
+        if (_instance.traceLevels().network >= 1 && !endpoints.isEmpty())
         {
             StringBuffer s = new StringBuffer("published endpoints for object adapter `");
             s.append(_name);
             s.append("':\n");
             boolean first = true;
-            for(com.zeroc.IceInternal.EndpointI endpoint : endpoints)
+            for (com.zeroc.IceInternal.EndpointI endpoint : endpoints)
             {
-                if(!first)
+                if (!first)
                 {
                     s.append(":");
                 }
@@ -1326,10 +1208,9 @@ public final class ObjectAdapterI implements ObjectAdapter
         return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
-    private void
-    updateLocatorRegistry(com.zeroc.IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy)
+    private void updateLocatorRegistry(com.zeroc.IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy)
     {
-        if(_id.length() == 0 || locatorInfo == null)
+        if (_id.length() == 0 || locatorInfo == null)
         {
             return; // Nothing to update.
         }
@@ -1339,14 +1220,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         // blocking other threads that need to lock this OA.
         //
         LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
-        if(locatorRegistry == null)
+        if (locatorRegistry == null)
         {
             return;
         }
 
         try
         {
-            if(_replicaGroupId.length() == 0)
+            if (_replicaGroupId.length() == 0)
             {
                 locatorRegistry.setAdapterDirectProxy(_id, proxy);
             }
@@ -1355,9 +1236,9 @@ public final class ObjectAdapterI implements ObjectAdapter
                 locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
             }
         }
-        catch(AdapterNotFoundException ex)
+        catch (AdapterNotFoundException ex)
         {
-            if(_instance.traceLevels().location >= 1)
+            if (_instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("couldn't update object adapter `");
@@ -1372,9 +1253,9 @@ public final class ObjectAdapterI implements ObjectAdapter
             ex1.id = _id;
             throw ex1;
         }
-        catch(InvalidReplicaGroupIdException ex)
+        catch (InvalidReplicaGroupIdException ex)
         {
-            if(_instance.traceLevels().location >= 1)
+            if (_instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("couldn't update object adapter `");
@@ -1391,9 +1272,9 @@ public final class ObjectAdapterI implements ObjectAdapter
             ex1.id = _replicaGroupId;
             throw ex1;
         }
-        catch(AdapterAlreadyActiveException ex)
+        catch (AdapterAlreadyActiveException ex)
         {
-            if(_instance.traceLevels().location >= 1)
+            if (_instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("couldn't update object adapter `");
@@ -1407,17 +1288,17 @@ public final class ObjectAdapterI implements ObjectAdapter
             ex1.id = _id;
             throw ex1;
         }
-        catch(ObjectAdapterDeactivatedException e)
+        catch (ObjectAdapterDeactivatedException e)
         {
             // Expected if collocated call and OA is deactivated, ignore.
         }
-        catch(CommunicatorDestroyedException e)
+        catch (CommunicatorDestroyedException e)
         {
             // Ignore
         }
-        catch(LocalException e)
+        catch (LocalException e)
         {
-            if(_instance.traceLevels().location >= 1)
+            if (_instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
                 s.append("couldn't update object adapter `");
@@ -1429,20 +1310,20 @@ public final class ObjectAdapterI implements ObjectAdapter
             throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
         }
 
-        if(_instance.traceLevels().location >= 1)
+        if (_instance.traceLevels().location >= 1)
         {
             StringBuilder s = new StringBuilder(128);
             s.append("updated object adapter `");
             s.append(_id);
             s.append("' endpoints with the locator registry\n");
             s.append("endpoints = ");
-            if(proxy != null)
+            if (proxy != null)
             {
                 Endpoint[] endpoints = proxy.ice_getEndpoints();
-                for(int i = 0; i < endpoints.length; i++)
+                for (int i = 0; i < endpoints.length; i++)
                 {
                     s.append(endpoints[i].toString());
-                    if(i + 1 < endpoints.length)
+                    if (i + 1 < endpoints.length)
                     {
                         s.append(":");
                     }
@@ -1452,8 +1333,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    static private String[] _suffixes =
-    {
+    static private String[] _suffixes = {
         "ACM",
         "ACM.Timeout",
         "ACM.Heartbeat",
@@ -1490,20 +1370,18 @@ public final class ObjectAdapterI implements ObjectAdapter
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
-        "ThreadPool.Serialize"
-    };
+        "ThreadPool.Serialize"};
 
-    boolean
-    filterProperties(List<String> unknownProps)
+    boolean filterProperties(List<String> unknownProps)
     {
         //
         // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
         //
         boolean addUnknown = true;
         String prefix = _name + ".";
-        for(int i = 0; com.zeroc.IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+        for (int i = 0; com.zeroc.IceInternal.PropertyNames.clPropNames[i] != null; ++i)
         {
-            if(prefix.startsWith(com.zeroc.IceInternal.PropertyNames.clPropNames[i] + "."))
+            if (prefix.startsWith(com.zeroc.IceInternal.PropertyNames.clPropNames[i] + "."))
             {
                 addUnknown = false;
                 break;
@@ -1512,12 +1390,12 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         boolean noProps = true;
         Map<String, String> props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for(String prop : props.keySet())
+        for (String prop : props.keySet())
         {
             boolean valid = false;
-            for(String suffix : _suffixes)
+            for (String suffix : _suffixes)
             {
-                if(prop.equals(prefix + suffix))
+                if (prop.equals(prefix + suffix))
                 {
                     noProps = false;
                     valid = true;
@@ -1525,7 +1403,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 }
             }
 
-            if(!valid && addUnknown)
+            if (!valid && addUnknown)
             {
                 unknownProps.add(prop);
             }
@@ -1541,7 +1419,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     private static final int StateDeactivating = 4;
     private static final int StateDeactivated = 5;
     private static final int StateDestroying = 6;
-    private static final int StateDestroyed  = 7;
+    private static final int StateDestroyed = 7;
 
     private int _state = StateUninitialized;
     private com.zeroc.IceInternal.Instance _instance;

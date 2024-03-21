@@ -21,9 +21,7 @@ public class Client extends test.TestHelper
 {
     static public class catchI implements _catch
     {
-        public catchI()
-        {
-        }
+        public catchI() {}
 
         @Override
         public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(int _clone, com.zeroc.Ice.Current current)
@@ -35,35 +33,31 @@ public class Client extends test.TestHelper
 
     static public class defaultI implements _default
     {
-        public defaultI()
-        {
-        }
+        public defaultI() {}
 
-        @Override
-        public void _do(com.zeroc.Ice.Current current)
-        {
-            assert current.operation.equals("do");
-        }
+        @Override public void _do(com.zeroc.Ice.Current current) { assert current.operation.equals("do"); }
     }
 
     static public class elseI extends _else
     {
-        public elseI()
-        {
-        }
+        public elseI() {}
     }
 
     static public class newI implements _new
     {
-        public newI()
-        {
-        }
+        public newI() {}
 
         @Override
-        public _assert _notify(_break _notifyAll, _else _null, finalizePrx _package,
-                               catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super,
-                               com.zeroc.Ice.Current current)
-            throws _hashCode, _import
+        public _assert _notify(
+            _break _notifyAll,
+            _else _null,
+            finalizePrx _package,
+            catchPrx _public,
+            defaultPrx _return,
+            int _static,
+            int _strictfp,
+            int _super,
+            com.zeroc.Ice.Current current) throws _hashCode, _import
         {
             return null;
         }
@@ -78,18 +72,14 @@ public class Client extends test.TestHelper
             return java.util.concurrent.CompletableFuture.completedFuture(_continue);
         }
 
-        @Override
-        public void _do(com.zeroc.Ice.Current current)
-        {
-        }
+        @Override public void _do(com.zeroc.Ice.Current current) {}
     }
 
     //
     // This section of the test is present to ensure that the C++ types
     // are named correctly. It is not expected to run.
     //
-    @SuppressWarnings({ "unused", "null" })
-    private static void testtypes()
+    @SuppressWarnings({"unused", "null"}) private static void testtypes()
     {
         _assert v = _assert._boolean;
         _break b = new _break();
@@ -137,7 +127,7 @@ public class Client extends test.TestHelper
         // Ice.MemoryLimitException is raised as expected.
         //
         properties.setProperty("Ice.MessageSizeMax", "100");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new defaultI(), com.zeroc.Ice.Util.stringToIdentity("test"));

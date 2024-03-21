@@ -37,31 +37,25 @@ public enum ACMHeartbeat
      **/
     HeartbeatAlways(3);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ACMHeartbeat valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return HeartbeatOff;
-        case 1:
-            return HeartbeatOnDispatch;
-        case 2:
-            return HeartbeatOnIdle;
-        case 3:
-            return HeartbeatAlways;
+            case 0:
+                return HeartbeatOff;
+            case 1:
+                return HeartbeatOnDispatch;
+            case 2:
+                return HeartbeatOnIdle;
+            case 3:
+                return HeartbeatAlways;
         }
         return null;
     }
 
-    private ACMHeartbeat(int v)
-    {
-        _value = v;
-    }
+    private ACMHeartbeat(int v) { _value = v; }
 
     private final int _value;
 }

@@ -8,10 +8,9 @@ import test.Ice.servantLocator.Test.TestActivation;
 
 public final class AMDTestActivationI implements TestActivation
 {
-    @Override
-    public void activateServantLocator(boolean activate, com.zeroc.Ice.Current current)
+    @Override public void activateServantLocator(boolean activate, com.zeroc.Ice.Current current)
     {
-        if(activate)
+        if (activate)
         {
             current.adapter.addServantLocator(new AMDServantLocatorI(""), "");
             current.adapter.addServantLocator(new AMDServantLocatorI("category"), "category");

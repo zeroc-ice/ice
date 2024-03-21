@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class NoEndpointException extends LocalException
 {
-    public NoEndpointException()
-    {
-        this.proxy = "";
-    }
+    public NoEndpointException() { this.proxy = ""; }
 
     public NoEndpointException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class NoEndpointException extends LocalException
         this.proxy = "";
     }
 
-    public NoEndpointException(String proxy)
-    {
-        this.proxy = proxy;
-    }
+    public NoEndpointException(String proxy) { this.proxy = proxy; }
 
     public NoEndpointException(String proxy, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class NoEndpointException extends LocalException
         this.proxy = proxy;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::NoEndpointException";
-    }
+    public String ice_id() { return "::Ice::NoEndpointException"; }
 
     /**
      * The stringified proxy for which no suitable endpoint is available.

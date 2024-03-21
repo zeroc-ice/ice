@@ -52,10 +52,7 @@ public class RequestFailedException extends LocalException
         this.operation = operation;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::RequestFailedException";
-    }
+    public String ice_id() { return "::Ice::RequestFailedException"; }
 
     /**
      * The identity of the Ice Object to which the request was sent.

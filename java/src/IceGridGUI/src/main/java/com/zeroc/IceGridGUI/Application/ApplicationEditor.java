@@ -4,24 +4,20 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JComponent;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
-
-@SuppressWarnings("unchecked")
-class ApplicationEditor extends Editor
+@SuppressWarnings("unchecked") class ApplicationEditor extends Editor
 {
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         Root root = (Root)_target;
         MainPane mainPane = _target.getCoordinator().getMainPane();
@@ -29,7 +25,7 @@ class ApplicationEditor extends Editor
         root.disableSelectionListener();
         try
         {
-            if(isSimpleUpdate())
+            if (isSimpleUpdate())
             {
                 writeDescriptor();
                 root.updated();
@@ -46,7 +42,7 @@ class ApplicationEditor extends Editor
                 {
                     root.rebuild();
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     root.restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
@@ -62,7 +58,7 @@ class ApplicationEditor extends Editor
                 root.updated();
                 root.getEditable().markModified();
 
-                if(!savedDescriptor.name.equals(root.getId()))
+                if (!savedDescriptor.name.equals(root.getId()))
                 {
                     mainPane.resetTitle(root);
                     root.getTreeModel().nodeChanged(root);
@@ -92,7 +88,7 @@ class ApplicationEditor extends Editor
         //
         // Distrib
         //
-        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
+        _distrib = new JComboBox(new Object[] {NO_DISTRIB, DEFAULT_DISTRIB});
         _distrib.setEditable(true);
         _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
@@ -103,11 +99,9 @@ class ApplicationEditor extends Editor
         _distribDirs.setToolTipText(
             "<html>Include only these directories when patching.<br>"
             + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
-
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Name");
         builder.append(_name, 3);
@@ -145,8 +139,7 @@ class ApplicationEditor extends Editor
         builder.nextLine();
     }
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Application Properties");
@@ -165,7 +158,7 @@ class ApplicationEditor extends Editor
         descriptor.variables = _variables.get();
         descriptor.description = _description.getText();
 
-        if(_distrib.getSelectedItem() == NO_DISTRIB)
+        if (_distrib.getSelectedItem() == NO_DISTRIB)
         {
             descriptor.distrib.icepatch = "";
         }
@@ -176,11 +169,7 @@ class ApplicationEditor extends Editor
         descriptor.distrib.directories = _distribDirs.getList();
     }
 
-    @Override
-    protected boolean validate()
-    {
-        return check(new String[]{"Name", _name.getText().trim()});
-    }
+    @Override protected boolean validate() { return check(new String[] {"Name", _name.getText().trim()}); }
 
     void show(Root root)
     {
@@ -205,7 +194,7 @@ class ApplicationEditor extends Editor
         _distrib.setEnabled(true);
         _distrib.setEditable(true);
         String icepatch = Utils.substitute(descriptor.distrib.icepatch, resolver);
-        if(icepatch.equals(""))
+        if (icepatch.equals(""))
         {
             _distrib.setSelectedItem(NO_DISTRIB);
         }
@@ -224,10 +213,9 @@ class ApplicationEditor extends Editor
         detectUpdates(true);
     }
 
-    @Override
-    Utils.Resolver getDetailResolver()
+    @Override Utils.Resolver getDetailResolver()
     {
-        if(_target.getCoordinator().substitute())
+        if (_target.getCoordinator().substitute())
         {
             return _target.getResolver();
         }
@@ -237,14 +225,9 @@ class ApplicationEditor extends Editor
         }
     }
 
-    static private final Object NO_DISTRIB = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "None selected";
-            }
-        };
+    static private final Object NO_DISTRIB = new Object() {
+        @Override public String toString() { return "None selected"; }
+    };
     static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 
     private JTextField _name = new JTextField(20);

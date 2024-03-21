@@ -18,7 +18,7 @@ public class Server extends test.TestHelper
         //
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
         initData.dispatcher = dispatcher;
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));

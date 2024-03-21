@@ -20,19 +20,11 @@ package com.zeroc.Ice;
  **/
 public class VersionMismatchException extends LocalException
 {
-    public VersionMismatchException()
-    {
-    }
+    public VersionMismatchException() {}
 
-    public VersionMismatchException(Throwable cause)
-    {
-        super(cause);
-    }
+    public VersionMismatchException(Throwable cause) { super(cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::VersionMismatchException";
-    }
+    public String ice_id() { return "::Ice::VersionMismatchException"; }
 
     /** @hidden */
     public static final long serialVersionUID = 3839952284604400769L;

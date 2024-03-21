@@ -21,10 +21,7 @@ package com.zeroc.Ice;
  **/
 public class SyscallException extends LocalException
 {
-    public SyscallException()
-    {
-        this.error = 0;
-    }
+    public SyscallException() { this.error = 0; }
 
     public SyscallException(Throwable cause)
     {
@@ -32,10 +29,7 @@ public class SyscallException extends LocalException
         this.error = 0;
     }
 
-    public SyscallException(int error)
-    {
-        this.error = error;
-    }
+    public SyscallException(int error) { this.error = error; }
 
     public SyscallException(int error, Throwable cause)
     {
@@ -43,10 +37,7 @@ public class SyscallException extends LocalException
         this.error = error;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::SyscallException";
-    }
+    public String ice_id() { return "::Ice::SyscallException"; }
 
     /**
      * The error number describing the system exception. For C++ and Unix, this is equivalent to <code>errno</code>.

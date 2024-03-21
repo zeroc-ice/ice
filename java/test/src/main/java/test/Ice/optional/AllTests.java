@@ -4,24 +4,22 @@
 
 package test.Ice.optional;
 
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OptionalFormat;
+import com.zeroc.Ice.OutputStream;
 import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-
-import com.zeroc.Ice.InputStream;
-import com.zeroc.Ice.OperationMode;
-import com.zeroc.Ice.OptionalFormat;
-import com.zeroc.Ice.OutputStream;
-
 import test.Ice.optional.Test.*;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -77,8 +75,8 @@ public class AllTests
         mo1.setI(MyEnum.MyEnumMember);
         mo1.setJ(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
         mo1.setK(mo1);
-        mo1.setBs(new byte[] { (byte)5 });
-        mo1.setSs(new String[] { "test", "test2" });
+        mo1.setBs(new byte[] {(byte)5});
+        mo1.setSs(new String[] {"test", "test2"});
         mo1.setIid(new java.util.HashMap<>());
         mo1.getIid().put(4, 3);
         mo1.setSid(new java.util.HashMap<>());
@@ -90,12 +88,12 @@ public class AllTests
         vs.m = "hello";
         mo1.setVs(vs);
 
-        mo1.setShs(new short[] { (short)1 });
-        mo1.setEs(new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember });
-        mo1.setFss(new FixedStruct[] { fs });
-        mo1.setVss(new VarStruct[] { vs });
-        mo1.setOos(new OneOptional[] { oo1 });
-        mo1.setMips(new MyInterfacePrx[] { MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")) });
+        mo1.setShs(new short[] {(short)1});
+        mo1.setEs(new MyEnum[] {MyEnum.MyEnumMember, MyEnum.MyEnumMember});
+        mo1.setFss(new FixedStruct[] {fs});
+        mo1.setVss(new VarStruct[] {vs});
+        mo1.setOos(new OneOptional[] {oo1});
+        mo1.setMips(new MyInterfacePrx[] {MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))});
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -108,7 +106,7 @@ public class AllTests
         mo1.setImipd(new java.util.HashMap<>());
         mo1.getImipd().put(5, MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
 
-        mo1.setBos(new boolean[] { false, true, false });
+        mo1.setBos(new boolean[] {false, true, false});
 
         mo1.setSer(new SerializableClass(58));
 
@@ -124,8 +122,8 @@ public class AllTests
         test(mo1.getI() == MyEnum.MyEnumMember);
         test(mo1.getJ().equals(communicator.stringToProxy("test")));
         test(mo1.getK() == mo1);
-        test(java.util.Arrays.equals(mo1.getBs(), new byte[] { (byte)5 }));
-        test(java.util.Arrays.equals(mo1.getSs(), new String[] { "test", "test2" }));
+        test(java.util.Arrays.equals(mo1.getBs(), new byte[] {(byte)5}));
+        test(java.util.Arrays.equals(mo1.getSs(), new String[] {"test", "test2"}));
         test(mo1.getIid().get(4) == 3);
         test(mo1.getSid().get("test") == 10);
         test(mo1.getFs().equals(new FixedStruct(78)));
@@ -144,7 +142,7 @@ public class AllTests
         test(mo1.getIood().get(5).getA() == 15);
         test(mo1.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
-        test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
+        test(java.util.Arrays.equals(mo1.getBos(), new boolean[] {false, true, false}));
 
         test(mo1.getSer().equals(new SerializableClass(58)));
 
@@ -196,7 +194,7 @@ public class AllTests
         test(!mo4.hasSer());
 
         final boolean supportsJavaSerializable = initial.supportsJavaSerializable();
-        if(!supportsJavaSerializable)
+        if (!supportsJavaSerializable)
         {
             mo1.clearSer();
         }
@@ -232,9 +230,9 @@ public class AllTests
         test(mo5.getIood().get(5).getA() == 15);
         test(mo5.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
-        test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
+        test(java.util.Arrays.equals(mo5.getBos(), new boolean[] {false, true, false}));
 
-        if(supportsJavaSerializable)
+        if (supportsJavaSerializable)
         {
             test(mo5.getSer().equals(mo1.getSer()));
         }
@@ -288,7 +286,7 @@ public class AllTests
         test(mo7.getIood().get(5).getA() == 15);
         test(!mo7.hasImipd());
 
-        test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
+        test(java.util.Arrays.equals(mo7.getBos(), new boolean[] {false, true, false}));
 
         // Clear the second half of the optional parameters
         MultiOptional mo8 = new MultiOptional();
@@ -449,13 +447,13 @@ public class AllTests
         mc.setShs(new short[300]);
 
         mc.setFss(new FixedStruct[300]);
-        for(int i = 0; i < 300; ++i)
+        for (int i = 0; i < 300; ++i)
         {
             mc.getFss()[i] = new FixedStruct();
         }
 
         mc.setIfsd(new java.util.HashMap<>());
-        for(int i = 0; i < 300; ++i)
+        for (int i = 0; i < 300; ++i)
         {
             mc.getIfsd().put(i, new FixedStruct());
         }
@@ -562,7 +560,7 @@ public class AllTests
         }
         out.println("ok");
 
-        if(communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
+        if (communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
         {
             out.print("testing marshaling with unknown class slices... ");
             out.flush();
@@ -643,7 +641,7 @@ public class AllTests
             r = initial.opByteAsync(p1).join();
             test(r.returnValue.get() == (byte)56 && r.p3.get() == (byte)56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpByteReqResult rr = initial.opByteReq(p1.get());
                 test(rr.returnValue.get() == (byte)56 && rr.p3.get() == (byte)56);
@@ -680,7 +678,7 @@ public class AllTests
             r = initial.opBoolAsync(p1).join();
             test(r.returnValue.get() == true && r.p3.get() == true);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpBoolReqResult rr = initial.opBoolReq(true);
                 test(rr.returnValue.get() == true && rr.p3.get() == true);
@@ -717,7 +715,7 @@ public class AllTests
             r = initial.opShortAsync(p1).join();
             test(r.returnValue.get() == 56 && r.p3.get() == 56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpShortReqResult rr = initial.opShortReq(p1.get());
                 test(rr.returnValue.get() == 56 && rr.p3.get() == 56);
@@ -754,7 +752,7 @@ public class AllTests
             r = initial.opIntAsync(p1).join();
             test(r.returnValue.getAsInt() == 56 && r.p3.getAsInt() == 56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpIntReqResult rr = initial.opIntReq(p1.getAsInt());
                 test(rr.returnValue.getAsInt() == 56 && rr.p3.getAsInt() == 56);
@@ -791,7 +789,7 @@ public class AllTests
             r = initial.opLongAsync(p1).join();
             test(r.returnValue.getAsLong() == 56 && r.p3.getAsLong() == 56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpLongReqResult rr = initial.opLongReq(p1.getAsLong());
                 test(rr.returnValue.getAsLong() == 56 && rr.p3.getAsLong() == 56);
@@ -828,7 +826,7 @@ public class AllTests
             r = initial.opFloatAsync(p1).join();
             test(r.returnValue.get() == 1.0 && r.p3.get() == 1.0);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpFloatReqResult rr = initial.opFloatReq(p1.get());
                 test(rr.returnValue.get() == 1.0 && rr.p3.get() == 1.0);
@@ -865,7 +863,7 @@ public class AllTests
             r = initial.opDoubleAsync(p1).join();
             test(r.returnValue.getAsDouble() == 1.0 && r.p3.getAsDouble() == 1.0);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpDoubleReqResult rr = initial.opDoubleReq(p1.getAsDouble());
                 test(rr.returnValue.getAsDouble() == 1.0 && rr.p3.getAsDouble() == 1.0);
@@ -902,7 +900,7 @@ public class AllTests
             r = initial.opStringAsync(p1).join();
             test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpStringReqResult rr = initial.opStringReq(p1.get());
                 test(rr.returnValue.get().equals("test") && rr.p3.get().equals("test"));
@@ -939,7 +937,7 @@ public class AllTests
             r = initial.opMyEnumAsync(p1).join();
             test(r.returnValue.get() == MyEnum.MyEnumMember && r.p3.get() == MyEnum.MyEnumMember);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpMyEnumReqResult rr = initial.opMyEnumReq(p1.get());
                 test(rr.returnValue.get() == MyEnum.MyEnumMember && rr.p3.get() == MyEnum.MyEnumMember);
@@ -980,7 +978,7 @@ public class AllTests
             r = initial.opSmallStructAsync(p1).join();
             test(r.returnValue.get().m == (byte)56 && r.p3.get().m == (byte)56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpSmallStructReqResult rr = initial.opSmallStructReq(p1.get());
                 test(rr.returnValue.get().m == (byte)56 && rr.p3.get().m == (byte)56);
@@ -1024,7 +1022,7 @@ public class AllTests
             r = initial.opFixedStructAsync(p1).join();
             test(r.returnValue.get().m == 56 && r.p3.get().m == 56);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpFixedStructReqResult rr = initial.opFixedStructReq(p1.get());
                 test(rr.returnValue.get().m == 56 && rr.p3.get().m == 56);
@@ -1068,7 +1066,7 @@ public class AllTests
             r = initial.opVarStructAsync(p1).join();
             test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpVarStructReqResult rr = initial.opVarStructReq(p1.get());
                 test(rr.returnValue.get().m.equals("test") && rr.p3.get().m.equals("test"));
@@ -1113,7 +1111,7 @@ public class AllTests
             r = initial.opOneOptionalAsync(p1).join();
             test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1.get());
                 test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
@@ -1153,7 +1151,7 @@ public class AllTests
             r = initial.opMyInterfaceProxyAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpMyInterfaceProxyReqResult rr = initial.opMyInterfaceProxyReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
@@ -1192,20 +1190,24 @@ public class AllTests
             p1 = Optional.of(new byte[100]);
             java.util.Arrays.fill(p1.get(), (byte)56);
             r = initial.opByteSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opByteSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpByteSeqReqResult rr = initial.opByteSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opByteSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1233,20 +1235,24 @@ public class AllTests
 
             p1 = Optional.of(new boolean[100]);
             r = initial.opBoolSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opBoolSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpBoolSeqReqResult rr = initial.opBoolSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opBoolSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1275,20 +1281,24 @@ public class AllTests
             p1 = Optional.of(new short[100]);
             java.util.Arrays.fill(p1.get(), (short)56);
             r = initial.opShortSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opShortSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpShortSeqReqResult rr = initial.opShortSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opShortSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1318,20 +1328,24 @@ public class AllTests
             p1 = Optional.of(new int[100]);
             java.util.Arrays.fill(p1.get(), 56);
             r = initial.opIntSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opIntSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpIntSeqReqResult rr = initial.opIntSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opIntSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1361,20 +1375,24 @@ public class AllTests
             p1 = Optional.of(new long[100]);
             java.util.Arrays.fill(p1.get(), 56);
             r = initial.opLongSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opLongSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpLongSeqReqResult rr = initial.opLongSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opLongSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1404,20 +1422,24 @@ public class AllTests
             p1 = Optional.of(new float[100]);
             java.util.Arrays.fill(p1.get(), (float)1.0);
             r = initial.opFloatSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opFloatSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpFloatSeqReqResult rr = initial.opFloatSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opFloatSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1447,20 +1469,24 @@ public class AllTests
             p1 = Optional.of(new double[100]);
             java.util.Arrays.fill(p1.get(), 1.0);
             r = initial.opDoubleSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opDoubleSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpDoubleSeqReqResult rr = initial.opDoubleSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opDoubleSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1490,20 +1516,24 @@ public class AllTests
             p1 = Optional.of(new String[10]);
             java.util.Arrays.fill(p1.get(), "test1");
             r = initial.opStringSeq(p1);
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opStringSeqAsync(p1).join();
-            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
-                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            test(
+                java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpStringSeqReqResult rr = initial.opStringSeqReq(p1.get());
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
                 rr = initial.opStringSeqReqAsync(p1.get()).join();
-                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
-                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                test(
+                    java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                    java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -1532,30 +1562,30 @@ public class AllTests
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new SmallStruct[10]);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new SmallStruct();
             }
             r = initial.opSmallStructSeq(p1);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.p3.get()[i].equals(p1.get()[i]));
             }
             r = initial.opSmallStructSeqAsync(p1).join();
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpSmallStructSeqReqResult rr = initial.opSmallStructSeqReq(p1.get());
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
                 rr = initial.opSmallStructSeqReqAsync(p1.get()).join();
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
@@ -1571,13 +1601,13 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, OptionalFormat.VSize));
                 SmallStruct[] arr = SmallStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
                 test(in.readOptional(3, OptionalFormat.VSize));
                 arr = SmallStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
@@ -1599,7 +1629,7 @@ public class AllTests
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new java.util.ArrayList<>());
-            for(int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 p1.get().add(new SmallStruct());
             }
@@ -1608,7 +1638,7 @@ public class AllTests
             r = initial.opSmallStructListAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpSmallStructListReqResult rr = initial.opSmallStructListReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()));
@@ -1647,30 +1677,30 @@ public class AllTests
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new FixedStruct[10]);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new FixedStruct();
             }
             r = initial.opFixedStructSeq(p1);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
             r = initial.opFixedStructSeqAsync(p1).join();
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpFixedStructSeqReqResult rr = initial.opFixedStructSeqReq(p1.get());
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
                 rr = initial.opFixedStructSeqReqAsync(p1.get()).join();
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
@@ -1688,14 +1718,14 @@ public class AllTests
                 test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 FixedStruct[] arr = FixedStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
                 test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 arr = FixedStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
@@ -1713,7 +1743,7 @@ public class AllTests
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new java.util.ArrayList<>());
-            for(int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 p1.get().add(new FixedStruct());
             }
@@ -1722,7 +1752,7 @@ public class AllTests
             r = initial.opFixedStructListAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpFixedStructListReqResult rr = initial.opFixedStructListReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()));
@@ -1761,30 +1791,30 @@ public class AllTests
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new VarStruct[10]);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new VarStruct("");
             }
             r = initial.opVarStructSeq(p1);
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
             r = initial.opVarStructSeqAsync(p1).join();
-            for(int i = 0; i < p1.get().length; ++i)
+            for (int i = 0; i < p1.get().length; ++i)
             {
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpVarStructSeqReqResult rr = initial.opVarStructSeqReq(p1.get());
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
                 rr = initial.opVarStructSeqReqAsync(p1.get()).join();
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
@@ -1803,14 +1833,14 @@ public class AllTests
                 test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 VarStruct[] arr = VarStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
                 test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 arr = VarStructSeqHelper.read(in);
-                for(int i = 0; i < p1.get().length; ++i)
+                for (int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
@@ -1822,7 +1852,7 @@ public class AllTests
             }
         }
 
-        if(supportsJavaSerializable)
+        if (supportsJavaSerializable)
         {
             Optional<SerializableClass> p1 = Optional.empty();
             Initial.OpSerializableResult r = initial.opSerializable(p1);
@@ -1834,7 +1864,7 @@ public class AllTests
             r = initial.opSerializableAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpSerializableReqResult rr = initial.opSerializableReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
@@ -1880,7 +1910,7 @@ public class AllTests
             r = initial.opIntIntDictAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpIntIntDictReqResult rr = initial.opIntIntDictReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
@@ -1926,7 +1956,7 @@ public class AllTests
             r = initial.opStringIntDictAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpStringIntDictReqResult rr = initial.opStringIntDictReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
@@ -1976,7 +2006,7 @@ public class AllTests
             test(r.returnValue.get().get(1).getA() == 15 && r.p3.get().get(1).getA() == 15);
             test(r.returnValue.get().get(2).getA() == 12 && r.p3.get().get(2).getA() == 12);
 
-            if(reqParams)
+            if (reqParams)
             {
                 Initial.OpIntOneOptionalDictReqResult rr = initial.opIntOneOptionalDictReq(p1.get());
                 test(rr.returnValue.get().get(1).getA() == 15 && rr.p3.get().get(1).getA() == 15);
@@ -2046,7 +2076,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.empty();
                 initial.opOptionalException(a, b, o);
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
@@ -2060,7 +2090,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opOptionalException(a, b, o);
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test"));
@@ -2077,7 +2107,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial2.opOptionalException(a, b, o);
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
@@ -2091,7 +2121,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.empty();
                 initial.opDerivedException(a, b, o);
             }
-            catch(DerivedException ex)
+            catch (DerivedException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
@@ -2101,7 +2131,7 @@ public class AllTests
                 test(ex.d1.equals("d1"));
                 test(ex.d2.equals("d2"));
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(false);
             }
@@ -2113,7 +2143,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opDerivedException(a, b, o);
             }
-            catch(DerivedException ex)
+            catch (DerivedException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
@@ -2123,7 +2153,7 @@ public class AllTests
                 test(ex.d1.equals("d1"));
                 test(ex.d2.equals("d2"));
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(false);
             }
@@ -2135,7 +2165,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.empty();
                 initial.opRequiredException(a, b, o);
             }
-            catch(RequiredException ex)
+            catch (RequiredException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
@@ -2143,7 +2173,7 @@ public class AllTests
                 test(ex.ss.equals("test"));
                 test(ex.o2 == null);
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(false);
             }
@@ -2155,7 +2185,7 @@ public class AllTests
                 Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opRequiredException(a, b, o);
             }
-            catch(RequiredException ex)
+            catch (RequiredException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
@@ -2163,7 +2193,7 @@ public class AllTests
                 test(ex.ss.equals("test2"));
                 test(ex.o2.getA() == 53);
             }
-            catch(OptionalException ex)
+            catch (OptionalException ex)
             {
                 test(false);
             }
@@ -2190,10 +2220,11 @@ public class AllTests
                 Initial.OpMSeq2Result result = initial.opMSeq2(Optional.empty());
                 test(!result.p2.isPresent() && !result.returnValue.isPresent());
 
-                String[] p1 = { "hello" };
+                String[] p1 = {"hello"};
                 result = initial.opMSeq2(Optional.of(p1));
-                test(java.util.Arrays.equals(result.p2.get(), p1) &&
-                     java.util.Arrays.equals(result.returnValue.get(), p1));
+                test(
+                    java.util.Arrays.equals(result.p2.get(), p1) &&
+                    java.util.Arrays.equals(result.returnValue.get(), p1));
             }
             {
                 Initial.OpMDict2Result result = initial.opMDict2(Optional.empty());
@@ -2220,8 +2251,7 @@ public class AllTests
 
     private static class TestObjectReader extends com.zeroc.Ice.ValueReader
     {
-        @Override
-        public void read(InputStream in)
+        @Override public void read(InputStream in)
         {
             in.startValue();
             in.startSlice();
@@ -2232,8 +2262,7 @@ public class AllTests
 
     private static class BObjectReader extends com.zeroc.Ice.ValueReader
     {
-        @Override
-        public void read(InputStream in)
+        @Override public void read(InputStream in)
         {
             in.startValue();
             // ::Test::B
@@ -2250,8 +2279,7 @@ public class AllTests
 
     private static class CObjectReader extends com.zeroc.Ice.ValueReader
     {
-        @Override
-        public void read(InputStream in)
+        @Override public void read(InputStream in)
         {
             in.startValue();
             // ::Test::C
@@ -2271,15 +2299,14 @@ public class AllTests
 
     private static class DObjectWriter extends com.zeroc.Ice.ValueWriter
     {
-        @Override
-        public void write(OutputStream out)
+        @Override public void write(OutputStream out)
         {
             out.startValue(null);
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
             out.writeString("test");
             out.writeOptional(1, OptionalFormat.FSize);
-            String[] o = { "test1", "test2", "test3", "test4" };
+            String[] o = {"test1", "test2", "test3", "test4"};
             int pos = out.startSize();
             out.writeStringSeq(o);
             out.endSize(pos);
@@ -2303,8 +2330,7 @@ public class AllTests
 
     private static class DObjectReader extends com.zeroc.Ice.ValueReader
     {
-        @Override
-        public void read(InputStream in)
+        @Override public void read(InputStream in)
         {
             in.startValue();
             // ::Test::D
@@ -2312,8 +2338,9 @@ public class AllTests
             String s = in.readString();
             test(s.equals("test"));
             String[] o = in.readStringSeq(1).get();
-            test(o.length == 4 &&
-                 o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") && o[3].equals("test4"));
+            test(
+                o.length == 4 && o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") &&
+                o[3].equals("test4"));
             in.readValue(1000, v -> a.value = v, A.class);
             in.endSlice();
             // ::Test::B
@@ -2327,18 +2354,14 @@ public class AllTests
             in.endValue();
         }
 
-        void check()
-        {
-            test(a.value.get().getMc() == 18);
-        }
+        void check() { test(a.value.get().getMc() == 18); }
 
         private Wrapper<java.util.Optional<A>> a = new Wrapper<>();
     }
 
     private static class FObjectReader extends com.zeroc.Ice.ValueReader
     {
-        @Override
-        public void read(InputStream in)
+        @Override public void read(InputStream in)
         {
             _f = new F();
             in.startValue();
@@ -2352,45 +2375,41 @@ public class AllTests
             in.endValue();
         }
 
-        F getF()
-        {
-            return _f;
-        }
+        F getF() { return _f; }
 
         private F _f;
     }
 
     private static class FactoryI implements com.zeroc.Ice.ValueFactory
     {
-        @Override
-        public com.zeroc.Ice.Value create(String typeId)
+        @Override public com.zeroc.Ice.Value create(String typeId)
         {
-            if(!_enabled)
+            if (!_enabled)
             {
                 return null;
             }
 
-            if(typeId.equals(OneOptional.ice_staticId()))
+            if (typeId.equals(OneOptional.ice_staticId()))
             {
                 return new TestObjectReader();
             }
-            else if(typeId.equals(MultiOptional.ice_staticId()))
+            else if (typeId.equals(MultiOptional.ice_staticId()))
             {
                 return new TestObjectReader();
             }
-            else if(typeId.equals(B.ice_staticId()))
+            else if (typeId.equals(B.ice_staticId()))
             {
                 return new BObjectReader();
             }
-            else if(typeId.equals(C.ice_staticId()))
+            else if (typeId.equals(C.ice_staticId()))
             {
                 return new CObjectReader();
             }
-            else if(typeId.equals("::Test::D"))
+            else if (typeId.equals("::Test::D"))
             {
                 return new DObjectReader();
             }
-            else if(typeId.equals("::Test::F"))
+            else if (typeId.equals("::Test::F"))
             {
                 return new FObjectReader();
             }
@@ -2398,10 +2417,7 @@ public class AllTests
             return null;
         }
 
-        void setEnabled(boolean enabled)
-        {
-            _enabled = enabled;
-        }
+        void setEnabled(boolean enabled) { _enabled = enabled; }
 
         private boolean _enabled;
     }

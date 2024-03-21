@@ -6,13 +6,12 @@ package com.zeroc.IceSSL;
 
 final class ConnectorI implements com.zeroc.IceInternal.Connector
 {
-    @Override
-    public com.zeroc.IceInternal.Transceiver connect()
+    @Override public com.zeroc.IceInternal.Transceiver connect()
     {
         //
         // The plug-in may not be fully initialized.
         //
-        if(!_instance.initialized())
+        if (!_instance.initialized())
         {
             com.zeroc.Ice.PluginInitializationException ex = new com.zeroc.Ice.PluginInitializationException();
             ex.reason = "IceSSL: plug-in is not initialized";
@@ -22,23 +21,11 @@ final class ConnectorI implements com.zeroc.IceInternal.Connector
         return new TransceiverI(_instance, _delegate.connect(), _host, false);
     }
 
-    @Override
-    public short type()
-    {
-        return _delegate.type();
-    }
+    @Override public short type() { return _delegate.type(); }
 
-    @Override
-    public String toString()
-    {
-        return _delegate.toString();
-    }
+    @Override public String toString() { return _delegate.toString(); }
 
-    @Override
-    public int hashCode()
-    {
-        return _delegate.hashCode();
-    }
+    @Override public int hashCode() { return _delegate.hashCode(); }
 
     //
     // Only for use by EndpointI.
@@ -50,15 +37,14 @@ final class ConnectorI implements com.zeroc.IceInternal.Connector
         _host = host;
     }
 
-    @Override
-    public boolean equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(!(obj instanceof ConnectorI))
+        if (!(obj instanceof ConnectorI))
         {
             return false;
         }
 
-        if(this == obj)
+        if (this == obj)
         {
             return true;
         }

@@ -39,7 +39,8 @@ public interface InvocationObserver extends Observer
      * @param size The size of the invocation.
      * @return The observer to instrument the remote invocation.
      **/
-    RemoteObserver getRemoteObserver(com.zeroc.Ice.ConnectionInfo con, com.zeroc.Ice.Endpoint endpt, int requestId, int size);
+    RemoteObserver
+    getRemoteObserver(com.zeroc.Ice.ConnectionInfo con, com.zeroc.Ice.Endpoint endpt, int requestId, int size);
 
     /**
      * Get a collocated observer for this invocation.

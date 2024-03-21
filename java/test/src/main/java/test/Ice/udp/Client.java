@@ -17,7 +17,7 @@ public class Client extends test.TestHelper
         properties.setProperty("Ice.UDP.RcvSize", "16384");
         properties.setProperty("Ice.UDP.SndSize", "16384");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             AllTests.allTests(this);
             int num;
@@ -25,12 +25,12 @@ public class Client extends test.TestHelper
             {
                 num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 1;
             }
-            catch(NumberFormatException ex)
+            catch (NumberFormatException ex)
             {
                 num = 1;
             }
 
-            for(int i = 0; i < num; ++i)
+            for (int i = 0; i < num; ++i)
             {
                 com.zeroc.Ice.ObjectPrx prx = communicator().stringToProxy("control:" + getTestEndpoint(i, "tcp"));
                 TestIntfPrx.uncheckedCast(prx).shutdown();

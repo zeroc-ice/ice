@@ -11,7 +11,7 @@ final class ValueFactoryManagerI implements com.zeroc.Ice.ValueFactoryManager
     public synchronized void add(ValueFactory factory, String id)
     {
         Object o = _factoryMap.get(id);
-        if(o != null)
+        if (o != null)
         {
             com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
             ex.id = id;
@@ -21,10 +21,7 @@ final class ValueFactoryManagerI implements com.zeroc.Ice.ValueFactoryManager
         _factoryMap.put(id, factory);
     }
 
-    public synchronized ValueFactory find(String id)
-    {
-        return _factoryMap.get(id);
-    }
+    public synchronized ValueFactory find(String id) { return _factoryMap.get(id); }
 
     private java.util.Map<String, ValueFactory> _factoryMap = new java.util.HashMap<>();
 }

@@ -8,8 +8,7 @@ public class Server extends test.TestHelper
 {
     class I1 implements test.Ice.scope.Test.I
     {
-        public test.Ice.scope.Test.I.OpSResult
-        opS(test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Test.I.OpSResult opS(test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Test.I.OpSResult result = new test.Ice.scope.Test.I.OpSResult();
             result.returnValue = s1;
@@ -17,8 +16,7 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpSSeqResult
-        opSSeq(test.Ice.scope.Test.S[] s1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Test.I.OpSSeqResult opSSeq(test.Ice.scope.Test.S[] s1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Test.I.OpSSeqResult result = new test.Ice.scope.Test.I.OpSSeqResult();
             result.returnValue = s1;
@@ -35,8 +33,7 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpCResult
-        opC(test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Test.I.OpCResult opC(test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Test.I.OpCResult result = new test.Ice.scope.Test.I.OpCResult();
             result.returnValue = c1;
@@ -44,8 +41,7 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpCSeqResult
-        opCSeq(test.Ice.scope.Test.C[] c1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Test.I.OpCSeqResult opCSeq(test.Ice.scope.Test.C[] c1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Test.I.OpCSeqResult result = new test.Ice.scope.Test.I.OpCSeqResult();
             result.returnValue = c1;
@@ -62,28 +58,13 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public test.Ice.scope.Test.E1
-        opE1(test.Ice.scope.Test.E1 e1, com.zeroc.Ice.Current current)
-        {
-            return e1;
-        }
+        public test.Ice.scope.Test.E1 opE1(test.Ice.scope.Test.E1 e1, com.zeroc.Ice.Current current) { return e1; }
 
-        public test.Ice.scope.Test.S1
-        opS1(test.Ice.scope.Test.S1 s1, com.zeroc.Ice.Current current)
-        {
-            return s1;
-        }
+        public test.Ice.scope.Test.S1 opS1(test.Ice.scope.Test.S1 s1, com.zeroc.Ice.Current current) { return s1; }
 
-        public test.Ice.scope.Test.C1
-        opC1(test.Ice.scope.Test.C1 e1, com.zeroc.Ice.Current current)
-        {
-            return e1;
-        }
+        public test.Ice.scope.Test.C1 opC1(test.Ice.scope.Test.C1 e1, com.zeroc.Ice.Current current) { return e1; }
 
-        public void shutdown(com.zeroc.Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
     }
 
     class I2 implements test.Ice.scope.Test.Inner.I
@@ -142,10 +123,7 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public void shutdown(com.zeroc.Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
     }
 
     class I3 implements test.Ice.scope.Test.Inner.Inner2.I
@@ -201,23 +179,19 @@ public class Server extends test.TestHelper
         public test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult
         opCMap(java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> c1, com.zeroc.Ice.Current current)
         {
-            test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult result
-                = new test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult();
+            test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult result =
+                new test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public void shutdown(com.zeroc.Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
     }
 
     class I4 implements test.Ice.scope.Inner.Test.Inner2.I
     {
-        public test.Ice.scope.Inner.Test.Inner2.I.OpSResult
-        opS(test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Inner.Test.Inner2.I.OpSResult opS(test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Inner.Test.Inner2.I.OpSResult result = new test.Ice.scope.Inner.Test.Inner2.I.OpSResult();
             result.returnValue = s1;
@@ -245,8 +219,7 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpCResult
-        opC(test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current)
+        public test.Ice.scope.Inner.Test.Inner2.I.OpCResult opC(test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current)
         {
             test.Ice.scope.Inner.Test.Inner2.I.OpCResult result = new test.Ice.scope.Inner.Test.Inner2.I.OpCResult();
             result.returnValue = c1;
@@ -274,17 +247,14 @@ public class Server extends test.TestHelper
             return result;
         }
 
-        public void shutdown(com.zeroc.Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
     }
 
     public void run(String[] args)
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.scope");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

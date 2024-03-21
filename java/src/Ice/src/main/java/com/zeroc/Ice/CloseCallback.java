@@ -21,8 +21,7 @@ package com.zeroc.Ice;
  * @see Connection#setCloseCallback
  **/
 @FunctionalInterface
-public interface CloseCallback
-{
+public interface CloseCallback {
     /**
      * This method is called by the connection when the connection is closed. If the callback needs more information
      * about the closure, it can call {@link Connection#throwException}.

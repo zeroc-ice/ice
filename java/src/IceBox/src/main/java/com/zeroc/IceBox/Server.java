@@ -12,29 +12,25 @@ public final class Server
         private final java.lang.Object _doneMutex = new java.lang.Object();
         private boolean _done = false;
 
-        ShutdownHook(com.zeroc.Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
+        ShutdownHook(com.zeroc.Ice.Communicator communicator) { _communicator = communicator; }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
             _communicator.shutdown();
 
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
                 //
                 // Wait on the server to finish shutting down before exiting the ShutdownHook. This ensures
                 // that all IceBox services have had a chance to shutdown cleanly before the JVM terminates.
                 //
-                while(!_done)
+                while (!_done)
                 {
                     try
                     {
                         _doneMutex.wait();
                     }
-                    catch(InterruptedException ex)
+                    catch (InterruptedException ex)
                     {
                         break;
                     }
@@ -44,7 +40,7 @@ public final class Server
 
         public void done()
         {
-            synchronized(_doneMutex)
+            synchronized (_doneMutex)
             {
                 _done = true;
                 _doneMutex.notify();
@@ -56,10 +52,9 @@ public final class Server
     {
         System.err.println("Usage: com.zeroc.IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
-            "Options:\n" +
-            "-h, --help           Show this message.\n" +
-            "-v, --version        Display the Ice version."
-        );
+            "Options:\n"
+            + "-h, --help           Show this message.\n"
+            + "-v, --version        Display the Ice version.");
     }
 
     private static int run(com.zeroc.Ice.Communicator communicator, java.util.List<String> argSeq)
@@ -70,20 +65,20 @@ public final class Server
 
         java.util.List<String> iceBoxArgs = new java.util.ArrayList<String>(argSeq);
 
-        for(String key : services.keySet())
+        for (String key : services.keySet())
         {
             String name = key.substring(prefix.length());
             iceBoxArgs.removeIf(v -> v.startsWith("--" + name));
         }
 
-        for(String arg : iceBoxArgs)
+        for (String arg : iceBoxArgs)
         {
-            if(arg.equals("-h") || arg.equals("--help"))
+            if (arg.equals("-h") || arg.equals("--help"))
             {
                 usage();
                 return 0;
             }
-            else if(arg.equals("-v") || arg.equals("--version"))
+            else if (arg.equals("-v") || arg.equals("--version"))
             {
                 System.out.println(com.zeroc.Ice.Util.stringVersion());
                 return 0;
@@ -110,7 +105,7 @@ public final class Server
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
-        try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, initData, argSeq))
+        try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, initData, argSeq))
         {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -119,7 +114,7 @@ public final class Server
         }
         finally
         {
-            if(shutdownHook != null)
+            if (shutdownHook != null)
             {
                 shutdownHook.done();
             }

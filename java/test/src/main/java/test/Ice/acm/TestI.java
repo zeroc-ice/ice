@@ -10,13 +10,13 @@ public class TestI implements TestIntf
 {
     public void sleep(int delay, com.zeroc.Ice.Current current)
     {
-        synchronized(this)
+        synchronized (this)
         {
             try
             {
                 wait(delay * 1000);
             }
-            catch(java.lang.InterruptedException ex)
+            catch (java.lang.InterruptedException ex)
             {
             }
         }
@@ -24,14 +24,14 @@ public class TestI implements TestIntf
 
     public void sleepAndHold(int delay, com.zeroc.Ice.Current current)
     {
-        synchronized(this)
+        synchronized (this)
         {
             try
             {
                 current.adapter.hold();
                 wait(delay * 1000);
             }
-            catch(java.lang.InterruptedException ex)
+            catch (java.lang.InterruptedException ex)
             {
             }
         }
@@ -39,10 +39,7 @@ public class TestI implements TestIntf
 
     public void interruptSleep(com.zeroc.Ice.Current current)
     {
-        synchronized(this)
-        {
-            notifyAll();
-        }
+        synchronized (this) { notifyAll(); }
     }
 
     public void startHeartbeatCount(com.zeroc.Ice.Current current)
@@ -54,32 +51,33 @@ public class TestI implements TestIntf
                 {
                     ++_counter.value;
                     _counter.notifyAll();
-                }
-            });
     }
+});
+}
 
-    public void waitForHeartbeatCount(int count, com.zeroc.Ice.Current current)
+public void
+waitForHeartbeatCount(int count, com.zeroc.Ice.Current current)
+{
+    assert (_counter != null);
+    synchronized (_counter)
     {
-        assert(_counter != null);
-        synchronized(_counter)
+        while (_counter.value < count)
         {
-            while(_counter.value < count)
+            try
             {
-                try
-                {
-                    _counter.wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
+                _counter.wait();
+            }
+            catch (InterruptedException ex)
+            {
             }
         }
     }
+}
 
-    static class Counter
-    {
-        int value;
-    }
+static class Counter
+{
+    int value;
+}
 
-    private Counter _counter;
+private Counter _counter;
 }

@@ -8,8 +8,7 @@ public interface RequestHandler extends CancellationHandler
 {
     RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
 
-    int sendAsyncRequest(ProxyOutgoingAsyncBase out)
-        throws RetryException;
+    int sendAsyncRequest(ProxyOutgoingAsyncBase out) throws RetryException;
 
     Reference getReference();
 

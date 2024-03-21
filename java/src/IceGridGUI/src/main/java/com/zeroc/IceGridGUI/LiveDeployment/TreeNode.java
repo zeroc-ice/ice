@@ -4,19 +4,15 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import javax.swing.SwingUtilities;
-import javax.swing.JOptionPane;
-
 import com.zeroc.IceGridGUI.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public abstract class TreeNode extends TreeNodeBase
 {
     public abstract Editor getEditor();
 
-    TreeNode(TreeNode parent, String id)
-    {
-        super(parent, id);
-    }
+    TreeNode(TreeNode parent, String id) { super(parent, id); }
 
     Root getRoot()
     {
@@ -64,94 +60,37 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int ACTION_COUNT = 25;
 
-    public boolean[] getAvailableActions()
-    {
-        return new boolean[ACTION_COUNT];
-    }
+    public boolean[] getAvailableActions() { return new boolean[ACTION_COUNT]; }
 
-    public void start()
-    {
-        assert false;
-    }
-    public void stop()
-    {
-        assert false;
-    }
-    public void enable()
-    {
-        assert false;
-    }
-    public void disable()
-    {
-        assert false;
-    }
-    public void writeMessage()
-    {
-        assert false;
-    }
-    public void retrieveIceLog()
-    {
-        assert false;
-    }
-    public void retrieveOutput(boolean stdout)
-    {
-        assert false;
-    }
-    public void retrieveLogFile()
-    {
-        assert false;
-    }
-    public void signal(String s)
-    {
-        assert false;
-    }
-    public void shutdownNode()
-    {
-        assert false;
-    }
-    public void shutdownRegistry()
-    {
-        assert false;
-    }
-    public void patchServer()
-    {
-        assert false;
-    }
-    public void addObject()
-    {
-        assert false;
-    }
-    public void openDefinition()
-    {
-        assert false;
-    }
-    public void enableMetricsView(boolean enabled)
-    {
-        assert false;
-    }
-    public void startAllServers()
-    {
-        assert false;
-    }
-    public void stopAllServers()
-    {
-        assert false;
-    }
-    public void clearShowIceLogDialog()
-    {
-        assert false;
-    }
+    public void start() { assert false; }
+    public void stop() { assert false; }
+    public void enable() { assert false; }
+    public void disable() { assert false; }
+    public void writeMessage() { assert false; }
+    public void retrieveIceLog() { assert false; }
+    public void retrieveOutput(boolean stdout) { assert false; }
+    public void retrieveLogFile() { assert false; }
+    public void signal(String s) { assert false; }
+    public void shutdownNode() { assert false; }
+    public void shutdownRegistry() { assert false; }
+    public void patchServer() { assert false; }
+    public void addObject() { assert false; }
+    public void openDefinition() { assert false; }
+    public void enableMetricsView(boolean enabled) { assert false; }
+    public void startAllServers() { assert false; }
+    public void stopAllServers() { assert false; }
+    public void clearShowIceLogDialog() { assert false; }
 
     //
     // Helpers
     //
     protected void amiComplete(final String prefix, final String title, final Throwable ex)
     {
-        if(ex == null)
+        if (ex == null)
         {
             amiSuccess(prefix);
         }
-        else if(ex instanceof com.zeroc.Ice.UserException)
+        else if (ex instanceof com.zeroc.Ice.UserException)
         {
             amiFailure(prefix, title, (com.zeroc.Ice.UserException)ex);
         }
@@ -161,10 +100,7 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    protected void amiSuccess(final String prefix)
-    {
-        SwingUtilities.invokeLater(() -> success(prefix));
-    }
+    protected void amiSuccess(final String prefix) { SwingUtilities.invokeLater(() -> success(prefix)); }
 
     protected void amiSuccess(final String prefix, final String detail)
     {
@@ -173,29 +109,29 @@ public abstract class TreeNode extends TreeNodeBase
 
     protected void amiFailure(String prefix, String title, Throwable e)
     {
-        if(e instanceof com.zeroc.IceGrid.ServerNotExistException)
+        if (e instanceof com.zeroc.IceGrid.ServerNotExistException)
         {
             com.zeroc.IceGrid.ServerNotExistException sne = (com.zeroc.IceGrid.ServerNotExistException)e;
 
             amiFailure(prefix, title, "Server '" + sne.id + "' was not registered with the IceGrid Registry");
         }
-        else if(e instanceof com.zeroc.IceGrid.ServerStartException)
+        else if (e instanceof com.zeroc.IceGrid.ServerStartException)
         {
             com.zeroc.IceGrid.ServerStartException ste = (com.zeroc.IceGrid.ServerStartException)e;
             amiFailure(prefix, title, "Server '" + ste.id + "' did not start: " + ste.reason);
         }
-        else if(e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
+        else if (e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
         {
             amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
         }
-        else if(e instanceof com.zeroc.IceGrid.PatchException)
+        else if (e instanceof com.zeroc.IceGrid.PatchException)
         {
             com.zeroc.IceGrid.PatchException pe = (com.zeroc.IceGrid.PatchException)e;
 
             String message = "";
-            for(String s : pe.reasons)
+            for (String s : pe.reasons)
             {
-                if(message.length() > 0)
+                if (message.length() > 0)
                 {
                     message += "\n";
                 }
@@ -203,23 +139,23 @@ public abstract class TreeNode extends TreeNodeBase
             }
             amiFailure(prefix, title, message);
         }
-        else if(e instanceof com.zeroc.IceGrid.NodeNotExistException)
+        else if (e instanceof com.zeroc.IceGrid.NodeNotExistException)
         {
             com.zeroc.IceGrid.NodeNotExistException nnee = (com.zeroc.IceGrid.NodeNotExistException)e;
 
             amiFailure(prefix, title, "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
         }
-        else if(e instanceof com.zeroc.IceGrid.NodeUnreachableException)
+        else if (e instanceof com.zeroc.IceGrid.NodeUnreachableException)
         {
             com.zeroc.IceGrid.NodeUnreachableException nue = (com.zeroc.IceGrid.NodeUnreachableException)e;
             amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
         }
-        else if(e instanceof com.zeroc.IceGrid.DeploymentException)
+        else if (e instanceof com.zeroc.IceGrid.DeploymentException)
         {
             com.zeroc.IceGrid.DeploymentException de = (com.zeroc.IceGrid.DeploymentException)e;
             amiFailure(prefix, title, "Deployment exception: " + de.reason);
         }
-        else if(e instanceof com.zeroc.Ice.ObjectNotExistException)
+        else if (e instanceof com.zeroc.Ice.ObjectNotExistException)
         {
             SwingUtilities.invokeLater(() -> { getCoordinator().getSessionKeeper().sessionLost(); });
         }
@@ -238,11 +174,7 @@ public abstract class TreeNode extends TreeNodeBase
     {
         getCoordinator().getStatusBar().setText(prefix + " failed!");
 
-        JOptionPane.showMessageDialog(
-            getCoordinator().getMainFrame(),
-            message,
-            title,
-            JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), message, title, JOptionPane.ERROR_MESSAGE);
     }
 
     protected void success(String prefix, String detail)
@@ -250,10 +182,7 @@ public abstract class TreeNode extends TreeNodeBase
         getCoordinator().getStatusBar().setText(prefix + " done (" + detail + ").");
     }
 
-    protected void success(String prefix)
-    {
-        getCoordinator().getStatusBar().setText(prefix + " done.");
-    }
+    protected void success(String prefix) { getCoordinator().getStatusBar().setText(prefix + " done."); }
 
     void reparent(TreeNode newParent)
     {

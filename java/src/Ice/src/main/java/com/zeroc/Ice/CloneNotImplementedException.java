@@ -23,19 +23,11 @@ package com.zeroc.Ice;
  **/
 public class CloneNotImplementedException extends LocalException
 {
-    public CloneNotImplementedException()
-    {
-    }
+    public CloneNotImplementedException() {}
 
-    public CloneNotImplementedException(Throwable cause)
-    {
-        super(cause);
-    }
+    public CloneNotImplementedException(Throwable cause) { super(cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::CloneNotImplementedException";
-    }
+    public String ice_id() { return "::Ice::CloneNotImplementedException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -8731304369741683537L;

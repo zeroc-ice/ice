@@ -10,29 +10,20 @@ import com.zeroc.IceInternal.Transceiver;
 
 final class ConnectorI implements Connector
 {
-    @Override
-    public Transceiver connect()
-    {
-        return new TransceiverI(_instance, _addr, _uuid, _connectionId);
-    }
+    @Override public Transceiver connect() { return new TransceiverI(_instance, _addr, _uuid, _connectionId); }
 
-    @Override
-    public short type()
-    {
-        return _instance.type();
-    }
+    @Override public short type() { return _instance.type(); }
 
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         StringBuffer buf = new StringBuffer();
-        if(!_addr.isEmpty())
+        if (!_addr.isEmpty())
         {
             buf.append(_addr);
         }
-        if(!_uuid.isEmpty())
+        if (!_uuid.isEmpty())
         {
-            if(!_addr.isEmpty())
+            if (!_addr.isEmpty())
             {
                 buf.append(';');
             }
@@ -41,11 +32,7 @@ final class ConnectorI implements Connector
         return buf.toString();
     }
 
-    @Override
-    public int hashCode()
-    {
-        return _hashCode;
-    }
+    @Override public int hashCode() { return _hashCode; }
 
     //
     // Only for use by EndpointI.
@@ -65,31 +52,30 @@ final class ConnectorI implements Connector
         _hashCode = HashUtil.hashAdd(_hashCode, _connectionId);
     }
 
-    @Override
-    public boolean equals(java.lang.Object obj)
+    @Override public boolean equals(java.lang.Object obj)
     {
-        if(!(obj instanceof ConnectorI))
+        if (!(obj instanceof ConnectorI))
         {
             return false;
         }
 
-        if(this == obj)
+        if (this == obj)
         {
             return true;
         }
 
         ConnectorI p = (ConnectorI)obj;
-        if(!_uuid.equals(p._uuid))
+        if (!_uuid.equals(p._uuid))
         {
             return false;
         }
 
-        if(_timeout != p._timeout)
+        if (_timeout != p._timeout)
         {
             return false;
         }
 
-        if(!_connectionId.equals(p._connectionId))
+        if (!_connectionId.equals(p._connectionId))
         {
             return false;
         }

@@ -10,10 +10,7 @@ package com.zeroc.IceInternal;
 //
 public class Buffer
 {
-    public Buffer(boolean direct)
-    {
-        this(direct, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
+    public Buffer(boolean direct) { this(direct, java.nio.ByteOrder.LITTLE_ENDIAN); }
 
     public Buffer(boolean direct, java.nio.ByteOrder order)
     {
@@ -24,10 +21,7 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(byte[] data)
-    {
-        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
+    public Buffer(byte[] data) { this(data, java.nio.ByteOrder.LITTLE_ENDIAN); }
 
     public Buffer(byte[] data, java.nio.ByteOrder order)
     {
@@ -39,10 +33,7 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(java.nio.ByteBuffer data)
-    {
-        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
+    public Buffer(java.nio.ByteBuffer data) { this(data, java.nio.ByteOrder.LITTLE_ENDIAN); }
 
     public Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order)
     {
@@ -63,7 +54,7 @@ public class Buffer
         _shrinkCounter = buf._shrinkCounter;
         _order = buf._order;
 
-        if(adopt)
+        if (adopt)
         {
             buf.clear();
         }
@@ -114,15 +105,9 @@ public class Buffer
         _order = order;
     }
 
-    public int size()
-    {
-        return _size;
-    }
+    public int size() { return _size; }
 
-    public boolean empty()
-    {
-        return _size == 0;
-    }
+    public boolean empty() { return _size == 0; }
 
     public void clear()
     {
@@ -141,7 +126,7 @@ public class Buffer
     public void expand(int n)
     {
         final int sz = (b == _emptyBuffer) ? n : b.position() + n;
-        if(sz > _size)
+        if (sz > _size)
         {
             resize(sz, false);
         }
@@ -149,13 +134,13 @@ public class Buffer
 
     public void resize(int n, boolean reading)
     {
-        assert(b == _emptyBuffer || _capacity > 0);
+        assert (b == _emptyBuffer || _capacity > 0);
 
-        if(n == 0)
+        if (n == 0)
         {
             clear();
         }
-        else if(n > _capacity)
+        else if (n > _capacity)
         {
             reserve(n);
         }
@@ -164,7 +149,7 @@ public class Buffer
         //
         // When used for reading, we want to set the buffer's limit to the new size.
         //
-        if(reading)
+        if (reading)
         {
             limit(_size);
         }
@@ -172,7 +157,7 @@ public class Buffer
 
     public void reset()
     {
-        if(_size > 0 && _size * 2 < _capacity)
+        if (_size > 0 && _size * 2 < _capacity)
         {
             //
             // If the current buffer size is smaller than the
@@ -180,7 +165,7 @@ public class Buffer
             // current size. This is to avoid holding on to too much
             // memory if it's not needed anymore.
             //
-            if(++_shrinkCounter > 2)
+            if (++_shrinkCounter > 2)
             {
                 reserve(_size);
                 _shrinkCounter = 0;
@@ -191,7 +176,7 @@ public class Buffer
             _shrinkCounter = 0;
         }
         _size = 0;
-        if(b != _emptyBuffer)
+        if (b != _emptyBuffer)
         {
             limit(b.capacity());
             position(0);
@@ -200,12 +185,12 @@ public class Buffer
 
     private void reserve(int n)
     {
-        if(n > _capacity)
+        if (n > _capacity)
         {
             _capacity = java.lang.Math.max(n, 2 * _capacity);
             _capacity = java.lang.Math.max(240, _capacity);
         }
-        else if(n < _capacity)
+        else if (n < _capacity)
         {
             _capacity = n;
         }
@@ -218,7 +203,7 @@ public class Buffer
         {
             java.nio.ByteBuffer buf;
 
-            if(_direct)
+            if (_direct)
             {
                 buf = java.nio.ByteBuffer.allocateDirect(_capacity);
             }
@@ -227,7 +212,7 @@ public class Buffer
                 buf = java.nio.ByteBuffer.allocate(_capacity);
             }
 
-            if(b == _emptyBuffer)
+            if (b == _emptyBuffer)
             {
                 b = buf;
             }
@@ -244,7 +229,7 @@ public class Buffer
 
             b.order(_order); // Preserve the original order.
         }
-        catch(OutOfMemoryError ex)
+        catch (OutOfMemoryError ex)
         {
             _capacity = b.capacity(); // Restore the previous capacity.
             throw ex;
@@ -256,7 +241,7 @@ public class Buffer
     public java.nio.ByteBuffer _emptyBuffer = java.nio.ByteBuffer.allocate(0);
 
     private int _size;
-    private int _capacity; // Cache capacity to avoid excessive method calls.
+    private int _capacity;   // Cache capacity to avoid excessive method calls.
     private boolean _direct; // Use direct buffers?
     private int _shrinkCounter;
     private java.nio.ByteOrder _order;

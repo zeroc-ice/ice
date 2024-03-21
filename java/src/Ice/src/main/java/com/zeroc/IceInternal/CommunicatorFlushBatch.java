@@ -20,11 +20,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         _useCount = 1;
     }
 
-    @Override
-    protected void markCompleted()
-    {
-        complete(null);
-    }
+    @Override protected void markCompleted() { complete(null); }
 
     public void flushConnection(final com.zeroc.Ice.ConnectionI con, final com.zeroc.Ice.CompressBatch compressBatch)
     {
@@ -32,21 +28,17 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         {
             public FlushBatch()
             {
-                super(CommunicatorFlushBatch.this.getCommunicator(),
-                      CommunicatorFlushBatch.this._instance,
-                      CommunicatorFlushBatch.this.getOperation());
+                super(
+                    CommunicatorFlushBatch.this.getCommunicator(),
+                    CommunicatorFlushBatch.this._instance,
+                    CommunicatorFlushBatch.this.getOperation());
             }
 
-            @Override
-            protected void markCompleted()
-            {
-                assert(false);
-            }
+            @Override protected void markCompleted() { assert (false); }
 
-            @Override
-            public boolean sent()
+            @Override public boolean sent()
             {
-                if(_childObserver != null)
+                if (_childObserver != null)
                 {
                     _childObserver.detach();
                     _childObserver = null;
@@ -55,10 +47,9 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 return false;
             }
 
-            @Override
-            public boolean completed(com.zeroc.Ice.Exception ex)
+            @Override public boolean completed(com.zeroc.Ice.Exception ex)
             {
-                if(_childObserver != null)
+                if (_childObserver != null)
                 {
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
@@ -68,39 +59,33 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 return false;
             }
 
-            @Override
-            protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver()
+            @Override protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver()
             {
                 return CommunicatorFlushBatch.this._observer;
             }
         }
 
-        synchronized(this)
-        {
-            ++_useCount;
-        }
+        synchronized (this) { ++_useCount; }
 
         try
         {
             final FlushBatch flushBatch = new FlushBatch();
             final BatchRequestQueue.SwapResult r = con.getBatchRequestQueue().swap(flushBatch.getOs());
-            if(r == null)
+            if (r == null)
             {
                 flushBatch.sent();
             }
-            else if(_instance.queueRequests())
+            else if (_instance.queueRequests())
             {
-                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
-                {
-                    @Override
-                    public Void call() throws RetryException
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>() {
+                    @Override public Void call() throws RetryException
                     {
                         boolean comp = false;
-                        if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                        if (compressBatch == com.zeroc.Ice.CompressBatch.Yes)
                         {
                             comp = true;
                         }
-                        else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                        else if (compressBatch == com.zeroc.Ice.CompressBatch.No)
                         {
                             comp = false;
                         }
@@ -116,11 +101,11 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
             else
             {
                 boolean comp = false;
-                if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                if (compressBatch == com.zeroc.Ice.CompressBatch.Yes)
                 {
                     comp = true;
                 }
-                else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                else if (compressBatch == com.zeroc.Ice.CompressBatch.No)
                 {
                     comp = false;
                 }
@@ -131,12 +116,12 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 con.sendAsyncRequest(flushBatch, comp, false, r.batchRequestNum);
             }
         }
-        catch(RetryException ex)
+        catch (RetryException ex)
         {
             doCheck(false);
             throw ex.get();
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             doCheck(false);
             throw ex;
@@ -153,7 +138,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
 
     public void waitForResponse()
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -162,21 +147,21 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         {
             get();
         }
-        catch(InterruptedException ex)
+        catch (InterruptedException ex)
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
-        catch(java.util.concurrent.ExecutionException ee)
+        catch (java.util.concurrent.ExecutionException ee)
         {
             try
             {
                 throw ee.getCause().fillInStackTrace();
             }
-            catch(RuntimeException ex) // Includes LocalException
+            catch (RuntimeException ex) // Includes LocalException
             {
                 throw ex;
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 throw new com.zeroc.Ice.UnknownException(ex);
             }
@@ -185,18 +170,18 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
 
     private void doCheck(boolean userThread)
     {
-        synchronized(this)
+        synchronized (this)
         {
-            assert(_useCount > 0);
-            if(--_useCount > 0)
+            assert (_useCount > 0);
+            if (--_useCount > 0)
             {
                 return;
             }
         }
 
-        if(sent(true))
+        if (sent(true))
         {
-            if(userThread)
+            if (userThread)
             {
                 _sentSynchronously = true;
                 invokeSent();

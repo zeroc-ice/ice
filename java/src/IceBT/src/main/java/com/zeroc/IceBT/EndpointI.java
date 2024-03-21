@@ -4,23 +4,29 @@
 
 package com.zeroc.IceBT;
 
+import android.bluetooth.BluetoothAdapter;
+import com.zeroc.Ice.EndpointParseException;
+import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.OutputStream;
 import com.zeroc.IceInternal.Acceptor;
 import com.zeroc.IceInternal.Connector;
 import com.zeroc.IceInternal.EndpointI_connectors;
 import com.zeroc.IceInternal.HashUtil;
 import com.zeroc.IceInternal.Transceiver;
-import com.zeroc.Ice.EndpointParseException;
-import com.zeroc.Ice.EndpointSelectionType;
-import com.zeroc.Ice.InputStream;
-import com.zeroc.Ice.OutputStream;
-
-import android.bluetooth.BluetoothAdapter;
 import java.util.UUID;
 
 final class EndpointI extends com.zeroc.IceInternal.EndpointI
 {
-    public EndpointI(Instance instance, String addr, String uuid, String name, int channel, int timeout,
-                     String connectionId, boolean compress)
+    public EndpointI(
+        Instance instance,
+        String addr,
+        String uuid,
+        String name,
+        int channel,
+        int timeout,
+        String connectionId,
+        boolean compress)
     {
         _instance = instance;
         _addr = addr;
@@ -62,8 +68,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         hashInit();
     }
 
-    @Override
-    public void streamWriteImpl(OutputStream s)
+    @Override public void streamWriteImpl(OutputStream s)
     {
         //
         // _name and _channel are not marshaled.
@@ -74,28 +79,15 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         s.writeBool(_compress);
     }
 
-    @Override
-    public short type()
-    {
-        return _instance.type();
-    }
+    @Override public short type() { return _instance.type(); }
 
-    @Override
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    @Override public String protocol() { return _instance.protocol(); }
 
-    @Override
-    public int timeout()
-    {
-        return _timeout;
-    }
+    @Override public int timeout() { return _timeout; }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI timeout(int timeout)
+    @Override public com.zeroc.IceInternal.EndpointI timeout(int timeout)
     {
-        if(timeout == _timeout)
+        if (timeout == _timeout)
         {
             return this;
         }
@@ -105,16 +97,11 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         }
     }
 
-    @Override
-    public String connectionId()
-    {
-        return _connectionId;
-    }
+    @Override public String connectionId() { return _connectionId; }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI connectionId(String connectionId)
+    @Override public com.zeroc.IceInternal.EndpointI connectionId(String connectionId)
     {
-        if(connectionId.equals(_connectionId))
+        if (connectionId.equals(_connectionId))
         {
             return this;
         }
@@ -124,16 +111,11 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         }
     }
 
-    @Override
-    public boolean compress()
-    {
-        return _compress;
-    }
+    @Override public boolean compress() { return _compress; }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI compress(boolean compress)
+    @Override public com.zeroc.IceInternal.EndpointI compress(boolean compress)
     {
-        if(compress == _compress)
+        if (compress == _compress)
         {
             return this;
         }
@@ -143,43 +125,28 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         }
     }
 
-    @Override
-    public boolean datagram()
-    {
-        return false;
-    }
+    @Override public boolean datagram() { return false; }
 
-    @Override
-    public boolean secure()
-    {
-        return _instance.secure();
-    }
+    @Override public boolean secure() { return _instance.secure(); }
 
-    @Override
-    public Transceiver transceiver()
-    {
-        return null;
-    }
+    @Override public Transceiver transceiver() { return null; }
 
-    @Override
-    public void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback)
+    @Override public void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback)
     {
         java.util.List<Connector> conns = new java.util.ArrayList<Connector>();
         conns.add(new ConnectorI(_instance, _addr, _uuid, _timeout, _connectionId));
         callback.connectors(conns);
     }
 
-    @Override
-    public Acceptor acceptor(String adapterName)
+    @Override public Acceptor acceptor(String adapterName)
     {
         return new AcceptorI(this, _instance, adapterName, _uuid, _name);
     }
 
-    @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard()
+    @Override public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard()
     {
         java.util.List<com.zeroc.IceInternal.EndpointI> endps = new java.util.ArrayList<>();
-        if(_addr.isEmpty())
+        if (_addr.isEmpty())
         {
             //
             // Starting in Android 6 (API 23), BluetoothAdapter.getAddress() returns a bogus constant value.
@@ -194,8 +161,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         return endps;
     }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost()
+    @Override public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost()
     {
         com.zeroc.IceInternal.EndpointI.ExpandHostResult result =
             new com.zeroc.IceInternal.EndpointI.ExpandHostResult();
@@ -204,10 +170,9 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         return result;
     }
 
-    @Override
-    public boolean equivalent(com.zeroc.IceInternal.EndpointI endpoint)
+    @Override public boolean equivalent(com.zeroc.IceInternal.EndpointI endpoint)
     {
-        if(!(endpoint instanceof EndpointI))
+        if (!(endpoint instanceof EndpointI))
         {
             return false;
         }
@@ -216,8 +181,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
             btEndpointI._channel == _channel;
     }
 
-    @Override
-    public String options()
+    @Override public String options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -228,42 +192,42 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         //
         String s = "";
 
-        if(!_addr.isEmpty())
+        if (!_addr.isEmpty())
         {
             s += " -a ";
             boolean addQuote = _addr.indexOf(':') != -1;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
             s += _addr;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
         }
 
-        if(!_uuid.isEmpty())
+        if (!_uuid.isEmpty())
         {
             s += " -u ";
             boolean addQuote = _uuid.indexOf(':') != -1;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
             s += _uuid;
-            if(addQuote)
+            if (addQuote)
             {
                 s += "\"";
             }
         }
 
-        if(_channel > 0)
+        if (_channel > 0)
         {
             s += " -c " + _channel;
         }
 
-        if(_timeout == -1)
+        if (_timeout == -1)
         {
             s += " -t infinite";
         }
@@ -272,7 +236,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
             s += " -t " + _timeout;
         }
 
-        if(_compress)
+        if (_compress)
         {
             s += " -z";
         }
@@ -284,17 +248,17 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
     {
         super.initWithOptions(args);
 
-        if(_addr.isEmpty())
+        if (_addr.isEmpty())
         {
             _addr = _instance.defaultHost();
-            if(_addr == null)
+            if (_addr == null)
             {
                 _addr = "";
             }
         }
-        else if(_addr.equals("*"))
+        else if (_addr.equals("*"))
         {
-            if(oaEndpoint)
+            if (oaEndpoint)
             {
                 _addr = "";
             }
@@ -304,14 +268,14 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
             }
         }
 
-        if(_name.isEmpty())
+        if (_name.isEmpty())
         {
             _name = "Ice Service";
         }
 
-        if(_uuid.isEmpty())
+        if (_uuid.isEmpty())
         {
-            if(oaEndpoint)
+            if (oaEndpoint)
             {
                 //
                 // Generate a UUID for object adapters that don't specify one.
@@ -327,89 +291,74 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         hashInit();
     }
 
-    @Override
-    public com.zeroc.Ice.EndpointInfo getInfo()
+    @Override public com.zeroc.Ice.EndpointInfo getInfo()
     {
-        EndpointInfo info = new EndpointInfo()
-        {
-            @Override
-            public short type()
-            {
-                return EndpointI.this.type();
-            }
+        EndpointInfo info = new EndpointInfo() {
+            @Override public short type() { return EndpointI.this.type(); }
 
-            @Override
-            public boolean datagram()
-            {
-                return EndpointI.this.datagram();
-            }
+            @Override public boolean datagram() { return EndpointI.this.datagram(); }
 
-            @Override
-            public boolean secure()
-            {
-                return EndpointI.this.secure();
-            }
+            @Override public boolean secure() { return EndpointI.this.secure(); }
         };
         info.addr = _addr;
         info.uuid = _uuid;
         return info;
     }
 
-    @Override
-    public int compareTo(com.zeroc.IceInternal.EndpointI obj) // From java.lang.Comparable
+    @Override public int compareTo(com.zeroc.IceInternal.EndpointI obj) // From java.lang.Comparable
     {
-        if(!(obj instanceof EndpointI))
+        if (!(obj instanceof EndpointI))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
         EndpointI p = (EndpointI)obj;
-        if(this == p)
+        if (this == p)
         {
             return 0;
         }
 
         int v = _addr.compareTo(p._addr);
-        if(v != 0)
+        if (v != 0)
         {
             return v;
         }
 
         v = _uuid.compareTo(p._uuid);
-        if(v != 0)
+        if (v != 0)
         {
             return v;
         }
 
-        if(_channel < p._channel)
+        if (_channel < p._channel)
         {
             return -1;
         }
-        else if(p._channel < _channel)
+        else if (p._channel < _channel)
         {
             return 1;
         }
 
-        if(_timeout < p._timeout)
+        if (_timeout < p._timeout)
         {
             return -1;
         }
-        else if(p._timeout < _timeout)
+        else if (p._timeout < _timeout)
         {
             return 1;
         }
 
         v = _connectionId.compareTo(p._connectionId);
-        if(v != 0)
+        if (v != 0)
         {
             return v;
         }
 
-        if(!_compress && p._compress)
+        if (!_compress && p._compress)
         {
             return -1;
         }
-        else if(!p._compress && _compress)
+        else if (!p._compress && _compress)
         {
             return 1;
         }
@@ -417,35 +366,30 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         return 0;
     }
 
-    @Override
-    public int hashCode()
-    {
-        return _hashValue;
-    }
+    @Override public int hashCode() { return _hashValue; }
 
-    @Override
-    protected boolean checkOption(String option, String argument, String endpoint)
+    @Override protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(super.checkOption(option, argument, endpoint))
+        if (super.checkOption(option, argument, endpoint))
         {
             return true;
         }
 
-        if(option.equals("-a"))
+        if (option.equals("-a"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for -a option in endpoint " + endpoint);
             }
-            if(!argument.equals("*") && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase()))
+            if (!argument.equals("*") && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase()))
             {
                 throw new EndpointParseException("invalid address provided for -a option in endpoint " + endpoint);
             }
             _addr = argument.toUpperCase(); // Android requires a hardware address to use upper case letters.
         }
-        else if(option.equals("-u"))
+        else if (option.equals("-u"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for -u option in endpoint " + endpoint);
             }
@@ -453,15 +397,15 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
             {
                 UUID.fromString(argument);
             }
-            catch(IllegalArgumentException ex)
+            catch (IllegalArgumentException ex)
             {
                 throw new EndpointParseException("invalid UUID for Bluetooth endpoint", ex);
             }
             _uuid = argument;
         }
-        else if(option.equals("-c"))
+        else if (option.equals("-c"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for -c option in endpoint " + endpoint);
             }
@@ -470,25 +414,25 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
             {
                 _channel = Integer.parseInt(argument);
             }
-            catch(NumberFormatException ex)
+            catch (NumberFormatException ex)
             {
                 throw new EndpointParseException("invalid channel value `" + argument + "' in endpoint " + endpoint);
             }
 
-            if(_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
+            if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
             {
-                throw new EndpointParseException("channel value `" + argument + "' out of range in endpoint " +
-                                                 endpoint);
+                throw new EndpointParseException(
+                    "channel value `" + argument + "' out of range in endpoint " + endpoint);
             }
         }
-        else if(option.equals("-t"))
+        else if (option.equals("-t"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
             }
 
-            if(argument.equals("infinite"))
+            if (argument.equals("infinite"))
             {
                 _timeout = -1;
             }
@@ -497,32 +441,32 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
                 try
                 {
                     _timeout = Integer.parseInt(argument);
-                    if(_timeout < 1)
+                    if (_timeout < 1)
                     {
-                        throw new EndpointParseException("invalid timeout value `" + argument + "' in endpoint " +
-                                                         endpoint);
+                        throw new EndpointParseException(
+                            "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                     }
                 }
-                catch(NumberFormatException ex)
+                catch (NumberFormatException ex)
                 {
-                    throw new EndpointParseException("invalid timeout value `" + argument + "' in endpoint " +
-                                                     endpoint);
+                    throw new EndpointParseException(
+                        "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                 }
             }
         }
-        else if(option.equals("-z"))
+        else if (option.equals("-z"))
         {
-            if(argument != null)
+            if (argument != null)
             {
-                throw new EndpointParseException("unexpected argument `" + argument +
-                                                 "' provided for -z option in " + endpoint);
+                throw new EndpointParseException(
+                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
             }
 
             _compress = true;
         }
-        else if(option.equals("--name"))
+        else if (option.equals("--name"))
         {
-            if(argument == null)
+            if (argument == null)
             {
                 throw new EndpointParseException("no argument provided for --name option in endpoint " + endpoint);
             }

@@ -8,18 +8,14 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
 {
     public class Entry
     {
-        Entry(T obj)
-        {
-            _object = obj;
-        }
+        Entry(T obj) { _object = obj; }
 
-        public void
-        failed(String exceptionName)
+        public void failed(String exceptionName)
         {
-            synchronized(MetricsMap.this)
+            synchronized (MetricsMap.this)
             {
                 ++_object.failures;
-                if(_failures == null)
+                if (_failures == null)
                 {
                     _failures = new java.util.HashMap<>();
                 }
@@ -33,17 +29,17 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         getMatching(String mapName, com.zeroc.Ice.IceMX.MetricsHelper<S> helper, Class<S> cl)
         {
             SubMap<S> m;
-            synchronized(MetricsMap.this)
+            synchronized (MetricsMap.this)
             {
                 m = _subMaps != null ? (SubMap<S>)_subMaps.get(mapName) : null;
-                if(m == null)
+                if (m == null)
                 {
                     m = createSubMap(mapName, cl);
-                    if(m == null)
+                    if (m == null)
                     {
                         return null;
                     }
-                    if(_subMaps == null)
+                    if (_subMaps == null)
                     {
                         _subMaps = new java.util.HashMap<>();
                     }
@@ -53,38 +49,28 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             return m.getMatching(helper);
         }
 
-        public void
-        detach(long lifetime)
+        public void detach(long lifetime)
         {
-            synchronized(MetricsMap.this)
+            synchronized (MetricsMap.this)
             {
                 _object.totalLifetime += lifetime;
-                if(--_object.current == 0)
+                if (--_object.current == 0)
                 {
                     detached(this);
                 }
             }
         }
 
-        public void
-        execute(com.zeroc.Ice.IceMX.Observer.MetricsUpdate<T> func)
+        public void execute(com.zeroc.Ice.IceMX.Observer.MetricsUpdate<T> func)
         {
-            synchronized(MetricsMap.this)
-            {
-                func.update(_object);
-            }
+            synchronized (MetricsMap.this) { func.update(_object); }
         }
 
-        public MetricsMap<?>
-        getMap()
-        {
-            return MetricsMap.this;
-        }
+        public MetricsMap<?> getMap() { return MetricsMap.this; }
 
-        private com.zeroc.Ice.IceMX.MetricsFailures
-        getFailures()
+        private com.zeroc.Ice.IceMX.MetricsFailures getFailures()
         {
-            if(_failures == null)
+            if (_failures == null)
             {
                 return null;
             }
@@ -94,29 +80,21 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             return f;
         }
 
-        private void
-        attach(com.zeroc.Ice.IceMX.MetricsHelper<T> helper)
+        private void attach(com.zeroc.Ice.IceMX.MetricsHelper<T> helper)
         {
             ++_object.total;
             ++_object.current;
             helper.initMetrics(_object);
         }
 
-        private boolean
-        isDetached()
-        {
-            return _object.current == 0;
-        }
+        private boolean isDetached() { return _object.current == 0; }
 
-        @Override
-        @SuppressWarnings("unchecked")
-        public com.zeroc.Ice.IceMX.Metrics
-        clone()
+        @Override @SuppressWarnings("unchecked") public com.zeroc.Ice.IceMX.Metrics clone()
         {
             T metrics = (T)_object.clone();
-            if(_subMaps != null)
+            if (_subMaps != null)
             {
-                for(SubMap<?> s : _subMaps.values())
+                for (SubMap<?> s : _subMaps.values())
                 {
                     s.addSubMapToMetrics(metrics);
                 }
@@ -131,29 +109,26 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
 
     static class SubMap<S extends com.zeroc.Ice.IceMX.Metrics>
     {
-        public
-        SubMap(MetricsMap<S> map, java.lang.reflect.Field field)
+        public SubMap(MetricsMap<S> map, java.lang.reflect.Field field)
         {
             _map = map;
             _field = field;
         }
 
-        public MetricsMap<S>.Entry
-        getMatching(com.zeroc.Ice.IceMX.MetricsHelper<S> helper)
+        public MetricsMap<S>.Entry getMatching(com.zeroc.Ice.IceMX.MetricsHelper<S> helper)
         {
             return _map.getMatching(helper, null);
         }
 
-        public void
-        addSubMapToMetrics(com.zeroc.Ice.IceMX.Metrics metrics)
+        public void addSubMapToMetrics(com.zeroc.Ice.IceMX.Metrics metrics)
         {
             try
             {
                 _field.set(metrics, _map.getMetrics());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                assert(false);
+                assert (false);
             }
         }
 
@@ -169,11 +144,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             _field = field;
         }
 
-        public SubMap<S>
-        create()
-        {
-            return new SubMap<S>(new MetricsMap<S>(_map), _field);
-        }
+        public SubMap<S> create() { return new SubMap<S>(new MetricsMap<S>(_map), _field); }
 
         final private MetricsMap<S> _map;
         final private java.lang.reflect.Field _field;
@@ -187,8 +158,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             _field = field;
         }
 
-        SubMapCloneFactory<S>
-        createCloneFactory(String subMapPrefix, com.zeroc.Ice.Properties properties)
+        SubMapCloneFactory<S> createCloneFactory(String subMapPrefix, com.zeroc.Ice.Properties properties)
         {
             return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, _class, properties, null), _field);
         }
@@ -197,8 +167,11 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         final private java.lang.reflect.Field _field;
     }
 
-    MetricsMap(String mapPrefix, Class<T> cl, com.zeroc.Ice.Properties props,
-               java.util.Map<String, SubMapFactory<?>> subMaps)
+    MetricsMap(
+        String mapPrefix,
+        Class<T> cl,
+        com.zeroc.Ice.Properties props,
+        java.util.Map<String, SubMapFactory<?>> subMaps)
     {
         MetricsAdminI.validateProperties(mapPrefix, props);
         _properties = props.getPropertiesForPrefix(mapPrefix);
@@ -211,25 +184,25 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         _class = cl;
 
         String groupBy = props.getPropertyWithDefault(mapPrefix + "GroupBy", "id");
-        if(!groupBy.isEmpty())
+        if (!groupBy.isEmpty())
         {
             String v = "";
             boolean attribute = Character.isLetter(groupBy.charAt(0)) || Character.isDigit(groupBy.charAt(0));
-            if(!attribute)
+            if (!attribute)
             {
                 _groupByAttributes.add("");
             }
 
-            for(char p : groupBy.toCharArray())
+            for (char p : groupBy.toCharArray())
             {
                 boolean isAlphaNum = Character.isLetter(p) || Character.isDigit(p) || p == '.';
-                if(attribute && !isAlphaNum)
+                if (attribute && !isAlphaNum)
                 {
                     _groupByAttributes.add(v);
                     v = "" + p;
                     attribute = false;
                 }
-                else if(!attribute && isAlphaNum)
+                else if (!attribute && isAlphaNum)
                 {
                     _groupBySeparators.add(v);
                     v = "" + p;
@@ -241,7 +214,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
                 }
             }
 
-            if(attribute)
+            if (attribute)
             {
                 _groupByAttributes.add(v);
             }
@@ -251,19 +224,19 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             }
         }
 
-        if(subMaps != null && !subMaps.isEmpty())
+        if (subMaps != null && !subMaps.isEmpty())
         {
             _subMaps = new java.util.HashMap<>();
 
             java.util.List<String> subMapNames = new java.util.ArrayList<>();
-            for(java.util.Map.Entry<String, SubMapFactory<?>> e : subMaps.entrySet())
+            for (java.util.Map.Entry<String, SubMapFactory<?>> e : subMaps.entrySet())
             {
                 subMapNames.add(e.getKey());
                 String subMapsPrefix = mapPrefix + "Map.";
                 String subMapPrefix = subMapsPrefix + e.getKey() + '.';
-                if(props.getPropertiesForPrefix(subMapPrefix).isEmpty())
+                if (props.getPropertiesForPrefix(subMapPrefix).isEmpty())
                 {
-                    if(props.getPropertiesForPrefix(subMapsPrefix).isEmpty())
+                    if (props.getPropertiesForPrefix(subMapsPrefix).isEmpty())
                     {
                         subMapPrefix = mapPrefix;
                     }
@@ -294,32 +267,26 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         _subMaps = map._subMaps;
     }
 
-    java.util.Map<String, String>
-    getProperties()
-    {
-        return _properties;
-    }
+    java.util.Map<String, String> getProperties() { return _properties; }
 
-    synchronized com.zeroc.Ice.IceMX.Metrics[]
-    getMetrics()
+    synchronized com.zeroc.Ice.IceMX.Metrics[] getMetrics()
     {
         com.zeroc.Ice.IceMX.Metrics[] metrics = new com.zeroc.Ice.IceMX.Metrics[_objects.size()];
         int i = 0;
-        for(Entry e : _objects.values())
+        for (Entry e : _objects.values())
         {
             metrics[i++] = e.clone();
         }
         return metrics;
     }
 
-    synchronized com.zeroc.Ice.IceMX.MetricsFailures[]
-    getFailures()
+    synchronized com.zeroc.Ice.IceMX.MetricsFailures[] getFailures()
     {
         java.util.List<com.zeroc.Ice.IceMX.MetricsFailures> failures = new java.util.ArrayList<>();
-        for(Entry e : _objects.values())
+        for (Entry e : _objects.values())
         {
             com.zeroc.Ice.IceMX.MetricsFailures f = e.getFailures();
-            if(f != null)
+            if (f != null)
             {
                 failures.add(f);
             }
@@ -327,11 +294,10 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         return failures.toArray(new com.zeroc.Ice.IceMX.MetricsFailures[failures.size()]);
     }
 
-    synchronized com.zeroc.Ice.IceMX.MetricsFailures
-    getFailures(String id)
+    synchronized com.zeroc.Ice.IceMX.MetricsFailures getFailures(String id)
     {
         Entry e = _objects.get(id);
-        if(e != null)
+        if (e != null)
         {
             return e.getFailures();
         }
@@ -339,38 +305,36 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
     }
 
     @SuppressWarnings("unchecked")
-    public <S extends com.zeroc.Ice.IceMX.Metrics> SubMap<S>
-    createSubMap(String subMapName, Class<S> cl)
+    public <S extends com.zeroc.Ice.IceMX.Metrics> SubMap<S> createSubMap(String subMapName, Class<S> cl)
     {
-        if(_subMaps == null)
+        if (_subMaps == null)
         {
             return null;
         }
         SubMapCloneFactory<S> factory = (SubMapCloneFactory<S>)_subMaps.get(subMapName);
-        if(factory != null)
+        if (factory != null)
         {
             return factory.create();
         }
         return null;
     }
 
-    public Entry
-    getMatching(com.zeroc.Ice.IceMX.MetricsHelper<T> helper, Entry previous)
+    public Entry getMatching(com.zeroc.Ice.IceMX.MetricsHelper<T> helper, Entry previous)
     {
         //
         // Check the accept and reject filters.
         //
-        for(java.util.Map.Entry<String, java.util.regex.Pattern> e : _accept.entrySet())
+        for (java.util.Map.Entry<String, java.util.regex.Pattern> e : _accept.entrySet())
         {
-            if(!match(e.getKey(), e.getValue(), helper, false))
+            if (!match(e.getKey(), e.getValue(), helper, false))
             {
                 return null;
             }
         }
 
-        for(java.util.Map.Entry<String, java.util.regex.Pattern> e : _reject.entrySet())
+        for (java.util.Map.Entry<String, java.util.regex.Pattern> e : _reject.entrySet())
         {
-            if(match(e.getKey(), e.getValue(), helper, true))
+            if (match(e.getKey(), e.getValue(), helper, true))
             {
                 return null;
             }
@@ -382,7 +346,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         String key;
         try
         {
-            if(_groupByAttributes.size() == 1)
+            if (_groupByAttributes.size() == 1)
             {
                 key = helper.resolve(_groupByAttributes.get(0));
             }
@@ -390,10 +354,10 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
             {
                 StringBuilder os = new StringBuilder();
                 java.util.Iterator<String> q = _groupBySeparators.iterator();
-                for(String p : _groupByAttributes)
+                for (String p : _groupByAttributes)
                 {
                     os.append(helper.resolve(p));
-                    if(q.hasNext())
+                    if (q.hasNext())
                     {
                         os.append(q.next());
                     }
@@ -401,7 +365,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
                 key = os.toString();
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return null;
         }
@@ -409,16 +373,16 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         //
         // Lookup the metrics object.
         //
-        synchronized(this)
+        synchronized (this)
         {
-            if(previous != null && previous._object.id.equals(key))
+            if (previous != null && previous._object.id.equals(key))
             {
-                assert(_objects.get(key) == previous);
+                assert (_objects.get(key) == previous);
                 return previous;
             }
 
             Entry e = _objects.get(key);
-            if(e == null)
+            if (e == null)
             {
                 try
                 {
@@ -427,9 +391,9 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
                     e = new Entry(t);
                     _objects.put(key, e);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    assert(false);
+                    assert (false);
                 }
             }
             e.attach(helper);
@@ -437,33 +401,32 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         }
     }
 
-    private void
-    detached(Entry entry)
+    private void detached(Entry entry)
     {
-        if(_retain == 0)
+        if (_retain == 0)
         {
             return;
         }
 
-        if(_detachedQueue == null)
+        if (_detachedQueue == null)
         {
             _detachedQueue = new java.util.LinkedList<>();
         }
-        assert(_detachedQueue.size() <= _retain);
+        assert (_detachedQueue.size() <= _retain);
 
         // Compress the queue by removing entries which are no longer detached.
         java.util.Iterator<Entry> p = _detachedQueue.iterator();
-        while(p.hasNext())
+        while (p.hasNext())
         {
             Entry e = p.next();
-            if(e == entry || !e.isDetached())
+            if (e == entry || !e.isDetached())
             {
                 p.remove();
             }
         }
 
         // If there's still no room, remove the oldest entry (at the front).
-        if(_detachedQueue.size() == _retain)
+        if (_detachedQueue.size() == _retain)
         {
             _objects.remove(_detachedQueue.pollFirst()._object.id);
         }
@@ -472,12 +435,11 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         _detachedQueue.add(entry);
     }
 
-    private java.util.Map<String, java.util.regex.Pattern>
-    parseRule(com.zeroc.Ice.Properties properties, String name)
+    private java.util.Map<String, java.util.regex.Pattern> parseRule(com.zeroc.Ice.Properties properties, String name)
     {
         java.util.Map<String, java.util.regex.Pattern> pats = new java.util.HashMap<>();
         java.util.Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
-        for(java.util.Map.Entry<String,String> e : rules.entrySet())
+        for (java.util.Map.Entry<String, String> e : rules.entrySet())
         {
             pats.put(e.getKey().substring(name.length() + 1), java.util.regex.Pattern.compile(e.getValue()));
         }
@@ -492,7 +454,7 @@ public class MetricsMap<T extends com.zeroc.Ice.IceMX.Metrics>
         {
             value = helper.resolve(attribute);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return !reject;
         }

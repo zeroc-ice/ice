@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class IllegalIdentityException extends LocalException
 {
-    public IllegalIdentityException()
-    {
-        this.id = new Identity();
-    }
+    public IllegalIdentityException() { this.id = new Identity(); }
 
     public IllegalIdentityException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class IllegalIdentityException extends LocalException
         this.id = new Identity();
     }
 
-    public IllegalIdentityException(Identity id)
-    {
-        this.id = id;
-    }
+    public IllegalIdentityException(Identity id) { this.id = id; }
 
     public IllegalIdentityException(Identity id, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class IllegalIdentityException extends LocalException
         this.id = id;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::IllegalIdentityException";
-    }
+    public String ice_id() { return "::Ice::IllegalIdentityException"; }
 
     /**
      * The illegal identity.

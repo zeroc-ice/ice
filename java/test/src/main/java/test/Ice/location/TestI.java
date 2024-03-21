@@ -18,33 +18,26 @@ public class TestI implements TestIntf
         _registry.addObject(_adapter1.add(new HelloI(), com.zeroc.Ice.Util.stringToIdentity("hello")), null);
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        _adapter1.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { _adapter1.getCommunicator().shutdown(); }
 
-    @Override
-    public HelloPrx getHello(com.zeroc.Ice.Current current)
+    @Override public HelloPrx getHello(com.zeroc.Ice.Current current)
     {
         return HelloPrx.uncheckedCast(_adapter1.createIndirectProxy(com.zeroc.Ice.Util.stringToIdentity("hello")));
     }
 
-    @Override
-    public HelloPrx getReplicatedHello(com.zeroc.Ice.Current current)
+    @Override public HelloPrx getReplicatedHello(com.zeroc.Ice.Current current)
     {
         return HelloPrx.uncheckedCast(_adapter1.createProxy(com.zeroc.Ice.Util.stringToIdentity("hello")));
     }
 
-    @Override
-    public void migrateHello(com.zeroc.Ice.Current current)
+    @Override public void migrateHello(com.zeroc.Ice.Current current)
     {
         final com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("hello");
         try
         {
             _registry.addObject(_adapter2.add(_adapter1.remove(id), id), null);
         }
-        catch(com.zeroc.Ice.NotRegisteredException ex)
+        catch (com.zeroc.Ice.NotRegisteredException ex)
         {
             _registry.addObject(_adapter1.add(_adapter2.remove(id), id), null);
         }

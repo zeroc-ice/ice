@@ -24,8 +24,7 @@ import java.io.*;
 
 public class OutputStreamWrapper extends java.io.OutputStream
 {
-    public
-    OutputStreamWrapper(com.zeroc.Ice.OutputStream s)
+    public OutputStreamWrapper(com.zeroc.Ice.OutputStream s)
     {
         _s = s;
         _spos = s.pos();
@@ -33,18 +32,16 @@ public class OutputStreamWrapper extends java.io.OutputStream
         _pos = 0;
     }
 
-    @Override
-    public void
-    write(int b) throws IOException
+    @Override public void write(int b) throws IOException
     {
         try
         {
-            if(_bytes != null)
+            if (_bytes != null)
             {
                 //
                 // If we can fit the data into the first 254 bytes, write it to _bytes.
                 //
-                if(_pos < _bytes.length)
+                if (_pos < _bytes.length)
                 {
                     _bytes[_pos++] = (byte)b;
                     return;
@@ -53,7 +50,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
                 _s.writeSize(255); // Dummy size, until we know how big the stream
                                    // really is and can patch the size.
 
-                if(_pos > 0)
+                if (_pos > 0)
                 {
                     //
                     // Write the current contents of _bytes.
@@ -71,31 +68,24 @@ public class OutputStreamWrapper extends java.io.OutputStream
             _s.getBuffer().b.put((byte)b);
             _pos += 1;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new IOException(ex.toString());
         }
     }
 
-    @Override
-    public void
-    write(byte[] b) throws IOException
-    {
-        write(b, 0, b.length);
-    }
+    @Override public void write(byte[] b) throws IOException { write(b, 0, b.length); }
 
-    @Override
-    public void
-    write(byte[] bytes, int offset, int count) throws IOException
+    @Override public void write(byte[] bytes, int offset, int count) throws IOException
     {
         try
         {
-            if(_bytes != null)
+            if (_bytes != null)
             {
                 //
                 // If we can fit the data into the first 254 bytes, write it to _bytes.
                 //
-                if(count <= _bytes.length - _pos)
+                if (count <= _bytes.length - _pos)
                 {
                     System.arraycopy(bytes, offset, _bytes, _pos, count);
                     _pos += count;
@@ -105,7 +95,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
                 _s.writeSize(255); // Dummy size, until we know how big the stream
                                    // really is and can patch the size.
 
-                if(_pos > 0)
+                if (_pos > 0)
                 {
                     //
                     // Write the current contents of _bytes.
@@ -123,29 +113,25 @@ public class OutputStreamWrapper extends java.io.OutputStream
             _s.getBuffer().b.put(bytes, offset, count);
             _pos += count;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new IOException(ex.toString());
         }
     }
 
-    @Override
-    public void
-    flush() throws IOException
+    @Override public void flush() throws IOException
     {
         // This does nothing because we do not know the final size of a writable stream until it is closed,
         // and we cannot write to the stream until we know whether the final size is < 255 or not.
     }
 
-    @Override
-    public void
-    close() throws IOException
+    @Override public void close() throws IOException
     {
         try
         {
-            if(_bytes != null)
+            if (_bytes != null)
             {
-                assert(_pos <= _bytes.length);
+                assert (_pos <= _bytes.length);
                 _s.pos(_spos);
                 _s.writeSize(_pos);
                 _s.expand(_pos);
@@ -160,7 +146,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
                 _s.pos(currentPos);
             }
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new IOException(ex.toString());
         }

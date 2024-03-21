@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class IllegalServantException extends LocalException
 {
-    public IllegalServantException()
-    {
-        this.reason = "";
-    }
+    public IllegalServantException() { this.reason = ""; }
 
     public IllegalServantException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class IllegalServantException extends LocalException
         this.reason = "";
     }
 
-    public IllegalServantException(String reason)
-    {
-        this.reason = reason;
-    }
+    public IllegalServantException(String reason) { this.reason = reason; }
 
     public IllegalServantException(String reason, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class IllegalServantException extends LocalException
         this.reason = reason;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::IllegalServantException";
-    }
+    public String ice_id() { return "::Ice::IllegalServantException"; }
 
     /**
      * Describes why this servant is illegal.

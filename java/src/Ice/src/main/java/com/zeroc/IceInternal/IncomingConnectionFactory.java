@@ -8,10 +8,9 @@ import com.zeroc.Ice.ConnectionI;
 
 public final class IncomingConnectionFactory extends EventHandler implements ConnectionI.StartCallback
 {
-    public synchronized void
-    startAcceptor()
+    public synchronized void startAcceptor()
     {
-        if(_state >= StateClosed || _acceptorStarted)
+        if (_state >= StateClosed || _acceptorStarted)
         {
             return;
         }
@@ -20,7 +19,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         {
             createAcceptor();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             String s = "acceptor creation failed:\n" + ex.getCause().getMessage() + '\n' + _acceptor.toString();
             _instance.initializationData().logger.error(s);
@@ -28,46 +27,31 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         }
     }
 
-    public synchronized void
-    activate()
-    {
-        setState(StateActive);
-    }
+    public synchronized void activate() { setState(StateActive); }
 
-    public synchronized void
-    hold()
-    {
-        setState(StateHolding);
-    }
+    public synchronized void hold() { setState(StateHolding); }
 
-    public synchronized void
-    destroy()
-    {
-        setState(StateClosed);
-    }
+    public synchronized void destroy() { setState(StateClosed); }
 
-    public synchronized void
-    updateConnectionObservers()
+    public synchronized void updateConnectionObservers()
     {
-        for(ConnectionI connection : _connections)
+        for (ConnectionI connection : _connections)
         {
             connection.updateObserver();
         }
     }
 
-    public void
-    waitUntilHolding()
-        throws InterruptedException
+    public void waitUntilHolding() throws InterruptedException
     {
         java.util.LinkedList<ConnectionI> connections;
 
-        synchronized(this)
+        synchronized (this)
         {
             //
             // First we wait until the connection factory itself is in holding
             // state.
             //
-            while(_state < StateHolding)
+            while (_state < StateHolding)
             {
                 wait();
             }
@@ -82,25 +66,23 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         //
         // Now we wait until each connection is in holding state.
         //
-        for(ConnectionI connection : connections)
+        for (ConnectionI connection : connections)
         {
             connection.waitUntilHolding();
         }
     }
 
-    public void
-    waitUntilFinished()
-        throws InterruptedException
+    public void waitUntilFinished() throws InterruptedException
     {
         java.util.LinkedList<ConnectionI> connections = null;
 
-        synchronized(this)
+        synchronized (this)
         {
             //
             // First we wait until the factory is destroyed. If we are using
             // an acceptor, we also wait for it to be closed.
             //
-            while(_state != StateFinished)
+            while (_state != StateFinished)
             {
                 wait();
             }
@@ -117,20 +99,20 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             connections = new java.util.LinkedList<>(_connections);
         }
 
-        if(connections != null)
+        if (connections != null)
         {
-            for(ConnectionI connection : connections)
+            for (ConnectionI connection : connections)
             {
                 try
                 {
                     connection.waitUntilFinished();
                 }
-                catch(InterruptedException e)
+                catch (InterruptedException e)
                 {
                     //
                     // Force close all of the connections.
                     //
-                    for(ConnectionI c : connections)
+                    for (ConnectionI c : connections)
                     {
                         c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
                     }
@@ -139,18 +121,18 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             }
         }
 
-        synchronized(this)
+        synchronized (this)
         {
-            if(_transceiver != null)
+            if (_transceiver != null)
             {
-                assert(_connections.size() <= 1); // The connection isn't monitored or reaped.
+                assert (_connections.size() <= 1); // The connection isn't monitored or reaped.
             }
             else
             {
                 // Ensure all the connections are finished and reapable at this point.
                 java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-                assert((cons == null ? 0 : cons.size()) == _connections.size());
-                if(cons != null)
+                assert ((cons == null ? 0 : cons.size()) == _connections.size());
+                if (cons != null)
                 {
                     cons.clear();
                 }
@@ -165,43 +147,34 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         _monitor.destroy();
     }
 
-    public boolean
-    isLocal(EndpointI endpoint)
+    public boolean isLocal(EndpointI endpoint)
     {
-        if(_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint))
+        if (_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint))
         {
             return true;
         }
-        synchronized(this)
-        {
-            return endpoint.equivalent(_endpoint);
-        }
+        synchronized (this) { return endpoint.equivalent(_endpoint); }
     }
 
-    public EndpointI
-    endpoint()
+    public EndpointI endpoint()
     {
-        if(_publishedEndpoint != null)
+        if (_publishedEndpoint != null)
         {
             return _publishedEndpoint;
         }
-        synchronized(this)
-        {
-            return _endpoint;
-        }
+        synchronized (this) { return _endpoint; }
     }
 
-    public synchronized java.util.LinkedList<ConnectionI>
-    connections()
+    public synchronized java.util.LinkedList<ConnectionI> connections()
     {
         java.util.LinkedList<ConnectionI> connections = new java.util.LinkedList<>();
 
         //
         // Only copy connections which have not been destroyed.
         //
-        for(ConnectionI connection : _connections)
+        for (ConnectionI connection : _connections)
         {
-            if(connection.isActiveOrHolding())
+            if (connection.isActiveOrHolding())
             {
                 connections.add(connection);
             }
@@ -210,16 +183,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         return connections;
     }
 
-    public void
-    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
+    public void flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
-        for(ConnectionI c : connections()) // connections() is synchronized, no need to synchronize here.
+        for (ConnectionI c : connections()) // connections() is synchronized, no need to synchronize here.
         {
             try
             {
                 outAsync.flushConnection(c, compressBatch);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 // Ignore.
             }
@@ -230,18 +202,16 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
     // Operations from EventHandler.
     //
 
-    @Override
-    public void
-    message(ThreadPoolCurrent current)
+    @Override public void message(ThreadPoolCurrent current)
     {
         ConnectionI connection = null;
-        synchronized(this)
+        synchronized (this)
         {
-            if(_state >= StateClosed)
+            if (_state >= StateClosed)
             {
                 return;
             }
-            else if(_state == StateHolding)
+            else if (_state == StateHolding)
             {
                 Thread.yield();
                 return;
@@ -251,15 +221,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             // Reap closed connections.
             //
             java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-            if(cons != null)
+            if (cons != null)
             {
-                for(ConnectionI c : cons)
+                for (ConnectionI c : cons)
                 {
                     _connections.remove(c);
                 }
             }
 
-            if(!_acceptorStarted)
+            if (!_acceptorStarted)
             {
                 return;
             }
@@ -272,7 +242,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             {
                 transceiver = _acceptor.accept();
 
-                if(_instance.traceLevels().network >= 2)
+                if (_instance.traceLevels().network >= 2)
                 {
                     StringBuffer s = new StringBuffer("trying to accept ");
                     s.append(_endpoint.protocol());
@@ -281,9 +251,9 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
                 }
             }
-            catch(com.zeroc.Ice.SocketException ex)
+            catch (com.zeroc.Ice.SocketException ex)
             {
-                if(Network.noMoreFds(ex.getCause()))
+                if (Network.noMoreFds(ex.getCause()))
                 {
                     try
                     {
@@ -293,19 +263,19 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                         {
                             _instance.initializationData().logger.error(s);
                         }
-                        catch(Throwable ex1)
+                        catch (Throwable ex1)
                         {
                             System.out.println(s);
                         }
                     }
-                    catch(Throwable ex2)
+                    catch (Throwable ex2)
                     {
                         // Ignore, could be a class loading error.
                     }
 
-                    assert(_acceptorStarted);
+                    assert (_acceptorStarted);
                     _acceptorStarted = false;
-                    if(_adapter.getThreadPool().finish(this, true))
+                    if (_adapter.getThreadPool().finish(this, true))
                     {
                         closeAcceptor();
                     }
@@ -314,35 +284,41 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                 // Ignore socket exceptions.
                 return;
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 // Warn about other Ice local exceptions.
-                if(_warn)
+                if (_warn)
                 {
                     warning(ex);
                 }
                 return;
             }
 
-            assert(transceiver != null);
+            assert (transceiver != null);
 
             try
             {
-                connection = new ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver, null,
-                                                 _endpoint, _adapter);
+                connection = new ConnectionI(
+                    _adapter.getCommunicator(),
+                    _instance,
+                    _monitor,
+                    transceiver,
+                    null,
+                    _endpoint,
+                    _adapter);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 try
                 {
                     transceiver.close();
                 }
-                catch(com.zeroc.Ice.LocalException exc)
+                catch (com.zeroc.Ice.LocalException exc)
                 {
                     // Ignore
                 }
 
-                if(_warn)
+                if (_warn)
                 {
                     warning(ex);
                 }
@@ -352,17 +328,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             _connections.add(connection);
         }
 
-        assert(connection != null);
+        assert (connection != null);
         connection.start(this);
     }
 
-    @Override
-    public synchronized void
-    finished(ThreadPoolCurrent current, boolean close)
+    @Override public synchronized void finished(ThreadPoolCurrent current, boolean close)
     {
-        if(_state < StateClosed)
+        if (_state < StateClosed)
         {
-            if(close)
+            if (close)
             {
                 closeAcceptor();
             }
@@ -375,38 +349,33 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             return;
         }
 
-        assert(_state >= StateClosed);
+        assert (_state >= StateClosed);
         setState(StateFinished);
 
-        if(close)
+        if (close)
         {
             closeAcceptor();
         }
     }
 
-    @Override
-    public synchronized String
-    toString()
+    @Override public synchronized String toString()
     {
-        if(_transceiver != null)
+        if (_transceiver != null)
         {
             return _transceiver.toString();
         }
         return _acceptor.toString();
     }
 
-    @Override
-    public java.nio.channels.SelectableChannel
-    fd()
+    @Override public java.nio.channels.SelectableChannel fd()
     {
-        assert(_acceptor != null);
+        assert (_acceptor != null);
         return _acceptor.fd();
     }
 
-    @Override
-    public void setReadyCallback(ReadyCallback readyCallback)
+    @Override public void setReadyCallback(ReadyCallback readyCallback)
     {
-        if(_acceptor != null)
+        if (_acceptor != null)
         {
             _acceptor.setReadyCallback(readyCallback);
         }
@@ -415,25 +384,21 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
     //
     // Operations from ConnectionI.StartCallback
     //
-    @Override
-    public synchronized void
-    connectionStartCompleted(ConnectionI connection)
+    @Override public synchronized void connectionStartCompleted(ConnectionI connection)
     {
         //
         // Initially, connections are in the holding state. If the factory is active
         // we activate the connection.
         //
-        if(_state == StateActive)
+        if (_state == StateActive)
         {
             connection.activate();
         }
     }
 
-    @Override
-    public synchronized void
-    connectionStartFailed(ConnectionI connection, com.zeroc.Ice.LocalException ex)
+    @Override public synchronized void connectionStartFailed(ConnectionI connection, com.zeroc.Ice.LocalException ex)
     {
-        if(_state >= StateClosed)
+        if (_state >= StateClosed)
         {
             return;
         }
@@ -442,9 +407,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         //
     }
 
-    public
-    IncomingConnectionFactory(Instance instance, EndpointI endpoint, EndpointI publish,
-                              com.zeroc.Ice.ObjectAdapterI adapter)
+    public IncomingConnectionFactory(
+        Instance instance,
+        EndpointI endpoint,
+        EndpointI publish,
+        com.zeroc.Ice.ObjectAdapterI adapter)
     {
         _instance = instance;
         _endpoint = endpoint;
@@ -456,12 +423,12 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         _monitor = new FactoryACMMonitor(instance, adapter.getACM());
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideTimeout)
+        if (defaultsAndOverrides.overrideTimeout)
         {
             _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
         }
 
-        if(defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress)
         {
             _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
         }
@@ -469,9 +436,9 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         try
         {
             _transceiver = _endpoint.transceiver();
-            if(_transceiver != null)
+            if (_transceiver != null)
             {
-                if(_instance.traceLevels().network >= 2)
+                if (_instance.traceLevels().network >= 2)
                 {
                     StringBuffer s = new StringBuffer("attempting to bind to ");
                     s.append(_endpoint.protocol());
@@ -481,9 +448,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                 }
                 _endpoint = _transceiver.bind();
 
-                ConnectionI connection =
-                    new ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
-                                        _adapter);
+                ConnectionI connection = new ConnectionI(
+                    _adapter.getCommunicator(),
+                    _instance,
+                    null,
+                    _transceiver,
+                    null,
+                    _endpoint,
+                    _adapter);
                 connection.startAndWait();
 
                 _connections.add(connection);
@@ -493,18 +465,18 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                 createAcceptor();
             }
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             //
             // Clean up for finalizer.
             //
-            if(_transceiver != null)
+            if (_transceiver != null)
             {
                 try
                 {
                     _transceiver.close();
                 }
-                catch(com.zeroc.Ice.LocalException e)
+                catch (com.zeroc.Ice.LocalException e)
                 {
                     // Here we ignore any exceptions in close().
                 }
@@ -514,11 +486,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             _monitor.destroy();
             _connections.clear();
 
-            if(ex instanceof com.zeroc.Ice.LocalException)
+            if (ex instanceof com.zeroc.Ice.LocalException)
             {
                 throw (com.zeroc.Ice.LocalException)ex;
             }
-            else if(ex instanceof InterruptedException)
+            else if (ex instanceof InterruptedException)
             {
                 throw new com.zeroc.Ice.OperationInterruptedException();
             }
@@ -529,18 +501,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -554,25 +522,24 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
     private static final int StateClosed = 2;
     private static final int StateFinished = 3;
 
-    private void
-    setState(int state)
+    private void setState(int state)
     {
-        if(_state == state) // Don't switch twice.
+        if (_state == state) // Don't switch twice.
         {
             return;
         }
 
-        switch(state)
+        switch (state)
         {
             case StateActive:
             {
-                if(_state != StateHolding) // Can only switch from holding to active.
+                if (_state != StateHolding) // Can only switch from holding to active.
                 {
                     return;
                 }
-                if(_acceptor != null)
+                if (_acceptor != null)
                 {
-                    if(_instance.traceLevels().network >= 1)
+                    if (_instance.traceLevels().network >= 1)
                     {
                         StringBuffer s = new StringBuffer("accepting ");
                         s.append(_endpoint.protocol());
@@ -583,7 +550,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
 
-                for(ConnectionI connection : _connections)
+                for (ConnectionI connection : _connections)
                 {
                     connection.activate();
                 }
@@ -592,13 +559,13 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             case StateHolding:
             {
-                if(_state != StateActive) // Can only switch from active to holding.
+                if (_state != StateActive) // Can only switch from active to holding.
                 {
                     return;
                 }
-                if(_acceptor != null)
+                if (_acceptor != null)
                 {
-                    if(_instance.traceLevels().network >= 1)
+                    if (_instance.traceLevels().network >= 1)
                     {
                         StringBuffer s = new StringBuffer("holding ");
                         s.append(_endpoint.protocol());
@@ -609,7 +576,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
 
-                for(ConnectionI connection : _connections)
+                for (ConnectionI connection : _connections)
                 {
                     connection.hold();
                 }
@@ -618,7 +585,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             case StateClosed:
             {
-                if(_acceptorStarted)
+                if (_acceptorStarted)
                 {
                     //
                     // If possible, close the acceptor now to prevent new connections from
@@ -627,7 +594,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     // the finish() call.
                     //
                     _acceptorStarted = false;
-                    if(_adapter.getThreadPool().finish(this, true))
+                    if (_adapter.getThreadPool().finish(this, true))
                     {
                         closeAcceptor();
                     }
@@ -637,7 +604,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     state = StateFinished;
                 }
 
-                for(ConnectionI connection : _connections)
+                for (ConnectionI connection : _connections)
                 {
                     connection.destroy(ConnectionI.ObjectAdapterDeactivated);
                 }
@@ -646,7 +613,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             case StateFinished:
             {
-                assert(_state == StateClosed);
+                assert (_state == StateClosed);
                 break;
             }
         }
@@ -655,16 +622,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         notifyAll();
     }
 
-    private void
-    createAcceptor()
+    private void createAcceptor()
     {
         try
         {
-            assert(!_acceptorStarted);
+            assert (!_acceptorStarted);
             _acceptor = _endpoint.acceptor(_adapter.getName());
-            assert(_acceptor != null);
+            assert (_acceptor != null);
 
-            if(_instance.traceLevels().network >= 2)
+            if (_instance.traceLevels().network >= 2)
             {
                 StringBuffer s = new StringBuffer("attempting to bind to ");
                 s.append(_endpoint.protocol());
@@ -675,7 +641,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             _endpoint = _acceptor.listen();
 
-            if(_instance.traceLevels().network >= 1)
+            if (_instance.traceLevels().network >= 1)
             {
                 StringBuffer s = new StringBuffer("listening for ");
                 s.append(_endpoint.protocol());
@@ -686,16 +652,16 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             _adapter.getThreadPool().initialize(this);
 
-            if(_state == StateActive)
+            if (_state == StateActive)
             {
                 _adapter.getThreadPool().register(this, SocketOperation.Read);
             }
 
             _acceptorStarted = true;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            if(_acceptor != null)
+            if (_acceptor != null)
             {
                 _acceptor.close();
             }
@@ -703,12 +669,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         }
     }
 
-    private void
-    closeAcceptor()
+    private void closeAcceptor()
     {
-        assert(_acceptor != null);
+        assert (_acceptor != null);
 
-        if(_instance.traceLevels().network >= 1)
+        if (_instance.traceLevels().network >= 1)
         {
             StringBuffer s = new StringBuffer("stopping to accept ");
             s.append(_endpoint.protocol());
@@ -717,12 +682,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
 
-        assert(!_acceptorStarted);
+        assert (!_acceptorStarted);
         _acceptor.close();
     }
 
-    private void
-    warning(com.zeroc.Ice.LocalException ex)
+    private void warning(com.zeroc.Ice.LocalException ex)
     {
         String s = "connection exception:\n" + Ex.toString(ex) + '\n' + _acceptor.toString();
         _instance.initializationData().logger.warning(s);

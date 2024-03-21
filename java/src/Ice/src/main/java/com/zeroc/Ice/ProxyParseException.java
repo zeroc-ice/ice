@@ -20,10 +20,7 @@ package com.zeroc.Ice;
  **/
 public class ProxyParseException extends LocalException
 {
-    public ProxyParseException()
-    {
-        this.str = "";
-    }
+    public ProxyParseException() { this.str = ""; }
 
     public ProxyParseException(Throwable cause)
     {
@@ -31,10 +28,7 @@ public class ProxyParseException extends LocalException
         this.str = "";
     }
 
-    public ProxyParseException(String str)
-    {
-        this.str = str;
-    }
+    public ProxyParseException(String str) { this.str = str; }
 
     public ProxyParseException(String str, Throwable cause)
     {
@@ -42,10 +36,7 @@ public class ProxyParseException extends LocalException
         this.str = str;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::ProxyParseException";
-    }
+    public String ice_id() { return "::Ice::ProxyParseException"; }
 
     /**
      * Describes the failure and includes the string that could not be parsed.

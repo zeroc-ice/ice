@@ -12,16 +12,11 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
         _observer = ObserverHelper.get(prx, "ice_getConnection");
     }
 
-    @Override
-    protected void markCompleted()
-    {
-        complete(_cachedConnection);
-    }
+    @Override protected void markCompleted() { complete(_cachedConnection); }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public boolean completed(com.zeroc.Ice.InputStream is)
     {
-        assert(false);
+        assert (false);
         return false;
     }
 
@@ -30,17 +25,16 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
         throws RetryException
     {
         _cachedConnection = connection;
-        if(finished(true, true))
+        if (finished(true, true))
         {
             invokeCompletedAsync();
         }
         return AsyncStatus.Sent;
     }
 
-    @Override
-    public int invokeCollocated(CollocatedRequestHandler handler)
+    @Override public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(finished(true, true))
+        if (finished(true, true))
         {
             invokeCompletedAsync();
         }

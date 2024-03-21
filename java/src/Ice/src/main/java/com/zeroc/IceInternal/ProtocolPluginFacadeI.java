@@ -16,17 +16,12 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     // Get the Communicator instance with which this facade is
     // associated.
     //
-    @Override
-    public com.zeroc.Ice.Communicator getCommunicator()
-    {
-        return _communicator;
-    }
+    @Override public com.zeroc.Ice.Communicator getCommunicator() { return _communicator; }
 
     //
     // Register an EndpointFactory.
     //
-    @Override
-    public void addEndpointFactory(EndpointFactory factory)
+    @Override public void addEndpointFactory(EndpointFactory factory)
     {
         _instance.endpointFactoryManager().add(factory);
     }
@@ -34,8 +29,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     //
     // Register an EndpointFactory.
     //
-    @Override
-    public EndpointFactory getEndpointFactory(short type)
+    @Override public EndpointFactory getEndpointFactory(short type)
     {
         return _instance.endpointFactoryManager().get(type);
     }
@@ -43,11 +37,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     //
     // Look up a Java class by name.
     //
-    @Override
-    public Class<?> findClass(String className)
-    {
-        return _instance.findClass(className);
-    }
+    @Override public Class<?> findClass(String className) { return _instance.findClass(className); }
 
     private Instance _instance;
     private com.zeroc.Ice.Communicator _communicator;

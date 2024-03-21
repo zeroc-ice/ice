@@ -17,7 +17,7 @@ public class TestDriver
             helper.run(args);
             helper.getWriter().flush();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             ex.printStackTrace();
             status = 1;

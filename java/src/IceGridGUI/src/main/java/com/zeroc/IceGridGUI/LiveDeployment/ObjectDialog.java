@@ -4,10 +4,15 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.ButtonBarBuilder;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.util.LayoutStyle;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,27 +24,21 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
-
-@SuppressWarnings("unchecked")
-class ObjectDialog extends JDialog
+@SuppressWarnings("unchecked") class ObjectDialog extends JDialog
 {
     ObjectDialog(final Root root, boolean readOnly)
     {
-        super(root.getCoordinator().getMainFrame(),
-              (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI", true);
+        super(
+            root.getCoordinator().getMainFrame(),
+            (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI",
+            true);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
 
         _proxy.setLineWrap(true);
 
-        if(readOnly)
+        if (readOnly)
         {
             _proxy.setEditable(false);
             _proxy.setOpaque(false);
@@ -66,7 +65,7 @@ class ObjectDialog extends JDialog
         builder.nextRow(2);
         builder.nextLine();
 
-        if(readOnly)
+        if (readOnly)
         {
             builder.append("Type", _type);
         }
@@ -77,22 +76,20 @@ class ObjectDialog extends JDialog
         builder.nextLine();
 
         Container contentPane = getContentPane();
-        if(readOnly)
+        if (readOnly)
         {
             contentPane.add(builder.getPanel());
         }
         else
         {
             JButton okButton = new JButton("OK");
-            ActionListener okListener = new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
+            ActionListener okListener = new ActionListener() {
+                @Override public void actionPerformed(ActionEvent e)
                 {
-                    if(_proxy.isEditable())
+                    if (_proxy.isEditable())
                     {
                         String type = null;
-                        if(_typeCombo.getSelectedItem() != QUERY_OBJECT)
+                        if (_typeCombo.getSelectedItem() != QUERY_OBJECT)
                         {
                             type = _typeCombo.getSelectedItem().toString();
                         }
@@ -109,14 +106,9 @@ class ObjectDialog extends JDialog
             getRootPane().setDefaultButton(okButton);
 
             JButton cancelButton = new JButton("Cancel");
-            ActionListener cancelListener = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        setVisible(false);
-                    }
-                };
+            ActionListener cancelListener = new ActionListener() {
+                @Override public void actionPerformed(ActionEvent e) { setVisible(false); }
+            };
             cancelButton.addActionListener(cancelListener);
 
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
@@ -154,15 +146,10 @@ class ObjectDialog extends JDialog
 
     private JTextArea _proxy = new JTextArea(3, 40);
     private JTextField _type = new JTextField(40);
-    private JComboBox _typeCombo = new JComboBox(new Object[]{QUERY_OBJECT});
+    private JComboBox _typeCombo = new JComboBox(new Object[] {QUERY_OBJECT});
     private JFrame _mainFrame;
 
-    static private final Object QUERY_OBJECT = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "Query object to retrieve type";
-            }
-        };
+    static private final Object QUERY_OBJECT = new Object() {
+        @Override public String toString() { return "Query object to retrieve type"; }
+    };
 }

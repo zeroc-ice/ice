@@ -9,8 +9,7 @@ package com.zeroc.IceDiscovery;
  **/
 public class PluginFactory implements com.zeroc.Ice.PluginFactory
 {
-    @Override
-    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
+    @Override public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginI(communicator);
     }

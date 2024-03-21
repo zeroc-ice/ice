@@ -8,16 +8,13 @@ import test.Ice.retry.Test.Retry;
 
 public final class RetryI implements Retry
 {
-    public RetryI()
-    {
-    }
+    public RetryI() {}
 
-    @Override
-    public void op(boolean kill, com.zeroc.Ice.Current current)
+    @Override public void op(boolean kill, com.zeroc.Ice.Current current)
     {
-        if(kill)
+        if (kill)
         {
-            if(current.con != null)
+            if (current.con != null)
             {
                 current.con.close(com.zeroc.Ice.ConnectionClose.Forcefully);
             }
@@ -28,16 +25,15 @@ public final class RetryI implements Retry
         }
     }
 
-    @Override
-    public int opIdempotent(int nRetry, com.zeroc.Ice.Current current)
+    @Override public int opIdempotent(int nRetry, com.zeroc.Ice.Current current)
     {
-        if(nRetry < 0)
+        if (nRetry < 0)
         {
             _counter = 0;
             return 0;
         }
 
-        if(nRetry > _counter)
+        if (nRetry > _counter)
         {
             ++_counter;
             throw new com.zeroc.Ice.ConnectionLostException();
@@ -48,39 +44,29 @@ public final class RetryI implements Retry
         return counter;
     }
 
-    @Override
-    public void opNotIdempotent(com.zeroc.Ice.Current current)
+    @Override public void opNotIdempotent(com.zeroc.Ice.Current current)
     {
         throw new com.zeroc.Ice.ConnectionLostException();
     }
 
-    @Override
-    public void opSystemException(com.zeroc.Ice.Current c)
-    {
-        throw new SystemFailure();
-    }
+    @Override public void opSystemException(com.zeroc.Ice.Current c) { throw new SystemFailure(); }
 
-    @Override
-    public void sleep(int delay, com.zeroc.Ice.Current c)
+    @Override public void sleep(int delay, com.zeroc.Ice.Current c)
     {
-        while(true)
+        while (true)
         {
             try
             {
                 Thread.sleep(delay);
                 break;
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 
     private int _counter;
 }

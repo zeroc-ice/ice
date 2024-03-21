@@ -5,14 +5,13 @@
 package test.Ice.networkProxy;
 
 import java.io.PrintWriter;
-
 import test.Ice.networkProxy.Test.TestIntfPrx;
 
 public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -28,7 +27,7 @@ public class AllTests
         test(obj != null);
 
         int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
-        if(proxyPort == 0)
+        if (proxyPort == 0)
         {
             proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
         }
@@ -47,9 +46,9 @@ public class AllTests
         out.flush();
         {
             com.zeroc.Ice.IPConnectionInfo info = null;
-            for(com.zeroc.Ice.ConnectionInfo p = test.ice_getConnection().getInfo(); p != null; p = p.underlying)
+            for (com.zeroc.Ice.ConnectionInfo p = test.ice_getConnection().getInfo(); p != null; p = p.underlying)
             {
-                if(p instanceof com.zeroc.Ice.IPConnectionInfo)
+                if (p instanceof com.zeroc.Ice.IPConnectionInfo)
                 {
                     info = (com.zeroc.Ice.IPConnectionInfo)p;
                 }
@@ -73,7 +72,7 @@ public class AllTests
                 test.ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
             }
         }

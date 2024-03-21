@@ -4,39 +4,32 @@
 
 package test.Glacier2.application;
 
+import com.zeroc.Ice.InitializationData;
 import java.io.PrintWriter;
 import test.Glacier2.application.Test.CallbackPrx;
 import test.Glacier2.application.Test.CallbackReceiverPrx;
 
-import com.zeroc.Ice.InitializationData;
-
 public class Client extends test.TestHelper
 {
-    public Client()
-    {
-        out = getWriter();
-    }
+    public Client() { out = getWriter(); }
 
     class CallbackReceiverI implements test.Glacier2.application.Test.CallbackReceiver
     {
-        @Override
-        public synchronized void
-        callback(com.zeroc.Ice.Current current)
+        @Override public synchronized void callback(com.zeroc.Ice.Current current)
         {
             _received = true;
             notify();
         }
 
-        public synchronized void
-        waitForCallback()
+        public synchronized void waitForCallback()
         {
-            while(!_received)
+            while (!_received)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                     continue;
                 }
@@ -49,33 +42,27 @@ public class Client extends test.TestHelper
 
     class Application extends com.zeroc.Glacier2.Application
     {
-        public Application()
-        {
-            _receiver = new CallbackReceiverI();
-        }
+        public Application() { _receiver = new CallbackReceiverI(); }
 
-        @Override
-        public com.zeroc.Glacier2.SessionPrx
-        createSession()
+        @Override public com.zeroc.Glacier2.SessionPrx createSession()
         {
             com.zeroc.Glacier2.SessionPrx session = null;
             try
             {
                 session = com.zeroc.Glacier2.SessionPrx.uncheckedCast(router().createSession("userid", "abc123"));
             }
-            catch(com.zeroc.Glacier2.PermissionDeniedException ex)
+            catch (com.zeroc.Glacier2.PermissionDeniedException ex)
             {
                 System.out.println("permission denied:\n" + ex.reason);
             }
-            catch(com.zeroc.Glacier2.CannotCreateSessionException ex)
+            catch (com.zeroc.Glacier2.CannotCreateSessionException ex)
             {
                 System.out.println("cannot create session:\n" + ex.reason);
             }
             return session;
         }
 
-        @Override
-        public int runWithSession(String[] args) throws RestartSessionException
+        @Override public int runWithSession(String[] args) throws RestartSessionException
         {
             try
             {
@@ -83,15 +70,15 @@ public class Client extends test.TestHelper
                 test(categoryForClient() != "");
                 test(objectAdapter() != null);
 
-                if(_restart == 0)
+                if (_restart == 0)
                 {
                     out.print("testing Glacier2::Application restart... ");
                     out.flush();
                 }
-                com.zeroc.Ice.ObjectPrx base = communicator().stringToProxy("callback:" +
-                                                                    getTestEndpoint(communicator().getProperties(), 0));
+                com.zeroc.Ice.ObjectPrx base =
+                    communicator().stringToProxy("callback:" + getTestEndpoint(communicator().getProperties(), 0));
                 CallbackPrx callback = CallbackPrx.uncheckedCast(base);
-                if(++_restart < 5)
+                if (++_restart < 5)
                 {
                     CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(addWithUUID(_receiver));
                     callback.initiateCallback(receiver);
@@ -104,19 +91,14 @@ public class Client extends test.TestHelper
                 out.flush();
                 callback.shutdown();
                 out.println("ok");
-
             }
-            catch(com.zeroc.Glacier2.SessionNotExistException ex)
+            catch (com.zeroc.Glacier2.SessionNotExistException ex)
             {
             }
             return 0;
         }
 
-        @Override
-        public void sessionDestroyed()
-        {
-            _destroyed = true;
-        }
+        @Override public void sessionDestroyed() { _destroyed = true; }
 
         public int _restart = 0;
         public boolean _destroyed = false;
@@ -129,15 +111,16 @@ public class Client extends test.TestHelper
         InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Default.Router",
-                                        "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
+        initData.properties.setProperty(
+            "Ice.Default.Router",
+            "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
 
         int status = app.main("Client", args, initData);
 
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             out.print("testing stringToProxy for process object... ");
             out.flush();
@@ -159,7 +142,7 @@ public class Client extends test.TestHelper
                 process.ice_ping();
                 test(false);
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            catch (com.zeroc.Ice.LocalException ex)
             {
                 out.println("ok");
             }

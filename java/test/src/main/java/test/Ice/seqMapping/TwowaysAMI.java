@@ -4,14 +4,14 @@
 
 package test.Ice.seqMapping;
 
-import test.Ice.seqMapping.Test.*;
 import test.Ice.seqMapping.Serialize.*;
+import test.Ice.seqMapping.Test.*;
 
 class TwowaysAMI
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -19,20 +19,17 @@ class TwowaysAMI
 
     private static class Callback
     {
-        Callback()
-        {
-            _called = false;
-        }
+        Callback() { _called = false; }
 
         public synchronized boolean check()
         {
-            while(!_called)
+            while (!_called)
             {
                 try
                 {
                     wait();
                 }
-                catch(InterruptedException ex)
+                catch (InterruptedException ex)
                 {
                 }
             }
@@ -43,7 +40,7 @@ class TwowaysAMI
 
         public synchronized void called()
         {
-            assert(!_called);
+            assert (!_called);
             _called = true;
             notify();
         }
@@ -57,19 +54,18 @@ class TwowaysAMI
             Small i = null;
 
             Callback cb = new Callback();
-            p.opSerialSmallJavaAsync(i).whenComplete((result, ex) ->
+            p.opSerialSmallJavaAsync(i).whenComplete((result, ex) -> {
+                if (ex != null)
                 {
-                    if(ex != null)
-                    {
-                        test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
-                    }
-                    else
-                    {
-                        test(result.o == null);
-                        test(result.returnValue == null);
-                        cb.called();
-                    }
-                });
+                    test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
+                }
+                else
+                {
+                    test(result.o == null);
+                    test(result.returnValue == null);
+                    cb.called();
+                }
+            });
             test(cb.check());
         }
 
@@ -78,19 +74,18 @@ class TwowaysAMI
             i.i = 99;
 
             Callback cb = new Callback();
-            p.opSerialSmallJavaAsync(i).whenComplete((result, ex) ->
+            p.opSerialSmallJavaAsync(i).whenComplete((result, ex) -> {
+                if (ex != null)
                 {
-                    if(ex != null)
-                    {
-                        test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
-                    }
-                    else
-                    {
-                        test(result.o.i == 99);
-                        test(result.returnValue.i == 99);
-                        cb.called();
-                    }
-                });
+                    test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
+                }
+                else
+                {
+                    test(result.o.i == 99);
+                    test(result.returnValue.i == 99);
+                    cb.called();
+                }
+            });
             test(cb.check());
         }
 
@@ -108,37 +103,36 @@ class TwowaysAMI
             i.d10 = 10.0;
 
             Callback cb = new Callback();
-            p.opSerialLargeJavaAsync(i).whenComplete((result, ex) ->
+            p.opSerialLargeJavaAsync(i).whenComplete((result, ex) -> {
+                if (ex != null)
                 {
-                    if(ex != null)
-                    {
-                        test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
-                    }
-                    else
-                    {
-                        test(result.o.d1 == 1.0);
-                        test(result.o.d2 == 2.0);
-                        test(result.o.d3 == 3.0);
-                        test(result.o.d4 == 4.0);
-                        test(result.o.d5 == 5.0);
-                        test(result.o.d6 == 6.0);
-                        test(result.o.d7 == 7.0);
-                        test(result.o.d8 == 8.0);
-                        test(result.o.d9 == 9.0);
-                        test(result.o.d10 == 10.0);
-                        test(result.returnValue.d1 == 1.0);
-                        test(result.returnValue.d2 == 2.0);
-                        test(result.returnValue.d3 == 3.0);
-                        test(result.returnValue.d4 == 4.0);
-                        test(result.returnValue.d5 == 5.0);
-                        test(result.returnValue.d6 == 6.0);
-                        test(result.returnValue.d7 == 7.0);
-                        test(result.returnValue.d8 == 8.0);
-                        test(result.returnValue.d9 == 9.0);
-                        test(result.returnValue.d10 == 10.0);
-                        cb.called();
-                    }
-                });
+                    test(ex instanceof com.zeroc.Ice.OperationNotExistException); // OK, talking to non-Java server.
+                }
+                else
+                {
+                    test(result.o.d1 == 1.0);
+                    test(result.o.d2 == 2.0);
+                    test(result.o.d3 == 3.0);
+                    test(result.o.d4 == 4.0);
+                    test(result.o.d5 == 5.0);
+                    test(result.o.d6 == 6.0);
+                    test(result.o.d7 == 7.0);
+                    test(result.o.d8 == 8.0);
+                    test(result.o.d9 == 9.0);
+                    test(result.o.d10 == 10.0);
+                    test(result.returnValue.d1 == 1.0);
+                    test(result.returnValue.d2 == 2.0);
+                    test(result.returnValue.d3 == 3.0);
+                    test(result.returnValue.d4 == 4.0);
+                    test(result.returnValue.d5 == 5.0);
+                    test(result.returnValue.d6 == 6.0);
+                    test(result.returnValue.d7 == 7.0);
+                    test(result.returnValue.d8 == 8.0);
+                    test(result.returnValue.d9 == 9.0);
+                    test(result.returnValue.d10 == 10.0);
+                    cb.called();
+                }
+            });
             test(cb.check());
         }
 
@@ -150,22 +144,21 @@ class TwowaysAMI
             i.s2 = "Hello";
 
             Callback cb = new Callback();
-            p.opSerialStructJavaAsync(i).whenComplete((result, ex) ->
-                {
-                    test(result.o.o == null);
-                    test(result.o.o2 != null);
-                    test(((Struct)(result.o.o2)).o == null);
-                    test(((Struct)(result.o.o2)).o2 == result.o.o2);
-                    test(result.o.s == null);
-                    test(result.o.s2.equals("Hello"));
-                    test(result.returnValue.o == null);
-                    test(result.returnValue.o2 != null);
-                    test(((Struct)(result.returnValue.o2)).o == null);
-                    test(((Struct)(result.returnValue.o2)).o2 == result.returnValue.o2);
-                    test(result.returnValue.s == null);
-                    test(result.returnValue.s2.equals("Hello"));
-                    cb.called();
-                });
+            p.opSerialStructJavaAsync(i).whenComplete((result, ex) -> {
+                test(result.o.o == null);
+                test(result.o.o2 != null);
+                test(((Struct)(result.o.o2)).o == null);
+                test(((Struct)(result.o.o2)).o2 == result.o.o2);
+                test(result.o.s == null);
+                test(result.o.s2.equals("Hello"));
+                test(result.returnValue.o == null);
+                test(result.returnValue.o2 != null);
+                test(((Struct)(result.returnValue.o2)).o == null);
+                test(((Struct)(result.returnValue.o2)).o2 == result.returnValue.o2);
+                test(result.returnValue.s == null);
+                test(result.returnValue.s2.equals("Hello"));
+                cb.called();
+            });
             test(cb.check());
         }
     }

@@ -11,7 +11,7 @@ public final class HoldI implements Hold
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -24,30 +24,27 @@ public final class HoldI implements Hold
         _last = 0;
     }
 
-    @Override
-    public void putOnHold(int milliSeconds, com.zeroc.Ice.Current current)
+    @Override public void putOnHold(int milliSeconds, com.zeroc.Ice.Current current)
     {
-        if(milliSeconds < 0)
+        if (milliSeconds < 0)
         {
             _adapter.hold();
         }
-        else if(milliSeconds == 0)
+        else if (milliSeconds == 0)
         {
             _adapter.hold();
             _adapter.activate();
         }
         else
         {
-            _timer.schedule(new java.util.TimerTask()
-            {
-                @Override
-                public void run()
+            _timer.schedule(new java.util.TimerTask() {
+                @Override public void run()
                 {
                     try
                     {
                         putOnHold(0, null);
                     }
-                    catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
+                    catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
                     {
                     }
                 }
@@ -55,13 +52,10 @@ public final class HoldI implements Hold
         }
     }
 
-    @Override
-    public void waitForHold(final com.zeroc.Ice.Current current)
+    @Override public void waitForHold(final com.zeroc.Ice.Current current)
     {
-        _timer.schedule(new java.util.TimerTask()
-        {
-            @Override
-            public void run()
+        _timer.schedule(new java.util.TimerTask() {
+            @Override public void run()
             {
                 try
                 {
@@ -69,7 +63,7 @@ public final class HoldI implements Hold
 
                     current.adapter.activate();
                 }
-                catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
+                catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
                 {
                     //
                     // This shouldn't occur. The test ensures all the
@@ -82,18 +76,17 @@ public final class HoldI implements Hold
         }, 0);
     }
 
-    @Override
-    public int set(int value, int delay, com.zeroc.Ice.Current current)
+    @Override public int set(int value, int delay, com.zeroc.Ice.Current current)
     {
         try
         {
             Thread.sleep(delay);
         }
-        catch(java.lang.InterruptedException ex)
+        catch (java.lang.InterruptedException ex)
         {
         }
 
-        synchronized(this)
+        synchronized (this)
         {
             int tmp = _last;
             _last = value;
@@ -101,15 +94,13 @@ public final class HoldI implements Hold
         }
     }
 
-    @Override
-    synchronized public void setOneway(int value, int expected, com.zeroc.Ice.Current current)
+    @Override synchronized public void setOneway(int value, int expected, com.zeroc.Ice.Current current)
     {
         test(_last == expected);
         _last = value;
     }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
+    @Override public void shutdown(com.zeroc.Ice.Current current)
     {
         _adapter.hold();
         _adapter.getCommunicator().shutdown();

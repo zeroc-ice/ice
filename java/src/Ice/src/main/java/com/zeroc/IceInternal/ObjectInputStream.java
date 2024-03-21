@@ -12,18 +12,16 @@ package com.zeroc.IceInternal;
 
 public class ObjectInputStream extends java.io.ObjectInputStream
 {
-    public ObjectInputStream(Instance instance, java.io.InputStream in)
-        throws java.io.IOException
+    public ObjectInputStream(Instance instance, java.io.InputStream in) throws java.io.IOException
     {
         super(in);
         _instance = instance;
     }
 
     @Override
-    protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
-        throws java.io.IOException, ClassNotFoundException
+    protected Class<?> resolveClass(java.io.ObjectStreamClass cls) throws java.io.IOException, ClassNotFoundException
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             throw new com.zeroc.Ice.MarshalException("cannot unmarshal a serializable without a communicator");
         }
@@ -31,13 +29,13 @@ public class ObjectInputStream extends java.io.ObjectInputStream
         try
         {
             Class<?> c = _instance.findClass(cls.getName());
-            if(c != null)
+            if (c != null)
             {
                 return c;
             }
             throw new ClassNotFoundException("unable to resolve class" + cls.getName());
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
         }

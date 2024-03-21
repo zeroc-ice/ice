@@ -4,14 +4,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import com.zeroc.IceGrid.*;
 
 class TemplateEditor extends Editor
 {
@@ -23,16 +21,9 @@ class TemplateEditor extends Editor
         _parameters = new ParametersField(this);
     }
 
-    TemplateDescriptor getDescriptor()
-    {
-        return (TemplateDescriptor)_target.getDescriptor();
-    }
+    TemplateDescriptor getDescriptor() { return (TemplateDescriptor)_target.getDescriptor(); }
 
-    @Override
-    Object getSubDescriptor()
-    {
-        return getDescriptor().descriptor;
-    }
+    @Override Object getSubDescriptor() { return getDescriptor().descriptor; }
 
     void writeDescriptor()
     {
@@ -51,8 +42,7 @@ class TemplateEditor extends Editor
         return descriptor.parameters.equals(parameters) && descriptor.parameterDefaults.equals(defaultValues);
     }
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
+    @Override protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template ID");
         builder.append(_template, 3);
@@ -74,11 +64,7 @@ class TemplateEditor extends Editor
         builder.nextLine();
     }
 
-    @Override
-    protected boolean validate()
-    {
-        return check(new String[]{"Template ID", _template.getText().trim()});
-    }
+    @Override protected boolean validate() { return check(new String[] {"Template ID", _template.getText().trim()}); }
 
     void show()
     {
@@ -89,15 +75,14 @@ class TemplateEditor extends Editor
         _parameters.set(descriptor.parameters, descriptor.parameterDefaults);
     }
 
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
         root.disableSelectionListener();
 
         try
         {
-            if(_target.isEphemeral())
+            if (_target.isEphemeral())
             {
                 writeDescriptor();
                 TemplateDescriptor descriptor = getDescriptor();
@@ -108,7 +93,7 @@ class TemplateEditor extends Editor
                 {
                     parent.tryAdd(_template.getText().trim(), descriptor);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Re-add ephemeral child
@@ -117,7 +102,7 @@ class TemplateEditor extends Editor
                     {
                         parent.insertChild(_target, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -137,12 +122,12 @@ class TemplateEditor extends Editor
                 _target = parent.findChildWithDescriptor(descriptor);
                 root.updated();
                 _template.setEditable(false);
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
-            else if(isSimpleUpdate())
+            else if (isSimpleUpdate())
             {
                 writeDescriptor();
                 ((Communicator)_target).getEnclosingEditable().markModified();
@@ -161,7 +146,7 @@ class TemplateEditor extends Editor
                 {
                     parent.tryUpdate((Communicator)_target);
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     ((Communicator)_target).restoreDescriptor(savedDescriptor);
 
@@ -183,13 +168,13 @@ class TemplateEditor extends Editor
                 root.updated();
 
                 _target = parent.findChildWithDescriptor(getDescriptor());
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }

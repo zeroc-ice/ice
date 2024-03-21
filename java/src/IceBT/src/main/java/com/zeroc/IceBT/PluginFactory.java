@@ -20,8 +20,7 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory
      * that a general error occurred. Alternatively, <code>create</code> can throw
      * PluginInitializationException to provide more detailed information.
      **/
-    @Override
-    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
+    @Override public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginI(communicator);
     }

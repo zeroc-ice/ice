@@ -8,15 +8,14 @@ public final class ThreadPool implements java.util.concurrent.Executor
 {
     final class ShutdownWorkItem implements ThreadPoolWorkItem
     {
-        @Override
-        public void execute(ThreadPoolCurrent current)
+        @Override public void execute(ThreadPoolCurrent current)
         {
             current.ioCompleted();
             try
             {
                 _instance.objectAdapterFactory().shutdown();
             }
-            catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+            catch (com.zeroc.Ice.CommunicatorDestroyedException ex)
             {
             }
         }
@@ -24,18 +23,13 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
     static final class FinishedWorkItem implements ThreadPoolWorkItem
     {
-        public
-        FinishedWorkItem(EventHandler handler, boolean close)
+        public FinishedWorkItem(EventHandler handler, boolean close)
         {
             _handler = handler;
             _close = close;
         }
 
-        @Override
-        public void execute(ThreadPoolCurrent current)
-        {
-            _handler.finished(current, _close);
-        }
+        @Override public void execute(ThreadPoolCurrent current) { _handler.finished(current, _close); }
 
         private final EventHandler _handler;
         private final boolean _close;
@@ -43,14 +37,9 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
     static final class JoinThreadWorkItem implements ThreadPoolWorkItem
     {
-        public
-        JoinThreadWorkItem(EventHandlerThread thread)
-        {
-            _thread = thread;
-        }
+        public JoinThreadWorkItem(EventHandlerThread thread) { _thread = thread; }
 
-        @Override
-        public void execute(ThreadPoolCurrent current)
+        @Override public void execute(ThreadPoolCurrent current)
         {
             // No call to ioCompleted, this shouldn't block (and we don't want to cause
             // a new thread to be started).
@@ -69,8 +58,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
     static final class InterruptWorkItem implements ThreadPoolWorkItem
     {
-        @Override
-        public void execute(ThreadPoolCurrent current)
+        @Override public void execute(ThreadPoolCurrent current)
         {
             // Nothing to do, this is just used to interrupt the thread pool selector.
         }
@@ -84,8 +72,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
         public static final long serialVersionUID = 0L;
     }
 
-    public
-    ThreadPool(Instance instance, String prefix, int timeout)
+    public ThreadPool(Instance instance, String prefix, int timeout)
     {
         com.zeroc.Ice.Properties properties = instance.initializationData().properties;
 
@@ -110,7 +97,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
         // doesn't require to make the servants thread safe.
         //
         int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
-        if(size < 1)
+        if (size < 1)
         {
             String s = _prefix + ".Size < 1; Size adjusted to 1";
             _instance.initializationData().logger.warning(s);
@@ -118,11 +105,11 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
 
         int sizeMax = properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
-        if(sizeMax == -1)
+        if (sizeMax == -1)
         {
             sizeMax = nProcessors;
         }
-        if(sizeMax < size)
+        if (sizeMax < size)
         {
             String s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
@@ -130,13 +117,13 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
 
         int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
-        if(sizeWarn != 0 && sizeWarn < size)
+        if (sizeWarn != 0 && sizeWarn < size)
         {
             String s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = size;
         }
-        else if(sizeWarn > sizeMax)
+        else if (sizeWarn > sizeMax)
         {
             String s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax (" + sizeMax + ")";
             _instance.initializationData().logger.warning(s);
@@ -144,7 +131,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
 
         int threadIdleTime = properties.getPropertyAsIntWithDefault(_prefix + ".ThreadIdleTime", 60);
-        if(threadIdleTime < 0)
+        if (threadIdleTime < 0)
         {
             String s = _prefix + ".ThreadIdleTime < 0; ThreadIdleTime adjusted to 0";
             _instance.initializationData().logger.warning(s);
@@ -157,8 +144,8 @@ public final class ThreadPool implements java.util.concurrent.Executor
         _sizeIO = Math.min(sizeMax, nProcessors);
         _threadIdleTime = threadIdleTime;
 
-        int stackSize = properties.getPropertyAsInt( _prefix + ".StackSize");
-        if(stackSize < 0)
+        int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
+        if (stackSize < 0)
         {
             String s = _prefix + ".StackSize < 0; Size adjusted to JRE default";
             _instance.initializationData().logger.warning(s);
@@ -168,7 +155,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
         boolean hasPriority = properties.getProperty(_prefix + ".ThreadPriority").length() > 0;
         int priority = properties.getPropertyAsInt(_prefix + ".ThreadPriority");
-        if(!hasPriority)
+        if (!hasPriority)
         {
             hasPriority = properties.getProperty("Ice.ThreadPriority").length() > 0;
             priority = properties.getPropertyAsInt("Ice.ThreadPriority");
@@ -179,19 +166,19 @@ public final class ThreadPool implements java.util.concurrent.Executor
         _workQueue = new ThreadPoolWorkQueue(_instance, this, _selector);
         _nextHandler = _handlers.iterator();
 
-        if(_instance.traceLevels().threadPool >= 1)
+        if (_instance.traceLevels().threadPool >= 1)
         {
-            String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
-                       _sizeWarn;
+            String s =
+                "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " + _sizeWarn;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
 
         try
         {
-            for(int i = 0; i < _size; i++)
+            for (int i = 0; i < _size; i++)
             {
                 EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
-                if(_hasPriority)
+                if (_hasPriority)
                 {
                     thread.start(_priority);
                 }
@@ -202,7 +189,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                 _threads.add(thread);
             }
         }
-        catch(RuntimeException ex)
+        catch (RuntimeException ex)
         {
             String s = "cannot create thread for `" + _prefix + "':\n" + Ex.toString(ex);
             _instance.initializationData().logger.error(s);
@@ -220,17 +207,13 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
+    @SuppressWarnings("deprecation") @Override protected synchronized void finalize() throws Throwable
     {
         try
         {
             com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_destroyed);
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
         }
         finally
@@ -239,10 +222,9 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
-    public synchronized void
-    destroy()
+    public synchronized void destroy()
     {
-        if(_destroyed)
+        if (_destroyed)
         {
             return;
         }
@@ -251,48 +233,39 @@ public final class ThreadPool implements java.util.concurrent.Executor
         _workQueue.destroy();
     }
 
-    public synchronized void
-    updateObservers()
+    public synchronized void updateObservers()
     {
-        for(EventHandlerThread thread : _threads)
+        for (EventHandlerThread thread : _threads)
         {
             thread.updateObserver();
         }
     }
 
-    public synchronized void
-    initialize(final EventHandler handler)
+    public synchronized void initialize(final EventHandler handler)
     {
-        assert(!_destroyed);
+        assert (!_destroyed);
         _selector.initialize(handler);
 
-        handler.setReadyCallback(
-            new ReadyCallback()
+        handler.setReadyCallback(new ReadyCallback() {
+            public void ready(int op, boolean value)
             {
-                public void ready(int op, boolean value)
+                synchronized (ThreadPool.this)
                 {
-                    synchronized(ThreadPool.this)
+                    if (_destroyed)
                     {
-                        if(_destroyed)
-                        {
-                            return;
-                        }
-                        _selector.ready(handler, op, value);
+                        return;
                     }
+                    _selector.ready(handler, op, value);
                 }
-            });
+            }
+        });
     }
 
-    public void
-    register(EventHandler handler, int op)
-    {
-        update(handler, SocketOperation.None, op);
-    }
+    public void register(EventHandler handler, int op) { update(handler, SocketOperation.None, op); }
 
-    public synchronized void
-    update(EventHandler handler, int remove, int add)
+    public synchronized void update(EventHandler handler, int remove, int add)
     {
-        assert(!_destroyed);
+        assert (!_destroyed);
 
         // Don't remove what needs to be added
         remove &= ~add;
@@ -300,40 +273,34 @@ public final class ThreadPool implements java.util.concurrent.Executor
         // Don't remove/add if already un-registered or registered
         remove = handler._registered & remove;
         add = ~handler._registered & add;
-        if(remove == add)
+        if (remove == add)
         {
             return;
         }
         _selector.update(handler, remove, add);
     }
 
-    public void
-    unregister(EventHandler handler, int op)
-    {
-        update(handler, op, SocketOperation.None);
-    }
+    public void unregister(EventHandler handler, int op) { update(handler, op, SocketOperation.None); }
 
-    public synchronized boolean
-    finish(EventHandler handler, boolean closeNow)
+    public synchronized boolean finish(EventHandler handler, boolean closeNow)
     {
-        assert(!_destroyed);
+        assert (!_destroyed);
         closeNow = _selector.finish(handler, closeNow);
         _workQueue.queue(new FinishedWorkItem(handler, !closeNow));
         return closeNow;
     }
 
-    public void
-    dispatchFromThisThread(DispatchWorkItem workItem)
+    public void dispatchFromThisThread(DispatchWorkItem workItem)
     {
-        if(_dispatcher != null)
+        if (_dispatcher != null)
         {
             try
             {
                 _dispatcher.accept(workItem, workItem.getConnection());
             }
-            catch(java.lang.Exception ex)
+            catch (java.lang.Exception ex)
             {
-                if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -349,19 +316,16 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
-    synchronized public void
-    dispatch(DispatchWorkItem workItem)
+    synchronized public void dispatch(DispatchWorkItem workItem)
     {
-        if(_destroyed)
+        if (_destroyed)
         {
             throw new com.zeroc.Ice.CommunicatorDestroyedException();
         }
         _workQueue.queue(workItem);
     }
 
-    public void
-    joinWithAllThreads()
-        throws InterruptedException
+    public void joinWithAllThreads() throws InterruptedException
     {
         //
         // _threads is immutable after destroy() has been called,
@@ -369,7 +333,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
         // wouldn't be possible here anyway, because otherwise the
         // other threads would never terminate.)
         //
-        for(EventHandlerThread thread : _threads)
+        for (EventHandlerThread thread : _threads)
         {
             thread.join();
         }
@@ -383,59 +347,52 @@ public final class ThreadPool implements java.util.concurrent.Executor
     //
     // Implement execute method from java.util.concurrent.Executor interface
     //
-    @Override
-    public void execute(Runnable command)
+    @Override public void execute(Runnable command)
     {
-        dispatch(new com.zeroc.IceInternal.DispatchWorkItem()
-            {
-                @Override
-                public void run()
-                {
-                    command.run();
-                }
-            });
+        dispatch(new com.zeroc.IceInternal.DispatchWorkItem() {
+            @Override public void run() { command.run(); }
+        });
     }
 
-    private void
-    run(EventHandlerThread thread)
+    private void run(EventHandlerThread thread)
     {
         ThreadPoolCurrent current = new ThreadPoolCurrent(_instance, this, thread);
         boolean select = false;
-        while(true)
+        while (true)
         {
-            if(current._handler != null)
+            if (current._handler != null)
             {
                 try
                 {
                     current._handler.message(current);
                 }
-                catch(DestroyedException ex)
+                catch (DestroyedException ex)
                 {
-                    synchronized(this)
+                    synchronized (this)
                     {
                         --_inUse;
                         thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                     }
                     return;
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     String s = "exception in `" + _prefix + "':\n" + Ex.toString(ex);
                     s += "\nevent handler: " + current._handler.toString();
                     _instance.initializationData().logger.error(s);
                 }
             }
-            else if(select)
+            else if (select)
             {
                 try
                 {
                     _selector.select(_serverIdleTime);
                 }
-                catch(Selector.TimeoutException ex)
+                catch (Selector.TimeoutException ex)
                 {
-                    synchronized(this)
+                    synchronized (this)
                     {
-                        if(!_destroyed && _inUse == 0)
+                        if (!_destroyed && _inUse == 0)
                         {
                             _workQueue.queue(new ShutdownWorkItem()); // Select timed-out.
                         }
@@ -444,24 +401,24 @@ public final class ThreadPool implements java.util.concurrent.Executor
                 }
             }
 
-            synchronized(this)
+            synchronized (this)
             {
-                if(current._handler == null)
+                if (current._handler == null)
                 {
-                    if(select)
+                    if (select)
                     {
                         _selector.finishSelect(_handlers);
                         select = false;
                         _nextHandler = _handlers.iterator();
                     }
-                    else if(!current._leader && followerWait(current))
+                    else if (!current._leader && followerWait(current))
                     {
                         return; // Wait timed-out.
                     }
                 }
-                else if(_sizeMax > 1)
+                else if (_sizeMax > 1)
                 {
-                    if(!current._ioCompleted)
+                    if (!current._ioCompleted)
                     {
                         //
                         // The handler didn't call ioCompleted() so we take care of decreasing
@@ -475,15 +432,15 @@ public final class ThreadPool implements java.util.concurrent.Executor
                         // If the handler called ioCompleted(), we re-enable the handler in
                         // case it was disabled and we decrease the number of thread in use.
                         //
-                        if(_serialize)
+                        if (_serialize)
                         {
                             _selector.enable(current._handler, current.operation);
                         }
-                        assert(_inUse > 0);
+                        assert (_inUse > 0);
                         --_inUse;
                     }
 
-                    if(!current._leader && followerWait(current))
+                    if (!current._leader && followerWait(current))
                     {
                         return; // Wait timed-out.
                     }
@@ -493,11 +450,11 @@ public final class ThreadPool implements java.util.concurrent.Executor
                 // Get the next ready handler.
                 //
                 current._handler = null;
-                while(_nextHandler.hasNext())
+                while (_nextHandler.hasNext())
                 {
                     EventHandlerOpPair n = _nextHandler.next();
                     int op = n.op & ~n.handler._disabled & n.handler._registered;
-                    if(op != 0)
+                    if (op != 0)
                     {
                         current._ioCompleted = false;
                         current._handler = n.handler;
@@ -507,7 +464,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                     }
                 }
 
-                if(current._handler == null)
+                if (current._handler == null)
                 {
                     //
                     // If there are no more ready handlers and there are still threads busy performing
@@ -515,7 +472,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                     // select() only once all the IOs are completed). Otherwise, if there's no more
                     // threads peforming IOs, it's time to do another select().
                     //
-                    if(_inUseIO > 0)
+                    if (_inUseIO > 0)
                     {
                         promoteFollower(current);
                     }
@@ -527,14 +484,14 @@ public final class ThreadPool implements java.util.concurrent.Executor
                         thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                     }
                 }
-                else if(_sizeMax > 1)
+                else if (_sizeMax > 1)
                 {
                     //
                     // Increment the IO thread count and if there's still threads available
                     // to perform IO and more handlers ready, we promote a follower.
                     //
                     ++_inUseIO;
-                    if(_nextHandler.hasNext() && _inUseIO < _sizeIO)
+                    if (_nextHandler.hasNext() && _inUseIO < _sizeIO)
                     {
                         promoteFollower(current);
                     }
@@ -543,53 +500,54 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
-    synchronized void
-    ioCompleted(ThreadPoolCurrent current)
+    synchronized void ioCompleted(ThreadPoolCurrent current)
     {
         current._ioCompleted = true; // Set the IO completed flag to specify that ioCompleted() has been called.
 
         current._thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
 
-        if(_sizeMax > 1)
+        if (_sizeMax > 1)
         {
             --_inUseIO;
 
-            if(!_destroyed)
+            if (!_destroyed)
             {
-                if(_serialize)
+                if (_serialize)
                 {
                     _selector.disable(current._handler, current.operation);
                 }
             }
 
-            if(current._leader)
+            if (current._leader)
             {
                 //
                 // If this thread is still the leader, it's time to promote a new leader.
                 //
                 promoteFollower(current);
             }
-            else if(_promote && (_nextHandler.hasNext() || _inUseIO == 0))
+            else if (_promote && (_nextHandler.hasNext() || _inUseIO == 0))
             {
                 notify();
             }
 
-            assert(_inUse >= 0);
+            assert (_inUse >= 0);
             ++_inUse;
 
-            if(_inUse == _sizeWarn)
+            if (_inUse == _sizeWarn)
             {
                 String s = "thread pool `" + _prefix + "' is running low on threads\n"
-                    + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
+                           + "Size=" + _size + ", "
+                           + "SizeMax=" + _sizeMax + ", "
+                           + "SizeWarn=" + _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
 
-            if(!_destroyed)
+            if (!_destroyed)
             {
-                assert(_inUse <= _threads.size());
-                if(_inUse < _sizeMax && _inUse == _threads.size())
+                assert (_inUse <= _threads.size());
+                if (_inUse < _sizeMax && _inUse == _threads.size())
                 {
-                    if(_instance.traceLevels().threadPool >= 1)
+                    if (_instance.traceLevels().threadPool >= 1)
                     {
                         String s = "growing " + _prefix + ": Size=" + (_threads.size() + 1);
                         _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
@@ -599,7 +557,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                     {
                         EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
                         _threads.add(thread);
-                        if(_hasPriority)
+                        if (_hasPriority)
                         {
                             thread.start(_priority);
                         }
@@ -608,7 +566,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                             thread.start(java.lang.Thread.NORM_PRIORITY);
                         }
                     }
-                    catch(RuntimeException ex)
+                    catch (RuntimeException ex)
                     {
                         String s = "cannot create thread for `" + _prefix + "':\n" + Ex.toString(ex);
                         _instance.initializationData().logger.error(s);
@@ -618,22 +576,20 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
-    private synchronized void
-    promoteFollower(ThreadPoolCurrent current)
+    private synchronized void promoteFollower(ThreadPoolCurrent current)
     {
-        assert(!_promote && current._leader);
+        assert (!_promote && current._leader);
         _promote = true;
-        if(_inUseIO < _sizeIO && (_nextHandler.hasNext() || _inUseIO == 0))
+        if (_inUseIO < _sizeIO && (_nextHandler.hasNext() || _inUseIO == 0))
         {
             notify();
         }
         current._leader = false;
     }
 
-    private synchronized boolean
-    followerWait(ThreadPoolCurrent current)
+    private synchronized boolean followerWait(ThreadPoolCurrent current)
     {
-        assert(!current._leader);
+        assert (!current._leader);
 
         current._thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
 
@@ -648,9 +604,9 @@ public final class ThreadPool implements java.util.concurrent.Executor
         //
         // Wait to be promoted and for all the IO threads to be done.
         //
-        while(!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0))
+        while (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0))
         {
-            if(_threadIdleTime > 0)
+            if (_threadIdleTime > 0)
             {
                 long before = Time.currentMonotonicTimeMillis();
                 boolean interrupted = false;
@@ -665,16 +621,16 @@ public final class ThreadPool implements java.util.concurrent.Executor
                 {
                     interrupted = true;
                 }
-                if(interrupted || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
+                if (interrupted || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
                 {
-                    if(!_destroyed && (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0)))
+                    if (!_destroyed && (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0)))
                     {
-                        if(_instance.traceLevels().threadPool >= 1)
+                        if (_instance.traceLevels().threadPool >= 1)
                         {
                             String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
                             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                         }
-                        assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
+                        assert (_threads.size() > 1); // Can only be called by a waiting follower thread.
                         _threads.remove(current._thread);
                         _workQueue.queue(new JoinThreadWorkItem(current._thread));
                         return true;
@@ -717,28 +673,26 @@ public final class ThreadPool implements java.util.concurrent.Executor
             updateObserver();
         }
 
-        public void
-        updateObserver()
+        public void updateObserver()
         {
             // Must be called with the thread pool mutex locked
             com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
-            if(obsv != null)
+            if (obsv != null)
             {
                 _observer = obsv.getThreadObserver(_prefix, _name, _state, _observer);
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.attach();
                 }
             }
         }
 
-        public void
-        setState(com.zeroc.Ice.Instrumentation.ThreadState s)
+        public void setState(com.zeroc.Ice.Instrumentation.ThreadState s)
         {
             // Must be called with the thread pool mutex locked
-            if(_observer != null)
+            if (_observer != null)
             {
-                if(_state != s)
+                if (_state != s)
                 {
                     _observer.stateChanged(_state, s);
                 }
@@ -746,32 +700,24 @@ public final class ThreadPool implements java.util.concurrent.Executor
             _state = s;
         }
 
-        public void
-        join()
-            throws InterruptedException
-        {
-            _thread.join();
-        }
+        public void join() throws InterruptedException { _thread.join(); }
 
-        public void
-        start(int priority)
+        public void start(int priority)
         {
             _thread = new Thread(null, this, _name, _stackSize);
             _thread.setPriority(priority);
             _thread.start();
         }
 
-        @Override
-        public void
-        run()
+        @Override public void run()
         {
-            if(_instance.initializationData().threadStart != null)
+            if (_instance.initializationData().threadStart != null)
             {
                 try
                 {
                     _instance.initializationData().threadStart.run();
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     String s = "threadStart method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
@@ -783,24 +729,24 @@ public final class ThreadPool implements java.util.concurrent.Executor
             {
                 ThreadPool.this.run(this);
             }
-            catch(java.lang.Exception ex)
+            catch (java.lang.Exception ex)
             {
                 String s = "exception in `" + _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                 _instance.initializationData().logger.error(s);
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.detach();
             }
 
-            if(_instance.initializationData().threadStop != null)
+            if (_instance.initializationData().threadStop != null)
             {
                 try
                 {
                     _instance.initializationData().threadStop.run();
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     String s = "threadStop method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
@@ -809,10 +755,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
             }
         }
 
-        Thread getThread()
-        {
-            return _thread;
-        }
+        Thread getThread() { return _thread; }
 
         final private String _name;
         private Thread _thread;
@@ -820,10 +763,10 @@ public final class ThreadPool implements java.util.concurrent.Executor
         private com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
     }
 
-    private final int _size; // Number of threads that are pre-created.
-    private final int _sizeIO; // Number of threads that can concurrently perform IO.
-    private final int _sizeMax; // Maximum number of threads.
-    private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    private final int _size;          // Number of threads that are pre-created.
+    private final int _sizeIO;        // Number of threads that can concurrently perform IO.
+    private final int _sizeMax;       // Maximum number of threads.
+    private final int _sizeWarn;      // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private final boolean _serialize; // True if requests need to be serialized over the connection.
     private final int _priority;
     private final boolean _hasPriority;
@@ -833,8 +776,8 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
     private java.util.List<EventHandlerThread> _threads = new java.util.ArrayList<>();
     private int _threadIndex; // For assigning thread names.
-    private int _inUse; // Number of threads that are currently in use.
-    private int _inUseIO; // Number of threads that are currently performing IO.
+    private int _inUse;       // Number of threads that are currently in use.
+    private int _inUseIO;     // Number of threads that are currently performing IO.
 
     private java.util.List<EventHandlerOpPair> _handlers = new java.util.ArrayList<>();
     private java.util.Iterator<EventHandlerOpPair> _nextHandler;

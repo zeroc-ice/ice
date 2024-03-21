@@ -23,26 +23,20 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
         // our protocol instance.
         //
         EndpointFactory factory = _instance.getEndpointFactory(_type);
-        if(factory != null)
+        if (factory != null)
         {
             _underlying = factory.clone(_instance);
             _underlying.initialize();
         }
     }
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() { return _instance.type(); }
 
-    public String protocol()
-    {
-        return _instance.protocol();
-    }
+    public String protocol() { return _instance.protocol(); }
 
     public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        if(_underlying == null)
+        if (_underlying == null)
         {
             return null; // Can't create an endpoint without underlying factory.
         }
@@ -51,7 +45,7 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
 
     public EndpointI read(com.zeroc.Ice.InputStream s)
     {
-        if(_underlying == null)
+        if (_underlying == null)
         {
             return null; // Can't create an endpoint without underlying factory.
         }
@@ -60,23 +54,19 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
 
     public void destroy()
     {
-        if(_underlying != null)
+        if (_underlying != null)
         {
             _underlying.destroy();
         }
         _instance = null;
     }
 
-    public EndpointFactory clone(ProtocolInstance instance)
-    {
-        return cloneWithUnderlying(instance, _type);
-    }
+    public EndpointFactory clone(ProtocolInstance instance) { return cloneWithUnderlying(instance, _type); }
 
     abstract public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
 
-    abstract protected EndpointI createWithUnderlying(EndpointI underlying,
-                                                      java.util.ArrayList<String> args,
-                                                      boolean oaEndpoint);
+    abstract protected EndpointI
+    createWithUnderlying(EndpointI underlying, java.util.ArrayList<String> args, boolean oaEndpoint);
 
     abstract protected EndpointI readWithUnderlying(EndpointI underlying, com.zeroc.Ice.InputStream s);
 

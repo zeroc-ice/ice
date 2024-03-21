@@ -17,42 +17,38 @@ public class MetricsHelper<T>
                 try
                 {
                     Object result = resolve(obj);
-                    if(result != null)
+                    if (result != null)
                     {
                         return result.toString();
                     }
                     return "";
                 }
-                catch(IllegalArgumentException ex)
+                catch (IllegalArgumentException ex)
                 {
                     throw ex;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ex.printStackTrace();
-                    assert(false);
+                    assert (false);
                     return null;
                 }
             }
         }
 
-        protected
-        AttributeResolver()
-        {
-        }
+        protected AttributeResolver() {}
 
-        public String
-        resolve(MetricsHelper<?> helper, String attribute)
+        public String resolve(MetricsHelper<?> helper, String attribute)
         {
             Resolver resolver = _attributes.get(attribute);
-            if(resolver == null)
+            if (resolver == null)
             {
-                if(attribute.equals("none"))
+                if (attribute.equals("none"))
                 {
                     return "";
                 }
                 String v = helper.defaultResolve(attribute);
-                if(v != null)
+                if (v != null)
                 {
                     return v;
                 }
@@ -61,85 +57,64 @@ public class MetricsHelper<T>
             return resolver.resolveImpl(helper);
         }
 
-        public void
-        add(final String name, final java.lang.reflect.Method method)
+        public void add(final String name, final java.lang.reflect.Method method)
         {
-            _attributes.put(name, new Resolver()
-                {
-                    @Override
-                    public Object
-                    resolve(Object obj) throws Exception
-                    {
-                        return method.invoke(obj);
-                    }
-                });
+            _attributes.put(name, new Resolver() {
+                @Override public Object resolve(Object obj) throws Exception { return method.invoke(obj); }
+            });
         }
 
-        public void
-        add(final String name, final java.lang.reflect.Field field)
+        public void add(final String name, final java.lang.reflect.Field field)
         {
-            _attributes.put(name, new Resolver()
-                {
-                    @Override
-                    public Object
-                    resolve(Object obj) throws Exception
-                    {
-                        return getField(name, field, obj);
-                    }
-                });
+            _attributes.put(name, new Resolver() {
+                @Override public Object resolve(Object obj) throws Exception { return getField(name, field, obj); }
+            });
         }
 
-        public void
-        add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Field field)
+        public void add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Field field)
         {
-            _attributes.put(name, new Resolver()
+            _attributes.put(name, new Resolver() {
+                @Override public Object resolve(Object obj) throws Exception
                 {
-                    @Override
-                    public Object
-                    resolve(Object obj) throws Exception
-                    {
-                        return getField(name, field, method.invoke(obj));
-                    }
-                });
+                    return getField(name, field, method.invoke(obj));
+                }
+            });
         }
 
         public void
         add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Method subMethod)
         {
-            _attributes.put(name, new Resolver()
+            _attributes.put(name, new Resolver() {
+                @Override public Object resolve(Object obj) throws Exception
                 {
-                    @Override
-                    public Object
-                    resolve(Object obj) throws Exception
+                    Object o = method.invoke(obj);
+                    if (o != null)
                     {
-                        Object o = method.invoke(obj);
-                        if(o != null)
-                        {
-                            return subMethod.invoke(o);
-                        }
-                        throw new IllegalArgumentException(name);
+                        return subMethod.invoke(o);
                     }
-                });
+                    throw new IllegalArgumentException(name);
+                }
+            });
         }
 
         private Object getField(String name, java.lang.reflect.Field field, Object o)
             throws IllegalArgumentException, IllegalAccessException
         {
-            while(o != null)
+            while (o != null)
             {
                 try
                 {
                     return field.get(o);
                 }
-                catch(IllegalArgumentException ex)
+                catch (IllegalArgumentException ex)
                 {
                     // If we're dealing with an endpoint/connection information class,
                     // check if the field is from the underlying info objects.
-                    if(o instanceof com.zeroc.Ice.EndpointInfo)
+                    if (o instanceof com.zeroc.Ice.EndpointInfo)
                     {
                         o = ((com.zeroc.Ice.EndpointInfo)o).underlying;
                     }
-                    else if(o instanceof com.zeroc.Ice.ConnectionInfo)
+                    else if (o instanceof com.zeroc.Ice.ConnectionInfo)
                     {
                         o = ((com.zeroc.Ice.ConnectionInfo)o).underlying;
                     }
@@ -155,29 +130,16 @@ public class MetricsHelper<T>
         private java.util.Map<String, Resolver> _attributes = new java.util.HashMap<>();
     }
 
-    protected
-    MetricsHelper(AttributeResolver attributes)
-    {
-        _attributes = attributes;
-    }
+    protected MetricsHelper(AttributeResolver attributes) { _attributes = attributes; }
 
-    public String
-    resolve(String attribute)
-    {
-        return _attributes.resolve(this, attribute);
-    }
+    public String resolve(String attribute) { return _attributes.resolve(this, attribute); }
 
-    public void
-    initMetrics(T metrics)
+    public void initMetrics(T metrics)
     {
         // Override in specialized helpers.
     }
 
-    protected String
-    defaultResolve(String attribute)
-    {
-        return null;
-    }
+    protected String defaultResolve(String attribute) { return null; }
 
     private AttributeResolver _attributes;
 }

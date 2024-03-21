@@ -17,14 +17,9 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         return _proxyMode == Reference.ModeBatchOneway || _proxyMode == Reference.ModeBatchDatagram;
     }
 
-    @Override
-    public com.zeroc.Ice.ObjectPrx getProxy()
-    {
-        return _proxy;
-    }
+    @Override public com.zeroc.Ice.ObjectPrx getProxy() { return _proxy; }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public boolean completed(com.zeroc.Ice.InputStream is)
     {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
@@ -32,9 +27,9 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         // any user callbacks.
         //
 
-        assert(_proxy.ice_isTwoway()); // Can only be called for twoways.
+        assert (_proxy.ice_isTwoway()); // Can only be called for twoways.
 
-        if(_childObserver != null)
+        if (_childObserver != null)
         {
             _childObserver.reply(is.size() - Protocol.headerSize - 4);
             _childObserver.detach();
@@ -46,138 +41,137 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         {
             replyStatus = is.readByte();
 
-            switch(replyStatus)
+            switch (replyStatus)
             {
-            case ReplyStatus.replyOK:
-            {
-                break;
-            }
-
-            case ReplyStatus.replyUserException:
-            {
-                if(_observer != null)
+                case ReplyStatus.replyOK:
                 {
-                    _observer.userException();
+                    break;
                 }
-                break;
-            }
 
-            case ReplyStatus.replyObjectNotExist:
-            case ReplyStatus.replyFacetNotExist:
-            case ReplyStatus.replyOperationNotExist:
-            {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Identity.ice_read(is);
-
-                //
-                // For compatibility with the old FacetPath.
-                //
-                String[] facetPath = is.readStringSeq();
-                String facet;
-                if(facetPath.length > 0)
+                case ReplyStatus.replyUserException:
                 {
-                    if(facetPath.length > 1)
+                    if (_observer != null)
                     {
-                        throw new com.zeroc.Ice.MarshalException();
+                        _observer.userException();
                     }
-                    facet = facetPath[0];
-                }
-                else
-                {
-                    facet = "";
+                    break;
                 }
 
-                String operation = is.readString();
-
-                com.zeroc.Ice.RequestFailedException ex = null;
-                switch(replyStatus)
-                {
                 case ReplyStatus.replyObjectNotExist:
-                {
-                    ex = new com.zeroc.Ice.ObjectNotExistException();
-                    break;
-                }
-
                 case ReplyStatus.replyFacetNotExist:
-                {
-                    ex = new com.zeroc.Ice.FacetNotExistException();
-                    break;
-                }
-
                 case ReplyStatus.replyOperationNotExist:
                 {
-                    ex = new com.zeroc.Ice.OperationNotExistException();
-                    break;
+                    com.zeroc.Ice.Identity id = com.zeroc.Ice.Identity.ice_read(is);
+
+                    //
+                    // For compatibility with the old FacetPath.
+                    //
+                    String[] facetPath = is.readStringSeq();
+                    String facet;
+                    if (facetPath.length > 0)
+                    {
+                        if (facetPath.length > 1)
+                        {
+                            throw new com.zeroc.Ice.MarshalException();
+                        }
+                        facet = facetPath[0];
+                    }
+                    else
+                    {
+                        facet = "";
+                    }
+
+                    String operation = is.readString();
+
+                    com.zeroc.Ice.RequestFailedException ex = null;
+                    switch (replyStatus)
+                    {
+                        case ReplyStatus.replyObjectNotExist:
+                        {
+                            ex = new com.zeroc.Ice.ObjectNotExistException();
+                            break;
+                        }
+
+                        case ReplyStatus.replyFacetNotExist:
+                        {
+                            ex = new com.zeroc.Ice.FacetNotExistException();
+                            break;
+                        }
+
+                        case ReplyStatus.replyOperationNotExist:
+                        {
+                            ex = new com.zeroc.Ice.OperationNotExistException();
+                            break;
+                        }
+
+                        default:
+                        {
+                            assert (false);
+                            break;
+                        }
+                    }
+
+                    ex.id = id;
+                    ex.facet = facet;
+                    ex.operation = operation;
+                    throw ex;
                 }
 
-                default:
-                {
-                    assert(false);
-                    break;
-                }
-                }
-
-                ex.id = id;
-                ex.facet = facet;
-                ex.operation = operation;
-                throw ex;
-            }
-
-            case ReplyStatus.replyUnknownException:
-            case ReplyStatus.replyUnknownLocalException:
-            case ReplyStatus.replyUnknownUserException:
-            {
-                String unknown = is.readString();
-
-                com.zeroc.Ice.UnknownException ex = null;
-                switch(replyStatus)
-                {
                 case ReplyStatus.replyUnknownException:
-                {
-                    ex = new com.zeroc.Ice.UnknownException();
-                    break;
-                }
-
                 case ReplyStatus.replyUnknownLocalException:
-                {
-                    ex = new com.zeroc.Ice.UnknownLocalException();
-                    break;
-                }
-
                 case ReplyStatus.replyUnknownUserException:
                 {
-                    ex = new com.zeroc.Ice.UnknownUserException();
-                    break;
+                    String unknown = is.readString();
+
+                    com.zeroc.Ice.UnknownException ex = null;
+                    switch (replyStatus)
+                    {
+                        case ReplyStatus.replyUnknownException:
+                        {
+                            ex = new com.zeroc.Ice.UnknownException();
+                            break;
+                        }
+
+                        case ReplyStatus.replyUnknownLocalException:
+                        {
+                            ex = new com.zeroc.Ice.UnknownLocalException();
+                            break;
+                        }
+
+                        case ReplyStatus.replyUnknownUserException:
+                        {
+                            ex = new com.zeroc.Ice.UnknownUserException();
+                            break;
+                        }
+
+                        default:
+                        {
+                            assert (false);
+                            break;
+                        }
+                    }
+
+                    ex.unknown = unknown;
+                    throw ex;
                 }
 
                 default:
                 {
-                    assert(false);
-                    break;
+                    throw new com.zeroc.Ice.UnknownReplyStatusException();
                 }
-                }
-
-                ex.unknown = unknown;
-                throw ex;
-            }
-
-            default:
-            {
-                throw new com.zeroc.Ice.UnknownReplyStatusException();
-            }
             }
 
             return finished(replyStatus == ReplyStatus.replyOK, true);
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             return completed(ex);
         }
     }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.Exception exc)
+    @Override public boolean completed(com.zeroc.Ice.Exception exc)
     {
-        if(_childObserver != null)
+        if (_childObserver != null)
         {
             _childObserver.failed(exc.ice_id());
             _childObserver.detach();
@@ -185,7 +179,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         }
 
         _cachedConnection = null;
-        if(_proxy._getReference().getInvocationTimeout() == -2 && _timerFuture != null)
+        if (_proxy._getReference().getInvocationTimeout() == -2 && _timerFuture != null)
         {
             _timerFuture.cancel(false);
             _timerFuture = null;
@@ -205,14 +199,13 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             _instance.retryQueue().add(this, handleException(exc));
             return false;
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             return finished(ex); // No retries, we're done
         }
     }
 
-    @Override
-    public void retryException(com.zeroc.Ice.Exception ex)
+    @Override public void retryException(com.zeroc.Ice.Exception ex)
     {
         try
         {
@@ -225,45 +218,40 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             _proxy._updateRequestHandler(_handler, null); // Clear request handler and always retry.
             _instance.retryQueue().add(this, 0);
         }
-        catch(com.zeroc.Ice.Exception exc)
+        catch (com.zeroc.Ice.Exception exc)
         {
-            if(completed(exc))
+            if (completed(exc))
             {
                 invokeCompletedAsync();
             }
         }
     }
 
-    @Override
-    public void retry()
-    {
-        invokeImpl(false);
-    }
+    @Override public void retry() { invokeImpl(false); }
 
     public void cancelable(final CancellationHandler handler)
     {
-        if(_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null)
+        if (_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null)
         {
             final int timeout = _cachedConnection.timeout();
-            if(timeout > 0)
+            if (timeout > 0)
             {
-                _timerFuture = _instance.timer().schedule(
-                    () -> { cancel(new com.zeroc.Ice.ConnectionTimeoutException()); },
-                    timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                _timerFuture = _instance.timer().schedule(() -> {
+                    cancel(new com.zeroc.Ice.ConnectionTimeoutException());
+                }, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
             }
         }
         super.cancelable(handler);
     }
 
-    @Override
-    public void abort(com.zeroc.Ice.Exception ex)
+    @Override public void abort(com.zeroc.Ice.Exception ex)
     {
-        assert(_childObserver == null);
-        if(finished(ex))
+        assert (_childObserver == null);
+        if (finished(ex))
         {
             invokeCompletedAsync();
         }
-        else if(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException)
+        else if (ex instanceof com.zeroc.Ice.CommunicatorDestroyedException)
         {
             //
             // If it's a communicator destroyed exception, don't swallow
@@ -298,25 +286,25 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
     {
         try
         {
-            if(userThread)
+            if (userThread)
             {
                 int invocationTimeout = _proxy._getReference().getInvocationTimeout();
-                if(invocationTimeout > 0)
+                if (invocationTimeout > 0)
                 {
-                    _timerFuture = _instance.timer().schedule(
-                        () -> { cancel(new com.zeroc.Ice.InvocationTimeoutException()); },
-                        invocationTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    _timerFuture = _instance.timer().schedule(() -> {
+                        cancel(new com.zeroc.Ice.InvocationTimeoutException());
+                    }, invocationTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                 }
             }
             else // If not called from the user thread, it's called from the retry queue
             {
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.retried();
                 }
             }
 
-            while(true)
+            while (true)
             {
                 try
                 {
@@ -324,19 +312,19 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
                     _handler = null;
                     _handler = _proxy._getRequestHandler();
                     int status = _handler.sendAsyncRequest(this);
-                    if((status & AsyncStatus.Sent) > 0)
+                    if ((status & AsyncStatus.Sent) > 0)
                     {
-                        if(userThread)
+                        if (userThread)
                         {
                             _sentSynchronously = true;
-                            if((status & AsyncStatus.InvokeSentCallback) > 0)
+                            if ((status & AsyncStatus.InvokeSentCallback) > 0)
                             {
                                 invokeSent(); // Call the sent callback from the user thread.
                             }
                         }
                         else
                         {
-                            if((status & AsyncStatus.InvokeSentCallback) > 0)
+                            if ((status & AsyncStatus.InvokeSentCallback) > 0)
                             {
                                 invokeSentAsync(); // Call the sent callback from a client thread pool thread.
                             }
@@ -344,55 +332,54 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
                     }
                     return; // We're done!
                 }
-                catch(RetryException ex)
+                catch (RetryException ex)
                 {
                     _proxy._updateRequestHandler(_handler, null); // Clear request handler and always retry.
                 }
-                catch(com.zeroc.Ice.Exception ex)
+                catch (com.zeroc.Ice.Exception ex)
                 {
-                    if(_childObserver != null)
+                    if (_childObserver != null)
                     {
                         _childObserver.failed(ex.ice_id());
                         _childObserver.detach();
                         _childObserver = null;
                     }
                     final int interval = handleException(ex);
-                    if(interval > 0)
+                    if (interval > 0)
                     {
                         _instance.retryQueue().add(this, interval);
                         return;
                     }
-                    else if(_observer != null)
+                    else if (_observer != null)
                     {
                         _observer.retried();
                     }
                 }
             }
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             //
             // If called from the user thread we re-throw, the exception
             // will be catch by the caller and abort() will be called.
             //
-            if(userThread)
+            if (userThread)
             {
                 throw ex;
             }
-            else if(finished(ex)) // No retries, we're done
+            else if (finished(ex)) // No retries, we're done
             {
                 invokeCompletedAsync();
             }
         }
     }
 
-    @Override
-    protected boolean sent(boolean done)
+    @Override protected boolean sent(boolean done)
     {
         _sent = true;
-        if(done)
+        if (done)
         {
-            if(_timerFuture != null)
+            if (_timerFuture != null)
             {
                 _timerFuture.cancel(false);
                 _timerFuture = null;
@@ -401,10 +388,9 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         return super.sent(done);
     }
 
-    @Override
-    protected boolean finished(com.zeroc.Ice.Exception ex)
+    @Override protected boolean finished(com.zeroc.Ice.Exception ex)
     {
-        if(_timerFuture != null)
+        if (_timerFuture != null)
         {
             _timerFuture.cancel(false);
             _timerFuture = null;
@@ -412,10 +398,9 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         return super.finished(ex);
     }
 
-    @Override
-    protected boolean finished(boolean ok, boolean invoke)
+    @Override protected boolean finished(boolean ok, boolean invoke)
     {
-        if(_timerFuture != null)
+        if (_timerFuture != null)
         {
             _timerFuture.cancel(false);
             _timerFuture = null;
@@ -436,7 +421,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
 
         _observer = ObserverHelper.get(_proxy, _operation, ctx == null ? _emptyContext : ctx);
 
-        switch(_proxyMode)
+        switch (_proxyMode)
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -462,13 +447,13 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         // For compatibility with the old FacetPath.
         //
         String facet = ref.getFacet();
-        if(facet == null || facet.length() == 0)
+        if (facet == null || facet.length() == 0)
         {
             _os.writeStringSeq(null);
         }
         else
         {
-            String[] facetPath = { facet };
+            String[] facetPath = {facet};
             _os.writeStringSeq(facetPath);
         }
 
@@ -476,7 +461,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
 
         _os.writeByte((byte)_mode.value());
 
-        if(ctx != com.zeroc.Ice.ObjectPrx.noExplicitContext)
+        if (ctx != com.zeroc.Ice.ObjectPrx.noExplicitContext)
         {
             //
             // Explicit context
@@ -491,7 +476,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             com.zeroc.Ice.ImplicitContextI implicitContext = ref.getInstance().getImplicitContext();
             java.util.Map<String, String> prxContext = ref.getContext();
 
-            if(implicitContext == null)
+            if (implicitContext == null)
             {
                 com.zeroc.Ice.ContextHelper.write(_os, prxContext);
             }

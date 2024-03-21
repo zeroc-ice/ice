@@ -20,30 +20,15 @@ package com.zeroc.Ice;
  **/
 public class UnknownReplyStatusException extends ProtocolException
 {
-    public UnknownReplyStatusException()
-    {
-        super();
-    }
+    public UnknownReplyStatusException() { super(); }
 
-    public UnknownReplyStatusException(Throwable cause)
-    {
-        super(cause);
-    }
+    public UnknownReplyStatusException(Throwable cause) { super(cause); }
 
-    public UnknownReplyStatusException(String reason)
-    {
-        super(reason);
-    }
+    public UnknownReplyStatusException(String reason) { super(reason); }
 
-    public UnknownReplyStatusException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+    public UnknownReplyStatusException(String reason, Throwable cause) { super(reason, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::UnknownReplyStatusException";
-    }
+    public String ice_id() { return "::Ice::UnknownReplyStatusException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -6816121886863135119L;

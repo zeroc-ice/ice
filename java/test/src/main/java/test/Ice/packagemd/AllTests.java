@@ -5,7 +5,6 @@
 package test.Ice.packagemd;
 
 import java.io.PrintWriter;
-
 import test.Ice.packagemd.Test.InitialPrx;
 import test.Ice.packagemd.Test1.C1;
 import test.Ice.packagemd.Test1.C2;
@@ -17,7 +16,7 @@ public class AllTests
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -54,7 +53,7 @@ public class AllTests
                 initial.throwTest1E2AsE1();
                 test(false);
             }
-            catch(E1 ex)
+            catch (E1 ex)
             {
                 test(ex instanceof E2);
             }
@@ -63,7 +62,7 @@ public class AllTests
                 initial.throwTest1E2AsE2();
                 test(false);
             }
-            catch(E2 ex)
+            catch (E2 ex)
             {
                 // Expected
             }
@@ -72,7 +71,7 @@ public class AllTests
                 initial.throwTest1Notify();
                 test(false);
             }
-            catch(_notify ex)
+            catch (_notify ex)
             {
                 // Expected
             }
@@ -89,15 +88,15 @@ public class AllTests
                     initial.throwTest2E2AsE1();
                     test(false);
                 }
-                catch(com.zeroc.Ice.UnknownUserException ex)
+                catch (com.zeroc.Ice.UnknownUserException ex)
                 {
                     // Expected
                 }
-                catch(com.zeroc.Ice.MarshalException ex)
+                catch (com.zeroc.Ice.MarshalException ex)
                 {
                     // Expected
                 }
-                catch(test.Ice.packagemd.testpkg.Test2.E1 ex)
+                catch (test.Ice.packagemd.testpkg.Test2.E1 ex)
                 {
                     test(false);
                 }
@@ -106,15 +105,15 @@ public class AllTests
                     initial.throwTest2E2AsE2();
                     test(false);
                 }
-                catch(com.zeroc.Ice.UnknownUserException ex)
+                catch (com.zeroc.Ice.UnknownUserException ex)
                 {
                     // Expected
                 }
-                catch(com.zeroc.Ice.MarshalException ex)
+                catch (com.zeroc.Ice.MarshalException ex)
                 {
                     // Expected
                 }
-                catch(test.Ice.packagemd.testpkg.Test2.E1 ex)
+                catch (test.Ice.packagemd.testpkg.Test2.E1 ex)
                 {
                     test(false);
                 }
@@ -135,7 +134,7 @@ public class AllTests
                     initial.throwTest2E2AsE1();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test2.E1 ex)
+                catch (test.Ice.packagemd.testpkg.Test2.E1 ex)
                 {
                     test(ex instanceof test.Ice.packagemd.testpkg.Test2.E2);
                 }
@@ -144,7 +143,7 @@ public class AllTests
                     initial.throwTest2E2AsE2();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test2.E2 ex)
+                catch (test.Ice.packagemd.testpkg.Test2.E2 ex)
                 {
                     // Expected
                 }
@@ -167,7 +166,7 @@ public class AllTests
                     initial.throwTest3E2AsE1();
                     test(false);
                 }
-                catch(test.Ice.packagemd.modpkg.Test3.E1 ex)
+                catch (test.Ice.packagemd.modpkg.Test3.E1 ex)
                 {
                     test(ex instanceof test.Ice.packagemd.modpkg.Test3.E2);
                 }
@@ -176,7 +175,7 @@ public class AllTests
                     initial.throwTest3E2AsE2();
                     test(false);
                 }
-                catch(test.Ice.packagemd.modpkg.Test3.E2 ex)
+                catch (test.Ice.packagemd.modpkg.Test3.E2 ex)
                 {
                     // Expected
                 }

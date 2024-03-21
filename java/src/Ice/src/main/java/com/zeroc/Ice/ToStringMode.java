@@ -40,29 +40,23 @@ public enum ToStringMode
      **/
     Compat(2);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ToStringMode valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return Unicode;
-        case 1:
-            return ASCII;
-        case 2:
-            return Compat;
+            case 0:
+                return Unicode;
+            case 1:
+                return ASCII;
+            case 2:
+                return Compat;
         }
         return null;
     }
 
-    private ToStringMode(int v)
-    {
-        _value = v;
-    }
+    private ToStringMode(int v) { _value = v; }
 
     private final int _value;
 }

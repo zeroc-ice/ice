@@ -4,14 +4,12 @@
 
 package test.Ice.hash;
 
-import java.io.PrintWriter;
-
-import test.Ice.hash.Test.*;
-
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.ProxyIdentityKey;
 import com.zeroc.Ice.ProxyIdentityFacetKey;
+import com.zeroc.Ice.ProxyIdentityKey;
+import java.io.PrintWriter;
+import test.Ice.hash.Test.*;
 
 public class Client extends test.TestHelper
 {
@@ -20,7 +18,7 @@ public class Client extends test.TestHelper
         PrintWriter out = getWriter();
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             java.util.Map<Integer, ObjectPrx> seenProxy = new java.util.HashMap<>();
             java.util.Map<Integer, Endpoint> seenEndpoint = new java.util.HashMap<>();
@@ -34,9 +32,8 @@ public class Client extends test.TestHelper
             out.flush();
             {
                 java.util.Random rand = new java.util.Random();
-                for(i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions &&
-                        i < maxIterations; ++i)
+                for (i = 0; proxyCollisions < maxCollisions && endpointCollisions < maxCollisions && i < maxIterations;
+                     ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
@@ -52,9 +49,9 @@ public class Client extends test.TestHelper
                     ObjectPrx obj = communicator.stringToProxy(sw.toString());
                     java.util.List<Endpoint> endpoints =
                         new java.util.ArrayList<>(java.util.Arrays.asList(obj.ice_getEndpoints()));
-                    if(seenProxy.containsKey(obj.hashCode()))
+                    if (seenProxy.containsKey(obj.hashCode()))
                     {
-                        if(obj.equals(seenProxy.get(obj.hashCode())))
+                        if (obj.equals(seenProxy.get(obj.hashCode())))
                         {
                             continue; // Same object
                         }
@@ -66,12 +63,12 @@ public class Client extends test.TestHelper
                     }
 
                     java.util.Iterator<Endpoint> j = endpoints.iterator();
-                    while(j.hasNext())
+                    while (j.hasNext())
                     {
                         Endpoint endpoint = j.next();
-                        if(seenEndpoint.containsKey(endpoint.hashCode()))
+                        if (seenEndpoint.containsKey(endpoint.hashCode()))
                         {
-                            if(endpoint.equals(seenEndpoint.get(endpoint.hashCode())))
+                            if (endpoint.equals(seenEndpoint.get(endpoint.hashCode())))
                             {
                                 continue; // Same endpoint
                             }
@@ -96,9 +93,8 @@ public class Client extends test.TestHelper
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
-                for(i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions  &&
-                        i < maxIterations; ++i)
+                for (i = 0; proxyCollisions < maxCollisions && endpointCollisions < maxCollisions && i < maxIterations;
+                     ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
@@ -112,7 +108,7 @@ public class Client extends test.TestHelper
                     sw.write(Integer.toString(rand.nextInt(100)));
 
                     ProxyIdentityKey obj = new ProxyIdentityKey(communicator.stringToProxy(sw.toString()));
-                    if(seenProxy.containsKey(obj.hashCode()))
+                    if (seenProxy.containsKey(obj.hashCode()))
                     {
                         ++proxyCollisions;
                     }
@@ -129,9 +125,8 @@ public class Client extends test.TestHelper
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
-                for(i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions  &&
-                        i < maxIterations; ++i)
+                for (i = 0; proxyCollisions < maxCollisions && endpointCollisions < maxCollisions && i < maxIterations;
+                     ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
@@ -146,7 +141,7 @@ public class Client extends test.TestHelper
 
                     com.zeroc.Ice.ProxyIdentityFacetKey obj =
                         new com.zeroc.Ice.ProxyIdentityFacetKey(communicator.stringToProxy(sw.toString()));
-                    if(seenProxy.containsKey(obj.hashCode()))
+                    if (seenProxy.containsKey(obj.hashCode()))
                     {
                         ++proxyCollisions;
                     }
@@ -187,20 +182,27 @@ public class Client extends test.TestHelper
                 test(communicator.stringToProxy("Glacier2/router:tcp -p 10010").hashCode() == proxyMap.get("prx1"));
                 test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").hashCode() == proxyMap.get("prx2"));
                 test(communicator.stringToProxy("Glacier2/router:udp -p 10012").hashCode() == proxyMap.get("prx3"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").hashCode() ==
-                     proxyMap.get("prx4"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").hashCode() ==
-                     proxyMap.get("prx5"));
-                test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").hashCode() ==
-                     proxyMap.get("prx6"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").hashCode() ==
-                     proxyMap.get("prx7"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").hashCode() ==
-                     proxyMap.get("prx8"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").hashCode() ==
-                     proxyMap.get("prx9"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").hashCode() ==
-                     proxyMap.get("prx10"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").hashCode() ==
+                    proxyMap.get("prx4"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").hashCode() ==
+                    proxyMap.get("prx5"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").hashCode() ==
+                    proxyMap.get("prx6"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").hashCode() ==
+                    proxyMap.get("prx7"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").hashCode() ==
+                    proxyMap.get("prx8"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").hashCode() ==
+                    proxyMap.get("prx9"));
+                test(
+                    communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").hashCode() ==
+                    proxyMap.get("prx10"));
 
                 test(new ProxyIdentityKey(prx1).hashCode() == new ProxyIdentityKey(prx1).hashCode());
                 test(new ProxyIdentityFacetKey(prx1).hashCode() == new ProxyIdentityFacetKey(prx1).hashCode());
@@ -241,12 +243,12 @@ public class Client extends test.TestHelper
                 java.util.Map<Integer, PointF> seenPointF = new java.util.HashMap<>();
                 java.util.Random rand = new java.util.Random();
                 int structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     PointF pf = new PointF(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
-                    if(seenPointF.containsKey(pf.hashCode()))
+                    if (seenPointF.containsKey(pf.hashCode()))
                     {
-                        if(pf.equals(seenPointF.get(pf.hashCode())))
+                        if (pf.equals(seenPointF.get(pf.hashCode())))
                         {
                             continue; // same object
                         }
@@ -266,12 +268,12 @@ public class Client extends test.TestHelper
                 java.util.Map<Integer, PointD> seenPointD = new java.util.HashMap<>();
                 rand = new java.util.Random();
                 structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     PointD pd = new PointD(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
-                    if(seenPointD.containsKey(pd.hashCode()))
+                    if (seenPointD.containsKey(pd.hashCode()))
                     {
-                        if(pd.equals(seenPointF.get(pd.hashCode())))
+                        if (pd.equals(seenPointF.get(pd.hashCode())))
                         {
                             continue; // same object
                         }
@@ -290,20 +292,20 @@ public class Client extends test.TestHelper
 
                 java.util.Map<Integer, Polyline> seenPolyline = new java.util.HashMap<>();
                 structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     Polyline polyline = new Polyline();
                     java.util.List<Point> vertices = new java.util.ArrayList<>();
-                    for(int j = 0; j < 100; ++j)
+                    for (int j = 0; j < 100; ++j)
                     {
                         vertices.add(new Point(rand.nextInt(100), rand.nextInt(100)));
                     }
                     polyline.vertices = new Point[vertices.size()];
                     vertices.toArray(polyline.vertices);
 
-                    if(seenPolyline.containsKey(polyline.hashCode()))
+                    if (seenPolyline.containsKey(polyline.hashCode()))
                     {
-                        if(polyline.equals(seenPolyline.get(polyline.hashCode())))
+                        if (polyline.equals(seenPolyline.get(polyline.hashCode())))
                         {
                             continue; // same object
                         }
@@ -322,19 +324,20 @@ public class Client extends test.TestHelper
 
                 java.util.Map<Integer, ColorPalette> seenColorPalette = new java.util.HashMap<>();
                 structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     ColorPalette colorPalette = new ColorPalette();
                     colorPalette.colors = new java.util.HashMap<>();
-                    for(int j = 0; j < 100; ++j)
+                    for (int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors.put(j, new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255),
-                                                rand.nextInt(255)));
+                        colorPalette.colors.put(
+                            j,
+                            new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
                     }
 
-                    if(seenColorPalette.containsKey(colorPalette.hashCode()))
+                    if (seenColorPalette.containsKey(colorPalette.hashCode()))
                     {
-                        if(colorPalette.equals(seenColorPalette.get(colorPalette.hashCode())))
+                        if (colorPalette.equals(seenColorPalette.get(colorPalette.hashCode())))
                         {
                             continue; // same object
                         }
@@ -354,12 +357,12 @@ public class Client extends test.TestHelper
                 java.util.Map<Integer, Color> seenColor = new java.util.HashMap<>();
                 rand = new java.util.Random();
                 structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
-                    if(seenColor.containsKey(c.hashCode()))
+                    if (seenColor.containsKey(c.hashCode()))
                     {
-                        if(c.equals(seenColor.get(c.hashCode())))
+                        if (c.equals(seenColor.get(c.hashCode())))
                         {
                             continue; // same object
                         }
@@ -379,18 +382,18 @@ public class Client extends test.TestHelper
                 structCollisions = 0;
                 java.util.Map<Integer, Draw> seenDraw = new java.util.HashMap<>();
                 structCollisions = 0;
-                for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     Draw draw = new Draw(
                         new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
-                        new Pen(rand.nextInt(10),
-                                     new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255),
-                                               rand.nextInt(255))),
-                                     false);
+                        new Pen(
+                            rand.nextInt(10),
+                            new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))),
+                        false);
 
-                    if(seenDraw.containsKey(draw.hashCode()))
+                    if (seenDraw.containsKey(draw.hashCode()))
                     {
-                        if(draw.equals(seenDraw.get(draw.hashCode())))
+                        if (draw.equals(seenDraw.get(draw.hashCode())))
                         {
                             continue; // same object
                         }

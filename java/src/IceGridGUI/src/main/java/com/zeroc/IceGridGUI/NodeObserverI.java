@@ -4,8 +4,8 @@
 
 package com.zeroc.IceGridGUI;
 
-import javax.swing.SwingUtilities;
 import com.zeroc.IceGrid.*;
+import javax.swing.SwingUtilities;
 
 class NodeObserverI implements NodeObserver
 {
@@ -15,19 +15,18 @@ class NodeObserverI implements NodeObserver
         _trace = _coordinator.traceObservers();
     }
 
-    @Override
-    public void nodeInit(final NodeDynamicInfo[] nodes, com.zeroc.Ice.Current current)
+    @Override public void nodeInit(final NodeDynamicInfo[] nodes, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
-            if(nodes.length == 0)
+            if (nodes.length == 0)
             {
                 _coordinator.traceObserver("nodeInit (no node)");
             }
             else
             {
                 String names = "";
-                for(NodeDynamicInfo node : nodes)
+                for (NodeDynamicInfo node : nodes)
                 {
                     names += " " + node.info.name;
                 }
@@ -35,19 +34,17 @@ class NodeObserverI implements NodeObserver
             }
         }
 
-        SwingUtilities.invokeLater(() ->
+        SwingUtilities.invokeLater(() -> {
+            for (NodeDynamicInfo node : nodes)
             {
-                for(NodeDynamicInfo node : nodes)
-                {
-                    _coordinator.nodeUp(node);
-                }
-            });
+                _coordinator.nodeUp(node);
+            }
+        });
     }
 
-    @Override
-    public void nodeUp(final NodeDynamicInfo nodeInfo, com.zeroc.Ice.Current current)
+    @Override public void nodeUp(final NodeDynamicInfo nodeInfo, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
             _coordinator.traceObserver("nodeUp for node " + nodeInfo.info.name);
         }
@@ -55,10 +52,9 @@ class NodeObserverI implements NodeObserver
         SwingUtilities.invokeLater(() -> _coordinator.nodeUp(nodeInfo));
     }
 
-    @Override
-    public void nodeDown(final String nodeName, com.zeroc.Ice.Current current)
+    @Override public void nodeDown(final String nodeName, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
             _coordinator.traceObserver("nodeUp for node " + nodeName);
         }
@@ -69,11 +65,11 @@ class NodeObserverI implements NodeObserver
     @Override
     public void updateServer(final String node, final ServerDynamicInfo updatedInfo, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
-            _coordinator.traceObserver("updateServer for server " + updatedInfo.id
-                                       + " on node " + node + "; new state is "
-                                       + updatedInfo.state.toString());
+            _coordinator.traceObserver(
+                "updateServer for server " + updatedInfo.id + " on node " + node + "; new state is " +
+                updatedInfo.state.toString());
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateServer(node, updatedInfo));
@@ -82,12 +78,11 @@ class NodeObserverI implements NodeObserver
     @Override
     public void updateAdapter(final String node, final AdapterDynamicInfo updatedInfo, com.zeroc.Ice.Current current)
     {
-        if(_trace)
+        if (_trace)
         {
-            _coordinator.traceObserver("updateAdapter for adapter " + updatedInfo.id
-                                       + " on node " + node + "; new proxy is "
-                                       + (updatedInfo.proxy == null ? "null"
-                                          : updatedInfo.proxy.toString()));
+            _coordinator.traceObserver(
+                "updateAdapter for adapter " + updatedInfo.id + " on node " + node + "; new proxy is " +
+                (updatedInfo.proxy == null ? "null" : updatedInfo.proxy.toString()));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateAdapter(node, updatedInfo));

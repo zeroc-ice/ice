@@ -20,35 +20,15 @@ public final class InitialI implements Initial
         _ic = ICPrx.uncheckedCast(adapter.addWithUUID(new ICI()));
     }
 
-    @Override
-    public IAPrx iaop(com.zeroc.Ice.Current current)
-    {
-        return _ia;
-    }
+    @Override public IAPrx iaop(com.zeroc.Ice.Current current) { return _ia; }
 
-    @Override
-    public IB1Prx ib1op(com.zeroc.Ice.Current current)
-    {
-        return _ib1;
-    }
+    @Override public IB1Prx ib1op(com.zeroc.Ice.Current current) { return _ib1; }
 
-    @Override
-    public IB2Prx ib2op(com.zeroc.Ice.Current current)
-    {
-        return _ib2;
-    }
+    @Override public IB2Prx ib2op(com.zeroc.Ice.Current current) { return _ib2; }
 
-    @Override
-    public ICPrx icop(com.zeroc.Ice.Current current)
-    {
-        return _ic;
-    }
+    @Override public ICPrx icop(com.zeroc.Ice.Current current) { return _ic; }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 
     private IAPrx _ia;
     private IB1Prx _ib1;

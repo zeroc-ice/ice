@@ -27,7 +27,17 @@ public class TCPConnectionInfo extends IPConnectionInfo
         this.sndSize = 0;
     }
 
-    public TCPConnectionInfo(ConnectionInfo underlying, boolean incoming, String adapterName, String connectionId, String localAddress, int localPort, String remoteAddress, int remotePort, int rcvSize, int sndSize)
+    public TCPConnectionInfo(
+        ConnectionInfo underlying,
+        boolean incoming,
+        String adapterName,
+        String connectionId,
+        String localAddress,
+        int localPort,
+        String remoteAddress,
+        int remotePort,
+        int rcvSize,
+        int sndSize)
     {
         super(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
         this.rcvSize = rcvSize;
@@ -44,10 +54,7 @@ public class TCPConnectionInfo extends IPConnectionInfo
      **/
     public int sndSize;
 
-    public TCPConnectionInfo clone()
-    {
-        return (TCPConnectionInfo)super.clone();
-    }
+    public TCPConnectionInfo clone() { return (TCPConnectionInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 991962771996026865L;

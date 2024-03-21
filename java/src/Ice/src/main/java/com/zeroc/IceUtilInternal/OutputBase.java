@@ -6,8 +6,7 @@ package com.zeroc.IceUtilInternal;
 
 public class OutputBase
 {
-    public
-    OutputBase()
+    public OutputBase()
     {
         _out = null;
         _pos = 0;
@@ -17,8 +16,7 @@ public class OutputBase
         _separator = true;
     }
 
-    public
-    OutputBase(java.io.PrintWriter out)
+    public OutputBase(java.io.PrintWriter out)
     {
         _out = out;
         _pos = 0;
@@ -28,8 +26,7 @@ public class OutputBase
         _separator = true;
     }
 
-    public
-    OutputBase(String s)
+    public OutputBase(String s)
     {
         _out = null;
         _pos = 0;
@@ -41,20 +38,11 @@ public class OutputBase
         open(s);
     }
 
-    public void
-    setIndent(int indentSize)
-    {
-        _indentSize = indentSize;
-    }
+    public void setIndent(int indentSize) { _indentSize = indentSize; }
 
-    public void
-    setUseTab(boolean useTab)
-    {
-        _useTab = useTab;
-    }
+    public void setUseTab(boolean useTab) { _useTab = useTab; }
 
-    public void
-    open(String s)
+    public void open(String s)
     {
         try
         {
@@ -62,18 +50,17 @@ public class OutputBase
             java.io.BufferedWriter bw = new java.io.BufferedWriter(fw);
             _out = new java.io.PrintWriter(bw);
         }
-        catch(java.io.IOException ex)
+        catch (java.io.IOException ex)
         {
         }
     }
 
-    public void
-    print(String s)
+    public void print(String s)
     {
         final char[] arr = s.toCharArray();
-        for(int i = 0; i < arr.length; i++)
+        for (int i = 0; i < arr.length; i++)
         {
-            if(arr[i] == '\n')
+            if (arr[i] == '\n')
             {
                 _pos = 0;
             }
@@ -86,42 +73,33 @@ public class OutputBase
         _out.print(s);
     }
 
-    public void
-    inc()
-    {
-        _indent += _indentSize;
-    }
+    public void inc() { _indent += _indentSize; }
 
-    public void
-    dec()
+    public void dec()
     {
-        assert(_indent >= _indentSize);
+        assert (_indent >= _indentSize);
         _indent -= _indentSize;
     }
 
-    public void
-    useCurrentPosAsIndent()
+    public void useCurrentPosAsIndent()
     {
         _indentSave.addFirst(_indent);
         _indent = _pos;
     }
 
-    public void
-    zeroIndent()
+    public void zeroIndent()
     {
         _indentSave.addFirst(_indent);
         _indent = 0;
     }
 
-    public void
-    restoreIndent()
+    public void restoreIndent()
     {
-        assert(!_indentSave.isEmpty());
+        assert (!_indentSave.isEmpty());
         _indent = _indentSave.removeFirst().intValue();
     }
 
-    public void
-    nl()
+    public void nl()
     {
         _out.println();
         _pos = 0;
@@ -129,9 +107,9 @@ public class OutputBase
 
         int indent = _indent;
 
-        if(_useTab)
+        if (_useTab)
         {
-            while(indent >= 8)
+            while (indent >= 8)
             {
                 indent -= 8;
                 _out.print('\t');
@@ -140,7 +118,7 @@ public class OutputBase
         }
         else
         {
-            while(indent >= _indentSize)
+            while (indent >= _indentSize)
             {
                 indent -= _indentSize;
                 _out.print("    ");
@@ -148,7 +126,7 @@ public class OutputBase
             }
         }
 
-        while(indent > 0)
+        while (indent > 0)
         {
             --indent;
             _out.print(' ');
@@ -158,20 +136,15 @@ public class OutputBase
         _out.flush();
     }
 
-    public void
-    sp()
+    public void sp()
     {
-        if(_separator)
+        if (_separator)
         {
             _out.println();
         }
     }
 
-    public boolean
-    valid()
-    {
-        return (_out != null);
-    }
+    public boolean valid() { return (_out != null); }
 
     protected java.io.PrintWriter _out;
     protected int _pos;

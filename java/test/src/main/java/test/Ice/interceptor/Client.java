@@ -5,7 +5,6 @@
 package test.Ice.interceptor;
 
 import java.io.PrintWriter;
-
 import test.Ice.interceptor.Test.InvalidInputException;
 import test.Ice.interceptor.Test.MyObjectPrx;
 
@@ -44,7 +43,7 @@ public class Client extends test.TestHelper
             prx.badAdd(33, 12);
             test(false);
         }
-        catch(InvalidInputException e)
+        catch (InvalidInputException e)
         {
             // expected
         }
@@ -59,7 +58,7 @@ public class Client extends test.TestHelper
             prx.notExistAdd(33, 12);
             test(false);
         }
-        catch(com.zeroc.Ice.ObjectNotExistException e)
+        catch (com.zeroc.Ice.ObjectNotExistException e)
         {
             // expected
         }
@@ -74,15 +73,15 @@ public class Client extends test.TestHelper
             prx.badSystemAdd(33, 12);
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownException e)
+        catch (com.zeroc.Ice.UnknownException e)
         {
             test(!prx.ice_isCollocationOptimized());
         }
-        catch(MySystemException e)
+        catch (MySystemException e)
         {
             test(prx.ice_isCollocationOptimized());
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -114,7 +113,7 @@ public class Client extends test.TestHelper
         {
             java.util.Map<String, String> ctx = new java.util.HashMap<>();
             ctx.put("retry", "yes");
-            for(int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 test(prx.amdAdd(33, 12, ctx) == 45);
                 test(interceptor.getLastOperation().equals("amdAdd"));
@@ -129,7 +128,7 @@ public class Client extends test.TestHelper
             prx.amdBadAdd(33, 12);
             test(false);
         }
-        catch(InvalidInputException e)
+        catch (InvalidInputException e)
         {
             // expected
         }
@@ -144,7 +143,7 @@ public class Client extends test.TestHelper
             prx.amdNotExistAdd(33, 12);
             test(false);
         }
-        catch(com.zeroc.Ice.ObjectNotExistException e)
+        catch (com.zeroc.Ice.ObjectNotExistException e)
         {
             // expected
         }
@@ -159,15 +158,15 @@ public class Client extends test.TestHelper
             prx.amdBadSystemAdd(33, 12);
             test(false);
         }
-        catch(com.zeroc.Ice.UnknownException e)
+        catch (com.zeroc.Ice.UnknownException e)
         {
             test(!prx.ice_isCollocationOptimized());
         }
-        catch(MySystemException e)
+        catch (MySystemException e)
         {
             test(prx.ice_isCollocationOptimized());
         }
-        catch(Throwable ex)
+        catch (Throwable ex)
         {
             test(false);
         }
@@ -186,7 +185,7 @@ public class Client extends test.TestHelper
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.interceptor");
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             //
             // Create OA and servants
@@ -238,7 +237,7 @@ public class Client extends test.TestHelper
         exceptions.add(new ExceptionPoint("raiseAfterDispatch", "user"));
         exceptions.add(new ExceptionPoint("raiseAfterDispatch", "notExist"));
         exceptions.add(new ExceptionPoint("raiseAfterDispatch", "system"));
-        for(ExceptionPoint e : exceptions)
+        for (ExceptionPoint e : exceptions)
         {
             java.util.Map<String, String> ctx = new java.util.HashMap<>();
             ctx.put(e.point, e.exception);
@@ -247,19 +246,19 @@ public class Client extends test.TestHelper
                 prx.ice_ping(ctx);
                 test(false);
             }
-            catch(com.zeroc.Ice.UnknownUserException ex)
+            catch (com.zeroc.Ice.UnknownUserException ex)
             {
                 test(e.exception.equals("user"));
             }
-            catch(com.zeroc.Ice.ObjectNotExistException ex)
+            catch (com.zeroc.Ice.ObjectNotExistException ex)
             {
                 test(e.exception.equals("notExist"));
             }
-            catch(com.zeroc.Ice.UnknownException ex)
+            catch (com.zeroc.Ice.UnknownException ex)
             {
                 test(e.exception.equals("system")); // non-collocated
             }
-            catch(MySystemException ex)
+            catch (MySystemException ex)
             {
                 test(e.exception.equals("system")); // collocated
             }

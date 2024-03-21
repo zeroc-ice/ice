@@ -11,11 +11,14 @@ import com.zeroc.Ice.RemoteLoggerPrx;
 final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 {
     @Override
-    public void attachRemoteLogger(RemoteLoggerPrx prx, LogMessageType[] messageTypes,
-                                   String[] categories, int messageMax, com.zeroc.Ice.Current current)
-        throws com.zeroc.Ice.RemoteLoggerAlreadyAttachedException
+    public void attachRemoteLogger(
+        RemoteLoggerPrx prx,
+        LogMessageType[] messageTypes,
+        String[] categories,
+        int messageMax,
+        com.zeroc.Ice.Current current) throws com.zeroc.Ice.RemoteLoggerAlreadyAttachedException
     {
-        if(prx == null)
+        if (prx == null)
         {
             return; // can't send this null RemoteLogger anything!
         }
@@ -25,11 +28,11 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         Filters filters = new Filters(messageTypes, categories);
         java.util.List<LogMessage> initLogMessages = null;
 
-        synchronized(this)
+        synchronized (this)
         {
-            if(_sendLogCommunicator == null)
+            if (_sendLogCommunicator == null)
             {
-                if(_destroyed)
+                if (_destroyed)
                 {
                     throw new com.zeroc.Ice.ObjectNotExistException();
                 }
@@ -40,21 +43,23 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 
             com.zeroc.Ice.Identity remoteLoggerId = remoteLogger.ice_getIdentity();
 
-            if(_remoteLoggerMap.containsKey(remoteLoggerId))
+            if (_remoteLoggerMap.containsKey(remoteLoggerId))
             {
-                if(_traceLevel > 0)
+                if (_traceLevel > 0)
                 {
-                    _logger.trace(_traceCategory, "rejecting `" + remoteLogger.toString() +
-                                                  "' with RemoteLoggerAlreadyAttachedException");
+                    _logger.trace(
+                        _traceCategory,
+                        "rejecting `" + remoteLogger.toString() + "' with RemoteLoggerAlreadyAttachedException");
                 }
 
                 throw new com.zeroc.Ice.RemoteLoggerAlreadyAttachedException();
             }
 
-            _remoteLoggerMap.put(remoteLoggerId,
-                                 new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+            _remoteLoggerMap.put(
+                remoteLoggerId,
+                new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
-            if(messageMax != 0)
+            if (messageMax != 0)
             {
                 initLogMessages = new java.util.LinkedList<>(_queue); // copy
             }
@@ -64,24 +69,23 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
             }
         }
 
-        if(_traceLevel > 0)
+        if (_traceLevel > 0)
         {
             _logger.trace(_traceCategory, "attached `" + remoteLogger.toString() + "'");
         }
 
-        if(!initLogMessages.isEmpty())
+        if (!initLogMessages.isEmpty())
         {
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
 
         try
         {
-            remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.toArray(new LogMessage[0])).whenComplete(
-                (Void v, Throwable ex) ->
-                {
-                    if(ex != null)
+            remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.toArray(new LogMessage[0]))
+                .whenComplete((Void v, Throwable ex) -> {
+                    if (ex != null)
                     {
-                        if(ex instanceof com.zeroc.Ice.LocalException)
+                        if (ex instanceof com.zeroc.Ice.LocalException)
                         {
                             deadRemoteLogger(remoteLogger, _logger, (com.zeroc.Ice.LocalException)ex, "init");
                         }
@@ -92,25 +96,25 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
                     }
                     else
                     {
-                        if(_traceLevel > 1)
+                        if (_traceLevel > 1)
                         {
-                            _logger.trace(_traceCategory, "init on `" + remoteLogger.toString() +
-                                          "' completed successfully");
+                            _logger.trace(
+                                _traceCategory,
+                                "init on `" + remoteLogger.toString() + "' completed successfully");
                         }
                     }
                 });
         }
-        catch(com.zeroc.Ice.LocalException ex)
+        catch (com.zeroc.Ice.LocalException ex)
         {
             deadRemoteLogger(remoteLogger, _logger, ex, "init");
             throw ex;
         }
     }
 
-    @Override
-    public boolean detachRemoteLogger(RemoteLoggerPrx remoteLogger, com.zeroc.Ice.Current current)
+    @Override public boolean detachRemoteLogger(RemoteLoggerPrx remoteLogger, com.zeroc.Ice.Current current)
     {
-        if(remoteLogger == null)
+        if (remoteLogger == null)
         {
             return false;
         }
@@ -120,11 +124,11 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         //
         boolean found = removeRemoteLogger(remoteLogger);
 
-        if(_traceLevel > 0)
+        if (_traceLevel > 0)
         {
-            if(found)
+            if (found)
             {
-                _logger.trace(_traceCategory,  "detached `" + remoteLogger.toString() + "'");
+                _logger.trace(_traceCategory, "detached `" + remoteLogger.toString() + "'");
             }
             else
             {
@@ -136,18 +140,15 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
     }
 
     @Override
-    public com.zeroc.Ice.LoggerAdmin.GetLogResult getLog(
-        LogMessageType[] messageTypes,
-        String[] categories,
-        int messageMax,
-        com.zeroc.Ice.Current current)
+    public com.zeroc.Ice.LoggerAdmin.GetLogResult
+    getLog(LogMessageType[] messageTypes, String[] categories, int messageMax, com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.LoggerAdmin.GetLogResult r = new com.zeroc.Ice.LoggerAdmin.GetLogResult();
 
         java.util.List<LogMessage> logMessages = null;
-        synchronized(this)
+        synchronized (this)
         {
-            if(messageMax != 0)
+            if (messageMax != 0)
             {
                 logMessages = new java.util.LinkedList<>(_queue);
             }
@@ -159,7 +160,7 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 
         r.prefix = _logger.getPrefix();
 
-        if(!logMessages.isEmpty())
+        if (!logMessages.isEmpty())
         {
             Filters filters = new Filters(messageTypes, categories);
             filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
@@ -180,9 +181,9 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
     {
         com.zeroc.Ice.Communicator sendLogCommunicator = null;
 
-        synchronized(this)
+        synchronized (this)
         {
-            if(!_destroyed)
+            if (!_destroyed)
             {
                 _destroyed = true;
                 sendLogCommunicator = _sendLogCommunicator;
@@ -194,7 +195,7 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
         // remote loggers
         //
-        if(sendLogCommunicator != null)
+        if (sendLogCommunicator != null)
         {
             sendLogCommunicator.destroy();
         }
@@ -207,34 +208,34 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         //
         // Put message in _queue
         //
-        if((logMessage.type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
-           (logMessage.type == LogMessageType.TraceMessage && _maxTraceCount > 0))
+        if ((logMessage.type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
+            (logMessage.type == LogMessageType.TraceMessage && _maxTraceCount > 0))
         {
             _queue.add(logMessage); // add at the end
 
-            if(logMessage.type != LogMessageType.TraceMessage)
+            if (logMessage.type != LogMessageType.TraceMessage)
             {
-                assert(_maxLogCount > 0);
-                if(_logCount == _maxLogCount)
+                assert (_maxLogCount > 0);
+                if (_logCount == _maxLogCount)
                 {
                     //
                     // Need to remove the oldest log from the queue
                     //
-                    assert(_oldestLog != -1);
+                    assert (_oldestLog != -1);
                     _queue.remove(_oldestLog);
                     int qs = _queue.size();
 
-                    while(_oldestLog < qs && _queue.get(_oldestLog).type == LogMessageType.TraceMessage)
+                    while (_oldestLog < qs && _queue.get(_oldestLog).type == LogMessageType.TraceMessage)
                     {
                         _oldestLog++;
                     }
-                    assert(_oldestLog < qs); // remember: we just added a log message at end
+                    assert (_oldestLog < qs); // remember: we just added a log message at end
                 }
                 else
                 {
-                    assert(_logCount < _maxLogCount);
+                    assert (_logCount < _maxLogCount);
                     _logCount++;
-                    if(_oldestLog == -1)
+                    if (_oldestLog == -1)
                     {
                         _oldestLog = _queue.size() - 1;
                     }
@@ -242,26 +243,26 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
             }
             else
             {
-                assert(_maxTraceCount > 0);
-                if(_traceCount == _maxTraceCount)
+                assert (_maxTraceCount > 0);
+                if (_traceCount == _maxTraceCount)
                 {
                     //
                     // Need to remove the oldest trace from the queue
                     //
-                    assert(_oldestTrace != -1);
+                    assert (_oldestTrace != -1);
                     _queue.remove(_oldestTrace);
                     int qs = _queue.size();
-                    while(_oldestTrace < qs && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage)
+                    while (_oldestTrace < qs && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage)
                     {
                         _oldestTrace++;
                     }
-                    assert(_oldestTrace < qs); // remember: we just added a trace message at end
+                    assert (_oldestTrace < qs); // remember: we just added a trace message at end
                 }
                 else
                 {
-                    assert(_traceCount < _maxTraceCount);
+                    assert (_traceCount < _maxTraceCount);
                     _traceCount++;
-                    if(_oldestTrace == -1)
+                    if (_oldestTrace == -1)
                     {
                         _oldestTrace = _queue.size() - 1;
                     }
@@ -271,16 +272,16 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
             //
             // Queue updated, now find which remote loggers want this message
             //
-            for(RemoteLoggerData p : _remoteLoggerMap.values())
+            for (RemoteLoggerData p : _remoteLoggerMap.values())
             {
                 Filters filters = p.filters;
 
-                if(filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type))
+                if (filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type))
                 {
-                    if(logMessage.type != LogMessageType.TraceMessage || filters.traceCategories.isEmpty() ||
-                       filters.traceCategories.contains(logMessage.traceCategory))
+                    if (logMessage.type != LogMessageType.TraceMessage || filters.traceCategories.isEmpty() ||
+                        filters.traceCategories.contains(logMessage.traceCategory))
                     {
-                        if(remoteLoggers == null)
+                        if (remoteLoggers == null)
                         {
                             remoteLoggers = new java.util.ArrayList<>();
                         }
@@ -293,68 +294,71 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         return remoteLoggers;
     }
 
-    void deadRemoteLogger(RemoteLoggerPrx remoteLogger, com.zeroc.Ice.Logger logger,
-                          com.zeroc.Ice.LocalException ex, String operation)
+    void deadRemoteLogger(
+        RemoteLoggerPrx remoteLogger,
+        com.zeroc.Ice.Logger logger,
+        com.zeroc.Ice.LocalException ex,
+        String operation)
     {
         //
         // No need to convert remoteLogger as we only use its identity
         //
-        if(removeRemoteLogger(remoteLogger))
+        if (removeRemoteLogger(remoteLogger))
         {
-            if(_traceLevel > 0)
+            if (_traceLevel > 0)
             {
-                logger.trace(_traceCategory,  "detached `" + remoteLogger.toString() + "' because "
-                             + operation + " raised:\n" + ex.toString());
+                logger.trace(
+                    _traceCategory,
+                    "detached `" + remoteLogger.toString() + "' because " + operation + " raised:\n" + ex.toString());
             }
         }
     }
 
-    int getTraceLevel()
-    {
-        return _traceLevel;
-    }
+    int getTraceLevel() { return _traceLevel; }
 
     private synchronized boolean removeRemoteLogger(RemoteLoggerPrx remoteLogger)
     {
         return _remoteLoggerMap.remove(remoteLogger.ice_getIdentity()) != null;
     }
 
-    private static void filterLogMessages(java.util.List<LogMessage> logMessages,
-                                          java.util.Set<LogMessageType> messageTypes,
-                                          java.util.Set<String> traceCategories, int messageMax)
+    private static void filterLogMessages(
+        java.util.List<LogMessage> logMessages,
+        java.util.Set<LogMessageType> messageTypes,
+        java.util.Set<String> traceCategories,
+        int messageMax)
     {
-        assert(!logMessages.isEmpty() && messageMax != 0);
+        assert (!logMessages.isEmpty() && messageMax != 0);
 
         //
         // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
         // that match the other filters, if any.
         //
-        if(!messageTypes.isEmpty() || !traceCategories.isEmpty() || messageMax > 0)
+        if (!messageTypes.isEmpty() || !traceCategories.isEmpty() || messageMax > 0)
         {
             int count = 0;
             java.util.ListIterator<LogMessage> p = logMessages.listIterator(logMessages.size());
-            while(p.hasPrevious())
+            while (p.hasPrevious())
             {
                 boolean keepIt = false;
                 LogMessage msg = p.previous();
-                if(messageTypes.isEmpty() || messageTypes.contains(msg.type))
+                if (messageTypes.isEmpty() || messageTypes.contains(msg.type))
                 {
-                    if(msg.type != LogMessageType.TraceMessage || traceCategories.isEmpty() ||
-                       traceCategories.contains(msg.traceCategory))
+                    if (msg.type != LogMessageType.TraceMessage || traceCategories.isEmpty() ||
+                        traceCategories.contains(msg.traceCategory))
                     {
                         keepIt = true;
                     }
                 }
 
-                if(keepIt)
+                if (keepIt)
                 {
                     ++count;
-                    if(messageMax > 0 && count >= messageMax)
+                    if (messageMax > 0 && count >= messageMax)
                     {
-                        if(p.hasPrevious())
+                        if (p.hasPrevious())
                         {
                             int removeCount = p.previousIndex() + 1;
-                            for(int i = 0; i < removeCount; ++i)
+                            for (int i = 0; i < removeCount; ++i)
                             {
                                 logMessages.remove(0);
                             }
@@ -376,7 +380,7 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
     //
     private static RemoteLoggerPrx changeCommunicator(RemoteLoggerPrx prx, com.zeroc.Ice.Communicator communicator)
     {
-        if(prx == null)
+        if (prx == null)
         {
             return null;
         }
@@ -387,14 +391,14 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 
     private static void copyProperties(String prefix, com.zeroc.Ice.Properties from, com.zeroc.Ice.Properties to)
     {
-        for(java.util.Map.Entry<String, String> p : from.getPropertiesForPrefix(prefix).entrySet())
+        for (java.util.Map.Entry<String, String> p : from.getPropertiesForPrefix(prefix).entrySet())
         {
             to.setProperty(p.getKey(), p.getValue());
         }
     }
 
-    private static com.zeroc.Ice.Communicator createSendLogCommunicator(com.zeroc.Ice.Communicator communicator,
-                                                                        com.zeroc.Ice.Logger logger)
+    private static com.zeroc.Ice.Communicator
+    createSendLogCommunicator(com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.Logger logger)
     {
         com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.logger = logger;
@@ -408,12 +412,12 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 
         String[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
 
-        if(extraProps.length > 0)
+        if (extraProps.length > 0)
         {
-            for(int i = 0; i < extraProps.length; ++i)
+            for (int i = 0; i < extraProps.length; ++i)
             {
                 String p = extraProps[i];
-                if(!p.startsWith("--"))
+                if (!p.startsWith("--"))
                 {
                     extraProps[i] = "--" + p;
                 }

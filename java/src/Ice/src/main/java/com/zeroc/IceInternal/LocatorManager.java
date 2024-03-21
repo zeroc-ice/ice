@@ -8,26 +8,22 @@ public final class LocatorManager
 {
     static private final class LocatorKey implements Cloneable
     {
-        @Override
-        public boolean
-        equals(Object o)
+        @Override public boolean equals(Object o)
         {
-            assert(o instanceof LocatorKey);
+            assert (o instanceof LocatorKey);
             LocatorKey k = (LocatorKey)o;
-            if(!k._id.equals(_id))
+            if (!k._id.equals(_id))
             {
                 return false;
             }
-            if(!k._encoding.equals(_encoding))
+            if (!k._encoding.equals(_encoding))
             {
                 return false;
             }
             return true;
         }
 
-        @Override
-        public int
-        hashCode()
+        @Override public int hashCode()
         {
             int h = 5381;
             h = HashUtil.hashAdd(h, _id);
@@ -35,18 +31,16 @@ public final class LocatorManager
             return h;
         }
 
-        @Override
-        public LocatorKey
-        clone()
+        @Override public LocatorKey clone()
         {
             LocatorKey c = null;
             try
             {
                 c = (LocatorKey)super.clone();
             }
-            catch(CloneNotSupportedException ex)
+            catch (CloneNotSupportedException ex)
             {
-                    assert false; // impossible
+                assert false; // impossible
             }
             return c;
         }
@@ -68,10 +62,9 @@ public final class LocatorManager
         _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
     }
 
-    synchronized void
-    destroy()
+    synchronized void destroy()
     {
-        for(LocatorInfo info : _table.values())
+        for (LocatorInfo info : _table.values())
         {
             info.destroy();
         }
@@ -83,10 +76,9 @@ public final class LocatorManager
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    public LocatorInfo
-    get(com.zeroc.Ice.LocatorPrx loc)
+    public LocatorInfo get(com.zeroc.Ice.LocatorPrx loc)
     {
-        if(loc == null)
+        if (loc == null)
         {
             return null;
         }
@@ -100,10 +92,10 @@ public final class LocatorManager
         // TODO: reap unused locator info objects?
         //
 
-        synchronized(this)
+        synchronized (this)
         {
             LocatorInfo info = _table.get(locator);
-            if(info == null)
+            if (info == null)
             {
                 //
                 // Rely on locator identity for the adapter table. We want to
@@ -111,7 +103,7 @@ public final class LocatorManager
                 // proxy).
                 //
                 LocatorTable table = _locatorTables.get(_lookupKey.set(locator));
-                if(table == null)
+                if (table == null)
                 {
                     table = new LocatorTable();
                     _locatorTables.put(_lookupKey.clone(), table);

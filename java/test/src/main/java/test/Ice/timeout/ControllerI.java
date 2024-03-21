@@ -16,15 +16,14 @@ class ControllerI implements Controller
             _timeout = timeout;
         }
 
-        @Override
-        public void run()
+        @Override public void run()
         {
             _adapter.waitForHold();
             try
             {
                 sleep(_timeout);
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
             _adapter.activate();
@@ -34,33 +33,21 @@ class ControllerI implements Controller
         int _timeout;
     }
 
-    public ControllerI(com.zeroc.Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    public ControllerI(com.zeroc.Ice.ObjectAdapter adapter) { _adapter = adapter; }
 
-    @Override
-    public void holdAdapter(int to, com.zeroc.Ice.Current current)
+    @Override public void holdAdapter(int to, com.zeroc.Ice.Current current)
     {
         _adapter.hold();
-        if(to >= 0)
+        if (to >= 0)
         {
             Thread thread = new ActivateAdapterThread(_adapter, to);
             thread.start();
         }
     }
 
-    @Override
-    public void resumeAdapter(com.zeroc.Ice.Current current)
-    {
-        _adapter.activate();
-    }
+    @Override public void resumeAdapter(com.zeroc.Ice.Current current) { _adapter.activate(); }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 
     final com.zeroc.Ice.ObjectAdapter _adapter;
 }

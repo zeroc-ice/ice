@@ -6,21 +6,13 @@ package com.zeroc.IceInternal;
 
 public class ProcessI implements com.zeroc.Ice.Process
 {
-    public ProcessI(com.zeroc.Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public ProcessI(com.zeroc.Ice.Communicator communicator) { _communicator = communicator; }
 
-    @Override
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        _communicator.shutdown();
-    }
+    @Override public void shutdown(com.zeroc.Ice.Current current) { _communicator.shutdown(); }
 
-    @Override
-    public void writeMessage(String message, int fd, com.zeroc.Ice.Current current)
+    @Override public void writeMessage(String message, int fd, com.zeroc.Ice.Current current)
     {
-        switch(fd)
+        switch (fd)
         {
             case 1:
             {

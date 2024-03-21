@@ -4,10 +4,10 @@
 
 package com.zeroc.IceBT;
 
-import com.zeroc.IceInternal.ProtocolPluginFacade;
 import com.zeroc.Ice.BTEndpointType;
 import com.zeroc.Ice.BTSEndpointType;
 import com.zeroc.Ice.SSLEndpointType;
+import com.zeroc.IceInternal.ProtocolPluginFacade;
 import com.zeroc.IceInternal.UnderlyingEndpointFactory;
 
 class PluginI implements com.zeroc.Ice.Plugin
@@ -28,13 +28,7 @@ class PluginI implements com.zeroc.Ice.Plugin
         f.addEndpointFactory(new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
     }
 
-    @Override
-    public void initialize()
-    {
-    }
+    @Override public void initialize() {}
 
-    @Override
-    public void destroy()
-    {
-    }
+    @Override public void destroy() {}
 }

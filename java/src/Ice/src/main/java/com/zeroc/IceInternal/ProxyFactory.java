@@ -8,17 +8,15 @@ import com.zeroc.Ice.OperationInterruptedException;
 
 public final class ProxyFactory
 {
-    public com.zeroc.Ice.ObjectPrx
-    stringToProxy(String str)
+    public com.zeroc.Ice.ObjectPrx stringToProxy(String str)
     {
         Reference ref = _instance.referenceFactory().create(str, null);
         return referenceToProxy(ref);
     }
 
-    public String
-    proxyToString(com.zeroc.Ice.ObjectPrx proxy)
+    public String proxyToString(com.zeroc.Ice.ObjectPrx proxy)
     {
-        if(proxy != null)
+        if (proxy != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)proxy;
             return h._getReference().toString();
@@ -29,18 +27,16 @@ public final class ProxyFactory
         }
     }
 
-    public com.zeroc.Ice.ObjectPrx
-    propertyToProxy(String prefix)
+    public com.zeroc.Ice.ObjectPrx propertyToProxy(String prefix)
     {
         String proxy = _instance.initializationData().properties.getProperty(prefix);
         Reference ref = _instance.referenceFactory().create(proxy, prefix);
         return referenceToProxy(ref);
     }
 
-    public java.util.Map<String, String>
-    proxyToProperty(com.zeroc.Ice.ObjectPrx proxy, String prefix)
+    public java.util.Map<String, String> proxyToProperty(com.zeroc.Ice.ObjectPrx proxy, String prefix)
     {
-        if(proxy != null)
+        if (proxy != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)proxy;
             return h._getReference().toProperty(prefix);
@@ -51,18 +47,16 @@ public final class ProxyFactory
         }
     }
 
-    public com.zeroc.Ice.ObjectPrx
-    streamToProxy(com.zeroc.Ice.InputStream s)
+    public com.zeroc.Ice.ObjectPrx streamToProxy(com.zeroc.Ice.InputStream s)
     {
         com.zeroc.Ice.Identity ident = com.zeroc.Ice.Identity.ice_read(s);
         Reference ref = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(ref);
     }
 
-    public com.zeroc.Ice.ObjectPrx
-    referenceToProxy(Reference ref)
+    public com.zeroc.Ice.ObjectPrx referenceToProxy(Reference ref)
     {
-        if(ref != null)
+        if (ref != null)
         {
             com.zeroc.Ice._ObjectPrxI proxy = new com.zeroc.Ice._ObjectPrxI();
             proxy._setup(ref);
@@ -85,7 +79,7 @@ public final class ProxyFactory
         // all the requests batched with the connection to be aborted and we
         // want the application to be notified.
         //
-        if(ref.getMode() == Reference.ModeBatchOneway || ref.getMode() == Reference.ModeBatchDatagram)
+        if (ref.getMode() == Reference.ModeBatchOneway || ref.getMode() == Reference.ModeBatchDatagram)
         {
             throw ex;
         }
@@ -99,11 +93,11 @@ public final class ProxyFactory
             throw ex;
         }
 
-        if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
+        if (ex instanceof com.zeroc.Ice.ObjectNotExistException)
         {
             com.zeroc.Ice.ObjectNotExistException one = (com.zeroc.Ice.ObjectNotExistException)ex;
 
-            if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
+            if (ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
             {
                 //
                 // If we have a router, an ObjectNotExistException with an
@@ -116,29 +110,29 @@ public final class ProxyFactory
 
                 ref.getRouterInfo().clearCache(ref);
 
-                if(traceLevels.retry >= 1)
+                if (traceLevels.retry >= 1)
                 {
                     String s = "retrying operation call to add proxy to router\n" + ex.toString();
                     logger.trace(traceLevels.retryCat, s);
                 }
 
-                if(sleepInterval != null)
+                if (sleepInterval != null)
                 {
                     sleepInterval.value = 0;
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
             }
-            else if(ref.isIndirect())
+            else if (ref.isIndirect())
             {
                 //
                 // We retry ObjectNotExistException if the reference is
                 // indirect.
                 //
 
-                if(ref.isWellKnown())
+                if (ref.isWellKnown())
                 {
                     LocatorInfo li = ref.getLocatorInfo();
-                    if(li != null)
+                    if (li != null)
                     {
                         li.clearCache(ref);
                     }
@@ -152,7 +146,7 @@ public final class ProxyFactory
                 throw ex;
             }
         }
-        else if(ex instanceof com.zeroc.Ice.RequestFailedException)
+        else if (ex instanceof com.zeroc.Ice.RequestFailedException)
         {
             //
             // For all other cases, we don't retry ObjectNotExistException
@@ -182,7 +176,7 @@ public final class ProxyFactory
         // the client that all of the batched requests were accepted, when
         // in reality only the last few are actually sent.
         //
-        if(ex instanceof com.zeroc.Ice.MarshalException)
+        if (ex instanceof com.zeroc.Ice.MarshalException)
         {
             throw ex;
         }
@@ -191,9 +185,9 @@ public final class ProxyFactory
         // Don't retry if the communicator is destroyed, object adapter is deactivated,
         // or connection is manually closed.
         //
-        if(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException ||
-           ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException ||
-           ex instanceof com.zeroc.Ice.ConnectionManuallyClosedException)
+        if (ex instanceof com.zeroc.Ice.CommunicatorDestroyedException ||
+            ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException ||
+            ex instanceof com.zeroc.Ice.ConnectionManuallyClosedException)
         {
             throw ex;
         }
@@ -201,8 +195,8 @@ public final class ProxyFactory
         //
         // Don't retry invocation timeouts.
         //
-        if(ex instanceof com.zeroc.Ice.InvocationTimeoutException ||
-           ex instanceof com.zeroc.Ice.InvocationCanceledException)
+        if (ex instanceof com.zeroc.Ice.InvocationTimeoutException || ex instanceof
+                                                                          com.zeroc.Ice.InvocationCanceledException)
         {
             throw ex;
         }
@@ -210,16 +204,16 @@ public final class ProxyFactory
         //
         // Don't retry on OperationInterruptedException.
         //
-        if(ex instanceof OperationInterruptedException)
+        if (ex instanceof OperationInterruptedException)
         {
             throw ex;
         }
 
         ++cnt;
-        assert(cnt > 0);
+        assert (cnt > 0);
 
         int interval;
-        if(cnt == (_retryIntervals.length + 1) && ex instanceof com.zeroc.Ice.CloseConnectionException)
+        if (cnt == (_retryIntervals.length + 1) && ex instanceof com.zeroc.Ice.CloseConnectionException)
         {
             //
             // A close connection exception is always retried at least once, even if the retry
@@ -227,9 +221,9 @@ public final class ProxyFactory
             //
             interval = 0;
         }
-        else if(cnt > _retryIntervals.length)
+        else if (cnt > _retryIntervals.length)
         {
-            if(traceLevels.retry >= 1)
+            if (traceLevels.retry >= 1)
             {
                 String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
                 logger.trace(traceLevels.retryCat, s);
@@ -241,10 +235,10 @@ public final class ProxyFactory
             interval = _retryIntervals[cnt - 1];
         }
 
-        if(traceLevels.retry >= 1)
+        if (traceLevels.retry >= 1)
         {
             String s = "retrying operation call";
-            if(interval > 0)
+            if (interval > 0)
             {
                 s += " in " + interval + "ms";
             }
@@ -265,11 +259,11 @@ public final class ProxyFactory
 
         String[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
-        if(arr.length > 0)
+        if (arr.length > 0)
         {
             _retryIntervals = new int[arr.length];
 
-            for(int i = 0; i < arr.length; i++)
+            for (int i = 0; i < arr.length; i++)
             {
                 int v;
 
@@ -277,7 +271,7 @@ public final class ProxyFactory
                 {
                     v = Integer.parseInt(arr[i]);
                 }
-                catch(NumberFormatException ex)
+                catch (NumberFormatException ex)
                 {
                     v = 0;
                 }
@@ -285,7 +279,7 @@ public final class ProxyFactory
                 //
                 // If -1 is the first value, no retry and wait intervals.
                 //
-                if(i == 0 && v == -1)
+                if (i == 0 && v == -1)
                 {
                     _retryIntervals = new int[0];
                     break;

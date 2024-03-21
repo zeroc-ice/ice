@@ -9,8 +9,7 @@ package com.zeroc.IceInternal;
 //
 public interface ProxyOutgoingAsyncBase extends OutgoingAsyncBase
 {
-    int invokeRemote(com.zeroc.Ice.ConnectionI con, boolean compress, boolean response)
-        throws RetryException;
+    int invokeRemote(com.zeroc.Ice.ConnectionI con, boolean compress, boolean response) throws RetryException;
 
     int invokeCollocated(CollocatedRequestHandler handler);
 

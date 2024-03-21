@@ -26,7 +26,7 @@ final public class Protocol
     //
     // The magic number at the front of each message
     //
-    public final static byte magic[] = { 0x49, 0x63, 0x65, 0x50 };      // 'I', 'c', 'e', 'P'
+    public final static byte magic[] = {0x49, 0x63, 0x65, 0x50}; // 'I', 'c', 'e', 'P'
 
     //
     // The current Ice protocol and encoding version
@@ -48,8 +48,7 @@ final public class Protocol
     public final static byte validateConnectionMsg = 3;
     public final static byte closeConnectionMsg = 4;
 
-    public final static byte[] requestHdr =
-    {
+    public final static byte[] requestHdr = {
         Protocol.magic[0],
         Protocol.magic[1],
         Protocol.magic[2],
@@ -60,12 +59,17 @@ final public class Protocol
         Protocol.protocolEncodingMinor,
         Protocol.requestMsg,
         (byte)0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
+        (byte)0,
+        (byte)0,
+        (byte)0,
+        (byte)0, // Message size (placeholder).
+        (byte)0,
+        (byte)0,
+        (byte)0,
+        (byte)0 // Request ID (placeholder).
     };
 
-    public final static byte[] requestBatchHdr =
-    {
+    public final static byte[] requestBatchHdr = {
         Protocol.magic[0],
         Protocol.magic[1],
         Protocol.magic[2],
@@ -76,12 +80,17 @@ final public class Protocol
         Protocol.protocolEncodingMinor,
         Protocol.requestBatchMsg,
         0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-        (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
+        (byte)0,
+        (byte)0,
+        (byte)0,
+        (byte)0, // Message size (placeholder).
+        (byte)0,
+        (byte)0,
+        (byte)0,
+        (byte)0 // Number of requests in batch (placeholder).
     };
 
-    public final static byte[] replyHdr =
-    {
+    public final static byte[] replyHdr = {
         Protocol.magic[0],
         Protocol.magic[1],
         Protocol.magic[2],
@@ -92,37 +101,37 @@ final public class Protocol
         Protocol.protocolEncodingMinor,
         Protocol.replyMsg,
         (byte)0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
+        (byte)0,
+        (byte)0,
+        (byte)0,
+        (byte)0 // Message size (placeholder).
     };
 
     static final public ProtocolVersion currentProtocol = new ProtocolVersion(protocolMajor, protocolMinor);
-    static final public EncodingVersion currentProtocolEncoding = new EncodingVersion(protocolEncodingMajor,
-                                                                                      protocolEncodingMinor);
+    static final public EncodingVersion currentProtocolEncoding =
+        new EncodingVersion(protocolEncodingMajor, protocolEncodingMinor);
 
     static final public EncodingVersion currentEncoding = new EncodingVersion(encodingMajor, encodingMinor);
 
-    static public void
-    checkSupportedProtocol(ProtocolVersion v)
+    static public void checkSupportedProtocol(ProtocolVersion v)
     {
-        if(v.major != currentProtocol.major || v.minor > currentProtocol.minor)
+        if (v.major != currentProtocol.major || v.minor > currentProtocol.minor)
         {
             throw new com.zeroc.Ice.UnsupportedProtocolException("", v, currentProtocol);
         }
     }
 
-    static public void
-    checkSupportedProtocolEncoding(EncodingVersion v)
+    static public void checkSupportedProtocolEncoding(EncodingVersion v)
     {
-        if(v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor)
+        if (v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor)
         {
             throw new com.zeroc.Ice.UnsupportedEncodingException("", v, currentProtocolEncoding);
         }
     }
 
-    static public void
-    checkSupportedEncoding(EncodingVersion v)
+    static public void checkSupportedEncoding(EncodingVersion v)
     {
-        if(v.major != currentEncoding.major || v.minor > currentEncoding.minor)
+        if (v.major != currentEncoding.major || v.minor > currentEncoding.minor)
         {
             throw new com.zeroc.Ice.UnsupportedEncodingException("", v, currentEncoding);
         }
@@ -132,14 +141,13 @@ final public class Protocol
     // Either return the given protocol if not compatible, or the greatest
     // supported protocol otherwise.
     //
-    static public ProtocolVersion
-    getCompatibleProtocol(ProtocolVersion v)
+    static public ProtocolVersion getCompatibleProtocol(ProtocolVersion v)
     {
-        if(v.major != currentProtocol.major)
+        if (v.major != currentProtocol.major)
         {
             return v; // Unsupported protocol, return as is.
         }
-        else if(v.minor < currentProtocol.minor)
+        else if (v.minor < currentProtocol.minor)
         {
             return v; // Supported protocol.
         }
@@ -157,14 +165,13 @@ final public class Protocol
     // Either return the given encoding if not compatible, or the greatest
     // supported encoding otherwise.
     //
-    static public EncodingVersion
-    getCompatibleEncoding(EncodingVersion v)
+    static public EncodingVersion getCompatibleEncoding(EncodingVersion v)
     {
-        if(v.major != currentEncoding.major)
+        if (v.major != currentEncoding.major)
         {
             return v; // Unsupported encoding, return as is.
         }
-        else if(v.minor < currentEncoding.minor)
+        else if (v.minor < currentEncoding.minor)
         {
             return v; // Supported encoding.
         }
@@ -178,19 +185,18 @@ final public class Protocol
         }
     }
 
-    static public boolean
-    isSupported(EncodingVersion version, EncodingVersion supported)
+    static public boolean isSupported(EncodingVersion version, EncodingVersion supported)
     {
         return version.major == supported.major && version.minor <= supported.minor;
     }
 
-    public static final int OPTIONAL_END_MARKER            = 0xFF;
+    public static final int OPTIONAL_END_MARKER = 0xFF;
 
-    public static final byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
-    public static final byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
-    public static final byte FLAG_HAS_TYPE_ID_COMPACT      = (byte)(1<<1 | 1<<0);
-    public static final byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
-    public static final byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
-    public static final byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
-    public static final byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
+    public static final byte FLAG_HAS_TYPE_ID_STRING = (byte)(1 << 0);
+    public static final byte FLAG_HAS_TYPE_ID_INDEX = (byte)(1 << 1);
+    public static final byte FLAG_HAS_TYPE_ID_COMPACT = (byte)(1 << 1 | 1 << 0);
+    public static final byte FLAG_HAS_OPTIONAL_MEMBERS = (byte)(1 << 2);
+    public static final byte FLAG_HAS_INDIRECTION_TABLE = (byte)(1 << 3);
+    public static final byte FLAG_HAS_SLICE_SIZE = (byte)(1 << 4);
+    public static final byte FLAG_IS_LAST_SLICE = (byte)(1 << 5);
 }

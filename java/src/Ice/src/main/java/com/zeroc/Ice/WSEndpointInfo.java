@@ -37,10 +37,7 @@ public abstract class WSEndpointInfo extends EndpointInfo
      **/
     public String resource;
 
-    public WSEndpointInfo clone()
-    {
-        return (WSEndpointInfo)super.clone();
-    }
+    public WSEndpointInfo clone() { return (WSEndpointInfo)super.clone(); }
 
     /** @hidden */
     public static final long serialVersionUID = 6685502615474659064L;

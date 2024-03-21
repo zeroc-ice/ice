@@ -4,13 +4,12 @@
 
 package test.Ice.dispatcher;
 
-public class Dispatcher implements Runnable,
-                        java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection>,
-                        java.util.concurrent.Executor
+public class Dispatcher implements Runnable, java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection>,
+                                   java.util.concurrent.Executor
 {
     private static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }
@@ -22,43 +21,42 @@ public class Dispatcher implements Runnable,
         _thread.start();
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
-        while(true)
+        while (true)
         {
             Runnable call = null;
-            synchronized(this)
+            synchronized (this)
             {
-                if(!_terminated && _calls.isEmpty())
+                if (!_terminated && _calls.isEmpty())
                 {
                     try
                     {
                         wait();
                     }
-                    catch(java.lang.InterruptedException ex)
+                    catch (java.lang.InterruptedException ex)
                     {
                     }
                 }
 
-                if(!_calls.isEmpty())
+                if (!_calls.isEmpty())
                 {
                     call = _calls.poll();
                 }
-                else if(_terminated)
+                else if (_terminated)
                 {
                     // Terminate only once all calls are dispatched.
                     return;
                 }
             }
 
-            if(call != null)
+            if (call != null)
             {
                 try
                 {
                     call.run();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Exceptions should never propagate here.
                     ex.printStackTrace();
@@ -68,47 +66,39 @@ public class Dispatcher implements Runnable,
         }
     }
 
-    @Override
-    synchronized public void accept(Runnable call, com.zeroc.Ice.Connection con)
+    @Override synchronized public void accept(Runnable call, com.zeroc.Ice.Connection con)
     {
         boolean added = _calls.offer(call);
-        assert(added);
-        if(_calls.size() == 1)
+        assert (added);
+        if (_calls.size() == 1)
         {
             notify();
         }
     }
 
-    @Override
-    public void execute(Runnable call)
-    {
-        accept(call, null);
-    }
+    @Override public void execute(Runnable call) { accept(call, null); }
 
     public void terminate()
     {
-        synchronized(this)
+        synchronized (this)
         {
             _terminated = true;
             notify();
         }
-        while(true)
+        while (true)
         {
             try
             {
                 _thread.join();
                 break;
             }
-            catch(java.lang.InterruptedException ex)
+            catch (java.lang.InterruptedException ex)
             {
             }
         }
     }
 
-    public boolean isDispatcherThread()
-    {
-        return Thread.currentThread() == _thread;
-    }
+    public boolean isDispatcherThread() { return Thread.currentThread() == _thread; }
 
     private java.util.Queue<Runnable> _calls = new java.util.LinkedList<>();
     private Thread _thread;

@@ -12,11 +12,11 @@ public class Client extends test.TestHelper
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            boolean withDeploy =  Stream.of(args).anyMatch(v -> v.equals("--with-deploy"));
+            boolean withDeploy = Stream.of(args).anyMatch(v -> v.equals("--with-deploy"));
 
-            if(!withDeploy)
+            if (!withDeploy)
             {
                 AllTests.allTests(this);
             }

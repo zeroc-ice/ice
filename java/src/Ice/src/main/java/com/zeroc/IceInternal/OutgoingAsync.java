@@ -5,24 +5,27 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.FormatType;
-import com.zeroc.Ice._ObjectPrxI;
 import com.zeroc.Ice.OperationInterruptedException;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OutputStream;
-import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownUserException;
+import com.zeroc.Ice.UserException;
+import com.zeroc.Ice._ObjectPrxI;
 
 public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
 {
     @FunctionalInterface
-    static public interface Unmarshaler<V>
-    {
+    static public interface Unmarshaler<V> {
         V unmarshal(com.zeroc.Ice.InputStream istr);
     }
 
-    public OutgoingAsync(com.zeroc.Ice.ObjectPrx prx, String operation, OperationMode mode, boolean synchronous,
-                         Class<?>[] userExceptions)
+    public OutgoingAsync(
+        com.zeroc.Ice.ObjectPrx prx,
+        String operation,
+        OperationMode mode,
+        boolean synchronous,
+        Class<?>[] userExceptions)
     {
         super((_ObjectPrxI)prx, operation, null);
         _mode = mode == null ? OperationMode.Normal : mode;
@@ -30,32 +33,36 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         _userExceptions = userExceptions;
         _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
 
-        if(_instance.cacheMessageBuffers() > 0)
+        if (_instance.cacheMessageBuffers() > 0)
         {
             _ObjectPrxI.StreamPair p = _proxy._getCachedMessageBuffers();
-            if(p != null)
+            if (p != null)
             {
                 _is = p.is;
                 _os = p.os;
             }
         }
-        if(_os == null)
+        if (_os == null)
         {
             _os = new com.zeroc.Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
         }
     }
 
-    public void invoke(boolean twowayOnly, java.util.Map<String, String> ctx, FormatType format,
-                       OutputStream.Marshaler marshal, Unmarshaler<T> unmarshal)
+    public void invoke(
+        boolean twowayOnly,
+        java.util.Map<String, String> ctx,
+        FormatType format,
+        OutputStream.Marshaler marshal,
+        Unmarshaler<T> unmarshal)
     {
         _unmarshal = unmarshal;
 
-        if(twowayOnly && !_proxy.ice_isTwoway())
+        if (twowayOnly && !_proxy.ice_isTwoway())
         {
             throw new com.zeroc.Ice.TwowayOnlyException(_operation);
         }
 
-        if(format == null)
+        if (format == null)
         {
             format = FormatType.DefaultFormat;
         }
@@ -64,7 +71,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         {
             prepare(ctx);
 
-            if(marshal == null)
+            if (marshal == null)
             {
                 writeEmptyParams();
             }
@@ -74,7 +81,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                 endWriteParams();
             }
 
-            if(isBatch())
+            if (isBatch())
             {
                 //
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
@@ -93,16 +100,15 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                 invokeImpl(true); // userThread = true
             }
         }
-        catch(com.zeroc.Ice.Exception ex)
+        catch (com.zeroc.Ice.Exception ex)
         {
             abort(ex);
         }
     }
 
-    @Override
-    public T waitForResponse()
+    @Override public T waitForResponse()
     {
-        if(isBatch())
+        if (isBatch())
         {
             return null; // The future will not be completed for a batch invocation.
         }
@@ -111,16 +117,15 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         {
             return waitForResponseOrUserEx();
         }
-        catch(UserException ex)
+        catch (UserException ex)
         {
             throw new UnknownUserException(ex.ice_id(), ex);
         }
     }
 
-    public T waitForResponseOrUserEx()
-        throws UserException
+    public T waitForResponseOrUserEx() throws UserException
     {
-        if(Thread.interrupted())
+        if (Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
@@ -129,33 +134,32 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         {
             return get();
         }
-        catch(InterruptedException ex)
+        catch (InterruptedException ex)
         {
             throw new OperationInterruptedException(ex);
         }
-        catch(java.util.concurrent.ExecutionException ee)
+        catch (java.util.concurrent.ExecutionException ee)
         {
             try
             {
                 throw ee.getCause().fillInStackTrace();
             }
-            catch(RuntimeException ex) // Includes LocalException
+            catch (RuntimeException ex) // Includes LocalException
             {
                 throw ex;
             }
-            catch(UserException ex)
+            catch (UserException ex)
             {
                 throw ex;
             }
-            catch(Throwable ex)
+            catch (Throwable ex)
             {
                 throw new UnknownException(ex);
             }
         }
     }
 
-    @Override
-    public boolean sent()
+    @Override public boolean sent()
     {
         return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
     }
@@ -168,11 +172,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
 
-    @Override
-    public int invokeCollocated(CollocatedRequestHandler handler)
+    @Override public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
+        if (!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -180,10 +183,9 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         return handler.invokeAsyncRequest(this, 0, _synchronous);
     }
 
-    @Override
-    public void abort(com.zeroc.Ice.Exception ex)
+    @Override public void abort(com.zeroc.Ice.Exception ex)
     {
-        if(isBatch())
+        if (isBatch())
         {
             //
             // If we didn't finish a batch oneway or datagram request, we
@@ -196,24 +198,23 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         super.abort(ex);
     }
 
-    @Override
-    protected void markCompleted()
+    @Override protected void markCompleted()
     {
         try
         {
-            if(!_proxy.ice_isTwoway())
+            if (!_proxy.ice_isTwoway())
             {
                 //
                 // For a non-twoway proxy, the invocation is completed after it is sent.
                 //
                 complete(null);
             }
-            else if((_state & StateOK) > 0)
+            else if ((_state & StateOK) > 0)
             {
                 T r = null;
                 try
                 {
-                    if(_unmarshal != null)
+                    if (_unmarshal != null)
                     {
                         //
                         // The Unmarshaler callback unmarshals and returns the results.
@@ -226,7 +227,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                         readEmptyParams();
                     }
                 }
-                catch(com.zeroc.Ice.LocalException ex)
+                catch (com.zeroc.Ice.LocalException ex)
                 {
                     completeExceptionally(ex);
                     return;
@@ -242,13 +243,13 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                 {
                     throwUserException();
                 }
-                catch(UserException ex)
+                catch (UserException ex)
                 {
-                    if(_userExceptions != null)
+                    if (_userExceptions != null)
                     {
-                        for(int i = 0; i < _userExceptions.length; ++i)
+                        for (int i = 0; i < _userExceptions.length; ++i)
                         {
-                            if(_userExceptions[i].isInstance(ex))
+                            if (_userExceptions[i].isInstance(ex))
                             {
                                 completeExceptionally(ex);
                                 return;
@@ -257,7 +258,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                     }
                     completeExceptionally(new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex));
                 }
-                catch(Throwable ex)
+                catch (Throwable ex)
                 {
                     completeExceptionally(ex);
                 }
@@ -269,8 +270,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         }
     }
 
-    @Override
-    public final boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public final boolean completed(com.zeroc.Ice.InputStream is)
     {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
@@ -279,7 +279,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         //
 
         // _is can already be initialized if the invocation is retried
-        if(_is == null)
+        if (_is == null)
         {
             _is = new com.zeroc.Ice.InputStream(_instance, Protocol.currentProtocolEncoding);
         }
@@ -294,15 +294,9 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         return _os;
     }
 
-    private void endWriteParams()
-    {
-        _os.endEncapsulation();
-    }
+    private void endWriteParams() { _os.endEncapsulation(); }
 
-    private void writeEmptyParams()
-    {
-        _os.writeEmptyEncapsulation(_encoding);
-    }
+    private void writeEmptyParams() { _os.writeEmptyEncapsulation(_encoding); }
 
     private com.zeroc.Ice.InputStream startReadParams()
     {
@@ -310,46 +304,38 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         return _is;
     }
 
-    private void endReadParams()
-    {
-        _is.endEncapsulation();
-    }
+    private void endReadParams() { _is.endEncapsulation(); }
 
-    private void readEmptyParams()
-    {
-        _is.skipEmptyEncapsulation();
-    }
+    private void readEmptyParams() { _is.skipEmptyEncapsulation(); }
 
-    private final void throwUserException()
-        throws com.zeroc.Ice.UserException
+    private final void throwUserException() throws com.zeroc.Ice.UserException
     {
         try
         {
             _is.startEncapsulation();
             _is.throwException(null);
         }
-        catch(com.zeroc.Ice.UserException ex)
+        catch (com.zeroc.Ice.UserException ex)
         {
             _is.endEncapsulation();
             throw ex;
         }
     }
 
-    @Override
-    protected void cacheMessageBuffers()
+    @Override protected void cacheMessageBuffers()
     {
-        if(_instance.cacheMessageBuffers() > 0)
+        if (_instance.cacheMessageBuffers() > 0)
         {
-            synchronized(this)
+            synchronized (this)
             {
-                if((_state & StateCachedBuffers) > 0)
+                if ((_state & StateCachedBuffers) > 0)
                 {
                     return;
                 }
                 _state |= StateCachedBuffers;
             }
 
-            if(_is != null)
+            if (_is != null)
             {
                 _is.reset();
             }

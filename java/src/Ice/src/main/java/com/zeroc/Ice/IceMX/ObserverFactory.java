@@ -8,8 +8,7 @@ import com.zeroc.IceInternal.MetricsMap;
 
 public class ObserverFactory<T extends Metrics, O extends Observer<T>>
 {
-    public
-    ObserverFactory(com.zeroc.IceInternal.MetricsAdminI metrics, String name, Class<T> cl)
+    public ObserverFactory(com.zeroc.IceInternal.MetricsAdminI metrics, String name, Class<T> cl)
     {
         _metrics = metrics;
         _name = name;
@@ -17,40 +16,34 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         _metrics.registerMap(name, _class, () -> { update(); });
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
-        if(_metrics != null)
+        if (_metrics != null)
         {
             _metrics.unregisterMap(_name);
         }
     }
 
-    public O
-    getObserver(MetricsHelper<T> helper, Class<O> cl)
-    {
-        return getObserver(helper, null, cl);
-    }
+    public O getObserver(MetricsHelper<T> helper, Class<O> cl) { return getObserver(helper, null, cl); }
 
     @SuppressWarnings("unchecked")
-    public synchronized O
-    getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl)
+    public synchronized O getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl)
     {
         O old = null;
         try
         {
             old = (O)observer;
         }
-        catch(ClassCastException ex)
+        catch (ClassCastException ex)
         {
         }
         java.util.List<MetricsMap<T>.Entry> metricsObjects = null;
-        for(MetricsMap<T> m : _maps)
+        for (MetricsMap<T> m : _maps)
         {
             MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
-            if(e != null)
+            if (e != null)
             {
-                if(metricsObjects == null)
+                if (metricsObjects == null)
                 {
                     metricsObjects = new java.util.ArrayList<>(_maps.size());
                 }
@@ -58,9 +51,9 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
             }
         }
 
-        if(metricsObjects == null)
+        if (metricsObjects == null)
         {
-            if(old != null)
+            if (old != null)
             {
                 old.detach();
             }
@@ -72,9 +65,9 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         {
             obsv = cl.getDeclaredConstructor().newInstance();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            assert(false);
+            assert (false);
             return null;
         }
         obsv.init(helper, metricsObjects, old);
@@ -87,20 +80,15 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         _metrics.registerSubMap(_name, subMap, cl, field);
     }
 
-    public boolean
-    isEnabled()
-    {
-        return _enabled;
-    }
+    public boolean isEnabled() { return _enabled; }
 
-    public void
-    update()
+    public void update()
     {
         Runnable updater;
-        synchronized(this)
+        synchronized (this)
         {
             _maps.clear();
-            for(MetricsMap<T> m : _metrics.getMaps(_name, _class))
+            for (MetricsMap<T> m : _metrics.getMaps(_name, _class))
             {
                 _maps.add(m);
             }
@@ -108,17 +96,13 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
             updater = _updater;
         }
 
-        if(updater != null)
+        if (updater != null)
         {
             updater.run();
         }
     }
 
-    public synchronized void
-    setUpdater(Runnable updater)
-    {
-        _updater = updater;
-    }
+    public synchronized void setUpdater(Runnable updater) { _updater = updater; }
 
     private final com.zeroc.IceInternal.MetricsAdminI _metrics;
     private final String _name;

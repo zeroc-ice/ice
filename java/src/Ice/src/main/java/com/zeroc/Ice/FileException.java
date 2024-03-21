@@ -44,10 +44,7 @@ public class FileException extends SyscallException
         this.path = path;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::FileException";
-    }
+    public String ice_id() { return "::Ice::FileException"; }
 
     /**
      * The path of the file responsible for the error.

@@ -17,9 +17,9 @@ public class Server extends test.TestHelper
 
         {
             String endpoint;
-            if(properties.getProperty("Ice.IPv6").equals("1"))
+            if (properties.getProperty("Ice.IPv6").equals("1"))
             {
-                if(System.getProperty("os.name").contains("OS X"))
+                if (System.getProperty("os.name").contains("OS X"))
                 {
                     endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
                 }
@@ -35,7 +35,7 @@ public class Server extends test.TestHelper
             properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        try (com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             int num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 0;
 
@@ -44,7 +44,7 @@ public class Server extends test.TestHelper
             adapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("control"));
             adapter.activate();
 
-            if(num == 0)
+            if (num == 0)
             {
                 properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                 com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
@@ -53,12 +53,12 @@ public class Server extends test.TestHelper
             }
 
             StringBuilder endpoint = new StringBuilder();
-            if(properties.getProperty("Ice.IPv6").equals("1"))
+            if (properties.getProperty("Ice.IPv6").equals("1"))
             {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
-                if(System.getProperty("os.name").contains("OS X") ||
-                   System.getProperty("os.name").startsWith("Windows"))
+                if (System.getProperty("os.name").contains("OS X") ||
+                    System.getProperty("os.name").startsWith("Windows"))
                 {
                     endpoint.append(" --interface \"::1\""); // Use loopback to prevent other machines to answer.
                 }
@@ -67,8 +67,8 @@ public class Server extends test.TestHelper
             {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
-                if(System.getProperty("os.name").contains("OS X") ||
-                   System.getProperty("os.name").startsWith("Windows"))
+                if (System.getProperty("os.name").contains("OS X") ||
+                    System.getProperty("os.name").startsWith("Windows"))
                 {
                     endpoint.append(" --interface 127.0.0.1"); // Use loopback to prevent other machines to answer.
                 }

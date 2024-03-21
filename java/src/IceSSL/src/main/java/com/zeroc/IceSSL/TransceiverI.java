@@ -4,42 +4,36 @@
 
 package com.zeroc.IceSSL;
 
+import com.zeroc.IceInternal.SocketOperation;
 import java.nio.*;
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
-import com.zeroc.IceInternal.SocketOperation;
 
 final class TransceiverI implements com.zeroc.IceInternal.Transceiver
 {
-    @Override
-    public java.nio.channels.SelectableChannel fd()
-    {
-        return _delegate.fd();
-    }
+    @Override public java.nio.channels.SelectableChannel fd() { return _delegate.fd(); }
 
-    @Override
-    public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
+    @Override public void setReadyCallback(com.zeroc.IceInternal.ReadyCallback callback)
     {
         _readyCallback = callback;
         _delegate.setReadyCallback(callback);
     }
 
-    @Override
-    public int initialize(com.zeroc.IceInternal.Buffer readBuffer, com.zeroc.IceInternal.Buffer writeBuffer)
+    @Override public int initialize(com.zeroc.IceInternal.Buffer readBuffer, com.zeroc.IceInternal.Buffer writeBuffer)
     {
-        if(!_isConnected)
+        if (!_isConnected)
         {
             int status = _delegate.initialize(readBuffer, writeBuffer);
-            if(status != SocketOperation.None)
+            if (status != SocketOperation.None)
             {
                 return status;
             }
             _isConnected = true;
 
             com.zeroc.Ice.IPConnectionInfo ipInfo = null;
-            for(com.zeroc.Ice.ConnectionInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (com.zeroc.Ice.ConnectionInfo p = _delegate.getInfo(); p != null; p = p.underlying)
             {
-                if(p instanceof com.zeroc.Ice.IPConnectionInfo)
+                if (p instanceof com.zeroc.Ice.IPConnectionInfo)
                 {
                     ipInfo = (com.zeroc.Ice.IPConnectionInfo)p;
                 }
@@ -52,19 +46,19 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             // Require BIG_ENDIAN byte buffers. This is needed for Android >= 8.0 which can read
             // the SSL messages directly with these buffers.
             int bufSize = _engine.getSession().getPacketBufferSize() * 2;
-            _netInput = new com.zeroc.IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2),
-                                                         java.nio.ByteOrder.BIG_ENDIAN);
-            _netOutput = new com.zeroc.IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2),
-                                                          java.nio.ByteOrder.BIG_ENDIAN);
+            _netInput =
+                new com.zeroc.IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
+            _netOutput =
+                new com.zeroc.IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
         }
 
         int status = handshakeNonBlocking();
-        if(status != SocketOperation.None)
+        if (status != SocketOperation.None)
         {
             return status;
         }
 
-        assert(_engine != null);
+        assert (_engine != null);
 
         SSLSession session = _engine.getSession();
         _cipher = session.getCipherSuite();
@@ -75,7 +69,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             _verified = vcerts != null;
             _certs = _verified ? vcerts : pcerts;
         }
-        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+        catch (javax.net.ssl.SSLPeerUnverifiedException ex)
         {
             // No peer certificates.
         }
@@ -85,25 +79,23 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         //
         _instance.verifyPeer(_host, (com.zeroc.IceSSL.ConnectionInfo)getInfo(), _delegate.toString());
 
-        if(_instance.securityTraceLevel() >= 1)
+        if (_instance.securityTraceLevel() >= 1)
         {
             _instance.traceConnection(_delegate.toString(), _engine, _incoming);
         }
         return SocketOperation.None;
     }
 
-    @Override
-    public int closing(boolean initiator, com.zeroc.Ice.LocalException ex)
+    @Override public int closing(boolean initiator, com.zeroc.Ice.LocalException ex)
     {
         // If we are initiating the connection closure, wait for the peer
         // to close the TCP/IP connection. Otherwise, close immediately.
         return initiator ? SocketOperation.Read : SocketOperation.None;
     }
 
-    @Override
-    public void close()
+    @Override public void close()
     {
-        if(_engine != null)
+        if (_engine != null)
         {
             try
             {
@@ -114,7 +106,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 // Cast to java.nio.Buffer to avoid incompatible covariant
                 // return type used in Java 9 java.nio.ByteBuffer
                 ((java.nio.Buffer)_netOutput.b).clear();
-                while(!_engine.isOutboundDone())
+                while (!_engine.isOutboundDone())
                 {
                     _engine.wrap(_emptyBuffer, _netOutput.b);
                     try
@@ -126,13 +118,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                         //
                         flushNonBlocking();
                     }
-                    catch(com.zeroc.Ice.LocalException ex)
+                    catch (com.zeroc.Ice.LocalException ex)
                     {
                         // Ignore.
                     }
                 }
             }
-            catch(SSLException ex)
+            catch (SSLException ex)
             {
                 //
                 // We can't throw in close.
@@ -146,7 +138,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             {
                 _engine.closeInbound();
             }
-            catch(SSLException ex)
+            catch (SSLException ex)
             {
                 //
                 // SSLEngine always raises an exception with this message:
@@ -163,30 +155,27 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         _delegate.close();
     }
 
-    @Override
-    public com.zeroc.IceInternal.EndpointI bind()
+    @Override public com.zeroc.IceInternal.EndpointI bind()
     {
-        assert(false);
+        assert (false);
         return null;
     }
 
-    @Override
-    public int write(com.zeroc.IceInternal.Buffer buf)
+    @Override public int write(com.zeroc.IceInternal.Buffer buf)
     {
-        if(!_isConnected)
+        if (!_isConnected)
         {
             return _delegate.write(buf);
         }
 
         int status = writeNonBlocking(buf.b);
-        assert(status == SocketOperation.None || status == SocketOperation.Write);
+        assert (status == SocketOperation.None || status == SocketOperation.Write);
         return status;
     }
 
-    @Override
-    public int read(com.zeroc.IceInternal.Buffer buf)
+    @Override public int read(com.zeroc.IceInternal.Buffer buf)
     {
-        if(!_isConnected)
+        if (!_isConnected)
         {
             return _delegate.read(buf);
         }
@@ -205,7 +194,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         //
         try
         {
-            while(buf.b.hasRemaining())
+            while (buf.b.hasRemaining())
             {
                 _netInput.flip();
                 SSLEngineResult result = _engine.unwrap(_netInput.b, _appInput);
@@ -214,16 +203,17 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 Status status = result.getStatus();
                 assert status != Status.BUFFER_OVERFLOW;
 
-                if(status == Status.CLOSED)
+                if (status == Status.CLOSED)
                 {
                     throw new com.zeroc.Ice.ConnectionLostException();
                 }
                 // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
                 // network data and application data to signal a network read.
-                else if(status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.b.position() == 0))
+                else if (
+                    status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.b.position() == 0))
                 {
                     int s = _delegate.read(_netInput);
-                    if(s != SocketOperation.None && _netInput.b.position() == 0)
+                    if (s != SocketOperation.None && _netInput.b.position() == 0)
                     {
                         return s;
                     }
@@ -235,7 +225,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
 
             // If there is no more application data, do one further unwrap to ensure
             // that the SSLEngine has no buffered data (Android R21 and greater only).
-            if(_appInput.position() == 0)
+            if (_appInput.position() == 0)
             {
                 _netInput.flip();
                 _engine.unwrap(_netInput.b, _appInput);
@@ -245,7 +235,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 // the buffer with a complete request which must be processed.
             }
         }
-        catch(SSLException ex)
+        catch (SSLException ex)
         {
             throw new com.zeroc.Ice.SecurityException("IceSSL: error during read", ex);
         }
@@ -253,7 +243,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         //
         // Indicate whether more data is available.
         //
-        if(_netInput.b.position() > 0 || _appInput.position() > 0)
+        if (_netInput.b.position() > 0 || _appInput.position() > 0)
         {
             _readyCallback.ready(SocketOperation.Read, true);
         }
@@ -261,26 +251,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         return SocketOperation.None;
     }
 
-    @Override
-    public String protocol()
-    {
-        return _delegate.protocol();
-    }
+    @Override public String protocol() { return _delegate.protocol(); }
 
-    @Override
-    public String toString()
-    {
-        return _delegate.toString();
-    }
+    @Override public String toString() { return _delegate.toString(); }
 
-    @Override
-    public String toDetailedString()
-    {
-        return toString();
-    }
+    @Override public String toDetailedString() { return toString(); }
 
-    @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo()
+    @Override public com.zeroc.Ice.ConnectionInfo getInfo()
     {
         ConnectionInfo info = new ConnectionInfo();
         info.underlying = _delegate.getInfo();
@@ -292,25 +269,20 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         return info;
     }
 
-    @Override
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    @Override public void setBufferSize(int rcvSize, int sndSize) { _delegate.setBufferSize(rcvSize, sndSize); }
 
-    @Override
-    public void checkSendSize(com.zeroc.IceInternal.Buffer buf)
-    {
-        _delegate.checkSendSize(buf);
-    }
+    @Override public void checkSendSize(com.zeroc.IceInternal.Buffer buf) { _delegate.checkSendSize(buf); }
 
-    TransceiverI(Instance instance, com.zeroc.IceInternal.Transceiver delegate, String hostOrAdapterName,
-                 boolean incoming)
+    TransceiverI(
+        Instance instance,
+        com.zeroc.IceInternal.Transceiver delegate,
+        String hostOrAdapterName,
+        boolean incoming)
     {
         _instance = instance;
         _delegate = delegate;
         _incoming = incoming;
-        if(_incoming)
+        if (_incoming)
         {
             _adapterName = hostOrAdapterName;
         }
@@ -325,126 +297,126 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         try
         {
             HandshakeStatus status = _engine.getHandshakeStatus();
-            while(!_engine.isOutboundDone() && !_engine.isInboundDone())
+            while (!_engine.isOutboundDone() && !_engine.isInboundDone())
             {
                 SSLEngineResult result = null;
-                switch(status)
+                switch (status)
                 {
-                case FINISHED:
-                case NOT_HANDSHAKING:
-                {
-                    return SocketOperation.None;
-                }
-                case NEED_TASK:
-                {
-                    Runnable task;
-                    while((task = _engine.getDelegatedTask()) != null)
+                    case FINISHED:
+                    case NOT_HANDSHAKING:
                     {
-                        task.run();
+                        return SocketOperation.None;
                     }
-                    status = _engine.getHandshakeStatus();
-                    break;
-                }
-                case NEED_UNWRAP:
-                {
-                    if(_netInput.b.position() == 0)
+                    case NEED_TASK:
                     {
-                        int s = _delegate.read(_netInput);
-                        if(s != SocketOperation.None && _netInput.b.position() == 0)
+                        Runnable task;
+                        while ((task = _engine.getDelegatedTask()) != null)
                         {
-                            return s;
+                            task.run();
                         }
-                    }
-
-                    //
-                    // The engine needs more data. We might already have enough data in
-                    // the _netInput buffer to satisfy the engine. If not, the engine
-                    // responds with BUFFER_UNDERFLOW and we'll read from the socket.
-                    //
-                    _netInput.flip();
-                    result = _engine.unwrap(_netInput.b, _appInput);
-                    _netInput.b.compact();
-                    //
-                    // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
-                    //
-                    status = result.getHandshakeStatus();
-                    switch(result.getStatus())
-                    {
-                    case BUFFER_OVERFLOW:
-                    {
-                        assert(false);
+                        status = _engine.getHandshakeStatus();
                         break;
                     }
-                    case BUFFER_UNDERFLOW:
+                    case NEED_UNWRAP:
                     {
-                        assert(status == javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
-                        int position = _netInput.b.position();
-                        int s = _delegate.read(_netInput);
-                        if(s != SocketOperation.None && _netInput.b.position() == position)
+                        if (_netInput.b.position() == 0)
                         {
-                            return s;
+                            int s = _delegate.read(_netInput);
+                            if (s != SocketOperation.None && _netInput.b.position() == 0)
+                            {
+                                return s;
+                            }
                         }
-                        break;
-                    }
-                    case CLOSED:
-                    {
-                        throw new com.zeroc.Ice.ConnectionLostException();
-                    }
-                    case OK:
-                    {
-                        break;
-                    }
-                    default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
-                    {
-                        assert(false);
-                        break;
-                    }
-                    }
-                    break;
-                }
-                case NEED_WRAP:
-                {
-                    //
-                    // The engine needs to send a message.
-                    //
-                    result = _engine.wrap(_emptyBuffer, _netOutput.b);
-                    if(result.bytesProduced() > 0)
-                    {
-                        int s = flushNonBlocking();
-                        if(s != SocketOperation.None)
+
+                        //
+                        // The engine needs more data. We might already have enough data in
+                        // the _netInput buffer to satisfy the engine. If not, the engine
+                        // responds with BUFFER_UNDERFLOW and we'll read from the socket.
+                        //
+                        _netInput.flip();
+                        result = _engine.unwrap(_netInput.b, _appInput);
+                        _netInput.b.compact();
+                        //
+                        // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
+                        //
+                        status = result.getHandshakeStatus();
+                        switch (result.getStatus())
                         {
-                            return s;
+                            case BUFFER_OVERFLOW:
+                            {
+                                assert (false);
+                                break;
+                            }
+                            case BUFFER_UNDERFLOW:
+                            {
+                                assert (status == javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
+                                int position = _netInput.b.position();
+                                int s = _delegate.read(_netInput);
+                                if (s != SocketOperation.None && _netInput.b.position() == position)
+                                {
+                                    return s;
+                                }
+                                break;
+                            }
+                            case CLOSED:
+                            {
+                                throw new com.zeroc.Ice.ConnectionLostException();
+                            }
+                            case OK:
+                            {
+                                break;
+                            }
+                            default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
+                            {
+                                assert (false);
+                                break;
+                            }
                         }
+                        break;
                     }
-
-                    //
-                    // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
-                    //
-                    status = result.getHandshakeStatus();
-                    break;
-                }
-                }
-
-                if(result != null)
-                {
-                    switch(result.getStatus())
+                    case NEED_WRAP:
                     {
-                    case BUFFER_OVERFLOW:
-                        assert(false);
+                        //
+                        // The engine needs to send a message.
+                        //
+                        result = _engine.wrap(_emptyBuffer, _netOutput.b);
+                        if (result.bytesProduced() > 0)
+                        {
+                            int s = flushNonBlocking();
+                            if (s != SocketOperation.None)
+                            {
+                                return s;
+                            }
+                        }
+
+                        //
+                        // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
+                        //
+                        status = result.getHandshakeStatus();
                         break;
-                    case BUFFER_UNDERFLOW:
-                        // Need to read again.
-                        assert(status == HandshakeStatus.NEED_UNWRAP);
-                        break;
-                    case CLOSED:
-                        throw new com.zeroc.Ice.ConnectionLostException();
-                    case OK:
-                        break;
+                    }
+                }
+
+                if (result != null)
+                {
+                    switch (result.getStatus())
+                    {
+                        case BUFFER_OVERFLOW:
+                            assert (false);
+                            break;
+                        case BUFFER_UNDERFLOW:
+                            // Need to read again.
+                            assert (status == HandshakeStatus.NEED_UNWRAP);
+                            break;
+                        case CLOSED:
+                            throw new com.zeroc.Ice.ConnectionLostException();
+                        case OK:
+                            break;
                     }
                 }
             }
         }
-        catch(SSLException ex)
+        catch (SSLException ex)
         {
             throw new com.zeroc.Ice.SecurityException("IceSSL: handshake error", ex);
         }
@@ -460,28 +432,28 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         //
         try
         {
-            while(buf.hasRemaining() || _netOutput.b.position() > 0)
+            while (buf.hasRemaining() || _netOutput.b.position() > 0)
             {
-                if(buf.hasRemaining())
+                if (buf.hasRemaining())
                 {
                     //
                     // Encrypt the buffer.
                     //
                     SSLEngineResult result = _engine.wrap(buf, _netOutput.b);
-                    switch(result.getStatus())
+                    switch (result.getStatus())
                     {
-                    case BUFFER_OVERFLOW:
-                        //
-                        // Need to make room in _netOutput.b.
-                        //
-                        break;
-                    case BUFFER_UNDERFLOW:
-                        assert(false);
-                        break;
-                    case CLOSED:
-                        throw new com.zeroc.Ice.ConnectionLostException();
-                    case OK:
-                        break;
+                        case BUFFER_OVERFLOW:
+                            //
+                            // Need to make room in _netOutput.b.
+                            //
+                            break;
+                        case BUFFER_UNDERFLOW:
+                            assert (false);
+                            break;
+                        case CLOSED:
+                            throw new com.zeroc.Ice.ConnectionLostException();
+                        case OK:
+                            break;
                     }
                 }
 
@@ -490,22 +462,22 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 // all of _netOutput, or until flushNonBlocking indicates that it cannot write
                 // (i.e., by returning SocketOperation.Write).
                 //
-                if(_netOutput.b.position() > 0)
+                if (_netOutput.b.position() > 0)
                 {
                     int s = flushNonBlocking();
-                    if(s != SocketOperation.None)
+                    if (s != SocketOperation.None)
                     {
                         return s;
                     }
                 }
             }
         }
-        catch(SSLException ex)
+        catch (SSLException ex)
         {
             throw new com.zeroc.Ice.SecurityException("IceSSL: error while encoding message", ex);
         }
 
-        assert(_netOutput.b.position() == 0);
+        assert (_netOutput.b.position() == 0);
         return SocketOperation.None;
     }
 
@@ -516,13 +488,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         try
         {
             int s = _delegate.write(_netOutput);
-            if(s != SocketOperation.None)
+            if (s != SocketOperation.None)
             {
                 _netOutput.b.compact();
                 return s;
             }
         }
-        catch(com.zeroc.Ice.SocketException ex)
+        catch (com.zeroc.Ice.SocketException ex)
         {
             throw new com.zeroc.Ice.ConnectionLostException(ex);
         }
@@ -535,15 +507,15 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
     private void fill(ByteBuffer buf)
     {
         ((java.nio.Buffer)_appInput).flip();
-        if(_appInput.hasRemaining())
+        if (_appInput.hasRemaining())
         {
             int bytesAvailable = _appInput.remaining();
             int bytesNeeded = buf.remaining();
-            if(bytesAvailable > bytesNeeded)
+            if (bytesAvailable > bytesNeeded)
             {
                 bytesAvailable = bytesNeeded;
             }
-            if(buf.hasArray())
+            if (buf.hasArray())
             {
                 //
                 // Copy directly into the destination buffer's backing array.
@@ -554,7 +526,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 // return type used in Java 9 java.nio.ByteBuffer
                 ((Buffer)buf).position(buf.position() + bytesAvailable);
             }
-            else if(_appInput.hasArray())
+            else if (_appInput.hasArray())
             {
                 //
                 // Copy directly from the source buffer's backing array.
@@ -587,8 +559,8 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
     private com.zeroc.IceInternal.ReadyCallback _readyCallback;
     private boolean _isConnected = false;
 
-    private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
-    private com.zeroc.IceInternal.Buffer _netInput; // Holds encrypted data read from the socket.
+    private ByteBuffer _appInput;                    // Holds clear-text data to be read by the application.
+    private com.zeroc.IceInternal.Buffer _netInput;  // Holds encrypted data read from the socket.
     private com.zeroc.IceInternal.Buffer _netOutput; // Holds encrypted data to be written to the socket.
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
 

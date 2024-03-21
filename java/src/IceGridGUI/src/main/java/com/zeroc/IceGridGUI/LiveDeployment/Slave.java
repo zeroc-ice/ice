@@ -4,23 +4,21 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
-
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 class Slave extends Communicator
 {
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
@@ -30,8 +28,7 @@ class Slave extends Communicator
         return actions;
     }
 
-    @Override
-    public void shutdownRegistry()
+    @Override public void shutdownRegistry()
     {
         final String prefix = "Shutting down registry '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
@@ -40,13 +37,10 @@ class Slave extends Communicator
         {
             getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            getCoordinator().getAdmin().shutdownRegistryAsync(_id).whenComplete((result, ex) ->
-                {
-                    amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                });
-
+            getCoordinator().getAdmin().shutdownRegistryAsync(_id).whenComplete(
+                (result, ex) -> { amiComplete(prefix, "Failed to shutdown " + _id, ex); });
         }
-        catch(com.zeroc.Ice.LocalException e)
+        catch (com.zeroc.Ice.LocalException e)
         {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         }
@@ -56,49 +50,38 @@ class Slave extends Communicator
         }
     }
 
-    @Override
-    public void retrieveOutput(final boolean stdout)
+    @Override public void retrieveOutput(final boolean stdout)
     {
-        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory()
+        getRoot().openShowLogFileDialog(new ShowLogFileDialog.FileIteratorFactory() {
+            @Override
+            public FileIteratorPrx open(int count)
+                throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
             {
-                @Override
-                public FileIteratorPrx open(int count)
-                    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
-                {
-                    AdminSessionPrx session = getCoordinator().getSession();
+                AdminSessionPrx session = getCoordinator().getSession();
 
-                    FileIteratorPrx result;
-                    if(stdout)
-                    {
-                        result = session.openRegistryStdOut(_id, count);
-                    }
-                    else
-                    {
-                        result = session.openRegistryStdErr(_id, count);
-                    }
-                    return result;
-                }
-
-                @Override
-                public String getTitle()
+                FileIteratorPrx result;
+                if (stdout)
                 {
-                    return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
+                    result = session.openRegistryStdOut(_id, count);
                 }
-
-                @Override
-                public String getDefaultFilename()
+                else
                 {
-                    return _id + (stdout ? ".out" : ".err");
+                    result = session.openRegistryStdErr(_id, count);
                 }
-            });
+                return result;
+            }
+
+            @Override public String getTitle() { return "Registry " + _title + " " + (stdout ? "stdout" : "stderr"); }
+
+            @Override public String getDefaultFilename() { return _id + (stdout ? ".out" : ".err"); }
+        });
     }
 
-    @Override
-    public JPopupMenu getPopupMenu()
+    @Override public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
 
-        if(_popup == null)
+        if (_popup == null)
         {
             _popup = new JPopupMenu();
             _popup.add(la.get(RETRIEVE_ICE_LOG));
@@ -112,10 +95,9 @@ class Slave extends Communicator
         return _popup;
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = new SlaveEditor();
         }
@@ -126,23 +108,14 @@ class Slave extends Communicator
     //
     // Communicator overrides
     //
-    @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
+    @Override protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
         return getRoot().getCoordinator().getAdmin().getRegistryAdminAsync(_id);
     }
 
-    @Override
-    protected String getDisplayName()
-    {
-        return "Registry Slave " + _id;
-    }
+    @Override protected String getDisplayName() { return "Registry Slave " + _id; }
 
-    @Override
-    protected String getDefaultFileName()
-    {
-        return "registry-" + _instanceName + "-" + _id;
-    }
+    @Override protected String getDefaultFileName() { return "registry-" + _instanceName + "-" + _id; }
 
     @Override
     public Component getTreeCellRendererComponent(
@@ -154,7 +127,7 @@ class Slave extends Communicator
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             //
             // TODO: separate icon for master
@@ -169,11 +142,7 @@ class Slave extends Communicator
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    RegistryInfo
-    getInfo()
-    {
-        return _info;
-    }
+    RegistryInfo getInfo() { return _info; }
 
     Slave(TreeNode parent, RegistryInfo info, String instanceName)
     {

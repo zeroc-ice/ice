@@ -21,10 +21,7 @@ package com.zeroc.Ice;
  **/
 public class FeatureNotSupportedException extends LocalException
 {
-    public FeatureNotSupportedException()
-    {
-        this.unsupportedFeature = "";
-    }
+    public FeatureNotSupportedException() { this.unsupportedFeature = ""; }
 
     public FeatureNotSupportedException(Throwable cause)
     {
@@ -32,10 +29,7 @@ public class FeatureNotSupportedException extends LocalException
         this.unsupportedFeature = "";
     }
 
-    public FeatureNotSupportedException(String unsupportedFeature)
-    {
-        this.unsupportedFeature = unsupportedFeature;
-    }
+    public FeatureNotSupportedException(String unsupportedFeature) { this.unsupportedFeature = unsupportedFeature; }
 
     public FeatureNotSupportedException(String unsupportedFeature, Throwable cause)
     {
@@ -43,10 +37,7 @@ public class FeatureNotSupportedException extends LocalException
         this.unsupportedFeature = unsupportedFeature;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::FeatureNotSupportedException";
-    }
+    public String ice_id() { return "::Ice::FeatureNotSupportedException"; }
 
     /**
      * The name of the unsupported feature.

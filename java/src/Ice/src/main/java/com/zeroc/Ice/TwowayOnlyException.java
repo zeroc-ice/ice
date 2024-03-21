@@ -22,10 +22,7 @@ package com.zeroc.Ice;
  **/
 public class TwowayOnlyException extends LocalException
 {
-    public TwowayOnlyException()
-    {
-        this.operation = "";
-    }
+    public TwowayOnlyException() { this.operation = ""; }
 
     public TwowayOnlyException(Throwable cause)
     {
@@ -33,10 +30,7 @@ public class TwowayOnlyException extends LocalException
         this.operation = "";
     }
 
-    public TwowayOnlyException(String operation)
-    {
-        this.operation = operation;
-    }
+    public TwowayOnlyException(String operation) { this.operation = operation; }
 
     public TwowayOnlyException(String operation, Throwable cause)
     {
@@ -44,10 +38,7 @@ public class TwowayOnlyException extends LocalException
         this.operation = operation;
     }
 
-    public String ice_id()
-    {
-        return "::Ice::TwowayOnlyException";
-    }
+    public String ice_id() { return "::Ice::TwowayOnlyException"; }
 
     /**
      * The name of the operation that was invoked.

@@ -6,14 +6,13 @@ package com.zeroc.IceInternal;
 
 public class MetricsViewI
 {
-    MetricsViewI(String name)
-    {
-        _name = name;
-    }
+    MetricsViewI(String name) { _name = name; }
 
-    public boolean
-    addOrUpdateMap(com.zeroc.Ice.Properties properties, String mapName, MetricsAdminI.MetricsMapFactory<?> factory,
-                   com.zeroc.Ice.Logger logger)
+    public boolean addOrUpdateMap(
+        com.zeroc.Ice.Properties properties,
+        String mapName,
+        MetricsAdminI.MetricsMapFactory<?> factory,
+        com.zeroc.Ice.Logger logger)
     {
         //
         // Add maps to views configured with the given map.
@@ -24,11 +23,11 @@ public class MetricsViewI
 
         String mapPrefix;
         java.util.Map<String, String> mapProps = new java.util.HashMap<>();
-        if(!mapsProps.isEmpty())
+        if (!mapsProps.isEmpty())
         {
             mapPrefix = mapsPrefix + mapName + ".";
             mapProps = properties.getPropertiesForPrefix(mapPrefix);
-            if(mapProps.isEmpty())
+            if (mapProps.isEmpty())
             {
                 // This map isn't configured for this view.
                 return _maps.remove(mapName) != null;
@@ -40,14 +39,14 @@ public class MetricsViewI
             mapProps = properties.getPropertiesForPrefix(mapPrefix);
         }
 
-        if(properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
+        if (properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
         {
             // This map is disabled for this view.
             return _maps.remove(mapName) != null;
         }
 
         MetricsMap<?> m = _maps.get(mapName);
-        if(m != null && m.getProperties().equals(mapProps))
+        if (m != null && m.getProperties().equals(mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }
@@ -56,7 +55,7 @@ public class MetricsViewI
         {
             _maps.put(mapName, factory.create(mapPrefix, properties));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             logger.warning("unexpected exception while creating metrics map:\n" + ex);
             _maps.remove(mapName);
@@ -64,54 +63,42 @@ public class MetricsViewI
         return true;
     }
 
-    public boolean
-    removeMap(String mapName)
-    {
-        return _maps.remove(mapName) != null;
-    }
+    public boolean removeMap(String mapName) { return _maps.remove(mapName) != null; }
 
-    public java.util.Map<String, com.zeroc.Ice.IceMX.Metrics[]>
-    getMetrics()
+    public java.util.Map<String, com.zeroc.Ice.IceMX.Metrics[]> getMetrics()
     {
         java.util.Map<String, com.zeroc.Ice.IceMX.Metrics[]> metrics = new java.util.HashMap<>();
-        for(java.util.Map.Entry<String, MetricsMap<?>> e : _maps.entrySet())
+        for (java.util.Map.Entry<String, MetricsMap<?>> e : _maps.entrySet())
         {
             metrics.put(e.getKey(), e.getValue().getMetrics());
         }
         return metrics;
     }
 
-    public com.zeroc.Ice.IceMX.MetricsFailures[]
-    getFailures(String mapName)
+    public com.zeroc.Ice.IceMX.MetricsFailures[] getFailures(String mapName)
     {
         MetricsMap<?> m = _maps.get(mapName);
-        if(m != null)
+        if (m != null)
         {
             return m.getFailures();
         }
         return null;
     }
 
-    public com.zeroc.Ice.IceMX.MetricsFailures
-    getFailures(String mapName, String id)
+    public com.zeroc.Ice.IceMX.MetricsFailures getFailures(String mapName, String id)
     {
         MetricsMap<?> m = _maps.get(mapName);
-        if(m != null)
+        if (m != null)
         {
             return m.getFailures(id);
         }
         return null;
     }
 
-    public java.util.Collection<String>
-    getMaps()
-    {
-        return _maps.keySet();
-    }
+    public java.util.Collection<String> getMaps() { return _maps.keySet(); }
 
     @SuppressWarnings("unchecked")
-    public <T extends com.zeroc.Ice.IceMX.Metrics> MetricsMap<T>
-    getMap(String mapName, Class<T> cl)
+    public <T extends com.zeroc.Ice.IceMX.Metrics> MetricsMap<T> getMap(String mapName, Class<T> cl)
     {
         return (MetricsMap<T>)_maps.get(mapName);
     }

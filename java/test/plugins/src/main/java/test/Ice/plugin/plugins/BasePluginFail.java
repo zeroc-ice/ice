@@ -13,19 +13,13 @@ public abstract class BasePluginFail implements com.zeroc.Ice.Plugin
         _destroyed = false;
     }
 
-    public boolean isInitialized()
-    {
-        return _initialized;
-    }
+    public boolean isInitialized() { return _initialized; }
 
-    public boolean isDestroyed()
-    {
-        return _destroyed;
-    }
+    public boolean isDestroyed() { return _destroyed; }
 
     protected static void test(boolean b)
     {
-        if(!b)
+        if (!b)
         {
             throw new RuntimeException();
         }

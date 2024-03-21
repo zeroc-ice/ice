@@ -6,14 +6,11 @@ package com.zeroc.IceInternal;
 
 public final class EndpointFactoryManager
 {
-    EndpointFactoryManager(Instance instance)
-    {
-        _instance = instance;
-    }
+    EndpointFactoryManager(Instance instance) { _instance = instance; }
 
     public void initialize()
     {
-        for(EndpointFactory f : _factories)
+        for (EndpointFactory f : _factories)
         {
             f.initialize();
         }
@@ -21,11 +18,11 @@ public final class EndpointFactoryManager
 
     public synchronized void add(EndpointFactory factory)
     {
-        for(EndpointFactory f : _factories)
+        for (EndpointFactory f : _factories)
         {
-            if(f.type() == factory.type())
+            if (f.type() == factory.type())
             {
-                assert(false);
+                assert (false);
             }
         }
         _factories.add(factory);
@@ -33,9 +30,9 @@ public final class EndpointFactoryManager
 
     public synchronized EndpointFactory get(short type)
     {
-        for(EndpointFactory f : _factories)
+        for (EndpointFactory f : _factories)
         {
-            if(f.type() == type)
+            if (f.type() == type)
             {
                 return f;
             }
@@ -46,14 +43,14 @@ public final class EndpointFactoryManager
     public synchronized EndpointI create(String str, boolean oaEndpoint)
     {
         String[] arr = com.zeroc.IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
-        if(arr == null)
+        if (arr == null)
         {
             com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
             e.str = "mismatched quote";
             throw e;
         }
 
-        if(arr.length == 0)
+        if (arr.length == 0)
         {
             com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
             e.str = "value has no non-whitespace characters";
@@ -64,25 +61,25 @@ public final class EndpointFactoryManager
         String protocol = v.get(0);
         v.remove(0);
 
-        if(protocol.equals("default"))
+        if (protocol.equals("default"))
         {
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
         EndpointFactory factory = null;
 
-        for(EndpointFactory f : _factories)
+        for (EndpointFactory f : _factories)
         {
-            if(f.protocol().equals(protocol))
+            if (f.protocol().equals(protocol))
             {
                 factory = f;
             }
         }
 
-        if(factory != null)
+        if (factory != null)
         {
             EndpointI e = factory.create(v, oaEndpoint);
-            if(!v.isEmpty())
+            if (!v.isEmpty())
             {
                 com.zeroc.Ice.EndpointParseException ex = new com.zeroc.Ice.EndpointParseException();
                 ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
@@ -110,17 +107,17 @@ public final class EndpointFactoryManager
         // If the stringified endpoint is opaque, create an unknown endpoint,
         // then see whether the type matches one of the known endpoints.
         //
-        if(protocol.equals("opaque"))
+        if (protocol.equals("opaque"))
         {
             EndpointI ue = new OpaqueEndpointI(v);
-            if(!v.isEmpty())
+            if (!v.isEmpty())
             {
                 com.zeroc.Ice.EndpointParseException ex = new com.zeroc.Ice.EndpointParseException();
                 ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
                 throw ex;
             }
             factory = get(ue.type());
-            if(factory != null)
+            if (factory != null)
             {
                 //
                 // Make a temporary stream, write the opaque endpoint data into the stream,
@@ -155,7 +152,7 @@ public final class EndpointFactoryManager
 
         s.startEncapsulation();
 
-        if(factory != null)
+        if (factory != null)
         {
             e = factory.read(s);
         }
@@ -165,7 +162,7 @@ public final class EndpointFactoryManager
         // isn't available. In this case, the factory needs to make sure the stream position
         // is preserved for reading the opaque endpoint.
         //
-        if(e == null)
+        if (e == null)
         {
             e = new OpaqueEndpointI(type, s);
         }
@@ -177,7 +174,7 @@ public final class EndpointFactoryManager
 
     void destroy()
     {
-        for(EndpointFactory f : _factories)
+        for (EndpointFactory f : _factories)
         {
             f.destroy();
         }

@@ -4,13 +4,13 @@
 
 package test.Ice.acm;
 
-import test.Ice.acm.Test.RemoteObjectAdapterPrx;
 import test.Ice.acm.Test.RemoteCommunicator;
+import test.Ice.acm.Test.RemoteObjectAdapterPrx;
 
 public class RemoteCommunicatorI implements RemoteCommunicator
 {
-    public RemoteObjectAdapterPrx createObjectAdapter(int timeout, int close, int heartbeat,
-                                                      com.zeroc.Ice.Current current)
+    public RemoteObjectAdapterPrx
+    createObjectAdapter(int timeout, int close, int heartbeat, com.zeroc.Ice.Current current)
     {
         com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
         com.zeroc.Ice.Properties properties = com.getProperties();
@@ -18,15 +18,15 @@ public class RemoteCommunicatorI implements RemoteCommunicator
         String host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
         String name = java.util.UUID.randomUUID().toString();
-        if(timeout >= 0)
+        if (timeout >= 0)
         {
             properties.setProperty(name + ".ACM.Timeout", Integer.toString(timeout));
         }
-        if(close >= 0)
+        if (close >= 0)
         {
             properties.setProperty(name + ".ACM.Close", Integer.toString(close));
         }
-        if(heartbeat >= 0)
+        if (heartbeat >= 0)
         {
             properties.setProperty(name + ".ACM.Heartbeat", Integer.toString(heartbeat));
         }
@@ -36,8 +36,5 @@ public class RemoteCommunicatorI implements RemoteCommunicator
         return RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 
-    public void shutdown(com.zeroc.Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public void shutdown(com.zeroc.Ice.Current current) { current.adapter.getCommunicator().shutdown(); }
 }

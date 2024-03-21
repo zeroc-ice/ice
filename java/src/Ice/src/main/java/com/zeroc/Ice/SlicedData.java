@@ -9,10 +9,7 @@ package com.zeroc.Ice;
  **/
 public class SlicedData
 {
-    public SlicedData(SliceInfo[] slices)
-    {
-        this.slices = slices;
-    }
+    public SlicedData(SliceInfo[] slices) { this.slices = slices; }
 
     /**
      * The details of each slice, in order of most-derived to least-derived.

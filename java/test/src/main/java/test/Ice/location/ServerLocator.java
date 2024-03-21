@@ -4,11 +4,9 @@
 
 package test.Ice.location;
 
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CompletableFuture;
-
 import com.zeroc.Ice.ObjectPrx;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import test.Ice.location.Test.TestLocator;
 
 public class ServerLocator implements TestLocator
@@ -25,9 +23,9 @@ public class ServerLocator implements TestLocator
         throws com.zeroc.Ice.AdapterNotFoundException
     {
         ++_requestCount;
-        if(adapter.equals("TestAdapter10") || adapter.equals("TestAdapter10-2"))
+        if (adapter.equals("TestAdapter10") || adapter.equals("TestAdapter10-2"))
         {
-            assert(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0));
+            assert (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0));
             return CompletableFuture.completedFuture(_registry.getAdapter("TestAdapter"));
         }
 
@@ -37,7 +35,7 @@ public class ServerLocator implements TestLocator
         {
             Thread.sleep(1);
         }
-        catch(java.lang.InterruptedException ex)
+        catch (java.lang.InterruptedException ex)
         {
         }
         return CompletableFuture.completedFuture(_registry.getAdapter(adapter));
@@ -54,23 +52,18 @@ public class ServerLocator implements TestLocator
         {
             Thread.sleep(1);
         }
-        catch(java.lang.InterruptedException ex)
+        catch (java.lang.InterruptedException ex)
         {
         }
         return CompletableFuture.completedFuture(_registry.getObject(id));
     }
 
-    @Override
-    public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current)
+    @Override public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current)
     {
         return _registryPrx;
     }
 
-    @Override
-    public int getRequestCount(com.zeroc.Ice.Current current)
-    {
-        return _requestCount;
-    }
+    @Override public int getRequestCount(com.zeroc.Ice.Current current) { return _requestCount; }
 
     private ServerLocatorRegistry _registry;
     private com.zeroc.Ice.LocatorRegistryPrx _registryPrx;

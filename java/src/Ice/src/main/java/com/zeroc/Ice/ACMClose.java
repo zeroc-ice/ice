@@ -43,33 +43,27 @@ public enum ACMClose
      **/
     CloseOnIdleForceful(4);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ACMClose valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return CloseOff;
-        case 1:
-            return CloseOnIdle;
-        case 2:
-            return CloseOnInvocation;
-        case 3:
-            return CloseOnInvocationAndIdle;
-        case 4:
-            return CloseOnIdleForceful;
+            case 0:
+                return CloseOff;
+            case 1:
+                return CloseOnIdle;
+            case 2:
+                return CloseOnInvocation;
+            case 3:
+                return CloseOnInvocationAndIdle;
+            case 4:
+                return CloseOnIdleForceful;
         }
         return null;
     }
 
-    private ACMClose(int v)
-    {
-        _value = v;
-    }
+    private ACMClose(int v) { _value = v; }
 
     private final int _value;
 }

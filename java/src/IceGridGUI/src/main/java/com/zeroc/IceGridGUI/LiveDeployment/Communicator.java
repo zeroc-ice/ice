@@ -4,10 +4,9 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import java.util.Enumeration;
-
-import javax.swing.SwingUtilities;
 import com.zeroc.IceGridGUI.*;
+import java.util.Enumeration;
+import javax.swing.SwingUtilities;
 
 abstract public class Communicator extends TreeNode
 {
@@ -20,73 +19,63 @@ abstract public class Communicator extends TreeNode
     //
     // Children-related overrides
     //
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<javax.swing.tree.TreeNode> children()
+    @Override @SuppressWarnings("unchecked") public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<javax.swing.tree.TreeNode>()
+        return new Enumeration<javax.swing.tree.TreeNode>() {
+            @Override public boolean hasMoreElements()
             {
-                @Override
-                public boolean hasMoreElements()
+                if (_p.hasNext())
                 {
-                    if(_p.hasNext())
+                    return true;
+                }
+
+                while (++_index < _childrenArray.length)
+                {
+                    _p = _childrenArray[_index].iterator();
+                    if (_p.hasNext())
                     {
                         return true;
                     }
-
-                    while(++_index < _childrenArray.length)
-                    {
-                        _p = _childrenArray[_index].iterator();
-                        if(_p.hasNext())
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
                 }
+                return false;
+            }
 
-                @Override
-                public javax.swing.tree.TreeNode nextElement()
+            @Override public javax.swing.tree.TreeNode nextElement()
+            {
+                try
                 {
-                    try
+                    return _p.next();
+                }
+                catch (java.util.NoSuchElementException nse)
+                {
+                    if (hasMoreElements())
                     {
                         return _p.next();
                     }
-                    catch(java.util.NoSuchElementException nse)
+                    else
                     {
-                        if(hasMoreElements())
-                        {
-                            return _p.next();
-                        }
-                        else
-                        {
-                            throw nse;
-                        }
+                        throw nse;
                     }
                 }
+            }
 
-                private int _index = 0;
-                private java.util.Iterator<javax.swing.tree.TreeNode> _p = _childrenArray[0].iterator();
-            };
+            private int _index = 0;
+            private java.util.Iterator<javax.swing.tree.TreeNode> _p = _childrenArray[0].iterator();
+        };
     }
 
-    @Override
-    public boolean getAllowsChildren()
-    {
-        return true;
-    }
+    @Override public boolean getAllowsChildren() { return true; }
 
-    @Override
-    public javax.swing.tree.TreeNode getChildAt(int childIndex)
+    @Override public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
-        if(childIndex < 0)
+        if (childIndex < 0)
         {
             throw new ArrayIndexOutOfBoundsException(childIndex);
         }
         int offset = 0;
-        for(java.util.List l : _childrenArray)
+        for (java.util.List l : _childrenArray)
         {
-            if(childIndex < offset + l.size())
+            if (childIndex < offset + l.size())
             {
                 return (javax.swing.tree.TreeNode)l.get(childIndex - offset);
             }
@@ -98,25 +87,23 @@ abstract public class Communicator extends TreeNode
         throw new ArrayIndexOutOfBoundsException(childIndex);
     }
 
-    @Override
-    public int getChildCount()
+    @Override public int getChildCount()
     {
         int result = 0;
-        for(java.util.List l : _childrenArray)
+        for (java.util.List l : _childrenArray)
         {
             result += l.size();
         }
         return result;
     }
 
-    @Override
-    public int getIndex(javax.swing.tree.TreeNode node)
+    @Override public int getIndex(javax.swing.tree.TreeNode node)
     {
         int offset = 0;
-        for(java.util.List l : _childrenArray)
+        for (java.util.List l : _childrenArray)
         {
             int index = l.indexOf(node);
-            if(index == -1)
+            if (index == -1)
             {
                 offset += l.size();
             }
@@ -128,12 +115,11 @@ abstract public class Communicator extends TreeNode
         return -1;
     }
 
-    @Override
-    public boolean isLeaf()
+    @Override public boolean isLeaf()
     {
-        for(java.util.List l : _childrenArray)
+        for (java.util.List l : _childrenArray)
         {
-            if(!l.isEmpty())
+            if (!l.isEmpty())
             {
                 return false;
             }
@@ -144,36 +130,36 @@ abstract public class Communicator extends TreeNode
     //
     // TreeNode overrides
     //
-    @Override
-    public void retrieveIceLog()
+    @Override public void retrieveIceLog()
     {
-        if(_showIceLogDialog == null)
+        if (_showIceLogDialog == null)
         {
             final String prefix = "Opening Ice Log file for " + getServerDisplayName() + "...";
 
-            provideAdmin(prefix, (admin) ->
-                {
-                    final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                        com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(getAdminFacet(admin, "Logger"));
-                    final String title = getDisplayName() + " Ice log";
-                    final String defaultFileName = getDefaultFileName();
+            provideAdmin(prefix, (admin) -> {
+                final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
+                    com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(getAdminFacet(admin, "Logger"));
+                final String title = getDisplayName() + " Ice log";
+                final String defaultFileName = getDefaultFileName();
 
-                    SwingUtilities.invokeLater(() ->
-                        {
-                            success(prefix);
-                            if(_showIceLogDialog == null)
-                            {
-                                _showIceLogDialog = new ShowIceLogDialog(Communicator.this, title, loggerAdmin,
-                                                                         defaultFileName,
-                                                                         getRoot().getLogMaxLines(),
-                                                                         getRoot().getLogInitialLines());
-                            }
-                            else
-                            {
-                                _showIceLogDialog.toFront();
-                            }
-                        });
+                SwingUtilities.invokeLater(() -> {
+                    success(prefix);
+                    if (_showIceLogDialog == null)
+                    {
+                        _showIceLogDialog = new ShowIceLogDialog(
+                            Communicator.this,
+                            title,
+                            loggerAdmin,
+                            defaultFileName,
+                            getRoot().getLogMaxLines(),
+                            getRoot().getLogInitialLines());
+                    }
+                    else
+                    {
+                        _showIceLogDialog.toFront();
+                    }
                 });
+            });
         }
         else
         {
@@ -181,87 +167,87 @@ abstract public class Communicator extends TreeNode
         }
     }
 
-    @Override
-    public void clearShowIceLogDialog()
-    {
-        _showIceLogDialog = null;
-    }
+    @Override public void clearShowIceLogDialog() { _showIceLogDialog = null; }
 
     protected void showRuntimeProperties()
     {
         final String prefix = "Retrieving properties for " + getDisplayName() + "...";
-        provideAdmin(prefix, (admin) ->
-            {
-                final com.zeroc.Ice.PropertiesAdminPrx propertiesAdmin =
-                    com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(getAdminFacet(admin, "Properties"));
+        provideAdmin(prefix, (admin) -> {
+            final com.zeroc.Ice.PropertiesAdminPrx propertiesAdmin =
+                com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(getAdminFacet(admin, "Properties"));
 
-                propertiesAdmin.getPropertiesForPrefixAsync("").whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    ((CommunicatorEditor)getEditor()).setRuntimeProperties(
-                                        (java.util.SortedMap<String, String>)result, Communicator.this);
-                                });
-                        }
-                        else if(ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof com.zeroc.Ice.FacetNotExistException)
-                        {
-                            SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
-                        }
-                        else
-                        {
-                            amiFailure(prefix, "Failed to retrieve the properties for " + getDisplayName(), ex);
-                        }
+            propertiesAdmin.getPropertiesForPrefixAsync("").whenComplete((result, ex) -> {
+                if (ex == null)
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        success(prefix);
+                        ((CommunicatorEditor)getEditor())
+                            .setRuntimeProperties((java.util.SortedMap<String, String>)result, Communicator.this);
                     });
+                }
+                else if (
+                    ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof
+                                                                               com.zeroc.Ice.FacetNotExistException)
+                {
+                    SwingUtilities.invokeLater(
+                        () -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
+                }
+                else
+                {
+                    amiFailure(prefix, "Failed to retrieve the properties for " + getDisplayName(), ex);
+                }
             });
+        });
     }
 
     protected void fetchMetricsViewNames()
     {
-        if(_metricsRetrieved)
+        if (_metricsRetrieved)
         {
             return; // Already loaded.
         }
         _metricsRetrieved = true;
 
         final String prefix = "Retrieving metrics for " + getDisplayName() + "...";
-        if(!provideAdmin(prefix, (admin) ->
-            {
+        if (!provideAdmin(prefix, (admin) -> {
                 final com.zeroc.Ice.IceMX.MetricsAdminPrx metricsAdmin =
                     com.zeroc.Ice.IceMX.MetricsAdminPrx.uncheckedCast(getAdminFacet(admin, "Metrics"));
 
-                metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) ->
+                metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) -> {
+                    if (ex == null)
                     {
-                        if(ex == null)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    _metrics.clear();
-                                    for(String name : result.returnValue)
-                                    {
-                                        insertSortedChild(
-                                            new MetricsView(Communicator.this, name, metricsAdmin, true), _metrics, null);
-                                    }
-                                    for(String name : result.disabledViews)
-                                    {
-                                        insertSortedChild(
-                                            new MetricsView(Communicator.this, name, metricsAdmin, false), _metrics, null);
-                                    }
-                                    getRoot().getTreeModel().nodeStructureChanged(Communicator.this);
-                                });
-                        }
-                        else if(ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof com.zeroc.Ice.FacetNotExistException)
-                        {
-                            SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
-                        }
-                        else
-                        {
-                            amiFailure(prefix, "Failed to retrieve the metrics for " + getDisplayName(), ex);
-                        }
-                    });
+                        SwingUtilities.invokeLater(() -> {
+                            success(prefix);
+                            _metrics.clear();
+                            for (String name : result.returnValue)
+                            {
+                                insertSortedChild(
+                                    new MetricsView(Communicator.this, name, metricsAdmin, true),
+                                    _metrics,
+                                    null);
+                            }
+                            for (String name : result.disabledViews)
+                            {
+                                insertSortedChild(
+                                    new MetricsView(Communicator.this, name, metricsAdmin, false),
+                                    _metrics,
+                                    null);
+                            }
+                            getRoot().getTreeModel().nodeStructureChanged(Communicator.this);
+                        });
+                    }
+                    else if (
+                        ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof
+                                                                                   com.zeroc.Ice.FacetNotExistException)
+                    {
+                        SwingUtilities.invokeLater(
+                            () -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
+                    }
+                    else
+                    {
+                        amiFailure(prefix, "Failed to retrieve the metrics for " + getDisplayName(), ex);
+                    }
+                });
             }))
         {
             _metricsRetrieved = false;
@@ -271,17 +257,13 @@ abstract public class Communicator extends TreeNode
     void updateMetrics()
     {
         _metricsRetrieved = false;
-        if(getRoot().getTree().isExpanded(getPath()))
+        if (getRoot().getTree().isExpanded(getPath()))
         {
             fetchMetricsViewNames();
         }
     }
 
-    public java.util.List<MetricsView>
-    getMetrics()
-    {
-        return new java.util.ArrayList<>(_metrics);
-    }
+    public java.util.List<MetricsView> getMetrics() { return new java.util.ArrayList<>(_metrics); }
 
     protected abstract java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync();
     protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet)
@@ -289,41 +271,40 @@ abstract public class Communicator extends TreeNode
         return admin != null ? admin.ice_facet(facet) : null;
     }
     protected abstract String getDisplayName();
-    protected String getServerDisplayName()
-    {
-        return getDisplayName();
-    }
+    protected String getServerDisplayName() { return getDisplayName(); }
     protected abstract String getDefaultFileName();
 
-    private boolean provideAdmin(final String prefix, final java.util.function.Consumer<com.zeroc.Ice.ObjectPrx> consumer)
+    private boolean
+    provideAdmin(final String prefix, final java.util.function.Consumer<com.zeroc.Ice.ObjectPrx> consumer)
     {
         getRoot().getCoordinator().getStatusBar().setText(prefix);
         try
         {
-            getAdminAsync().whenComplete((admin, adminEx) ->
+            getAdminAsync().whenComplete((admin, adminEx) -> {
+                if (adminEx == null && admin != null)
                 {
-                    if(adminEx == null && admin != null)
+                    try
                     {
-                        try
-                        {
-                            consumer.accept(admin);
-                        }
-                        catch(com.zeroc.Ice.LocalException e)
-                        {
-                            SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + "."));
-                        }
+                        consumer.accept(admin);
                     }
-                    else if(adminEx == null || adminEx instanceof com.zeroc.Ice.ObjectNotExistException)
+                    catch (com.zeroc.Ice.LocalException e)
                     {
-                        SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
+                        SwingUtilities.invokeLater(
+                            () -> getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + "."));
                     }
-                    else
-                    {
-                        amiFailure(prefix, "Failed to retrieve the Admin proxy for " + getServerDisplayName(), adminEx);
-                    }
-                });
+                }
+                else if (adminEx == null || adminEx instanceof com.zeroc.Ice.ObjectNotExistException)
+                {
+                    SwingUtilities.invokeLater(
+                        () -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
+                }
+                else
+                {
+                    amiFailure(prefix, "Failed to retrieve the Admin proxy for " + getServerDisplayName(), adminEx);
+                }
+            });
         }
-        catch(com.zeroc.Ice.LocalException e)
+        catch (com.zeroc.Ice.LocalException e)
         {
             getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + ".");
             return false;

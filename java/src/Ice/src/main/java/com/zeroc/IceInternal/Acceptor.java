@@ -12,7 +12,6 @@ public interface Acceptor
     EndpointI listen();
     Transceiver accept();
     String protocol();
-    @Override
-    String toString();
+    @Override String toString();
     String toDetailedString();
 }

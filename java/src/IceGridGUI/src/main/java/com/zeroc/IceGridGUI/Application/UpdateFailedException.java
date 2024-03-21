@@ -11,16 +11,9 @@ public class UpdateFailedException extends Exception
         _message = parent.getFullId().toString() + " has already a child with '" + id + "' as ID.";
     }
 
-    UpdateFailedException(String message)
-    {
-        _message = message;
-    }
+    UpdateFailedException(String message) { _message = message; }
 
-    @Override
-    public String toString()
-    {
-        return _message;
-    }
+    @Override public String toString() { return _message; }
 
     private String _message;
 }

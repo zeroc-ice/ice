@@ -35,29 +35,23 @@ public enum ConnectionClose
      **/
     GracefullyWithWait(2);
 
-    public int value()
-    {
-        return _value;
-    }
+    public int value() { return _value; }
 
     public static ConnectionClose valueOf(int v)
     {
-        switch(v)
+        switch (v)
         {
-        case 0:
-            return Forcefully;
-        case 1:
-            return Gracefully;
-        case 2:
-            return GracefullyWithWait;
+            case 0:
+                return Forcefully;
+            case 1:
+                return Gracefully;
+            case 2:
+                return GracefullyWithWait;
         }
         return null;
     }
 
-    private ConnectionClose(int v)
-    {
-        _value = v;
-    }
+    private ConnectionClose(int v) { _value = v; }
 
     private final int _value;
 }

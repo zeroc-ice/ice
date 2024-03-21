@@ -4,11 +4,10 @@
 
 package com.zeroc.Ice;
 
-import java.io.IOException;
-
 import com.zeroc.IceInternal.Buffer;
 import com.zeroc.IceInternal.Instance;
 import com.zeroc.IceInternal.Protocol;
+import java.io.IOException;
 
 /**
  * Interface to read sequence of bytes encoded using the Ice encoding and
@@ -55,10 +54,7 @@ public class InputStream
         _buf = new Buffer(buf);
     }
 
-    public InputStream(Buffer buf)
-    {
-        this(buf, false);
-    }
+    public InputStream(Buffer buf) { this(buf, false); }
 
     public InputStream(Buffer buf, boolean adopt)
     {
@@ -102,10 +98,7 @@ public class InputStream
         _buf = new Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, Buffer buf)
-    {
-        this(communicator, buf, false);
-    }
+    public InputStream(Communicator communicator, Buffer buf) { this(communicator, buf, false); }
 
     public InputStream(Communicator communicator, Buffer buf, boolean adopt)
     {
@@ -148,10 +141,7 @@ public class InputStream
         _buf = new Buffer(buf);
     }
 
-    public InputStream(EncodingVersion encoding, Buffer buf)
-    {
-        this(encoding, buf, false);
-    }
+    public InputStream(EncodingVersion encoding, Buffer buf) { this(encoding, buf, false); }
 
     public InputStream(EncodingVersion encoding, Buffer buf, boolean adopt)
     {
@@ -301,9 +291,9 @@ public class InputStream
      **/
     public void clear()
     {
-        if(_encapsStack != null)
+        if (_encapsStack != null)
         {
-            assert(_encapsStack.next == null);
+            assert (_encapsStack.next == null);
             _encapsStack.next = _encapsCache;
             _encapsCache = _encapsStack;
             _encapsCache.reset();
@@ -321,10 +311,7 @@ public class InputStream
      *
      * @param vfm The value factory manager.
      **/
-    public void setValueFactoryManager(ValueFactoryManager vfm)
-    {
-        _valueFactoryManager = vfm;
-    }
+    public void setValueFactoryManager(ValueFactoryManager vfm) { _valueFactoryManager = vfm; }
 
     /**
      * Sets the logger to use when logging trace messages. If the stream
@@ -333,10 +320,7 @@ public class InputStream
      *
      * @param logger The logger to use for logging trace messages.
      **/
-    public void setLogger(Logger logger)
-    {
-        _logger = logger;
-    }
+    public void setLogger(Logger logger) { _logger = logger; }
 
     /**
      * Sets the compact ID resolver to use when unmarshaling value and exception
@@ -345,10 +329,7 @@ public class InputStream
      *
      * @param r The compact ID resolver.
      **/
-    public void setCompactIdResolver(java.util.function.IntFunction<String> r)
-    {
-        _compactIdResolver = r;
-    }
+    public void setCompactIdResolver(java.util.function.IntFunction<String> r) { _compactIdResolver = r; }
 
     /**
      * Sets the class resolver, which the stream will use when attempting to unmarshal
@@ -357,10 +338,7 @@ public class InputStream
      *
      * @param r The class resolver.
      **/
-    public void setClassResolver(java.util.function.Function<String, Class<?>> r)
-    {
-        _classResolver = r;
-    }
+    public void setClassResolver(java.util.function.Function<String, Class<?>> r) { _classResolver = r; }
 
     /**
      * Determines the behavior of the stream when extracting instances of Slice classes.
@@ -371,30 +349,21 @@ public class InputStream
      * slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
      * during decoding for which no value factory is installed, it raises {@link NoValueFactoryException}.
      **/
-    public void setSliceValues(boolean b)
-    {
-        _sliceValues = b;
-    }
+    public void setSliceValues(boolean b) { _sliceValues = b; }
 
     /**
      * Determines whether the stream logs messages about slicing instances of Slice values.
      *
      * @param b True to enable logging, false to disable logging.
      **/
-    public void setTraceSlicing(boolean b)
-    {
-        _traceSlicing = b;
-    }
+    public void setTraceSlicing(boolean b) { _traceSlicing = b; }
 
     /**
      * Retrieves the closure object associated with this stream.
      *
      * @return The closure object.
      **/
-    public Object getClosure()
-    {
-        return _closure;
-    }
+    public Object getClosure() { return _closure; }
 
     /**
      * Associates a closure object with this stream.
@@ -409,10 +378,7 @@ public class InputStream
         return prev;
     }
 
-    public Instance instance()
-    {
-        return _instance;
-    }
+    public Instance instance() { return _instance; }
 
     /**
      * Swaps the contents of one stream with another.
@@ -421,7 +387,7 @@ public class InputStream
      **/
     public void swap(InputStream other)
     {
-        assert(_instance == other._instance);
+        assert (_instance == other._instance);
 
         Buffer tmpBuf = other._buf;
         other._buf = _buf;
@@ -476,10 +442,7 @@ public class InputStream
         _classResolver = tmpClassResolver;
     }
 
-    private void resetEncapsulation()
-    {
-        _encapsStack = null;
-    }
+    private void resetEncapsulation() { _encapsStack = null; }
 
     /**
      * Resizes the stream to a new size.
@@ -492,17 +455,14 @@ public class InputStream
         _buf.position(sz);
     }
 
-    public Buffer getBuffer()
-    {
-        return _buf;
-    }
+    public Buffer getBuffer() { return _buf; }
 
     /**
      * Marks the start of a class instance.
      **/
     public void startValue()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         _encapsStack.decoder.startInstance(SliceType.ValueSlice);
     }
 
@@ -513,7 +473,7 @@ public class InputStream
      **/
     public SlicedData endValue()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         return _encapsStack.decoder.endInstance();
     }
 
@@ -522,7 +482,7 @@ public class InputStream
      **/
     public void startException()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         _encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
     }
 
@@ -533,7 +493,7 @@ public class InputStream
      **/
     public SlicedData endException()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         return _encapsStack.decoder.endInstance();
     }
 
@@ -545,7 +505,7 @@ public class InputStream
     public EncodingVersion startEncapsulation()
     {
         Encaps curr = _encapsCache;
-        if(curr != null)
+        if (curr != null)
         {
             curr.reset();
             _encapsCache = _encapsCache.next;
@@ -565,11 +525,11 @@ public class InputStream
         // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
         //
         int sz = readInt();
-        if(sz < 6)
+        if (sz < 6)
         {
             throw new UnmarshalOutOfBoundsException();
         }
-        if(sz - 4 > _buf.b.remaining())
+        if (sz - 4 > _buf.b.remaining())
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -587,19 +547,19 @@ public class InputStream
      **/
     public void endEncapsulation()
     {
-        assert(_encapsStack != null);
+        assert (_encapsStack != null);
 
-        if(!_encapsStack.encoding_1_0)
+        if (!_encapsStack.encoding_1_0)
         {
             skipOptionals();
-            if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
                 throw new EncapsulationException();
             }
         }
-        else if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+        else if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
         {
-            if(_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
             {
                 throw new EncapsulationException();
             }
@@ -614,7 +574,7 @@ public class InputStream
             {
                 _buf.b.get();
             }
-            catch(java.nio.BufferUnderflowException ex)
+            catch (java.nio.BufferUnderflowException ex)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -635,11 +595,11 @@ public class InputStream
     public EncodingVersion skipEmptyEncapsulation()
     {
         int sz = readInt();
-        if(sz < 6)
+        if (sz < 6)
         {
             throw new EncapsulationException();
         }
-        if(sz - 4 > _buf.b.remaining())
+        if (sz - 4 > _buf.b.remaining())
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -647,9 +607,9 @@ public class InputStream
         EncodingVersion encoding = EncodingVersion.ice_read(this);
         Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
 
-        if(encoding.equals(Util.Encoding_1_0))
+        if (encoding.equals(Util.Encoding_1_0))
         {
-            if(sz != 6)
+            if (sz != 6)
             {
                 throw new EncapsulationException();
             }
@@ -675,17 +635,17 @@ public class InputStream
     public byte[] readEncapsulation(EncodingVersion encoding)
     {
         int sz = readInt();
-        if(sz < 6)
+        if (sz < 6)
         {
             throw new UnmarshalOutOfBoundsException();
         }
 
-        if(sz - 4 > _buf.b.remaining())
+        if (sz - 4 > _buf.b.remaining())
         {
             throw new UnmarshalOutOfBoundsException();
         }
 
-        if(encoding != null)
+        if (encoding != null)
         {
             encoding.ice_readMembers(this);
             _buf.position(_buf.b.position() - 6);
@@ -701,7 +661,7 @@ public class InputStream
             _buf.b.get(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -712,10 +672,7 @@ public class InputStream
      *
      * @return The encoding version.
      **/
-    public EncodingVersion getEncoding()
-    {
-        return _encapsStack != null ? _encapsStack.encoding : _encoding;
-    }
+    public EncodingVersion getEncoding() { return _encapsStack != null ? _encapsStack.encoding : _encoding; }
 
     /**
      * Determines the size of the current encapsulation, excluding the encapsulation header.
@@ -724,7 +681,7 @@ public class InputStream
      **/
     public int getEncapsulationSize()
     {
-        assert(_encapsStack != null);
+        assert (_encapsStack != null);
         return _encapsStack.sz - 6;
     }
 
@@ -736,7 +693,7 @@ public class InputStream
     public EncodingVersion skipEncapsulation()
     {
         int sz = readInt();
-        if(sz < 6)
+        if (sz < 6)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -745,7 +702,7 @@ public class InputStream
         {
             _buf.position(_buf.b.position() + sz - 6);
         }
-        catch(IllegalArgumentException ex)
+        catch (IllegalArgumentException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -759,7 +716,7 @@ public class InputStream
      **/
     public String startSlice() // Returns type ID of next slice
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         return _encapsStack.decoder.startSlice();
     }
 
@@ -768,7 +725,7 @@ public class InputStream
      **/
     public void endSlice()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         _encapsStack.decoder.endSlice();
     }
 
@@ -777,7 +734,7 @@ public class InputStream
      **/
     public void skipSlice()
     {
-        assert(_encapsStack != null && _encapsStack.decoder != null);
+        assert (_encapsStack != null && _encapsStack.decoder != null);
         _encapsStack.decoder.skipSlice();
     }
 
@@ -789,11 +746,11 @@ public class InputStream
      **/
     public void readPendingValues()
     {
-        if(_encapsStack != null && _encapsStack.decoder != null)
+        if (_encapsStack != null && _encapsStack.decoder != null)
         {
             _encapsStack.decoder.readPendingValues();
         }
-        else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
+        else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
         {
             //
             // If using the 1.0 encoding and no instances were read, we
@@ -818,10 +775,10 @@ public class InputStream
         try
         {
             byte b = _buf.b.get();
-            if(b == -1)
+            if (b == -1)
             {
                 int v = _buf.b.getInt();
-                if(v < 0)
+                if (v < 0)
                 {
                     throw new UnmarshalOutOfBoundsException();
                 }
@@ -832,7 +789,7 @@ public class InputStream
                 return b < 0 ? b + 256 : b;
             }
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -848,7 +805,7 @@ public class InputStream
     {
         int sz = readSize();
 
-        if(sz == 0)
+        if (sz == 0)
         {
             return sz;
         }
@@ -870,7 +827,7 @@ public class InputStream
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
-        if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+        if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
         {
             _startSeq = _buf.b.position();
             _minSeqSize = sz * minSize;
@@ -885,7 +842,7 @@ public class InputStream
         // possibly enclosed sequences), something is wrong with the marshalled
         // data: it's claiming having more data that what is possible to read.
         //
-        if(_startSeq + _minSeqSize > _buf.size())
+        if (_startSeq + _minSeqSize > _buf.size())
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -901,7 +858,7 @@ public class InputStream
      **/
     public byte[] readBlob(int sz)
     {
-        if(_buf.b.remaining() < sz)
+        if (_buf.b.remaining() < sz)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -911,7 +868,7 @@ public class InputStream
             _buf.b.get(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -926,8 +883,8 @@ public class InputStream
      **/
     public boolean readOptional(int tag, OptionalFormat expectedFormat)
     {
-        assert(_encapsStack != null);
-        if(_encapsStack.decoder != null)
+        assert (_encapsStack != null);
+        if (_encapsStack.decoder != null)
         {
             return _encapsStack.decoder.readOptional(tag, expectedFormat);
         }
@@ -948,7 +905,7 @@ public class InputStream
         {
             return _buf.b.get();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -962,7 +919,7 @@ public class InputStream
      **/
     public java.util.Optional<Byte> readByte(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F1))
+        if (readOptional(tag, OptionalFormat.F1))
         {
             return java.util.Optional.of(readByte());
         }
@@ -986,7 +943,7 @@ public class InputStream
             _buf.b.get(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1000,7 +957,7 @@ public class InputStream
      **/
     public java.util.Optional<byte[]> readByteSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             return java.util.Optional.of(readByteSeq());
         }
@@ -1027,7 +984,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1054,17 +1011,17 @@ public class InputStream
             in = new com.zeroc.IceInternal.ObjectInputStream(_instance, w);
             return cl.cast(in.readObject());
         }
-        catch(LocalException ex)
+        catch (LocalException ex)
         {
             throw ex;
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new MarshalException("cannot deserialize object", ex);
         }
         finally
         {
-            if(in != null)
+            if (in != null)
             {
                 try
                 {
@@ -1088,7 +1045,7 @@ public class InputStream
      **/
     public <T extends java.io.Serializable> java.util.Optional<T> readSerializable(int tag, Class<T> cl)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             return java.util.Optional.of(readSerializable(cl));
         }
@@ -1109,7 +1066,7 @@ public class InputStream
         {
             return _buf.b.get() == 1;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1123,7 +1080,7 @@ public class InputStream
      **/
     public java.util.Optional<Boolean> readBool(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F1))
+        if (readOptional(tag, OptionalFormat.F1))
         {
             return java.util.Optional.of(readBool());
         }
@@ -1144,13 +1101,13 @@ public class InputStream
         {
             final int sz = readAndCheckSeqSize(1);
             boolean[] v = new boolean[sz];
-            for(int i = 0; i < sz; i++)
+            for (int i = 0; i < sz; i++)
             {
                 v[i] = _buf.b.get() == 1;
             }
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1164,7 +1121,7 @@ public class InputStream
      **/
     public java.util.Optional<boolean[]> readBoolSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             return java.util.Optional.of(readBoolSeq());
         }
@@ -1185,7 +1142,7 @@ public class InputStream
         {
             return _buf.b.getShort();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1199,7 +1156,7 @@ public class InputStream
      **/
     public java.util.Optional<Short> readShort(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F2))
+        if (readOptional(tag, OptionalFormat.F2))
         {
             return java.util.Optional.of(readShort());
         }
@@ -1225,7 +1182,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 2);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1239,7 +1196,7 @@ public class InputStream
      **/
     public java.util.Optional<short[]> readShortSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
             return java.util.Optional.of(readShortSeq());
@@ -1268,7 +1225,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 2);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1285,7 +1242,7 @@ public class InputStream
         {
             return _buf.b.getInt();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1299,7 +1256,7 @@ public class InputStream
      **/
     public java.util.OptionalInt readInt(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F4))
+        if (readOptional(tag, OptionalFormat.F4))
         {
             return java.util.OptionalInt.of(readInt());
         }
@@ -1325,7 +1282,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 4);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1339,7 +1296,7 @@ public class InputStream
      **/
     public java.util.Optional<int[]> readIntSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
             return java.util.Optional.of(readIntSeq());
@@ -1368,7 +1325,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1385,7 +1342,7 @@ public class InputStream
         {
             return _buf.b.getLong();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1399,7 +1356,7 @@ public class InputStream
      **/
     public java.util.OptionalLong readLong(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F8))
+        if (readOptional(tag, OptionalFormat.F8))
         {
             return java.util.OptionalLong.of(readLong());
         }
@@ -1425,7 +1382,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 8);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1439,7 +1396,7 @@ public class InputStream
      **/
     public java.util.Optional<long[]> readLongSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
             return java.util.Optional.of(readLongSeq());
@@ -1468,7 +1425,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1485,7 +1442,7 @@ public class InputStream
         {
             return _buf.b.getFloat();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1499,7 +1456,7 @@ public class InputStream
      **/
     public java.util.Optional<Float> readFloat(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F4))
+        if (readOptional(tag, OptionalFormat.F4))
         {
             return java.util.Optional.of(readFloat());
         }
@@ -1525,7 +1482,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 4);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1539,7 +1496,7 @@ public class InputStream
      **/
     public java.util.Optional<float[]> readFloatSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
             return java.util.Optional.of(readFloatSeq());
@@ -1568,7 +1525,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1585,7 +1542,7 @@ public class InputStream
         {
             return _buf.b.getDouble();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1599,7 +1556,7 @@ public class InputStream
      **/
     public java.util.OptionalDouble readDouble(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F8))
+        if (readOptional(tag, OptionalFormat.F8))
         {
             return java.util.OptionalDouble.of(readDouble());
         }
@@ -1625,7 +1582,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 8);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1639,7 +1596,7 @@ public class InputStream
      **/
     public java.util.Optional<double[]> readDoubleSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
             return java.util.Optional.of(readDoubleSeq());
@@ -1668,7 +1625,7 @@ public class InputStream
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -1685,7 +1642,7 @@ public class InputStream
     {
         final int len = readSize();
 
-        if(len == 0)
+        if (len == 0)
         {
             return "";
         }
@@ -1694,7 +1651,7 @@ public class InputStream
             //
             // Check the buffer has enough bytes to read.
             //
-            if(_buf.b.remaining() < len)
+            if (_buf.b.remaining() < len)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -1705,11 +1662,11 @@ public class InputStream
                 // We reuse the _stringBytes array to avoid creating
                 // excessive garbage.
                 //
-                if(_stringBytes == null || len > _stringBytes.length)
+                if (_stringBytes == null || len > _stringBytes.length)
                 {
                     _stringBytes = new byte[len];
                 }
-                if(_stringChars == null || len > _stringChars.length)
+                if (_stringChars == null || len > _stringChars.length)
                 {
                     _stringChars = new char[len];
                 }
@@ -1720,9 +1677,9 @@ public class InputStream
                 // character array instead of a byte array, because
                 // byte arrays require conversion.
                 //
-                for(int i = 0; i < len; i++)
+                for (int i = 0; i < len; i++)
                 {
-                    if(_stringBytes[i] < 0)
+                    if (_stringBytes[i] < 0)
                     {
                         //
                         // Multi-byte character found - we must use
@@ -1746,12 +1703,12 @@ public class InputStream
                 }
                 return new String(_stringChars, 0, len);
             }
-            catch(java.io.UnsupportedEncodingException ex)
+            catch (java.io.UnsupportedEncodingException ex)
             {
-                assert(false);
+                assert (false);
                 return "";
             }
-            catch(java.nio.BufferUnderflowException ex)
+            catch (java.nio.BufferUnderflowException ex)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -1766,7 +1723,7 @@ public class InputStream
      **/
     public java.util.Optional<String> readString(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if (readOptional(tag, OptionalFormat.VSize))
         {
             return java.util.Optional.of(readString());
         }
@@ -1785,7 +1742,7 @@ public class InputStream
     {
         final int sz = readAndCheckSeqSize(1);
         String[] v = new String[sz];
-        for(int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; i++)
         {
             v[i] = readString();
         }
@@ -1800,7 +1757,7 @@ public class InputStream
      **/
     public java.util.Optional<String[]> readStringSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if (readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
             return java.util.Optional.of(readStringSeq());
@@ -1818,7 +1775,7 @@ public class InputStream
      **/
     public ObjectPrx readProxy()
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
@@ -1828,7 +1785,7 @@ public class InputStream
 
     public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast)
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
@@ -1844,7 +1801,7 @@ public class InputStream
      **/
     public java.util.Optional<ObjectPrx> readProxy(int tag)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if (readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
             return java.util.Optional.of(readProxy());
@@ -1863,9 +1820,10 @@ public class InputStream
      * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
      * @return The optional value (if any).
      **/
-    public <T extends ObjectPrx> java.util.Optional<T> readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
+    public <T extends ObjectPrx> java.util.Optional<T>
+    readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if (readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
             return java.util.Optional.of(readProxy(cast));
@@ -1884,13 +1842,13 @@ public class InputStream
      **/
     public int readEnum(int maxValue)
     {
-        if(getEncoding().equals(Util.Encoding_1_0))
+        if (getEncoding().equals(Util.Encoding_1_0))
         {
-            if(maxValue < 127)
+            if (maxValue < 127)
             {
                 return readByte();
             }
-            else if(maxValue < 32767)
+            else if (maxValue < 32767)
             {
                 return readShort();
             }
@@ -1919,14 +1877,14 @@ public class InputStream
     public <T extends Value> void readValue(java.util.function.Consumer<T> cb, Class<T> cls)
     {
         initEncaps();
-        if(cb == null)
+        if (cb == null)
         {
             _encapsStack.decoder.readValue(null);
         }
         else
         {
             _encapsStack.decoder.readValue(v -> {
-                if(v == null || cls.isInstance(v))
+                if (v == null || cls.isInstance(v))
                 {
                     cb.accept(cls.cast(v));
                 }
@@ -1945,10 +1903,7 @@ public class InputStream
      * extracts Slice values in stages. The Ice run time calls accept on the consumer when
      * the corresponding instance has been fully unmarshaled.
      **/
-    public void readValue(java.util.function.Consumer<Value> cb)
-    {
-        readValue(cb, Value.class);
-    }
+    public void readValue(java.util.function.Consumer<Value> cb) { readValue(cb, Value.class); }
 
     /**
      * Extracts an optional Slice value from the stream.
@@ -1963,11 +1918,12 @@ public class InputStream
      *
      * @param cls The type of the Ice.Value to unmarshal.
      **/
-    public <T extends Value> void readValue(int tag, java.util.function.Consumer<java.util.Optional<T>> cb, Class<T> cls)
+    public <T extends Value> void
+    readValue(int tag, java.util.function.Consumer<java.util.Optional<T>> cb, Class<T> cls)
     {
-        if(readOptional(tag, OptionalFormat.Class))
+        if (readOptional(tag, OptionalFormat.Class))
         {
-            if(cb != null)
+            if (cb != null)
             {
                 readValue(v -> cb.accept(java.util.Optional.ofNullable(v)), cls);
             }
@@ -1978,7 +1934,7 @@ public class InputStream
         }
         else
         {
-            if(cb != null)
+            if (cb != null)
             {
                 cb.accept(java.util.Optional.empty());
             }
@@ -2004,11 +1960,7 @@ public class InputStream
      *
      * @throws UserException The user exception that was unmarshaled.
      **/
-    public void throwException()
-        throws UserException
-    {
-        throwException(null);
-    }
+    public void throwException() throws UserException { throwException(null); }
 
     /**
      * Extracts a user exception from the stream and throws it. The caller can supply a factory
@@ -2018,8 +1970,7 @@ public class InputStream
      *
      * @throws UserException The user exception that was unmarshaled.
      **/
-    public void throwException(UserExceptionFactory factory)
-        throws UserException
+    public void throwException(UserExceptionFactory factory) throws UserException
     {
         initEncaps();
         _encapsStack.decoder.throwException(factory);
@@ -2027,21 +1978,21 @@ public class InputStream
 
     private boolean readOptImpl(int readTag, OptionalFormat expectedFormat)
     {
-        if(isEncoding_1_0())
+        if (isEncoding_1_0())
         {
             return false; // Optional members aren't supported with the 1.0 encoding.
         }
 
-        while(true)
+        while (true)
         {
-            if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
             {
                 return false; // End of encapsulation also indicates end of optionals.
             }
 
             final byte b = readByte();
             final int v = b < 0 ? b + 256 : b;
-            if(v == Protocol.OPTIONAL_END_MARKER)
+            if (v == Protocol.OPTIONAL_END_MARKER)
             {
                 _buf.position(_buf.b.position() - 1); // Rewind.
                 return false;
@@ -2049,24 +2000,24 @@ public class InputStream
 
             OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
             int tag = v >> 3;
-            if(tag == 30)
+            if (tag == 30)
             {
                 tag = readSize();
             }
 
-            if(tag > readTag)
+            if (tag > readTag)
             {
                 int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
                 _buf.position(_buf.b.position() - offset);
                 return false; // No optional data members with the requested tag.
             }
-            else if(tag < readTag)
+            else if (tag < readTag)
             {
                 skipOptional(format); // Skip optional data members
             }
             else
             {
-                if(format != expectedFormat)
+                if (format != expectedFormat)
                 {
                     throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
                 }
@@ -2077,48 +2028,48 @@ public class InputStream
 
     private void skipOptional(OptionalFormat format)
     {
-        switch(format)
+        switch (format)
         {
-        case F1:
-        {
-            skip(1);
-            break;
-        }
-        case F2:
-        {
-            skip(2);
-            break;
-        }
-        case F4:
-        {
-            skip(4);
-            break;
-        }
-        case F8:
-        {
-            skip(8);
-            break;
-        }
-        case Size:
-        {
-            skipSize();
-            break;
-        }
-        case VSize:
-        {
-            skip(readSize());
-            break;
-        }
-        case FSize:
-        {
-            skip(readInt());
-            break;
-        }
-        case Class:
-        {
-            readValue(null, null);
-            break;
-        }
+            case F1:
+            {
+                skip(1);
+                break;
+            }
+            case F2:
+            {
+                skip(2);
+                break;
+            }
+            case F4:
+            {
+                skip(4);
+                break;
+            }
+            case F8:
+            {
+                skip(8);
+                break;
+            }
+            case Size:
+            {
+                skipSize();
+                break;
+            }
+            case VSize:
+            {
+                skip(readSize());
+                break;
+            }
+            case FSize:
+            {
+                skip(readInt());
+                break;
+            }
+            case Class:
+            {
+                readValue(null, null);
+                break;
+            }
         }
     }
 
@@ -2127,22 +2078,22 @@ public class InputStream
         //
         // Skip remaining un-read optional members.
         //
-        while(true)
+        while (true)
         {
-            if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
             {
                 return; // End of encapsulation also indicates end of optionals.
             }
 
             final byte b = readByte();
             final int v = b < 0 ? b + 256 : b;
-            if(v == Protocol.OPTIONAL_END_MARKER)
+            if (v == Protocol.OPTIONAL_END_MARKER)
             {
                 return;
             }
 
             OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // Read first 3 bits.
-            if((v >> 3) == 30)
+            if ((v >> 3) == 30)
             {
                 skipSize();
             }
@@ -2157,7 +2108,7 @@ public class InputStream
      **/
     public void skip(int size)
     {
-        if(size < 0 || size > _buf.b.remaining())
+        if (size < 0 || size > _buf.b.remaining())
         {
             throw new UnmarshalOutOfBoundsException();
         }
@@ -2170,7 +2121,7 @@ public class InputStream
     public void skipSize()
     {
         byte b = readByte();
-        if(b == -1)
+        if (b == -1)
         {
             skip(4);
         }
@@ -2181,40 +2132,28 @@ public class InputStream
      *
      * @return The current position.
      **/
-    public int pos()
-    {
-        return _buf.b.position();
-    }
+    public int pos() { return _buf.b.position(); }
 
     /**
      * Sets the current position in the stream.
      *
      * @param n The new position.
      **/
-    public void pos(int n)
-    {
-        _buf.position(n);
-    }
+    public void pos(int n) { _buf.position(n); }
 
     /**
      * Determines the current size of the stream.
      *
      * @return The current size.
      **/
-    public int size()
-    {
-        return _buf.size();
-    }
+    public int size() { return _buf.size(); }
 
     /**
      * Determines whether the stream is empty.
      *
      * @return True if the internal buffer has no data, false otherwise.
      **/
-    public boolean isEmpty()
-    {
-        return _buf.empty();
-    }
+    public boolean isEmpty() { return _buf.empty(); }
 
     private UserException createUserException(String id)
     {
@@ -2222,16 +2161,16 @@ public class InputStream
 
         try
         {
-            if(_classResolver != null)
+            if (_classResolver != null)
             {
                 Class<?> c = _classResolver.apply(id);
-                if(c != null)
+                if (c != null)
                 {
                     userEx = (UserException)c.getDeclaredConstructor().newInstance();
                 }
             }
         }
-        catch(java.lang.Exception ex)
+        catch (java.lang.Exception ex)
         {
             throw new MarshalException(ex);
         }
@@ -2245,11 +2184,20 @@ public class InputStream
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
 
-    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+    private enum SliceType
+    {
+        NoSlice,
+        ValueSlice,
+        ExceptionSlice
+    }
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr)
+        EncapsDecoder(
+            InputStream stream,
+            boolean sliceValues,
+            ValueFactoryManager f,
+            java.util.function.Function<String, Class<?>> cr)
         {
             _stream = stream;
             _sliceValues = sliceValues;
@@ -2260,8 +2208,7 @@ public class InputStream
         }
 
         abstract void readValue(java.util.function.Consumer<Value> cb);
-        abstract void throwException(UserExceptionFactory factory)
-            throws UserException;
+        abstract void throwException(UserExceptionFactory factory) throws UserException;
 
         abstract void startInstance(SliceType type);
         abstract SlicedData endInstance();
@@ -2269,27 +2216,22 @@ public class InputStream
         abstract void endSlice();
         abstract void skipSlice();
 
-        boolean readOptional(int tag, OptionalFormat format)
-        {
-            return false;
-        }
+        boolean readOptional(int tag, OptionalFormat format) { return false; }
 
-        void readPendingValues()
-        {
-        }
+        void readPendingValues() {}
 
         protected String readTypeId(boolean isIndex)
         {
-            if(_typeIdMap == null) // Lazy initialization
+            if (_typeIdMap == null) // Lazy initialization
             {
                 _typeIdMap = new java.util.TreeMap<>();
             }
 
-            if(isIndex)
+            if (isIndex)
             {
                 int index = _stream.readSize();
                 String typeId = _typeIdMap.get(index);
-                if(typeId == null)
+                if (typeId == null)
                 {
                     throw new UnmarshalOutOfBoundsException();
                 }
@@ -2306,7 +2248,7 @@ public class InputStream
         protected Class<?> resolveClass(String typeId)
         {
             Class<?> cls = null;
-            if(_typeIdCache == null)
+            if (_typeIdCache == null)
             {
                 _typeIdCache = new java.util.HashMap<>(); // Lazy initialization.
             }
@@ -2315,21 +2257,21 @@ public class InputStream
                 cls = _typeIdCache.get(typeId);
             }
 
-            if(cls == EncapsDecoder.class) // Marker for non-existent class.
+            if (cls == EncapsDecoder.class) // Marker for non-existent class.
             {
                 cls = null;
             }
-            else if(cls == null)
+            else if (cls == null)
             {
                 try
                 {
-                    if(_classResolver != null)
+                    if (_classResolver != null)
                     {
                         cls = _classResolver.apply(typeId);
                         _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
                     }
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     throw new NoValueFactoryException("no value factory", typeId, ex);
                 }
@@ -2345,7 +2287,7 @@ public class InputStream
             //
             ValueFactory userFactory = _valueFactoryManager.find(typeId);
             Value v = null;
-            if(userFactory != null)
+            if (userFactory != null)
             {
                 v = userFactory.create(typeId);
             }
@@ -2354,10 +2296,10 @@ public class InputStream
             // If that fails, invoke the default factory if one has been
             // registered.
             //
-            if(v == null)
+            if (v == null)
             {
                 userFactory = _valueFactoryManager.find("");
-                if(userFactory != null)
+                if (userFactory != null)
                 {
                     v = userFactory.create(typeId);
                 }
@@ -2366,17 +2308,17 @@ public class InputStream
             //
             // Last chance: try to instantiate the class dynamically.
             //
-            if(v == null)
+            if (v == null)
             {
                 Class<?> cls = resolveClass(typeId);
 
-                if(cls != null)
+                if (cls != null)
                 {
                     try
                     {
                         v = (Value)cls.getDeclaredConstructor().newInstance();
                     }
-                    catch(java.lang.Exception ex)
+                    catch (java.lang.Exception ex)
                     {
                         throw new NoValueFactoryException("no value factory", typeId, ex);
                     }
@@ -2388,20 +2330,20 @@ public class InputStream
 
         protected void addPatchEntry(int index, java.util.function.Consumer<Value> cb)
         {
-            assert(index > 0);
+            assert (index > 0);
 
             //
             // Check if we have already unmarshalled the instance. If that's the case,
             // just invoke the callback and we're done.
             //
             Value obj = _unmarshaledMap.get(index);
-            if(obj != null)
+            if (obj != null)
             {
                 cb.accept(obj);
                 return;
             }
 
-            if(_patchMap == null) // Lazy initialization
+            if (_patchMap == null) // Lazy initialization
             {
                 _patchMap = new java.util.TreeMap<>();
             }
@@ -2412,7 +2354,7 @@ public class InputStream
             // unmarshaled.
             //
             java.util.LinkedList<java.util.function.Consumer<Value>> l = _patchMap.get(index);
-            if(l == null)
+            if (l == null)
             {
                 //
                 // We have no outstanding instances to be patched for this
@@ -2441,20 +2383,20 @@ public class InputStream
             //
             v._iceRead(_stream);
 
-            if(_patchMap != null)
+            if (_patchMap != null)
             {
                 //
                 // Patch all instances now that the instance is unmarshaled.
                 //
                 java.util.LinkedList<java.util.function.Consumer<Value>> l = _patchMap.get(index);
-                if(l != null)
+                if (l != null)
                 {
-                    assert(l.size() > 0);
+                    assert (l.size() > 0);
 
                     //
                     // Patch all pointers that refer to the instance.
                     //
-                    for(java.util.function.Consumer<Value> cb : l)
+                    for (java.util.function.Consumer<Value> cb : l)
                     {
                         cb.accept(v);
                     }
@@ -2467,13 +2409,13 @@ public class InputStream
                 }
             }
 
-            if((_patchMap == null || _patchMap.isEmpty()) && _valueList == null)
+            if ((_patchMap == null || _patchMap.isEmpty()) && _valueList == null)
             {
                 try
                 {
                     v.ice_postUnmarshal();
                 }
-                catch(java.lang.Exception ex)
+                catch (java.lang.Exception ex)
                 {
                     String s = "exception raised by ice_postUnmarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
                     _stream.instance().initializationData().logger.warning(s);
@@ -2481,13 +2423,13 @@ public class InputStream
             }
             else
             {
-                if(_valueList == null) // Lazy initialization
+                if (_valueList == null) // Lazy initialization
                 {
                     _valueList = new java.util.ArrayList<>();
                 }
                 _valueList.add(v);
 
-                if(_patchMap == null || _patchMap.isEmpty())
+                if (_patchMap == null || _patchMap.isEmpty())
                 {
                     //
                     // Iterate over the instance list and invoke ice_postUnmarshal on
@@ -2495,16 +2437,16 @@ public class InputStream
                     // unmarshaled in order to ensure that any instance data members
                     // have been properly patched.
                     //
-                    for(Value p : _valueList)
+                    for (Value p : _valueList)
                     {
                         try
                         {
                             p.ice_postUnmarshal();
                         }
-                        catch(java.lang.Exception ex)
+                        catch (java.lang.Exception ex)
                         {
-                            String s = "exception raised by ice_postUnmarshal:\n" +
-                                com.zeroc.IceInternal.Ex.toString(ex);
+                            String s =
+                                "exception raised by ice_postUnmarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
                             _stream.instance().initializationData().logger.warning(s);
                         }
                     }
@@ -2521,38 +2463,41 @@ public class InputStream
         //
         // Encapsulation attributes for value unmarshaling.
         //
-        protected java.util.TreeMap<Integer, java.util.LinkedList<java.util.function.Consumer<Value>> > _patchMap;
+        protected java.util.TreeMap<Integer, java.util.LinkedList<java.util.function.Consumer<Value>>> _patchMap;
         private java.util.TreeMap<Integer, Value> _unmarshaledMap;
         private java.util.TreeMap<Integer, String> _typeIdMap;
         private int _typeIdIndex;
         private java.util.List<Value> _valueList;
-        private java.util.HashMap<String, Class<?> > _typeIdCache;
+        private java.util.HashMap<String, Class<?>> _typeIdCache;
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr)
+        EncapsDecoder10(
+            InputStream stream,
+            boolean sliceValues,
+            ValueFactoryManager f,
+            java.util.function.Function<String, Class<?>> cr)
         {
             super(stream, sliceValues, f, cr);
             _sliceType = SliceType.NoSlice;
         }
 
-        @Override
-        void readValue(java.util.function.Consumer<Value> cb)
+        @Override void readValue(java.util.function.Consumer<Value> cb)
         {
-            assert(cb != null);
+            assert (cb != null);
 
             //
             // Object references are encoded as a negative integer in 1.0.
             //
             int index = _stream.readInt();
-            if(index > 0)
+            if (index > 0)
             {
                 throw new MarshalException("invalid object id");
             }
             index = -index;
 
-            if(index == 0)
+            if (index == 0)
             {
                 cb.accept(null);
             }
@@ -2562,11 +2507,9 @@ public class InputStream
             }
         }
 
-        @Override
-        void throwException(UserExceptionFactory factory)
-            throws UserException
+        @Override void throwException(UserExceptionFactory factory) throws UserException
         {
-            assert(_sliceType == SliceType.NoSlice);
+            assert (_sliceType == SliceType.NoSlice);
 
             //
             // User exception with the 1.0 encoding start with a boolean flag
@@ -2585,26 +2528,26 @@ public class InputStream
             //
             startSlice();
             final String mostDerivedId = _typeId;
-            while(true)
+            while (true)
             {
                 UserException userEx = null;
 
                 //
                 // Use a factory if one was provided.
                 //
-                if(factory != null)
+                if (factory != null)
                 {
                     try
                     {
                         factory.createAndThrow(_typeId);
                     }
-                    catch(UserException ex)
+                    catch (UserException ex)
                     {
                         userEx = ex;
                     }
                 }
 
-                if(userEx == null)
+                if (userEx == null)
                 {
                     userEx = _stream.createUserException(_typeId);
                 }
@@ -2612,10 +2555,10 @@ public class InputStream
                 //
                 // We found the exception.
                 //
-                if(userEx != null)
+                if (userEx != null)
                 {
                     userEx._read(_stream);
-                    if(usesClasses)
+                    if (usesClasses)
                     {
                         readPendingValues();
                     }
@@ -2632,7 +2575,7 @@ public class InputStream
                 {
                     startSlice();
                 }
-                catch(UnmarshalOutOfBoundsException ex)
+                catch (UnmarshalOutOfBoundsException ex)
                 {
                     //
                     // An oversight in the 1.0 encoding means there is no marker to indicate
@@ -2648,24 +2591,22 @@ public class InputStream
             }
         }
 
-        @Override
-        void startInstance(SliceType sliceType)
+        @Override void startInstance(SliceType sliceType)
         {
-            assert(_sliceType == sliceType);
+            assert (_sliceType == sliceType);
             _skipFirstSlice = true;
         }
 
-        @Override
-        SlicedData endInstance()
+        @Override SlicedData endInstance()
         {
             //
             // Read the Ice::Object slice.
             //
-            if(_sliceType == SliceType.ValueSlice)
+            if (_sliceType == SliceType.ValueSlice)
             {
                 startSlice();
                 int sz = _stream.readSize(); // For compatibility with the old AFM.
-                if(sz != 0)
+                if (sz != 0)
                 {
                     throw new MarshalException("invalid Object slice");
                 }
@@ -2676,14 +2617,13 @@ public class InputStream
             return null;
         }
 
-        @Override
-        String startSlice()
+        @Override String startSlice()
         {
             //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
             //
-            if(_skipFirstSlice)
+            if (_skipFirstSlice)
             {
                 _skipFirstSlice = false;
                 return _typeId;
@@ -2695,7 +2635,7 @@ public class InputStream
             // index. For exceptions, the type ID is always encoded as a
             // string.
             //
-            if(_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
+            if (_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
             {
                 boolean isIndex = _stream.readBool();
                 _typeId = readTypeId(isIndex);
@@ -2706,7 +2646,7 @@ public class InputStream
             }
 
             _sliceSize = _stream.readInt();
-            if(_sliceSize < 4)
+            if (_sliceSize < 4)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -2714,34 +2654,28 @@ public class InputStream
             return _typeId;
         }
 
-        @Override
-        void endSlice()
-        {
-        }
+        @Override void endSlice() {}
 
-        @Override
-        void skipSlice()
+        @Override void skipSlice()
         {
             _stream.traceSkipSlice(_typeId, _sliceType);
-            assert(_sliceSize >= 4);
+            assert (_sliceSize >= 4);
             _stream.skip(_sliceSize - 4);
         }
 
-        @Override
-        void readPendingValues()
+        @Override void readPendingValues()
         {
             int num;
             do
             {
                 num = _stream.readSize();
-                for(int k = num; k > 0; --k)
+                for (int k = num; k > 0; --k)
                 {
                     readInstance();
                 }
-            }
-            while(num > 0);
+            } while (num > 0);
 
-            if(_patchMap != null && !_patchMap.isEmpty())
+            if (_patchMap != null && !_patchMap.isEmpty())
             {
                 //
                 // If any entries remain in the patch map, the sender has sent an index for an object, but failed
@@ -2755,7 +2689,7 @@ public class InputStream
         {
             int index = _stream.readInt();
 
-            if(index <= 0)
+            if (index <= 0)
             {
                 throw new MarshalException("invalid object id");
             }
@@ -2769,13 +2703,13 @@ public class InputStream
             startSlice();
             final String mostDerivedId = _typeId;
             Value v = null;
-            while(true)
+            while (true)
             {
                 //
                 // For the 1.0 encoding, the type ID for the base Object class
                 // marks the last slice.
                 //
-                if(_typeId.equals(Value.ice_staticId()))
+                if (_typeId.equals(Value.ice_staticId()))
                 {
                     throw new NoValueFactoryException("", mostDerivedId);
                 }
@@ -2785,7 +2719,7 @@ public class InputStream
                 //
                 // We found a factory, we get out of this loop.
                 //
-                if(v != null)
+                if (v != null)
                 {
                     break;
                 }
@@ -2793,7 +2727,7 @@ public class InputStream
                 //
                 // If slicing is disabled, stop unmarshaling.
                 //
-                if(!_sliceValues)
+                if (!_sliceValues)
                 {
                     throw new NoValueFactoryException("no value factory found and slicing is disabled", _typeId);
                 }
@@ -2822,8 +2756,12 @@ public class InputStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr,
-                        java.util.function.IntFunction<String> r)
+        EncapsDecoder11(
+            InputStream stream,
+            boolean sliceValues,
+            ValueFactoryManager f,
+            java.util.function.Function<String, Class<?>> cr,
+            java.util.function.IntFunction<String> r)
         {
             super(stream, sliceValues, f, cr);
             _compactIdResolver = r;
@@ -2831,22 +2769,21 @@ public class InputStream
             _valueIdIndex = 1;
         }
 
-        @Override
-        void readValue(java.util.function.Consumer<Value> cb)
+        @Override void readValue(java.util.function.Consumer<Value> cb)
         {
             int index = _stream.readSize();
-            if(index < 0)
+            if (index < 0)
             {
                 throw new MarshalException("invalid object id");
             }
-            else if(index == 0)
+            else if (index == 0)
             {
-                if(cb != null)
+                if (cb != null)
                 {
                     cb.accept(null);
                 }
             }
-            else if(_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 //
                 // When reading a class instance within a slice and there's an
@@ -2859,9 +2796,9 @@ public class InputStream
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                if(cb != null)
+                if (cb != null)
                 {
-                    if(_current.indirectPatchList == null) // Lazy initialization
+                    if (_current.indirectPatchList == null) // Lazy initialization
                     {
                         _current.indirectPatchList = new java.util.ArrayDeque<>();
                     }
@@ -2877,11 +2814,9 @@ public class InputStream
             }
         }
 
-        @Override
-        void throwException(UserExceptionFactory factory)
-            throws UserException
+        @Override void throwException(UserExceptionFactory factory) throws UserException
         {
-            assert(_current == null);
+            assert (_current == null);
 
             push(SliceType.ExceptionSlice);
 
@@ -2890,26 +2825,26 @@ public class InputStream
             //
             startSlice();
             final String mostDerivedId = _current.typeId;
-            while(true)
+            while (true)
             {
                 UserException userEx = null;
 
                 //
                 // Use a factory if one was provided.
                 //
-                if(factory != null)
+                if (factory != null)
                 {
                     try
                     {
                         factory.createAndThrow(_current.typeId);
                     }
-                    catch(UserException ex)
+                    catch (UserException ex)
                     {
                         userEx = ex;
                     }
                 }
 
-                if(userEx == null)
+                if (userEx == null)
                 {
                     userEx = _stream.createUserException(_current.typeId);
                 }
@@ -2917,7 +2852,7 @@ public class InputStream
                 //
                 // We found the exception.
                 //
-                if(userEx != null)
+                if (userEx != null)
                 {
                     userEx._read(_stream);
                     throw userEx;
@@ -2930,9 +2865,9 @@ public class InputStream
                 //
                 skipSlice();
 
-                if((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    if(mostDerivedId.startsWith("::"))
+                    if (mostDerivedId.startsWith("::"))
                     {
                         throw new UnknownUserException(mostDerivedId.substring(2));
                     }
@@ -2946,18 +2881,16 @@ public class InputStream
             }
         }
 
-        @Override
-        void startInstance(SliceType sliceType)
+        @Override void startInstance(SliceType sliceType)
         {
-            assert(_current.sliceType == sliceType);
+            assert (_current.sliceType == sliceType);
             _current.skipFirstSlice = true;
         }
 
-        @Override
-        SlicedData endInstance()
+        @Override SlicedData endInstance()
         {
             SlicedData slicedData = readSlicedData();
-            if(_current.slices != null)
+            if (_current.slices != null)
             {
                 _current.slices.clear();
             }
@@ -2969,14 +2902,13 @@ public class InputStream
             return slicedData;
         }
 
-        @Override
-        String startSlice()
+        @Override String startSlice()
         {
             //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
             //
-            if(_current.skipFirstSlice)
+            if (_current.skipFirstSlice)
             {
                 _current.skipFirstSlice = false;
                 return _current.typeId;
@@ -2989,19 +2921,18 @@ public class InputStream
             // string or as an index, for exceptions it's always encoded as a
             // string.
             //
-            if(_current.sliceType == SliceType.ValueSlice)
+            if (_current.sliceType == SliceType.ValueSlice)
             {
-                if((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
                     Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
                 {
                     _current.typeId = "";
                     _current.compactId = _stream.readSize();
                 }
-                else if((_current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX |
-                            Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                else if (
+                    (_current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                 {
-                    _current.typeId =
-                        readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                     _current.compactId = -1;
                 }
                 else
@@ -3022,10 +2953,10 @@ public class InputStream
             //
             // Read the slice size if necessary.
             //
-            if((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 _current.sliceSize = _stream.readInt();
-                if(_current.sliceSize < 4)
+                if (_current.sliceSize < 4)
                 {
                     throw new UnmarshalOutOfBoundsException();
                 }
@@ -3038,10 +2969,9 @@ public class InputStream
             return _current.typeId;
         }
 
-        @Override
-        void endSlice()
+        @Override void endSlice()
         {
-            if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 _stream.skipOptionals();
             }
@@ -3050,13 +2980,13 @@ public class InputStream
             // Read the indirection table if one is present and transform the
             // indirect patch list into patch entries with direct references.
             //
-            if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 //
                 // The table is written as a sequence<size> to conserve space.
                 //
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                for(int i = 0; i < indirectionTable.length; ++i)
+                for (int i = 0; i < indirectionTable.length; ++i)
                 {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
@@ -3066,12 +2996,12 @@ public class InputStream
                 // that not all instance references were read if they are from
                 // unknown optional data members.
                 //
-                if(indirectionTable.length == 0)
+                if (indirectionTable.length == 0)
                 {
                     throw new MarshalException("empty indirection table");
                 }
-                if((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
-                   (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+                if ((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
+                    (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
                 {
                     throw new MarshalException("no references to indirection table");
                 }
@@ -3079,12 +3009,12 @@ public class InputStream
                 //
                 // Convert indirect references into direct references.
                 //
-                if(_current.indirectPatchList != null)
+                if (_current.indirectPatchList != null)
                 {
-                    for(IndirectPatchEntry e : _current.indirectPatchList)
+                    for (IndirectPatchEntry e : _current.indirectPatchList)
                     {
-                        assert(e.index >= 0);
-                        if(e.index >= indirectionTable.length)
+                        assert (e.index >= 0);
+                        if (e.index >= indirectionTable.length)
                         {
                             throw new MarshalException("indirection out of range");
                         }
@@ -3095,29 +3025,29 @@ public class InputStream
             }
         }
 
-        @Override
-        void skipSlice()
+        @Override void skipSlice()
         {
             _stream.traceSkipSlice(_current.typeId, _current.sliceType);
 
             int start = _stream.pos();
 
-            if((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                assert(_current.sliceSize >= 4);
+                assert (_current.sliceSize >= 4);
                 _stream.skip(_current.sliceSize - 4);
             }
             else
             {
-                if(_current.sliceType == SliceType.ValueSlice)
+                if (_current.sliceType == SliceType.ValueSlice)
                 {
-                    throw new NoValueFactoryException("no value factory found and compact format prevents " +
-                                                      "slicing (the sender should use the sliced format instead)",
-                                                      _current.typeId);
+                    throw new NoValueFactoryException(
+                        "no value factory found and compact format prevents "
+                            + "slicing (the sender should use the sliced format instead)",
+                        _current.typeId);
                 }
                 else
                 {
-                    if(_current.typeId.startsWith("::"))
+                    if (_current.typeId.startsWith("::"))
                     {
                         throw new UnknownUserException(_current.typeId.substring(2));
                     }
@@ -3141,7 +3071,7 @@ public class InputStream
                 Buffer buffer = _stream.getBuffer();
                 final int end = buffer.b.position();
                 int dataEnd = end;
-                if(info.hasOptionalMembers)
+                if (info.hasOptionalMembers)
                 {
                     //
                     // Don't include the optional member end marker. It will be re-written by
@@ -3154,14 +3084,14 @@ public class InputStream
                 buffer.b.get(info.bytes);
                 buffer.position(end);
 
-                if(_current.slices == null) // Lazy initialization
+                if (_current.slices == null) // Lazy initialization
                 {
                     _current.slices = new java.util.ArrayList<>();
                 }
                 _current.slices.add(info);
             }
 
-            if(_current.indirectionTables == null) // Lazy initialization
+            if (_current.indirectionTables == null) // Lazy initialization
             {
                 _current.indirectionTables = new java.util.ArrayList<>();
             }
@@ -3171,10 +3101,10 @@ public class InputStream
             // IDs if the instance is a reference to an already unmarshaled
             // instance.
             //
-            if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                for(int i = 0; i < indirectionTable.length; ++i)
+                for (int i = 0; i < indirectionTable.length; ++i)
                 {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
@@ -3186,14 +3116,13 @@ public class InputStream
             }
         }
 
-        @Override
-        boolean readOptional(int readTag, OptionalFormat expectedFormat)
+        @Override boolean readOptional(int readTag, OptionalFormat expectedFormat)
         {
-            if(_current == null)
+            if (_current == null)
             {
                 return _stream.readOptImpl(readTag, expectedFormat);
             }
-            else if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 return _stream.readOptImpl(readTag, expectedFormat);
             }
@@ -3202,11 +3131,11 @@ public class InputStream
 
         private int readInstance(int index, java.util.function.Consumer<Value> cb)
         {
-            assert(index > 0);
+            assert (index > 0);
 
-            if(index > 1)
+            if (index > 1)
             {
-                if(cb != null)
+                if (cb != null)
                 {
                     addPatchEntry(index, cb);
                 }
@@ -3228,18 +3157,18 @@ public class InputStream
             startSlice();
             final String mostDerivedId = _current.typeId;
             Value v = null;
-            while(true)
+            while (true)
             {
                 boolean updateCache = false;
 
-                if(_current.compactId >= 0)
+                if (_current.compactId >= 0)
                 {
                     updateCache = true;
 
                     //
                     // Translate a compact (numeric) type ID into a class.
                     //
-                    if(_compactIdCache == null)
+                    if (_compactIdCache == null)
                     {
                         _compactIdCache = new java.util.TreeMap<>(); // Lazy initialization.
                     }
@@ -3249,17 +3178,19 @@ public class InputStream
                         // Check the cache to see if we've already translated the compact type ID into a class.
                         //
                         Class<?> cls = _compactIdCache.get(_current.compactId);
-                        if(cls != null)
+                        if (cls != null)
                         {
                             try
                             {
                                 v = (Value)cls.getDeclaredConstructor().newInstance();
                                 updateCache = false;
                             }
-                            catch(java.lang.Exception ex)
+                            catch (java.lang.Exception ex)
                             {
-                                throw new NoValueFactoryException("no value factory", "compact ID " +
-                                                                  _current.compactId, ex);
+                                throw new NoValueFactoryException(
+                                    "no value factory",
+                                    "compact ID " + _current.compactId,
+                                    ex);
                             }
                         }
                     }
@@ -3268,43 +3199,44 @@ public class InputStream
                     // If we haven't already cached a class for the compact ID, then try to translate the
                     // compact ID into a type ID.
                     //
-                    if(v == null)
+                    if (v == null)
                     {
                         _current.typeId = "";
-                        if(_compactIdResolver != null)
+                        if (_compactIdResolver != null)
                         {
                             try
                             {
                                 _current.typeId = _compactIdResolver.apply(_current.compactId);
                             }
-                            catch(LocalException ex)
+                            catch (LocalException ex)
                             {
                                 throw ex;
                             }
-                            catch(Throwable ex)
+                            catch (Throwable ex)
                             {
-                                throw new MarshalException("exception in compact ID resolver for ID " +
-                                                           _current.compactId, ex);
+                                throw new MarshalException(
+                                    "exception in compact ID resolver for ID " + _current.compactId,
+                                    ex);
                             }
                         }
 
-                        if(_current.typeId.isEmpty())
+                        if (_current.typeId.isEmpty())
                         {
                             _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
                         }
                     }
                 }
 
-                if(v == null && !_current.typeId.isEmpty())
+                if (v == null && !_current.typeId.isEmpty())
                 {
                     v = newInstance(_current.typeId);
                 }
 
-                if(v != null)
+                if (v != null)
                 {
-                    if(updateCache)
+                    if (updateCache)
                     {
-                        assert(_current.compactId >= 0);
+                        assert (_current.compactId >= 0);
                         _compactIdCache.put(_current.compactId, v.getClass());
                     }
 
@@ -3317,10 +3249,11 @@ public class InputStream
                 //
                 // If slicing is disabled, stop unmarshaling.
                 //
-                if(!_sliceValues)
+                if (!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and slicing is disabled",
-                                                      _current.typeId);
+                    throw new NoValueFactoryException(
+                        "no value factory found and slicing is disabled",
+                        _current.typeId);
                 }
 
                 //
@@ -3332,7 +3265,7 @@ public class InputStream
                 // If this is the last slice, keep the instance as an opaque
                 // UnknownSlicedValue object.
                 //
-                if((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
                     //
                     // Provide a factory with an opportunity to supply the instance.
@@ -3340,7 +3273,7 @@ public class InputStream
                     // last chance to preserve the instance.
                     //
                     v = newInstance(Value.ice_staticId());
-                    if(v == null)
+                    if (v == null)
                     {
                         v = new UnknownSlicedValue(mostDerivedId);
                     }
@@ -3356,7 +3289,7 @@ public class InputStream
             //
             unmarshal(index, v);
 
-            if(_current == null && _patchMap != null && !_patchMap.isEmpty())
+            if (_current == null && _patchMap != null && !_patchMap.isEmpty())
             {
                 //
                 // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
@@ -3365,7 +3298,7 @@ public class InputStream
                 throw new MarshalException("index for class received, but no instance");
             }
 
-            if(cb != null)
+            if (cb != null)
             {
                 cb.accept(v);
             }
@@ -3375,7 +3308,7 @@ public class InputStream
 
         private SlicedData readSlicedData()
         {
-            if(_current.slices == null) // No preserved slices.
+            if (_current.slices == null) // No preserved slices.
             {
                 return null;
             }
@@ -3384,8 +3317,8 @@ public class InputStream
             // The _indirectionTables member holds the indirection table for each slice
             // in _slices.
             //
-            assert(_current.slices.size() == _current.indirectionTables.size());
-            for(int n = 0; n < _current.slices.size(); ++n)
+            assert (_current.slices.size() == _current.indirectionTables.size());
+            for (int n = 0; n < _current.slices.size(); ++n)
             {
                 //
                 // We use the "instances" list in SliceInfo to hold references
@@ -3396,7 +3329,7 @@ public class InputStream
                 final int[] table = _current.indirectionTables.get(n);
                 SliceInfo info = _current.slices.get(n);
                 info.instances = new Value[table != null ? table.length : 0];
-                for(int j = 0; j < info.instances.length; ++j)
+                for (int j = 0; j < info.instances.length; ++j)
                 {
                     final int k = j;
                     addPatchEntry(table[j], v -> info.instances[k] = v);
@@ -3410,7 +3343,7 @@ public class InputStream
 
         private void push(SliceType sliceType)
         {
-            if(_current == null)
+            if (_current == null)
             {
                 _current = new InstanceData(null);
             }
@@ -3432,7 +3365,7 @@ public class InputStream
         {
             InstanceData(InstanceData previous)
             {
-                if(previous != null)
+                if (previous != null)
                 {
                     previous.next = this;
                 }
@@ -3443,7 +3376,7 @@ public class InputStream
             // Instance attributes
             SliceType sliceType;
             boolean skipFirstSlice;
-            java.util.List<SliceInfo> slices;     // Preserved slices.
+            java.util.List<SliceInfo> slices; // Preserved slices.
             java.util.List<int[]> indirectionTables;
 
             // Slice attributes
@@ -3459,16 +3392,13 @@ public class InputStream
 
         private java.util.function.IntFunction<String> _compactIdResolver;
         private InstanceData _current;
-        private int _valueIdIndex; // The ID of the next instance to unmarshal.
-        private java.util.TreeMap<Integer, Class<?> > _compactIdCache; // Cache of compact type IDs.
+        private int _valueIdIndex;                                    // The ID of the next instance to unmarshal.
+        private java.util.TreeMap<Integer, Class<?>> _compactIdCache; // Cache of compact type IDs.
     }
 
     private static final class Encaps
     {
-        void reset()
-        {
-            decoder = null;
-        }
+        void reset() { decoder = null; }
 
         void setEncoding(EncodingVersion encoding)
         {
@@ -3502,10 +3432,10 @@ public class InputStream
 
     private void initEncaps()
     {
-        if(_encapsStack == null) // Lazy initialization
+        if (_encapsStack == null) // Lazy initialization
         {
             _encapsStack = _encapsCache;
-            if(_encapsStack != null)
+            if (_encapsStack != null)
             {
                 _encapsCache = _encapsCache.next;
             }
@@ -3517,33 +3447,35 @@ public class InputStream
             _encapsStack.sz = _buf.b.limit();
         }
 
-        if(_encapsStack.decoder == null) // Lazy initialization.
+        if (_encapsStack.decoder == null) // Lazy initialization.
         {
-            if(_encapsStack.encoding_1_0)
+            if (_encapsStack.encoding_1_0)
             {
                 _encapsStack.decoder = new EncapsDecoder10(this, _sliceValues, _valueFactoryManager, _classResolver);
             }
             else
             {
-                _encapsStack.decoder = new EncapsDecoder11(this, _sliceValues, _valueFactoryManager, _classResolver,
-                                                           _compactIdResolver);
+                _encapsStack.decoder =
+                    new EncapsDecoder11(this, _sliceValues, _valueFactoryManager, _classResolver, _compactIdResolver);
             }
         }
     }
 
     private void traceSkipSlice(String typeId, SliceType sliceType)
     {
-        if(_traceSlicing && _logger != null)
+        if (_traceSlicing && _logger != null)
         {
             com.zeroc.IceInternal.TraceUtil.traceSlicing(
-                sliceType == SliceType.ExceptionSlice ? "exception" : "object", typeId, "Slicing", _logger);
+                sliceType == SliceType.ExceptionSlice ? "exception" : "object",
+                typeId,
+                "Slicing",
+                _logger);
         }
     }
 
     /** @hidden */
     @FunctionalInterface
-    static public interface Unmarshaler
-    {
+    static public interface Unmarshaler {
         void unmarshal(InputStream istr);
     }
 

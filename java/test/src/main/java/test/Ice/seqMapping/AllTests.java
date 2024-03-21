@@ -5,7 +5,6 @@
 package test.Ice.seqMapping;
 
 import java.io.PrintWriter;
-
 import test.Ice.seqMapping.Test.*;
 
 public class AllTests
@@ -24,7 +23,7 @@ public class AllTests
         Twoways.twoways(cl);
         out.println("ok");
 
-        if(!collocated)
+        if (!collocated)
         {
             out.print("testing twoway operations with AMI... ");
             out.flush();

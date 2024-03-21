@@ -4,10 +4,9 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import java.util.Enumeration;
-
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
+import java.util.Enumeration;
 
 public abstract class TreeNode extends TreeNodeBase
 {
@@ -20,23 +19,14 @@ public abstract class TreeNode extends TreeNodeBase
     //
     // Ephemeral objects are destroyed when discard their changes
     //
-    public boolean isEphemeral()
-    {
-        return false;
-    }
+    public boolean isEphemeral() { return false; }
 
     //
     // Destroys this node
     //
-    public void destroy()
-    {
-        assert false;
-    }
+    public void destroy() { assert false; }
 
-    TreeNode(TreeNode parent, String id)
-    {
-        super(parent, id);
-    }
+    TreeNode(TreeNode parent, String id) { super(parent, id); }
 
     public Root getRoot()
     {
@@ -57,7 +47,7 @@ public abstract class TreeNode extends TreeNodeBase
     //
     Utils.Resolver getResolver()
     {
-        if(isEphemeral())
+        if (isEphemeral())
         {
             return null;
         }
@@ -73,10 +63,10 @@ public abstract class TreeNode extends TreeNodeBase
     TreeNode findChildWithDescriptor(Object descriptor)
     {
         Enumeration p = children();
-        while(p.hasMoreElements())
+        while (p.hasMoreElements())
         {
             TreeNode node = (TreeNode)p.nextElement();
-            if(node.getDescriptor() == descriptor)
+            if (node.getDescriptor() == descriptor)
             {
                 return node;
             }
@@ -84,15 +74,11 @@ public abstract class TreeNode extends TreeNodeBase
         return null;
     }
 
-    static String[] createAttribute(String name, String value)
-    {
-        return new String[]{name, value};
-    }
+    static String[] createAttribute(String name, String value) { return new String[] {name, value}; }
 
-    static void writeVariables(XMLWriter writer, java.util.Map<String, String> variables)
-        throws java.io.IOException
+    static void writeVariables(XMLWriter writer, java.util.Map<String, String> variables) throws java.io.IOException
     {
-        for(java.util.Map.Entry<String, String> p : variables.entrySet())
+        for (java.util.Map.Entry<String, String> p : variables.entrySet())
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             attributes.add(createAttribute("name", p.getKey()));
@@ -102,19 +88,24 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd,
-                                 java.util.List<AdapterDescriptor> adapters, String[] logs)
-        throws java.io.IOException
+    static void writePropertySet(
+        XMLWriter writer,
+        PropertySetDescriptor psd,
+        java.util.List<AdapterDescriptor> adapters,
+        String[] logs) throws java.io.IOException
     {
         writePropertySet(writer, "", "", psd, adapters, logs);
     }
 
-    static void writePropertySet(XMLWriter writer, String id, String idAttrName,
-                                 PropertySetDescriptor psd,
-                                 java.util.List<AdapterDescriptor> adapters, String[] logs)
-        throws java.io.IOException
+    static void writePropertySet(
+        XMLWriter writer,
+        String id,
+        String idAttrName,
+        PropertySetDescriptor psd,
+        java.util.List<AdapterDescriptor> adapters,
+        String[] logs) throws java.io.IOException
     {
-        if(id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
+        if (id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
         {
             return;
         }
@@ -126,38 +117,40 @@ public abstract class TreeNode extends TreeNodeBase
         java.util.Set<String> hiddenPropertyNames = new java.util.HashSet<>();
         java.util.Set<String> hiddenPropertyValues = new java.util.HashSet<>();
 
-        if(adapters != null)
+        if (adapters != null)
         {
-            for(AdapterDescriptor p : adapters)
+            for (AdapterDescriptor p : adapters)
             {
                 hiddenPropertyNames.add(p.name + ".Endpoints");
                 hiddenPropertyNames.add(p.name + ".ProxyOptions");
 
-                for(ObjectDescriptor q : p.objects)
+                for (ObjectDescriptor q : p.objects)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
+                    hiddenPropertyValues.add(
+                        com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
-                for(ObjectDescriptor q : p.allocatables)
+                for (ObjectDescriptor q : p.allocatables)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
+                    hiddenPropertyValues.add(
+                        com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
             }
         }
 
-        if(logs != null)
+        if (logs != null)
         {
-            for(String log : logs)
+            for (String log : logs)
             {
                 hiddenPropertyValues.add(log);
             }
         }
 
         java.util.List<String[]> attributes = new java.util.LinkedList<>();
-        if(id.length() > 0)
+        if (id.length() > 0)
         {
             attributes.add(createAttribute(idAttrName, id));
         }
-        if(psd.references.length == 0 && psd.properties.size() == 0)
+        if (psd.references.length == 0 && psd.properties.size() == 0)
         {
             writer.writeElement("properties", attributes);
         }
@@ -165,23 +158,23 @@ public abstract class TreeNode extends TreeNodeBase
         {
             writer.writeStartTag("properties", attributes);
 
-            for(String ref : psd.references)
+            for (String ref : psd.references)
             {
                 attributes.clear();
                 attributes.add(createAttribute("refid", ref));
                 writer.writeElement("properties", attributes);
             }
 
-            for(PropertyDescriptor p : psd.properties)
+            for (PropertyDescriptor p : psd.properties)
             {
-                if(hiddenPropertyNames.contains(p.name))
+                if (hiddenPropertyNames.contains(p.name))
                 {
                     //
                     // We hide only the first occurence
                     //
                     hiddenPropertyNames.remove(p.name);
                 }
-                else if(hiddenPropertyValues.contains(p.value))
+                else if (hiddenPropertyValues.contains(p.value))
                 {
                     hiddenPropertyValues.remove(p.value);
                 }
@@ -200,12 +193,12 @@ public abstract class TreeNode extends TreeNodeBase
     static void writeLogs(XMLWriter writer, String[] logs, java.util.List<PropertyDescriptor> properties)
         throws java.io.IOException
     {
-        for(String log : logs)
+        for (String log : logs)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             attributes.add(createAttribute("path", log));
             String prop = lookupName(log, properties);
-            if(prop != null)
+            if (prop != null)
             {
                 attributes.add(createAttribute("property", prop));
             }
@@ -215,9 +208,9 @@ public abstract class TreeNode extends TreeNodeBase
 
     static String lookupName(String val, java.util.List<PropertyDescriptor> properties)
     {
-        for(PropertyDescriptor p : properties)
+        for (PropertyDescriptor p : properties)
         {
-            if(p.value.equals(val))
+            if (p.value.equals(val))
             {
                 return p.name;
             }
@@ -225,22 +218,21 @@ public abstract class TreeNode extends TreeNodeBase
         return null;
     }
 
-    static void writeDistribution(XMLWriter writer, DistributionDescriptor descriptor)
-        throws java.io.IOException
+    static void writeDistribution(XMLWriter writer, DistributionDescriptor descriptor) throws java.io.IOException
     {
-        if(descriptor.icepatch.length() > 0)
+        if (descriptor.icepatch.length() > 0)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             attributes.add(createAttribute("icepatch", descriptor.icepatch));
 
-            if(descriptor.directories.isEmpty())
+            if (descriptor.directories.isEmpty())
             {
                 writer.writeElement("distrib", attributes);
             }
             else
             {
                 writer.writeStartTag("distrib", attributes);
-                for(String p : descriptor.directories)
+                for (String p : descriptor.directories)
                 {
                     writer.writeElement("directory", p);
                 }
@@ -249,28 +241,30 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static void writeObjects(String elt, XMLWriter writer, java.util.List<ObjectDescriptor> objects,
-                             java.util.List<PropertyDescriptor> properties)
-        throws java.io.IOException
+    static void writeObjects(
+        String elt,
+        XMLWriter writer,
+        java.util.List<ObjectDescriptor> objects,
+        java.util.List<PropertyDescriptor> properties) throws java.io.IOException
     {
-        for(ObjectDescriptor p : objects)
+        for (ObjectDescriptor p : objects)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             String strId = com.zeroc.Ice.Util.identityToString(p.id, com.zeroc.Ice.ToStringMode.Unicode);
             attributes.add(createAttribute("identity", strId));
-            if(p.type.length() > 0)
+            if (p.type.length() > 0)
             {
                 attributes.add(createAttribute("type", p.type));
             }
-            if(properties != null)
+            if (properties != null)
             {
                 String prop = lookupName(strId, properties);
-                if(prop != null)
+                if (prop != null)
                 {
                     attributes.add(createAttribute("property", prop));
                 }
             }
-            if(p.proxyOptions != null && !p.proxyOptions.equals(""))
+            if (p.proxyOptions != null && !p.proxyOptions.equals(""))
             {
                 attributes.add(createAttribute("proxy-options", p.proxyOptions));
             }
@@ -278,16 +272,16 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static void writeParameters(XMLWriter writer, java.util.List<String> parameters,
-                                java.util.Map<String, String> defaultValues)
+    static void
+    writeParameters(XMLWriter writer, java.util.List<String> parameters, java.util.Map<String, String> defaultValues)
         throws java.io.IOException
     {
-        for(String p : new java.util.LinkedHashSet<String>(parameters))
+        for (String p : new java.util.LinkedHashSet<String>(parameters))
         {
             String val = defaultValues.get(p);
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             attributes.add(createAttribute("name", p));
-            if(val != null)
+            if (val != null)
             {
                 attributes.add(createAttribute("default", val));
             }
@@ -303,10 +297,10 @@ public abstract class TreeNode extends TreeNodeBase
         //
         // We use a LinkedHashSet to maintain order while eliminating duplicates
         //
-        for(String p : new java.util.LinkedHashSet<String>(parameters))
+        for (String p : new java.util.LinkedHashSet<String>(parameters))
         {
             String val = parameterValues.get(p);
-            if(val != null)
+            if (val != null)
             {
                 result.add(createAttribute(p, val));
             }
@@ -342,92 +336,41 @@ public abstract class TreeNode extends TreeNodeBase
 
     static public final int ACTION_COUNT = 19;
 
-    public boolean[] getAvailableActions()
-    {
-        return new boolean[ACTION_COUNT];
-    }
-    public void newAdapter()
-    {
-        assert false;
-    }
-    public void newNode()
-    {
-        assert false;
-    }
-    public void newPropertySet()
-    {
-        assert false;
-    }
-    public void newReplicaGroup()
-    {
-        assert false;
-    }
-    public void newServer()
-    {
-        assert false;
-    }
-    public void newServerIceBox()
-    {
-        assert false;
-    }
-    public void newServerFromTemplate()
-    {
-        assert false;
-    }
-    public void newService()
-    {
-        assert false;
-    }
-    public void newServiceFromTemplate()
-    {
-        assert false;
-    }
-    public void newTemplateServer()
-    {
-        assert false;
-    }
-    public void newTemplateServerIceBox()
-    {
-        assert false;
-    }
-    public void newTemplateService()
-    {
-        assert false;
-    }
-    public void copy()
-    {
-        assert false;
-    }
-    public void paste()
-    {
-        assert false;
-    }
+    public boolean[] getAvailableActions() { return new boolean[ACTION_COUNT]; }
+    public void newAdapter() { assert false; }
+    public void newNode() { assert false; }
+    public void newPropertySet() { assert false; }
+    public void newReplicaGroup() { assert false; }
+    public void newServer() { assert false; }
+    public void newServerIceBox() { assert false; }
+    public void newServerFromTemplate() { assert false; }
+    public void newService() { assert false; }
+    public void newServiceFromTemplate() { assert false; }
+    public void newTemplateServer() { assert false; }
+    public void newTemplateServerIceBox() { assert false; }
+    public void newTemplateService() { assert false; }
+    public void copy() { assert false; }
+    public void paste() { assert false; }
     public void delete()
     {
         boolean enabled = getRoot().isSelectionListenerEnabled();
 
-        if(enabled)
+        if (enabled)
         {
             getRoot().disableSelectionListener();
         }
         destroy();
         getCoordinator().getCurrentTab().showNode(null);
-        if(enabled)
+        if (enabled)
         {
             getRoot().enableSelectionListener();
         }
 
-        if(_parent != null)
+        if (_parent != null)
         {
             getRoot().setSelectedNode((TreeNode)_parent);
         }
     }
-    public void moveUp()
-    {
-        assert false;
-    }
-    public void moveDown()
-    {
-        assert false;
-    }
+    public void moveUp() { assert false; }
+    public void moveDown() { assert false; }
 }

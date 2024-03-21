@@ -97,8 +97,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T>
      * @param action Executed when the future is completed successfully or exceptionally.
      * @return A future that completes when the message has been handed off to the transport.
      **/
-    public abstract CompletableFuture<Boolean> whenSent(
-        java.util.function.BiConsumer<Boolean, ? super Throwable> action);
+    public abstract CompletableFuture<Boolean>
+    whenSent(java.util.function.BiConsumer<Boolean, ? super Throwable> action);
 
     /**
      * Returns a future that completes when the entire request message has been
@@ -108,8 +108,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T>
      * @param action Executed when the future is completed successfully or exceptionally.
      * @return A future that completes when the message has been handed off to the transport.
      **/
-    public abstract CompletableFuture<Boolean> whenSentAsync(
-        java.util.function.BiConsumer<Boolean, ? super Throwable> action);
+    public abstract CompletableFuture<Boolean>
+    whenSentAsync(java.util.function.BiConsumer<Boolean, ? super Throwable> action);
 
     /**
      * Returns a future that completes when the entire request message has been
@@ -120,7 +120,6 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T>
      * @param executor The executor to use for asynchronous execution.
      * @return A future that completes when the message has been handed off to the transport.
      **/
-    public abstract CompletableFuture<Boolean> whenSentAsync(
-        java.util.function.BiConsumer<Boolean, ? super Throwable> action,
-        Executor executor);
+    public abstract CompletableFuture<Boolean>
+    whenSentAsync(java.util.function.BiConsumer<Boolean, ? super Throwable> action, Executor executor);
 }

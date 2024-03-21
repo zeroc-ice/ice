@@ -4,8 +4,8 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import javax.swing.JOptionPane;
 import com.zeroc.IceGrid.*;
+import javax.swing.JOptionPane;
 
 //
 // Base class for ServerEditor and ServerInstanceEditor
@@ -16,15 +16,13 @@ abstract class AbstractServerEditor extends Editor
     abstract protected void writeDescriptor();
     abstract protected boolean isSimpleUpdate();
 
-    @Override
-    protected void buildPropertiesPanel()
+    @Override protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Server Properties");
     }
 
-    @Override
-    protected boolean applyUpdate(boolean refresh)
+    @Override protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
         Server server = (Server)_target;
@@ -32,7 +30,7 @@ abstract class AbstractServerEditor extends Editor
         root.disableSelectionListener();
         try
         {
-            if(_target.isEphemeral())
+            if (_target.isEphemeral())
             {
                 Node node = (Node)_target.getParent();
                 writeDescriptor();
@@ -41,7 +39,7 @@ abstract class AbstractServerEditor extends Editor
 
                 try
                 {
-                    if(server instanceof PlainServer)
+                    if (server instanceof PlainServer)
                     {
                         node.tryAdd((ServerDescriptor)server.getDescriptor(), true);
                     }
@@ -50,7 +48,7 @@ abstract class AbstractServerEditor extends Editor
                         node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), true);
                     }
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Add back ephemeral child
@@ -59,7 +57,7 @@ abstract class AbstractServerEditor extends Editor
                     {
                         node.insertServer(_target, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -79,13 +77,12 @@ abstract class AbstractServerEditor extends Editor
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
 
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
-
             }
-            else if(isSimpleUpdate())
+            else if (isSimpleUpdate())
             {
                 writeDescriptor();
                 root.updated();
@@ -104,7 +101,7 @@ abstract class AbstractServerEditor extends Editor
 
                 try
                 {
-                    if(server instanceof PlainServer)
+                    if (server instanceof PlainServer)
                     {
                         node.tryAdd((ServerDescriptor)server.getDescriptor(), false);
                     }
@@ -113,7 +110,7 @@ abstract class AbstractServerEditor extends Editor
                         node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), false);
                     }
                 }
-                catch(UpdateFailedException e)
+                catch (UpdateFailedException e)
                 {
                     //
                     // Restore
@@ -122,7 +119,7 @@ abstract class AbstractServerEditor extends Editor
                     {
                         node.insertServer(_target, true);
                     }
-                    catch(UpdateFailedException die)
+                    catch (UpdateFailedException die)
                     {
                         assert false;
                     }
@@ -140,18 +137,20 @@ abstract class AbstractServerEditor extends Editor
                 //
                 // Success
                 //
-                node.getEditable().removeElement(_target.getId(), server.getEditable(),
-                                                 Server.class); // replaced by brand new Server
+                node.getEditable().removeElement(
+                    _target.getId(),
+                    server.getEditable(),
+                    Server.class); // replaced by brand new Server
 
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
-                if(refresh)
+                if (refresh)
                 {
                     root.setSelectedNode(_target);
                 }
             }
 
-            if(refresh)
+            if (refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
             }

@@ -22,7 +22,7 @@ public class Client extends test.TestHelper
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        try (com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             //
             // Configure a second communicator for the invocation timeout
@@ -32,10 +32,11 @@ public class Client extends test.TestHelper
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
 
-            try(com.zeroc.Ice.Communicator communicator2 = initialize(initData))
+            try (com.zeroc.Ice.Communicator communicator2 = initialize(initData))
             {
-                RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation,
-                                                   "retry:" + getTestEndpoint(0));
+                RetryPrx retry =
+                    AllTests
+                        .allTests(this, communicator, communicator2, instrumentation, "retry:" + getTestEndpoint(0));
                 retry.shutdown();
             }
         }

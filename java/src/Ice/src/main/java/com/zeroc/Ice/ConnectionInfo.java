@@ -61,7 +61,7 @@ public class ConnectionInfo implements java.lang.Cloneable
         {
             c = (ConnectionInfo)super.clone();
         }
-        catch(CloneNotSupportedException ex)
+        catch (CloneNotSupportedException ex)
         {
             assert false; // impossible
         }

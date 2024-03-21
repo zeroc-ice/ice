@@ -20,30 +20,15 @@ package com.zeroc.Ice;
  **/
 public class SocketException extends SyscallException
 {
-    public SocketException()
-    {
-        super();
-    }
+    public SocketException() { super(); }
 
-    public SocketException(Throwable cause)
-    {
-        super(cause);
-    }
+    public SocketException(Throwable cause) { super(cause); }
 
-    public SocketException(int error)
-    {
-        super(error);
-    }
+    public SocketException(int error) { super(error); }
 
-    public SocketException(int error, Throwable cause)
-    {
-        super(error, cause);
-    }
+    public SocketException(int error, Throwable cause) { super(error, cause); }
 
-    public String ice_id()
-    {
-        return "::Ice::SocketException";
-    }
+    public String ice_id() { return "::Ice::SocketException"; }
 
     /** @hidden */
     public static final long serialVersionUID = -7634050967564791782L;

@@ -14,24 +14,19 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
         _batchRequestNum = r != null ? r.batchRequestNum : 0;
     }
 
-    @Override
-    public boolean completed(com.zeroc.Ice.InputStream is)
+    @Override public boolean completed(com.zeroc.Ice.InputStream is)
     {
-        assert(false);
+        assert (false);
         return false;
     }
 
-    @Override
-    protected void markCompleted()
-    {
-        complete(null);
-    }
+    @Override protected void markCompleted() { complete(null); }
 
     @Override
     public int invokeRemote(com.zeroc.Ice.ConnectionI connection, boolean compress, boolean response)
         throws RetryException
     {
-        if(_batchRequestNum == 0)
+        if (_batchRequestNum == 0)
         {
             return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
         }
@@ -39,10 +34,9 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
         return connection.sendAsyncRequest(this, compress, false, _batchRequestNum);
     }
 
-    @Override
-    public int invokeCollocated(CollocatedRequestHandler handler)
+    @Override public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(_batchRequestNum == 0)
+        if (_batchRequestNum == 0)
         {
             return sent() ? AsyncStatus.Sent | AsyncStatus.InvokeSentCallback : AsyncStatus.Sent;
         }

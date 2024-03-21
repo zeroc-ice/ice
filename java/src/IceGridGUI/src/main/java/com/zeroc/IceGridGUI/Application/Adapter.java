@@ -4,12 +4,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 class Adapter extends TreeNode implements DescriptorHolder
 {
@@ -19,16 +18,12 @@ class Adapter extends TreeNode implements DescriptorHolder
         java.util.Map<String, String> parentProperties;
     }
 
-    static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
-    {
-        return d.clone();
-    }
+    static public AdapterDescriptor copyDescriptor(AdapterDescriptor d) { return d.clone(); }
 
-    static public java.util.List<AdapterDescriptor>
-    copyDescriptors(java.util.List<AdapterDescriptor> descriptors)
+    static public java.util.List<AdapterDescriptor> copyDescriptors(java.util.List<AdapterDescriptor> descriptors)
     {
         java.util.List<AdapterDescriptor> copy = new java.util.LinkedList<>();
-        for(AdapterDescriptor p : descriptors)
+        for (AdapterDescriptor p : descriptors)
         {
             copy.add(copyDescriptor(p));
         }
@@ -38,8 +33,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     //
     // Actions
     //
-    @Override
-    public boolean[] getAvailableActions()
+    @Override public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
@@ -49,7 +43,7 @@ class Adapter extends TreeNode implements DescriptorHolder
 
         actions[DELETE] = true;
 
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
             actions[SHOW_VARS] = parentActions[SHOW_VARS];
@@ -58,8 +52,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         return actions;
     }
 
-    @Override
-    public void copy()
+    @Override public void copy()
     {
         AdapterCopy copy = new AdapterCopy();
         copy.descriptor = copyDescriptor(_descriptor);
@@ -69,11 +62,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
-    @Override
-    public void paste()
-    {
-        ((TreeNode)_parent).paste();
-    }
+    @Override public void paste() { ((TreeNode)_parent).paste(); }
 
     @Override
     public Component getTreeCellRendererComponent(
@@ -85,7 +74,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         int row,
         boolean hasFocus)
     {
-        if(_cellRenderer == null)
+        if (_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/adapter_inactive.png"));
@@ -94,10 +83,9 @@ class Adapter extends TreeNode implements DescriptorHolder
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    @Override
-    public Editor getEditor()
+    @Override public Editor getEditor()
     {
-        if(_editor == null)
+        if (_editor == null)
         {
             _editor = (AdapterEditor)getRoot().getEditor(AdapterEditor.class, this);
         }
@@ -105,14 +93,9 @@ class Adapter extends TreeNode implements DescriptorHolder
         return _editor;
     }
 
-    @Override
-    protected Editor createEditor()
-    {
-        return new AdapterEditor();
-    }
+    @Override protected Editor createEditor() { return new AdapterEditor(); }
 
-    @Override
-    public void destroy()
+    @Override public void destroy()
     {
         removeProperty(_descriptor.name + ".Endpoints");
         removeProperty(_descriptor.name + ".PublishedEndpoints");
@@ -121,20 +104,11 @@ class Adapter extends TreeNode implements DescriptorHolder
         ((Communicator)_parent).getAdapters().destroyChild(this);
     }
 
-    @Override
-    Object getDescriptor()
-    {
-        return _descriptor;
-    }
+    @Override Object getDescriptor() { return _descriptor; }
 
-    @Override
-    public Object saveDescriptor()
-    {
-        return copyDescriptor(_descriptor);
-    }
+    @Override public Object saveDescriptor() { return copyDescriptor(_descriptor); }
 
-    @Override
-    public void restoreDescriptor(Object savedDescriptor)
+    @Override public void restoreDescriptor(Object savedDescriptor)
     {
         AdapterDescriptor ad = (AdapterDescriptor)savedDescriptor;
 
@@ -147,8 +121,12 @@ class Adapter extends TreeNode implements DescriptorHolder
         _descriptor.objects = ad.objects;
     }
 
-    Adapter(Communicator parent, String adapterName, AdapterDescriptor descriptor,
-            java.util.Map<String, String> parentProperties, boolean ephemeral)
+    Adapter(
+        Communicator parent,
+        String adapterName,
+        AdapterDescriptor descriptor,
+        java.util.Map<String, String> parentProperties,
+        boolean ephemeral)
     {
         super(parent, adapterName);
         _descriptor = descriptor;
@@ -156,55 +134,48 @@ class Adapter extends TreeNode implements DescriptorHolder
         _parentProperties = parentProperties;
     }
 
-    @Override
-    void write(XMLWriter writer)
-        throws java.io.IOException
-    {
-        assert false;
-    }
+    @Override void write(XMLWriter writer) throws java.io.IOException { assert false; }
 
-    void write(XMLWriter writer, java.util.List<PropertyDescriptor> properties)
-        throws java.io.IOException
+    void write(XMLWriter writer, java.util.List<PropertyDescriptor> properties) throws java.io.IOException
     {
-        if(!_ephemeral)
+        if (!_ephemeral)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
             attributes.add(createAttribute("name", _descriptor.name));
             String oaPrefix = _descriptor.name + ".";
 
             String value = getProperty(oaPrefix + "Endpoints");
-            if(value != null && value.length() > 0)
+            if (value != null && value.length() > 0)
             {
                 attributes.add(createAttribute("endpoints", value));
             }
 
             value = getProperty(oaPrefix + "ProxyOptions");
-            if(value != null && value.length() > 0)
+            if (value != null && value.length() > 0)
             {
                 attributes.add(createAttribute("proxy-options", value));
             }
 
             attributes.add(createAttribute("id", _descriptor.id));
-            if(_descriptor.registerProcess)
+            if (_descriptor.registerProcess)
             {
                 attributes.add(createAttribute("register-process", "true"));
             }
-            if(_descriptor.replicaGroupId.length() > 0)
+            if (_descriptor.replicaGroupId.length() > 0)
             {
                 attributes.add(createAttribute("replica-group", _descriptor.replicaGroupId));
             }
-            if(_descriptor.priority != null && _descriptor.priority.length() > 0)
+            if (_descriptor.priority != null && _descriptor.priority.length() > 0)
             {
                 attributes.add(createAttribute("priority", _descriptor.priority));
             }
-            if(!_descriptor.serverLifetime)
+            if (!_descriptor.serverLifetime)
             {
                 attributes.add(createAttribute("server-lifetime", "false"));
             }
 
-            if(_descriptor.description.length() == 0
-               && _descriptor.objects.isEmpty()
-               && _descriptor.allocatables.isEmpty())
+            if (_descriptor.description.length() == 0 && _descriptor.objects.isEmpty() &&
+                _descriptor.allocatables.isEmpty())
             {
                 writer.writeElement("adapter", attributes);
             }
@@ -212,7 +183,7 @@ class Adapter extends TreeNode implements DescriptorHolder
             {
                 writer.writeStartTag("adapter", attributes);
 
-                if(_descriptor.description.length() > 0)
+                if (_descriptor.description.length() > 0)
                 {
                     writer.writeElement("description", _descriptor.description);
                 }
@@ -225,7 +196,7 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     String getProperty(String property)
     {
-        if(_parentProperties != null)
+        if (_parentProperties != null)
         {
             return _parentProperties.get(property);
         }
@@ -237,11 +208,11 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     String lookupPropertyValue(String val)
     {
-        if(_parentProperties != null)
+        if (_parentProperties != null)
         {
-            for(java.util.Map.Entry<String, String> p : _parentProperties.entrySet())
+            for (java.util.Map.Entry<String, String> p : _parentProperties.entrySet())
             {
-                if(p.getValue().equals(val))
+                if (p.getValue().equals(val))
                 {
                     return p.getKey();
                 }
@@ -254,33 +225,19 @@ class Adapter extends TreeNode implements DescriptorHolder
         }
     }
 
-    void setProperty(String property, String newValue)
-    {
-        ((Communicator)_parent).setProperty(property, newValue);
-    }
+    void setProperty(String property, String newValue) { ((Communicator)_parent).setProperty(property, newValue); }
 
-    void removeProperty(String property)
-    {
-        ((Communicator)_parent).removeProperty(property);
-    }
+    void removeProperty(String property) { ((Communicator)_parent).removeProperty(property); }
 
-    String getDefaultAdapterId()
-    {
-        return getDefaultAdapterId(_id);
-    }
+    String getDefaultAdapterId() { return getDefaultAdapterId(_id); }
 
     String getDefaultAdapterId(String name)
     {
-        return (_parent instanceof Service ||
-                _parent instanceof ServiceTemplate) ?
-            "${server}.${service}." + name: "${server}." + name;
+        return (_parent instanceof Service || _parent instanceof ServiceTemplate) ? "${server}.${service}." + name
+                                                                                  : "${server}." + name;
     }
 
-    @Override
-    public boolean isEphemeral()
-    {
-        return _ephemeral;
-    }
+    @Override public boolean isEphemeral() { return _ephemeral; }
 
     private final boolean _ephemeral;
     private final java.util.Map<String, String> _parentProperties; // set only when ephemeral == true;

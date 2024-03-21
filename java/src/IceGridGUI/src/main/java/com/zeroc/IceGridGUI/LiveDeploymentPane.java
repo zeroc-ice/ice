@@ -4,10 +4,13 @@
 
 package com.zeroc.IceGridGUI;
 
+import com.jgoodies.forms.factories.Borders;
+import com.zeroc.IceGridGUI.LiveDeployment.Editor;
+import com.zeroc.IceGridGUI.LiveDeployment.Root;
+import com.zeroc.IceGridGUI.LiveDeployment.TreeNode;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -15,29 +18,22 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.SplitPaneUI;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
-import com.jgoodies.forms.factories.Borders;
-
-import com.zeroc.IceGridGUI.LiveDeployment.Editor;
-import com.zeroc.IceGridGUI.LiveDeployment.Root;
-import com.zeroc.IceGridGUI.LiveDeployment.TreeNode;
+import javax.swing.tree.TreeSelectionModel;
 
 public class LiveDeploymentPane extends JSplitPane implements Tab
 {
-    @Override
-    public void updateUI()
+    @Override public void updateUI()
     {
         super.updateUI();
         setEmptyDividerBorder();
     }
 
-    @Override
-    public void selected()
+    @Override public void selected()
     {
         Coordinator c = _root.getCoordinator();
         c.disableAllEditMenusAndButtons();
-        if(c.connected())
+        if (c.connected())
         {
             c.getShowLiveDeploymentFiltersAction().setEnabled(true);
         }
@@ -53,14 +49,13 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         c.showActions(_currentNode);
     }
 
-    @Override
-    public void refresh()
+    @Override public void refresh()
     {
-        if(_currentNode != null)
+        if (_currentNode != null)
         {
             _currentNode.getEditor();
 
-            if(_root.getCoordinator().getCurrentTab() == this)
+            if (_root.getCoordinator().getCurrentTab() == this)
             {
                 //
                 // Refresh actions as well
@@ -70,24 +65,23 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
-    @Override
-    public void showNode(TreeNodeBase node)
+    @Override public void showNode(TreeNodeBase node)
     {
         TreeNode newNode = (TreeNode)node;
 
-        if(newNode != _currentNode)
+        if (newNode != _currentNode)
         {
-            if(newNode == null)
+            if (newNode == null)
             {
                 _currentNode = null;
                 showCurrentNode();
             }
             else
             {
-                if(_currentNode != null && _root.hasNode(_currentNode))
+                if (_currentNode != null && _root.hasNode(_currentNode))
                 {
                     _previousNodes.add(_currentNode);
-                    while(_previousNodes.size() >= HISTORY_MAX_SIZE)
+                    while (_previousNodes.size() >= HISTORY_MAX_SIZE)
                     {
                         _previousNodes.removeFirst();
                     }
@@ -105,23 +99,22 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
-    @Override
-    public void back()
+    @Override public void back()
     {
         TreeNode previousNode = null;
         do
         {
             previousNode = _previousNodes.removeLast();
-        } while(_previousNodes.size() > 0 && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+        } while (_previousNodes.size() > 0 && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
-        if(_previousNodes.size() == 0)
+        if (_previousNodes.size() == 0)
         {
             _root.getCoordinator().getBackAction().setEnabled(false);
         }
 
-        if(previousNode != _currentNode)
+        if (previousNode != _currentNode)
         {
-            if(_currentNode != null)
+            if (_currentNode != null)
             {
                 _nextNodes.addFirst(_currentNode);
                 _root.getCoordinator().getForwardAction().setEnabled(true);
@@ -135,23 +128,22 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
-    @Override
-    public void forward()
+    @Override public void forward()
     {
         TreeNode nextNode = null;
         do
         {
             nextNode = _nextNodes.removeFirst();
-        } while(_nextNodes.size() > 0 && (nextNode == _currentNode || !_root.hasNode(nextNode)));
+        } while (_nextNodes.size() > 0 && (nextNode == _currentNode || !_root.hasNode(nextNode)));
 
-        if(_nextNodes.size() == 0)
+        if (_nextNodes.size() == 0)
         {
             _root.getCoordinator().getForwardAction().setEnabled(false);
         }
 
-        if(nextNode != _currentNode)
+        if (nextNode != _currentNode)
         {
-            if(_currentNode != null)
+            if (_currentNode != null)
             {
                 _previousNodes.add(_currentNode);
                 _root.getCoordinator().getBackAction().setEnabled(true);
@@ -165,35 +157,15 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
-    @Override
-    public void save()
-    {
-        assert false;
-    }
+    @Override public void save() { assert false; }
 
-    @Override
-    public void saveToRegistry(boolean restart)
-    {
-        assert false;
-    }
+    @Override public void saveToRegistry(boolean restart) { assert false; }
 
-    @Override
-    public void saveToFile()
-    {
-        assert false;
-    }
+    @Override public void saveToFile() { assert false; }
 
-    @Override
-    public void discardUpdates()
-    {
-        assert false;
-    }
+    @Override public void discardUpdates() { assert false; }
 
-    @Override
-    public boolean close()
-    {
-        return false;
-    }
+    @Override public boolean close() { return false; }
 
     LiveDeploymentPane(Root root)
     {
@@ -220,10 +192,10 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
         tree.setRootVisible(false);
 
-        JScrollPane leftScroll =
-            new JScrollPane(tree,
-                            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane leftScroll = new JScrollPane(
+            tree,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");
@@ -242,10 +214,10 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
     private void showCurrentNode()
     {
         _root.getCoordinator().showActions(_currentNode);
-        if(_currentNode == null)
+        if (_currentNode == null)
         {
             Component oldContent = _propertiesFrame.getContent();
-            if(oldContent != null)
+            if (oldContent != null)
             {
                 _propertiesFrame.remove(oldContent);
             }
@@ -267,7 +239,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
     private void setEmptyDividerBorder()
     {
         SplitPaneUI splitPaneUI = getUI();
-        if(splitPaneUI instanceof BasicSplitPaneUI)
+        if (splitPaneUI instanceof BasicSplitPaneUI)
         {
             BasicSplitPaneUI basicUI = (BasicSplitPaneUI)splitPaneUI;
             basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
@@ -276,18 +248,17 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
     private class SelectionListener implements TreeSelectionListener
     {
-        @Override
-        public void valueChanged(TreeSelectionEvent e)
+        @Override public void valueChanged(TreeSelectionEvent e)
         {
-            if(_selectionListenerEnabled)
+            if (_selectionListenerEnabled)
             {
                 TreePath path = null;
-                if(e.isAddedPath())
+                if (e.isAddedPath())
                 {
                     path = e.getPath();
                 }
 
-                if(path == null)
+                if (path == null)
                 {
                     showNode(null);
                 }
@@ -301,17 +272,9 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
     private class PopupListener extends MouseAdapter
     {
-        @Override
-        public void mousePressed(MouseEvent e)
-        {
-            maybeShowPopup(e);
-        }
+        @Override public void mousePressed(MouseEvent e) { maybeShowPopup(e); }
 
-        @Override
-        public void mouseReleased(MouseEvent e)
-        {
-            maybeShowPopup(e);
-        }
+        @Override public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
 
         private void maybeShowPopup(MouseEvent e)
         {
@@ -321,11 +284,11 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
                 TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 
-                if(path != null)
+                if (path != null)
                 {
                     TreeNode node = (TreeNode)path.getLastPathComponent();
                     JPopupMenu popup = node.getPopupMenu();
-                    if(popup != null)
+                    if (popup != null)
                     {
                         popup.show(tree, e.getX(), e.getY());
                     }

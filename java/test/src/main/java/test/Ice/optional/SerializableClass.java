@@ -6,15 +6,11 @@ package test.Ice.optional;
 
 public class SerializableClass implements java.io.Serializable
 {
-    public SerializableClass(int v)
-    {
-        _v = v;
-    }
+    public SerializableClass(int v) { _v = v; }
 
-    @Override
-    public boolean equals(Object obj)
+    @Override public boolean equals(Object obj)
     {
-        if(obj instanceof SerializableClass)
+        if (obj instanceof SerializableClass)
         {
             return _v == ((SerializableClass)obj)._v;
         }
