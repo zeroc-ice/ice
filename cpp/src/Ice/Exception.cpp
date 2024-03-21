@@ -6,6 +6,8 @@
 #include "Ice/LocalException.h"
 #include "Ice/SlicedData.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
