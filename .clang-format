@@ -52,3 +52,23 @@ SortIncludes: Never
 SpaceAfterTemplateKeyword: false
 TabWidth: 4
 UseTab: Never
+---
+Language: Java
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: TopLevel
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+FixNamespaceComments: false
+IndentCaseLabels: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+PackConstructorInitializers: CurrentLine
+TabWidth: 4
+ReflowComments: false
+UseTab: Never
