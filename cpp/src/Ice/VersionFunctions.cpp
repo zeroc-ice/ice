@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Version.h"
+#include "Ice/VersionFunctions.h"
 #include "Protocol.h"
 
 using namespace std;

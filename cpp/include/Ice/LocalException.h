@@ -8,7 +8,7 @@
 #include "Exception.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/Identity.h"
-#include "Version.h"
+#include "Ice/Version.h"
 
 #include <string>
 #include <string_view>

@@ -39,7 +39,7 @@
 #    include "SlicedData.h"
 #    include "StringConverter.h"
 #    include "UUID.h"
-#    include "Version.h"
+#    include "VersionFunctions.h"
 
 // Generated header files:
 #    include "Ice/EndpointTypes.h"

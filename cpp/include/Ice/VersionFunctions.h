@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_VERSION_H
-#define ICE_VERSION_H
+#ifndef ICE_VERSION_FUNCTIONS_H
+#define ICE_VERSION_FUNCTIONS_H
 
 #include "Config.h"
-#include "EncodingVersion.h"
-#include "Ice/ProtocolVersion.h"
+#include "Ice/Version.h"
 
 #include <ostream>
 

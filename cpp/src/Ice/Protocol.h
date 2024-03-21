@@ -6,7 +6,7 @@
 #define ICE_PROTOCOL_H
 
 #include "Ice/Config.h"
-#include "Ice/Version.h"
+#include "Ice/VersionFunctions.h"
 
 #include <sstream>
 

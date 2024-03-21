@@ -843,8 +843,11 @@ Slice::Gen::generate(const UnitPtr& p)
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
-        StreamVisitor streamVisitor(H);
-        p->visit(&streamVisitor, false);
+        if (!dc->hasMetaDataDirective("cpp:no-stream"))
+        {
+            StreamVisitor streamVisitor(H);
+            p->visit(&streamVisitor, false);
+        }
     }
 }
 
@@ -903,13 +906,14 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             {
                 static const string cppIncludePrefix = "cpp:include:";
                 static const string cppNoDefaultInclude = "cpp:no-default-include";
+                static const string cppNoStream = "cpp:no-stream";
                 static const string cppSourceIncludePrefix = "cpp:source-include";
                 static const string cppHeaderExtPrefix = "cpp:header-ext:";
                 static const string cppSourceExtPrefix = "cpp:source-ext:";
                 static const string cppDllExportPrefix = "cpp:dll-export:";
                 static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
 
-                if (s == cppNoDefaultInclude)
+                if (s == cppNoDefaultInclude || s == cppNoStream)
                 {
                     continue;
                 }

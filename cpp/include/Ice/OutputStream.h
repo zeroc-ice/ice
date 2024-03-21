@@ -10,7 +10,7 @@
 #include "ValueF.h"
 #include "ProxyF.h"
 #include "Buffer.h"
-#include "EncodingVersion.h"
+#include "Ice/Version.h"
 #include "SlicedDataF.h"
 #include "StreamableTraits.h"
 #include "Ice/Format.h"

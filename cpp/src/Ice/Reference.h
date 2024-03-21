@@ -18,7 +18,7 @@
 #include <Ice/BatchRequestQueue.h>
 #include <Ice/SharedContext.h>
 #include <Ice/Identity.h>
-#include "Ice/Version.h"
+#include "Ice/VersionFunctions.h"
 #include <Ice/Properties.h>
 
 #include <mutex>
