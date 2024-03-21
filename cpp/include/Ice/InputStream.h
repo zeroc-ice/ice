@@ -369,24 +369,7 @@ namespace Ice
          * @param sz The number of bytes in the encapsulation.
          * @return encoding The encapsulation's encoding version.
          */
-        EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz)
-        {
-            EncodingVersion encoding;
-            v = i;
-            read(sz);
-            if (sz < 6)
-            {
-                throwEncapsulationException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-
-            read(encoding);
-            i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
-            return encoding;
-        }
+        EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz);
 
         /**
          * Determines the current encoding version.
@@ -515,12 +498,6 @@ namespace Ice
          * @param v Holds the extracted data.
          */
         template<typename T> void read(T& v) { StreamHelper<T, StreamableTraits<T>::helper>::read(this, v); }
-
-        void read(EncodingVersion& v)
-        {
-            read(v.major);
-            read(v.minor);
-        }
 
         /**
          * Reads an optional data value from the stream. For all types except proxies.

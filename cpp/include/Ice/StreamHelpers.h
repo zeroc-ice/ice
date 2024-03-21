@@ -557,6 +557,20 @@ namespace Ice
         }
     };
 
+    // Specializations for EncodingVersion
+
+    template<> struct StreamableTraits<EncodingVersion>
+    {
+        static const StreamHelperCategory helper = StreamHelperCategoryStruct;
+        static const int minWireSize = 2;
+        static const bool fixedLength = true;
+    };
+
+    template<> struct StreamReader<EncodingVersion>
+    {
+        static void read(InputStream* istr, EncodingVersion& v) { istr->readAll(v.major, v.minor); }
+    };
+
     /// \endcond
 }
 

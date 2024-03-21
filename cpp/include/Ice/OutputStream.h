@@ -357,12 +357,6 @@ namespace Ice
          */
         template<typename T> void write(const T& v) { StreamHelper<T, StreamableTraits<T>::helper>::write(this, v); }
 
-        void write(const EncodingVersion& v)
-        {
-            write(v.major);
-            write(v.minor);
-        }
-
         /**
          * Writes an optional data value to the stream. For all types except proxies.
          * @param tag The tag ID.

@@ -392,6 +392,26 @@ Ice::InputStream::skipEmptyEncapsulation()
     return encoding;
 }
 
+EncodingVersion
+Ice::InputStream::readEncapsulation(const std::byte*& v, std::int32_t& sz)
+{
+    EncodingVersion encoding;
+    v = i;
+    read(sz);
+    if (sz < 6)
+    {
+        throwEncapsulationException(__FILE__, __LINE__);
+    }
+    if (i - sizeof(std::int32_t) + sz > b.end())
+    {
+        throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+
+    read(encoding);
+    i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
+    return encoding;
+}
+
 int32_t
 Ice::InputStream::getEncapsulationSize()
 {
