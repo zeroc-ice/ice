@@ -672,7 +672,7 @@ namespace IceInternal
 
         public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
         {
-            Protocol.checkSupportedProtocol(proxy_.iceReference().getProtocol());
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
 
             mode_ = mode;
 
@@ -1141,7 +1141,7 @@ namespace IceInternal
 
         public void invoke(string operation, bool synchronous)
         {
-            Protocol.checkSupportedProtocol(proxy_.iceReference().getProtocol());
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
             synchronous_ = synchronous;
             observer_ = ObserverHelper.get(proxy_, operation, null);
             bool compress; // Not used for proxy flush batch requests.
