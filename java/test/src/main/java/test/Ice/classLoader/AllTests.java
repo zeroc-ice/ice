@@ -134,7 +134,6 @@ public class AllTests
                     out.flush();
                     ConcreteClass cc = initial.getConcreteClass();
                     test(cc != null);
-                    test(classLoader.check("Test.ConcreteClass"));
                     test(classLoader.check("test.Ice.classLoader.Test.ConcreteClass"));
                     classLoader.reset();
                     out.println("ok");
@@ -153,7 +152,6 @@ public class AllTests
                 catch(E ex)
                 {
                 }
-                test(classLoader.check("Test.E"));
                 test(classLoader.check("test.Ice.classLoader.Test.E"));
                 out.println("ok");
 
