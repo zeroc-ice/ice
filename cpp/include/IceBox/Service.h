@@ -79,10 +79,8 @@ namespace IceBox
          * @param args The service arguments that were not converted into properties.
          * @throws IceBox::FailureException Raised if {@link #start} failed.
          */
-        virtual void start(
-            const std::string& name,
-            const Ice::CommunicatorPtr& communicator,
-            const Ice::StringSeq& args) = 0;
+        virtual void
+        start(const std::string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) = 0;
 
         /**
          * Stop the service.

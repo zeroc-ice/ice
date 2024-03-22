@@ -51,10 +51,7 @@ namespace
 
     private:
         void createDbEnv(const Ice::CommunicatorPtr&);
-        void validateProperties(
-            const std::string&,
-            const Ice::PropertiesPtr&,
-            const Ice::LoggerPtr&);
+        void validateProperties(const std::string&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -430,10 +427,7 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(
-    const string& name,
-    const Ice::PropertiesPtr& properties,
-    const Ice::LoggerPtr& logger)
+ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
 {
     static const string suffixes[] = {
         "ReplicatedTopicManagerEndpoints",

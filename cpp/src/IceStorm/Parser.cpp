@@ -47,10 +47,7 @@ namespace
     };
 }
 
-Parser::Parser(
-    CommunicatorPtr communicator,
-    TopicManagerPrx admin,
-    map<Ice::Identity, TopicManagerPrx> managers)
+Parser::Parser(CommunicatorPtr communicator, TopicManagerPrx admin, map<Ice::Identity, TopicManagerPrx> managers)
     : _communicator(std::move(communicator)),
       _defaultManager(std::move(admin)),
       _managers(std::move(managers))

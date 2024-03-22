@@ -19,10 +19,7 @@ namespace Glacier2
     class Instance
     {
     public:
-        Instance(
-            Ice::CommunicatorPtr,
-            Ice::ObjectAdapterPtr,
-            Ice::ObjectAdapterPtr);
+        Instance(Ice::CommunicatorPtr, Ice::ObjectAdapterPtr, Ice::ObjectAdapterPtr);
 
         Ice::CommunicatorPtr communicator() const { return _communicator; }
         Ice::ObjectAdapterPtr clientObjectAdapter() const { return _clientAdapter; }

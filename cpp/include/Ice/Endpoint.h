@@ -256,11 +256,7 @@ namespace Ice
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param resource The URI configured with the endpoint.
          */
-        WSEndpointInfo(
-            const EndpointInfoPtr& underlying,
-            int timeout,
-            bool compress,
-            const std::string& resource)
+        WSEndpointInfo(const EndpointInfoPtr& underlying, int timeout, bool compress, const std::string& resource)
             : EndpointInfo(underlying, timeout, compress),
               resource(resource)
         {

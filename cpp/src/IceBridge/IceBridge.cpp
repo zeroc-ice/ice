@@ -391,9 +391,7 @@ BridgeConnection::send(
     }
 }
 
-BridgeI::BridgeI(ObjectAdapterPtr adapter, ObjectPrx target)
-    : _adapter(std::move(adapter)),
-      _target(std::move(target))
+BridgeI::BridgeI(ObjectAdapterPtr adapter, ObjectPrx target) : _adapter(std::move(adapter)), _target(std::move(target))
 {
 }
 

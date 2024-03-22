@@ -317,8 +317,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
         throw AlreadyRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    _locatorMapHint =
-        _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
+    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
 }
 
 ServantLocatorPtr
@@ -366,8 +365,7 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     //
     // assert(_instance); // Must not be called after destruction.
 
-    map<string, ServantLocatorPtr>& locatorMap =
-        const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);
+    map<string, ServantLocatorPtr>& locatorMap = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);
 
     map<string, ServantLocatorPtr>::iterator p = locatorMap.end();
     if (_locatorMapHint != locatorMap.end())

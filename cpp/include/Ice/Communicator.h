@@ -160,8 +160,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        ObjectAdapterPtr
-        createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
+        ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
 
         /**
          * Create a new object adapter with a router. This operation creates a routed object adapter.

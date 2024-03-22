@@ -20,10 +20,7 @@ struct Subscription;
 class EventI : public Event
 {
 public:
-    EventI(CommunicatorPtr communicator, int total)
-        : _communicator(std::move(communicator)),
-          _total(total),
-          _count(0)
+    EventI(CommunicatorPtr communicator, int total) : _communicator(std::move(communicator)), _total(total), _count(0)
     {
     }
 
@@ -114,10 +111,7 @@ public:
 class ErraticEventI final : public EventI
 {
 public:
-    ErraticEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total)
-    {
-        ++_remaining;
-    }
+    ErraticEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) { ++_remaining; }
 
     void pub(int, const Ice::Current& current) override
     {

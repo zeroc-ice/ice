@@ -92,10 +92,7 @@ namespace IceGrid
         void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
 
     protected:
-        void printObjectAdapter(
-            const Ice::CommunicatorPtr&,
-            IceUtilInternal::Output&,
-            const AdapterDescriptor&) const;
+        void printObjectAdapter(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const AdapterDescriptor&) const;
         void printPropertySet(IceUtilInternal::Output&, const PropertySetDescriptor&) const;
         virtual std::string getProperty(const std::string&) const;
 
@@ -288,11 +285,7 @@ namespace IceGrid
     class ApplicationHelper final
     {
     public:
-        ApplicationHelper(
-            const Ice::CommunicatorPtr&,
-            const ApplicationDescriptor&,
-            bool = false,
-            bool = true);
+        ApplicationHelper(const Ice::CommunicatorPtr&, const ApplicationDescriptor&, bool = false, bool = true);
 
         ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
         ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;
