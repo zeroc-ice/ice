@@ -5,9 +5,8 @@
 #ifndef SERVER_LOCATOR_H
 #define SERVER_LOCATOR_H
 
-#include <Ice/Locator.h>
+#include "Ice/Locator.h"
 #include <Test.h>
-#include <Ice/ProxyF.h>
 
 class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {

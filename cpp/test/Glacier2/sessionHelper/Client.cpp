@@ -238,7 +238,7 @@ Client::run(int argc, char** argv)
     Executor executor;
     auto executorFuture = std::async(launch::async, [&executor] { executor.run(); });
 
-    _initData.executor = [&executor](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
+    _initData.executor = [&executor](std::function<void()> call, const Ice::ConnectionPtr& conn)
     { executor.execute(call, conn); };
     _factory = make_shared<Glacier2::SessionFactoryHelper>(_initData, make_shared<FailSessionCallback>());
 

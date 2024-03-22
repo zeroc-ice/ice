@@ -40,7 +40,7 @@ namespace Glacier2
     public:
         SessionControlI(
             shared_ptr<SessionRouterI> sessionRouter,
-            shared_ptr<Connection> connection,
+            ConnectionPtr connection,
             shared_ptr<FilterManager> filterManager)
             : _sessionRouter(std::move(sessionRouter)),
               _connection(std::move(connection)),
@@ -67,7 +67,7 @@ namespace Glacier2
 
     private:
         const shared_ptr<SessionRouterI> _sessionRouter;
-        const shared_ptr<Connection> _connection;
+        const ConnectionPtr _connection;
         const shared_ptr<FilterManager> _filters;
     };
 
@@ -538,7 +538,7 @@ SessionRouterI::~SessionRouterI()
 void
 SessionRouterI::destroy()
 {
-    map<shared_ptr<Connection>, shared_ptr<RouterI>> routers;
+    map<ConnectionPtr, shared_ptr<RouterI>> routers;
     {
         lock_guard<mutex> lg(_mutex);
 
@@ -732,7 +732,7 @@ SessionRouterI::refreshSessionAsync(
 }
 
 void
-SessionRouterI::refreshSession(const shared_ptr<Connection>& con)
+SessionRouterI::refreshSession(const ConnectionPtr& con)
 {
     shared_ptr<RouterI> router;
     {
@@ -770,7 +770,7 @@ SessionRouterI::refreshSession(const shared_ptr<Connection>& con)
 }
 
 void
-SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
+SessionRouterI::destroySession(const ConnectionPtr& connection)
 {
     shared_ptr<RouterI> router;
 
@@ -782,7 +782,7 @@ SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
 
-        map<shared_ptr<Connection>, shared_ptr<RouterI>>::const_iterator p;
+        map<ConnectionPtr, shared_ptr<RouterI>>::const_iterator p;
 
         if (_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
         {
@@ -851,14 +851,14 @@ SessionRouterI::updateSessionObservers()
 }
 
 shared_ptr<RouterI>
-SessionRouterI::getRouter(const shared_ptr<Connection>& connection, const Ice::Identity& id, bool close) const
+SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
     lock_guard<mutex> lg(_mutex);
     return getRouterImpl(connection, id, close);
 }
 
 ObjectPtr
-SessionRouterI::getClientBlobject(const shared_ptr<Connection>& connection, const Ice::Identity& id) const
+SessionRouterI::getClientBlobject(const ConnectionPtr& connection, const Ice::Identity& id) const
 {
     lock_guard<mutex> lg(_mutex);
     return getRouterImpl(connection, id, true)->getClientBlobject();
@@ -893,7 +893,7 @@ SessionRouterI::getServerBlobject(const string& category) const
 }
 
 shared_ptr<RouterI>
-SessionRouterI::getRouterImpl(const shared_ptr<Connection>& connection, const Ice::Identity& id, bool close) const
+SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
     //
     // The connection can be null if the client tries to forward requests to
@@ -951,7 +951,7 @@ SessionRouterI::sessionDestroyException(exception_ptr ex)
 }
 
 bool
-SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const shared_ptr<Connection>& connection)
+SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const ConnectionPtr& connection)
 {
     lock_guard<mutex> lg(_mutex);
 
@@ -964,7 +964,7 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const sh
     // Check whether a session already exists for the connection.
     //
     {
-        map<shared_ptr<Connection>, shared_ptr<RouterI>>::const_iterator p;
+        map<ConnectionPtr, shared_ptr<RouterI>>::const_iterator p;
         if (_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
         {
             p = _routersByConnectionHint;
@@ -1003,7 +1003,7 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const sh
 }
 
 void
-SessionRouterI::finishCreateSession(const shared_ptr<Connection>& connection, const shared_ptr<RouterI>& router)
+SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const shared_ptr<RouterI>& router)
 {
     lock_guard<mutex> lg(_mutex);
 
@@ -1037,7 +1037,7 @@ SessionRouterI::finishCreateSession(const shared_ptr<Connection>& connection, co
     }
 
     connection->setCloseCallback(
-        [self = shared_from_this()](const shared_ptr<Connection>& c)
+        [self = shared_from_this()](const ConnectionPtr& c)
         {
             try
             {
@@ -1049,7 +1049,7 @@ SessionRouterI::finishCreateSession(const shared_ptr<Connection>& connection, co
         });
 
     connection->setHeartbeatCallback(
-        [self = shared_from_this()](const shared_ptr<Connection>& c)
+        [self = shared_from_this()](const ConnectionPtr& c)
         {
             try
             {

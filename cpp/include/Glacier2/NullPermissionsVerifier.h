@@ -5,20 +5,11 @@
 #ifndef GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 #define GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 
-#include <Ice/Config.h>
-#include <Ice/CommunicatorF.h>
+#include "Config.h"
+#include "Ice/Ice.h"
+
 #include <string>
 #include <vector>
-
-#ifndef GLACIER2_API
-#    if defined(ICE_STATIC_LIBS)
-#        define GLACIER2_API /**/
-#    elif defined(GLACIER2_API_EXPORTS)
-#        define GLACIER2_API ICE_DECLSPEC_EXPORT
-#    else
-#        define GLACIER2_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
 
 namespace Glacier2Internal
 {

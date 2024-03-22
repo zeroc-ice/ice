@@ -24,23 +24,13 @@
 
 namespace Ice
 {
-    class ConnectionInfo;
-    class Connection;
-    class IPConnectionInfo;
-    class TCPConnectionInfo;
-    class UDPConnectionInfo;
-    class WSConnectionInfo;
-
     class ObjectAdapter;
     class ObjectPrx;
-}
 
-namespace Ice
-{
     /**
      * The batch compression option when flushing queued batch requests.
      */
-    enum class CompressBatch : unsigned char
+    enum class CompressBatch : std::uint8_t
     {
         /**
          * Compress the batch requests.
@@ -59,7 +49,7 @@ namespace Ice
     /**
      * Specifies the close semantics for Active Connection Management.
      */
-    enum class ACMClose : unsigned char
+    enum class ACMClose : std::uint8_t
     {
         /**
          * Disables automatic connection closure.
@@ -88,7 +78,7 @@ namespace Ice
     /**
      * Specifies the heartbeat semantics for Active Connection Management.
      */
-    enum class ACMHeartbeat : unsigned char
+    enum class ACMHeartbeat : std::uint8_t
     {
         /**
          * Disables heartbeats.
@@ -140,7 +130,7 @@ namespace Ice
     /**
      * Determines the behavior when manually closing a connection.
      */
-    enum class ConnectionClose : unsigned char
+    enum class ConnectionClose : std::uint8_t
     {
         /**
          * Close the connection immediately without sending a close connection protocol message to the peer and waiting
@@ -222,13 +212,13 @@ namespace Ice
      * about the closure, it can call {@link Connection#throwException}.
      * @param con The connection that closed.
      */
-    using CloseCallback = std::function<void(const std::shared_ptr<Connection>& con)>;
+    using CloseCallback = std::function<void(const ConnectionPtr& con)>;
 
     /**
      * This method is called by the connection when a heartbeat is received from the peer.
      * @param con The connection on which a heartbeat was received.
      */
-    using HeartbeatCallback = std::function<void(const std::shared_ptr<Connection>& con)>;
+    using HeartbeatCallback = std::function<void(const ConnectionPtr& con)>;
 
     /**
      * The user-level interface to a connection.

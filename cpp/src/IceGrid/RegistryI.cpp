@@ -1209,7 +1209,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
 }
 
 Glacier2::SSLInfo
-RegistryI::getSSLInfo(const shared_ptr<Connection>& connection, string& userDN)
+RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 {
     Glacier2::SSLInfo sslinfo;
     try

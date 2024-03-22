@@ -6,13 +6,12 @@
 #define ICE_STREAMABLE_TRAITS_H
 
 #include "ValueF.h"
-#include "ProxyF.h"
-
 #include <optional>
 #include <string_view>
 
 namespace Ice
 {
+    class ObjectPrx;
     class UserException;
 
     /// \cond STREAM

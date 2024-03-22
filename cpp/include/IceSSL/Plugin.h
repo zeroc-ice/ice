@@ -5,25 +5,15 @@
 #ifndef ICESSL_PLUGIN_H
 #define ICESSL_PLUGIN_H
 
-#include "Ice/Plugin.h"
 #include "Config.h"
 #include "ConnectionInfoF.h"
 #include "Ice/Exception.h"
+#include "Ice/Plugin.h"
 
 #include <chrono>
 #include <cstdint>
 #include <vector>
 #include <list>
-
-#ifndef ICESSL_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICESSL_API /**/
-#    elif defined(ICESSL_API_EXPORTS)
-#        define ICESSL_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICESSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
 
 namespace IceSSL
 {

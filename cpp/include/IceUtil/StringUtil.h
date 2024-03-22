@@ -15,7 +15,7 @@ namespace IceUtilInternal
     //
     // Must be kept in sync with Ice::ToStringMode
     //
-    enum class ToStringMode : unsigned char
+    enum class ToStringMode : std::uint8_t
     {
         Unicode,
         ASCII,

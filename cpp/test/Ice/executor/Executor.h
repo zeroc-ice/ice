@@ -24,7 +24,7 @@ class Executor
 {
 public:
     static std::shared_ptr<Executor> create();
-    void execute(const std::shared_ptr<ExecutorCall>&, const std::shared_ptr<Ice::Connection>&);
+    void execute(const std::shared_ptr<ExecutorCall>&, const Ice::ConnectionPtr&);
 
     void run();
     void terminate();

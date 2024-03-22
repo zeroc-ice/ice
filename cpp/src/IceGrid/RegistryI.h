@@ -83,7 +83,7 @@ namespace IceGrid
         std::optional<Glacier2::PermissionsVerifierPrx> getPermissionsVerifier(const LocatorPrx&, const std::string&);
         std::optional<Glacier2::SSLPermissionsVerifierPrx>
         getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
-        Glacier2::SSLInfo getSSLInfo(const std::shared_ptr<Ice::Connection>&, std::string&);
+        Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
         NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
         void registerNodes(const NodePrxSeq&);

@@ -2,31 +2,25 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceGrid_PluginFacade_h__
-#define __IceGrid_PluginFacade_h__
+#ifndef ICEGRID_PLUGIN_FACADE_H
+#define ICEGRID_PLUGIN_FACADE_H
 
+#include "Config.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "Config.h"
-namespace IceGrid
-{
-    class ReplicaGroupFilter;
-    class TypeFilter;
-    class RegistryPluginFacade;
-}
 
 namespace IceGrid
 {
     /**
      * The ReplicaGroupFilter is used by IceGrid to filter adapters returned to the client when it resolves a filtered
      * replica group.
-     * IceGrid provides the list of available adapters. The implementationof this method can use the provided context
+     * IceGrid provides the list of available adapters. The implementation of this method can use the provided context
      * and connection to filter and return the filtered set of adapters. \headerfile IceGrid/IceGrid.h
      */
-    class ICE_CLASS(ICEGRID_API) ReplicaGroupFilter
+    class ReplicaGroupFilter
     {
     public:
-        ICE_MEMBER(ICEGRID_API) virtual ~ReplicaGroupFilter();
+        virtual ~ReplicaGroupFilter() = default;
 
         /**
          * Filter the given set of adapters.
@@ -39,7 +33,7 @@ namespace IceGrid
         virtual Ice::StringSeq filter(
             const std::string& replicaGroupId,
             const Ice::StringSeq& adapterIds,
-            const std::shared_ptr<Ice::Connection>& con,
+            const Ice::ConnectionPtr& con,
             const Ice::Context& ctx) = 0;
     };
 
@@ -49,10 +43,10 @@ namespace IceGrid
      * use the provided context and connection to filter and return the filtered set of proxies. \headerfile
      * IceGrid/IceGrid.h
      */
-    class ICE_CLASS(ICEGRID_API) TypeFilter
+    class TypeFilter
     {
     public:
-        ICE_MEMBER(ICEGRID_API) virtual ~TypeFilter();
+        virtual ~TypeFilter() = default;
 
         /**
          * Filter the given set of proxies.
@@ -65,7 +59,7 @@ namespace IceGrid
         virtual Ice::ObjectProxySeq filter(
             const std::string& type,
             const Ice::ObjectProxySeq& proxies,
-            const std::shared_ptr<Ice::Connection>& con,
+            const Ice::ConnectionPtr& con,
             const Ice::Context& ctx) = 0;
     };
 
@@ -75,10 +69,10 @@ namespace IceGrid
      * replica group and type filters.
      * \headerfile IceGrid/IceGrid.h
      */
-    class ICE_CLASS(ICEGRID_API) RegistryPluginFacade
+    class RegistryPluginFacade
     {
     public:
-        ICE_MEMBER(ICEGRID_API) virtual ~RegistryPluginFacade();
+        virtual ~RegistryPluginFacade() = default;
 
         /**
          * Get an application descriptor.
@@ -86,7 +80,7 @@ namespace IceGrid
          * @return The application descriptor.
          * @throws IceGrid::ApplicationNotExistException Raised if the application doesn't exist.
          */
-        virtual ::IceGrid::ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
+        virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
         /**
          * Get the server information for the server with the given id.
@@ -94,7 +88,7 @@ namespace IceGrid
          * @return The server information.
          * @throws IceGrid::ServerNotExistException Raised if the server doesn't exist.
          */
-        virtual ::IceGrid::ServerInfo getServerInfo(const std::string& id) const = 0;
+        virtual ServerInfo getServerInfo(const std::string& id) const = 0;
 
         /**
          * Get the ID of the server to which the given adapter belongs.
@@ -131,7 +125,7 @@ namespace IceGrid
          * adapter information of each member of the replica group.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter or replica group doesn't exist.
          */
-        virtual ::IceGrid::AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
+        virtual AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
 
         /**
          * Get the object info for the object with the given identity.
@@ -139,7 +133,7 @@ namespace IceGrid
          * @return The object info.
          * @throws IceGrid::ObjectNotRegisteredException Raised if the object isn't registered with the registry.
          */
-        virtual ::IceGrid::ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
+        virtual ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
 
         /**
          * Get the node information for the node with the given name.
@@ -148,7 +142,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual ::IceGrid::NodeInfo getNodeInfo(const std::string& name) const = 0;
+        virtual NodeInfo getNodeInfo(const std::string& name) const = 0;
 
         /**
          * Get the load averages of the node.
@@ -157,7 +151,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual ::IceGrid::LoadInfo getNodeLoad(const std::string& name) const = 0;
+        virtual LoadInfo getNodeLoad(const std::string& name) const = 0;
 
         /**
          * Get the property value for the given property and adapter. The property is looked up in the server or service
@@ -207,23 +201,16 @@ namespace IceGrid
         virtual bool
         removeTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
-}
 
-/// \cond STREAM
-namespace Ice
-{
-}
-/// \endcond
-
-/// \cond INTERNAL
-namespace IceGrid
-{
     using ReplicaGroupFilterPtr = std::shared_ptr<ReplicaGroupFilter>;
-
     using TypeFilterPtr = std::shared_ptr<TypeFilter>;
-
     using RegistryPluginFacadePtr = std::shared_ptr<RegistryPluginFacade>;
+
+    /**
+     * Obtains the plug-in facade for the IceGrid registry.
+     * @return The plug-in facade.
+     */
+    ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
 }
-/// \endcond
 
 #endif

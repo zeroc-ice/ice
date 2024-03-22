@@ -92,10 +92,10 @@ namespace IceGrid
         void terminate();
         void join();
         void
-        add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const std::shared_ptr<Ice::Connection>& = nullptr);
+        add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const Ice::ConnectionPtr& = nullptr);
 
-        void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
-        void connectionClosed(const std::shared_ptr<Ice::Connection>&);
+        void connectionHeartbeat(const Ice::ConnectionPtr&);
+        void connectionClosed(const Ice::ConnectionPtr&);
 
     private:
         void run();
@@ -109,12 +109,12 @@ namespace IceGrid
         struct ReapableItem
         {
             std::shared_ptr<Reapable> item;
-            std::shared_ptr<Ice::Connection> connection;
+            Ice::ConnectionPtr connection;
             std::chrono::milliseconds timeout;
         };
         std::list<ReapableItem> _sessions;
 
-        std::map<std::shared_ptr<Ice::Connection>, std::set<std::shared_ptr<Reapable>>> _connections;
+        std::map<Ice::ConnectionPtr, std::set<std::shared_ptr<Reapable>>> _connections;
 
         std::mutex _mutex;
         std::condition_variable _condVar;

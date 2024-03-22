@@ -2,26 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceBox_Service_h__
-#define __IceBox_Service_h__
+#ifndef ICEBOX_SERVICE_H
+#define ICEBOX_SERVICE_H
 
-#include <IceUtil/PushDisableWarnings.h>
 #include "Ice/Ice.h"
 #include "Config.h"
 
-#ifndef ICEBOX_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBOX_API /**/
-#    elif defined(ICEBOX_API_EXPORTS)
-#        define ICEBOX_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEBOX_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-namespace IceBox
-{
-    class Service;
-}
 
 namespace IceBox
 {
@@ -33,8 +26,6 @@ namespace IceBox
     class ICEBOX_API FailureException : public Ice::LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * One-shot constructor to initialize all data members.
          * The file and line number are required for all local exceptions.
@@ -43,7 +34,7 @@ namespace IceBox
          * @param reason The reason for the failure.
          */
         FailureException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
+            : Ice::LocalException(file, line),
               reason(std::move(reason))
         {
         }
@@ -69,18 +60,15 @@ namespace IceBox
          */
         std::string reason;
     };
-}
 
-namespace IceBox
-{
     /**
      * An application service managed by a {@link ServiceManager}.
      * \headerfile IceBox/IceBox.h
      */
-    class ICE_CLASS(ICEBOX_API) Service
+    class Service
     {
     public:
-        ICE_MEMBER(ICEBOX_API) virtual ~Service();
+        virtual ~Service() = default;
 
         /**
          * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service.
@@ -101,14 +89,14 @@ namespace IceBox
          */
         virtual void stop() = 0;
     };
-}
 
-/// \cond INTERNAL
-namespace IceBox
-{
     using ServicePtr = std::shared_ptr<Service>;
 }
-/// \endcond
 
-#include <IceUtil/PopDisableWarnings.h>
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

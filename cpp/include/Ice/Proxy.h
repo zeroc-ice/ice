@@ -5,7 +5,6 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
-#include "ProxyF.h"
 #include "RequestHandlerF.h"
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
@@ -21,15 +20,6 @@
 #include <optional>
 #include <string_view>
 
-namespace Ice
-{
-    /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
-    ICE_API extern const Context noExplicitContext;
-
-    class LocatorPrx;
-    class RouterPrx;
-}
-
 namespace IceInternal
 {
     class ProxyGetConnection;
@@ -40,8 +30,13 @@ namespace IceInternal
 
 namespace Ice
 {
-    class LocalException;
+    /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
+    ICE_API extern const Context noExplicitContext;
+
+    class LocatorPrx;
+    class ObjectPrx;
     class OutputStream;
+    class RouterPrx;
 
     /**
      * Helper template that supplies typed proxy factory functions.
@@ -163,7 +158,7 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        Prx ice_fixed(std::shared_ptr<Connection> connection) const
+        Prx ice_fixed(ConnectionPtr connection) const
         {
             return fromReference(asPrx()._fixed(std::move(connection)));
         }
@@ -523,7 +518,7 @@ namespace Ice
          * it first attempts to create a connection.
          * @return The connection for this proxy.
          */
-        std::shared_ptr<Ice::Connection> ice_getConnection() const;
+        Ice::ConnectionPtr ice_getConnection() const;
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -534,7 +529,7 @@ namespace Ice
          * @return A function that can be called to cancel the invocation locally.
          */
         std::function<void()> ice_getConnectionAsync(
-            std::function<void(std::shared_ptr<Ice::Connection>)> response,
+            std::function<void(Ice::ConnectionPtr)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr) const;
 
@@ -543,7 +538,7 @@ namespace Ice
          * it first attempts to create a connection.
          * @return The future object for the invocation.
          */
-        std::future<std::shared_ptr<Ice::Connection>> ice_getConnectionAsync() const;
+        std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// \cond INTERNAL
         void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
@@ -555,7 +550,7 @@ namespace Ice
          * @return The cached connection for this proxy, or nil if the proxy does not have
          * an established connection.
          */
-        std::shared_ptr<Ice::Connection> ice_getCachedConnection() const;
+        Ice::ConnectionPtr ice_getCachedConnection() const;
 
         /**
          * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.

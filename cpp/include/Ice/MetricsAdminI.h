@@ -6,7 +6,6 @@
 #define ICE_METRICS_ADMIN_I_H
 
 #include "Properties.h"
-#include "NativePropertiesAdmin.h"
 #include "Initialize.h"
 
 #include "Ice/Metrics.h"

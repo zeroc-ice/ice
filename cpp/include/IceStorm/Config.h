@@ -5,7 +5,7 @@
 #ifndef ICE_STORM_CONFIG_H
 #define ICE_STORM_CONFIG_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 //
 // Automatically link with IceStorm[D].lib

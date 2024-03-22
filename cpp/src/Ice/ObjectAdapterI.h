@@ -11,7 +11,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ServantManagerF.h>
-#include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>

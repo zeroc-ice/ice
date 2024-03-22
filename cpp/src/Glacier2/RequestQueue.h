@@ -56,7 +56,7 @@ namespace Glacier2
     class RequestQueue : public std::enable_shared_from_this<RequestQueue>
     {
     public:
-        RequestQueue(std::shared_ptr<RequestQueueThread>, std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>);
+        RequestQueue(std::shared_ptr<RequestQueueThread>, std::shared_ptr<Instance>, Ice::ConnectionPtr);
 
         bool addRequest(std::shared_ptr<Request>);
         void flushRequests();
@@ -74,7 +74,7 @@ namespace Glacier2
 
         const std::shared_ptr<RequestQueueThread> _requestQueueThread;
         const std::shared_ptr<Instance> _instance;
-        const std::shared_ptr<Ice::Connection> _connection;
+        const Ice::ConnectionPtr _connection;
 
         std::deque<std::shared_ptr<Request>> _requests;
         bool _pendingSend;

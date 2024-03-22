@@ -7,7 +7,6 @@
 
 #include <Ice/RouterInfoF.h>
 #include <Ice/Router.h>
-#include <Ice/ProxyF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/BuiltinSequences.h>
@@ -16,6 +15,11 @@
 
 #include <mutex>
 #include <set>
+
+namespace Ice
+{
+    class ObjectPrx;
+}
 
 namespace IceInternal
 {

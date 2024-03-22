@@ -23,7 +23,7 @@ namespace IceStorm
 {
     namespace Instrumentation
     {
-        enum class SubscriberState : unsigned char
+        enum class SubscriberState : std::uint8_t
         {
             /**
              * Online waiting to send events.

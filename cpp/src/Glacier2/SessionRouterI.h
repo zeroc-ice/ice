@@ -94,24 +94,24 @@ namespace Glacier2
         void updateSessionObservers() override;
 
         std::shared_ptr<RouterI>
-        getRouter(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool = true) const;
+        getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 
-        Ice::ObjectPtr getClientBlobject(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&) const;
+        Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
         Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
-        void refreshSession(const std::shared_ptr<Ice::Connection>&);
-        void destroySession(const std::shared_ptr<Ice::Connection>&);
+        void refreshSession(const Ice::ConnectionPtr&);
+        void destroySession(const Ice::ConnectionPtr&);
 
         int sessionTraceLevel() const { return _sessionTraceLevel; }
 
     private:
         std::shared_ptr<RouterI>
-        getRouterImpl(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool) const;
+        getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 
         void sessionDestroyException(std::exception_ptr);
 
-        bool startCreateSession(const std::shared_ptr<CreateSession>&, const std::shared_ptr<Ice::Connection>&);
-        void finishCreateSession(const std::shared_ptr<Ice::Connection>&, const std::shared_ptr<RouterI>&);
+        bool startCreateSession(const std::shared_ptr<CreateSession>&, const Ice::ConnectionPtr&);
+        void finishCreateSession(const Ice::ConnectionPtr&, const std::shared_ptr<RouterI>&);
 
         friend class Glacier2::CreateSession;
         friend class Glacier2::UserPasswordCreateSession;
@@ -125,14 +125,14 @@ namespace Glacier2
         const std::optional<SSLPermissionsVerifierPrx> _sslVerifier;
         const std::optional<SSLSessionManagerPrx> _sslSessionManager;
 
-        std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>> _routersByConnection;
-        mutable std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>>::const_iterator
+        std::map<Ice::ConnectionPtr, std::shared_ptr<RouterI>> _routersByConnection;
+        mutable std::map<Ice::ConnectionPtr, std::shared_ptr<RouterI>>::const_iterator
             _routersByConnectionHint;
 
         std::map<std::string, std::shared_ptr<RouterI>> _routersByCategory;
         mutable std::map<std::string, std::shared_ptr<RouterI>>::const_iterator _routersByCategoryHint;
 
-        std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<CreateSession>> _pending;
+        std::map<Ice::ConnectionPtr, std::shared_ptr<CreateSession>> _pending;
 
         bool _destroy;
 

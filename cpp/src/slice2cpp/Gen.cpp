@@ -1300,7 +1300,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     H << fixKwd(p->name());
     if (!unscoped && p->maxValue() <= 0xFF)
     {
-        H << " : unsigned char";
+        H << " : ::std::uint8_t";
     }
     H << sb;
 

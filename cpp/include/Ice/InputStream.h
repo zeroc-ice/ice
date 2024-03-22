@@ -8,7 +8,6 @@
 #include "CommunicatorF.h"
 #include "InstanceF.h"
 #include "ValueF.h"
-#include "ProxyF.h"
 #include "Logger.h"
 #include "ValueFactory.h"
 #include "Buffer.h"
@@ -28,6 +27,8 @@
 
 namespace Ice
 {
+    class ObjectPrx;
+
     /// \cond INTERNAL
     template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {

@@ -302,7 +302,7 @@ namespace Ice
          * @param call Represents the function to execute. The execute must eventually execute this function.
          * @param con The connection associated with this call, or null if no connection is associated with it.
          */
-        std::function<void(std::function<void()> call, const std::shared_ptr<Ice::Connection>& con)> executor;
+        std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor;
 
         /**
          * Applications that make use of compact type IDs to conserve space
@@ -674,7 +674,7 @@ namespace Ice
      * the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
      * string.
      */
-    enum class ToStringMode : unsigned char
+    enum class ToStringMode : std::uint8_t
     {
         /**
          * Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII

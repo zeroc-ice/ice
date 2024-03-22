@@ -23,7 +23,7 @@ namespace
 
 Glacier2::Blobject::Blobject(
     shared_ptr<Instance> instance,
-    shared_ptr<Connection> reverseConnection,
+    ConnectionPtr reverseConnection,
     const Context& context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),

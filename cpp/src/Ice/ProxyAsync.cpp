@@ -69,7 +69,7 @@ namespace IceInternal
     public:
         ProxyGetConnectionLambda(
             ObjectPrx proxy,
-            std::function<void(std::shared_ptr<Ice::Connection>)> response,
+            std::function<void(Ice::ConnectionPtr)> response,
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)
             : ProxyGetConnection(std::move(proxy)),
@@ -79,7 +79,7 @@ namespace IceInternal
         }
     };
 
-    class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<std::shared_ptr<Ice::Connection>>
+    class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<Ice::ConnectionPtr>
     {
     public:
         ProxyGetConnectionPromise(ObjectPrx proxy) : ProxyGetConnection(std::move(proxy))
@@ -575,7 +575,7 @@ Ice::ObjectPrx::ice_invokeAsync(
     return [outAsync]() { outAsync->cancel(); };
 }
 
-std::shared_ptr<Ice::Connection>
+Ice::ConnectionPtr
 Ice::ObjectPrx::ice_getConnection() const
 {
     return ice_getConnectionAsync().get();
@@ -583,7 +583,7 @@ Ice::ObjectPrx::ice_getConnection() const
 
 std::function<void()>
 Ice::ObjectPrx::ice_getConnectionAsync(
-    std::function<void(std::shared_ptr<Ice::Connection>)> response,
+    std::function<void(Ice::ConnectionPtr)> response,
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent) const
 {
@@ -593,7 +593,7 @@ Ice::ObjectPrx::ice_getConnectionAsync(
     return [outAsync]() { outAsync->cancel(); };
 }
 
-std::future<std::shared_ptr<Ice::Connection>>
+std::future<Ice::ConnectionPtr>
 Ice::ObjectPrx::ice_getConnectionAsync() const
 {
     auto outAsync = std::make_shared<ProxyGetConnectionPromise>(*this);

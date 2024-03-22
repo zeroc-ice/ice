@@ -2,14 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_OBSERVERHELPER_H
-#define ICE_OBSERVERHELPER_H
+#ifndef ICE_OBSERVER_HELPER_H
+#define ICE_OBSERVER_HELPER_H
 
 #include "Instrumentation.h"
-#include "ProxyF.h"
 #include "InstanceF.h"
 
 #include <string_view>
+
+namespace Ice
+{
+    class ObjectPrx;
+}
 
 namespace IceInternal
 {

@@ -90,12 +90,12 @@ namespace
     class BridgeConnection final
     {
     public:
-        BridgeConnection(shared_ptr<ObjectAdapter>, ObjectPrx, shared_ptr<Connection>);
+        BridgeConnection(shared_ptr<ObjectAdapter>, ObjectPrx, ConnectionPtr);
 
-        void outgoingSuccess(shared_ptr<Connection>);
+        void outgoingSuccess(ConnectionPtr);
         void outgoingException(exception_ptr);
 
-        void closed(const shared_ptr<Connection>&);
+        void closed(const ConnectionPtr&);
         void dispatch(
             pair<const byte*, const byte*>,
             function<void(bool, pair<const byte*, const byte*>)>,
@@ -104,7 +104,7 @@ namespace
 
     private:
         void send(
-            const shared_ptr<Connection>&,
+            const ConnectionPtr&,
             pair<const byte*, const byte*>,
             function<void(bool, pair<const byte*, const byte*>)>,
             function<void(exception_ptr)>,
@@ -112,10 +112,10 @@ namespace
 
         const shared_ptr<ObjectAdapter> _adapter;
         const ObjectPrx _target;
-        const shared_ptr<Connection> _incoming;
+        const ConnectionPtr _incoming;
 
         std::mutex _lock;
-        shared_ptr<Connection> _outgoing;
+        ConnectionPtr _outgoing;
         exception_ptr _exception;
 
         //
@@ -141,8 +141,8 @@ namespace
             function<void(exception_ptr)> error,
             const Current& current) final;
 
-        void closed(const shared_ptr<Connection>&);
-        void outgoingSuccess(const shared_ptr<BridgeConnection>&, shared_ptr<Connection>);
+        void closed(const ConnectionPtr&);
+        void outgoingSuccess(const shared_ptr<BridgeConnection>&, ConnectionPtr);
         void outgoingException(const shared_ptr<BridgeConnection>&, exception_ptr);
 
     private:
@@ -150,7 +150,7 @@ namespace
         const ObjectPrx _target;
 
         std::mutex _lock;
-        map<shared_ptr<Connection>, shared_ptr<BridgeConnection>> _connections;
+        map<ConnectionPtr, shared_ptr<BridgeConnection>> _connections;
     };
 
     class BridgeService final : public Service
@@ -165,7 +165,7 @@ namespace
     };
 }
 
-BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter, ObjectPrx target, shared_ptr<Connection> inc)
+BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter, ObjectPrx target, ConnectionPtr inc)
     : _adapter(std::move(adapter)),
       _target(std::move(target)),
       _incoming(std::move(inc))
@@ -173,7 +173,7 @@ BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter, ObjectPrx 
 }
 
 void
-BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
+BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
 {
     lock_guard<mutex> lg(_lock);
     assert(!_outgoing && outgoing);
@@ -263,7 +263,7 @@ BridgeConnection::outgoingException(exception_ptr ex)
 }
 
 void
-BridgeConnection::closed(const shared_ptr<Connection>& con)
+BridgeConnection::closed(const ConnectionPtr& con)
 {
     lock_guard<mutex> lg(_lock);
     if (_exception)
@@ -342,7 +342,7 @@ BridgeConnection::dispatch(
 
 void
 BridgeConnection::send(
-    const shared_ptr<Connection>& dest,
+    const ConnectionPtr& dest,
     pair<const byte*, const byte*> inParams,
     function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> error,
@@ -472,7 +472,7 @@ BridgeI::ice_invokeAsync(
 }
 
 void
-BridgeI::closed(const shared_ptr<Connection>& con)
+BridgeI::closed(const ConnectionPtr& con)
 {
     //
     // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
@@ -490,7 +490,7 @@ BridgeI::closed(const shared_ptr<Connection>& con)
 }
 
 void
-BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, shared_ptr<Connection> outgoing)
+BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, ConnectionPtr outgoing)
 {
     //
     // An outgoing connection was established. Notify the BridgeConnection object.

@@ -105,7 +105,7 @@ namespace IceGrid
         std::optional<Ice::ObjectPrx> getAdapterDirectProxy(
             const std::string&,
             const Ice::EncodingVersion&,
-            const std::shared_ptr<Ice::Connection>&,
+            const Ice::ConnectionPtr&,
             const Ice::Context&);
 
         void removeAdapter(const std::string&);
@@ -114,7 +114,7 @@ namespace IceGrid
 
         void getLocatorAdapterInfo(
             const std::string&,
-            const std::shared_ptr<Ice::Connection>&,
+            const Ice::ConnectionPtr&,
             const Ice::Context&,
             LocatorAdapterInfoSeq&,
             int&,
@@ -132,7 +132,7 @@ namespace IceGrid
         AdapterInfoSeq getAdapterInfo(const std::string&);
 
         AdapterInfoSeq
-        getFilteredAdapterInfo(const std::string&, const std::shared_ptr<Ice::Connection>&, const Ice::Context&);
+        getFilteredAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&);
 
         std::string getAdapterServer(const std::string&) const;
         std::string getAdapterApplication(const std::string&) const;
@@ -150,18 +150,18 @@ namespace IceGrid
 
         std::optional<Ice::ObjectPrx> getObjectByType(
             const std::string&,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
+            const Ice::ConnectionPtr& = nullptr,
             const Ice::Context& = Ice::Context());
 
         std::optional<Ice::ObjectPrx> getObjectByTypeOnLeastLoadedNode(
             const std::string&,
             LoadSample,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
+            const Ice::ConnectionPtr& = nullptr,
             const Ice::Context& = Ice::Context());
 
         Ice::ObjectProxySeq getObjectsByType(
             const std::string&,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
+            const Ice::ConnectionPtr& = nullptr,
             const Ice::Context& = Ice::Context());
         ObjectInfo getObjectInfo(const Ice::Identity&);
         ObjectInfoSeq getObjectInfosByType(const std::string&);

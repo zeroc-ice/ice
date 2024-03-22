@@ -5,8 +5,6 @@
 #ifndef __Glacier2_Instrumentation_h__
 #define __Glacier2_Instrumentation_h__
 
-#include <Ice/ProxyF.h>
-#include <Ice/ValueF.h>
 #include <Ice/Exception.h>
 #include <Ice/Comparable.h>
 #include <optional>
@@ -96,7 +94,7 @@ namespace Glacier2
              */
             virtual std::shared_ptr<::Glacier2::Instrumentation::SessionObserver> getSessionObserver(
                 const std::string& id,
-                const std::shared_ptr<Ice::Connection>& con,
+                const Ice::ConnectionPtr& con,
                 int routingTableSize,
                 const std::shared_ptr<SessionObserver>& old) = 0;
 

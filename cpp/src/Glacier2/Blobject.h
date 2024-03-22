@@ -14,7 +14,7 @@ namespace Glacier2
     class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
     {
     public:
-        Blobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const Ice::Context&);
+        Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, const Ice::Context&);
 
         void destroy();
 
@@ -31,7 +31,7 @@ namespace Glacier2
             const Ice::Current&);
 
         const std::shared_ptr<Instance> _instance;
-        const std::shared_ptr<Ice::Connection> _reverseConnection;
+        const Ice::ConnectionPtr _reverseConnection;
 
     private:
         const bool _forwardContext;

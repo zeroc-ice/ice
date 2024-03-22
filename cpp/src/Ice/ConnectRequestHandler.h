@@ -9,7 +9,6 @@
 #include <Ice/RequestHandler.h>
 #include <Ice/Reference.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/ProxyF.h>
 
 #include <condition_variable>
 #include <deque>

@@ -31,7 +31,7 @@ namespace Glacier2
 
         std::shared_ptr<Glacier2::Instrumentation::SessionObserver> getSessionObserver(
             const std::string&,
-            const std::shared_ptr<Ice::Connection>&,
+            const Ice::ConnectionPtr&,
             int,
             const std::shared_ptr<Glacier2::Instrumentation::SessionObserver>&) override;
 

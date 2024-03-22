@@ -6,8 +6,6 @@
 #define __IceBT_EndpointInfo_h__
 
 #include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ValueF.h>
 #include <Ice/Exception.h>
 #include <Ice/Comparable.h>
 #include <optional>

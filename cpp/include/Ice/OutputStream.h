@@ -8,7 +8,6 @@
 #include "CommunicatorF.h"
 #include "InstanceF.h"
 #include "ValueF.h"
-#include "ProxyF.h"
 #include "Buffer.h"
 #include "Ice/Version.h"
 #include "SlicedDataF.h"
@@ -25,6 +24,8 @@
 
 namespace Ice
 {
+    class ObjectPrx;
+
     /**
      * Interface for output streams used to create a sequence of bytes from Slice types.
      * \headerfile Ice/Ice.h

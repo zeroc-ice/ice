@@ -6,7 +6,7 @@
 #define ICESSL_SCHANNEL_H
 
 #ifdef _WIN32
-#    include <IceSSL/Plugin.h>
+#    include "Plugin.h"
 #    ifndef NOMINMAX
 #        define NOMINMAX
 #    endif

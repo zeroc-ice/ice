@@ -12,7 +12,7 @@ namespace Glacier2
     class ServerBlobject final : public Glacier2::Blobject
     {
     public:
-        ServerBlobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>);
+        ServerBlobject(std::shared_ptr<Instance>, Ice::ConnectionPtr);
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*> inEncaps,

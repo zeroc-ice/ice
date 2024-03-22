@@ -5,7 +5,9 @@
 #ifndef ICE_PROPERTIES_ADMIN_H
 #define ICE_PROPERTIES_ADMIN_H
 
-#include "Ice/PropertiesAdmin.h"
+#include "Ice/PropertyDict.h"
+
+#include <memory>
 
 namespace Ice
 {
@@ -13,10 +15,12 @@ namespace Ice
      * Base class for the Properties admin facet.
      * \headerfile Ice/Ice.h
      */
+
+    // This class must be ICE_API with an out-of-line destructor because we dynamic_pointer_cast to it.
     class ICE_API NativePropertiesAdmin
     {
     public:
-        virtual ~NativePropertiesAdmin();
+        virtual ~NativePropertiesAdmin() = 0;
 
         /**
          * Register an update callback that will be invoked when property updates occur.

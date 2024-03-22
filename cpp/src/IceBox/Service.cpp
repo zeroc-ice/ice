@@ -18,5 +18,3 @@ IceBox::FailureException::ice_staticId() noexcept
     static constexpr std::string_view typeId = "::IceBox::FailureException";
     return typeId;
 }
-
-IceBox::Service::~Service() {}
