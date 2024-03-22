@@ -184,10 +184,8 @@ public:
     virtual void
     throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
-    virtual void throwUnknownDerivedAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+    virtual void
+    throwUnknownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
     virtual void useForwardAsync(
         std::function<void(const std::shared_ptr<::Test::Forward>&)>,

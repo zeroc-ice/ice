@@ -28,15 +28,15 @@
 
 #    include <fstream>
 
-#ifndef ICEIAP_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEIAP_API /**/
-#    elif defined(ICEIAP_API_EXPORTS)
-#        define ICEIAP_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEIAP_API ICE_DECLSPEC_IMPORT
+#    ifndef ICEIAP_API
+#        if defined(ICE_STATIC_LIBS)
+#            define ICEIAP_API /**/
+#        elif defined(ICEIAP_API_EXPORTS)
+#            define ICEIAP_API ICE_DECLSPEC_EXPORT
+#        else
+#            define ICEIAP_API ICE_DECLSPEC_IMPORT
+#        endif
 #    endif
-#endif
 
 using namespace std;
 using namespace Ice;

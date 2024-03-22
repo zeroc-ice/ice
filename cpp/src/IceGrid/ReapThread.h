@@ -91,8 +91,7 @@ namespace IceGrid
 
         void terminate();
         void join();
-        void
-        add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const Ice::ConnectionPtr& = nullptr);
+        void add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const Ice::ConnectionPtr& = nullptr);
 
         void connectionHeartbeat(const Ice::ConnectionPtr&);
         void connectionClosed(const Ice::ConnectionPtr&);

@@ -69,20 +69,16 @@ public:
     virtual std::optional<Test::OneOptionalPtr>
     opOneOptional(std::optional<Test::OneOptionalPtr>, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
 
-    virtual std::optional<Test::MyInterfacePrx> opMyInterfaceProxy(
-        std::optional<Test::MyInterfacePrx>,
-        std::optional<Test::MyInterfacePrx>&,
-        const Ice::Current&);
+    virtual std::optional<Test::MyInterfacePrx>
+    opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
         std::optional<std::pair<const std::byte*, const std::byte*>>,
         std::optional<::Test::ByteSeq>&,
         const Ice::Current&);
 
-    virtual std::optional<::Test::BoolSeq> opBoolSeq(
-        std::optional<std::pair<const bool*, const bool*>>,
-        std::optional<::Test::BoolSeq>&,
-        const Ice::Current&);
+    virtual std::optional<::Test::BoolSeq>
+    opBoolSeq(std::optional<std::pair<const bool*, const bool*>>, std::optional<::Test::BoolSeq>&, const Ice::Current&);
 
     virtual std::optional<::Test::ShortSeq> opShortSeq(
         std::optional<std::pair<const std::int16_t*, const std::int16_t*>>,

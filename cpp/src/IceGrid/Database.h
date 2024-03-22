@@ -131,8 +131,7 @@ namespace IceGrid
 
         AdapterInfoSeq getAdapterInfo(const std::string&);
 
-        AdapterInfoSeq
-        getFilteredAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&);
+        AdapterInfoSeq getFilteredAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&);
 
         std::string getAdapterServer(const std::string&) const;
         std::string getAdapterApplication(const std::string&) const;
@@ -148,10 +147,8 @@ namespace IceGrid
 
         Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
 
-        std::optional<Ice::ObjectPrx> getObjectByType(
-            const std::string&,
-            const Ice::ConnectionPtr& = nullptr,
-            const Ice::Context& = Ice::Context());
+        std::optional<Ice::ObjectPrx>
+        getObjectByType(const std::string&, const Ice::ConnectionPtr& = nullptr, const Ice::Context& = Ice::Context());
 
         std::optional<Ice::ObjectPrx> getObjectByTypeOnLeastLoadedNode(
             const std::string&,
@@ -159,10 +156,8 @@ namespace IceGrid
             const Ice::ConnectionPtr& = nullptr,
             const Ice::Context& = Ice::Context());
 
-        Ice::ObjectProxySeq getObjectsByType(
-            const std::string&,
-            const Ice::ConnectionPtr& = nullptr,
-            const Ice::Context& = Ice::Context());
+        Ice::ObjectProxySeq
+        getObjectsByType(const std::string&, const Ice::ConnectionPtr& = nullptr, const Ice::Context& = Ice::Context());
         ObjectInfo getObjectInfo(const Ice::Identity&);
         ObjectInfoSeq getObjectInfosByType(const std::string&);
         ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());

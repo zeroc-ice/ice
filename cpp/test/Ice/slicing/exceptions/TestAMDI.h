@@ -14,13 +14,11 @@ public:
 
     void baseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
-    void unknownDerivedAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
-    void knownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+    void unknownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
         final;
+
+    void
+    knownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
     void knownDerivedAsKnownDerivedAsync(
         std::function<void()>,

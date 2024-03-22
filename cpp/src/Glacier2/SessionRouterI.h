@@ -93,8 +93,7 @@ namespace Glacier2
 
         void updateSessionObservers() override;
 
-        std::shared_ptr<RouterI>
-        getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
+        std::shared_ptr<RouterI> getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 
         Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
         Ice::ObjectPtr getServerBlobject(const std::string&) const;
@@ -105,8 +104,7 @@ namespace Glacier2
         int sessionTraceLevel() const { return _sessionTraceLevel; }
 
     private:
-        std::shared_ptr<RouterI>
-        getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
+        std::shared_ptr<RouterI> getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 
         void sessionDestroyException(std::exception_ptr);
 
@@ -126,8 +124,7 @@ namespace Glacier2
         const std::optional<SSLSessionManagerPrx> _sslSessionManager;
 
         std::map<Ice::ConnectionPtr, std::shared_ptr<RouterI>> _routersByConnection;
-        mutable std::map<Ice::ConnectionPtr, std::shared_ptr<RouterI>>::const_iterator
-            _routersByConnectionHint;
+        mutable std::map<Ice::ConnectionPtr, std::shared_ptr<RouterI>>::const_iterator _routersByConnectionHint;
 
         std::map<std::string, std::shared_ptr<RouterI>> _routersByCategory;
         mutable std::map<std::string, std::shared_ptr<RouterI>>::const_iterator _routersByCategoryHint;

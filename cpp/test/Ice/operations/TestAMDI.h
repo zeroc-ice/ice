@@ -331,11 +331,9 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opByteSOnewayAsync(
-        Test::ByteS,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
+    void
+    opByteSOnewayAsync(Test::ByteS, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        final;
 
     void opByteSOnewayCallCountAsync(
         std::function<void(int)>,
@@ -354,11 +352,9 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void
-    opIdempotentAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
+    void opIdempotentAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
-    void
-    opNonmutatingAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
+    void opNonmutatingAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
     void opDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
@@ -386,15 +382,12 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void
-    opFloat1Async(float, std::function<void(float)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+    void opFloat1Async(float, std::function<void(float)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
         final;
 
-    void opDouble1Async(
-        double,
-        std::function<void(double)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
+    void
+    opDouble1Async(double, std::function<void(double)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        final;
 
     void opString1Async(
         std::string,

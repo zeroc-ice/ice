@@ -14,7 +14,7 @@
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/PropertiesF.h> // For setTcpBufSize
-#include <Ice/Logger.h>     // For setTcpBufSize
+#include <Ice/Logger.h>      // For setTcpBufSize
 #include "Protocol.h"
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>

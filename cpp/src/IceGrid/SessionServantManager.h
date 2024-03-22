@@ -64,11 +64,7 @@ namespace IceGrid
 
         struct SessionInfo
         {
-            SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat)
-                : connection(c),
-                  category(cat)
-            {
-            }
+            SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat) : connection(c), category(cat) {}
 
             const Ice::ConnectionPtr connection;
             const std::string category;

@@ -18,8 +18,7 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&);
 
-    virtual void
-    shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
     virtual void getContextAsync(
         std::function<void(const Ice::Context&)>,

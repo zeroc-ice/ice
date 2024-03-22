@@ -13,11 +13,9 @@ class CallbackReceiverI final : public Test::CallbackReceiver
 public:
     void callback(const Ice::Current&) override;
     void callbackEx(const Ice::Current&) override;
-    void concurrentCallbackAsync(
-        int,
-        std::function<void(int)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) override;
+    void
+    concurrentCallbackAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
     void waitCallback(const Ice::Current&) override;
     void callbackWithPayload(Ice::ByteSeq, const Ice::Current&) override;
