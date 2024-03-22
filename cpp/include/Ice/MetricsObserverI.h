@@ -16,6 +16,7 @@
 #include "MetricsFunctional.h"
 
 #include <cassert>
+#include <sstream>
 #include <stdexcept>
 
 namespace IceMX

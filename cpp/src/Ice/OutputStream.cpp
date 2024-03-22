@@ -16,6 +16,7 @@
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
 #include "Endian.h"
+#include "Ice/Protocol.h"
 
 #include <iterator>
 
@@ -251,6 +252,58 @@ Ice::OutputStream::startEncapsulation()
     {
         startEncapsulation(_encoding, Ice::FormatType::DefaultFormat);
     }
+}
+
+void
+Ice::OutputStream::startEncapsulation(const EncodingVersion& encoding, FormatType format)
+{
+    IceInternal::checkSupportedEncoding(encoding);
+
+    Encaps* oldEncaps = _currentEncaps;
+    if (!oldEncaps) // First allocated encaps?
+    {
+        _currentEncaps = &_preAllocatedEncaps;
+    }
+    else
+    {
+        _currentEncaps = new Encaps();
+        _currentEncaps->previous = oldEncaps;
+    }
+    _currentEncaps->format = format;
+    _currentEncaps->encoding = encoding;
+    _currentEncaps->start = b.size();
+
+    write(std::int32_t(0)); // Placeholder for the encapsulation length.
+    write(_currentEncaps->encoding);
+}
+
+void
+Ice::OutputStream::endEncapsulation()
+{
+    assert(_currentEncaps);
+
+    // Size includes size and version.
+    const std::int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
+    write(sz, &(*(b.begin() + _currentEncaps->start)));
+
+    Encaps* oldEncaps = _currentEncaps;
+    _currentEncaps = _currentEncaps->previous;
+    if (oldEncaps == &_preAllocatedEncaps)
+    {
+        oldEncaps->reset();
+    }
+    else
+    {
+        delete oldEncaps;
+    }
+}
+
+void
+Ice::OutputStream::writeEmptyEncapsulation(const EncodingVersion& encoding)
+{
+    IceInternal::checkSupportedEncoding(encoding);
+    write(std::int32_t(6)); // Size
+    write(encoding);
 }
 
 void

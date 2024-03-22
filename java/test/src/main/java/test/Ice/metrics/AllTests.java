@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import com.zeroc.IceMX.*;
+import com.zeroc.Ice.IceMX.*;
 
 import test.Ice.metrics.Test.*;
 
@@ -166,7 +166,7 @@ public class AllTests
             MetricsAdmin.GetMetricsViewResult r = metrics.getMetricsView(viewName);
             test(r.returnValue.containsKey(map));
             boolean ok = true;
-            for(com.zeroc.IceMX.Metrics m : r.returnValue.get(map))
+            for(com.zeroc.Ice.IceMX.Metrics m : r.returnValue.get(map))
             {
                 if(m.current != value)
                 {
@@ -362,10 +362,10 @@ public class AllTests
         }
     }
 
-    static Map<String, com.zeroc.IceMX.Metrics> toMap(com.zeroc.IceMX.Metrics[] mmap)
+    static Map<String, com.zeroc.Ice.IceMX.Metrics> toMap(com.zeroc.Ice.IceMX.Metrics[] mmap)
     {
-        Map<String, com.zeroc.IceMX.Metrics> m = new java.util.HashMap<>();
-        for(com.zeroc.IceMX.Metrics e : mmap)
+        Map<String, com.zeroc.Ice.IceMX.Metrics> m = new java.util.HashMap<>();
+        for(com.zeroc.Ice.IceMX.Metrics e : mmap)
         {
             m.put(e.id, e);
         }
@@ -494,7 +494,7 @@ public class AllTests
             isSecure = endpointInfo.secure() ? "true": "false";
         }
 
-        Map<String, com.zeroc.IceMX.Metrics> map;
+        Map<String, com.zeroc.Ice.IceMX.Metrics> map;
 
         if(!collocated)
         {
@@ -673,7 +673,7 @@ public class AllTests
             metrics.ice_ping();
 
             test(clientMetrics.getMetricsView("View").returnValue.get("ConnectionEstablishment").length == 1);
-            com.zeroc.IceMX.Metrics m1 =
+            com.zeroc.Ice.IceMX.Metrics m1 =
                 clientMetrics.getMetricsView("View").returnValue.get("ConnectionEstablishment")[0];
             test(m1.current == 0 && m1.total == 1 && m1.id.equals(hostAndPort));
 

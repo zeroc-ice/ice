@@ -4,9 +4,7 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Communicator.h>
-#include <Ice/ObjectAdapter.h>
+#include <Ice/Ice.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>

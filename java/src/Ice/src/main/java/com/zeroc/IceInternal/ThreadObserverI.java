@@ -5,7 +5,7 @@
 package com.zeroc.IceInternal;
 
 public class ThreadObserverI
-    extends com.zeroc.IceMX.ObserverWithDelegate<com.zeroc.IceMX.ThreadMetrics,
+    extends com.zeroc.Ice.IceMX.ObserverWithDelegate<com.zeroc.Ice.IceMX.ThreadMetrics,
                                                  com.zeroc.Ice.Instrumentation.ThreadObserver>
     implements com.zeroc.Ice.Instrumentation.ThreadObserver
 {
@@ -22,11 +22,11 @@ public class ThreadObserverI
         }
     }
 
-    private com.zeroc.IceMX.Observer.MetricsUpdate<com.zeroc.IceMX.ThreadMetrics> _threadStateUpdate =
-        new com.zeroc.IceMX.Observer.MetricsUpdate<com.zeroc.IceMX.ThreadMetrics>()
+    private com.zeroc.Ice.IceMX.Observer.MetricsUpdate<com.zeroc.Ice.IceMX.ThreadMetrics> _threadStateUpdate =
+        new com.zeroc.Ice.IceMX.Observer.MetricsUpdate<com.zeroc.Ice.IceMX.ThreadMetrics>()
         {
             @Override
-            public void update(com.zeroc.IceMX.ThreadMetrics v)
+            public void update(com.zeroc.Ice.IceMX.ThreadMetrics v)
             {
                 switch(_oldState)
                 {

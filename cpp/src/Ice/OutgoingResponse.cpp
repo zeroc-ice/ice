@@ -4,6 +4,7 @@
 
 #include "Ice/ObjectAdapter.h"
 #include "Ice/OutgoingResponse.h"
+#include "Ice/Protocol.h"
 
 using namespace std;
 using namespace Ice;

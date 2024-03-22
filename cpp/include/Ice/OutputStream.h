@@ -10,9 +10,9 @@
 #include "ValueF.h"
 #include "ProxyF.h"
 #include "Buffer.h"
-#include "Protocol.h"
+#include "EncodingVersion.h"
 #include "SlicedDataF.h"
-#include "StreamHelpers.h"
+#include "StreamableTraits.h"
 #include "Ice/Format.h"
 
 #include <cassert>
@@ -25,8 +25,6 @@
 
 namespace Ice
 {
-    class UserException;
-
     /**
      * Interface for output streams used to create a sequence of bytes from Slice types.
      * \headerfile Ice/Ice.h
@@ -207,61 +205,18 @@ namespace Ice
          * @param encoding The encoding version to use for the encapsulation.
          * @param format The class format to use for the encapsulation.
          */
-        void startEncapsulation(const EncodingVersion& encoding, FormatType format)
-        {
-            IceInternal::checkSupportedEncoding(encoding);
-
-            Encaps* oldEncaps = _currentEncaps;
-            if (!oldEncaps) // First allocated encaps?
-            {
-                _currentEncaps = &_preAllocatedEncaps;
-            }
-            else
-            {
-                _currentEncaps = new Encaps();
-                _currentEncaps->previous = oldEncaps;
-            }
-            _currentEncaps->format = format;
-            _currentEncaps->encoding = encoding;
-            _currentEncaps->start = b.size();
-
-            write(std::int32_t(0)); // Placeholder for the encapsulation length.
-            write(_currentEncaps->encoding);
-        }
+        void startEncapsulation(const EncodingVersion& encoding, FormatType format);
 
         /**
          * Ends the current encapsulation.
          */
-        void endEncapsulation()
-        {
-            assert(_currentEncaps);
-
-            // Size includes size and version.
-            const std::int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
-            write(sz, &(*(b.begin() + _currentEncaps->start)));
-
-            Encaps* oldEncaps = _currentEncaps;
-            _currentEncaps = _currentEncaps->previous;
-            if (oldEncaps == &_preAllocatedEncaps)
-            {
-                oldEncaps->reset();
-            }
-            else
-            {
-                delete oldEncaps;
-            }
-        }
+        void endEncapsulation();
 
         /**
          * Writes an empty encapsulation using the given encoding version.
          * @param encoding The encoding version to use for the encapsulation.
          */
-        void writeEmptyEncapsulation(const EncodingVersion& encoding)
-        {
-            IceInternal::checkSupportedEncoding(encoding);
-            write(std::int32_t(6)); // Size
-            write(encoding);
-        }
+        void writeEmptyEncapsulation(const EncodingVersion& encoding);
 
         /**
          * Copies the marshaled form of an encapsulation to the buffer.

@@ -4,10 +4,10 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.IceMX.*;
+import com.zeroc.Ice.IceMX.*;
 
 public class InvocationObserverI
-    extends com.zeroc.IceMX.ObserverWithDelegate<com.zeroc.IceMX.InvocationMetrics,
+    extends com.zeroc.Ice.IceMX.ObserverWithDelegate<com.zeroc.Ice.IceMX.InvocationMetrics,
                                                  com.zeroc.Ice.Instrumentation.InvocationObserver>
     implements com.zeroc.Ice.Instrumentation.InvocationObserver
 {

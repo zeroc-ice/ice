@@ -13,6 +13,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <fstream>
+#include <sstream>
 
 #include <Security/Security.h>
 #include <CoreFoundation/CoreFoundation.h>

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceMX;
+package com.zeroc.Ice.IceMX;
 
 import com.zeroc.IceInternal.MetricsMap;
 
@@ -81,7 +81,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         return obsv;
     }
 
-    public <S extends com.zeroc.IceMX.Metrics> void
+    public <S extends com.zeroc.Ice.IceMX.Metrics> void
     registerSubMap(String subMap, Class<S> cl, java.lang.reflect.Field field)
     {
         _metrics.registerSubMap(_name, subMap, cl, field);
