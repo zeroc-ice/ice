@@ -3,7 +3,7 @@
   <Import Project="..\..\..\..\..\msbuild\ice.common.props" />
   <PropertyGroup>
     <AssemblyName>TestCommon</AssemblyName>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
@@ -20,7 +20,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="..\..\..\..\..\lib\netstandard2.0\Ice.dll" />
+        <Reference Include="..\..\..\..\..\lib\net8.0\Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

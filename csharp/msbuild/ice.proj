@@ -48,7 +48,6 @@
         </TestSolution>
     </ItemGroup>
 
-    <!-- NET Standard Targets -->
     <Target Name="NuGetRestoreDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
@@ -92,7 +91,7 @@
 
     <Target Name="Clean" DependsOnTargets="CleanDist">
 
-        <MSBuild Projects="@(NetStandardTestSolution)"
+        <MSBuild Projects="@(TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Clean" />
@@ -102,9 +101,9 @@
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <!-- Build iceboxnet with net6.0 target framework (default) -->
+        <!-- Build iceboxnet with net8.0 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net6.0"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
                  Targets="Restore;Publish" />
 
         <MSBuild Projects="ice.nuget.targets"
@@ -131,7 +130,7 @@
         <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net6.0" />
+              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net8.0" />
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
@@ -142,7 +141,7 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net8.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>
         <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>

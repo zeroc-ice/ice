@@ -32,8 +32,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../lib/netstandard2.0/Ice.dll" />
-        <Reference Include="../../../../../lib/netstandard2.0/IceSSL.dll" />
+        <Reference Include="../../../../../lib/net8.0/Ice.dll" />
+        <Reference Include="../../../../../lib/net8.0/IceSSL.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>
