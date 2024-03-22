@@ -723,10 +723,10 @@ public final class Instance implements java.util.function.Function<String, Class
         // To convert a Slice type ID into a Java class, the following steps are taken:
         //
         // 1. Convert the Slice type ID into a classname (e.g., ::M::X becomes M.X).
-        // 2. Check if the application has defined any package prefixes for the top-level module (e.gm "M").
+        // 2. Check if the application has defined any package prefixes for the top-level module (e.g.: "M").
         //    Attempt to resolve the <package-prefix>+<class-name> in order trying each defined package
         //    prefix.
-        // 3. If the above step fails, search for a Default.Package property. If found,
+        // 3. If the above step fails, it checks the value of Default.Package property. If found,
         //    prepend its value to the classname. Otherwise, attempt to use the
         //    classname directly.
         //
@@ -763,7 +763,7 @@ public final class Instance implements java.util.function.Function<String, Class
             String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
             if (packagePrefixes == null)
             {
-                packagePrefixes = _initData.properties.getPropertyAsListWithDefault("Ice.Package." + topLevelModule, null);
+                packagePrefixes = _initData.properties.getPropertyAsList("Ice.Package." + topLevelModule);
             }
 
             if (packagePrefixes != null)
