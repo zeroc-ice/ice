@@ -106,7 +106,6 @@
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\UserAccountMapper.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\PluginFacade.cpp" />
     <ClCompile Include="..\..\PluginFacadeI.cpp" />
     <ClCompile Include="Win32\Debug\Admin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

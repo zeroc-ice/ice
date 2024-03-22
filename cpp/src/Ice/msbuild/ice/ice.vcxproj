@@ -24,7 +24,7 @@
     <RootNamespace>Ice</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='oDebug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
@@ -166,18 +166,12 @@
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
-    <ClCompile Include="..\..\Endpoint.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
-    <ClCompile Include="..\..\Instrumentation.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
-    <ClCompile Include="..\..\Logger.cpp" />
     <ClCompile Include="..\..\MarshaledResult.cpp" />
-    <ClCompile Include="..\..\ObjectAdapter.cpp" />
-    <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\ProxyAsync.cpp" />
     <ClCompile Include="..\..\RequestHandlerCache.cpp" />
-    <ClCompile Include="..\..\ServantLocator.cpp" />
     <ClCompile Include="..\..\TimeUtil.cpp" />
     <ClCompile Include="..\..\UserException.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
@@ -940,7 +934,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h" />
     <ClInclude Include="..\..\..\..\include\Ice\InstrumentationF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LocalException.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h" />

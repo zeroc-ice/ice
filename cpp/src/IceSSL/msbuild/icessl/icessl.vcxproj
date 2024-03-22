@@ -106,10 +106,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\AcceptorI.cpp" />
     <ClCompile Include="..\..\CertificateI.cpp" />
-    <ClCompile Include="..\..\ConnectionInfo.cpp" />
     <ClCompile Include="..\..\ConnectorI.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
-    <ClCompile Include="..\..\EndpointInfo.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />
     <ClCompile Include="..\..\PluginI.cpp" />
     <ClCompile Include="..\..\RFC2253.cpp" />

@@ -10,8 +10,8 @@
 #    ifndef NOMINMAX
 #        define NOMINMAX
 #    endif
-#    include <wincrypt.h>
 #    include <windows.h>
+#    include <wincrypt.h>
 
 namespace IceSSL
 {

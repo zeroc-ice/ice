@@ -147,9 +147,6 @@
     <ClCompile Include="x64\Release\UserAccountMapper.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PluginFacade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\IceGrid\Config.h">
@@ -161,89 +158,89 @@
     <ClInclude Include="..\..\..\..\include\IceGrid\ReplicaGroupFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\Admin.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\Admin.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\Descriptor.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\Descriptor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\Exception.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\Exception.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\FileParser.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\FileParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\Registry.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\Registry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\Session.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\Session.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceGrid\UserAccountMapper.h">
-      <Filter>Header Files\Win32\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceGrid\UserAccountMapper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\Admin.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\Admin.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\Descriptor.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\Descriptor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\Exception.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\Exception.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\FileParser.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\FileParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\Registry.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\Registry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\Session.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\Session.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceGrid\UserAccountMapper.h">
-      <Filter>Header Files\x64\Debug</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\IceGrid\UserAccountMapper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\Admin.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\Admin.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\Descriptor.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\Descriptor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\Exception.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\Exception.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\FileParser.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\FileParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\Registry.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\Registry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\Session.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\Session.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceGrid\UserAccountMapper.h">
-      <Filter>Header Files\Win32\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\IceGrid\UserAccountMapper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\Admin.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\Admin.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\Descriptor.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\Descriptor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\Exception.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\Exception.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\FileParser.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\FileParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\Registry.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\Registry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\Session.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\Session.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceGrid\UserAccountMapper.h">
-      <Filter>Header Files\x64\Release</Filter>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\IceGrid\UserAccountMapper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
