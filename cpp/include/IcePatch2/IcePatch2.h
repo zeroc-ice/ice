@@ -5,9 +5,9 @@
 #ifndef ICEPATCH2_H
 #define ICEPATCH2_H
 
+#include "ClientUtil.h"
 #include "Config.h"
 #include "IcePatch2/FileInfo.h"
 #include "IcePatch2/FileServer.h"
-#include "ClientUtil.h"
 
 #endif

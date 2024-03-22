@@ -7,10 +7,10 @@
 
 #include "Config.h"
 #include "Exception.h"
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace IceUtilInternal
 {
@@ -59,12 +59,8 @@ namespace IceUtilInternal
         };
 
         Options();
-        void addOpt(
-            const std::string&,
-            const std::string& = "",
-            ArgType = NoArg,
-            std::string = "",
-            RepeatType = NoRepeat);
+        void
+        addOpt(const std::string&, const std::string& = "", ArgType = NoArg, std::string = "", RepeatType = NoRepeat);
 
         typedef std::vector<std::string> StringVector;
 
@@ -97,9 +93,9 @@ namespace IceUtilInternal
         };
         using OVecPtr = std::shared_ptr<OptionValueVector>;
 
-        typedef std::map<std::string, ODPtr> ValidOpts;        // Valid options and their details.
-        typedef std::map<std::string, OValPtr> Opts;           // Value of non-repeating options.
-        typedef std::map<std::string, OVecPtr> ROpts;          // Value of repeating options.
+        typedef std::map<std::string, ODPtr> ValidOpts;      // Valid options and their details.
+        typedef std::map<std::string, OValPtr> Opts;         // Value of non-repeating options.
+        typedef std::map<std::string, OVecPtr> ROpts;        // Value of repeating options.
         typedef std::map<std::string, std::string> Synonyms; // Map from short to long option and vice versa.
 
         void addValidOpt(const std::string&, const std::string&, ArgType, const std::string&, RepeatType);

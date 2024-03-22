@@ -14,10 +14,10 @@
 #    include <windows.h>
 #endif
 
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string>
+#include <sys/stat.h>
 
 namespace IceUtilInternal
 {

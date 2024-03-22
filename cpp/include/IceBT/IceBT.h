@@ -7,7 +7,7 @@
 
 #include "ConnectionInfo.h"
 #include "EndpointInfo.h"
-#include "Types.h"
 #include "Plugin.h"
+#include "Types.h"
 
 #endif

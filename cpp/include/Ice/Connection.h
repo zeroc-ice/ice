@@ -329,9 +329,8 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual std::function<void()> heartbeatAsync(
-            std::function<void(std::exception_ptr)> exception,
-            std::function<void(bool)> sent = nullptr) = 0;
+        virtual std::function<void()>
+        heartbeatAsync(std::function<void(std::exception_ptr)> exception, std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Send a heartbeat message.

@@ -158,10 +158,7 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        Prx ice_fixed(ConnectionPtr connection) const
-        {
-            return fromReference(asPrx()._fixed(std::move(connection)));
-        }
+        Prx ice_fixed(ConnectionPtr connection) const { return fromReference(asPrx()._fixed(std::move(connection))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the invocation timeout.

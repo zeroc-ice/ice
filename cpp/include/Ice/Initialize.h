@@ -578,10 +578,8 @@ namespace Ice
      * @param args Additional arguments included in the plug-in's configuration.
      * @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
      */
-    typedef Ice::Plugin* (*PluginFactory)(
-        const Ice::CommunicatorPtr& communicator,
-        const std::string& name,
-        const Ice::StringSeq& args);
+    typedef Ice::Plugin* (
+        *PluginFactory)(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::StringSeq& args);
 
     /**
      * Manually registers a plug-in factory function.

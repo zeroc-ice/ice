@@ -16,7 +16,7 @@
 #    include "OpenSSL.h"
 #endif
 
-#include "EndpointInfo.h"
 #include "ConnectionInfo.h"
+#include "EndpointInfo.h"
 
 #endif

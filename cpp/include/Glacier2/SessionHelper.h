@@ -5,14 +5,14 @@
 #ifndef GLACIER2_SESSION_HELPER_H
 #define GLACIER2_SESSION_HELPER_H
 
-#include "Ice/Ice.h"
-#include "Glacier2/Session.h"
 #include "Glacier2/Router.h"
+#include "Glacier2/Session.h"
+#include "Ice/Ice.h"
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
 
 namespace Glacier2
 {

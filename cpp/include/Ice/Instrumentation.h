@@ -236,11 +236,8 @@ namespace Ice::Instrumentation
          * @param size The size of the invocation.
          * @return The observer to instrument the remote invocation.
          */
-        virtual RemoteObserverPtr getRemoteObserver(
-            const ConnectionInfoPtr& con,
-            const EndpointPtr& endpt,
-            int requestId,
-            int size) = 0;
+        virtual RemoteObserverPtr
+        getRemoteObserver(const ConnectionInfoPtr& con, const EndpointPtr& endpt, int requestId, int size) = 0;
 
         /**
          * Get a collocated observer for this invocation.
@@ -356,10 +353,8 @@ namespace Ice::Instrumentation
          * @param ctx The context specified by the user.
          * @return The invocation observer to instrument the invocation.
          */
-        virtual InvocationObserverPtr getInvocationObserver(
-            const std::optional<ObjectPrx>& prx,
-            std::string_view operation,
-            const Context& ctx) = 0;
+        virtual InvocationObserverPtr
+        getInvocationObserver(const std::optional<ObjectPrx>& prx, std::string_view operation, const Context& ctx) = 0;
 
         /**
          * This method should return a dispatch observer for the given dispatch. The Ice run-time calls this method each

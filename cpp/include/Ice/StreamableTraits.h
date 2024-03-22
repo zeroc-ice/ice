@@ -335,9 +335,7 @@ namespace Ice
      * \headerfile Ice/Ice.h
      */
     template<typename T>
-    struct StreamableTraits<
-        std::shared_ptr<T>,
-        typename std::enable_if<std::is_base_of<Value, T>::value>::type>
+    struct StreamableTraits<std::shared_ptr<T>, typename std::enable_if<std::is_base_of<Value, T>::value>::type>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryClass;
         static const int minWireSize = 1;

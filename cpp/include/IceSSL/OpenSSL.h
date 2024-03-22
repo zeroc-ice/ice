@@ -7,8 +7,8 @@
 
 #include "Plugin.h"
 
-#include <openssl/x509v3.h>
 #include <openssl/pem.h>
+#include <openssl/x509v3.h>
 
 //
 // Automatically link IceSSLOpenSSL[D].lib with Visual C++

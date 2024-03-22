@@ -5,8 +5,8 @@
 #ifndef ICEBOX_SERVICE_H
 #define ICEBOX_SERVICE_H
 
-#include "Ice/Ice.h"
 #include "Config.h"
+#include "Ice/Ice.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push

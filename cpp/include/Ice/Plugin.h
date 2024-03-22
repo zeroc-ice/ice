@@ -20,7 +20,7 @@ namespace Ice
     class Plugin
     {
     public:
-       virtual ~Plugin() = default;
+        virtual ~Plugin() = default;
 
         /**
          * Perform any necessary initialization steps.
