@@ -5,6 +5,7 @@
 #ifndef ICE_BT_TYPES_H
 #define ICE_BT_TYPES_H
 
+#include "Ice/Config.h"
 #include "Ice/LocalException.h"
 
 #ifndef ICEBT_API
@@ -34,8 +35,6 @@ namespace IceBT
     class ICEBT_API BluetoothException : public Ice::LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * One-shot constructor to initialize all data members.
          * The file and line number are required for all local exceptions.

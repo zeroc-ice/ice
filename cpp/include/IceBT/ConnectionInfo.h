@@ -2,30 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceBT_ConnectionInfo_h__
-#define __IceBT_ConnectionInfo_h__
+#ifndef ICE_BT_CONNECTION_INFO_H
+#define ICE_BT_CONNECTION_INFO_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/Exception.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/Connection.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/Connection.h"
 
-#ifndef ICEBT_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBT_API /**/
-#    elif defined(ICEBT_API_EXPORTS)
-#        define ICEBT_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEBT_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-
-namespace IceBT
-{
-    class ConnectionInfo;
-}
 
 namespace IceBT
 {
@@ -33,11 +21,9 @@ namespace IceBT
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
      */
-    class ICE_CLASS(ICEBT_API) ConnectionInfo : public Ice::ConnectionInfo
+    class ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICEBT_API) virtual ~ConnectionInfo();
-
         ConnectionInfo()
             : localAddress(""),
               localChannel(-1),
@@ -49,10 +35,8 @@ namespace IceBT
         {
         }
 
-        ConnectionInfo(const ConnectionInfo&) = default;
-        ConnectionInfo(ConnectionInfo&&) = default;
-        ConnectionInfo& operator=(const ConnectionInfo&) = default;
-        ConnectionInfo& operator=(ConnectionInfo&&) = default;
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -120,14 +104,14 @@ namespace IceBT
          */
         int sndSize = 0;
     };
-}
 
-/// \cond INTERNAL
-namespace IceBT
-{
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
-/// \endcond
 
-#include <IceUtil/PopDisableWarnings.h>
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

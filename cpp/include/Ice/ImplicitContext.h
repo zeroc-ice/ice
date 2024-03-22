@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "Ice/Context.h"
 
+#include <memory>
 #include <mutex>
 #include <string>
 

@@ -8,6 +8,8 @@
 #include "EndpointF.h"
 #include "Ice/Version.h"
 
+#include <string>
+
 #if defined(__clang__)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"

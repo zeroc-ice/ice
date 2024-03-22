@@ -12,6 +12,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <vector>
 #include <list>
 
