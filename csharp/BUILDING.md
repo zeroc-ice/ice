@@ -21,7 +21,7 @@ resulting binaries. As an alternative, you can download and install the
 
 In order to build Ice for .NET from source, you need:
 
-* Visual Studio 2022 with [.NET 6.0 SDK][2] or [.NET 8.0 SDK][3].
+* Visual Studio 2022 with [.NET 8.0 SDK][2].
 
 ### Compiling Ice for .NET on Windows
 
@@ -44,25 +44,13 @@ msbuild msbuild\ice.proj
 > msbuild msbuild\ice.proj /p:Platform=x64
 > ```
 
-Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib\netstandard2.0` folder.
+Upon completion, the Ice assemblies for .NET 8.0 are placed in the `lib\net8.0` folder.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
 ```shell
 msbuild msbuild\ice.proj /t:BuildDist
 ```
-
-The iceboxnet executable and test applications target `net6.0` You can change
-the target framework by setting the `AppTargetFramework` property to a different
-
-Target Framework Moniker value, for example:
-
-```shell
-msbuild msbuild\ice.proj /p:"AppTargetFramework=net8.0"
-```
-
-This builds the test programs for `net8.0`. The target frameworks you specify
-must implement .NET Standard 2.0.
 
 #### Authenticode Signatures
 
@@ -90,7 +78,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET 6.0 SDK][2] or [.NET 8.0 SDK][3] to build Ice for .NET from source.
+You need the [.NET 8.0 SDK][2] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -106,20 +94,12 @@ Then run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies are placed in the `lib/netstandard2.0` directory.
+Upon completion, the Ice assemblies are placed in the `lib/net8.0` directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
 ```shell
 dotnet msbuild msbuild/ice.proj /t:BuildDist
-```
-
-The iceboxnet executable and test applications target `net6.0`. You can change the target
-framework by setting the `AppTargetFramework` property to a different Target Framework Moniker value,
-for example:
-
-```shell
-dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net8.0"
 ```
 
 ## Running the Tests
@@ -140,15 +120,6 @@ python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
-
-`allTests.py` executes by default the tests for .NET 6.0. If you want to run
-the test with a different .NET Framework you must use `--framework` option.
-
-For example, to run .NET 8.0 tests:
-
-```shell
-python allTests.py --framework=net8.0
-```
 
 ## NuGet Package
 
@@ -176,5 +147,4 @@ This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
 directory.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-[3]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+[2]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0

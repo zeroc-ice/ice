@@ -6,7 +6,7 @@
     <AssemblyName>iceboxnet</AssemblyName>
     <Version>$(IceJSONVersion)</Version>
     <OutputPath>../../bin</OutputPath>
-    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />

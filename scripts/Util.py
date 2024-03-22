@@ -338,7 +338,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netstandard2.0")
+            return os.path.join(installDir, "lib", "net8.0")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -573,7 +573,7 @@ class Windows(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib/netstandard2.0")
+            return os.path.join(installDir, "lib/net8.0")
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = (
@@ -3902,27 +3902,9 @@ class JavaMapping(Mapping):
 
 
 class CSharpMapping(Mapping):
-    class Config(Mapping.Config):
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["framework="])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("C# mapping options:")
-            print(
-                "--framework=net48|net6.0|net8.0 Choose the framework used to run .NET tests"
-            )
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            if self.framework == "":
-                self.framework = "net6.0"
 
     def getTargetFramework(self, current):
-        return current.config.framework
+        return "net8.0"
 
     def getBuildDir(self, name, current):
         return os.path.join("msbuild", name, self.getTargetFramework(current))
