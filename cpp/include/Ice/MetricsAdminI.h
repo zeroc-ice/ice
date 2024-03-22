@@ -5,15 +5,15 @@
 #ifndef ICE_METRICS_ADMIN_I_H
 #define ICE_METRICS_ADMIN_I_H
 
-#include "Properties.h"
-#include "Initialize.h"
-
+#include "Config.h"
 #include "Ice/Metrics.h"
+#include "Initialize.h"
+#include "Properties.h"
 
 #include <cassert>
-#include <regex>
 #include <list>
 #include <mutex>
+#include <regex>
 
 namespace IceMX
 {

@@ -7,8 +7,8 @@
 
 #include "ConnectionF.h"
 #include "EndpointF.h"
-#include "ObjectAdapterF.h"
 #include "Ice/Context.h"
+#include "ObjectAdapterF.h"
 
 #include <cstdint>
 #include <memory>

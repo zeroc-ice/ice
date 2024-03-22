@@ -5,14 +5,14 @@
 #ifndef ICE_OUTPUT_STREAM_H
 #define ICE_OUTPUT_STREAM_H
 
-#include "CommunicatorF.h"
-#include "InstanceF.h"
-#include "ValueF.h"
 #include "Buffer.h"
+#include "CommunicatorF.h"
+#include "Ice/Format.h"
 #include "Ice/Version.h"
+#include "InstanceF.h"
 #include "SlicedDataF.h"
 #include "StreamableTraits.h"
-#include "Ice/Format.h"
+#include "ValueF.h"
 
 #include <cassert>
 #include <cstdint>

@@ -11,16 +11,15 @@
 #ifndef _WIN32
 #    include "Config.h"
 #    include "Exception.h"
-#    include "StringConverter.h"
 #    include "IceUtil/StringUtil.h"
+#    include "StringConverter.h"
 
 #    include <algorithm>
-#    include <memory>
 #    include <cassert>
-#    include <sstream>
-
 #    include <iconv.h>
 #    include <langinfo.h>
+#    include <memory>
+#    include <sstream>
 
 #    if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B)
 //

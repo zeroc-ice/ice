@@ -5,15 +5,15 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
-#include "RequestHandlerF.h"
+#include "BatchRequestQueueF.h"
+#include "CommunicatorF.h"
+#include "Current.h"
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
 #include "Ice/BuiltinSequences.h"
-#include "ReferenceF.h"
-#include "BatchRequestQueueF.h"
-#include "Current.h"
-#include "CommunicatorF.h"
 #include "LocalException.h"
+#include "ReferenceF.h"
+#include "RequestHandlerF.h"
 
 #include <future>
 #include <iosfwd>

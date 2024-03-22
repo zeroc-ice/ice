@@ -5,19 +5,18 @@
 #ifndef ICE_INPUT_STREAM_H
 #define ICE_INPUT_STREAM_H
 
-#include "CommunicatorF.h"
-#include "InstanceF.h"
-#include "ValueF.h"
-#include "Logger.h"
-#include "ValueFactory.h"
 #include "Buffer.h"
-#include "Ice/Version.h"
-#include "SlicedDataF.h"
-#include "UserExceptionFactory.h"
-#include "ValueFactory.h"
-#include "StreamableTraits.h"
-#include "ReferenceF.h"
+#include "CommunicatorF.h"
 #include "Exception.h"
+#include "Ice/Version.h"
+#include "InstanceF.h"
+#include "Logger.h"
+#include "ReferenceF.h"
+#include "SlicedDataF.h"
+#include "StreamableTraits.h"
+#include "UserExceptionFactory.h"
+#include "ValueF.h"
+#include "ValueFactory.h"
 
 #include <cassert>
 #include <cstdint>

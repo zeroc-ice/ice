@@ -5,8 +5,8 @@
 #ifndef ICE_OBSERVER_HELPER_H
 #define ICE_OBSERVER_HELPER_H
 
-#include "Instrumentation.h"
 #include "InstanceF.h"
+#include "Instrumentation.h"
 
 #include <string_view>
 

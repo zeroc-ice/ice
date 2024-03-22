@@ -6,8 +6,8 @@
 #define ICE_VALUE_H
 
 #include "Config.h"
-#include "ValueF.h"
 #include "SlicedDataF.h"
+#include "ValueF.h"
 
 namespace Ice
 {

@@ -5,10 +5,10 @@
 #ifndef ICE_PROXY_FUNCTIONS_H
 #define ICE_PROXY_FUNCTIONS_H
 
-#include "Ice/Proxy.h"
-#include "Ice/Current.h"
 #include "Ice/Communicator.h"
+#include "Ice/Current.h"
 #include "Ice/ObjectAdapter.h"
+#include "Ice/Proxy.h"
 
 #include <sstream>
 

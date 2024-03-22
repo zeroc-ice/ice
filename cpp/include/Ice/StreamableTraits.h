@@ -6,6 +6,7 @@
 #define ICE_STREAMABLE_TRAITS_H
 
 #include "ValueF.h"
+
 #include <optional>
 #include <string_view>
 

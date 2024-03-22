@@ -5,16 +5,16 @@
 #ifndef ICE_INITIALIZE_H
 #define ICE_INITIALIZE_H
 
-#include "IceUtil/Timer.h"
-#include "Connection.h"
-#include "CommunicatorF.h"
-#include "PropertiesF.h"
-#include "InstanceF.h"
-#include "Logger.h"
-#include "Instrumentation.h"
-#include "Ice/BuiltinSequences.h"
-#include "Plugin.h"
 #include "BatchRequest.h"
+#include "CommunicatorF.h"
+#include "Connection.h"
+#include "Ice/BuiltinSequences.h"
+#include "IceUtil/Timer.h"
+#include "InstanceF.h"
+#include "Instrumentation.h"
+#include "Logger.h"
+#include "Plugin.h"
+#include "PropertiesF.h"
 #include "ValueFactory.h"
 
 #define ICE_CONFIG_FILE_STRING const std::string&

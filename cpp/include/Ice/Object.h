@@ -5,8 +5,8 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include "ObjectF.h"
 #include "IncomingRequest.h"
+#include "ObjectF.h"
 #include "OutgoingResponse.h"
 
 #include <string_view>

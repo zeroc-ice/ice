@@ -2,30 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceIAP_ConnectionInfo_h__
-#define __IceIAP_ConnectionInfo_h__
+#ifndef ICE_IAP_CONNECTION_INFO_H
+#define ICE_IAP_CONNECTION_INFO_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/Exception.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/Connection.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/Connection.h"
 
-#ifndef ICEIAP_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEIAP_API /**/
-#    elif defined(ICEIAP_API_EXPORTS)
-#        define ICEIAP_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEIAP_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-
-namespace IceIAP
-{
-    class ConnectionInfo;
-}
 
 namespace IceIAP
 {
@@ -33,17 +21,10 @@ namespace IceIAP
      * Provides access to the connection details of an IAP connection
      * \headerfile IceIAP/IceIAP.h
      */
-    class ICE_CLASS(ICEIAP_API) ConnectionInfo : public Ice::ConnectionInfo
+    class ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICEIAP_API) virtual ~ConnectionInfo();
-
         ConnectionInfo() = default;
-
-        ConnectionInfo(const ConnectionInfo&) = default;
-        ConnectionInfo(ConnectionInfo&&) = default;
-        ConnectionInfo& operator=(const ConnectionInfo&) = default;
-        ConnectionInfo& operator=(ConnectionInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -54,7 +35,7 @@ namespace IceIAP
          * @param name The accessory name.
          * @param manufacturer The accessory manufacturer.
          * @param modelNumber The accessory model number.
-         * @param firmwareRevision The accessory firmare revision.
+         * @param firmwareRevision The accessory firmware revision.
          * @param hardwareRevision The accessory hardware revision.
          * @param protocol The protocol used by the accessory.
          */
@@ -79,6 +60,9 @@ namespace IceIAP
         {
         }
 
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
+
         /**
          * The accessory name.
          */
@@ -92,7 +76,7 @@ namespace IceIAP
          */
         std::string modelNumber;
         /**
-         * The accessory firmare revision.
+         * The accessory firmware revision.
          */
         std::string firmwareRevision;
         /**
@@ -104,14 +88,14 @@ namespace IceIAP
          */
         std::string protocol;
     };
-}
 
-/// \cond INTERNAL
-namespace IceIAP
-{
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
-/// \endcond
 
-#include <IceUtil/PopDisableWarnings.h>
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
+
 #endif

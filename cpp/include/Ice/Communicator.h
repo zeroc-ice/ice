@@ -7,10 +7,10 @@
 
 #include "Config.h"
 #include "Connection.h"
-#include "InstanceF.h"
 #include "FacetMap.h"
 #include "ImplicitContext.h"
 #include "Initialize.h"
+#include "InstanceF.h"
 #include "Plugin.h"
 #include "Properties.h"
 #include "Proxy.h"

@@ -9,7 +9,7 @@
 #    include "EndpointI.h"
 #    include "Connector.h"
 
-#    include <IceIAP/EndpointInfo.h>
+#    include "IceIAP/EndpointInfo.h"
 
 #    include <Ice/Network.h>
 #    include <Ice/InputStream.h>
@@ -27,6 +27,16 @@
 #    include <CoreFoundation/CoreFoundation.h>
 
 #    include <fstream>
+
+#ifndef ICEIAP_API
+#    if defined(ICE_STATIC_LIBS)
+#        define ICEIAP_API /**/
+#    elif defined(ICEIAP_API_EXPORTS)
+#        define ICEIAP_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICEIAP_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
 
 using namespace std;
 using namespace Ice;

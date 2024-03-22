@@ -5,17 +5,17 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
-#include "IceUtil/Timer.h"
 #include "CommunicatorF.h"
-#include "ConnectionIF.h"
-#include "ObjectAdapterF.h"
-#include "RequestHandlerF.h"
 #include "ConnectionF.h"
-#include "OutputStream.h"
+#include "ConnectionIF.h"
+#include "IceUtil/Timer.h"
 #include "InputStream.h"
-#include "ObserverHelper.h"
 #include "LocalException.h"
+#include "ObjectAdapterF.h"
+#include "ObserverHelper.h"
+#include "OutputStream.h"
 #include "Proxy.h"
+#include "RequestHandlerF.h"
 
 #include <cassert>
 #include <exception>

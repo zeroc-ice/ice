@@ -5,13 +5,11 @@
 #ifndef ICEMX_METRICS_OBSERVER_I_H
 #define ICEMX_METRICS_OBSERVER_I_H
 
-#include "IceUtil/StopWatch.h"
-
-#include "Instrumentation.h"
-#include "Endpoint.h"
 #include "Connection.h"
-
+#include "Endpoint.h"
 #include "Ice/Metrics.h"
+#include "IceUtil/StopWatch.h"
+#include "Instrumentation.h"
 #include "MetricsAdminI.h"
 #include "MetricsFunctional.h"
 

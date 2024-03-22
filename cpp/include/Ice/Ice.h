@@ -5,9 +5,8 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include "Config.h"
-
 #include "Comparable.h"
+#include "Config.h"
 #include "InputStream.h"
 #include "MarshaledResult.h"
 #include "Object.h"

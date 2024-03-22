@@ -5,11 +5,11 @@
 #ifndef ICE_LOGGER_UTIL_H
 #define ICE_LOGGER_UTIL_H
 
-#include "Config.h"
-#include "Logger.h"
 #include "CommunicatorF.h"
-#include "Plugin.h"
+#include "Config.h"
 #include "Exception.h"
+#include "Logger.h"
+#include "Plugin.h"
 #include "Proxy.h"
 
 #include <sstream>
