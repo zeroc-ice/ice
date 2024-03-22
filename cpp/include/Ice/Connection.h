@@ -9,6 +9,7 @@
 #include "ConnectionF.h"
 #include "EndpointF.h"
 #include "Ice/Identity.h"
+#include "ObjectAdapterF.h"
 
 #include <future>
 #include <map>
@@ -24,7 +25,6 @@
 
 namespace Ice
 {
-    class ObjectAdapter;
     class ObjectPrx;
 
     /**
@@ -178,7 +178,7 @@ namespace Ice
          * @param connectionId The connection id.
          */
         ConnectionInfo(
-            const std::shared_ptr<ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId)
@@ -192,7 +192,7 @@ namespace Ice
         /**
          * The information of the underlying transport or null if there's no underlying transport.
          */
-        std::shared_ptr<ConnectionInfo> underlying;
+        ConnectionInfoPtr underlying;
         /**
          * Whether or not the connection is an incoming or outgoing connection.
          */
@@ -257,14 +257,14 @@ namespace Ice
          * @see #createProxy
          * @see #getAdapter
          */
-        virtual void setAdapter(const std::shared_ptr<ObjectAdapter>& adapter) = 0;
+        virtual void setAdapter(const ObjectAdapterPtr& adapter) = 0;
 
         /**
          * Get the object adapter that dispatches requests for this connection.
          * @return The object adapter that dispatches requests for the connection, or null if no adapter is set.
          * @see #setAdapter
          */
-        virtual std::shared_ptr<ObjectAdapter> getAdapter() const noexcept = 0;
+        virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
 
         /**
          * Get the endpoint from which the connection was created.
@@ -377,7 +377,7 @@ namespace Ice
          * Returns the connection information.
          * @return The connection information.
          */
-        virtual std::shared_ptr<ConnectionInfo> getInfo() const = 0;
+        virtual ConnectionInfoPtr getInfo() const = 0;
 
         /**
          * Set the connection buffer receive/send size.
@@ -416,7 +416,7 @@ namespace Ice
          * @param remotePort The remote port.
          */
         IPConnectionInfo(
-            const std::shared_ptr<ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
@@ -473,7 +473,7 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         TCPConnectionInfo(
-            const std::shared_ptr<ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
@@ -536,7 +536,7 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         UDPConnectionInfo(
-            const std::shared_ptr<ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
@@ -604,7 +604,7 @@ namespace Ice
          * @param headers The headers from the HTTP upgrade request.
          */
         WSConnectionInfo(
-            const std::shared_ptr<ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,

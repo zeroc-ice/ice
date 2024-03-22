@@ -40,7 +40,7 @@ namespace IceGrid
         };
 
     public:
-        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const std::shared_ptr<Ice::Logger>& logger)
+        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const Ice::LoggerPtr& logger)
             : _registry(std::move(registry)),
               _logger(logger),
               _state(InProgress),
@@ -305,7 +305,7 @@ namespace IceGrid
 
     protected:
         std::optional<InternalRegistryPrx> _registry;
-        std::shared_ptr<Ice::Logger> _logger;
+        Ice::LoggerPtr _logger;
         std::optional<TPrx> _session;
         State _state;
         Action _nextAction;

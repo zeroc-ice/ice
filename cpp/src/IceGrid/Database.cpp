@@ -176,7 +176,7 @@ namespace
 
 shared_ptr<Database>
 Database::create(
-    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const Ice::ObjectAdapterPtr& registryAdapter,
     IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
@@ -192,7 +192,7 @@ Database::create(
 }
 
 Database::Database(
-    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const Ice::ObjectAdapterPtr& registryAdapter,
     IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,

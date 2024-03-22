@@ -18,9 +18,9 @@ using namespace Glacier2;
 
 namespace
 {
-    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const shared_ptr<ConnectionInfo>& info)
+    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const ConnectionInfoPtr& info)
     {
-        for (shared_ptr<ConnectionInfo> p = info; p; p = p->underlying)
+        for (ConnectionInfoPtr p = info; p; p = p->underlying)
         {
             auto ipInfo = dynamic_pointer_cast<IPConnectionInfo>(p);
             if (ipInfo)

@@ -47,9 +47,9 @@ namespace IceStorm
             const std::string&,
             const std::string&,
             std::shared_ptr<Ice::Communicator>,
-            std::shared_ptr<Ice::ObjectAdapter>,
-            std::shared_ptr<Ice::ObjectAdapter>,
-            std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+            Ice::ObjectAdapterPtr,
+            Ice::ObjectAdapterPtr,
+            Ice::ObjectAdapterPtr = nullptr,
             std::optional<IceStormElection::NodePrx> = std::nullopt);
 
         virtual ~Instance();
@@ -59,10 +59,10 @@ namespace IceStorm
         std::string instanceName() const;
         std::string serviceName() const;
         std::shared_ptr<Ice::Communicator> communicator() const;
-        std::shared_ptr<Ice::Properties> properties() const;
-        std::shared_ptr<Ice::ObjectAdapter> publishAdapter() const;
-        std::shared_ptr<Ice::ObjectAdapter> topicAdapter() const;
-        std::shared_ptr<Ice::ObjectAdapter> nodeAdapter() const;
+        Ice::PropertiesPtr properties() const;
+        Ice::ObjectAdapterPtr publishAdapter() const;
+        Ice::ObjectAdapterPtr topicAdapter() const;
+        Ice::ObjectAdapterPtr nodeAdapter() const;
         std::shared_ptr<IceStormElection::Observers> observers() const;
         std::shared_ptr<IceStormElection::NodeI> node() const;
         std::optional<IceStormElection::NodePrx> nodeProxy() const;
@@ -86,9 +86,9 @@ namespace IceStorm
         const std::string _instanceName;
         const std::string _serviceName;
         const std::shared_ptr<Ice::Communicator> _communicator;
-        const std::shared_ptr<Ice::ObjectAdapter> _publishAdapter;
-        const std::shared_ptr<Ice::ObjectAdapter> _topicAdapter;
-        const std::shared_ptr<Ice::ObjectAdapter> _nodeAdapter;
+        const Ice::ObjectAdapterPtr _publishAdapter;
+        const Ice::ObjectAdapterPtr _topicAdapter;
+        const Ice::ObjectAdapterPtr _nodeAdapter;
         const std::optional<IceStormElection::NodePrx> _nodeProxy;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::chrono::seconds _discardInterval;
@@ -115,9 +115,9 @@ namespace IceStorm
             const std::string&,
             const std::string&,
             std::shared_ptr<Ice::Communicator>,
-            std::shared_ptr<Ice::ObjectAdapter>,
-            std::shared_ptr<Ice::ObjectAdapter>,
-            std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+            Ice::ObjectAdapterPtr,
+            Ice::ObjectAdapterPtr,
+            Ice::ObjectAdapterPtr = nullptr,
             std::optional<IceStormElection::NodePrx> = std::nullopt);
 
         const IceDB::Env& dbEnv() const { return _dbEnv; }

@@ -12,7 +12,7 @@ using namespace std;
 using namespace IceGrid;
 
 SessionServantManager::SessionServantManager(
-    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    const Ice::ObjectAdapterPtr& adapter,
     const string& instanceName,
     bool checkConnection,
     const string& serverAdminCategory,

@@ -38,8 +38,8 @@ namespace
     public:
         void start(
             const std::shared_ptr<Ice::Communicator>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
+            const Ice::ObjectAdapterPtr&,
             const std::string&,
             const Ice::Identity&,
             const std::string&);
@@ -53,8 +53,8 @@ namespace
         void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
         void validateProperties(
             const std::string&,
-            const std::shared_ptr<Ice::Properties>&,
-            const std::shared_ptr<Ice::Logger>&);
+            const Ice::PropertiesPtr&,
+            const Ice::LoggerPtr&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -82,8 +82,8 @@ extern "C"
 shared_ptr<IceStormInternal::Service>
 IceStormInternal::Service::create(
     const shared_ptr<Communicator>& communicator,
-    const shared_ptr<ObjectAdapter>& topicAdapter,
-    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const ObjectAdapterPtr& topicAdapter,
+    const ObjectAdapterPtr& publishAdapter,
     const string& name,
     const Ice::Identity& id,
     const string& dbEnv)
@@ -370,8 +370,8 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 void
 ServiceI::start(
     const shared_ptr<Communicator>& communicator,
-    const shared_ptr<ObjectAdapter>& topicAdapter,
-    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const ObjectAdapterPtr& topicAdapter,
+    const ObjectAdapterPtr& publishAdapter,
     const string& name,
     const Identity& id,
     const string&)
@@ -432,8 +432,8 @@ ServiceI::stop()
 void
 ServiceI::validateProperties(
     const string& name,
-    const shared_ptr<Properties>& properties,
-    const shared_ptr<Logger>& logger)
+    const Ice::PropertiesPtr& properties,
+    const Ice::LoggerPtr& logger)
 {
     static const string suffixes[] = {
         "ReplicatedTopicManagerEndpoints",

@@ -53,7 +53,7 @@ namespace IceBT
          * @param sndSize The connection buffer send size.
          */
         ConnectionInfo(
-            const std::shared_ptr<Ice::ConnectionInfo>& underlying,
+            const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,

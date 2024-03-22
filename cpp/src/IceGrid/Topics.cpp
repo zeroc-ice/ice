@@ -366,7 +366,7 @@ RegistryObserverTopic::initObserver(Ice::ObjectPrx observer)
 }
 
 shared_ptr<NodeObserverTopic>
-NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const shared_ptr<Ice::ObjectAdapter>& adapter)
+NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const Ice::ObjectAdapterPtr& adapter)
 {
     Ice::Identity id{Ice::generateUUID(), ""};
     shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager, NodeObserverPrx{adapter->createProxy(id)}));

@@ -15,7 +15,7 @@ namespace IceGrid
     class XmlAttributesHelper
     {
     public:
-        XmlAttributesHelper(const IceXML::Attributes&, const std::shared_ptr<Ice::Logger>&, const std::string&, int);
+        XmlAttributesHelper(const IceXML::Attributes&, const Ice::LoggerPtr&, const std::string&, int);
 
         void checkUnknownAttributes();
         bool contains(const std::string&) const;
@@ -29,7 +29,7 @@ namespace IceGrid
 
     private:
         const IceXML::Attributes& _attributes;
-        const std::shared_ptr<Ice::Logger> _logger;
+        const Ice::LoggerPtr _logger;
         const std::string _filename;
         const int _line;
 

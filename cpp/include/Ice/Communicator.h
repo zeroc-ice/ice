@@ -145,7 +145,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter> createObjectAdapter(const std::string& name);
+        ObjectAdapterPtr createObjectAdapter(const std::string& name);
 
         /**
          * Create a new object adapter with endpoints. This operation sets the property
@@ -159,7 +159,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter>
+        ObjectAdapterPtr
         createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
 
         /**
@@ -172,7 +172,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter> createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
+        ObjectAdapterPtr createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
 
         /**
          * Get the implicit context associated with this communicator.
@@ -186,14 +186,14 @@ namespace Ice
          * @return This communicator's properties.
          * @see Properties
          */
-        std::shared_ptr<Properties> getProperties() const noexcept;
+        PropertiesPtr getProperties() const noexcept;
 
         /**
          * Get the logger for this communicator.
          * @return This communicator's logger.
          * @see Logger
          */
-        std::shared_ptr<Logger> getLogger() const noexcept;
+        LoggerPtr getLogger() const noexcept;
 
         /**
          * Get the observer resolver object for this communicator.
@@ -300,7 +300,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object.
          * @see #getAdmin
          */
-        ObjectPrx createAdmin(const std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId);
+        ObjectPrx createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId);
 
         /**
          * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and

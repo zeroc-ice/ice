@@ -41,7 +41,7 @@ namespace IceGrid
     {
     public:
         static std::shared_ptr<Database> create(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             IceStorm::TopicManagerPrx,
             const std::string&,
             const std::shared_ptr<TraceLevels>&,
@@ -52,7 +52,7 @@ namespace IceGrid
         bool isReadOnly() const { return _readonly; }
         const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
         const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
-        const std::shared_ptr<Ice::ObjectAdapter>& getInternalAdapter() { return _internalAdapter; }
+        const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
 
         void destroy();
 
@@ -168,7 +168,7 @@ namespace IceGrid
 
     private:
         Database(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             IceStorm::TopicManagerPrx,
             const std::string&,
             const std::shared_ptr<TraceLevels>&,
@@ -227,7 +227,7 @@ namespace IceGrid
         static const std::string _replicaGroupDbName;
 
         const std::shared_ptr<Ice::Communicator> _communicator;
-        const std::shared_ptr<Ice::ObjectAdapter> _internalAdapter;
+        const Ice::ObjectAdapterPtr _internalAdapter;
         const IceStorm::TopicManagerPrx _topicManager;
         const std::string _instanceName;
         const std::shared_ptr<TraceLevels> _traceLevels;

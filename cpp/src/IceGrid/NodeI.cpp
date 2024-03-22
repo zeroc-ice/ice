@@ -194,7 +194,7 @@ NodeI::Update::send()
 }
 
 NodeI::NodeI(
-    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    const Ice::ObjectAdapterPtr& adapter,
     NodeSessionManager& sessions,
     const shared_ptr<Activator>& activator,
     const IceUtil::TimerPtr& timer,
@@ -612,7 +612,7 @@ NodeI::getCommunicator() const
     return _communicator;
 }
 
-shared_ptr<Ice::ObjectAdapter>
+Ice::ObjectAdapterPtr
 NodeI::getAdapter() const
 {
     return _adapter;

@@ -16,7 +16,7 @@ using namespace IceGrid;
 
 XmlAttributesHelper::XmlAttributesHelper(
     const IceXML::Attributes& attrs,
-    const shared_ptr<Ice::Logger>& logger,
+    const Ice::LoggerPtr& logger,
     const string& filename,
     int line)
     : _attributes(attrs),

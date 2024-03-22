@@ -28,7 +28,7 @@ namespace IceGrid
     template<class T> class SessionReapable : public Reapable
     {
     public:
-        SessionReapable(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session)
+        SessionReapable(const Ice::LoggerPtr& logger, const std::shared_ptr<T>& session)
             : _logger(logger),
               _session(session)
         {
@@ -60,14 +60,14 @@ namespace IceGrid
         }
 
     protected:
-        const std::shared_ptr<Ice::Logger> _logger;
+        const Ice::LoggerPtr _logger;
         const std::shared_ptr<T> _session;
     };
 
     template<class T> class SessionReapableWithHeartbeat final : public SessionReapable<T>
     {
     public:
-        SessionReapableWithHeartbeat(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session)
+        SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const std::shared_ptr<T>& session)
             : SessionReapable<T>(logger, session)
         {
         }

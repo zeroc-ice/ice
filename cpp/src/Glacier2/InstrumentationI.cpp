@@ -51,13 +51,13 @@ namespace
 
         const string& getId() const { return _id; }
 
-        shared_ptr<Ice::ConnectionInfo> getConnectionInfo() const { return _connection->getInfo(); }
+        Ice::ConnectionInfoPtr getConnectionInfo() const { return _connection->getInfo(); }
 
         shared_ptr<Ice::Endpoint> getEndpoint() const { return _connection->getEndpoint(); }
 
         const shared_ptr<Ice::Connection>& getConnection() const { return _connection; }
 
-        shared_ptr<Ice::EndpointInfo> getEndpointInfo() const
+        Ice::EndpointInfoPtr getEndpointInfo() const
         {
             if (!_endpointInfo)
             {
@@ -71,7 +71,7 @@ namespace
         const string& _id;
         const shared_ptr<Ice::Connection> _connection;
         const int _routingTableSize;
-        mutable shared_ptr<Ice::EndpointInfo> _endpointInfo;
+        mutable Ice::EndpointInfoPtr _endpointInfo;
     };
 
     SessionHelper::Attributes SessionHelper::attributes;

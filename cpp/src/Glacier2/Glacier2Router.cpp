@@ -153,7 +153,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // are defined.
     //
     const string serverEndpointsProperty = "Glacier2.Server.Endpoints";
-    shared_ptr<ObjectAdapter> serverAdapter;
+    ObjectAdapterPtr serverAdapter;
     if (!properties->getProperty(serverEndpointsProperty).empty())
     {
         serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");

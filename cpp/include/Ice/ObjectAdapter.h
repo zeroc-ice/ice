@@ -8,6 +8,7 @@
 #include "CommunicatorF.h"
 #include "Endpoint.h"
 #include "FacetMap.h"
+#include "ObjectAdapterF.h"
 #include "ServantLocator.h"
 
 #ifdef ICE_SWIFT
@@ -313,7 +314,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual void addServantLocator(const std::shared_ptr<ServantLocator>& locator, const std::string& category) = 0;
+        virtual void addServantLocator(const ServantLocatorPtr& locator, const std::string& category) = 0;
 
         /**
          * Remove a Servant Locator from this object adapter.
@@ -326,7 +327,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual std::shared_ptr<ServantLocator> removeServantLocator(const std::string& category) = 0;
+        virtual ServantLocatorPtr removeServantLocator(const std::string& category) = 0;
 
         /**
          * Find a Servant Locator installed with this object adapter.
@@ -338,7 +339,7 @@ namespace Ice
          * @see #removeServantLocator
          * @see ServantLocator
          */
-        virtual std::shared_ptr<ServantLocator> findServantLocator(const std::string& category) const = 0;
+        virtual ServantLocatorPtr findServantLocator(const std::string& category) const = 0;
 
         /**
          * Find the default servant for a specific category.
@@ -442,8 +443,6 @@ namespace Ice
         virtual dispatch_queue_t getDispatchQueue() const = 0;
 #endif
     };
-
-    using ObjectAdapterPtr = std::shared_ptr<ObjectAdapter>;
 }
 
 #endif

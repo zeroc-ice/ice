@@ -512,7 +512,7 @@ Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 }
 
 void
-Ice::ObjectAdapterI::addServantLocator(const shared_ptr<ServantLocator>& locator, const string& prefix)
+Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
 {
     lock_guard lock(_mutex);
 
@@ -521,7 +521,7 @@ Ice::ObjectAdapterI::addServantLocator(const shared_ptr<ServantLocator>& locator
     _servantManager->addServantLocator(locator, prefix);
 }
 
-shared_ptr<ServantLocator>
+ServantLocatorPtr
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     lock_guard lock(_mutex);
@@ -531,7 +531,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
     return _servantManager->removeServantLocator(prefix);
 }
 
-shared_ptr<ServantLocator>
+ServantLocatorPtr
 Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
 {
     lock_guard lock(_mutex);

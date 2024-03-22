@@ -35,7 +35,7 @@ namespace Ice
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const std::shared_ptr<EndpointInfo>& underlying, int timeout, bool compress)
+        EndpointInfo(const EndpointInfoPtr& underlying, int timeout, bool compress)
             : underlying(underlying),
               timeout(timeout),
               compress(compress)
@@ -67,7 +67,7 @@ namespace Ice
         /**
          * The information of the underlying endpoint or null if there's no underlying endpoint.
          */
-        std::shared_ptr<EndpointInfo> underlying;
+        EndpointInfoPtr underlying;
         /**
          * The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
          */
@@ -104,7 +104,7 @@ namespace Ice
          * Returns the endpoint information.
          * @return The endpoint information class.
          */
-        virtual std::shared_ptr<EndpointInfo> getInfo() const noexcept = 0;
+        virtual EndpointInfoPtr getInfo() const noexcept = 0;
     };
 
     /**
@@ -127,7 +127,7 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         IPEndpointInfo(
-            const std::shared_ptr<EndpointInfo>& underlying,
+            const EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& host,
@@ -177,7 +177,7 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         TCPEndpointInfo(
-            const std::shared_ptr<EndpointInfo>& underlying,
+            const EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& host,
@@ -213,7 +213,7 @@ namespace Ice
          * @param mcastTtl The multicast time-to-live (or hops).
          */
         UDPEndpointInfo(
-            const std::shared_ptr<EndpointInfo>& underlying,
+            const EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& host,
@@ -257,7 +257,7 @@ namespace Ice
          * @param resource The URI configured with the endpoint.
          */
         WSEndpointInfo(
-            const std::shared_ptr<EndpointInfo>& underlying,
+            const EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& resource)
@@ -294,7 +294,7 @@ namespace Ice
          * @param rawBytes The raw encoding of the opaque endpoint.
          */
         OpaqueEndpointInfo(
-            const std::shared_ptr<EndpointInfo>& underlying,
+            const EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const EncodingVersion& rawEncoding,

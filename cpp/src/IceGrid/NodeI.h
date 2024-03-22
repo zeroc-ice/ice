@@ -42,7 +42,7 @@ namespace IceGrid
         };
 
         NodeI(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             NodeSessionManager&,
             const std::shared_ptr<Activator>&,
             const IceUtil::TimerPtr&,
@@ -113,7 +113,7 @@ namespace IceGrid
 
         IceUtil::TimerPtr getTimer() const;
         std::shared_ptr<Ice::Communicator> getCommunicator() const;
-        std::shared_ptr<Ice::ObjectAdapter> getAdapter() const;
+        Ice::ObjectAdapterPtr getAdapter() const;
         std::shared_ptr<Activator> getActivator() const;
         std::shared_ptr<TraceLevels> getTraceLevels() const;
         std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
@@ -173,7 +173,7 @@ namespace IceGrid
             const Ice::Current&);
 
         const std::shared_ptr<Ice::Communicator> _communicator;
-        const std::shared_ptr<Ice::ObjectAdapter> _adapter;
+        const Ice::ObjectAdapterPtr _adapter;
         NodeSessionManager& _sessions;
         const std::shared_ptr<Activator> _activator;
         const IceUtil::TimerPtr _timer;

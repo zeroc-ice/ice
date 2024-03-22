@@ -37,7 +37,7 @@ namespace IceIAP
          * @param protocol The protocol supported by the accessory.
          */
         EndpointInfo(
-            const std::shared_ptr<Ice::EndpointInfo>& underlying,
+            const Ice::EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& manufacturer,

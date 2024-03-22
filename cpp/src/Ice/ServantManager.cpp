@@ -305,7 +305,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 }
 
 void
-IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>& locator, const string& category)
+IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator, const string& category)
 {
     lock_guard lock(_mutex);
 
@@ -318,17 +318,17 @@ IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>&
     }
 
     _locatorMapHint =
-        _locatorMap.insert(_locatorMapHint, pair<const string, shared_ptr<ServantLocator>>(category, locator));
+        _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
 }
 
-shared_ptr<ServantLocator>
+ServantLocatorPtr
 IceInternal::ServantManager::removeServantLocator(const string& category)
 {
     lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
-    map<string, shared_ptr<ServantLocator>>::iterator p = _locatorMap.end();
+    map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     if (_locatorMapHint != p)
     {
         if (_locatorMapHint->first == category)
@@ -347,13 +347,13 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
         throw NotRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    shared_ptr<ServantLocator> locator = p->second;
+    ServantLocatorPtr locator = p->second;
     _locatorMap.erase(p);
     _locatorMapHint = _locatorMap.begin();
     return locator;
 }
 
-shared_ptr<ServantLocator>
+ServantLocatorPtr
 IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     lock_guard lock(_mutex);
@@ -366,10 +366,10 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     //
     // assert(_instance); // Must not be called after destruction.
 
-    map<string, shared_ptr<ServantLocator>>& locatorMap =
-        const_cast<map<string, shared_ptr<ServantLocator>>&>(_locatorMap);
+    map<string, ServantLocatorPtr>& locatorMap =
+        const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);
 
-    map<string, shared_ptr<ServantLocator>>::iterator p = locatorMap.end();
+    map<string, ServantLocatorPtr>::iterator p = locatorMap.end();
     if (_locatorMapHint != locatorMap.end())
     {
         if (_locatorMapHint->first == category)
@@ -417,7 +417,7 @@ IceInternal::ServantManager::destroy()
 {
     ServantMapMap servantMapMap;
     DefaultServantMap defaultServantMap;
-    map<string, shared_ptr<ServantLocator>> locatorMap;
+    map<string, ServantLocatorPtr> locatorMap;
     Ice::LoggerPtr logger;
 
     {
@@ -443,7 +443,7 @@ IceInternal::ServantManager::destroy()
         _instance = 0;
     }
 
-    for (map<string, shared_ptr<ServantLocator>>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
+    for (map<string, ServantLocatorPtr>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
     {
         try
         {

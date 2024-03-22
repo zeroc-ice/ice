@@ -69,7 +69,7 @@ namespace
         shared_ptr<RegistryI> _registry;
         shared_ptr<NodeI> _node;
         unique_ptr<NodeSessionManager> _sessions;
-        shared_ptr<ObjectAdapter> _adapter;
+        ObjectAdapterPtr _adapter;
     };
 
     class CollocatedRegistry final : public RegistryI

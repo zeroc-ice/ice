@@ -90,7 +90,7 @@ namespace
     class BridgeConnection final
     {
     public:
-        BridgeConnection(shared_ptr<ObjectAdapter>, ObjectPrx, ConnectionPtr);
+        BridgeConnection(ObjectAdapterPtr, ObjectPrx, ConnectionPtr);
 
         void outgoingSuccess(ConnectionPtr);
         void outgoingException(exception_ptr);
@@ -110,7 +110,7 @@ namespace
             function<void(exception_ptr)>,
             const Current& current);
 
-        const shared_ptr<ObjectAdapter> _adapter;
+        const ObjectAdapterPtr _adapter;
         const ObjectPrx _target;
         const ConnectionPtr _incoming;
 
@@ -133,7 +133,7 @@ namespace
     class BridgeI final : public Ice::BlobjectArrayAsync, public enable_shared_from_this<BridgeI>
     {
     public:
-        BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrx target);
+        BridgeI(ObjectAdapterPtr adapter, ObjectPrx target);
 
         void ice_invokeAsync(
             pair<const byte*, const byte*> inEncaps,
@@ -146,7 +146,7 @@ namespace
         void outgoingException(const shared_ptr<BridgeConnection>&, exception_ptr);
 
     private:
-        const shared_ptr<ObjectAdapter> _adapter;
+        const ObjectAdapterPtr _adapter;
         const ObjectPrx _target;
 
         std::mutex _lock;
@@ -165,7 +165,7 @@ namespace
     };
 }
 
-BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter, ObjectPrx target, ConnectionPtr inc)
+BridgeConnection::BridgeConnection(ObjectAdapterPtr adapter, ObjectPrx target, ConnectionPtr inc)
     : _adapter(std::move(adapter)),
       _target(std::move(target)),
       _incoming(std::move(inc))
@@ -391,7 +391,7 @@ BridgeConnection::send(
     }
 }
 
-BridgeI::BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrx target)
+BridgeI::BridgeI(ObjectAdapterPtr adapter, ObjectPrx target)
     : _adapter(std::move(adapter)),
       _target(std::move(target))
 {

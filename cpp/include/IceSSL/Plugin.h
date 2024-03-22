@@ -528,7 +528,7 @@ namespace IceSSL
          * before any connections are established.
          * @param v The verifier.
          */
-        virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v) = 0;
+        virtual void setCertificateVerifier(std::function<bool(const ConnectionInfoPtr&)> v) = 0;
 
         /**
          * Establish the password prompt object. This must be done before

@@ -226,7 +226,7 @@ IceGrid::toObjectInfo(
 
 void
 IceGrid::setupThreadPool(
-    const shared_ptr<Properties>& properties,
+    const Ice::PropertiesPtr& properties,
     const string& name,
     int size,
     int sizeMax,

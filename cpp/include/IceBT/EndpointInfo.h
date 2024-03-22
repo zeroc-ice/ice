@@ -35,7 +35,7 @@ namespace IceBT
          * @param uuid The UUID configured with the endpoint.
          */
         EndpointInfo(
-            const std::shared_ptr<Ice::EndpointInfo>& underlying,
+            const Ice::EndpointInfoPtr& underlying,
             int timeout,
             bool compress,
             const std::string& addr,

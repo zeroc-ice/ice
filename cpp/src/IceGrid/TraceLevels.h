@@ -51,7 +51,7 @@ namespace IceGrid
         const int discovery;
         const std::string discoveryCat;
 
-        const std::shared_ptr<Ice::Logger> logger;
+        const Ice::LoggerPtr logger;
     };
 
 } // End namespace IceGrid

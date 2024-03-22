@@ -32,7 +32,7 @@ namespace IceGrid
 
     ObjectInfo toObjectInfo(const std::shared_ptr<Ice::Communicator>&, const ObjectDescriptor&, const std::string&);
 
-    void setupThreadPool(const std::shared_ptr<Ice::Properties>&, const std::string&, int, int = 0, bool = false);
+    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
 
     int getMMVersion(const std::string&);
 

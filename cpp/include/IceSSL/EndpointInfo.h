@@ -32,7 +32,7 @@ namespace IceSSL
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const std::shared_ptr<Ice::EndpointInfo>& underlying, int timeout, bool compress)
+        EndpointInfo(const Ice::EndpointInfoPtr& underlying, int timeout, bool compress)
             : Ice::EndpointInfo(underlying, timeout, compress)
         {
         }

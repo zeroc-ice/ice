@@ -18,7 +18,7 @@ namespace IceGrid
     {
     public:
         SessionServantManager(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             const std::string&,
             bool,
             const std::string&,
@@ -74,7 +74,7 @@ namespace IceGrid
             std::set<Ice::Identity> identities;
         };
 
-        const std::shared_ptr<Ice::ObjectAdapter> _adapter;
+        const Ice::ObjectAdapterPtr _adapter;
         const std::string _instanceName;
         const bool _checkConnection;
         const std::string _serverAdminCategory;

@@ -44,7 +44,7 @@ protected:
 
 struct Subscription final
 {
-    shared_ptr<Ice::ObjectAdapter> adapter;
+    Ice::ObjectAdapterPtr adapter;
     optional<Ice::ObjectPrx> obj;
     shared_ptr<EventI> servant;
     IceStorm::QoS qos;
@@ -217,7 +217,7 @@ private:
 class ControllerEventI final : public EventI
 {
 public:
-    ControllerEventI(shared_ptr<Communicator> communicator, int total, shared_ptr<ObjectAdapter> adapter)
+    ControllerEventI(shared_ptr<Communicator> communicator, int total, ObjectAdapterPtr adapter)
         : EventI(std::move(communicator), total),
           _adapter(std::move(adapter))
     {
@@ -233,7 +233,7 @@ public:
     }
 
 private:
-    const shared_ptr<Ice::ObjectAdapter> _adapter;
+    const Ice::ObjectAdapterPtr _adapter;
 };
 
 class Subscriber final : public Test::TestHelper

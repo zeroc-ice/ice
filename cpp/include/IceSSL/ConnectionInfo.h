@@ -39,7 +39,7 @@ namespace IceSSL
          * @param verified The certificate chain verification status.
          */
         ConnectionInfo(
-            const std::shared_ptr<Ice::ConnectionInfo>& underlying,
+            const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
