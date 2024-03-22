@@ -6,7 +6,7 @@
 #define SERVICE_MANAGER_I_H
 
 #include <IceBox/IceBox.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/CommunicatorF.h>
 #include <map>
 
@@ -21,8 +21,8 @@ namespace IceBox
         // Temporary: use public ctor once the implementation uses only the new mapping.
         static ServiceManagerIPtr create(Ice::CommunicatorPtr, int&, char*[]);
 
-        void startService(std::string, const ::Ice::Current&) final;
-        void stopService(std::string, const ::Ice::Current&) final;
+        void startService(std::string, const Ice::Current&) final;
+        void stopService(std::string, const Ice::Current&) final;
 
         void addObserver(std::optional<ServiceObserverPrx>, const Ice::Current&) final;
 
@@ -46,17 +46,17 @@ namespace IceBox
 
         struct ServiceInfo
         {
-            ::std::string name;
+            std::string name;
             ServicePtr service;
-            ::Ice::CommunicatorPtr communicator;
-            ::std::string envName;
+            Ice::CommunicatorPtr communicator;
+            std::string envName;
             ServiceStatus status;
             Ice::StringSeq args;
         };
 
         ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
 
-        void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
+        void start(const std::string&, const std::string&, const Ice::StringSeq&);
         void stopAll();
 
         void addObserver(ServiceObserverPrx);
@@ -71,12 +71,12 @@ namespace IceBox
         bool configureAdmin(const Ice::PropertiesPtr&, const std::string&);
         void removeAdminFacets(const std::string&);
 
-        ::Ice::CommunicatorPtr _communicator;
+        Ice::CommunicatorPtr _communicator;
         bool _adminEnabled;
         std::set<std::string> _adminFacetFilter;
-        ::Ice::CommunicatorPtr _sharedCommunicator;
-        ::Ice::LoggerPtr _logger;
-        ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
+        Ice::CommunicatorPtr _sharedCommunicator;
+        Ice::LoggerPtr _logger;
+        Ice::StringSeq _argv; // Filtered server argument vector, not including program name
         std::vector<ServiceInfo> _services;
         bool _pendingStatusChanges;
 

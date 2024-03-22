@@ -13,7 +13,7 @@ namespace IceInternal
     class TraceLevels
     {
     public:
-        TraceLevels(const ::Ice::PropertiesPtr&);
+        TraceLevels(const Ice::PropertiesPtr&);
 
         const int network;
         const char* networkCat;

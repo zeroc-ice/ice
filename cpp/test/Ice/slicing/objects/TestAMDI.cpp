@@ -13,7 +13,7 @@ TestI::TestI() {}
 
 void
 TestI::SBaseAsObjectAsync(
-    function<void(const shared_ptr<Ice::Value>&)> response,
+    function<void(const Ice::ValuePtr&)> response,
     function<void(exception_ptr)>,
     const ::Ice::Current&)
 {
@@ -83,7 +83,7 @@ TestI::SBSUnknownDerivedAsSBaseCompactAsync(
 
 void
 TestI::SUnknownAsObjectAsync(
-    function<void(const shared_ptr<Ice::Value>&)> response,
+    function<void(const Ice::ValuePtr&)> response,
     function<void(exception_ptr)>,
     const ::Ice::Current&)
 {

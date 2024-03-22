@@ -24,7 +24,7 @@ namespace IceInternal
         virtual std::int32_t timeout() const;
         virtual EndpointIPtr timeout(std::int32_t) const;
         virtual const std::string& connectionId() const;
-        virtual EndpointIPtr connectionId(const ::std::string&) const;
+        virtual EndpointIPtr connectionId(const std::string&) const;
         virtual bool compress() const;
         virtual EndpointIPtr compress(bool) const;
         virtual bool datagram() const;

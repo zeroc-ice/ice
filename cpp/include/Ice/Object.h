@@ -93,7 +93,7 @@ namespace Ice
 
         /**
          * Gets the Slice type ID of this type.
-         * @return The return value is always "::Ice::Object".
+         * @return The return value is always "Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;
 

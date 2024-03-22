@@ -20,11 +20,11 @@ public:
 
     Test::ByteEnumSeq opByteSeq(Test::ByteEnumSeq, Test::ByteEnumSeq&, const Ice::Current&) final;
 
-    Test::ShortEnumSeq opShortSeq(Test::ShortEnumSeq, Test::ShortEnumSeq&, const ::Ice::Current&) final;
+    Test::ShortEnumSeq opShortSeq(Test::ShortEnumSeq, Test::ShortEnumSeq&, const Ice::Current&) final;
 
-    Test::IntEnumSeq opIntSeq(Test::IntEnumSeq, Test::IntEnumSeq&, const ::Ice::Current&) final;
+    Test::IntEnumSeq opIntSeq(Test::IntEnumSeq, Test::IntEnumSeq&, const Ice::Current&) final;
 
-    Test::SimpleEnumSeq opSimpleSeq(Test::SimpleEnumSeq, Test::SimpleEnumSeq&, const ::Ice::Current&) final;
+    Test::SimpleEnumSeq opSimpleSeq(Test::SimpleEnumSeq, Test::SimpleEnumSeq&, const Ice::Current&) final;
 
     void shutdown(const Ice::Current&) final;
 };

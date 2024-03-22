@@ -29,7 +29,7 @@ namespace
         }
     }
 
-    void breakCycles(shared_ptr<Ice::Value> o)
+    void breakCycles(Ice::ValuePtr o)
     {
         if (dynamic_pointer_cast<D1>(o))
         {
@@ -888,7 +888,7 @@ allTests(Test::TestHelper* helper)
                 auto f = testPrx->SUnknownAsObjectAsync();
                 try
                 {
-                    shared_ptr<Ice::Value> v = f.get();
+                    Ice::ValuePtr v = f.get();
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v));
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id() == "::Test::SUnknown");
                     dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_getSlicedData()->clear();

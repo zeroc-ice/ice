@@ -753,8 +753,8 @@ namespace Ice
          * Writes a value instance to the stream.
          * @param v The value to be written.
          */
-        template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
-        void write(const ::std::shared_ptr<T>& v)
+        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
+        void write(const std::shared_ptr<T>& v)
         {
             initEncaps();
             _currentEncaps->encoder->write(v);
@@ -841,7 +841,7 @@ namespace Ice
             ExceptionSlice
         };
 
-        typedef std::vector<std::shared_ptr<Value>> ValueList;
+        typedef std::vector<ValuePtr> ValueList;
 
         class ICE_API EncapsEncoder
         {
@@ -851,7 +851,7 @@ namespace Ice
 
             EncapsEncoder& operator=(const EncapsEncoder&) = delete;
 
-            virtual void write(const std::shared_ptr<Value>&) = 0;
+            virtual void write(const ValuePtr&) = 0;
             virtual void write(const UserException&) = 0;
 
             virtual void startInstance(SliceType, const SlicedDataPtr&) = 0;
@@ -871,7 +871,7 @@ namespace Ice
             OutputStream* _stream;
             Encaps* _encaps;
 
-            typedef std::map<std::shared_ptr<Value>, std::int32_t> PtrToIndexMap;
+            typedef std::map<ValuePtr, std::int32_t> PtrToIndexMap;
             typedef std::map<std::string, std::int32_t, std::less<>> TypeIdMap;
 
             // Encapsulation attributes for value marshaling.
@@ -893,7 +893,7 @@ namespace Ice
             {
             }
 
-            virtual void write(const std::shared_ptr<Value>&);
+            virtual void write(const ValuePtr&);
             virtual void write(const UserException&);
 
             virtual void startInstance(SliceType, const SlicedDataPtr&);
@@ -904,7 +904,7 @@ namespace Ice
             virtual void writePendingValues();
 
         private:
-            std::int32_t registerValue(const std::shared_ptr<Value>&);
+            std::int32_t registerValue(const ValuePtr&);
 
             // Instance attributes
             SliceType _sliceType;
@@ -928,7 +928,7 @@ namespace Ice
             {
             }
 
-            virtual void write(const std::shared_ptr<Value>&);
+            virtual void write(const ValuePtr&);
             virtual void write(const UserException&);
 
             virtual void startInstance(SliceType, const SlicedDataPtr&);
@@ -940,7 +940,7 @@ namespace Ice
 
         private:
             void writeSlicedData(const SlicedDataPtr&);
-            void writeInstance(const std::shared_ptr<Value>&);
+            void writeInstance(const ValuePtr&);
 
             struct InstanceData
             {

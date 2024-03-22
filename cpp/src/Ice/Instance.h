@@ -10,7 +10,7 @@
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/InstrumentationF.h>
+#include <Ice/Instrumentation.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
@@ -23,7 +23,7 @@
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/RetryQueueF.h>
-#include <Ice/PluginF.h>
+#include <Ice/Plugin.h>
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/Initialize.h>

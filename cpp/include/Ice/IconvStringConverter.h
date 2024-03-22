@@ -5,22 +5,19 @@
 #ifndef ICE_ICONV_STRING_CONVERTER
 #define ICE_ICONV_STRING_CONVERTER
 
-#include "Config.h"
-
-#include <cassert>
-#include <sstream>
-
 //
 // For all platforms except Windows
 //
 #ifndef _WIN32
-
+#    include "Config.h"
+#    include "Exception.h"
 #    include "StringConverter.h"
-#    include <IceUtil/StringUtil.h>
-#    include <IceUtil/UndefSysMacros.h>
+#    include "IceUtil/StringUtil.h"
 
 #    include <algorithm>
 #    include <memory>
+#    include <cassert>
+#    include <sstream>
 
 #    include <iconv.h>
 #    include <langinfo.h>
@@ -38,11 +35,9 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException final : public IceUtil::Exception
+    class ICE_API IconvInitializationException final : public Exception
     {
     public:
-        using IceUtil::Exception::Exception;
-
         /**
          * Constructs the exception with a reason. The file and line number are required.
          * @param file The file name in which the exception was raised, typically __FILE__.

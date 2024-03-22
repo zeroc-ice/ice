@@ -41,13 +41,13 @@ public:
     //
     // Internal method
     //
-    std::optional<Ice::ObjectPrx> getAdapter(const ::std::string&) const;
+    std::optional<Ice::ObjectPrx> getAdapter(const std::string&) const;
     std::optional<Ice::ObjectPrx> getObject(const Ice::Identity&) const;
     void addObject(const std::optional<Ice::ObjectPrx>&);
 
 private:
-    ::std::map<::std::string, std::optional<Ice::ObjectPrx>> _adapters;
-    ::std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
+    std::map<std::string, std::optional<Ice::ObjectPrx>> _adapters;
+    std::map<Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
@@ -63,7 +63,7 @@ public:
         const Ice::Current&) const final;
 
     void findAdapterByIdAsync(
-        ::std::string,
+        std::string,
         std::function<void(const std::optional<Ice::ObjectPrx>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const final;

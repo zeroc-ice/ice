@@ -35,7 +35,7 @@ namespace IceBT
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
      */
-    class ICE_CLASS(ICEBT_API) ConnectionInfo : public ::Ice::ConnectionInfo
+    class ICE_CLASS(ICEBT_API) ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
         ICE_MEMBER(ICEBT_API) virtual ~ConnectionInfo();
@@ -58,7 +58,7 @@ namespace IceBT
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -71,18 +71,18 @@ namespace IceBT
          * @param sndSize The connection buffer send size.
          */
         ConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const std::shared_ptr<Ice::ConnectionInfo>& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& localAddress,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& localAddress,
             int localChannel,
-            const ::std::string& remoteAddress,
+            const std::string& remoteAddress,
             int remoteChannel,
-            const ::std::string& uuid,
+            const std::string& uuid,
             int rcvSize,
             int sndSize)
-            : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               localAddress(localAddress),
               localChannel(localChannel),
               remoteAddress(remoteAddress),
@@ -96,7 +96,7 @@ namespace IceBT
         /**
          * The local Bluetooth address.
          */
-        ::std::string localAddress;
+        std::string localAddress;
         /**
          * The local RFCOMM channel.
          */
@@ -104,7 +104,7 @@ namespace IceBT
         /**
          * The remote Bluetooth address.
          */
-        ::std::string remoteAddress;
+        std::string remoteAddress;
         /**
          * The remote RFCOMM channel.
          */
@@ -112,7 +112,7 @@ namespace IceBT
         /**
          * The UUID of the service being offered (in a server) or targeted (in a client).
          */
-        ::std::string uuid;
+        std::string uuid;
         /**
          * The connection buffer receive size.
          */
@@ -127,7 +127,7 @@ namespace IceBT
 /// \cond INTERNAL
 namespace IceBT
 {
-    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+    using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
 /// \endcond
 

@@ -1739,7 +1739,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
     }
 }
 
-shared_ptr<Ice::Value>
+ValuePtr
 Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 {
     shared_ptr<Value> v;
@@ -1832,7 +1832,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFun
 }
 
 void
-Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const shared_ptr<Ice::Value>& v)
+Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
 {
     //
     // Add the object to the map of unmarshaled instances, this must

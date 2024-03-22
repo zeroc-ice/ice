@@ -36,11 +36,11 @@ namespace IceGrid
          * @param ctx The context from the Ice client which is resolving the replica group endpoints.
          * @return The filtered adapter IDs.
          */
-        virtual ::Ice::StringSeq filter(
-            const ::std::string& replicaGroupId,
-            const ::Ice::StringSeq& adapterIds,
-            const ::std::shared_ptr<::Ice::Connection>& con,
-            const ::Ice::Context& ctx) = 0;
+        virtual Ice::StringSeq filter(
+            const std::string& replicaGroupId,
+            const Ice::StringSeq& adapterIds,
+            const std::shared_ptr<Ice::Connection>& con,
+            const Ice::Context& ctx) = 0;
     };
 
     /**
@@ -62,11 +62,11 @@ namespace IceGrid
          * @param ctx The context from the Ice client which is looking up well-known objects by type.
          * @return The filtered proxies.
          */
-        virtual ::Ice::ObjectProxySeq filter(
-            const ::std::string& type,
-            const ::Ice::ObjectProxySeq& proxies,
-            const ::std::shared_ptr<::Ice::Connection>& con,
-            const ::Ice::Context& ctx) = 0;
+        virtual Ice::ObjectProxySeq filter(
+            const std::string& type,
+            const Ice::ObjectProxySeq& proxies,
+            const std::shared_ptr<Ice::Connection>& con,
+            const Ice::Context& ctx) = 0;
     };
 
     /**
@@ -86,7 +86,7 @@ namespace IceGrid
          * @return The application descriptor.
          * @throws IceGrid::ApplicationNotExistException Raised if the application doesn't exist.
          */
-        virtual ::IceGrid::ApplicationInfo getApplicationInfo(const ::std::string& name) const = 0;
+        virtual ::IceGrid::ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
         /**
          * Get the server information for the server with the given id.
@@ -94,7 +94,7 @@ namespace IceGrid
          * @return The server information.
          * @throws IceGrid::ServerNotExistException Raised if the server doesn't exist.
          */
-        virtual ::IceGrid::ServerInfo getServerInfo(const ::std::string& id) const = 0;
+        virtual ::IceGrid::ServerInfo getServerInfo(const std::string& id) const = 0;
 
         /**
          * Get the ID of the server to which the given adapter belongs.
@@ -103,7 +103,7 @@ namespace IceGrid
          * defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual ::std::string getAdapterServer(const ::std::string& adapterId) const = 0;
+        virtual std::string getAdapterServer(const std::string& adapterId) const = 0;
 
         /**
          * Get the name of the application to which the given adapter belongs.
@@ -112,7 +112,7 @@ namespace IceGrid
          * or object adapter defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual ::std::string getAdapterApplication(const ::std::string& adapterId) const = 0;
+        virtual std::string getAdapterApplication(const std::string& adapterId) const = 0;
 
         /**
          * Get the name of the node to which the given adapter belongs.
@@ -121,7 +121,7 @@ namespace IceGrid
          * defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual ::std::string getAdapterNode(const ::std::string& adapterId) const = 0;
+        virtual std::string getAdapterNode(const std::string& adapterId) const = 0;
 
         /**
          * Get the adapter information for the replica group or adapter with the given id.
@@ -131,7 +131,7 @@ namespace IceGrid
          * adapter information of each member of the replica group.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter or replica group doesn't exist.
          */
-        virtual ::IceGrid::AdapterInfoSeq getAdapterInfo(const ::std::string& id) const = 0;
+        virtual ::IceGrid::AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
 
         /**
          * Get the object info for the object with the given identity.
@@ -139,7 +139,7 @@ namespace IceGrid
          * @return The object info.
          * @throws IceGrid::ObjectNotRegisteredException Raised if the object isn't registered with the registry.
          */
-        virtual ::IceGrid::ObjectInfo getObjectInfo(const ::Ice::Identity& id) const = 0;
+        virtual ::IceGrid::ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
 
         /**
          * Get the node information for the node with the given name.
@@ -148,7 +148,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual ::IceGrid::NodeInfo getNodeInfo(const ::std::string& name) const = 0;
+        virtual ::IceGrid::NodeInfo getNodeInfo(const std::string& name) const = 0;
 
         /**
          * Get the load averages of the node.
@@ -157,7 +157,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual ::IceGrid::LoadInfo getNodeLoad(const ::std::string& name) const = 0;
+        virtual ::IceGrid::LoadInfo getNodeLoad(const std::string& name) const = 0;
 
         /**
          * Get the property value for the given property and adapter. The property is looked up in the server or service
@@ -167,8 +167,8 @@ namespace IceGrid
          * @return The property value.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual ::std::string
-        getPropertyForAdapter(const ::std::string& adapterId, const ::std::string& name) const = 0;
+        virtual std::string
+        getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
 
         /**
          * Add a replica group filter.
@@ -178,8 +178,8 @@ namespace IceGrid
          * @param filter The filter implementation.
          */
         virtual void addReplicaGroupFilter(
-            const ::std::string& id,
-            const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
+            const std::string& id,
+            const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
         /**
          * Remove a replica group filter.
@@ -188,15 +188,15 @@ namespace IceGrid
          * @return True of the filter was removed, false otherwise.
          */
         virtual bool removeReplicaGroupFilter(
-            const ::std::string& id,
-            const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
+            const std::string& id,
+            const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
         /**
          * Add a type filter.
          * @param type The type to register this filter with.
          * @param filter The filter implementation.
          */
-        virtual void addTypeFilter(const ::std::string& type, const ::std::shared_ptr<TypeFilter>& filter) noexcept = 0;
+        virtual void addTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
 
         /**
          * Remove a type filter.
@@ -205,7 +205,7 @@ namespace IceGrid
          * @return True of the filter was removed, false otherwise.
          */
         virtual bool
-        removeTypeFilter(const ::std::string& type, const ::std::shared_ptr<TypeFilter>& filter) noexcept = 0;
+        removeTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
 }
 
@@ -218,11 +218,11 @@ namespace Ice
 /// \cond INTERNAL
 namespace IceGrid
 {
-    using ReplicaGroupFilterPtr = ::std::shared_ptr<ReplicaGroupFilter>;
+    using ReplicaGroupFilterPtr = std::shared_ptr<ReplicaGroupFilter>;
 
-    using TypeFilterPtr = ::std::shared_ptr<TypeFilter>;
+    using TypeFilterPtr = std::shared_ptr<TypeFilter>;
 
-    using RegistryPluginFacadePtr = ::std::shared_ptr<RegistryPluginFacade>;
+    using RegistryPluginFacadePtr = std::shared_ptr<RegistryPluginFacade>;
 }
 /// \endcond
 

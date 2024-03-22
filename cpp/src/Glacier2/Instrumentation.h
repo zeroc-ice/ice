@@ -27,7 +27,7 @@ namespace Glacier2
 {
     namespace Instrumentation
     {
-        class SessionObserver : public virtual ::Ice::Instrumentation::Observer
+        class SessionObserver : public virtual Ice::Instrumentation::Observer
         {
         public:
             virtual ~SessionObserver();
@@ -94,18 +94,18 @@ namespace Glacier2
              * @param routingTableSize The size of the routing table for this session.
              * @param old The previous observer, only set when updating an existing observer.
              */
-            virtual ::std::shared_ptr<::Glacier2::Instrumentation::SessionObserver> getSessionObserver(
-                const ::std::string& id,
-                const ::std::shared_ptr<::Ice::Connection>& con,
+            virtual std::shared_ptr<::Glacier2::Instrumentation::SessionObserver> getSessionObserver(
+                const std::string& id,
+                const std::shared_ptr<Ice::Connection>& con,
                 int routingTableSize,
-                const ::std::shared_ptr<SessionObserver>& old) = 0;
+                const std::shared_ptr<SessionObserver>& old) = 0;
 
             /**
              * Glacier2 calls this method on initialization. The add-in implementing this interface can use this object
              * to get Glacier2 to re-obtain observers for topics and subscribers.
              * @param updater The observer updater object.
              */
-            virtual void setObserverUpdater(const ::std::shared_ptr<ObserverUpdater>& updater) = 0;
+            virtual void setObserverUpdater(const std::shared_ptr<ObserverUpdater>& updater) = 0;
         };
 
     }
@@ -117,11 +117,11 @@ namespace Glacier2
     /// \cond INTERNAL
     namespace Instrumentation
     {
-        using SessionObserverPtr = ::std::shared_ptr<SessionObserver>;
+        using SessionObserverPtr = std::shared_ptr<SessionObserver>;
 
-        using ObserverUpdaterPtr = ::std::shared_ptr<ObserverUpdater>;
+        using ObserverUpdaterPtr = std::shared_ptr<ObserverUpdater>;
 
-        using RouterObserverPtr = ::std::shared_ptr<RouterObserver>;
+        using RouterObserverPtr = std::shared_ptr<RouterObserver>;
 
     }
     /// \endcond

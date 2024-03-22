@@ -229,7 +229,7 @@ namespace IceUtilInternal
         std::string currentElement() const;
 
     private:
-        ::std::string escape(const ::std::string&) const;
+        std::string escape(const std::string&) const;
 
         std::stack<std::string> _elementStack;
 
@@ -292,14 +292,14 @@ namespace IceUtilInternal
     class ICE_API Attribute
     {
     public:
-        Attribute(const ::std::string&, const ::std::string&);
+        Attribute(const std::string&, const std::string&);
 
-        const ::std::string& getName() const;
-        const ::std::string& getValue() const;
+        const std::string& getName() const;
+        const std::string& getValue() const;
 
     private:
-        const ::std::string _name;
-        const ::std::string _value;
+        const std::string _name;
+        const std::string _value;
     };
 
     typedef Attribute attr;

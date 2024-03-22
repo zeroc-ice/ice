@@ -15,8 +15,8 @@ public:
     void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
     void pingPongAsync(
-        std::shared_ptr<::Ice::Value>,
-        std::function<void(const std::shared_ptr<::Ice::Value>&)>,
+        Ice::ValuePtr,
+        std::function<void(const Ice::ValuePtr&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

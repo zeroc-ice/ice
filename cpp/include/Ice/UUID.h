@@ -5,7 +5,6 @@
 #ifndef ICE_UUID_H
 #define ICE_UUID_H
 
-#include "Config.h"
 #include "IceUtil/UUID.h"
 
 namespace Ice

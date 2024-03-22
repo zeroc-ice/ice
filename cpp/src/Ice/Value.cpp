@@ -57,7 +57,7 @@ Ice::Value::ice_getSlicedData() const
     return _slicedData;
 }
 
-std::shared_ptr<Ice::Value>
+Ice::ValuePtr
 Ice::Value::_iceCloneImpl() const
 {
     throw CloneNotImplementedException(__FILE__, __LINE__);

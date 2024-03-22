@@ -123,7 +123,7 @@ namespace IceBT
         // Value is the base class of a hierarchy representing DBus data values.
         //
         class Value;
-        using ValuePtr = std::shared_ptr<Value>;
+        using ValuePtr = ValuePtr;
 
         class Value
         {

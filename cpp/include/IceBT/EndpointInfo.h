@@ -35,7 +35,7 @@ namespace IceBT
      * Provides access to Bluetooth endpoint information.
      * \headerfile IceBT/IceBT.h
      */
-    class ICE_CLASS(ICEBT_API) EndpointInfo : public ::Ice::EndpointInfo
+    class ICE_CLASS(ICEBT_API) EndpointInfo : public Ice::EndpointInfo
     {
     public:
         ICE_MEMBER(ICEBT_API) virtual ~EndpointInfo();
@@ -49,19 +49,19 @@ namespace IceBT
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param addr The address configured with the endpoint.
          * @param uuid The UUID configured with the endpoint.
          */
         EndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<Ice::EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::std::string& addr,
-            const ::std::string& uuid)
-            : ::Ice::EndpointInfo(underlying, timeout, compress),
+            const std::string& addr,
+            const std::string& uuid)
+            : Ice::EndpointInfo(underlying, timeout, compress),
               addr(addr),
               uuid(uuid)
         {
@@ -70,18 +70,18 @@ namespace IceBT
         /**
          * The address configured with the endpoint.
          */
-        ::std::string addr;
+        std::string addr;
         /**
          * The UUID configured with the endpoint.
          */
-        ::std::string uuid;
+        std::string uuid;
     };
 }
 
 /// \cond INTERNAL
 namespace IceBT
 {
-    using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
+    using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;
 }
 /// \endcond
 

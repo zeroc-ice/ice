@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_BATCH_REQUEST_INTERCEPTOR_H
-#define ICE_BATCH_REQUEST_INTERCEPTOR_H
-
-#include "ProxyF.h"
+#ifndef ICE_BATCH_REQUEST_H
+#define ICE_BATCH_REQUEST_H
 
 #include <string_view>
 
 namespace Ice
 {
+    class ObjectPrx;
+
     /**
      * Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
      * \headerfile Ice/Ice.h
@@ -18,7 +18,7 @@ namespace Ice
     class BatchRequest
     {
     public:
-        virtual ~BatchRequest() {}
+        virtual ~BatchRequest() = default;
 
         /**
          * Queues the request for an eventual flush.
@@ -41,7 +41,7 @@ namespace Ice
          * Obtains the proxy on which the batch request was invoked.
          * @return The originating proxy.
          */
-        virtual const Ice::ObjectPrx& getProxy() const = 0;
+        virtual const ObjectPrx& getProxy() const = 0;
     };
 }
 

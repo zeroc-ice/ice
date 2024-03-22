@@ -662,7 +662,7 @@ namespace Slice
     public:
         //
         // Note: The order of definitions here *must* match the order of
-        // definitions of ::Ice::OperationMode in slice/Ice/OperationMode.ice!
+        // definitions of Ice::OperationMode in slice/Ice/OperationMode.ice!
         //
         enum Mode
         {

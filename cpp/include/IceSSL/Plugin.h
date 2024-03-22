@@ -5,11 +5,13 @@
 #ifndef ICESSL_PLUGIN_H
 #define ICESSL_PLUGIN_H
 
-#include <Ice/Plugin.h>
-#include <IceSSL/Config.h>
-#include <IceSSL/ConnectionInfoF.h>
+#include "Ice/Plugin.h"
+#include "Config.h"
+#include "ConnectionInfoF.h"
+#include "Ice/Exception.h"
 
 #include <chrono>
+#include <cstdint>
 #include <vector>
 #include <list>
 
@@ -28,7 +30,7 @@ namespace IceSSL
     /**
      * The reason for an IceSSL certificate verification failure.
      */
-    enum class TrustError : unsigned char
+    enum class TrustError : std::uint8_t
     {
         /** The certification verification succeed  */
         NoError = 0,

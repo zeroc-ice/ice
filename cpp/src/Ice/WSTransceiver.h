@@ -8,7 +8,7 @@
 #include <Ice/ProtocolInstance.h>
 #include <Ice/HttpParser.h>
 
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>

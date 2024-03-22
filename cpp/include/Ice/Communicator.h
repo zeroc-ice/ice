@@ -9,9 +9,9 @@
 #include "Connection.h"
 #include "InstanceF.h"
 #include "FacetMap.h"
-#include "ImplicitContextF.h"
+#include "ImplicitContext.h"
 #include "Initialize.h"
-#include "PluginF.h"
+#include "Plugin.h"
 #include "Properties.h"
 #include "Proxy.h"
 
@@ -375,8 +375,8 @@ namespace Ice
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
-        friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
-        friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
+        friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
+        friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 
         const ::IceInternal::InstancePtr _instance;
     };

@@ -871,7 +871,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\LoggerF.h">
+    <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h">

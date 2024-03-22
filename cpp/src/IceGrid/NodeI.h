@@ -82,7 +82,7 @@ namespace IceGrid
             std::string,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const ::Ice::Current& current) override;
+            const Ice::Current& current) override;
 
         void patchAsync(
             std::optional<PatcherFeedbackPrx> feedback,

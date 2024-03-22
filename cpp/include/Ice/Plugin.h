@@ -2,22 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_Plugin_h__
-#define __Ice_Plugin_h__
+#ifndef ICE_PLUGIN_H
+#define ICE_PLUGIN_H
 
-#include "IceUtil/PushDisableWarnings.h"
-#include "ProxyF.h"
-#include "ValueF.h"
-#include "Exception.h"
-#include "Comparable.h"
-#include "LoggerF.h"
 #include "Ice/BuiltinSequences.h"
 
-namespace Ice
-{
-    class Plugin;
-    class PluginManager;
-}
+#include <memory>
 
 namespace Ice
 {
@@ -27,10 +17,10 @@ namespace Ice
      * invokes {@link Plugin#initialize} on each one.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) Plugin
+    class Plugin
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~Plugin();
+       virtual ~Plugin() = default;
 
         /**
          * Perform any necessary initialization steps.
@@ -47,10 +37,10 @@ namespace Ice
      * Each communicator has a plug-in manager to administer the set of plug-ins.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) PluginManager
+    class PluginManager
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~PluginManager();
+        virtual ~PluginManager() = default;
 
         /**
          * Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by default, but
@@ -67,7 +57,7 @@ namespace Ice
          * @return The names of the plugins installed.
          * @see #getPlugin
          */
-        virtual ::Ice::StringSeq getPlugins() noexcept = 0;
+        virtual StringSeq getPlugins() noexcept = 0;
 
         /**
          * Obtain a plug-in by name.
@@ -75,7 +65,7 @@ namespace Ice
          * @return The plug-in.
          * @throws NotRegisteredException Raised if no plug-in is found with the given name.
          */
-        virtual ::std::shared_ptr<::Ice::Plugin> getPlugin(const ::std::string& name) = 0;
+        virtual std::shared_ptr<Plugin> getPlugin(const std::string& name) = 0;
 
         /**
          * Install a new plug-in.
@@ -83,23 +73,16 @@ namespace Ice
          * @param pi The plug-in.
          * @throws AlreadyRegisteredException Raised if a plug-in already exists with the given name.
          */
-        virtual void addPlugin(const ::std::string& name, const ::std::shared_ptr<Plugin>& pi) = 0;
+        virtual void addPlugin(const std::string& name, const std::shared_ptr<Plugin>& pi) = 0;
 
         /**
          * Called when the communicator is being destroyed.
          */
         virtual void destroy() noexcept = 0;
     };
+
+    using PluginPtr = std::shared_ptr<Plugin>;
+    using PluginManagerPtr = std::shared_ptr<PluginManager>;
 }
 
-/// \cond INTERNAL
-namespace Ice
-{
-    using PluginPtr = ::std::shared_ptr<Plugin>;
-
-    using PluginManagerPtr = ::std::shared_ptr<PluginManager>;
-}
-/// \endcond
-
-#include "IceUtil/PopDisableWarnings.h"
 #endif

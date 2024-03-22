@@ -9,7 +9,7 @@
 #include "InstanceF.h"
 #include "ValueF.h"
 #include "ProxyF.h"
-#include "LoggerF.h"
+#include "Logger.h"
 #include "ValueFactory.h"
 #include "Buffer.h"
 #include "Ice/Version.h"
@@ -18,6 +18,7 @@
 #include "ValueFactory.h"
 #include "StreamableTraits.h"
 #include "ReferenceF.h"
+#include "Exception.h"
 
 #include <cassert>
 #include <cstdint>
@@ -28,10 +29,10 @@
 namespace Ice
 {
     /// \cond INTERNAL
-    template<typename T> inline void patchValue(void* addr, const std::shared_ptr<Value>& v)
+    template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
-        std::shared_ptr<T>* ptr = static_cast<::std::shared_ptr<T>*>(addr);
-        *ptr = ::std::dynamic_pointer_cast<T>(v);
+        std::shared_ptr<T>* ptr = static_cast<std::shared_ptr<T>*>(addr);
+        *ptr = std::dynamic_pointer_cast<T>(v);
         if (v && !(*ptr))
         {
             IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
@@ -53,7 +54,7 @@ namespace Ice
          * @param addr The target address.
          * @param v The unmarshaled value.
          */
-        using PatchFunc = std::function<void(void* addr, const std::shared_ptr<Value>& v)>;
+        using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
         /**
          * Constructs a stream using the latest encoding version but without a communicator.
@@ -832,8 +833,8 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
-        void read(::std::shared_ptr<T>& v)
+        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
+        void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }
@@ -945,7 +946,7 @@ namespace Ice
 
         std::string resolveCompactId(int) const;
 
-        void postUnmarshal(const std::shared_ptr<Value>&) const;
+        void postUnmarshal(const ValuePtr&) const;
 
         class Encaps;
         enum SliceType
@@ -963,7 +964,7 @@ namespace Ice
 
         std::function<std::string(int)> compactIdResolver() const;
 
-        using ValueList = std::vector<std::shared_ptr<Value>>;
+        using ValueList = std::vector<ValuePtr>;
 
         class ICE_API EncapsDecoder
         {
@@ -1004,12 +1005,12 @@ namespace Ice
             }
 
             std::string readTypeId(bool);
-            std::shared_ptr<Value> newInstance(std::string_view);
+            ValuePtr newInstance(std::string_view);
 
             void addPatchEntry(std::int32_t, PatchFunc, void*);
-            void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
+            void unmarshal(std::int32_t, const ValuePtr&);
 
-            typedef std::map<std::int32_t, std::shared_ptr<Value>> IndexToPtrMap;
+            typedef std::map<std::int32_t, ValuePtr> IndexToPtrMap;
             typedef std::map<std::int32_t, std::string> TypeIdMap;
 
             struct PatchEntry

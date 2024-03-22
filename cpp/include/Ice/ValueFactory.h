@@ -6,6 +6,7 @@
 #define ICE_VALUE_FACTORY_H
 
 #include "Config.h"
+#include "ValueF.h"
 
 #include <functional>
 #include <memory>
@@ -13,8 +14,6 @@
 
 namespace Ice
 {
-    class Value;
-
     /**
      * Creates a new instance of a class with the given Slice type ID. For example, the Slice type ID for Slice class
      * <code>Bar</code> in the module <code>Foo</code> is <code>"::Foo::Bar"</code>. Note that the leading
@@ -24,7 +23,7 @@ namespace Ice
      * instance.
      * \headerfile Ice/Ice.h
      */
-    using ValueFactory = std::function<std::shared_ptr<Value>(std::string_view typeId)>;
+    using ValueFactory = std::function<ValuePtr(std::string_view typeId)>;
 
     /**
      * A value factory manager maintains a collection of value factories. An application can supply a custom

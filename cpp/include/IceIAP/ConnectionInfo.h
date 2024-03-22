@@ -35,7 +35,7 @@ namespace IceIAP
      * Provides access to the connection details of an IAP connection
      * \headerfile IceIAP/IceIAP.h
      */
-    class ICE_CLASS(ICEIAP_API) ConnectionInfo : public ::Ice::ConnectionInfo
+    class ICE_CLASS(ICEIAP_API) ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
         ICE_MEMBER(ICEIAP_API) virtual ~ConnectionInfo();
@@ -49,7 +49,7 @@ namespace IceIAP
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -61,17 +61,17 @@ namespace IceIAP
          * @param protocol The protocol used by the accessory.
          */
         ConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const std::shared_ptr<Ice::ConnectionInfo>& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& name,
-            const ::std::string& manufacturer,
-            const ::std::string& modelNumber,
-            const ::std::string& firmwareRevision,
-            const ::std::string& hardwareRevision,
-            const ::std::string& protocol)
-            : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& name,
+            const std::string& manufacturer,
+            const std::string& modelNumber,
+            const std::string& firmwareRevision,
+            const std::string& hardwareRevision,
+            const std::string& protocol)
+            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               name(name),
               manufacturer(manufacturer),
               modelNumber(modelNumber),
@@ -84,34 +84,34 @@ namespace IceIAP
         /**
          * The accessory name.
          */
-        ::std::string name;
+        std::string name;
         /**
          * The accessory manufacturer.
          */
-        ::std::string manufacturer;
+        std::string manufacturer;
         /**
          * The accessory model number.
          */
-        ::std::string modelNumber;
+        std::string modelNumber;
         /**
          * The accessory firmare revision.
          */
-        ::std::string firmwareRevision;
+        std::string firmwareRevision;
         /**
          * The accessory hardware revision.
          */
-        ::std::string hardwareRevision;
+        std::string hardwareRevision;
         /**
          * The protocol used by the accessory.
          */
-        ::std::string protocol;
+        std::string protocol;
     };
 }
 
 /// \cond INTERNAL
 namespace IceIAP
 {
-    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+    using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
 /// \endcond
 

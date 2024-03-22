@@ -5,6 +5,7 @@
 #ifndef ICE_LOGGER_UTIL_H
 #define ICE_LOGGER_UTIL_H
 
+#include "Config.h"
 #include "Logger.h"
 #include "CommunicatorF.h"
 #include "Plugin.h"
@@ -70,14 +71,14 @@ namespace Ice
     }
 
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-    inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const ::std::optional<Prx>& p)
+    inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const std::optional<Prx>& p)
     {
         return os << (p ? p->ice_toString() : "");
     }
 
     inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const ObjectPrx& p) { return os << p.ice_toString(); }
 
-    inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const ::std::exception& ex)
+    inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const std::exception& ex)
     {
         out._stream() << ex.what();
         return out;

@@ -10,7 +10,7 @@
 namespace IceInternal
 {
     class ConnectRequestHandler;
-    using ConnectRequestHandlerPtr = ::std::shared_ptr<ConnectRequestHandler>;
+    using ConnectRequestHandlerPtr = std::shared_ptr<ConnectRequestHandler>;
 }
 
 #endif

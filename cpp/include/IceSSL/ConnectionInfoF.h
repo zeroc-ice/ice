@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_CONNECTIONINFO_F_H
-#define ICESSL_CONNECTIONINFO_F_H
+#ifndef ICE_SSL_CONNECTION_INFO_F_H
+#define ICE_SSL_CONNECTION_INFO_F_H
 
 #include <memory>
 

@@ -27,6 +27,13 @@ namespace IceInternal
     class RetryException;
     class CollocatedRequestHandler;
 
+    enum AsyncStatus
+    {
+        AsyncStatusQueued = 0,
+        AsyncStatusSent = 1,
+        AsyncStatusInvokeSentCallback = 2
+    };
+
     class ICE_API OutgoingAsyncCompletionCallback
     {
     public:
@@ -123,7 +130,7 @@ namespace IceInternal
         static const unsigned char Sent;
     };
 
-    using OutgoingAsyncBasePtr = ::std::shared_ptr<OutgoingAsyncBase>;
+    using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
 
     //
     // Base class for proxy based invocations. This class handles the
@@ -169,7 +176,7 @@ namespace IceInternal
         bool _sent;
     };
 
-    using ProxyOutgoingAsyncBasePtr = ::std::shared_ptr<ProxyOutgoingAsyncBase>;
+    using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
     //
     // Class for handling Slice operation invocations
@@ -204,7 +211,7 @@ namespace IceInternal
         }
         void endWriteParams() { _os.endEncapsulation(); }
         void writeEmptyParams() { _os.writeEmptyEncapsulation(_encoding); }
-        void writeParamEncaps(const ::std::byte* encaps, std::int32_t size)
+        void writeParamEncaps(const std::byte* encaps, std::int32_t size)
         {
             if (size == 0)
             {
@@ -218,11 +225,11 @@ namespace IceInternal
 
     protected:
         const Ice::EncodingVersion _encoding;
-        std::function<void(const ::Ice::UserException&)> _userException;
+        std::function<void(const Ice::UserException&)> _userException;
         bool _synchronous;
     };
 
-    using OutgoingAsyncPtr = ::std::shared_ptr<OutgoingAsync>;
+    using OutgoingAsyncPtr = std::shared_ptr<OutgoingAsync>;
 
     class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
     {

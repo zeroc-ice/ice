@@ -52,13 +52,13 @@ namespace IceBox
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const noexcept { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        static ::std::string_view ice_staticId() noexcept;
+        static std::string_view ice_staticId() noexcept;
 
         std::string ice_id() const override;
 
@@ -67,7 +67,7 @@ namespace IceBox
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
+        std::string reason;
     };
 }
 
@@ -92,9 +92,9 @@ namespace IceBox
          * @throws IceBox::FailureException Raised if {@link #start} failed.
          */
         virtual void start(
-            const ::std::string& name,
-            const ::std::shared_ptr<::Ice::Communicator>& communicator,
-            const ::Ice::StringSeq& args) = 0;
+            const std::string& name,
+            const std::shared_ptr<Ice::Communicator>& communicator,
+            const Ice::StringSeq& args) = 0;
 
         /**
          * Stop the service.
@@ -106,7 +106,7 @@ namespace IceBox
 /// \cond INTERNAL
 namespace IceBox
 {
-    using ServicePtr = ::std::shared_ptr<Service>;
+    using ServicePtr = std::shared_ptr<Service>;
 }
 /// \endcond
 

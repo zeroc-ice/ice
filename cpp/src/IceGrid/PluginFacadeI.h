@@ -14,14 +14,14 @@ namespace IceGrid
     class RegistryPluginFacadeI : public RegistryPluginFacade
     {
     public:
-        ApplicationInfo getApplicationInfo(const ::std::string&) const override;
+        ApplicationInfo getApplicationInfo(const std::string&) const override;
 
         ServerInfo getServerInfo(const std::string&) const override;
 
         std::string getAdapterServer(const std::string&) const override;
         std::string getAdapterApplication(const std::string&) const override;
         std::string getAdapterNode(const std::string&) const override;
-        AdapterInfoSeq getAdapterInfo(const ::std::string&) const override;
+        AdapterInfoSeq getAdapterInfo(const std::string&) const override;
 
         ObjectInfo getObjectInfo(const Ice::Identity&) const override;
 

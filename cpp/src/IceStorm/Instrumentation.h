@@ -46,7 +46,7 @@ namespace IceStorm
 {
     namespace Instrumentation
     {
-        class TopicObserver : public virtual ::Ice::Instrumentation::Observer
+        class TopicObserver : public virtual Ice::Instrumentation::Observer
         {
         public:
             virtual ~TopicObserver();
@@ -62,7 +62,7 @@ namespace IceStorm
             virtual void forwarded() = 0;
         };
 
-        class SubscriberObserver : public virtual ::Ice::Instrumentation::Observer
+        class SubscriberObserver : public virtual Ice::Instrumentation::Observer
         {
         public:
             virtual ~SubscriberObserver();
@@ -138,7 +138,7 @@ namespace IceStorm
              * @param link The proxy of the linked topic if this subscriber forwards events to a linked topic.
              * @param old The previous observer, only set when updating an existing observer.
              */
-            virtual ::std::shared_ptr<::IceStorm::Instrumentation::SubscriberObserver> getSubscriberObserver(
+            virtual std::shared_ptr<::IceStorm::Instrumentation::SubscriberObserver> getSubscriberObserver(
                 const std::string& svc,
                 const std::string& topic,
                 const Ice::ObjectPrx& prx,
@@ -152,7 +152,7 @@ namespace IceStorm
              * to get IceStorm to re-obtain observers for topics and subscribers.
              * @param updater The observer updater object.
              */
-            virtual void setObserverUpdater(const ::std::shared_ptr<ObserverUpdater>& updater) = 0;
+            virtual void setObserverUpdater(const std::shared_ptr<ObserverUpdater>& updater) = 0;
         };
 
     }
@@ -178,13 +178,13 @@ namespace IceStorm
     /// \cond INTERNAL
     namespace Instrumentation
     {
-        using TopicObserverPtr = ::std::shared_ptr<TopicObserver>;
+        using TopicObserverPtr = std::shared_ptr<TopicObserver>;
 
-        using SubscriberObserverPtr = ::std::shared_ptr<SubscriberObserver>;
+        using SubscriberObserverPtr = std::shared_ptr<SubscriberObserver>;
 
-        using ObserverUpdaterPtr = ::std::shared_ptr<ObserverUpdater>;
+        using ObserverUpdaterPtr = std::shared_ptr<ObserverUpdater>;
 
-        using TopicManagerObserverPtr = ::std::shared_ptr<TopicManagerObserver>;
+        using TopicManagerObserverPtr = std::shared_ptr<TopicManagerObserver>;
 
     }
     /// \endcond

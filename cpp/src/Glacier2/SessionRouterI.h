@@ -80,16 +80,16 @@ namespace Glacier2
             std::string,
             std::function<void(const std::optional<SessionPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const ::Ice::Current&) override;
+            const Ice::Current&) override;
         void createSessionFromSecureConnectionAsync(
             std::function<void(const std::optional<SessionPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const ::Ice::Current&) override;
-        void refreshSessionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&)
+            const Ice::Current&) override;
+        void refreshSessionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
             override;
-        void destroySession(const ::Ice::Current&) override;
-        std::int64_t getSessionTimeout(const ::Ice::Current&) const override;
-        int getACMTimeout(const ::Ice::Current&) const override;
+        void destroySession(const Ice::Current&) override;
+        std::int64_t getSessionTimeout(const Ice::Current&) const override;
+        int getACMTimeout(const Ice::Current&) const override;
 
         void updateSessionObservers() override;
 

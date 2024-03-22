@@ -7,13 +7,14 @@
 
 #include "ValueF.h"
 #include "ProxyF.h"
-#include "UserException.h"
 
 #include <optional>
 #include <string_view>
 
 namespace Ice
 {
+    class UserException;
+
     /// \cond STREAM
 
     /**
@@ -128,7 +129,7 @@ namespace Ice
      * \headerfile Ice/Ice.h
      */
     template<typename T>
-    struct StreamableTraits<T, typename ::std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
+    struct StreamableTraits<T, typename std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
     {
         static const StreamHelperCategory helper =
             IsMap<T>::value ? StreamHelperCategoryDictionary : StreamHelperCategorySequence;
@@ -141,7 +142,7 @@ namespace Ice
      * \headerfile Ice/Ice.h
      */
     template<typename T>
-    struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::UserException, T>::value>::type>
+    struct StreamableTraits<T, typename std::enable_if<std::is_base_of<UserException, T>::value>::type>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryUserException;
 
@@ -335,8 +336,8 @@ namespace Ice
      */
     template<typename T>
     struct StreamableTraits<
-        ::std::shared_ptr<T>,
-        typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type>
+        std::shared_ptr<T>,
+        typename std::enable_if<std::is_base_of<Value, T>::value>::type>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryClass;
         static const int minWireSize = 1;

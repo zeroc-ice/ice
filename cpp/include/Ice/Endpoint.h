@@ -2,39 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_Endpoint_h__
-#define __Ice_Endpoint_h__
+#ifndef ICE_ENDPOINT_H
+#define ICE_ENDPOINT_H
 
-#include "IceUtil/PushDisableWarnings.h"
-#include "ProxyF.h"
-#include "ValueF.h"
-#include "Exception.h"
-#include "Comparable.h"
-#include "Ice/Version.h"
-#include "Ice/BuiltinSequences.h"
 #include "EndpointF.h"
-#include "IceUtil/UndefSysMacros.h"
+#include "Ice/Version.h"
 
-#ifndef ICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_API /**/
-#    elif defined(ICE_API_EXPORTS)
-#        define ICE_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-
-namespace Ice
-{
-    class EndpointInfo;
-    class Endpoint;
-    class IPEndpointInfo;
-    class TCPEndpointInfo;
-    class UDPEndpointInfo;
-    class WSEndpointInfo;
-    class OpaqueEndpointInfo;
-}
 
 namespace Ice
 {
@@ -42,30 +22,28 @@ namespace Ice
      * Base class providing access to the endpoint details.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) EndpointInfo
+    class EndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~EndpointInfo();
-
         EndpointInfo() = default;
-
-        EndpointInfo(const EndpointInfo&) = default;
-        EndpointInfo(EndpointInfo&&) = default;
-        EndpointInfo& operator=(const EndpointInfo&) = default;
-        EndpointInfo& operator=(EndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying, int timeout, bool compress)
+        EndpointInfo(const std::shared_ptr<EndpointInfo>& underlying, int timeout, bool compress)
             : underlying(underlying),
               timeout(timeout),
               compress(compress)
         {
         }
+
+        virtual ~EndpointInfo() = default;
+
+        EndpointInfo(const EndpointInfo&) = delete;
+        EndpointInfo& operator=(const EndpointInfo&) = delete;
 
         /**
          * Returns the type of the endpoint.
@@ -85,9 +63,9 @@ namespace Ice
         virtual bool secure() const noexcept = 0;
 
         /**
-         * The information of the underyling endpoint or null if there's no underlying endpoint.
+         * The information of the underlying endpoint or null if there's no underlying endpoint.
          */
-        ::std::shared_ptr<::Ice::EndpointInfo> underlying;
+        std::shared_ptr<EndpointInfo> underlying;
         /**
          * The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
          */
@@ -102,10 +80,14 @@ namespace Ice
      * The user-level interface to an endpoint.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) Endpoint
+    class Endpoint
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~Endpoint();
+        Endpoint() = default;
+        virtual ~Endpoint() = default;
+
+        Endpoint(const Endpoint&) = delete;
+        Endpoint& operator=(const Endpoint&) = delete;
 
         virtual bool operator==(const Endpoint&) const = 0;
         virtual bool operator<(const Endpoint&) const = 0;
@@ -114,13 +96,13 @@ namespace Ice
          * Return a string representation of the endpoint.
          * @return The string representation of the endpoint.
          */
-        virtual ::std::string toString() const noexcept = 0;
+        virtual std::string toString() const noexcept = 0;
 
         /**
          * Returns the endpoint information.
          * @return The endpoint information class.
          */
-        virtual ::std::shared_ptr<::Ice::EndpointInfo> getInfo() const noexcept = 0;
+        virtual std::shared_ptr<EndpointInfo> getInfo() const noexcept = 0;
     };
 
     /**
@@ -128,21 +110,14 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IPEndpointInfo : public ::Ice::EndpointInfo
+    class IPEndpointInfo : public EndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IPEndpointInfo();
-
         IPEndpointInfo() = default;
-
-        IPEndpointInfo(const IPEndpointInfo&) = default;
-        IPEndpointInfo(IPEndpointInfo&&) = default;
-        IPEndpointInfo& operator=(const IPEndpointInfo&) = default;
-        IPEndpointInfo& operator=(IPEndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param host The host or address configured with the endpoint.
@@ -150,12 +125,12 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         IPEndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::std::string& host,
+            const std::string& host,
             int port,
-            const ::std::string& sourceAddress)
+            const std::string& sourceAddress)
             : EndpointInfo(underlying, timeout, compress),
               host(host),
               port(port),
@@ -163,10 +138,13 @@ namespace Ice
         {
         }
 
+        IPEndpointInfo(const IPEndpointInfo&) = delete;
+        IPEndpointInfo& operator=(const IPEndpointInfo&) = delete;
+
         /**
          * The host or address configured with the endpoint.
          */
-        ::std::string host;
+        std::string host;
         /**
          * The port number.
          */
@@ -174,7 +152,7 @@ namespace Ice
         /**
          * The source IP address.
          */
-        ::std::string sourceAddress;
+        std::string sourceAddress;
     };
 
     /**
@@ -182,21 +160,14 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) TCPEndpointInfo : public ::Ice::IPEndpointInfo
+    class TCPEndpointInfo : public IPEndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~TCPEndpointInfo();
-
         TCPEndpointInfo() = default;
-
-        TCPEndpointInfo(const TCPEndpointInfo&) = default;
-        TCPEndpointInfo(TCPEndpointInfo&&) = default;
-        TCPEndpointInfo& operator=(const TCPEndpointInfo&) = default;
-        TCPEndpointInfo& operator=(TCPEndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param host The host or address configured with the endpoint.
@@ -204,15 +175,18 @@ namespace Ice
          * @param sourceAddress The source IP address.
          */
         TCPEndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::std::string& host,
+            const std::string& host,
             int port,
-            const ::std::string& sourceAddress)
+            const std::string& sourceAddress)
             : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress)
         {
         }
+
+        TCPEndpointInfo(const TCPEndpointInfo&) = delete;
+        TCPEndpointInfo& operator=(const TCPEndpointInfo&) = delete;
     };
 
     /**
@@ -220,21 +194,14 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UDPEndpointInfo : public ::Ice::IPEndpointInfo
+    class UDPEndpointInfo : public IPEndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UDPEndpointInfo();
-
         UDPEndpointInfo() = default;
-
-        UDPEndpointInfo(const UDPEndpointInfo&) = default;
-        UDPEndpointInfo(UDPEndpointInfo&&) = default;
-        UDPEndpointInfo& operator=(const UDPEndpointInfo&) = default;
-        UDPEndpointInfo& operator=(UDPEndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param host The host or address configured with the endpoint.
@@ -244,13 +211,13 @@ namespace Ice
          * @param mcastTtl The multicast time-to-live (or hops).
          */
         UDPEndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::std::string& host,
+            const std::string& host,
             int port,
-            const ::std::string& sourceAddress,
-            const ::std::string& mcastInterface,
+            const std::string& sourceAddress,
+            const std::string& mcastInterface,
             int mcastTtl)
             : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress),
               mcastInterface(mcastInterface),
@@ -258,10 +225,13 @@ namespace Ice
         {
         }
 
+        UDPEndpointInfo(const UDPEndpointInfo&) = delete;
+        UDPEndpointInfo& operator=(const UDPEndpointInfo&) = delete;
+
         /**
          * The multicast interface.
          */
-        ::std::string mcastInterface;
+        std::string mcastInterface;
         /**
          * The multicast time-to-live (or hops).
          */
@@ -272,39 +242,35 @@ namespace Ice
      * Provides access to a WebSocket endpoint information.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) WSEndpointInfo : public ::Ice::EndpointInfo
+    class WSEndpointInfo : public EndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~WSEndpointInfo();
-
         WSEndpointInfo() = default;
-
-        WSEndpointInfo(const WSEndpointInfo&) = default;
-        WSEndpointInfo(WSEndpointInfo&&) = default;
-        WSEndpointInfo& operator=(const WSEndpointInfo&) = default;
-        WSEndpointInfo& operator=(WSEndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param resource The URI configured with the endpoint.
          */
         WSEndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::std::string& resource)
+            const std::string& resource)
             : EndpointInfo(underlying, timeout, compress),
               resource(resource)
         {
         }
 
+        WSEndpointInfo(const WSEndpointInfo&) = delete;
+        WSEndpointInfo& operator=(const WSEndpointInfo&) = delete;
+
         /**
          * The URI configured with the endpoint.
          */
-        ::std::string resource;
+        std::string resource;
     };
 
     /**
@@ -312,37 +278,33 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) OpaqueEndpointInfo : public ::Ice::EndpointInfo
+    class OpaqueEndpointInfo : public EndpointInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~OpaqueEndpointInfo();
-
         OpaqueEndpointInfo() = default;
-
-        OpaqueEndpointInfo(const OpaqueEndpointInfo&) = default;
-        OpaqueEndpointInfo(OpaqueEndpointInfo&&) = default;
-        OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = default;
-        OpaqueEndpointInfo& operator=(OpaqueEndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param rawEncoding The encoding version of the opaque endpoint (to decode or encode the rawBytes).
          * @param rawBytes The raw encoding of the opaque endpoint.
          */
         OpaqueEndpointInfo(
-            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            const std::shared_ptr<EndpointInfo>& underlying,
             int timeout,
             bool compress,
-            const ::Ice::EncodingVersion& rawEncoding,
+            const EncodingVersion& rawEncoding,
             std::vector<std::byte> rawBytes)
             : EndpointInfo(underlying, timeout, compress),
               rawEncoding(rawEncoding),
               rawBytes(std::move(rawBytes))
         {
         }
+
+        OpaqueEndpointInfo(const OpaqueEndpointInfo&) = delete;
+        OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = delete;
 
         /**
          * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
@@ -355,30 +317,10 @@ namespace Ice
     };
 }
 
-/// \cond STREAM
-namespace Ice
-{
-}
-/// \endcond
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-/// \cond INTERNAL
-namespace Ice
-{
-    using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
-
-    using EndpointPtr = ::std::shared_ptr<Endpoint>;
-
-    using IPEndpointInfoPtr = ::std::shared_ptr<IPEndpointInfo>;
-
-    using TCPEndpointInfoPtr = ::std::shared_ptr<TCPEndpointInfo>;
-
-    using UDPEndpointInfoPtr = ::std::shared_ptr<UDPEndpointInfo>;
-
-    using WSEndpointInfoPtr = ::std::shared_ptr<WSEndpointInfo>;
-
-    using OpaqueEndpointInfoPtr = ::std::shared_ptr<OpaqueEndpointInfo>;
-}
-/// \endcond
-
-#include "IceUtil/PopDisableWarnings.h"
 #endif

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_METRICSFUNCTIONAL_H
-#define ICE_METRICSFUNCTIONAL_H
+#ifndef ICE_METRICS_FUNCTIONAL_H
+#define ICE_METRICS_FUNCTIONAL_H
 
 namespace IceInternal
 {
@@ -12,19 +12,19 @@ namespace IceInternal
         static R* get(const R& v) { return const_cast<R*>(&v); }
     };
 
-    template<typename R> struct ReferenceWrapper<::std::shared_ptr<R>>
+    template<typename R> struct ReferenceWrapper<std::shared_ptr<R>>
     {
-        static R* get(const ::std::shared_ptr<R>& v) { return v.get(); }
+        static R* get(const std::shared_ptr<R>& v) { return v.get(); }
     };
 
-    template<typename R> struct ReferenceWrapper<const ::std::shared_ptr<R>&>
+    template<typename R> struct ReferenceWrapper<const std::shared_ptr<R>&>
     {
-        static R* get(const ::std::shared_ptr<R>& v) { return v.get(); }
+        static R* get(const std::shared_ptr<R>& v) { return v.get(); }
     };
 
-    template<typename R> struct ReferenceWrapper<const ::std::optional<R>&>
+    template<typename R> struct ReferenceWrapper<const std::optional<R>&>
     {
-        static R* get(const ::std::optional<R>& v) { return v ? const_cast<R*>(&v.value()) : nullptr; }
+        static R* get(const std::optional<R>& v) { return v ? const_cast<R*>(&v.value()) : nullptr; }
     };
 
     template<typename R> struct ReferenceWrapper<R*>

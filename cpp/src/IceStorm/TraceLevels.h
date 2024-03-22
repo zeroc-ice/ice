@@ -5,7 +5,7 @@
 #ifndef ICE_STORM_TRACE_LEVELS_H
 #define ICE_STORM_TRACE_LEVELS_H
 
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/PropertiesF.h>
 
 #include <string>

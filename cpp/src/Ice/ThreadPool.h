@@ -8,7 +8,7 @@
 #include <Ice/Config.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Selector.h>

@@ -75,7 +75,7 @@ namespace IceUtil
         const char* _file;
         int _line;
         const std::vector<void*> _stackFrames;
-        mutable ::std::string _str; // Initialized lazily in what().
+        mutable std::string _str; // Initialized lazily in what().
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);

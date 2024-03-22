@@ -24,7 +24,7 @@ namespace IceUtilInternal
         std::string reason;
     };
 
-    ICE_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
+    ICE_API std::ostream& operator<<(std::ostream&, const APIException&);
 
     class ICE_API BadOptException : public IceUtil::Exception
     {
@@ -37,7 +37,7 @@ namespace IceUtilInternal
         std::string reason;
     };
 
-    ICE_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);
+    ICE_API std::ostream& operator<<(std::ostream&, const BadOptException&);
 
     class ICE_API Options
     {
@@ -60,20 +60,20 @@ namespace IceUtilInternal
 
         Options();
         void addOpt(
-            const ::std::string&,
-            const ::std::string& = "",
+            const std::string&,
+            const std::string& = "",
             ArgType = NoArg,
-            ::std::string = "",
+            std::string = "",
             RepeatType = NoRepeat);
 
-        typedef ::std::vector<::std::string> StringVector;
+        typedef std::vector<std::string> StringVector;
 
-        static StringVector split(const ::std::string&);
+        static StringVector split(const std::string&);
         StringVector parse(const StringVector&);
         StringVector parse(int, const char* const[]);
-        bool isSet(const ::std::string&) const;
-        ::std::string optArg(const ::std::string&) const;
-        StringVector argVec(const ::std::string&) const;
+        bool isSet(const std::string&) const;
+        std::string optArg(const std::string&) const;
+        StringVector argVec(const std::string&) const;
 
     private:
         struct OptionDetails
@@ -83,34 +83,34 @@ namespace IceUtilInternal
             RepeatType repeat;
             bool hasDefault;
         };
-        using ODPtr = ::std::shared_ptr<OptionDetails>;
+        using ODPtr = std::shared_ptr<OptionDetails>;
 
         struct OptionValue
         {
-            ::std::string val;
+            std::string val;
         };
-        using OValPtr = ::std::shared_ptr<OptionValue>;
+        using OValPtr = std::shared_ptr<OptionValue>;
 
         struct OptionValueVector
         {
-            ::std::vector<::std::string> vals;
+            std::vector<std::string> vals;
         };
-        using OVecPtr = ::std::shared_ptr<OptionValueVector>;
+        using OVecPtr = std::shared_ptr<OptionValueVector>;
 
-        typedef ::std::map<::std::string, ODPtr> ValidOpts;        // Valid options and their details.
-        typedef ::std::map<::std::string, OValPtr> Opts;           // Value of non-repeating options.
-        typedef ::std::map<::std::string, OVecPtr> ROpts;          // Value of repeating options.
-        typedef ::std::map<::std::string, ::std::string> Synonyms; // Map from short to long option and vice versa.
+        typedef std::map<std::string, ODPtr> ValidOpts;        // Valid options and their details.
+        typedef std::map<std::string, OValPtr> Opts;           // Value of non-repeating options.
+        typedef std::map<std::string, OVecPtr> ROpts;          // Value of repeating options.
+        typedef std::map<std::string, std::string> Synonyms; // Map from short to long option and vice versa.
 
-        void addValidOpt(const ::std::string&, const ::std::string&, ArgType, const ::std::string&, RepeatType);
-        ValidOpts::iterator checkOpt(const ::std::string&, LengthType);
-        void setOpt(const ::std::string&, const ::std::string&, const ::std::string&, RepeatType);
-        void setNonRepeatingOpt(const ::std::string&, const ::std::string&);
-        void setRepeatingOpt(const ::std::string&, const ::std::string&);
-        ValidOpts::const_iterator checkOptIsValid(const ::std::string&) const;
-        ValidOpts::const_iterator checkOptHasArg(const ::std::string&) const;
-        void updateSynonyms(const ::std::string&, const ::std::string&);
-        ::std::string getSynonym(const ::std::string&) const;
+        void addValidOpt(const std::string&, const std::string&, ArgType, const std::string&, RepeatType);
+        ValidOpts::iterator checkOpt(const std::string&, LengthType);
+        void setOpt(const std::string&, const std::string&, const std::string&, RepeatType);
+        void setNonRepeatingOpt(const std::string&, const std::string&);
+        void setRepeatingOpt(const std::string&, const std::string&);
+        ValidOpts::const_iterator checkOptIsValid(const std::string&) const;
+        ValidOpts::const_iterator checkOptHasArg(const std::string&) const;
+        void updateSynonyms(const std::string&, const std::string&);
+        std::string getSynonym(const std::string&) const;
 
         ValidOpts _validOpts;
         Opts _opts;
@@ -122,7 +122,7 @@ namespace IceUtilInternal
         Options(const Options&);        // Not allowed.
         void operator=(const Options&); // Not allowed.
 
-        static void checkArgs(const ::std::string&, const ::std::string&, bool, const ::std::string&);
+        static void checkArgs(const std::string&, const std::string&, bool, const std::string&);
     };
 }
 

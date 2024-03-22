@@ -7,6 +7,7 @@
 
 #include "InputStream.h"
 #include "OutputStream.h"
+#include "Exception.h"
 
 #include <iterator>
 

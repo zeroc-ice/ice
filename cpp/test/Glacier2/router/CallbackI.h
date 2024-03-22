@@ -17,10 +17,10 @@ public:
         int,
         std::function<void(int)>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) override;
+        const Ice::Current&) override;
 
-    void waitCallback(const ::Ice::Current&) override;
-    void callbackWithPayload(Ice::ByteSeq, const ::Ice::Current&) override;
+    void waitCallback(const Ice::Current&) override;
+    void callbackWithPayload(Ice::ByteSeq, const Ice::Current&) override;
 
     void callbackOK(int = 1);
     void waitCallbackOK();

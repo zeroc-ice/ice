@@ -941,7 +941,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\InstrumentationF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LocalException.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\LoggerF.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MetricsAdminI.h" />

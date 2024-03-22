@@ -10,11 +10,11 @@
 #include "CommunicatorF.h"
 #include "PropertiesF.h"
 #include "InstanceF.h"
-#include "LoggerF.h"
-#include "InstrumentationF.h"
+#include "Logger.h"
+#include "Instrumentation.h"
 #include "Ice/BuiltinSequences.h"
 #include "Plugin.h"
-#include "BatchRequestInterceptor.h"
+#include "BatchRequest.h"
 #include "ValueFactory.h"
 
 #define ICE_CONFIG_FILE_STRING const std::string&
@@ -579,9 +579,9 @@ namespace Ice
      * @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
      */
     typedef Ice::Plugin* (*PluginFactory)(
-        const ::Ice::CommunicatorPtr& communicator,
+        const Ice::CommunicatorPtr& communicator,
         const std::string& name,
-        const ::Ice::StringSeq& args);
+        const Ice::StringSeq& args);
 
     /**
      * Manually registers a plug-in factory function.
@@ -718,8 +718,8 @@ namespace IceInternal
     // not use this operation for regular application code! It is intended
     // to be used by modules such as Freeze.
     //
-    ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
-    ICE_API IceUtil::TimerPtr getInstanceTimer(const ::Ice::CommunicatorPtr&);
+    ICE_API InstancePtr getInstance(const Ice::CommunicatorPtr&);
+    ICE_API IceUtil::TimerPtr getInstanceTimer(const Ice::CommunicatorPtr&);
 }
 
 #endif

@@ -32,7 +32,7 @@
 namespace IceInternal
 {
     class CommunicatorFlushBatchAsync;
-    using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+    using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 }
 
 namespace Ice
