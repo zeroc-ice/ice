@@ -22,7 +22,7 @@ namespace IceInternal
     // Encoding version minor (std::uint8_t)
     // Message type (std::uint8_t)
     // Compression status (std::uint8_t)
-    // Message size (Int)
+    // Message size (std::int32_t)
     //
     const std::int32_t headerSize = 14;
 
