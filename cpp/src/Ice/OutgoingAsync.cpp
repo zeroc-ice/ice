@@ -75,7 +75,7 @@ OutgoingAsyncBase::invokeSentAsync()
     {
         _instance->clientThreadPool()->execute(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
     }
 }
@@ -205,7 +205,7 @@ OutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
         {
             rethrow_exception(_cancellationException);
         }
-        catch (const Ice::LocalException&)
+        catch (const LocalException&)
         {
             _cancellationException = nullptr;
             throw;
@@ -217,7 +217,21 @@ OutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 void
 OutgoingAsyncBase::cancel()
 {
-    cancel(make_exception_ptr(Ice::InvocationCanceledException(__FILE__, __LINE__)));
+    cancel(make_exception_ptr(InvocationCanceledException(__FILE__, __LINE__)));
+}
+
+void
+OutgoingAsyncBase::attachRemoteObserver(const ConnectionInfoPtr& c, const EndpointPtr& endpt, std::int32_t requestId)
+{
+    const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
+    _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
+}
+
+void
+OutgoingAsyncBase::attachCollocatedObserver(const ObjectAdapterPtr& adapter, std::int32_t requestId)
+{
+    const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
+    _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
 }
 
 OutgoingAsyncBase::OutgoingAsyncBase(const InstancePtr& instance)
@@ -225,8 +239,8 @@ OutgoingAsyncBase::OutgoingAsyncBase(const InstancePtr& instance)
       _sentSynchronously(false),
       _doneInSent(false),
       _state(0),
-      _os(instance.get(), Ice::currentProtocolEncoding),
-      _is(instance.get(), Ice::currentProtocolEncoding)
+      _os(instance.get(), currentProtocolEncoding),
+      _is(instance.get(), currentProtocolEncoding)
 {
 }
 
@@ -287,7 +301,7 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
     {
         invoke &= handleResponse(ok);
     }
-    catch (const Ice::Exception&)
+    catch (const Exception&)
     {
         _ex = current_exception();
         invoke = handleException(_ex);
@@ -320,12 +334,12 @@ OutgoingAsyncBase::warning(string_view callbackName, std::exception_ptr eptr) co
 {
     if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
-        Ice::Warning out(_instance->initializationData().logger);
+        Warning out(_instance->initializationData().logger);
         try
         {
             rethrow_exception(eptr);
         }
-        catch (const Ice::Exception& ex)
+        catch (const Exception& ex)
         {
             out << "Ice::Exception raised by " << callbackName << " callback:\n" << ex;
         }
@@ -409,7 +423,7 @@ ProxyOutgoingAsyncBase::retryException()
             _handler); // Clear cached request handler and always retry.
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
-    catch (const Ice::Exception&)
+    catch (const Exception&)
     {
         if (exception(current_exception()))
         {
@@ -604,7 +618,7 @@ ProxyOutgoingAsyncBase::runTimerTask()
 
 OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
     : ProxyOutgoingAsyncBase(std::move(proxy)),
-      _encoding(getCompatibleEncoding(_proxy->_getReference()->getEncoding())),
+      _encoding(_proxy->_getReference()->getEncoding()),
       _synchronous(synchronous)
 {
 }
@@ -612,7 +626,7 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
 void
 OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(getCompatibleProtocol(_proxy._getReference()->getProtocol()));
+    checkSupportedProtocol(_proxy._getReference()->getProtocol());
 
     _mode = mode;
 
@@ -650,7 +664,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
 
     _os.write(static_cast<uint8_t>(_mode));
 
-    if (&context != &Ice::noExplicitContext)
+    if (&context != &noExplicitContext)
     {
         //
         // Explicit context
@@ -870,10 +884,10 @@ OutgoingAsync::invoke(string_view operation)
 void
 OutgoingAsync::invoke(
     string_view operation,
-    Ice::OperationMode mode,
-    Ice::FormatType format,
-    const Ice::Context& context,
-    function<void(Ice::OutputStream*)> write)
+    OperationMode mode,
+    FormatType format,
+    const Context& context,
+    function<void(OutputStream*)> write)
 {
     try
     {
@@ -890,7 +904,7 @@ OutgoingAsync::invoke(
         }
         invoke(operation);
     }
-    catch (const Ice::Exception&)
+    catch (const Exception&)
     {
         abort(current_exception());
     }

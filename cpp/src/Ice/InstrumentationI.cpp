@@ -11,7 +11,7 @@
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 
-#include "Ice/Protocol.h"
+#include "Ice/VersionFunctions.h"
 
 using namespace std;
 using namespace Ice;

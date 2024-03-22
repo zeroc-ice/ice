@@ -10,13 +10,11 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
 #include "Endian.h"
-#include "Ice/Protocol.h"
 
 #include <iterator>
 

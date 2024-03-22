@@ -498,6 +498,9 @@
     <ClCompile Include="..\..\ValueFactoryManagerI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\VersionFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\WSAcceptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -923,9 +926,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\PropertiesF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\Protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Proxy.h">

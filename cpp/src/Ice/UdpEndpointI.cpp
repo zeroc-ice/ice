@@ -9,7 +9,6 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/HashUtil.h>
 #include <Ice/Logger.h>

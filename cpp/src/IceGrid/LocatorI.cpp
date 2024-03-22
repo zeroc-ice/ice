@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
+#include "Ice/Protocol.h"
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/WellKnownObjectsManager.h>

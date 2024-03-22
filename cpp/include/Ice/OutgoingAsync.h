@@ -16,7 +16,6 @@
 #include "ObserverHelper.h"
 #include "LocalException.h"
 #include "Proxy.h"
-#include "Protocol.h"
 
 #include <cassert>
 #include <exception>
@@ -74,17 +73,9 @@ namespace IceInternal
         void cancel();
 
         void
-        attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, std::int32_t requestId)
-        {
-            const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
-            _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
-        }
+        attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, std::int32_t requestId);
 
-        void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, std::int32_t requestId)
-        {
-            const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
-            _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
-        }
+        void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, std::int32_t requestId);
 
         Ice::OutputStream* getOs() { return &_os; }
 

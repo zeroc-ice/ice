@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Protocol.h>
-#include <Ice/LocalException.h>
+#include "Protocol.h"
+#include "Ice/LocalException.h"
 
 using namespace std;
+using namespace Ice;
 
 namespace IceInternal
 {
@@ -16,10 +17,10 @@ namespace IceInternal
         magic[1],
         magic[2],
         magic[3],
-        byte{protocolMajor},
-        byte{protocolMinor},
-        byte{protocolEncodingMajor},
-        byte{protocolEncodingMinor},
+        byte{currentProtocol.major},
+        byte{currentProtocol.minor},
+        byte{currentProtocolEncoding.major},
+        byte{currentProtocolEncoding.minor},
         byte{requestMsg},
         byte{0}, // Compression status
         byte{0},
@@ -37,10 +38,10 @@ namespace IceInternal
         magic[1],
         magic[2],
         magic[3],
-        byte{protocolMajor},
-        byte{protocolMinor},
-        byte{protocolEncodingMajor},
-        byte{protocolEncodingMinor},
+        byte{currentProtocol.major},
+        byte{currentProtocol.minor},
+        byte{currentProtocolEncoding.major},
+        byte{currentProtocolEncoding.minor},
         byte{requestBatchMsg},
         byte{0}, // Compression status
         byte{0},
@@ -58,10 +59,10 @@ namespace IceInternal
         magic[1],
         magic[2],
         magic[3],
-        byte{protocolMajor},
-        byte{protocolMinor},
-        byte{protocolEncodingMajor},
-        byte{protocolEncodingMinor},
+        byte{currentProtocol.major},
+        byte{currentProtocol.minor},
+        byte{currentProtocolEncoding.major},
+        byte{currentProtocolEncoding.minor},
         byte{replyMsg},
         byte{0}, // Compression status
         byte{0},
@@ -70,8 +71,9 @@ namespace IceInternal
         byte{0} // Message size (placeholder)
     };
 
-    void stringToMajorMinor(const std::string& str, uint8_t& major, uint8_t& minor)
+    void stringToMajorMinor(string_view s, uint8_t& major, uint8_t& minor)
     {
+        string str{s};
         std::string::size_type pos = str.find_first_of(".");
         if (pos == std::string::npos)
         {
@@ -118,23 +120,4 @@ namespace IceInternal
     {
         throw Ice::UnsupportedEncodingException(f, l, "", v, s);
     }
-}
-
-namespace Ice
-{
-    const EncodingVersion currentEncoding = {IceInternal::encodingMajor, IceInternal::encodingMinor};
-    const ProtocolVersion currentProtocol = {IceInternal::protocolMajor, IceInternal::protocolMinor};
-    //
-    // The encoding to use for protocol messages, this version is tied to
-    // the protocol version.
-    //
-
-    const EncodingVersion currentProtocolEncoding = {
-        IceInternal::protocolEncodingMajor,
-        IceInternal::protocolEncodingMinor};
-
-    const ProtocolVersion Protocol_1_0 = {1, 0};
-
-    const EncodingVersion Encoding_1_0 = {1, 0};
-    const EncodingVersion Encoding_1_1 = {1, 1};
 }

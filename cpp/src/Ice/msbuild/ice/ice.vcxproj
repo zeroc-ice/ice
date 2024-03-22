@@ -589,6 +589,7 @@
     <ClCompile Include="..\..\UdpTransceiver.cpp" />
     <ClCompile Include="..\..\Value.cpp" />
     <ClCompile Include="..\..\ValueFactoryManagerI.cpp" />
+    <ClCompile Include="..\..\VersionFunctions.cpp" />
     <ClCompile Include="..\..\WSAcceptor.cpp" />
     <ClCompile Include="..\..\WSConnector.cpp" />
     <ClCompile Include="..\..\WSEndpoint.cpp" />
@@ -959,7 +960,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\PluginF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Properties.h" />
     <ClInclude Include="..\..\..\..\include\Ice\PropertiesF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\Protocol.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Proxy.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ProxyF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ProxyFunctions.h" />

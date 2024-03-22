@@ -8,7 +8,6 @@
 #include <Ice/ConnectionI.h>
 #include <Ice/RouterInfo.h>
 #include "Ice/OutgoingAsync.h"
-#include <Ice/Protocol.h>
 #include <Ice/Properties.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ProxyFactory.h>

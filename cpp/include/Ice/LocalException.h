@@ -5,7 +5,6 @@
 #ifndef ICE_LOCAL_EXCEPTION_H
 #define ICE_LOCAL_EXCEPTION_H
 
-#include "EncodingVersion.h"
 #include "Exception.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/Identity.h"

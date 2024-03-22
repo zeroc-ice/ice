@@ -742,12 +742,6 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     try cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
     try cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
 
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-    // call will use the 1.1 encoding
-    var ref13 = "test -e 1.3:\(helper.getTestEndpoint(num: 0))"
-    var cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)
-    try cl13.ice_ping()
-
     do {
         // Send request with bogus 1.2 encoding.
         let version = Ice.EncodingVersion(major: 1, minor: 2)
@@ -795,13 +789,6 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     ref10 = "test -p 1.0:\(helper.getTestEndpoint(num: 0))"
     cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
     try cl10.ice_ping()
-
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-    // call will use the 1.1 protocol
-    ref13 = "test -p 1.3:\(helper.getTestEndpoint(num: 0))"
-    cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)
-    try cl13.ice_ping()
-    writer.writeLine("ok")
 
     writer.write("testing opaque endpoints... ")
     do {

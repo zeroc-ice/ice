@@ -11,7 +11,7 @@
 #include <Ice/Logger.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
-#include <Ice/Protocol.h>
+#include "Ice/VersionFunctions.h"
 #include <Ice/ReplyStatus.h>
 
 #include <mutex>
