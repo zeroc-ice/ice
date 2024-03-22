@@ -53,11 +53,11 @@ helloPrx->sayHello();
 
 // Implements the Hello interface by deriving from the generated
 // Hello abstract base class.
-class Printer : public Hello
+class Printer final : public Hello
 {
 public:
 
-    virtual string sayHello(const Ice::Current&) override
+    string sayHello(const Ice::Current&) final
     {
         cout << "Hello World!" << endl;
     }

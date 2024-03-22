@@ -121,7 +121,7 @@ namespace IceGrid
     {
     public:
         ServerCache(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const std::string&,
             NodeCache&,
             AdapterCache&,
@@ -139,7 +139,7 @@ namespace IceGrid
         void clear(const std::string&);
 
         NodeCache& getNodeCache() const { return _nodeCache; }
-        std::shared_ptr<Ice::Communicator> getCommunicator() const { return _communicator; }
+        Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
         const std::string& getInstanceName() const { return _instanceName; }
 
         const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const { return _nodeObserverTopic; }
@@ -159,7 +159,7 @@ namespace IceGrid
         friend struct AddCommunicator;
         friend struct RemoveCommunicator;
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::string _instanceName;
         NodeCache& _nodeCache;
         AdapterCache& _adapterCache;

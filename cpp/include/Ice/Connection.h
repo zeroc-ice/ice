@@ -270,7 +270,7 @@ namespace Ice
          * Get the endpoint from which the connection was created.
          * @return The endpoint from which the connection was created.
          */
-        virtual std::shared_ptr<Endpoint> getEndpoint() const noexcept = 0;
+        virtual EndpointPtr getEndpoint() const noexcept = 0;
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies

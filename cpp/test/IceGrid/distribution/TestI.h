@@ -7,13 +7,13 @@
 
 #include <Test.h>
 
-class TestI : public ::Test::TestIntf
+class TestI final : public ::Test::TestIntf
 {
 public:
     TestI(const Ice::PropertiesPtr&);
 
-    virtual std::string getServerFile(std::string, const Ice::Current&) override;
-    virtual std::string getApplicationFile(std::string, const Ice::Current&) override;
+    std::string getServerFile(std::string, const Ice::Current&) final;
+    std::string getApplicationFile(std::string, const Ice::Current&) final;
 
 private:
     Ice::PropertiesPtr _properties;

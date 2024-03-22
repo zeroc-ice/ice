@@ -318,7 +318,7 @@ namespace IceGrid
     class SessionManager
     {
     public:
-        SessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        SessionManager(const Ice::CommunicatorPtr&, const std::string&);
         virtual ~SessionManager() = default;
 
         virtual bool isDestroyed() = 0;
@@ -326,7 +326,7 @@ namespace IceGrid
     protected:
         std::vector<IceGrid::QueryPrx> findAllQueryObjects(bool);
 
-        std::shared_ptr<Ice::Communicator> _communicator;
+        Ice::CommunicatorPtr _communicator;
         std::string _instanceName;
         std::optional<InternalRegistryPrx> _master;
         std::vector<IceGrid::QueryPrx> _queryObjects;

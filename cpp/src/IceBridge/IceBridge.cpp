@@ -158,7 +158,7 @@ namespace
     protected:
         bool start(int, char*[], int&) final;
         bool stop() final;
-        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) final;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) final;
 
     private:
         void usage(const std::string&);
@@ -613,7 +613,7 @@ BridgeService::stop()
     return true;
 }
 
-shared_ptr<Communicator>
+CommunicatorPtr
 BridgeService::initializeCommunicator(
     int& argc,
     char* argv[],

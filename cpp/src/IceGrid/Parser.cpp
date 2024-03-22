@@ -310,7 +310,7 @@ namespace IceGrid
 }
 
 Parser::Parser(
-    shared_ptr<Communicator> communicator,
+    CommunicatorPtr communicator,
     AdminSessionPrx session,
     optional<AdminPrx> admin,
     bool interactive)

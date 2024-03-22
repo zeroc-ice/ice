@@ -140,7 +140,7 @@ namespace
 }
 
 RegistryI::RegistryI(
-    const shared_ptr<Communicator>& communicator,
+    const CommunicatorPtr& communicator,
     const shared_ptr<TraceLevels>& traceLevels,
     bool nowarn,
     bool readonly,

@@ -28,7 +28,7 @@ namespace Ice
 
 namespace
 {
-    inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, string_view proxyString)
+    inline ReferencePtr createReference(const CommunicatorPtr& communicator, string_view proxyString)
     {
         if (!communicator)
         {
@@ -44,7 +44,7 @@ namespace
     }
 }
 
-Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, string_view proxyString)
+Ice::ObjectPrx::ObjectPrx(const CommunicatorPtr& communicator, string_view proxyString)
     : ObjectPrx(createReference(communicator, proxyString))
 {
 }

@@ -81,7 +81,7 @@ namespace IceBox
          */
         virtual void start(
             const std::string& name,
-            const std::shared_ptr<Ice::Communicator>& communicator,
+            const Ice::CommunicatorPtr& communicator,
             const Ice::StringSeq& args) = 0;
 
         /**

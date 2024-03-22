@@ -261,7 +261,7 @@ namespace Ice
         ObjectPrx(const ObjectPrx& other) noexcept = default;
         ObjectPrx(ObjectPrx&&) noexcept = default;
 
-        ObjectPrx(const std::shared_ptr<Ice::Communicator>& communicator, std::string_view proxyString);
+        ObjectPrx(const Ice::CommunicatorPtr& communicator, std::string_view proxyString);
 
         virtual ~ObjectPrx() = default;
 
@@ -335,7 +335,7 @@ namespace Ice
         std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_ping(const std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
+        void _iceI_ping(const std::shared_ptr<IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
         /// \endcond
 
         /**
@@ -401,7 +401,7 @@ namespace Ice
         std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_id(const std::shared_ptr<::IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
+        void _iceI_id(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
         /// \endcond
 
         /**
@@ -538,7 +538,7 @@ namespace Ice
         std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// \cond INTERNAL
-        void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
+        void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
         /// \endcond
 
         /**
@@ -742,7 +742,7 @@ namespace Ice
          * Obtains the communicator that created this proxy.
          * @return The communicator that created this proxy.
          */
-        std::shared_ptr<Ice::Communicator> ice_getCommunicator() const;
+        Ice::CommunicatorPtr ice_getCommunicator() const;
 
         /**
          * Obtains a stringified version of this proxy.
@@ -751,12 +751,12 @@ namespace Ice
         std::string ice_toString() const;
 
         /// \cond INTERNAL
-        void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;
+        void _iceI_flushBatchRequests(const std::shared_ptr<IceInternal::ProxyFlushBatchAsync>&) const;
 
         static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
 
-        const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
-        const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+        const IceInternal::ReferencePtr& _getReference() const { return _reference; }
+        const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
 
         void _checkTwowayOnly(std::string_view) const;
 

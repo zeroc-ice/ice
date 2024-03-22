@@ -362,13 +362,13 @@ Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool 
 
 Ice::CommunicatorHolder::CommunicatorHolder() {}
 
-Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator)
+Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator)
     : _communicator(std::move(communicator))
 {
 }
 
 Ice::CommunicatorHolder&
-Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
+Ice::CommunicatorHolder::operator=(CommunicatorPtr communicator)
 {
     if (_communicator)
     {

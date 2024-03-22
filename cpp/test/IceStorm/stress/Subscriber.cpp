@@ -20,7 +20,7 @@ struct Subscription;
 class EventI : public Event
 {
 public:
-    EventI(shared_ptr<Communicator> communicator, int total)
+    EventI(CommunicatorPtr communicator, int total)
         : _communicator(std::move(communicator)),
           _total(total),
           _count(0)
@@ -36,7 +36,7 @@ public:
     virtual void check(const Subscription&) {}
 
 protected:
-    shared_ptr<Communicator> _communicator;
+    CommunicatorPtr _communicator;
     const int _total;
     int _count;
     mutex _mutex;
@@ -55,7 +55,7 @@ struct Subscription final
 class OrderEventI final : public EventI
 {
 public:
-    OrderEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    OrderEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int counter, const Ice::Current&) override
     {
@@ -75,7 +75,7 @@ public:
 class CountEventI final : public EventI
 {
 public:
-    CountEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    CountEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int, const Ice::Current&) override
     {
@@ -90,7 +90,7 @@ public:
 class SlowEventI final : public EventI
 {
 public:
-    SlowEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    SlowEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int, const Ice::Current&) override
     {
@@ -114,7 +114,7 @@ public:
 class ErraticEventI final : public EventI
 {
 public:
-    ErraticEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total)
+    ErraticEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total)
     {
         ++_remaining;
     }
@@ -152,7 +152,7 @@ atomic_int ErraticEventI::_remaining = 0;
 class MaxQueueEventI final : public EventI
 {
 public:
-    MaxQueueEventI(shared_ptr<Communicator> communicator, int expected, int total, bool removeSubscriber)
+    MaxQueueEventI(CommunicatorPtr communicator, int expected, int total, bool removeSubscriber)
         : EventI(std::move(communicator), total),
           _removeSubscriber(removeSubscriber),
           _expected(expected)
@@ -217,7 +217,7 @@ private:
 class ControllerEventI final : public EventI
 {
 public:
-    ControllerEventI(shared_ptr<Communicator> communicator, int total, ObjectAdapterPtr adapter)
+    ControllerEventI(CommunicatorPtr communicator, int total, ObjectAdapterPtr adapter)
         : EventI(std::move(communicator), total),
           _adapter(std::move(adapter))
     {

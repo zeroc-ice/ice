@@ -37,7 +37,7 @@ namespace IceGrid
     class NodeSessionManager : public SessionManager
     {
     public:
-        NodeSessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        NodeSessionManager(const Ice::CommunicatorPtr&, const std::string&);
 
         void create(const std::shared_ptr<NodeI>&);
         void create(InternalRegistryPrx);

@@ -51,7 +51,7 @@ namespace IceGrid
         std::string getInstanceName() const;
         bool isReadOnly() const { return _readonly; }
         const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
         const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
 
         void destroy();
@@ -226,7 +226,7 @@ namespace IceGrid
         static const std::string _adapterDbName;
         static const std::string _replicaGroupDbName;
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const Ice::ObjectAdapterPtr _internalAdapter;
         const IceStorm::TopicManagerPrx _topicManager;
         const std::string _instanceName;

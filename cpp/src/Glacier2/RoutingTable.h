@@ -19,7 +19,7 @@ namespace Glacier2
     class RoutingTable final
     {
     public:
-        RoutingTable(std::shared_ptr<Ice::Communicator>, std::shared_ptr<ProxyVerifier>);
+        RoutingTable(Ice::CommunicatorPtr, std::shared_ptr<ProxyVerifier>);
 
         void destroy();
 
@@ -33,7 +33,7 @@ namespace Glacier2
         std::optional<Ice::ObjectPrx> get(const Ice::Identity&); // Returns nullopt if no proxy can be found.
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const int _traceLevel;
         const int _maxSize;
         const std::shared_ptr<ProxyVerifier> _verifier;

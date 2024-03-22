@@ -62,7 +62,7 @@ namespace
     protected:
         bool start(int, char*[], int&) override;
         bool stop() override;
-        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
     private:
         void usage(const std::string&);
@@ -414,7 +414,7 @@ RouterService::stop()
     return true;
 }
 
-shared_ptr<Communicator>
+CommunicatorPtr
 RouterService::initializeCommunicator(
     int& argc,
     char* argv[],

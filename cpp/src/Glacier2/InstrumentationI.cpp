@@ -53,7 +53,7 @@ namespace
 
         Ice::ConnectionInfoPtr getConnectionInfo() const { return _connection->getInfo(); }
 
-        shared_ptr<Ice::Endpoint> getEndpoint() const { return _connection->getEndpoint(); }
+        Ice::EndpointPtr getEndpoint() const { return _connection->getEndpoint(); }
 
         const shared_ptr<Ice::Connection>& getConnection() const { return _connection; }
 

@@ -865,19 +865,19 @@ allTests(TestHelper* helper)
                                                 endpts1.begin(),
                                                 endpts1.end(),
                                                 endpts2.begin(),
-                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+                                                Ice::TargetCompare<Ice::EndpointPtr, std::equal_to>()));
     test(lexicographical_compare(
         endpts1.begin(),
         endpts1.end(),
         endpts2.begin(),
         endpts2.end(),
-        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+        Ice::TargetCompare<Ice::EndpointPtr, std::less>()));
     test(!lexicographical_compare(
         endpts2.begin(),
         endpts2.end(),
         endpts1.begin(),
         endpts1.end(),
-        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+        Ice::TargetCompare<Ice::EndpointPtr, std::less>()));
 
     Ice::EndpointSeq endpts3 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     test(
@@ -885,7 +885,7 @@ allTests(TestHelper* helper)
                                                 endpts1.begin(),
                                                 endpts1.end(),
                                                 endpts3.begin(),
-                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+                                                Ice::TargetCompare<Ice::EndpointPtr, std::equal_to>()));
 
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) == compObj1->ice_encodingVersion(Ice::Encoding_1_0));
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) != compObj1->ice_encodingVersion(Ice::Encoding_1_1));

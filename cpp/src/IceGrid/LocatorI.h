@@ -33,7 +33,7 @@ namespace IceGrid
         };
 
         LocatorI(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const std::shared_ptr<Database>&,
             const std::shared_ptr<WellKnownObjectsManager>&,
             RegistryPrx,
@@ -55,7 +55,7 @@ namespace IceGrid
         std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
         std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
 
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const;
+        const Ice::CommunicatorPtr& getCommunicator() const;
         const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
         bool getDirectProxy(const LocatorAdapterInfo&, const std::shared_ptr<Request>&);
@@ -63,7 +63,7 @@ namespace IceGrid
         void getDirectProxyException(const LocatorAdapterInfo&, std::exception_ptr);
 
     protected:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<Database> _database;
         const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
         const RegistryPrx _localRegistry;

@@ -32,6 +32,7 @@ namespace Ice
          */
         virtual void destroy() = 0;
     };
+    using PluginPtr = std::shared_ptr<Plugin>;
 
     /**
      * Each communicator has a plug-in manager to administer the set of plug-ins.
@@ -65,7 +66,7 @@ namespace Ice
          * @return The plug-in.
          * @throws NotRegisteredException Raised if no plug-in is found with the given name.
          */
-        virtual std::shared_ptr<Plugin> getPlugin(const std::string& name) = 0;
+        virtual PluginPtr getPlugin(const std::string& name) = 0;
 
         /**
          * Install a new plug-in.
@@ -73,15 +74,13 @@ namespace Ice
          * @param pi The plug-in.
          * @throws AlreadyRegisteredException Raised if a plug-in already exists with the given name.
          */
-        virtual void addPlugin(const std::string& name, const std::shared_ptr<Plugin>& pi) = 0;
+        virtual void addPlugin(const std::string& name, const PluginPtr& pi) = 0;
 
         /**
          * Called when the communicator is being destroyed.
          */
         virtual void destroy() noexcept = 0;
     };
-
-    using PluginPtr = std::shared_ptr<Plugin>;
     using PluginManagerPtr = std::shared_ptr<PluginManager>;
 }
 

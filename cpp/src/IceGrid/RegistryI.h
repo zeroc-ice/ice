@@ -24,13 +24,13 @@ namespace IceGrid
     class TraceLevels;
     class WellKnownObjectsManager;
 
-    std::string getInstanceName(const std::shared_ptr<Ice::Communicator>&);
+    std::string getInstanceName(const Ice::CommunicatorPtr&);
 
     class RegistryI : public Registry, public std::enable_shared_from_this<RegistryI>
     {
     public:
         RegistryI(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const std::shared_ptr<TraceLevels>&,
             bool,
             bool,
@@ -88,7 +88,7 @@ namespace IceGrid
         NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
         void registerNodes(const NodePrxSeq&);
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const bool _nowarn;
         const bool _readonly;

@@ -37,7 +37,7 @@ namespace
     {
     public:
         void start(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
             const std::string&,
@@ -46,11 +46,11 @@ namespace
 
         IceStorm::TopicManagerPrx getTopicManager() const final;
 
-        void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) final;
+        void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
         void stop() final;
 
     private:
-        void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
+        void createDbEnv(const Ice::CommunicatorPtr&);
         void validateProperties(
             const std::string&,
             const Ice::PropertiesPtr&,
@@ -76,12 +76,12 @@ namespace
 
 extern "C"
 {
-    ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const shared_ptr<Communicator>&) { return new ServiceI; }
+    ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const CommunicatorPtr&) { return new ServiceI; }
 }
 
 shared_ptr<IceStormInternal::Service>
 IceStormInternal::Service::create(
-    const shared_ptr<Communicator>& communicator,
+    const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
     const string& name,
@@ -94,7 +94,7 @@ IceStormInternal::Service::create(
 }
 
 void
-ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator, const StringSeq&)
+ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq&)
 {
     auto properties = communicator->getProperties();
 
@@ -369,7 +369,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 
 void
 ServiceI::start(
-    const shared_ptr<Communicator>& communicator,
+    const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
     const string& name,

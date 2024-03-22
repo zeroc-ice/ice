@@ -618,14 +618,14 @@ namespace Ice
          * Adopts the given communicator.
          * @param communicator The new communicator instance to hold.
          */
-        CommunicatorHolder(std::shared_ptr<Communicator> communicator);
+        CommunicatorHolder(CommunicatorPtr communicator);
 
         /**
          * Adopts the given communicator. If this holder currently holds a communicator,
          * it will be destroyed.
          * @param communicator The new communicator instance to hold.
          */
-        CommunicatorHolder& operator=(std::shared_ptr<Communicator> communicator);
+        CommunicatorHolder& operator=(CommunicatorPtr communicator);
 
         CommunicatorHolder(const CommunicatorHolder&) = delete;
         CommunicatorHolder(CommunicatorHolder&&) = default;

@@ -879,7 +879,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
     public:
         HeartbeatLambda(
             std::shared_ptr<Ice::ConnectionI>&& connection,
-            std::shared_ptr<Ice::Communicator>& communicator,
+            Ice::CommunicatorPtr& communicator,
             const InstancePtr& instance,
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)

@@ -38,7 +38,7 @@ namespace IceStormInternal
     {
     public:
         ICESTORM_SERVICE_API static std::shared_ptr<Service> create(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
             const std::string&,

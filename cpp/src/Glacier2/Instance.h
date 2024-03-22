@@ -20,11 +20,11 @@ namespace Glacier2
     {
     public:
         Instance(
-            std::shared_ptr<Ice::Communicator>,
+            Ice::CommunicatorPtr,
             Ice::ObjectAdapterPtr,
             Ice::ObjectAdapterPtr);
 
-        std::shared_ptr<Ice::Communicator> communicator() const { return _communicator; }
+        Ice::CommunicatorPtr communicator() const { return _communicator; }
         Ice::ObjectAdapterPtr clientObjectAdapter() const { return _clientAdapter; }
         Ice::ObjectAdapterPtr serverObjectAdapter() const { return _serverAdapter; }
         Ice::PropertiesPtr properties() const { return _properties; }
@@ -42,7 +42,7 @@ namespace Glacier2
         void destroy();
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const Ice::PropertiesPtr _properties;
         const Ice::LoggerPtr _logger;
         const Ice::ObjectAdapterPtr _clientAdapter;

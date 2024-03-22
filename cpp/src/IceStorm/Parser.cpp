@@ -48,7 +48,7 @@ namespace
 }
 
 Parser::Parser(
-    shared_ptr<Communicator> communicator,
+    CommunicatorPtr communicator,
     TopicManagerPrx admin,
     map<Ice::Identity, TopicManagerPrx> managers)
     : _communicator(std::move(communicator)),

@@ -30,7 +30,7 @@ namespace IceGrid
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     std::string escapeProperty(const std::string&, bool = false);
 
-    ObjectInfo toObjectInfo(const std::shared_ptr<Ice::Communicator>&, const ObjectDescriptor&, const std::string&);
+    ObjectInfo toObjectInfo(const Ice::CommunicatorPtr&, const ObjectDescriptor&, const std::string&);
 
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
 

@@ -76,11 +76,11 @@ namespace IceGrid
     {
     public:
         ApplicationDescriptorBuilder(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const XmlAttributesHelper&,
             const std::map<std::string, std::string>&);
         ApplicationDescriptorBuilder(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const ApplicationDescriptor&,
             const XmlAttributesHelper&,
             const std::map<std::string, std::string>&);
@@ -111,10 +111,10 @@ namespace IceGrid
 
         bool isOverride(const std::string&);
 
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
-        std::shared_ptr<Ice::Communicator> _communicator;
+        Ice::CommunicatorPtr _communicator;
         ApplicationDescriptor _descriptor;
         std::map<std::string, std::string> _overrides;
     };
@@ -188,7 +188,7 @@ namespace IceGrid
     class CommunicatorDescriptorBuilder : public DescriptorBuilder
     {
     public:
-        CommunicatorDescriptorBuilder(const std::shared_ptr<Ice::Communicator>&);
+        CommunicatorDescriptorBuilder(const Ice::CommunicatorPtr&);
 
         void init(const std::shared_ptr<CommunicatorDescriptor>&, const XmlAttributesHelper&);
         virtual void finish();
@@ -208,7 +208,7 @@ namespace IceGrid
         void addProperty(PropertyDescriptorSeq&, const std::string&, const std::string&);
 
         PropertyDescriptorSeq _hiddenProperties;
-        std::shared_ptr<Ice::Communicator> _communicator;
+        Ice::CommunicatorPtr _communicator;
 
     private:
         std::shared_ptr<CommunicatorDescriptor> _descriptor;
@@ -230,8 +230,8 @@ namespace IceGrid
     class ServerDescriptorBuilder : public CommunicatorDescriptorBuilder
     {
     public:
-        ServerDescriptorBuilder(const std::shared_ptr<Ice::Communicator>&, const XmlAttributesHelper&);
-        ServerDescriptorBuilder(const std::shared_ptr<Ice::Communicator>&);
+        ServerDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
+        ServerDescriptorBuilder(const Ice::CommunicatorPtr&);
 
         void init(const std::shared_ptr<ServerDescriptor>&, const XmlAttributesHelper&);
 
@@ -254,7 +254,7 @@ namespace IceGrid
     class IceBoxDescriptorBuilder : public ServerDescriptorBuilder
     {
     public:
-        IceBoxDescriptorBuilder(const std::shared_ptr<Ice::Communicator>&, const XmlAttributesHelper&);
+        IceBoxDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
 
         void init(const std::shared_ptr<IceBoxDescriptor>&, const XmlAttributesHelper&);
 
@@ -272,7 +272,7 @@ namespace IceGrid
     class ServiceDescriptorBuilder : public CommunicatorDescriptorBuilder
     {
     public:
-        ServiceDescriptorBuilder(const std::shared_ptr<Ice::Communicator>&, const XmlAttributesHelper&);
+        ServiceDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
         void init(const std::shared_ptr<ServiceDescriptor>&, const XmlAttributesHelper&);
 
         const std::shared_ptr<ServiceDescriptor>& getDescriptor() const { return _descriptor; }

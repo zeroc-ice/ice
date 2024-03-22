@@ -1252,14 +1252,16 @@ bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{' << sp;
+    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{';
+    H.inc();
     return true;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 {
-    H << sp << nl << '}';
+    H.dec();
+    H << nl << '}';
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -1270,27 +1272,26 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
 
     H << nl << "class " << name << ';';
-    H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
+    H << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;" << sp;
 }
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
-    H << nl << "struct " << fixKwd(p->name()) << ';';
+    H << nl << "struct " << fixKwd(p->name()) << ';' << sp;
     return false;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    H << nl << "class " << p->name() << "Prx;";
+    H << nl << "class " << p->name() << "Prx;" << sp;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
     bool unscoped = findMetaData(p->getMetaData()) == "%unscoped";
-    H << sp;
     writeDocSummary(H, p);
     H << nl << "enum ";
     if (!unscoped)
@@ -1326,7 +1327,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
             H << ',';
         }
     }
-    H << eb << ';';
+    H << eb << ';' << sp;
 }
 
 void
@@ -1339,24 +1340,23 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = p->getMetaData();
 
     string seqType = findMetaData(metaData, _useWstring);
-    H << sp;
     writeDocSummary(H, p);
 
     if (!seqType.empty())
     {
-        H << nl << "using " << name << " = " << seqType << ';';
+        H << nl << "using " << name << " = " << seqType << ';' << sp;
     }
     else
     {
         auto builtin = dynamic_pointer_cast<Builtin>(type);
         if (builtin && builtin->kind() == Builtin::KindByte)
         {
-            H << nl << "using " << name << " = ::std::vector<std::byte>;";
+            H << nl << "using " << name << " = ::std::vector<std::byte>;" << sp;
         }
         else
         {
             string s = typeToString(type, false, scope, p->typeMetaData(), typeCtx);
-            H << nl << "using " << name << " = ::std::vector<" << s << ">;";
+            H << nl << "using " << name << " = ::std::vector<" << s << ">;" << sp;
         }
     }
 }
@@ -1369,7 +1369,6 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
     string dictType = findMetaData(p->getMetaData());
     TypeContext typeCtx = _useWstring;
 
-    H << sp;
     writeDocSummary(H, p);
 
     if (dictType.empty())
@@ -1382,14 +1381,14 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
         string ks = typeToString(keyType, false, scope, p->keyMetaData(), typeCtx);
         string vs = typeToString(valueType, false, scope, p->valueMetaData(), typeCtx);
 
-        H << nl << "using " << name << " = ::std::map<" << ks << ", " << vs << ">;";
+        H << nl << "using " << name << " = ::std::map<" << ks << ", " << vs << ">;" << sp;
     }
     else
     {
         //
         // A custom dictionary
         //
-        H << nl << "using " << name << " = " << dictType << ';';
+        H << nl << "using " << name << " = " << dictType << ';' << sp;
     }
 }
 
@@ -1397,12 +1396,11 @@ void
 Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 {
     const string scope = fixKwd(p->scope());
-    H << sp;
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), false, scope, p->typeMetaData(), _useWstring) << " " << fixKwd(p->name()) << " = ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData(), scope);
-    H << ';';
+    H << ';' << sp;
 }
 
 Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _factoryTableInitDone(false) {}
@@ -1574,7 +1572,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
     H << sb << eb;
     H << sp;
-    H << nl << prx << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, std::string_view proxyString) :";
+    H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString) :";
     H.inc();
     H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
     H.dec();
@@ -2396,7 +2394,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Creates a shallow polymorphic copy of this instance.";
     H << nl << " * @return The cloned value.";
     H << nl << " */";
-    H << nl << "::std::shared_ptr<" << name << "> ice_clone() const { return ::std::static_pointer_cast <" << name
+    H << nl << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast <" << name
       << ">(_iceCloneImpl()); }";
 
     return true;
@@ -2479,9 +2477,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     H << sp << nl << name << "(const " << name << "&) = default;";
-    H << sp << nl << _dllMemberExport << "::std::shared_ptr<::Ice::Value> _iceCloneImpl() const override;";
+    H << sp << nl << _dllMemberExport << "::Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
-    C << nl << "::std::shared_ptr<::Ice::Value>" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
+    C << nl << "::Ice::ValuePtr" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
     C << sb;
     C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
     C << eb;

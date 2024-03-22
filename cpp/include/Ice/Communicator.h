@@ -6,6 +6,7 @@
 #define ICE_COMMUNICATOR_H
 
 #include "Config.h"
+#include "CommunicatorF.h"
 #include "Connection.h"
 #include "FacetMap.h"
 #include "ImplicitContext.h"
@@ -179,7 +180,7 @@ namespace Ice
          * @return The implicit context associated with this communicator; returns null when the property
          * Ice.ImplicitContext is not set or is set to None.
          */
-        std::shared_ptr<ImplicitContext> getImplicitContext() const noexcept;
+        ImplicitContextPtr getImplicitContext() const noexcept;
 
         /**
          * Get the properties for this communicator.
@@ -199,7 +200,7 @@ namespace Ice
          * Get the observer resolver object for this communicator.
          * @return This communicator's observer resolver object.
          */
-        std::shared_ptr<Instrumentation::CommunicatorObserver> getObserver() const noexcept;
+        Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
         /**
          * Get the default router for this communicator.
@@ -246,14 +247,14 @@ namespace Ice
          * @return This communicator's plug-in manager.
          * @see PluginManager
          */
-        std::shared_ptr<PluginManager> getPluginManager() const;
+        PluginManagerPtr getPluginManager() const;
 
         /**
          * Get the value factory manager for this communicator.
          * @return This communicator's value factory manager.
          * @see ValueFactoryManager
          */
-        std::shared_ptr<ValueFactoryManager> getValueFactoryManager() const noexcept;
+        ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
 
         /**
          * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed
@@ -375,13 +376,11 @@ namespace Ice
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
-        friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
+        friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
         friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 
-        const ::IceInternal::InstancePtr _instance;
+        const IceInternal::InstancePtr _instance;
     };
-
-    using CommunicatorPtr = std::shared_ptr<Communicator>;
 }
 
 #endif

@@ -13,7 +13,7 @@ namespace IceGrid
     class TraceLevels
     {
     public:
-        TraceLevels(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
 
         const int admin;
         const std::string adminCat;

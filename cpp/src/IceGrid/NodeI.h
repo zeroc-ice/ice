@@ -112,7 +112,7 @@ namespace IceGrid
         void shutdown();
 
         IceUtil::TimerPtr getTimer() const;
-        std::shared_ptr<Ice::Communicator> getCommunicator() const;
+        Ice::CommunicatorPtr getCommunicator() const;
         Ice::ObjectAdapterPtr getAdapter() const;
         std::shared_ptr<Activator> getActivator() const;
         std::shared_ptr<TraceLevels> getTraceLevels() const;
@@ -172,7 +172,7 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current&);
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const Ice::ObjectAdapterPtr _adapter;
         NodeSessionManager& _sessions;
         const std::shared_ptr<Activator> _activator;

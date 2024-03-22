@@ -24,7 +24,7 @@ namespace IceGrid
     public:
         PlatformInfo(
             const std::string&,
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const std::shared_ptr<TraceLevels>&);
 
         void start();
