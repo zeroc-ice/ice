@@ -7,6 +7,7 @@
 
 #include "Ice/PropertyDict.h"
 
+#include <functional>
 #include <memory>
 
 namespace Ice
