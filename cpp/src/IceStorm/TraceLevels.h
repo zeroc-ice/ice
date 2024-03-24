@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_STORM_TRACE_LEVELS_H
-#define ICE_STORM_TRACE_LEVELS_H
+#ifndef ICESTORM_TRACE_LEVELS_H
+#define ICESTORM_TRACE_LEVELS_H
 
-#include <Ice/Logger.h>
-#include <Ice/PropertiesF.h>
+#include "Ice/Logger.h"
+#include "Ice/PropertiesF.h"
 
 #include <string>
 

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_STORM_PARSER_H
-#define ICE_STORM_PARSER_H
+#ifndef ICESTORM_PARSER_H
+#define ICESTORM_PARSER_H
 
-#include <IceStorm/IceStorm.h>
+#include "IceStorm/IceStorm.h"
 #include <list>
 #include <stdio.h>
 

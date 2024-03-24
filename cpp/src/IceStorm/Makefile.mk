@@ -13,7 +13,6 @@ IceStormService_dependencies    := IceGrid IceBox IceDB
 IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
-                                                             Instrumentation.cpp \
                                                              InstrumentationI.cpp \
                                                              NodeI.cpp \
                                                              Observers.cpp \

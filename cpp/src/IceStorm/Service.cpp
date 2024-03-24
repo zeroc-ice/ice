@@ -4,24 +4,24 @@
 
 #define ICESTORM_SERVICE_API_EXPORTS
 
-#include <Ice/PluginManagerI.h> // For loadPlugin
+#include "Ice/PluginManagerI.h" // For loadPlugin
 
-#include <IceStorm/TopicI.h>
-#include <IceStorm/TopicManagerI.h>
-#include <IceStorm/TransientTopicManagerI.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/Util.h>
+#include "TopicI.h"
+#include "TopicManagerI.h"
+#include "TransientTopicManagerI.h"
+#include "Instance.h"
+#include "Util.h"
 
-#include <IceStorm/Service.h>
+#include "Service.h"
 
-#include <IceStorm/Observers.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceUtil/StringUtil.h>
+#include "Observers.h"
+#include "TraceLevels.h"
+#include "IceUtil/StringUtil.h"
 
-#include <IceStorm/NodeI.h>
-#include <IceStorm/TransientTopicI.h>
+#include "NodeI.h"
+#include "TransientTopicI.h"
 
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
 
 #include <stdexcept>
 

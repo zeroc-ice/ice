@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/Instance.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/Observers.h>
-#include <IceStorm/NodeI.h>
-#include <IceStorm/InstrumentationI.h>
-#include <IceUtil/Timer.h>
+#include "Instance.h"
+#include "TraceLevels.h"
+#include "Observers.h"
+#include "NodeI.h"
+#include "InstrumentationI.h"
+#include "IceUtil/Timer.h"
 
-#include <Ice/InstrumentationI.h>
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/TraceUtil.h>
+#include "Ice/InstrumentationI.h"
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/TraceUtil.h"
 
 using namespace std;
 using namespace IceStorm;

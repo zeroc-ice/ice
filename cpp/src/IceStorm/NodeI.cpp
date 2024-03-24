@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceStorm/NodeI.h>
-#include <IceStorm/Observers.h>
-#include <IceStorm/TraceLevels.h>
+#include "Ice/Ice.h"
+#include "NodeI.h"
+#include "Observers.h"
+#include "TraceLevels.h"
 
 using namespace IceStorm;
 using namespace IceStormElection;

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/TraceLevels.h>
+#include "TraceLevels.h"
 
-#include <Ice/Properties.h>
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace IceStorm;

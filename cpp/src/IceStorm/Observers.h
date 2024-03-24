@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef OBSERVERS_H
-#define OBSERVERS_H
+#ifndef ICESTORM_OBSERVERS_H
+#define ICESTORM_OBSERVERS_H
 
-#include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
-#include <IceStorm/Election.h>
-#include <IceStorm/Replica.h>
+#include "Ice/Ice.h"
+#include "IceUtil/IceUtil.h"
+#include "IceStorm/Election.h"
+#include "Replica.h"
 
 namespace IceStorm
 {

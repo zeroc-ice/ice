@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef REPLICA_H
-#define REPLICA_H
+#ifndef ICESTORM_REPLICA_H
+#define ICESTORM_REPLICA_H
 
-#include <Ice/Ice.h>
-#include <IceStorm/Election.h>
+#include "Ice/Ice.h"
+#include "IceStorm/Election.h"
 #include <set>
 
 namespace IceStormElection

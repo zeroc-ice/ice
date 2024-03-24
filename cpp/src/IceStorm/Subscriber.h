@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef SUBSCRIBER_H
-#define SUBSCRIBER_H
+#ifndef ICESTORM_SUBSCRIBER_H
+#define ICESTORM_SUBSCRIBER_H
 
-#include <IceStorm/IceStormInternal.h>
-#include <IceStorm/SubscriberRecord.h>
-#include <IceStorm/Instrumentation.h>
-#include <Ice/ObserverHelper.h>
+#include "IceStorm/IceStormInternal.h"
+#include "IceStorm/SubscriberRecord.h"
+#include "Instrumentation.h"
+#include "Ice/ObserverHelper.h"
 
 #include <condition_variable>
 

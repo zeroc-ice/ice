@@ -4,9 +4,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceStorm/Parser.h>
-#include <IceStorm/Grammar.h>
+#include "Ice/Ice.h"
+#include "IceStorm/Parser.h"
+#include "IceStorm/Grammar.h"
 
 #if defined(_MSC_VER)
 // '<' : signed/unsigned mismatch

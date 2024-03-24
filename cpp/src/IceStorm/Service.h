@@ -5,8 +5,8 @@
 #ifndef ICESTORM_SERVICE_H
 #define ICESTORM_SERVICE_H
 
-#include <IceBox/IceBox.h>
-#include <IceStorm/IceStorm.h>
+#include "IceBox/IceBox.h"
+#include "IceStorm/IceStorm.h"
 
 //
 // Automatically link with IceStormService[D].lib

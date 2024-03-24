@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef INSTANCE_H
-#define INSTANCE_H
+#ifndef ICESTORM_INSTANCE_H
+#define ICESTORM_INSTANCE_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/PropertiesF.h>
-#include <IceStorm/Election.h>
-#include <IceStorm/Instrumentation.h>
-#include <IceStorm/Util.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/ObjectAdapterF.h"
+#include "Ice/PropertiesF.h"
+#include "IceStorm/Election.h"
+#include "Instrumentation.h"
+#include "Util.h"
 
 namespace IceStormElection
 {

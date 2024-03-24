@@ -103,7 +103,6 @@
     <ClCompile Include="..\FilterManager.cpp" />
     <ClCompile Include="..\Glacier2Router.cpp" />
     <ClCompile Include="..\Instance.cpp" />
-    <ClCompile Include="..\Instrumentation.cpp" />
     <ClCompile Include="..\InstrumentationI.cpp" />
     <ClCompile Include="..\ProxyVerifier.cpp" />
     <ClCompile Include="..\RequestQueue.cpp" />
