@@ -3,7 +3,6 @@
 //
 
 #include "TraceLevels.h"
-
 #include "Ice/Properties.h"
 
 using namespace std;

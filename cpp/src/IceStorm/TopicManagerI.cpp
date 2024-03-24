@@ -3,12 +3,12 @@
 //
 
 #include "TopicManagerI.h"
-#include "TopicI.h"
-#include "TraceLevels.h"
 #include "Instance.h"
 #include "NodeI.h"
 #include "Observers.h"
 #include "Subscriber.h"
+#include "TopicI.h"
+#include "TraceLevels.h"
 #include "Util.h"
 
 #include <functional>

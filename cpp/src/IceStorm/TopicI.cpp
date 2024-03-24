@@ -3,13 +3,14 @@
 //
 
 #include "TopicI.h"
+#include "Ice/LoggerUtil.h"
 #include "Instance.h"
-#include "Subscriber.h"
-#include "TraceLevels.h"
 #include "NodeI.h"
 #include "Observers.h"
+#include "Subscriber.h"
+#include "TraceLevels.h"
 #include "Util.h"
-#include "Ice/LoggerUtil.h"
+
 #include <algorithm>
 
 using namespace std;

@@ -5,11 +5,10 @@
 #ifndef ICESTORM_TOPIC_MANAGER_I_H
 #define ICESTORM_TOPIC_MANAGER_I_H
 
-#include "IceStorm/IceStorm.h"
-
-#include "Replica.h"
 #include "IceStorm/Election.h"
+#include "IceStorm/IceStorm.h"
 #include "Instrumentation.h"
+#include "Replica.h"
 #include "Util.h"
 
 namespace IceStorm

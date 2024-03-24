@@ -3,9 +3,8 @@
 //
 
 #include "InstrumentationI.h"
-
-#include "Ice/LocalException.h"
 #include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 
 #include <stdexcept>

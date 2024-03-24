@@ -3,12 +3,11 @@
 //
 
 #include "TransientTopicManagerI.h"
-#include "TransientTopicI.h"
-#include "TraceLevels.h"
+#include "Ice/Ice.h"
 #include "Instance.h"
 #include "Subscriber.h"
-
-#include "Ice/Ice.h"
+#include "TraceLevels.h"
+#include "TransientTopicI.h"
 
 #include <functional>
 

@@ -3,17 +3,16 @@
 //
 
 #include "Subscriber.h"
-#include "Instance.h"
-#include "TraceLevels.h"
-#include "NodeI.h"
-#include "Util.h"
 #include "Ice/LoggerUtil.h"
 #include "IceUtil/StringUtil.h"
+#include "Instance.h"
+#include "NodeI.h"
+#include "SendQueueSizeMaxReached.h"
+#include "TraceLevels.h"
+#include "Util.h"
 
 #include <iterator>
 #include <stdexcept>
-
-#include "SendQueueSizeMaxReached.h"
 
 using namespace std;
 using namespace IceStorm;

@@ -6,9 +6,8 @@
 #define ICESTORM_INSTRUMENTATION_I_H
 
 #include "Ice/MetricsObserverI.h"
-
-#include "Instrumentation.h"
 #include "IceStorm/Metrics.h"
+#include "Instrumentation.h"
 
 namespace IceStorm
 {

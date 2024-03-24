@@ -5,15 +5,15 @@
 #ifndef ICESTORM_NODE_I_H
 #define ICESTORM_NODE_I_H
 
-#include "IceUtil/IceUtil.h"
 #include "Ice/Ice.h"
 #include "IceStorm/Election.h"
-#include "Replica.h"
-#include "Instance.h"
+#include "IceUtil/IceUtil.h"
 #include "IceUtil/Timer.h"
+#include "Instance.h"
+#include "Replica.h"
 
-#include <set>
 #include <condition_variable>
+#include <set>
 
 namespace IceStormElection
 {

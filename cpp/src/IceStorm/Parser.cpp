@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/DisableWarnings.h"
-#include "Ice/Ice.h"
-#include "Ice/ConsoleUtil.h"
 #include "Parser.h"
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Ice.h"
 #include "IceStorm/IceStormInternal.h"
+#include "IceUtil/DisableWarnings.h"
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__)

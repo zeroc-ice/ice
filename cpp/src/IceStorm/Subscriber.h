@@ -5,10 +5,10 @@
 #ifndef ICESTORM_SUBSCRIBER_H
 #define ICESTORM_SUBSCRIBER_H
 
+#include "Ice/ObserverHelper.h"
 #include "IceStorm/IceStormInternal.h"
 #include "IceStorm/SubscriberRecord.h"
 #include "Instrumentation.h"
-#include "Ice/ObserverHelper.h"
 
 #include <condition_variable>
 

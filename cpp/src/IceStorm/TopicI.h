@@ -5,11 +5,12 @@
 #ifndef ICESTORM_TOPIC_I_H
 #define ICESTORM_TOPIC_I_H
 
-#include "IceStorm/IceStormInternal.h"
+#include "Ice/ObserverHelper.h"
 #include "IceStorm/Election.h"
+#include "IceStorm/IceStormInternal.h"
 #include "Instrumentation.h"
 #include "Util.h"
-#include "Ice/ObserverHelper.h"
+
 #include <list>
 
 namespace IceStorm

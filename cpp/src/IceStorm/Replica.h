@@ -7,6 +7,7 @@
 
 #include "Ice/Ice.h"
 #include "IceStorm/Election.h"
+
 #include <set>
 
 namespace IceStormElection

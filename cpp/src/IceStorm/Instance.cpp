@@ -3,16 +3,15 @@
 //
 
 #include "Instance.h"
-#include "TraceLevels.h"
-#include "Observers.h"
-#include "NodeI.h"
-#include "InstrumentationI.h"
-#include "IceUtil/Timer.h"
-
-#include "Ice/InstrumentationI.h"
 #include "Ice/Communicator.h"
+#include "Ice/InstrumentationI.h"
 #include "Ice/Properties.h"
 #include "Ice/TraceUtil.h"
+#include "IceUtil/Timer.h"
+#include "InstrumentationI.h"
+#include "NodeI.h"
+#include "Observers.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceStorm;

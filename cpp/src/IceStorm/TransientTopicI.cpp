@@ -3,15 +3,14 @@
 //
 
 #include "TransientTopicI.h"
+#include "Ice/Ice.h"
 #include "Instance.h"
 #include "Subscriber.h"
 #include "TraceLevels.h"
 #include "Util.h"
 
-#include "Ice/Ice.h"
-
-#include <list>
 #include <algorithm>
+#include <list>
 
 using namespace IceStorm;
 using namespace std;
