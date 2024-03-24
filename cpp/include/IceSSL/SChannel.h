@@ -7,11 +7,14 @@
 
 #ifdef _WIN32
 #    include "Plugin.h"
+// We need to include windows.h before wincrypt.h.
+// clang-format off
 #    ifndef NOMINMAX
 #        define NOMINMAX
 #    endif
 #    include <windows.h>
 #    include <wincrypt.h>
+// clang-format on
 
 namespace IceSSL
 {
