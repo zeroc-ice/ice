@@ -7,6 +7,8 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Net;
     using System.Globalization;
+    using System.Net.Security;
+    using System.Diagnostics;
 
     sealed class TcpEndpointI : IPEndpointI
     {
@@ -115,8 +117,9 @@ namespace IceInternal
             return null;
         }
 
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
         {
+            Debug.Assert(authenticationOptions is null);
             return new TcpAcceptor(this, instance_, host_, port_);
         }
 

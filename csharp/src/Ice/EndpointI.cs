@@ -8,6 +8,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System;
+    using System.Net.Security;
 
     public interface EndpointI_connectors
     {
@@ -134,7 +135,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public abstract Acceptor acceptor(string adapterName);
+        public abstract Acceptor acceptor(string adaptrerName, SslServerAuthenticationOptions authenticationOptions);
 
         //
         // Expand endpoint out in to separate endpoints for each local

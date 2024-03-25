@@ -7,6 +7,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Globalization;
     using System.Diagnostics;
+    using System.Net.Security;
 
     sealed class OpaqueEndpointI : EndpointI
     {
@@ -212,7 +213,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
         {
             return null;
         }

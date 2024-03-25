@@ -79,12 +79,12 @@ namespace IceDiscovery
                 properties.setProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast");
-            _replyAdapter = _communicator.createObjectAdapter("IceDiscovery.Reply");
-            _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator");
+            _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast", authenticationOptions: null);
+            _replyAdapter = _communicator.createObjectAdapter("IceDiscovery.Reply", authenticationOptions: null);
+            _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator", authenticationOptions: null);
 
             //
-            // Setup locatory registry.
+            // Setup locator registry.
             //
             LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
             Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(

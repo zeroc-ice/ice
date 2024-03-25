@@ -1748,7 +1748,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_acceptorStarted);
-                _acceptor = _endpoint.acceptor(_adapter.getName());
+                _acceptor = _endpoint.acceptor(_adapter.getName(), _adapter.getSslServerAuthenticationOptions());
                 Debug.Assert(_acceptor != null);
 
                 if(_instance.traceLevels().network >= 2)

@@ -702,8 +702,8 @@ namespace IceLocatorDiscovery
                 properties.setProperty(_name + ".Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
-            _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
+            _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply", authenticationOptions: null);
+            _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator", authenticationOptions: null);
 
             // We don't want those adapters to be registered with the locator so clear their locator.
             _replyAdapter.setLocator(null);

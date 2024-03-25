@@ -4,27 +4,18 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
+    using System.Net.Security;
 
     sealed class ConnectorI : IceInternal.Connector
     {
         public IceInternal.Transceiver connect()
         {
-            //
-            // The plug-in may not be fully initialized.
-            //
-            if(!_instance.initialized())
-            {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plug-in is not initialized";
-                throw ex;
-            }
-
-            return new TransceiverI(_instance, _delegate.connect(), _host, false);
+            return new TransceiverI(
+                _instance,
+                _delegate.connect(),
+                _host,
+                incoming: false,
+                serverAuthenticationOptions: null);
         }
 
         public short type()
