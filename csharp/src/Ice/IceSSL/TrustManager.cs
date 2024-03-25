@@ -15,7 +15,7 @@ namespace IceSSL
         {
             Debug.Assert(communicator != null);
             _communicator = communicator;
-            Ice.Properties properties = communicator.getProperties();
+            Ice.Properties properties = _communicator.getProperties();
             _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
             string key = null;
             try
@@ -27,35 +27,33 @@ namespace IceSSL
                 key = "IceSSL.TrustOnly.Server";
                 parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
                 Dictionary<string, string> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-                foreach(KeyValuePair<string, string> entry in dict)
+                foreach (KeyValuePair<string, string> entry in dict)
                 {
                     key = entry.Key;
                     string name = key.Substring("IceSSL.TrustOnly.Server.".Length);
                     List<List<RFC2253.RDNPair>> reject = new List<List<RFC2253.RDNPair>>();
                     List<List<RFC2253.RDNPair>> accept = new List<List<RFC2253.RDNPair>>();
                     parse(entry.Value, reject, accept);
-                    if(reject.Count > 0)
+                    if (reject.Count > 0)
                     {
                         _rejectServer[name] = reject;
                     }
-                    if(accept.Count > 0)
+                    if (accept.Count > 0)
                     {
                         _acceptServer[name] = accept;
                     }
                 }
             }
-            catch(RFC2253.ParseException e)
+            catch (RFC2253.ParseException ex)
             {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: invalid property " + key  + ":\n" + e.reason;
-                throw ex;
+                throw new Ice.PluginInitializationException($"IceSSL: invalid property {key}:\n {ex.reason}");
             }
         }
 
-        internal bool verify(IceSSL.ConnectionInfo info, string desc)
+        internal bool verify(ConnectionInfo info, string desc)
         {
-            List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
-                accept = new List<List<List<RFC2253.RDNPair>>>();
+            var reject = new List<List<List<RFC2253.RDNPair>>>();
+            var accept = new List<List<List<RFC2253.RDNPair>>>();
 
             if(_rejectAll.Count != 0)
             {
@@ -69,7 +67,7 @@ namespace IceSSL
                 }
                 if(info.adapterName.Length > 0)
                 {
-                    List<List<RFC2253.RDNPair>> p = null;
+                    List<List<RFC2253.RDNPair>> p;
                     if(_rejectServer.TryGetValue(info.adapterName, out p))
                     {
                         reject.Add(p);
@@ -96,7 +94,7 @@ namespace IceSSL
                 }
                 if(info.adapterName.Length > 0)
                 {
-                    List<List<RFC2253.RDNPair>> p = null;
+                    List<List<RFC2253.RDNPair>> p;
                     if(_acceptServer.TryGetValue(info.adapterName, out p))
                     {
                         accept.Add(p);

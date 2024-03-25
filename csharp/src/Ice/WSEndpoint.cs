@@ -5,8 +5,8 @@
 namespace IceInternal
 {
     using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Net.Security;
 
     sealed class WSEndpoint : EndpointI
     {
@@ -201,9 +201,9 @@ namespace IceInternal
             _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
         }
 
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
         {
-            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName));
+            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, authenticationOptions));
         }
 
         public WSEndpoint endpoint(EndpointI delEndp)

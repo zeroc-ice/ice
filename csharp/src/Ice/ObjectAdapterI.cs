@@ -7,6 +7,7 @@ namespace Ice
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Net.Security;
     using System.Text;
 
     using IceInternal;
@@ -814,20 +815,26 @@ namespace Ice
         //
         // Only for use by ObjectAdapterFactory
         //
-        public ObjectAdapterI(Instance instance, Communicator communicator,
-                              ObjectAdapterFactory objectAdapterFactory, string name,
-                              RouterPrx router, bool noConfig)
+        public ObjectAdapterI(
+            Instance instance,
+            Communicator communicator,
+            ObjectAdapterFactory objectAdapterFactory,
+            string name,
+            RouterPrx router,
+            bool noConfig,
+            SslServerAuthenticationOptions authenticationOptions)
         {
             _instance = instance;
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
             _servantManager = new ServantManager(instance, name);
             _name = name;
-            _incomingConnectionFactories = new List<IncomingConnectionFactory>();
-            _publishedEndpoints = new EndpointI[0];
+            _incomingConnectionFactories = [];
+            _publishedEndpoints = [];
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
+            _authenticationOptions = authenticationOptions;
 
             if(_noConfig)
             {
@@ -1002,6 +1009,11 @@ namespace Ice
                 destroy();
                 throw;
             }
+        }
+
+        internal SslServerAuthenticationOptions getSslServerAuthenticationOptions()
+        {
+            return _authenticationOptions;
         }
 
         private ObjectPrx newProxy(Identity ident, string facet)
@@ -1444,5 +1456,6 @@ namespace Ice
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private int _messageSizeMax;
+        private SslServerAuthenticationOptions _authenticationOptions;
     }
 }

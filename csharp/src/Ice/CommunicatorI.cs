@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 
 using IceInternal;
+using System.Net.Security;
 
 namespace Ice
 {
@@ -79,12 +80,12 @@ namespace Ice
             return Util.identityToString(ident, _instance.toStringMode());
         }
 
-        public ObjectAdapter createObjectAdapter(string name)
+        public ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions authenticationOptions)
         {
-            return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null, authenticationOptions);
         }
 
-        public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
+        public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions authenticationOptions)
         {
             if(name.Length == 0)
             {
@@ -92,7 +93,7 @@ namespace Ice
             }
 
             getProperties().setProperty(name + ".Endpoints", endpoints);
-            return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null, authenticationOptions);
         }
 
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
@@ -111,7 +112,7 @@ namespace Ice
                 getProperties().setProperty(entry.Key, entry.Value);
             }
 
-            return _instance.objectAdapterFactory().createObjectAdapter(name, router);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, router, authenticationOptions: null);
         }
 
         public ValueFactoryManager getValueFactoryManager()
@@ -228,7 +229,9 @@ namespace Ice
 
         internal CommunicatorI(InitializationData initData)
         {
-            _instance = new Instance(this, initData);
+            // TODO we should merge CommunicatorI/Communicator/Instance in a single class.
+            _instance = new Instance();
+            _instance.initialize(this, initData);
         }
 
         /*

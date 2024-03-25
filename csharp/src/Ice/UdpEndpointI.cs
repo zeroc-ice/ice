@@ -10,6 +10,7 @@ namespace IceInternal
     using System.Net;
     using System;
     using System.Globalization;
+    using System.Net.Security;
 
     sealed class UdpEndpointI : IPEndpointI
     {
@@ -148,8 +149,9 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
         {
+            Debug.Assert(authenticationOptions is null);
             return null;
         }
 
