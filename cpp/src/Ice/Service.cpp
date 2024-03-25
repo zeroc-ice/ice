@@ -6,9 +6,10 @@
 #include "ArgVector.h"
 #include "ConsoleUtil.h"
 #include "LoggerI.h"
+#include "IceUtil/StringUtil.h"
 
 #ifdef _WIN32
-#    include "EventLoggerMsg.h"
+#    include "Ice/EventLoggerMsg.h"
 #    include <winsock2.h>
 #else
 #    include "Network.h"

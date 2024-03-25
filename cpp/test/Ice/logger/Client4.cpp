@@ -2,8 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
+#include "Ice/Ice.h"
+#include "TestHelper.h"
+
+#ifdef _WIN32
+#    include <windows.h>
+#endif
 
 using namespace std;
 
