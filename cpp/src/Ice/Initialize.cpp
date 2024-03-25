@@ -256,7 +256,7 @@ Ice::initialize(int& argc, const char* argv[], const InitializationData& initial
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(int& argc, const char* argv[], const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -275,7 +275,7 @@ Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& init
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(int& argc, const wchar_t* argv[], const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -294,7 +294,7 @@ Ice::initialize(StringSeq& args, const InitializationData& initializationData, i
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(StringSeq& args, const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -319,7 +319,7 @@ Ice::initialize(const InitializationData& initData, int version)
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();

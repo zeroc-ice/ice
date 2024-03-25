@@ -5,7 +5,7 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceStorm/Parser.h"
+#include "Parser.h"
 
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label

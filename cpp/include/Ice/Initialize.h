@@ -17,8 +17,6 @@
 #include "PropertiesF.h"
 #include "ValueFactory.h"
 
-#define ICE_CONFIG_FILE_STRING const std::string&
-
 namespace Ice
 {
     /**
@@ -395,7 +393,7 @@ namespace Ice
      * @return The new communicator.
      */
     ICE_API CommunicatorPtr
-    initialize(int& argc, const char* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    initialize(int& argc, const char* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -413,7 +411,7 @@ namespace Ice
      * @return The new communicator.
      */
     inline CommunicatorPtr
-    initialize(int& argc, char* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION)
+    initialize(int& argc, char* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const char**>(argv), configFile, version);
     }
@@ -480,7 +478,7 @@ namespace Ice
      * @return The new communicator.
      */
     ICE_API CommunicatorPtr
-    initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    initialize(int& argc, const wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -498,7 +496,7 @@ namespace Ice
      * @return The new communicator.
      */
     inline CommunicatorPtr
-    initialize(int& argc, wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION)
+    initialize(int& argc, wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), configFile, version);
     }
@@ -536,7 +534,7 @@ namespace Ice
      * @return The new communicator.
      */
     ICE_API CommunicatorPtr
-    initialize(StringSeq& seq, ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    initialize(StringSeq& seq, const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -555,7 +553,7 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Obtains the per-process logger. This logger is used by all communicators that do not have their

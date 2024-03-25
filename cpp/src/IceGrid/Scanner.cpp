@@ -1,4 +1,4 @@
-#include <IceUtil/ScannerConfig.h>
+#include "IceUtil/ScannerConfig.h"
 #line 1 "src/IceGrid/Scanner.cpp"
 
 #line 3 "src/IceGrid/Scanner.cpp"
@@ -407,9 +407,9 @@ char* yytext;
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/Parser.h>
-#include <IceGrid/Grammar.h>
+#include "Ice/Ice.h"
+#include "Parser.h"
+#include "Grammar.h"
 
 #if defined(_MSC_VER)
 // '<' : signed/unsigned mismatch

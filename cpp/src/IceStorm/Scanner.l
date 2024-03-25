@@ -5,8 +5,8 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceStorm/Parser.h"
-#include "IceStorm/Grammar.h"
+#include "Parser.h"
+#include "Grammar.h"
 
 #if defined(_MSC_VER)
 // '<' : signed/unsigned mismatch
