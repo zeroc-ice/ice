@@ -2,16 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/TransientTopicI.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/Subscriber.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/Util.h>
+#include "TransientTopicI.h"
+#include "Ice/Ice.h"
+#include "Instance.h"
+#include "Subscriber.h"
+#include "TraceLevels.h"
+#include "Util.h"
 
-#include <Ice/Ice.h>
-
-#include <list>
 #include <algorithm>
+#include <list>
 
 using namespace IceStorm;
 using namespace std;

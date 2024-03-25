@@ -8,9 +8,9 @@
 #include "ConnectionF.h"
 #include "Ice/Context.h"
 #include "Ice/Identity.h"
-#include "ObjectAdapterF.h"
 #include "Ice/OperationMode.h"
 #include "Ice/Version.h"
+#include "ObjectAdapterF.h"
 
 namespace Ice
 {

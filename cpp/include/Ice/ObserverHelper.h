@@ -2,14 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_OBSERVERHELPER_H
-#define ICE_OBSERVERHELPER_H
+#ifndef ICE_OBSERVER_HELPER_H
+#define ICE_OBSERVER_HELPER_H
 
-#include "Instrumentation.h"
-#include "ProxyF.h"
 #include "InstanceF.h"
+#include "Instrumentation.h"
 
 #include <string_view>
+
+namespace Ice
+{
+    class ObjectPrx;
+}
 
 namespace IceInternal
 {
@@ -18,9 +22,9 @@ namespace IceInternal
     template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
     {
     public:
-        using TPtr = ::std::shared_ptr<T>;
+        using TPtr = std::shared_ptr<T>;
 
-        ObserverHelperT() {}
+        ObserverHelperT() = default;
 
         ~ObserverHelperT()
         {
@@ -117,7 +121,7 @@ namespace IceInternal
             }
         }
 
-        ::Ice::Instrumentation::ChildInvocationObserverPtr
+        Ice::Instrumentation::ChildInvocationObserverPtr
         getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt, int requestId, int size)
         {
             if (_observer)
@@ -127,7 +131,7 @@ namespace IceInternal
             return nullptr;
         }
 
-        ::Ice::Instrumentation::ChildInvocationObserverPtr
+        Ice::Instrumentation::ChildInvocationObserverPtr
         getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size)
         {
             if (_observer)

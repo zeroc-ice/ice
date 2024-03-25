@@ -3,7 +3,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/ScannerConfig.h>
+#include "IceUtil/ScannerConfig.h"
 
 #line 9 "src/Slice/Scanner.cpp"
 
@@ -948,8 +948,8 @@ char* yytext;
 
 #line 11 "src/Slice/Scanner.l"
 
-#include <Slice/GrammarUtil.h>
-#include <Slice/Grammar.h>
+#include "Slice/GrammarUtil.h"
+#include "Slice/Grammar.h"
 
 #include <iomanip>
 

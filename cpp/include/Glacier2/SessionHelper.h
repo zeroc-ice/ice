@@ -5,19 +5,14 @@
 #ifndef GLACIER2_SESSION_HELPER_H
 #define GLACIER2_SESSION_HELPER_H
 
-#include <Ice/Initialize.h>
-#include <Ice/Properties.h>
-#include <Ice/Communicator.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Ice.h>
-
-#include <Glacier2/Session.h>
-#include <Glacier2/Router.h>
+#include "Glacier2/Router.h"
+#include "Glacier2/Session.h"
+#include "Ice/Ice.h"
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
 
 namespace Glacier2
 {
@@ -31,10 +26,10 @@ namespace Glacier2
      * but better suited for graphical applications.
      * \headerfile Glacier2/Glacier2.h
      */
-    class GLACIER2_API SessionHelper
+    class SessionHelper
     {
     public:
-        virtual ~SessionHelper();
+        virtual ~SessionHelper() = default;
 
         /**
          * Initiates the destruction of the Glacier2 session, including the communicator created by the SessionHelper.
@@ -90,10 +85,10 @@ namespace Glacier2
      * Allows an application to receive notification about events in the lifecycle of a Glacier2 session.
      * \headerfile Glacier2/Glacier2.h
      */
-    class GLACIER2_API SessionCallback
+    class SessionCallback
     {
     public:
-        virtual ~SessionCallback();
+        virtual ~SessionCallback() = default;
 
         /**
          * Called after successfully initializing a communicator.
@@ -121,10 +116,6 @@ namespace Glacier2
         virtual void connectFailed(const SessionHelperPtr& session, std::exception_ptr ex) = 0;
     };
     using SessionCallbackPtr = std::shared_ptr<SessionCallback>;
-
-    /// \cond INTERNAL
-    class SessionThreadCallback;
-    /// \endcond
 
     /**
      * Facilitates the creation of new Glacier2 sessions.

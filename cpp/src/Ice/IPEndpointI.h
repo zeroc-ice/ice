@@ -43,7 +43,7 @@ namespace IceInternal
         bool secure() const override;
 
         const std::string& connectionId() const override;
-        EndpointIPtr connectionId(const ::std::string&) const override;
+        EndpointIPtr connectionId(const std::string&) const override;
         void connectorsAsync(
             Ice::EndpointSelectionType,
             std::function<void(std::vector<ConnectorPtr>)>,
@@ -51,7 +51,7 @@ namespace IceInternal
         std::vector<EndpointIPtr> expandIfWildcard() const override;
         std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const override;
         bool equivalent(const EndpointIPtr&) const override;
-        ::std::int32_t hash() const override;
+        std::int32_t hash() const override;
         std::string options() const override;
 
         bool operator==(const Ice::Endpoint&) const override;

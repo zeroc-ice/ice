@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/Util.h>
-#include <IceStorm/SubscriberRecord.h>
-#include <IceStorm/Instance.h>
+#include "Util.h"
+#include "IceStorm/SubscriberRecord.h"
+#include "Instance.h"
 
 using namespace IceStorm;
 using namespace std;

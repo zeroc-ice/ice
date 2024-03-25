@@ -2,17 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/Instance.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/Observers.h>
-#include <IceStorm/NodeI.h>
-#include <IceStorm/InstrumentationI.h>
-#include <IceUtil/Timer.h>
-
-#include <Ice/InstrumentationI.h>
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/TraceUtil.h>
+#include "Instance.h"
+#include "Ice/Communicator.h"
+#include "Ice/InstrumentationI.h"
+#include "Ice/Properties.h"
+#include "Ice/TraceUtil.h"
+#include "IceUtil/Timer.h"
+#include "InstrumentationI.h"
+#include "NodeI.h"
+#include "Observers.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceStorm;
@@ -44,9 +43,9 @@ Instance::Instance(
     const string& instanceName,
     const string& name,
     shared_ptr<Ice::Communicator> communicator,
-    shared_ptr<Ice::ObjectAdapter> publishAdapter,
-    shared_ptr<Ice::ObjectAdapter> topicAdapter,
-    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    Ice::ObjectAdapterPtr publishAdapter,
+    Ice::ObjectAdapterPtr topicAdapter,
+    Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
     : _instanceName(instanceName),
       _serviceName(name),
@@ -146,25 +145,25 @@ Instance::communicator() const
     return _communicator;
 }
 
-shared_ptr<Ice::Properties>
+Ice::PropertiesPtr
 Instance::properties() const
 {
     return _communicator->getProperties();
 }
 
-shared_ptr<Ice::ObjectAdapter>
+Ice::ObjectAdapterPtr
 Instance::publishAdapter() const
 {
     return _publishAdapter;
 }
 
-shared_ptr<Ice::ObjectAdapter>
+Ice::ObjectAdapterPtr
 Instance::topicAdapter() const
 {
     return _topicAdapter;
 }
 
-shared_ptr<Ice::ObjectAdapter>
+Ice::ObjectAdapterPtr
 Instance::nodeAdapter() const
 {
     return _nodeAdapter;
@@ -292,9 +291,9 @@ PersistentInstance::PersistentInstance(
     const string& instanceName,
     const string& name,
     shared_ptr<Ice::Communicator> communicator,
-    shared_ptr<Ice::ObjectAdapter> publishAdapter,
-    shared_ptr<Ice::ObjectAdapter> topicAdapter,
-    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    Ice::ObjectAdapterPtr publishAdapter,
+    Ice::ObjectAdapterPtr topicAdapter,
+    Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
     : Instance(
           instanceName,

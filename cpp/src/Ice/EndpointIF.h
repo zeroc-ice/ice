@@ -14,10 +14,10 @@ namespace IceInternal
     class UdpEndpointI;
     class WSEndpoint;
 
-    using EndpointIPtr = ::std::shared_ptr<EndpointI>;
-    using TcpEndpointIPtr = ::std::shared_ptr<TcpEndpointI>;
-    using UdpEndpointIPtr = ::std::shared_ptr<UdpEndpointI>;
-    using WSEndpointPtr = ::std::shared_ptr<WSEndpoint>;
+    using EndpointIPtr = std::shared_ptr<EndpointI>;
+    using TcpEndpointIPtr = std::shared_ptr<TcpEndpointI>;
+    using UdpEndpointIPtr = std::shared_ptr<UdpEndpointI>;
+    using WSEndpointPtr = std::shared_ptr<WSEndpoint>;
 }
 
 #endif

@@ -5,30 +5,23 @@
 #ifndef ICESSL_PLUGIN_H
 #define ICESSL_PLUGIN_H
 
-#include <Ice/Plugin.h>
-#include <IceSSL/Config.h>
-#include <IceSSL/ConnectionInfoF.h>
+#include "Config.h"
+#include "ConnectionInfoF.h"
+#include "Ice/Exception.h"
+#include "Ice/Plugin.h"
 
 #include <chrono>
-#include <vector>
+#include <cstdint>
+#include <functional>
 #include <list>
-
-#ifndef ICESSL_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICESSL_API /**/
-#    elif defined(ICESSL_API_EXPORTS)
-#        define ICESSL_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICESSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
+#include <vector>
 
 namespace IceSSL
 {
     /**
      * The reason for an IceSSL certificate verification failure.
      */
-    enum class TrustError : unsigned char
+    enum class TrustError : std::uint8_t
     {
         /** The certification verification succeed  */
         NoError = 0,
@@ -535,7 +528,7 @@ namespace IceSSL
          * before any connections are established.
          * @param v The verifier.
          */
-        virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v) = 0;
+        virtual void setCertificateVerifier(std::function<bool(const ConnectionInfoPtr&)> v) = 0;
 
         /**
          * Establish the password prompt object. This must be done before

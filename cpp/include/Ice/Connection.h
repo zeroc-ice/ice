@@ -2,39 +2,35 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_Connection_h__
-#define __Ice_Connection_h__
+#ifndef ICE_CONNECTION_H
+#define ICE_CONNECTION_H
 
-#include "IceUtil/PushDisableWarnings.h"
-#include "ProxyF.h"
-#include "ValueF.h"
-#include "Exception.h"
-#include "Comparable.h"
-#include "ObjectAdapterF.h"
+#include "Config.h"
+#include "ConnectionF.h"
+#include "EndpointF.h"
 #include "Ice/Identity.h"
-#include "Endpoint.h"
-#include "IceUtil/UndefSysMacros.h"
+#include "ObjectAdapterF.h"
 
 #include <future>
 #include <map>
 #include <optional>
 
-namespace Ice
-{
-    class ConnectionInfo;
-    class Connection;
-    class IPConnectionInfo;
-    class TCPConnectionInfo;
-    class UDPConnectionInfo;
-    class WSConnectionInfo;
-}
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 namespace Ice
 {
+    class ObjectPrx;
+
     /**
      * The batch compression option when flushing queued batch requests.
      */
-    enum class CompressBatch : unsigned char
+    enum class CompressBatch : std::uint8_t
     {
         /**
          * Compress the batch requests.
@@ -53,7 +49,7 @@ namespace Ice
     /**
      * Specifies the close semantics for Active Connection Management.
      */
-    enum class ACMClose : unsigned char
+    enum class ACMClose : std::uint8_t
     {
         /**
          * Disables automatic connection closure.
@@ -82,7 +78,7 @@ namespace Ice
     /**
      * Specifies the heartbeat semantics for Active Connection Management.
      */
-    enum class ACMHeartbeat : unsigned char
+    enum class ACMHeartbeat : std::uint8_t
     {
         /**
          * Disables heartbeats.
@@ -115,17 +111,17 @@ namespace Ice
         /**
          * The close semantics.
          */
-        ::Ice::ACMClose close;
+        ACMClose close;
         /**
          * The heartbeat semantics.
          */
-        ::Ice::ACMHeartbeat heartbeat;
+        ACMHeartbeat heartbeat;
 
         /**
          * Obtains a tuple containing all of the struct's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const int&, const ::Ice::ACMClose&, const ::Ice::ACMHeartbeat&> ice_tuple() const
+        std::tuple<const int&, const ACMClose&, const ACMHeartbeat&> ice_tuple() const
         {
             return std::tie(timeout, close, heartbeat);
         }
@@ -134,7 +130,7 @@ namespace Ice
     /**
      * Determines the behavior when manually closing a connection.
      */
-    enum class ConnectionClose : unsigned char
+    enum class ConnectionClose : std::uint8_t
     {
         /**
          * Close the connection immediately without sending a close connection protocol message to the peer and waiting
@@ -155,14 +151,7 @@ namespace Ice
     /**
      * A collection of HTTP headers.
      */
-    using HeaderDict = ::std::map<::std::string, ::std::string>;
-
-    using Ice::operator<;
-    using Ice::operator<=;
-    using Ice::operator>;
-    using Ice::operator>=;
-    using Ice::operator==;
-    using Ice::operator!=;
+    using HeaderDict = std::map<std::string, std::string>;
 }
 
 namespace Ice
@@ -171,30 +160,28 @@ namespace Ice
      * Base class providing access to the connection details.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionInfo
+    class ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionInfo();
-
         ConnectionInfo() = default;
+        virtual ~ConnectionInfo() = default;
 
-        ConnectionInfo(const ConnectionInfo&) = default;
-        ConnectionInfo(ConnectionInfo&&) = default;
-        ConnectionInfo& operator=(const ConnectionInfo&) = default;
-        ConnectionInfo& operator=(ConnectionInfo&&) = default;
+        // Deleted to prevent accidental slicing.
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          */
         ConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId)
+            const std::string& adapterName,
+            const std::string& connectionId)
             : underlying(underlying),
               incoming(incoming),
               adapterName(adapterName),
@@ -203,9 +190,9 @@ namespace Ice
         }
 
         /**
-         * The information of the underyling transport or null if there's no underlying transport.
+         * The information of the underlying transport or null if there's no underlying transport.
          */
-        ::std::shared_ptr<::Ice::ConnectionInfo> underlying;
+        ConnectionInfoPtr underlying;
         /**
          * Whether or not the connection is an incoming or outgoing connection.
          */
@@ -213,11 +200,11 @@ namespace Ice
         /**
          * The name of the adapter associated with the connection.
          */
-        ::std::string adapterName;
+        std::string adapterName;
         /**
          * The connection id.
          */
-        ::std::string connectionId;
+        std::string connectionId;
     };
 
     /**
@@ -225,22 +212,22 @@ namespace Ice
      * about the closure, it can call {@link Connection#throwException}.
      * @param con The connection that closed.
      */
-    using CloseCallback = ::std::function<void(const ::std::shared_ptr<Connection>& con)>;
+    using CloseCallback = std::function<void(const ConnectionPtr& con)>;
 
     /**
      * This method is called by the connection when a heartbeat is received from the peer.
      * @param con The connection on which a heartbeat was received.
      */
-    using HeartbeatCallback = ::std::function<void(const ::std::shared_ptr<Connection>& con)>;
+    using HeartbeatCallback = std::function<void(const ConnectionPtr& con)>;
 
     /**
      * The user-level interface to a connection.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) Connection
+    class ICE_API Connection
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~Connection();
+        virtual ~Connection() = default;
 
         /**
          * Manually close the connection using the specified closure mode.
@@ -270,20 +257,20 @@ namespace Ice
          * @see #createProxy
          * @see #getAdapter
          */
-        virtual void setAdapter(const ::std::shared_ptr<ObjectAdapter>& adapter) = 0;
+        virtual void setAdapter(const ObjectAdapterPtr& adapter) = 0;
 
         /**
          * Get the object adapter that dispatches requests for this connection.
          * @return The object adapter that dispatches requests for the connection, or null if no adapter is set.
          * @see #setAdapter
          */
-        virtual ::std::shared_ptr<::Ice::ObjectAdapter> getAdapter() const noexcept = 0;
+        virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
 
         /**
          * Get the endpoint from which the connection was created.
          * @return The endpoint from which the connection was created.
          */
-        virtual ::std::shared_ptr<::Ice::Endpoint> getEndpoint() const noexcept = 0;
+        virtual EndpointPtr getEndpoint() const noexcept = 0;
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -291,7 +278,7 @@ namespace Ice
          * @param compress Specifies whether or not the queued batch requests should be compressed before being sent
          * over the wire.
          */
-        ICE_MEMBER(ICE_API) void flushBatchRequests(CompressBatch compress);
+        void flushBatchRequests(CompressBatch compress);
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -302,10 +289,10 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual ::std::function<void()> flushBatchRequestsAsync(
+        virtual std::function<void()> flushBatchRequestsAsync(
             CompressBatch compress,
-            ::std::function<void(::std::exception_ptr)> exception,
-            ::std::function<void(bool)> sent = nullptr) = 0;
+            std::function<void(std::exception_ptr)> exception,
+            std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -314,7 +301,7 @@ namespace Ice
          * over the wire.
          * @return The future object for the invocation.
          */
-        ICE_MEMBER(ICE_API) std::future<void> flushBatchRequestsAsync(CompressBatch compress);
+        std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
         /**
          * Set a close callback on the connection. The callback is called by the connection when it's closed. The
@@ -334,7 +321,7 @@ namespace Ice
         /**
          * Send a heartbeat message.
          */
-        ICE_MEMBER(ICE_API) void heartbeat();
+        void heartbeat();
 
         /**
          * Send a heartbeat message.
@@ -342,15 +329,14 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual ::std::function<void()> heartbeatAsync(
-            ::std::function<void(::std::exception_ptr)> exception,
-            ::std::function<void(bool)> sent = nullptr) = 0;
+        virtual std::function<void()>
+        heartbeatAsync(std::function<void(std::exception_ptr)> exception, std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Send a heartbeat message.
          * @return The future object for the invocation.
          */
-        ICE_MEMBER(ICE_API) std::future<void> heartbeatAsync();
+        std::future<void> heartbeatAsync();
 
         /**
          * Set the active connection management parameters.
@@ -367,13 +353,13 @@ namespace Ice
          * Get the ACM parameters.
          * @return The ACM parameters.
          */
-        virtual ::Ice::ACM getACM() noexcept = 0;
+        virtual ACM getACM() noexcept = 0;
 
         /**
          * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
          * @return The type of the connection.
          */
-        virtual ::std::string type() const noexcept = 0;
+        virtual std::string type() const noexcept = 0;
 
         /**
          * Get the timeout for the connection.
@@ -385,13 +371,13 @@ namespace Ice
          * Return a description of the connection as human readable text, suitable for logging or error messages.
          * @return The description of the connection as human readable text.
          */
-        virtual ::std::string toString() const noexcept = 0;
+        virtual std::string toString() const noexcept = 0;
 
         /**
          * Returns the connection information.
          * @return The connection information.
          */
-        virtual ::std::shared_ptr<::Ice::ConnectionInfo> getInfo() const = 0;
+        virtual ConnectionInfoPtr getInfo() const = 0;
 
         /**
          * Set the connection buffer receive/send size.
@@ -413,17 +399,10 @@ namespace Ice
      * Provides access to the connection details of an IP connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) IPConnectionInfo : public ::Ice::ConnectionInfo
+    class IPConnectionInfo : public ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~IPConnectionInfo();
-
         IPConnectionInfo() : localAddress(""), localPort(-1), remoteAddress(""), remotePort(-1) {}
-
-        IPConnectionInfo(const IPConnectionInfo&) = default;
-        IPConnectionInfo(IPConnectionInfo&&) = default;
-        IPConnectionInfo& operator=(const IPConnectionInfo&) = default;
-        IPConnectionInfo& operator=(IPConnectionInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -437,13 +416,13 @@ namespace Ice
          * @param remotePort The remote port.
          */
         IPConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& localAddress,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& localAddress,
             int localPort,
-            const ::std::string& remoteAddress,
+            const std::string& remoteAddress,
             int remotePort)
             : ConnectionInfo(underlying, incoming, adapterName, connectionId),
               localAddress(localAddress),
@@ -456,7 +435,7 @@ namespace Ice
         /**
          * The local address.
          */
-        ::std::string localAddress;
+        std::string localAddress;
         /**
          * The local port.
          */
@@ -464,7 +443,7 @@ namespace Ice
         /**
          * The remote address.
          */
-        ::std::string remoteAddress;
+        std::string remoteAddress;
         /**
          * The remote port.
          */
@@ -475,17 +454,10 @@ namespace Ice
      * Provides access to the connection details of a TCP connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) TCPConnectionInfo : public ::Ice::IPConnectionInfo
+    class TCPConnectionInfo : public IPConnectionInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~TCPConnectionInfo();
-
         TCPConnectionInfo() : rcvSize(0), sndSize(0) {}
-
-        TCPConnectionInfo(const TCPConnectionInfo&) = default;
-        TCPConnectionInfo(TCPConnectionInfo&&) = default;
-        TCPConnectionInfo& operator=(const TCPConnectionInfo&) = default;
-        TCPConnectionInfo& operator=(TCPConnectionInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -501,13 +473,13 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         TCPConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& localAddress,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& localAddress,
             int localPort,
-            const ::std::string& remoteAddress,
+            const std::string& remoteAddress,
             int remotePort,
             int rcvSize,
             int sndSize)
@@ -525,6 +497,10 @@ namespace Ice
         {
         }
 
+        // Deleted to prevent accidental slicing.
+        TCPConnectionInfo(const TCPConnectionInfo&) = delete;
+        TCPConnectionInfo& operator=(const TCPConnectionInfo&) = delete;
+
         /**
          * The connection buffer receive size.
          */
@@ -539,21 +515,14 @@ namespace Ice
      * Provides access to the connection details of a UDP connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) UDPConnectionInfo : public ::Ice::IPConnectionInfo
+    class UDPConnectionInfo : public IPConnectionInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~UDPConnectionInfo();
-
         UDPConnectionInfo() : mcastPort(-1), rcvSize(0), sndSize(0) {}
-
-        UDPConnectionInfo(const UDPConnectionInfo&) = default;
-        UDPConnectionInfo(UDPConnectionInfo&&) = default;
-        UDPConnectionInfo& operator=(const UDPConnectionInfo&) = default;
-        UDPConnectionInfo& operator=(UDPConnectionInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -567,15 +536,15 @@ namespace Ice
          * @param sndSize The connection buffer send size.
          */
         UDPConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& localAddress,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& localAddress,
             int localPort,
-            const ::std::string& remoteAddress,
+            const std::string& remoteAddress,
             int remotePort,
-            const ::std::string& mcastAddress,
+            const std::string& mcastAddress,
             int mcastPort,
             int rcvSize,
             int sndSize)
@@ -595,10 +564,14 @@ namespace Ice
         {
         }
 
+        // Deleted to prevent accidental slicing.
+        UDPConnectionInfo(const UDPConnectionInfo&) = delete;
+        UDPConnectionInfo& operator=(const UDPConnectionInfo&) = delete;
+
         /**
          * The multicast address.
          */
-        ::std::string mcastAddress;
+        std::string mcastAddress;
         /**
          * The multicast port.
          */
@@ -617,60 +590,45 @@ namespace Ice
      * Provides access to the connection details of a WebSocket connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) WSConnectionInfo : public ::Ice::ConnectionInfo
+    class WSConnectionInfo : public ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~WSConnectionInfo();
-
         WSConnectionInfo() = default;
-
-        WSConnectionInfo(const WSConnectionInfo&) = default;
-        WSConnectionInfo(WSConnectionInfo&&) = default;
-        WSConnectionInfo& operator=(const WSConnectionInfo&) = default;
-        WSConnectionInfo& operator=(WSConnectionInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          * @param headers The headers from the HTTP upgrade request.
          */
         WSConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::Ice::HeaderDict& headers)
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const HeaderDict& headers)
             : ConnectionInfo(underlying, incoming, adapterName, connectionId),
               headers(headers)
         {
         }
 
+        // Deleted to prevent accidental slicing.
+        WSConnectionInfo(const WSConnectionInfo&) = delete;
+        WSConnectionInfo& operator=(const WSConnectionInfo&) = delete;
+
         /**
          * The headers from the HTTP upgrade request.
          */
-        ::Ice::HeaderDict headers;
+        HeaderDict headers;
     };
 }
 
-/// \cond INTERNAL
-namespace Ice
-{
-    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-    using ConnectionPtr = ::std::shared_ptr<Connection>;
-
-    using IPConnectionInfoPtr = ::std::shared_ptr<IPConnectionInfo>;
-
-    using TCPConnectionInfoPtr = ::std::shared_ptr<TCPConnectionInfo>;
-
-    using UDPConnectionInfoPtr = ::std::shared_ptr<UDPConnectionInfo>;
-
-    using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
-}
-/// \endcond
-
-#include "IceUtil/PopDisableWarnings.h"
 #endif

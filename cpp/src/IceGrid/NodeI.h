@@ -42,7 +42,7 @@ namespace IceGrid
         };
 
         NodeI(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             NodeSessionManager&,
             const std::shared_ptr<Activator>&,
             const IceUtil::TimerPtr&,
@@ -82,7 +82,7 @@ namespace IceGrid
             std::string,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const ::Ice::Current& current) override;
+            const Ice::Current& current) override;
 
         void patchAsync(
             std::optional<PatcherFeedbackPrx> feedback,
@@ -112,8 +112,8 @@ namespace IceGrid
         void shutdown();
 
         IceUtil::TimerPtr getTimer() const;
-        std::shared_ptr<Ice::Communicator> getCommunicator() const;
-        std::shared_ptr<Ice::ObjectAdapter> getAdapter() const;
+        Ice::CommunicatorPtr getCommunicator() const;
+        Ice::ObjectAdapterPtr getAdapter() const;
         std::shared_ptr<Activator> getActivator() const;
         std::shared_ptr<TraceLevels> getTraceLevels() const;
         std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
@@ -172,8 +172,8 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current&);
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
-        const std::shared_ptr<Ice::ObjectAdapter> _adapter;
+        const Ice::CommunicatorPtr _communicator;
+        const Ice::ObjectAdapterPtr _adapter;
         NodeSessionManager& _sessions;
         const std::shared_ptr<Activator> _activator;
         const IceUtil::TimerPtr _timer;

@@ -28,7 +28,7 @@ namespace Ice
 
 namespace
 {
-    inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, string_view proxyString)
+    inline ReferencePtr createReference(const CommunicatorPtr& communicator, string_view proxyString)
     {
         if (!communicator)
         {
@@ -44,7 +44,7 @@ namespace
     }
 }
 
-Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, string_view proxyString)
+Ice::ObjectPrx::ObjectPrx(const CommunicatorPtr& communicator, string_view proxyString)
     : ObjectPrx(createReference(communicator, proxyString))
 {
 }
@@ -124,11 +124,10 @@ Ice::ObjectPrx::ice_getAdapterId() const
 EndpointSeq
 Ice::ObjectPrx::ice_getEndpoints() const
 {
-    vector<EndpointIPtr> endpoints = _reference->getEndpoints();
     EndpointSeq retSeq;
-    for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (const auto& p : _reference->getEndpoints())
     {
-        retSeq.push_back(dynamic_pointer_cast<Endpoint>(*p));
+        retSeq.emplace_back(p);
     }
     return retSeq;
 }
@@ -434,9 +433,9 @@ ReferencePtr
 Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const
 {
     vector<EndpointIPtr> endpoints;
-    for (EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
+    for (const auto& p : newEndpoints)
     {
-        endpoints.push_back(dynamic_pointer_cast<EndpointI>(*p));
+        endpoints.emplace_back(dynamic_pointer_cast<EndpointI>(p));
     }
 
     auto currentEndpoints = _reference->getEndpoints();

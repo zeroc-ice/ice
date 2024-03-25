@@ -13,7 +13,7 @@ namespace IceInternal
     using OutgoingConnectionFactoryPtr = std::shared_ptr<OutgoingConnectionFactory>;
 
     class IncomingConnectionFactory;
-    using IncomingConnectionFactoryPtr = ::std::shared_ptr<IncomingConnectionFactory>;
+    using IncomingConnectionFactoryPtr = std::shared_ptr<IncomingConnectionFactory>;
 }
 
 #endif

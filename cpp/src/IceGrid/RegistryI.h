@@ -24,13 +24,13 @@ namespace IceGrid
     class TraceLevels;
     class WellKnownObjectsManager;
 
-    std::string getInstanceName(const std::shared_ptr<Ice::Communicator>&);
+    std::string getInstanceName(const Ice::CommunicatorPtr&);
 
     class RegistryI : public Registry, public std::enable_shared_from_this<RegistryI>
     {
     public:
         RegistryI(
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             const std::shared_ptr<TraceLevels>&,
             bool,
             bool,
@@ -63,7 +63,7 @@ namespace IceGrid
 
         Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
-        const std::shared_ptr<Ice::ObjectAdapter>& getRegistryAdapter() { return _registryAdapter; }
+        const Ice::ObjectAdapterPtr& getRegistryAdapter() { return _registryAdapter; }
 
         Ice::LocatorPrx getLocator();
 
@@ -73,8 +73,8 @@ namespace IceGrid
         QueryPrx setupQuery();
         RegistryPrx setupRegistry();
         InternalRegistryPrx setupInternalRegistry();
-        std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrx&);
-        std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(
+        Ice::ObjectAdapterPtr setupClientSessionFactory(const LocatorPrx&);
+        Ice::ObjectAdapterPtr setupAdminSessionFactory(
             const Ice::ObjectPtr&,
             const Ice::ObjectPtr&,
             const Ice::ObjectPtr&,
@@ -83,12 +83,12 @@ namespace IceGrid
         std::optional<Glacier2::PermissionsVerifierPrx> getPermissionsVerifier(const LocatorPrx&, const std::string&);
         std::optional<Glacier2::SSLPermissionsVerifierPrx>
         getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
-        Glacier2::SSLInfo getSSLInfo(const std::shared_ptr<Ice::Connection>&, std::string&);
+        Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
         NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
         void registerNodes(const NodePrxSeq&);
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<TraceLevels> _traceLevels;
         const bool _nowarn;
         const bool _readonly;
@@ -96,9 +96,9 @@ namespace IceGrid
         const std::string _collocatedNodeName;
 
         std::shared_ptr<Database> _database;
-        std::shared_ptr<Ice::ObjectAdapter> _clientAdapter;
-        std::shared_ptr<Ice::ObjectAdapter> _serverAdapter;
-        std::shared_ptr<Ice::ObjectAdapter> _registryAdapter;
+        Ice::ObjectAdapterPtr _clientAdapter;
+        Ice::ObjectAdapterPtr _serverAdapter;
+        Ice::ObjectAdapterPtr _registryAdapter;
         std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
         std::string _instanceName;
         bool _master;

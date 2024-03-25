@@ -5,6 +5,7 @@
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
+#include "Exception.h"
 #include "InputStream.h"
 #include "OutputStream.h"
 

@@ -19,7 +19,7 @@ namespace IceGrid
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        static ::std::string_view ice_staticId() noexcept;
+        static std::string_view ice_staticId() noexcept;
 
         std::string ice_id() const override;
     };

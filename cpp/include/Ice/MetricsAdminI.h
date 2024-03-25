@@ -2,19 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_METRICSADMIN_I_H
-#define ICE_METRICSADMIN_I_H
+#ifndef ICE_METRICS_ADMIN_I_H
+#define ICE_METRICS_ADMIN_I_H
 
-#include "Properties.h"
-#include "NativePropertiesAdmin.h"
-#include "Initialize.h"
-
+#include "Config.h"
 #include "Ice/Metrics.h"
+#include "Initialize.h"
+#include "Properties.h"
 
 #include <cassert>
-#include <regex>
 #include <list>
 #include <mutex>
+#include <regex>
 
 namespace IceMX
 {
@@ -531,7 +530,7 @@ namespace IceInternal
     class ICE_API MetricsAdminI : public IceMX::MetricsAdmin
     {
     public:
-        MetricsAdminI(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        MetricsAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
         ~MetricsAdminI();
 
         void destroy();
@@ -566,7 +565,7 @@ namespace IceInternal
                 {
                     return;
                 }
-                factory = ::std::dynamic_pointer_cast<MetricsMapFactoryT<MetricsType>>(p->second);
+                factory = std::dynamic_pointer_cast<MetricsMapFactoryT<MetricsType>>(p->second);
 
                 // use 'template' keyword to treat 'registerSubMap' as a dependent template name
                 factory->template registerSubMap<MemberMetricsType>(subMap, member);
@@ -581,15 +580,15 @@ namespace IceInternal
 
         void unregisterMap(const std::string&);
 
-        virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const ::Ice::Current&);
+        virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const Ice::Current&);
 
         void updated(const Ice::PropertyDict&);
 
-        virtual void enableMetricsView(std::string, const ::Ice::Current&);
-        virtual void disableMetricsView(std::string, const ::Ice::Current&);
-        virtual IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const ::Ice::Current&);
-        virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
-        virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
+        virtual void enableMetricsView(std::string, const Ice::Current&);
+        virtual void disableMetricsView(std::string, const Ice::Current&);
+        virtual IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const Ice::Current&);
+        virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const Ice::Current&);
+        virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const Ice::Current&);
         std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
         const Ice::LoggerPtr& getLogger() const;

@@ -15,7 +15,7 @@ namespace IceInternal
     {
     public:
         ArgVector(int argc, const char* const argv[]);
-        ArgVector(const ::std::vector<::std::string>&);
+        ArgVector(const std::vector<std::string>&);
         ArgVector(const ArgVector&);
         ArgVector& operator=(const ArgVector&);
         ~ArgVector();
@@ -24,7 +24,7 @@ namespace IceInternal
         char** argv;
 
     private:
-        ::std::vector<::std::string> _args;
+        std::vector<std::string> _args;
         void setupArgcArgv();
     };
 }

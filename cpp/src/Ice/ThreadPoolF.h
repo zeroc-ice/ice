@@ -11,8 +11,6 @@ namespace IceInternal
 {
     class ThreadPool;
     using ThreadPoolPtr = std::shared_ptr<ThreadPool>;
-
-    class ThreadPoolCurrent;
 }
 
 #endif

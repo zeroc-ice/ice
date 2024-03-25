@@ -5,8 +5,9 @@
 #ifndef ICE_PATCH2_CLIENT_UTIL_H
 #define ICE_PATCH2_CLIENT_UTIL_H
 
-#include <Ice/Ice.h>
-#include <IcePatch2/FileServer.h>
+#include "Config.h"
+#include "Ice/Ice.h"
+#include "IcePatch2/FileServer.h"
 
 #include <stdio.h>
 
@@ -17,10 +18,10 @@ namespace IcePatch2
     // allow the user to interact with the patching and report progress
     // on the patching.
     //
-    class ICEPATCH2_API PatcherFeedback
+    class PatcherFeedback
     {
     public:
-        virtual ~PatcherFeedback();
+        virtual ~PatcherFeedback() = default;
 
         //
         // The summary file can't be loaded for the given reason. This
@@ -62,16 +63,16 @@ namespace IcePatch2
         virtual bool patchProgress(std::int64_t, std::int64_t, std::int64_t, std::int64_t) = 0;
         virtual bool patchEnd() = 0;
     };
-    typedef std::shared_ptr<PatcherFeedback> PatcherFeedbackPtr;
+    using PatcherFeedbackPtr = std::shared_ptr<PatcherFeedback>;
 
     //
     // IcePatch2 clients instantiate the IcePatch2::Patcher class to patch
     // a given local data directory.
     //
-    class ICEPATCH2_API Patcher
+    class Patcher
     {
     public:
-        virtual ~Patcher();
+        virtual ~Patcher() = default;
 
         //
         // Prepare the patching. This involves creating the local checksum
@@ -102,7 +103,7 @@ namespace IcePatch2
         //
         virtual void finish() = 0;
     };
-    typedef std::shared_ptr<Patcher> PatcherPtr;
+    using PatcherPtr = std::shared_ptr<Patcher>;
 
     // IcePatch2 clients instantiate the IcePatch2::Patcher class using the patcher factory.
     class ICEPATCH2_API PatcherFactory

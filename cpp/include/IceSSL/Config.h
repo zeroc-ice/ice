@@ -5,7 +5,17 @@
 #ifndef ICESSL_CONFIG_H
 #define ICESSL_CONFIG_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
+
+#ifndef ICESSL_API
+#    if defined(ICE_STATIC_LIBS)
+#        define ICESSL_API /**/
+#    elif defined(ICESSL_API_EXPORTS)
+#        define ICESSL_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICESSL_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
 
 //
 // Automatically link IceSSL[D].lib with Visual C++

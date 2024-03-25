@@ -6,14 +6,14 @@
 #define ICE_GRID_TRACE_LEVELS_H
 
 #include <Ice/CommunicatorF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 
 namespace IceGrid
 {
     class TraceLevels
     {
     public:
-        TraceLevels(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
 
         const int admin;
         const std::string adminCat;
@@ -51,7 +51,7 @@ namespace IceGrid
         const int discovery;
         const std::string discoveryCat;
 
-        const std::shared_ptr<Ice::Logger> logger;
+        const Ice::LoggerPtr logger;
     };
 
 } // End namespace IceGrid

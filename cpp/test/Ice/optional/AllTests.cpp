@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -142,7 +142,7 @@ public:
     virtual void _iceRead(Ice::InputStream*) {}
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -184,7 +184,7 @@ public:
     void check() { test((*a)->mc == 18); }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -216,7 +216,7 @@ public:
     FPtr getF() { return _f; }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -233,7 +233,7 @@ class FactoryI
 public:
     FactoryI() : _enabled(false) {}
 
-    shared_ptr<Ice::Value> create(string_view typeId)
+    Ice::ValuePtr create(string_view typeId)
     {
         if (!_enabled)
         {

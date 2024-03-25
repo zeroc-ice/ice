@@ -5,7 +5,7 @@
 #ifndef ICE_WSCONNECTOR_I_H
 #define ICE_WSCONNECTOR_I_H
 
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Connector.h>
 #include <Ice/ProtocolInstance.h>

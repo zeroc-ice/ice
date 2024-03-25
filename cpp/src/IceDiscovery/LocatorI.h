@@ -5,8 +5,7 @@
 #ifndef LOCATORI_H
 #define LOCATORI_H
 
-#include <Ice/Locator.h>
-#include <Ice/ProxyF.h>
+#include "Ice/Locator.h"
 
 #include <set>
 

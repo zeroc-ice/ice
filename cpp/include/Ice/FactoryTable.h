@@ -20,7 +20,9 @@ namespace IceInternal
     {
     public:
         FactoryTable() = default;
-        FactoryTable(FactoryTable&) = delete;
+
+        FactoryTable(const FactoryTable&) = delete;
+        FactoryTable& operator=(const FactoryTable&) = delete;
 
         void addExceptionFactory(std::string_view, Ice::UserExceptionFactory);
         Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
@@ -58,7 +60,7 @@ namespace IceInternal
         throw E();
     }
 
-    template<class V> std::shared_ptr<Ice::Value> defaultValueFactory([[maybe_unused]] std::string_view typeId)
+    template<class V> Ice::ValuePtr defaultValueFactory([[maybe_unused]] std::string_view typeId)
     {
         assert(typeId == V::ice_staticId());
         return std::make_shared<V>();

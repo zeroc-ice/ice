@@ -60,7 +60,7 @@ namespace IceInternal
         //
         // Return a new endpoint with a different connection id.
         //
-        virtual EndpointIPtr connectionId(const ::std::string&) const = 0;
+        virtual EndpointIPtr connectionId(const std::string&) const = 0;
 
         //
         // Return true if the endpoints support bzip2 compress, or false
@@ -130,7 +130,7 @@ namespace IceInternal
         //
         virtual bool equivalent(const EndpointIPtr&) const = 0;
 
-        virtual ::std::int32_t hash() const = 0;
+        virtual std::int32_t hash() const = 0;
 
         //
         // Returns the stringified options

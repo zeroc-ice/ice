@@ -13,8 +13,8 @@ public:
     ServantLocatorI();
     ~ServantLocatorI() final;
 
-    Ice::ObjectPtr locate(const Ice::Current&, ::std::shared_ptr<void>&) final;
-    void finished(const Ice::Current&, const Ice::ObjectPtr&, const ::std::shared_ptr<void>&) final;
+    Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) final;
+    void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&) final;
     void deactivate(const std::string&) final;
 
 public:

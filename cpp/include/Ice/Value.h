@@ -5,8 +5,9 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-#include "ValueF.h"
+#include "Config.h"
 #include "SlicedDataF.h"
+#include "ValueF.h"
 
 namespace Ice
 {
@@ -49,7 +50,7 @@ namespace Ice
 
         /**
          * Obtains the Slice type ID of this type.
-         * @return The return value is always "::Ice::Object".
+         * @return The return value is always "Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;
 
@@ -57,7 +58,7 @@ namespace Ice
          * Creates a shallow polymorphic copy of this instance.
          * @return The cloned value.
          */
-        std::shared_ptr<Value> ice_clone() const { return _iceCloneImpl(); }
+        ValuePtr ice_clone() const { return _iceCloneImpl(); }
 
         /**
          * Obtains the sliced data associated with this instance.
@@ -82,7 +83,7 @@ namespace Ice
             static std::shared_ptr<T> clone(const T& other) { return std::make_shared<CloneEnabler>(other); }
         };
 
-        virtual std::shared_ptr<Value> _iceCloneImpl() const;
+        virtual ValuePtr _iceCloneImpl() const;
         /// \endcond
 
         /// \cond STREAM

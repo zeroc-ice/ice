@@ -11,7 +11,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ServantManagerF.h>
-#include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>
@@ -32,7 +31,7 @@
 namespace IceInternal
 {
     class CommunicatorFlushBatchAsync;
-    using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+    using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 }
 
 namespace Ice
@@ -66,9 +65,9 @@ namespace Ice
         FacetMap findAllFacets(const Identity&) const final;
         ObjectPtr findByProxy(const ObjectPrx&) const final;
         ObjectPtr findDefaultServant(const std::string&) const final;
-        void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
-        std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
-        std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
+        void addServantLocator(const ServantLocatorPtr&, const std::string&) final;
+        ServantLocatorPtr removeServantLocator(const std::string&) final;
+        ServantLocatorPtr findServantLocator(const std::string&) const final;
         ObjectPtr dispatcher() const noexcept final;
 
         ObjectPrx createProxy(const Identity&) const final;

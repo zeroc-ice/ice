@@ -40,11 +40,11 @@ namespace IceSSL
     class ICESSL_API CertificateVerifier
     {
     public:
-        CertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
+        CertificateVerifier(std::function<bool(const ConnectionInfoPtr&)>);
         bool verify(const ConnectionInfoPtr&);
 
     private:
-        std::function<bool(const std::shared_ptr<ConnectionInfo>&)> _verify;
+        std::function<bool(const ConnectionInfoPtr&)> _verify;
     };
     using CertificateVerifierPtr = std::shared_ptr<CertificateVerifier>;
 

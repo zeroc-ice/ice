@@ -2,14 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef TOPIC_I_H
-#define TOPIC_I_H
+#ifndef ICESTORM_TOPIC_I_H
+#define ICESTORM_TOPIC_I_H
 
-#include <IceStorm/IceStormInternal.h>
-#include <IceStorm/Election.h>
-#include <IceStorm/Instrumentation.h>
-#include <IceStorm/Util.h>
-#include <Ice/ObserverHelper.h>
+#include "Ice/ObserverHelper.h"
+#include "IceStorm/Election.h"
+#include "IceStorm/IceStormInternal.h"
+#include "Instrumentation.h"
+#include "Util.h"
+
 #include <list>
 
 namespace IceStorm

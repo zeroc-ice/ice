@@ -5,30 +5,20 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
-#include "ProxyF.h"
-#include "RequestHandlerF.h"
+#include "BatchRequestQueueF.h"
+#include "CommunicatorF.h"
+#include "Current.h"
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
 #include "Ice/BuiltinSequences.h"
-#include "ReferenceF.h"
-#include "BatchRequestQueueF.h"
-#include "Current.h"
-#include "CommunicatorF.h"
 #include "LocalException.h"
+#include "ReferenceF.h"
+#include "RequestHandlerF.h"
 
 #include <future>
 #include <iosfwd>
 #include <optional>
 #include <string_view>
-
-namespace Ice
-{
-    /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
-    ICE_API extern const Context noExplicitContext;
-
-    class LocatorPrx;
-    class RouterPrx;
-}
 
 namespace IceInternal
 {
@@ -40,8 +30,13 @@ namespace IceInternal
 
 namespace Ice
 {
-    class LocalException;
+    /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
+    ICE_API extern const Context noExplicitContext;
+
+    class LocatorPrx;
+    class ObjectPrx;
     class OutputStream;
+    class RouterPrx;
 
     /**
      * Helper template that supplies typed proxy factory functions.
@@ -163,10 +158,7 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        Prx ice_fixed(std::shared_ptr<Connection> connection) const
-        {
-            return fromReference(asPrx()._fixed(std::move(connection)));
-        }
+        Prx ice_fixed(ConnectionPtr connection) const { return fromReference(asPrx()._fixed(std::move(connection))); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
@@ -269,7 +261,7 @@ namespace Ice
         ObjectPrx(const ObjectPrx& other) noexcept = default;
         ObjectPrx(ObjectPrx&&) noexcept = default;
 
-        ObjectPrx(const std::shared_ptr<Ice::Communicator>& communicator, std::string_view proxyString);
+        ObjectPrx(const Ice::CommunicatorPtr& communicator, std::string_view proxyString);
 
         virtual ~ObjectPrx() = default;
 
@@ -343,7 +335,7 @@ namespace Ice
         std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_ping(const std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
+        void _iceI_ping(const std::shared_ptr<IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
         /// \endcond
 
         /**
@@ -409,7 +401,7 @@ namespace Ice
         std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_id(const std::shared_ptr<::IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
+        void _iceI_id(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
         /// \endcond
 
         /**
@@ -523,7 +515,7 @@ namespace Ice
          * it first attempts to create a connection.
          * @return The connection for this proxy.
          */
-        std::shared_ptr<Ice::Connection> ice_getConnection() const;
+        Ice::ConnectionPtr ice_getConnection() const;
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -534,7 +526,7 @@ namespace Ice
          * @return A function that can be called to cancel the invocation locally.
          */
         std::function<void()> ice_getConnectionAsync(
-            std::function<void(std::shared_ptr<Ice::Connection>)> response,
+            std::function<void(Ice::ConnectionPtr)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr) const;
 
@@ -543,10 +535,10 @@ namespace Ice
          * it first attempts to create a connection.
          * @return The future object for the invocation.
          */
-        std::future<std::shared_ptr<Ice::Connection>> ice_getConnectionAsync() const;
+        std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// \cond INTERNAL
-        void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
+        void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
         /// \endcond
 
         /**
@@ -555,7 +547,7 @@ namespace Ice
          * @return The cached connection for this proxy, or nil if the proxy does not have
          * an established connection.
          */
-        std::shared_ptr<Ice::Connection> ice_getCachedConnection() const;
+        Ice::ConnectionPtr ice_getCachedConnection() const;
 
         /**
          * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -750,7 +742,7 @@ namespace Ice
          * Obtains the communicator that created this proxy.
          * @return The communicator that created this proxy.
          */
-        std::shared_ptr<Ice::Communicator> ice_getCommunicator() const;
+        Ice::CommunicatorPtr ice_getCommunicator() const;
 
         /**
          * Obtains a stringified version of this proxy.
@@ -759,12 +751,12 @@ namespace Ice
         std::string ice_toString() const;
 
         /// \cond INTERNAL
-        void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;
+        void _iceI_flushBatchRequests(const std::shared_ptr<IceInternal::ProxyFlushBatchAsync>&) const;
 
         static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
 
-        const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
-        const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+        const IceInternal::ReferencePtr& _getReference() const { return _reference; }
+        const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
 
         void _checkTwowayOnly(std::string_view) const;
 

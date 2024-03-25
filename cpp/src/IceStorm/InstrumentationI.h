@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef INSTRUMENTATION_I_H
-#define INSTRUMENTATION_I_H
+#ifndef ICESTORM_INSTRUMENTATION_I_H
+#define ICESTORM_INSTRUMENTATION_I_H
 
-#include <Ice/MetricsObserverI.h>
-
-#include <IceStorm/Instrumentation.h>
-#include <IceStorm/Metrics.h>
+#include "Ice/MetricsObserverI.h"
+#include "IceStorm/Metrics.h"
+#include "Instrumentation.h"
 
 namespace IceStorm
 {

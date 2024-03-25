@@ -19,7 +19,7 @@ namespace IceGrid
     class AdminCallbackRouter : public Ice::BlobjectArrayAsync
     {
     public:
-        void addMapping(const std::string&, const std::shared_ptr<Ice::Connection>&);
+        void addMapping(const std::string&, const Ice::ConnectionPtr&);
         void removeMapping(const std::string&);
 
         void ice_invokeAsync(
@@ -30,7 +30,7 @@ namespace IceGrid
 
     private:
         std::mutex _mutex;
-        std::map<std::string, std::shared_ptr<Ice::Connection>> _categoryToConnection;
+        std::map<std::string, Ice::ConnectionPtr> _categoryToConnection;
     };
 }
 

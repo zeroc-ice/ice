@@ -6,8 +6,8 @@
 #define ICE_ASYNC_RESPONSE_HANDLER_H
 
 #include "Current.h"
-#include "OutgoingResponse.h"
 #include "LocalException.h"
+#include "OutgoingResponse.h"
 
 #include <atomic>
 

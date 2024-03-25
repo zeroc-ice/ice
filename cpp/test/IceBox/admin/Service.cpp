@@ -25,7 +25,7 @@ extern "C"
     //
     // Factory function
     //
-    ICE_DECLSPEC_EXPORT ::IceBox::Service* create(const shared_ptr<Communicator>& communicator)
+    ICE_DECLSPEC_EXPORT ::IceBox::Service* create(const CommunicatorPtr& communicator)
     {
         return new ServiceI(communicator);
     }

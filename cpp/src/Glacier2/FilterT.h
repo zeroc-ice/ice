@@ -23,9 +23,9 @@ namespace Glacier2
         //
         // Slice to C++ mapping.
         //
-        virtual void add(std::vector<T>, const Ice::Current&) override;
-        virtual void remove(std::vector<T>, const Ice::Current&) override;
-        virtual std::vector<T> get(const Ice::Current&) override;
+        void add(std::vector<T>, const Ice::Current&) override;
+        void remove(std::vector<T>, const Ice::Current&) override;
+        std::vector<T> get(const Ice::Current&) override;
 
         //
         // Internal functions.

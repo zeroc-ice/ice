@@ -5,7 +5,7 @@
 //
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
-#include <Slice/GrammarUtil.h>
+#include "Slice/GrammarUtil.h"
 
 }
 
@@ -65,7 +65,8 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 %{
 
-#include <IceUtil/UUID.h>
+#include "IceUtil/UUID.h"
+
 #include <cstring>
 #include <limits>
 

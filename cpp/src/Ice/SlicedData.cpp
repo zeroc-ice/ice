@@ -37,7 +37,7 @@ Ice::UnknownSlicedValue::ice_id() const
     return _unknownTypeId;
 }
 
-shared_ptr<Ice::Value>
+ValuePtr
 Ice::UnknownSlicedValue::_iceCloneImpl() const
 {
     return make_shared<UnknownSlicedValue>(static_cast<const UnknownSlicedValue&>(*this));

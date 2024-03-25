@@ -71,7 +71,7 @@
 //
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
-#include <Slice/GrammarUtil.h>
+#include "Slice/GrammarUtil.h"
 
 #line 27 "src/Slice/Grammar.y"
 
@@ -114,7 +114,8 @@
 /* First part of user prologue.  */
 #line 66 "src/Slice/Grammar.y"
 
-#include <IceUtil/UUID.h>
+#include "IceUtil/UUID.h"
+
 #include <cstring>
 #include <limits>
 

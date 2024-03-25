@@ -20,9 +20,9 @@ namespace IceInternal
     {
     public:
         SHA1();
-        SHA1(const SHA1&) = delete;
         ~SHA1();
 
+        SHA1(const SHA1&) = delete;
         SHA1 operator=(const SHA1&) = delete;
 
         void update(const unsigned char*, std::size_t);

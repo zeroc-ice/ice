@@ -10,14 +10,14 @@
 class TestI final : public ::Test::TestIntf
 {
 public:
-    TestI(std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::Properties>);
+    TestI(Ice::ObjectAdapterPtr, Ice::PropertiesPtr);
 
     void shutdown(const Ice::Current&) override;
     std::string getProperty(std::string, const Ice::Current&) override;
 
 private:
-    std::shared_ptr<Ice::ObjectAdapter> _adapter;
-    std::shared_ptr<Ice::Properties> _properties;
+    Ice::ObjectAdapterPtr _adapter;
+    Ice::PropertiesPtr _properties;
 };
 
 #endif

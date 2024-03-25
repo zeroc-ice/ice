@@ -5,14 +5,14 @@
 #ifndef ICE_FORMAT_H
 #define ICE_FORMAT_H
 
-#include "Config.h"
+#include <cstdint>
 
 namespace Ice
 {
     /**
      * Describes the possible formats for classes and exceptions.
      */
-    enum class FormatType : unsigned char
+    enum class FormatType : std::uint8_t
     {
         /**
          * Indicates that no preference was specified.

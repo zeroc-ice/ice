@@ -166,18 +166,12 @@
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
-    <ClCompile Include="..\..\Endpoint.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
-    <ClCompile Include="..\..\Instrumentation.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
-    <ClCompile Include="..\..\Logger.cpp" />
     <ClCompile Include="..\..\MarshaledResult.cpp" />
-    <ClCompile Include="..\..\ObjectAdapter.cpp" />
-    <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\ProxyAsync.cpp" />
     <ClCompile Include="..\..\RequestHandlerCache.cpp" />
-    <ClCompile Include="..\..\ServantLocator.cpp" />
     <ClCompile Include="..\..\TimeUtil.cpp" />
     <ClCompile Include="..\..\UserException.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
@@ -941,7 +935,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\InstrumentationF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LocalException.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\LoggerF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MetricsAdminI.h" />

@@ -5,33 +5,24 @@
 #ifndef ICE_BT_PLUGIN_H
 #define ICE_BT_PLUGIN_H
 
-#include <Ice/Plugin.h>
+#include "Ice/Plugin.h"
 
+#include <functional>
 #include <map>
-
-#ifndef ICEBT_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBT_API /**/
-#    elif defined(ICEBT_API_EXPORTS)
-#        define ICEBT_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEBT_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
 
 namespace IceBT
 {
     /** A name-value map. */
-    typedef std::map<std::string, std::string> PropertyMap;
+    using PropertyMap = std::map<std::string, std::string>;
 
     /** A collection of properties for each device. */
-    typedef std::map<std::string, PropertyMap> DeviceMap;
+    using DeviceMap = std::map<std::string, PropertyMap>;
 
     /**
      * Represents the IceBT plug-in object.
      * \headerfile IceBT/IceBT.h
      */
-    class ICEBT_API Plugin : public Ice::Plugin
+    class Plugin : public Ice::Plugin
     {
     public:
         /**

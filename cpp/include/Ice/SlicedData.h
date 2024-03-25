@@ -5,6 +5,7 @@
 #ifndef ICE_SLICED_DATA_H
 #define ICE_SLICED_DATA_H
 
+#include "Config.h"
 #include "SlicedDataF.h"
 #include "Value.h"
 
@@ -14,7 +15,7 @@ namespace Ice
      * Encapsulates the details of a slice for an unknown class or exception type.
      * \headerfile Ice/Ice.h
      */
-    struct ICE_API SliceInfo
+    struct SliceInfo
     {
         /**
          * The Slice type ID for this slice.
@@ -34,7 +35,7 @@ namespace Ice
         /**
          * The class instances referenced by this slice.
          */
-        std::vector<std::shared_ptr<Value>> instances;
+        std::vector<ValuePtr> instances;
 
         /**
          * Whether or not the slice contains optional members.
@@ -82,20 +83,20 @@ namespace Ice
          * Determine the Slice type ID associated with this instance.
          * @return The type ID supplied to the constructor.
          */
-        virtual std::string ice_id() const override;
+        std::string ice_id() const override;
 
         /**
          * Clones this object.
          * @return A new instance.
          */
-        inline UnknownSlicedValuePtr ice_clone() const
+        UnknownSlicedValuePtr ice_clone() const
         {
             return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
         }
 
     protected:
         /// \cond INTERNAL
-        virtual std::shared_ptr<Value> _iceCloneImpl() const override;
+        ValuePtr _iceCloneImpl() const override;
         /// \endcond
 
     private:

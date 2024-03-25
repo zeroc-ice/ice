@@ -434,11 +434,6 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
             prefix += "const ";
         }
 
-        if (type.find("::std::shared_ptr<", prefix.size()) == prefix.size())
-        {
-            prefix += "::std::shared_ptr<";
-        }
-
         if (type.find(scope, prefix.size()) == prefix.size())
         {
             string t = type.substr(prefix.size() + scope.size());
@@ -483,9 +478,9 @@ Slice::typeToString(
         "float",
         "double",
         "****", // string or wstring, see below
-        "::std::shared_ptr<::Ice::Value>",
+        "::Ice::ValuePtr",
         "::std::optional<::Ice::ObjectPrx>",
-        "::std::shared_ptr<::Ice::Value>"};
+        "::Ice::ValuePtr"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -510,7 +505,7 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
+        return getUnqualified(cl->scoped(), scope) + "Ptr";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);

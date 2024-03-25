@@ -6,12 +6,13 @@
 #define ICE_COMMUNICATOR_H
 
 #include "Config.h"
+#include "CommunicatorF.h"
 #include "Connection.h"
-#include "InstanceF.h"
 #include "FacetMap.h"
-#include "ImplicitContextF.h"
+#include "ImplicitContext.h"
 #include "Initialize.h"
-#include "PluginF.h"
+#include "InstanceF.h"
+#include "Plugin.h"
 #include "Properties.h"
 #include "Proxy.h"
 
@@ -145,7 +146,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter> createObjectAdapter(const std::string& name);
+        ObjectAdapterPtr createObjectAdapter(const std::string& name);
 
         /**
          * Create a new object adapter with endpoints. This operation sets the property
@@ -159,8 +160,7 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter>
-        createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
+        ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
 
         /**
          * Create a new object adapter with a router. This operation creates a routed object adapter.
@@ -172,34 +172,34 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        std::shared_ptr<ObjectAdapter> createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
+        ObjectAdapterPtr createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
 
         /**
          * Get the implicit context associated with this communicator.
          * @return The implicit context associated with this communicator; returns null when the property
          * Ice.ImplicitContext is not set or is set to None.
          */
-        std::shared_ptr<ImplicitContext> getImplicitContext() const noexcept;
+        ImplicitContextPtr getImplicitContext() const noexcept;
 
         /**
          * Get the properties for this communicator.
          * @return This communicator's properties.
          * @see Properties
          */
-        std::shared_ptr<Properties> getProperties() const noexcept;
+        PropertiesPtr getProperties() const noexcept;
 
         /**
          * Get the logger for this communicator.
          * @return This communicator's logger.
          * @see Logger
          */
-        std::shared_ptr<Logger> getLogger() const noexcept;
+        LoggerPtr getLogger() const noexcept;
 
         /**
          * Get the observer resolver object for this communicator.
          * @return This communicator's observer resolver object.
          */
-        std::shared_ptr<Instrumentation::CommunicatorObserver> getObserver() const noexcept;
+        Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
         /**
          * Get the default router for this communicator.
@@ -246,14 +246,14 @@ namespace Ice
          * @return This communicator's plug-in manager.
          * @see PluginManager
          */
-        std::shared_ptr<PluginManager> getPluginManager() const;
+        PluginManagerPtr getPluginManager() const;
 
         /**
          * Get the value factory manager for this communicator.
          * @return This communicator's value factory manager.
          * @see ValueFactoryManager
          */
-        std::shared_ptr<ValueFactoryManager> getValueFactoryManager() const noexcept;
+        ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
 
         /**
          * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed
@@ -300,7 +300,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object.
          * @see #getAdmin
          */
-        ObjectPrx createAdmin(const std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId);
+        ObjectPrx createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId);
 
         /**
          * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
@@ -375,13 +375,11 @@ namespace Ice
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
         friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
-        friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
-        friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
+        friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
+        friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 
-        const ::IceInternal::InstancePtr _instance;
+        const IceInternal::InstancePtr _instance;
     };
-
-    using CommunicatorPtr = std::shared_ptr<Communicator>;
 }
 
 #endif

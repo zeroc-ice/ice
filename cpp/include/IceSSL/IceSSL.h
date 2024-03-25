@@ -5,20 +5,18 @@
 #ifndef ICESSL_ICESSL_H
 #define ICESSL_ICESSL_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/Config.h>
-#include <IceSSL/Plugin.h>
+#include "Config.h"
+#include "Plugin.h"
 
 #if defined(_WIN32)
-#    include <IceSSL/SChannel.h>
+#    include "SChannel.h"
 #elif defined(__APPLE__)
-#    include <IceSSL/SecureTransport.h>
+#    include "SecureTransport.h"
 #else
-#    include <IceSSL/OpenSSL.h>
+#    include "OpenSSL.h"
 #endif
 
-#include <IceSSL/EndpointInfo.h>
-#include <IceSSL/ConnectionInfo.h>
-#include <IceUtil/PopDisableWarnings.h>
+#include "ConnectionInfo.h"
+#include "EndpointInfo.h"
 
 #endif

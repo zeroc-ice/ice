@@ -2,32 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceBT_ConnectionInfo_h__
-#define __IceBT_ConnectionInfo_h__
+#ifndef ICE_BT_CONNECTION_INFO_H
+#define ICE_BT_CONNECTION_INFO_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/Connection.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/Connection.h"
 
-#ifndef ICEBT_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBT_API /**/
-#    elif defined(ICEBT_API_EXPORTS)
-#        define ICEBT_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEBT_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-
-namespace IceBT
-{
-    class ConnectionInfo;
-}
 
 namespace IceBT
 {
@@ -35,11 +21,9 @@ namespace IceBT
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
      */
-    class ICE_CLASS(ICEBT_API) ConnectionInfo : public ::Ice::ConnectionInfo
+    class ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
-        ICE_MEMBER(ICEBT_API) virtual ~ConnectionInfo();
-
         ConnectionInfo()
             : localAddress(""),
               localChannel(-1),
@@ -51,14 +35,12 @@ namespace IceBT
         {
         }
 
-        ConnectionInfo(const ConnectionInfo&) = default;
-        ConnectionInfo(ConnectionInfo&&) = default;
-        ConnectionInfo& operator=(const ConnectionInfo&) = default;
-        ConnectionInfo& operator=(ConnectionInfo&&) = default;
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -71,18 +53,18 @@ namespace IceBT
          * @param sndSize The connection buffer send size.
          */
         ConnectionInfo(
-            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
-            const ::std::string& adapterName,
-            const ::std::string& connectionId,
-            const ::std::string& localAddress,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            const std::string& localAddress,
             int localChannel,
-            const ::std::string& remoteAddress,
+            const std::string& remoteAddress,
             int remoteChannel,
-            const ::std::string& uuid,
+            const std::string& uuid,
             int rcvSize,
             int sndSize)
-            : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               localAddress(localAddress),
               localChannel(localChannel),
               remoteAddress(remoteAddress),
@@ -96,7 +78,7 @@ namespace IceBT
         /**
          * The local Bluetooth address.
          */
-        ::std::string localAddress;
+        std::string localAddress;
         /**
          * The local RFCOMM channel.
          */
@@ -104,7 +86,7 @@ namespace IceBT
         /**
          * The remote Bluetooth address.
          */
-        ::std::string remoteAddress;
+        std::string remoteAddress;
         /**
          * The remote RFCOMM channel.
          */
@@ -112,7 +94,7 @@ namespace IceBT
         /**
          * The UUID of the service being offered (in a server) or targeted (in a client).
          */
-        ::std::string uuid;
+        std::string uuid;
         /**
          * The connection buffer receive size.
          */
@@ -122,14 +104,14 @@ namespace IceBT
          */
         int sndSize = 0;
     };
+
+    using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
 
-/// \cond INTERNAL
-namespace IceBT
-{
-    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-}
-/// \endcond
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-#include <IceUtil/PopDisableWarnings.h>
 #endif

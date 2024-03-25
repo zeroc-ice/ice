@@ -5,9 +5,8 @@
 #ifndef ICE_STRING_CONVERTER_H
 #define ICE_STRING_CONVERTER_H
 
-#include "Config.h"
-#include "IceUtil/StringConverter.h"
 #include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/StringConverter.h"
 
 namespace Ice
 {

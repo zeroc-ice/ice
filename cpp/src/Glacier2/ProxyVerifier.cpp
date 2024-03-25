@@ -285,7 +285,7 @@ namespace Glacier2
             _description = ostr.str();
         }
 
-        virtual bool match(const string& space, string::size_type& pos) override
+        bool match(const string& space, string::size_type& pos) override
         {
             istringstream istr(space.substr(pos));
             int val;
@@ -315,7 +315,7 @@ namespace Glacier2
             return false;
         }
 
-        virtual const char* toString() const override { return _description.c_str(); }
+        const char* toString() const override { return _description.c_str(); }
 
     private:
         const vector<int> _values;
@@ -440,7 +440,7 @@ namespace Glacier2
     {
     public:
         AddressRule(
-            shared_ptr<Communicator> communicator,
+            CommunicatorPtr communicator,
             const vector<AddressMatcher*>& address,
             MatchesNumber* port,
             const int traceLevel)
@@ -550,7 +550,7 @@ namespace Glacier2
             return true;
         }
 
-        const shared_ptr<Communicator> _communicator;
+        const CommunicatorPtr _communicator;
         vector<AddressMatcher*> _addressRules;
         MatchesNumber* _portMatcher;
         const int _traceLevel;
@@ -742,7 +742,7 @@ namespace Glacier2
     class ProxyLengthRule : public ProxyRule
     {
     public:
-        ProxyLengthRule(shared_ptr<Communicator> communicator, const string& count, int traceLevel)
+        ProxyLengthRule(CommunicatorPtr communicator, const string& count, int traceLevel)
             : _communicator(std::move(communicator)),
               _traceLevel(traceLevel)
         {
@@ -770,14 +770,14 @@ namespace Glacier2
         }
 
     private:
-        const shared_ptr<Communicator> _communicator;
+        const CommunicatorPtr _communicator;
         const int _traceLevel;
         unsigned long _count;
     };
 
 } // End proxy rule implementations.
 
-Glacier2::ProxyVerifier::ProxyVerifier(shared_ptr<Communicator> communicator)
+Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     : _communicator(std::move(communicator)),
       _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {

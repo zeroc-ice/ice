@@ -5,10 +5,10 @@
 #ifndef ICE_PROXY_FUNCTIONS_H
 #define ICE_PROXY_FUNCTIONS_H
 
-#include "Ice/Proxy.h"
-#include "Ice/Current.h"
 #include "Ice/Communicator.h"
+#include "Ice/Current.h"
 #include "Ice/ObjectAdapter.h"
+#include "Ice/Proxy.h"
 
 #include <sstream>
 
@@ -164,10 +164,10 @@ namespace Ice
     inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs < rhs); }
     inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs == rhs); }
 
-    ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
+    ICE_API std::ostream& operator<<(std::ostream&, const ObjectPrx&);
 
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-    inline ::std::ostream& operator<<(::std::ostream& os, const std::optional<Prx>& proxy)
+    inline std::ostream& operator<<(std::ostream& os, const std::optional<Prx>& proxy)
     {
         if (proxy)
         {

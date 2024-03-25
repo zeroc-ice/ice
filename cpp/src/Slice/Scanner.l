@@ -9,11 +9,10 @@
 
 %{
 
-#include <Slice/GrammarUtil.h>
-#include <Slice/Grammar.h>
+#include "Slice/GrammarUtil.h"
+#include "Slice/Grammar.h"
 
 #include <iomanip>
-
 #include <stdlib.h>
 #include <math.h>
 

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/Observers.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/TraceLevels.h>
+#include "Observers.h"
+#include "Instance.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceStorm;

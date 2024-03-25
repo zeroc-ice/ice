@@ -5,7 +5,6 @@
 #ifndef ICE_SERVANT_LOCATOR_H
 #define ICE_SERVANT_LOCATOR_H
 
-#include "Config.h"
 #include "Current.h"
 #include "ObjectF.h"
 
@@ -18,10 +17,10 @@ namespace Ice
      * @see ObjectAdapter#findServantLocator
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ServantLocator
+    class ServantLocator
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ServantLocator();
+        virtual ~ServantLocator() = default;
 
         /**
          * Called before a request is dispatched if a servant cannot be found in the object adapter's active servant
@@ -43,7 +42,7 @@ namespace Ice
          * @see Current
          * @see #finished
          */
-        virtual ObjectPtr locate(const Current& curr, ::std::shared_ptr<void>& cookie) = 0;
+        virtual ObjectPtr locate(const Current& curr, std::shared_ptr<void>& cookie) = 0;
 
         /**
          * Called by the object adapter after a request has been made. This operation is only called if
@@ -63,7 +62,7 @@ namespace Ice
          * @see Current
          * @see #locate
          */
-        virtual void finished(const Current& curr, const ObjectPtr& servant, const ::std::shared_ptr<void>& cookie) = 0;
+        virtual void finished(const Current& curr, const ObjectPtr& servant, const std::shared_ptr<void>& cookie) = 0;
 
         /**
          * Called when the object adapter in which this servant locator is installed is destroyed.
@@ -72,10 +71,10 @@ namespace Ice
          * @see Communicator#shutdown
          * @see Communicator#destroy
          */
-        virtual void deactivate(const ::std::string& category) = 0;
+        virtual void deactivate(const std::string& category) = 0;
     };
 
-    using ServantLocatorPtr = ::std::shared_ptr<ServantLocator>;
+    using ServantLocatorPtr = std::shared_ptr<ServantLocator>;
 }
 
 #endif

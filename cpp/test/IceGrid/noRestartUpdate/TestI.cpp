@@ -5,7 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(std::shared_ptr<Ice::ObjectAdapter> adapter, std::shared_ptr<Ice::Properties> properties)
+TestI::TestI(Ice::ObjectAdapterPtr adapter, Ice::PropertiesPtr properties)
     : _adapter(std::move(adapter)),
       _properties(std::move(properties))
 {

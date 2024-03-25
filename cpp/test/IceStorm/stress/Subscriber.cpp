@@ -20,10 +20,7 @@ struct Subscription;
 class EventI : public Event
 {
 public:
-    EventI(shared_ptr<Communicator> communicator, int total)
-        : _communicator(std::move(communicator)),
-          _total(total),
-          _count(0)
+    EventI(CommunicatorPtr communicator, int total) : _communicator(std::move(communicator)), _total(total), _count(0)
     {
     }
 
@@ -36,7 +33,7 @@ public:
     virtual void check(const Subscription&) {}
 
 protected:
-    shared_ptr<Communicator> _communicator;
+    CommunicatorPtr _communicator;
     const int _total;
     int _count;
     mutex _mutex;
@@ -44,7 +41,7 @@ protected:
 
 struct Subscription final
 {
-    shared_ptr<Ice::ObjectAdapter> adapter;
+    Ice::ObjectAdapterPtr adapter;
     optional<Ice::ObjectPrx> obj;
     shared_ptr<EventI> servant;
     IceStorm::QoS qos;
@@ -55,7 +52,7 @@ struct Subscription final
 class OrderEventI final : public EventI
 {
 public:
-    OrderEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    OrderEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int counter, const Ice::Current&) override
     {
@@ -75,7 +72,7 @@ public:
 class CountEventI final : public EventI
 {
 public:
-    CountEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    CountEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int, const Ice::Current&) override
     {
@@ -90,7 +87,7 @@ public:
 class SlowEventI final : public EventI
 {
 public:
-    SlowEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total) {}
+    SlowEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) {}
 
     void pub(int, const Ice::Current&) override
     {
@@ -114,10 +111,7 @@ public:
 class ErraticEventI final : public EventI
 {
 public:
-    ErraticEventI(shared_ptr<Communicator> communicator, int total) : EventI(std::move(communicator), total)
-    {
-        ++_remaining;
-    }
+    ErraticEventI(CommunicatorPtr communicator, int total) : EventI(std::move(communicator), total) { ++_remaining; }
 
     void pub(int, const Ice::Current& current) override
     {
@@ -152,7 +146,7 @@ atomic_int ErraticEventI::_remaining = 0;
 class MaxQueueEventI final : public EventI
 {
 public:
-    MaxQueueEventI(shared_ptr<Communicator> communicator, int expected, int total, bool removeSubscriber)
+    MaxQueueEventI(CommunicatorPtr communicator, int expected, int total, bool removeSubscriber)
         : EventI(std::move(communicator), total),
           _removeSubscriber(removeSubscriber),
           _expected(expected)
@@ -217,7 +211,7 @@ private:
 class ControllerEventI final : public EventI
 {
 public:
-    ControllerEventI(shared_ptr<Communicator> communicator, int total, shared_ptr<ObjectAdapter> adapter)
+    ControllerEventI(CommunicatorPtr communicator, int total, ObjectAdapterPtr adapter)
         : EventI(std::move(communicator), total),
           _adapter(std::move(adapter))
     {
@@ -233,7 +227,7 @@ public:
     }
 
 private:
-    const shared_ptr<Ice::ObjectAdapter> _adapter;
+    const Ice::ObjectAdapterPtr _adapter;
 };
 
 class Subscriber final : public Test::TestHelper

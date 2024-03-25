@@ -8,7 +8,7 @@
 #include <Ice/Config.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Selector.h>
@@ -133,7 +133,7 @@ namespace IceInternal
 #ifdef ICE_SWIFT
         const dispatch_queue_t _dispatchQueue;
 #else // Ice for Swift does not support an executor
-        std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> _executor;
+        std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
 #endif
         ThreadPoolWorkQueuePtr _workQueue;
         bool _destroyed;

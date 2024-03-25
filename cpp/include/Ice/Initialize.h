@@ -5,19 +5,17 @@
 #ifndef ICE_INITIALIZE_H
 #define ICE_INITIALIZE_H
 
-#include "IceUtil/Timer.h"
-#include "Connection.h"
+#include "BatchRequest.h"
 #include "CommunicatorF.h"
-#include "PropertiesF.h"
-#include "InstanceF.h"
-#include "LoggerF.h"
-#include "InstrumentationF.h"
+#include "Connection.h"
 #include "Ice/BuiltinSequences.h"
+#include "IceUtil/Timer.h"
+#include "InstanceF.h"
+#include "Instrumentation.h"
+#include "Logger.h"
 #include "Plugin.h"
-#include "BatchRequestInterceptor.h"
+#include "PropertiesF.h"
 #include "ValueFactory.h"
-
-#define ICE_CONFIG_FILE_STRING const std::string&
 
 namespace Ice
 {
@@ -302,7 +300,7 @@ namespace Ice
          * @param call Represents the function to execute. The execute must eventually execute this function.
          * @param con The connection associated with this call, or null if no connection is associated with it.
          */
-        std::function<void(std::function<void()> call, const std::shared_ptr<Ice::Connection>& con)> executor;
+        std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor;
 
         /**
          * Applications that make use of compact type IDs to conserve space
@@ -395,7 +393,7 @@ namespace Ice
      * @return The new communicator.
      */
     ICE_API CommunicatorPtr
-    initialize(int& argc, const char* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    initialize(int& argc, const char* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -413,7 +411,7 @@ namespace Ice
      * @return The new communicator.
      */
     inline CommunicatorPtr
-    initialize(int& argc, char* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION)
+    initialize(int& argc, char* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const char**>(argv), configFile, version);
     }
@@ -480,7 +478,7 @@ namespace Ice
      * @return The new communicator.
      */
     ICE_API CommunicatorPtr
-    initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    initialize(int& argc, const wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -498,7 +496,7 @@ namespace Ice
      * @return The new communicator.
      */
     inline CommunicatorPtr
-    initialize(int& argc, wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION)
+    initialize(int& argc, wchar_t* argv[], const std::string& configFile, int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), configFile, version);
     }
@@ -535,8 +533,7 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(StringSeq& seq, ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(StringSeq& seq, const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -555,7 +552,7 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Obtains the per-process logger. This logger is used by all communicators that do not have their
@@ -578,10 +575,8 @@ namespace Ice
      * @param args Additional arguments included in the plug-in's configuration.
      * @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
      */
-    typedef Ice::Plugin* (*PluginFactory)(
-        const ::Ice::CommunicatorPtr& communicator,
-        const std::string& name,
-        const ::Ice::StringSeq& args);
+    typedef Ice::Plugin* (
+        *PluginFactory)(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::StringSeq& args);
 
     /**
      * Manually registers a plug-in factory function.
@@ -620,14 +615,14 @@ namespace Ice
          * Adopts the given communicator.
          * @param communicator The new communicator instance to hold.
          */
-        CommunicatorHolder(std::shared_ptr<Communicator> communicator);
+        CommunicatorHolder(CommunicatorPtr communicator);
 
         /**
          * Adopts the given communicator. If this holder currently holds a communicator,
          * it will be destroyed.
          * @param communicator The new communicator instance to hold.
          */
-        CommunicatorHolder& operator=(std::shared_ptr<Communicator> communicator);
+        CommunicatorHolder& operator=(CommunicatorPtr communicator);
 
         CommunicatorHolder(const CommunicatorHolder&) = delete;
         CommunicatorHolder(CommunicatorHolder&&) = default;
@@ -674,7 +669,7 @@ namespace Ice
      * the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
      * string.
      */
-    enum class ToStringMode : unsigned char
+    enum class ToStringMode : std::uint8_t
     {
         /**
          * Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII
@@ -718,8 +713,8 @@ namespace IceInternal
     // not use this operation for regular application code! It is intended
     // to be used by modules such as Freeze.
     //
-    ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
-    ICE_API IceUtil::TimerPtr getInstanceTimer(const ::Ice::CommunicatorPtr&);
+    ICE_API InstancePtr getInstance(const Ice::CommunicatorPtr&);
+    ICE_API IceUtil::TimerPtr getInstanceTimer(const Ice::CommunicatorPtr&);
 }
 
 #endif

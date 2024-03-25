@@ -18,7 +18,7 @@ namespace IceGrid
     {
     public:
         SessionServantManager(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             const std::string&,
             bool,
             const std::string&,
@@ -33,7 +33,7 @@ namespace IceGrid
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&);
         void deactivate(const std::string&);
 
-        Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const std::shared_ptr<Ice::Connection>&, const std::string&);
+        Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
         void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet(const Ice::ObjectPtr&);
         std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet(const Ice::ObjectPtr&);
@@ -42,15 +42,15 @@ namespace IceGrid
         Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
         void remove(const Ice::Identity&);
 
-        void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
-        void connectionClosed(const std::shared_ptr<Ice::Connection>&);
+        void connectionHeartbeat(const Ice::ConnectionPtr&);
+        void connectionClosed(const Ice::ConnectionPtr&);
 
     private:
         Ice::ObjectPrx addImpl(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
 
         struct ServantInfo
         {
-            ServantInfo(const Ice::ObjectPtr& s, const std::shared_ptr<Ice::Connection>& con, const Ice::ObjectPtr& ss)
+            ServantInfo(const Ice::ObjectPtr& s, const Ice::ConnectionPtr& con, const Ice::ObjectPtr& ss)
                 : servant(s),
                   connection(con),
                   session(ss)
@@ -58,19 +58,15 @@ namespace IceGrid
             }
 
             const Ice::ObjectPtr servant;
-            const std::shared_ptr<Ice::Connection> connection;
+            const Ice::ConnectionPtr connection;
             const Ice::ObjectPtr session;
         };
 
         struct SessionInfo
         {
-            SessionInfo(const std::shared_ptr<Ice::Connection>& c, const std::string& cat)
-                : connection(c),
-                  category(cat)
-            {
-            }
+            SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat) : connection(c), category(cat) {}
 
-            const std::shared_ptr<Ice::Connection> connection;
+            const Ice::ConnectionPtr connection;
             const std::string category;
             std::optional<Glacier2::SessionControlPrx> sessionControl;
             std::optional<Glacier2::IdentitySetPrx> identitySet;
@@ -78,7 +74,7 @@ namespace IceGrid
             std::set<Ice::Identity> identities;
         };
 
-        const std::shared_ptr<Ice::ObjectAdapter> _adapter;
+        const Ice::ObjectAdapterPtr _adapter;
         const std::string _instanceName;
         const bool _checkConnection;
         const std::string _serverAdminCategory;
@@ -91,7 +87,7 @@ namespace IceGrid
 
         std::map<Ice::Identity, ServantInfo> _servants;
         std::map<Ice::ObjectPtr, SessionInfo> _sessions;
-        std::multiset<std::shared_ptr<Ice::Connection>> _adminConnections;
+        std::multiset<Ice::ConnectionPtr> _adminConnections;
 
         std::mutex _mutex;
     };

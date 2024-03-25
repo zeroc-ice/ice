@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef TRANSIENT_TOPIC_I_H
-#define TRANSIENT_TOPIC_I_H
+#ifndef ICESTORM_TRANSIENT_TOPIC_I_H
+#define ICESTORM_TRANSIENT_TOPIC_I_H
 
-#include <IceStorm/IceStormInternal.h>
+#include "IceStorm/IceStormInternal.h"
 
 namespace IceStorm
 {

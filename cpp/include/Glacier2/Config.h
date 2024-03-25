@@ -5,9 +5,7 @@
 #ifndef GLACIER2_CONFIG_H
 #define GLACIER2_CONFIG_H
 
-//
-// Automatically link with Glacier2[D].lib
-//
+#include "Ice/Config.h"
 
 #if !defined(ICE_BUILDING_GLACIER2) && defined(GLACIER2_API_EXPORTS)
 #    define ICE_BUILDING_GLACIER2
@@ -16,6 +14,10 @@
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_GLACIER2)
 #    pragma comment(lib, ICE_LIBNAME("Glacier2"))
 #endif
+
+//
+// Automatically link with Glacier2[D].lib
+//
 
 #ifndef GLACIER2_API
 #    if defined(ICE_STATIC_LIBS)

@@ -59,7 +59,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
     private:
         void usage(const std::string&);
@@ -69,14 +69,14 @@ namespace
         shared_ptr<RegistryI> _registry;
         shared_ptr<NodeI> _node;
         unique_ptr<NodeSessionManager> _sessions;
-        shared_ptr<ObjectAdapter> _adapter;
+        ObjectAdapterPtr _adapter;
     };
 
     class CollocatedRegistry final : public RegistryI
     {
     public:
         CollocatedRegistry(
-            const shared_ptr<Communicator>&,
+            const CommunicatorPtr&,
             const shared_ptr<Activator>&,
             bool,
             bool,
@@ -106,7 +106,7 @@ namespace
 }
 
 CollocatedRegistry::CollocatedRegistry(
-    const shared_ptr<Communicator>& com,
+    const CommunicatorPtr& com,
     const shared_ptr<Activator>& activator,
     bool nowarn,
     bool readonly,
@@ -725,7 +725,7 @@ NodeService::stop()
     return true;
 }
 
-shared_ptr<Communicator>
+CommunicatorPtr
 NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData, int version)
 {
     InitializationData initData = initializationData;

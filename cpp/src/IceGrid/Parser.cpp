@@ -309,11 +309,7 @@ namespace IceGrid
     Parser* parser;
 }
 
-Parser::Parser(
-    shared_ptr<Communicator> communicator,
-    AdminSessionPrx session,
-    optional<AdminPrx> admin,
-    bool interactive)
+Parser::Parser(CommunicatorPtr communicator, AdminSessionPrx session, optional<AdminPrx> admin, bool interactive)
     : _communicator(std::move(communicator)),
       _session(std::move(session)),
       _admin(std::move(admin)),

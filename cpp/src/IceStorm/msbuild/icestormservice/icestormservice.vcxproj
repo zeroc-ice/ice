@@ -104,7 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Instance.cpp" />
-    <ClCompile Include="..\..\Instrumentation.cpp" />
     <ClCompile Include="..\..\InstrumentationI.cpp" />
     <ClCompile Include="..\..\NodeI.cpp" />
     <ClCompile Include="..\..\Observers.cpp" />

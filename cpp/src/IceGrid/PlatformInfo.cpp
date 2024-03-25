@@ -39,7 +39,7 @@ namespace
         return IceUtilInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
     }
 
-    static string getLocalizedPerfName(int idx, const shared_ptr<Ice::Logger>& logger)
+    static string getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
     {
         vector<char> localized;
         unsigned long size = 256;
@@ -65,7 +65,7 @@ namespace
 
     typedef BOOL(WINAPI* LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
-    int getSocketCount(const shared_ptr<Ice::Logger>& logger)
+    int getSocketCount(const Ice::LoggerPtr& logger)
     {
         LPFN_GLPI glpi;
         glpi = (LPFN_GLPI)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");

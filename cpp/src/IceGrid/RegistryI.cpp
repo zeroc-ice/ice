@@ -112,7 +112,7 @@ namespace
         shared_ptr<Process> _origProcess;
     };
 
-    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const shared_ptr<ConnectionInfo>& info)
+    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const ConnectionInfoPtr& info)
     {
         for (auto p = info; p; p = p->underlying)
         {
@@ -140,7 +140,7 @@ namespace
 }
 
 RegistryI::RegistryI(
-    const shared_ptr<Communicator>& communicator,
+    const CommunicatorPtr& communicator,
     const shared_ptr<TraceLevels>& traceLevels,
     bool nowarn,
     bool readonly,
@@ -601,7 +601,7 @@ RegistryI::startImpl()
     // Setup the discovery object adapter and also add it the lookup
     // servant to receive multicast lookup queries.
     //
-    shared_ptr<ObjectAdapter> discoveryAdapter;
+    ObjectAdapterPtr discoveryAdapter;
     if (properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Enabled", 1) > 0)
     {
         bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -733,12 +733,12 @@ RegistryI::setupInternalRegistry()
     return registry;
 }
 
-shared_ptr<ObjectAdapter>
+ObjectAdapterPtr
 RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
 {
     auto properties = _communicator->getProperties();
 
-    shared_ptr<ObjectAdapter> adapter;
+    ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
     if (!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
@@ -777,7 +777,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
     return adapter;
 }
 
-shared_ptr<ObjectAdapter>
+ObjectAdapterPtr
 RegistryI::setupAdminSessionFactory(
     const ObjectPtr& serverAdminRouter,
     const ObjectPtr& nodeAdminRouter,
@@ -786,7 +786,7 @@ RegistryI::setupAdminSessionFactory(
 {
     auto properties = _communicator->getProperties();
 
-    shared_ptr<ObjectAdapter> adapter;
+    ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
     if (!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
@@ -1209,7 +1209,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
 }
 
 Glacier2::SSLInfo
-RegistryI::getSSLInfo(const shared_ptr<Connection>& connection, string& userDN)
+RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 {
     Glacier2::SSLInfo sslinfo;
     try

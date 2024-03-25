@@ -5,10 +5,9 @@
 #ifndef ICE_BT_ICE_BT_H
 #define ICE_BT_ICE_BT_H
 
-#include <IceBT/ConnectionInfo.h>
-#include <IceBT/EndpointInfo.h>
-#include <IceBT/Types.h>
-
-#include <IceBT/Plugin.h>
+#include "ConnectionInfo.h"
+#include "EndpointInfo.h"
+#include "Plugin.h"
+#include "Types.h"
 
 #endif

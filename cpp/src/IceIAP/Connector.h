@@ -8,7 +8,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/Connector.h>
 
 #import <Foundation/Foundation.h>

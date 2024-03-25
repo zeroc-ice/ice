@@ -45,7 +45,7 @@ namespace IceGrid
             return publishers;
         }
 
-        std::shared_ptr<Ice::Logger> _logger;
+        Ice::LoggerPtr _logger;
         std::map<Ice::EncodingVersion, IceStorm::TopicPrx> _topics;
         std::vector<Ice::ObjectPrx> _basePublishers;
         int _serial;
@@ -78,7 +78,7 @@ namespace IceGrid
     {
     public:
         static std::shared_ptr<NodeObserverTopic>
-        create(const IceStorm::TopicManagerPrx&, const std::shared_ptr<Ice::ObjectAdapter>&);
+        create(const IceStorm::TopicManagerPrx&, const Ice::ObjectAdapterPtr&);
 
         void nodeInit(NodeDynamicInfoSeq, const Ice::Current&) override;
         void nodeUp(NodeDynamicInfo, const Ice::Current&) override;

@@ -43,7 +43,7 @@ namespace IceSSL
         //
         // From IceSSL::Plugin.
         //
-        virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
+        virtual void setCertificateVerifier(std::function<bool(const ConnectionInfoPtr&)>);
         virtual void setPasswordPrompt(std::function<std::string()>);
 
         virtual CertificatePtr load(const std::string&) const = 0;

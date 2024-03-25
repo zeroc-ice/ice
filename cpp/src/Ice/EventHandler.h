@@ -14,6 +14,8 @@
 
 namespace IceInternal
 {
+    class ThreadPoolCurrent;
+
     class ICE_API EventHandler : public std::enable_shared_from_this<EventHandler>
     {
     public:
