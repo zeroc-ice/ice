@@ -533,8 +533,7 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(StringSeq& seq, const std::string& configFile, int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(StringSeq& seq, const std::string& configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
