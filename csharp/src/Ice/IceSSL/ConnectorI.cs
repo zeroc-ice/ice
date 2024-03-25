@@ -2,63 +2,65 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Net.Security;
-
-namespace IceSSL;
-sealed class ConnectorI : IceInternal.Connector
+namespace IceSSL
 {
-    public IceInternal.Transceiver connect()
-    {
-        return new TransceiverI(
-            _instance,
-            _delegate.connect(),
-            _host,
-            incoming: false,
-            serverAuthenticationOptions: null);
-    }
+    using System.Net.Security;
 
-    public short type()
+    sealed class ConnectorI : IceInternal.Connector
     {
-        return _delegate.type();
-    }
-
-    //
-    // Only for use by EndpointI.
-    //
-    internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
-    {
-        _instance = instance;
-        _delegate = del;
-        _host = host;
-    }
-
-    public override bool Equals(object obj)
-    {
-        if(!(obj is ConnectorI))
+        public IceInternal.Transceiver connect()
         {
-            return false;
+            return new TransceiverI(
+                _instance,
+                _delegate.connect(),
+                _host,
+                incoming: false,
+                serverAuthenticationOptions: null);
         }
 
-        if(this == obj)
+        public short type()
         {
-            return true;
+            return _delegate.type();
         }
 
-        ConnectorI p = (ConnectorI)obj;
-        return _delegate.Equals(p._delegate);
-    }
+        //
+        // Only for use by EndpointI.
+        //
+        internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
+        {
+            _instance = instance;
+            _delegate = del;
+            _host = host;
+        }
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+        public override bool Equals(object obj)
+        {
+            if(!(obj is ConnectorI))
+            {
+                return false;
+            }
 
-    public override int GetHashCode()
-    {
-        return _delegate.GetHashCode();
-    }
+            if(this == obj)
+            {
+                return true;
+            }
 
-    private Instance _instance;
-    private IceInternal.Connector _delegate;
-    private string _host;
+            ConnectorI p = (ConnectorI)obj;
+            return _delegate.Equals(p._delegate);
+        }
+
+        public override string ToString()
+        {
+            return _delegate.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return _delegate.GetHashCode();
+        }
+
+        private Instance _instance;
+        private IceInternal.Connector _delegate;
+        private string _host;
+    }
 }

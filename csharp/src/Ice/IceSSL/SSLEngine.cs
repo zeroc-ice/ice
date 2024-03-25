@@ -2,131 +2,106 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceSSL;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-
-internal class SSLEngine
+namespace IceSSL
 {
-    internal SSLEngine(Ice.Communicator communicator)
+
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Security;
+    using System.Security.Authentication;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+
+    internal class SSLEngine
     {
-        _communicator = communicator;
-        _logger = communicator.getLogger();
-        _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
-        _securityTraceCategory = "Security";
-        _initialized = false;
-        _trustManager = new TrustManager(_communicator);
-    }
-
-    internal void initialize()
-    {
-        if(_initialized)
+        internal SSLEngine(Ice.Communicator communicator)
         {
-            return;
+            _communicator = communicator;
+            _logger = communicator.getLogger();
+            _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+            _securityTraceCategory = "Security";
+            _initialized = false;
+            _trustManager = new TrustManager(_communicator);
         }
 
-        const string prefix = "IceSSL.";
-        Ice.Properties properties = communicator().getProperties();
-
-        //
-        // Check for a default directory. We look in this directory for
-        // files mentioned in the configuration.
-        //
-        _defaultDir = properties.getProperty(prefix + "DefaultDir");
-
-        string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
-        StoreLocation storeLocation;
-        if(certStoreLocation == "CurrentUser")
+        internal void initialize()
         {
-            storeLocation = StoreLocation.CurrentUser;
-        }
-        else if(certStoreLocation == "LocalMachine")
-        {
-            storeLocation = StoreLocation.LocalMachine;
-        }
-        else
-        {
-            _logger.warning(
-                "Invalid IceSSL.CertStoreLocation value `" + certStoreLocation + "' adjusted to `CurrentUser'");
-            storeLocation = StoreLocation.CurrentUser;
-        }
-        _useMachineContext = certStoreLocation == "LocalMachine";
-
-        //
-        // Protocols selects which protocols to enable, by default we only enable TLS1.0
-        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
-        //
-        var protocols = properties.getPropertyAsList(prefix + "Protocols");
-        if(protocols.Length > 0)
-        {
-            _protocols = parseProtocols(protocols);
-        }
-        else
-        {
-            _protocols = 0;
-            foreach(int v in Enum.GetValues(typeof(SslProtocols)))
+            if(_initialized)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
-#pragma warning restore CS0618 // Type or member is obsolete
+                return;
+            }
+
+            const string prefix = "IceSSL.";
+            Ice.Properties properties = communicator().getProperties();
+
+            //
+            // Check for a default directory. We look in this directory for
+            // files mentioned in the configuration.
+            //
+            _defaultDir = properties.getProperty(prefix + "DefaultDir");
+
+            string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+            StoreLocation storeLocation;
+            if(certStoreLocation == "CurrentUser")
+            {
+                storeLocation = StoreLocation.CurrentUser;
+            }
+            else if(certStoreLocation == "LocalMachine")
+            {
+                storeLocation = StoreLocation.LocalMachine;
+            }
+            else
+            {
+                _logger.warning(
+                    "Invalid IceSSL.CertStoreLocation value `" + certStoreLocation + "' adjusted to `CurrentUser'");
+                storeLocation = StoreLocation.CurrentUser;
+            }
+            _useMachineContext = certStoreLocation == "LocalMachine";
+
+            //
+            // Protocols selects which protocols to enable, by default we only enable TLS1.0
+            // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
+            //
+            var protocols = properties.getPropertyAsList(prefix + "Protocols");
+            if(protocols.Length > 0)
+            {
+                _protocols = parseProtocols(protocols);
+            }
+            else
+            {
+                _protocols = 0;
+                foreach(int v in Enum.GetValues(typeof(SslProtocols)))
                 {
-                    _protocols |= (SslProtocols)v;
+    #pragma warning disable CS0618 // Type or member is obsolete
+                    if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
+    #pragma warning restore CS0618 // Type or member is obsolete
+                    {
+                        _protocols |= (SslProtocols)v;
+                    }
                 }
             }
-        }
-        //
-        // CheckCertName determines whether we compare the name in a peer's
-        // certificate against its hostname.
-        //
-        _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
-
-        //
-        // VerifyDepthMax establishes the maximum length of a peer's certificate
-        // chain, including the peer's certificate. A value of 0 means there is
-        // no maximum.
-        //
-        _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
-
-        //
-        // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
-        //
-        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
-
-        //
-        // Check for a certificate verifier.
-        //
-        string certVerifierClass = properties.getProperty(prefix + "CertVerifier");
-        if(certVerifierClass.Length > 0)
-        {
-            // TODO Add a warning about this property?
-        }
-
-        //
-        // Check for a password callback.
-        //
-        string passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
-        if(passwordCallbackClass.Length > 0)
-        {
-            // TODO Add a warning about this property?
-        }
-
-        //
-        // If the user hasn't supplied a certificate collection, we need to examine
-        // the property settings.
-        //
-        if(_certs == null)
-        {
             //
-            // If IceSSL.CertFile is defined, load a certificate from a file and
-            // add it to the collection.
+            // CheckCertName determines whether we compare the name in a peer's
+            // certificate against its hostname.
             //
-            // TODO: tracing?
+            _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+
+            //
+            // VerifyDepthMax establishes the maximum length of a peer's certificate
+            // chain, including the peer's certificate. A value of 0 means there is
+            // no maximum.
+            //
+            _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
+
+            //
+            // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
+            //
+            _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
+
+            Debug.Assert(_certs == null);
+            // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
             _certs = [];
             string certFile = properties.getProperty(prefix + "CertFile");
             string passwordStr = properties.getProperty(prefix + "Password");
@@ -184,10 +159,8 @@ internal class SSLEngine
                     throw new Ice.InitializationException("IceSSL: no certificates found");
                 }
             }
-        }
 
-        if(_caCerts == null)
-        {
+            Debug.Assert(_caCerts == null);
             string certAuthFile = properties.getProperty(prefix + "CAs");
             if(certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
             {
@@ -259,431 +232,431 @@ internal class SSLEngine
                         ex);
                 }
             }
+            _initialized = true;
         }
-        _initialized = true;
-    }
 
-    internal bool useMachineContext()
-    {
-        return _useMachineContext;
-    }
-
-    internal X509Certificate2Collection caCerts()
-    {
-        return _caCerts;
-    }
-
-    internal bool getCheckCertName()
-    {
-        return _checkCertName;
-    }
-
-    internal Ice.Communicator communicator()
-    {
-        return _communicator;
-    }
-
-    internal int securityTraceLevel()
-    {
-        return _securityTraceLevel;
-    }
-
-    internal string securityTraceCategory()
-    {
-        return _securityTraceCategory;
-    }
-
-    internal bool initialized()
-    {
-        return _initialized;
-    }
-
-    internal X509Certificate2Collection certs()
-    {
-        return _certs;
-    }
-
-    internal SslProtocols protocols()
-    {
-        return _protocols;
-    }
-
-    internal int checkCRL()
-    {
-        return _checkCRL;
-    }
-
-    internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
-    {
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
-        s.Append("SSL connection summary");
-        if(connInfo.Length > 0)
+        internal bool useMachineContext()
         {
-            s.Append("\n");
-            s.Append(connInfo);
+            return _useMachineContext;
         }
-        s.Append("\nauthenticated = " + (stream.IsAuthenticated ? "yes" : "no"));
-        s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
-        s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
-        s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
-        s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
-        s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
-        s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
-        s.Append("\nprotocol = " + stream.SslProtocol);
-        _logger.trace(_securityTraceCategory, s.ToString());
-    }
 
-    internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
-    {
-        if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
+        internal X509Certificate2Collection caCerts()
         {
-            string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
-                _verifyDepthMax + "\n" + desc;
-            if(_securityTraceLevel >= 1)
+            return _caCerts;
+        }
+
+        internal bool getCheckCertName()
+        {
+            return _checkCertName;
+        }
+
+        internal Ice.Communicator communicator()
+        {
+            return _communicator;
+        }
+
+        internal int securityTraceLevel()
+        {
+            return _securityTraceLevel;
+        }
+
+        internal string securityTraceCategory()
+        {
+            return _securityTraceCategory;
+        }
+
+        internal bool initialized()
+        {
+            return _initialized;
+        }
+
+        internal X509Certificate2Collection certs()
+        {
+            return _certs;
+        }
+
+        internal SslProtocols protocols()
+        {
+            return _protocols;
+        }
+
+        internal int checkCRL()
+        {
+            return _checkCRL;
+        }
+
+        internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            s.Append("SSL connection summary");
+            if(connInfo.Length > 0)
             {
-                _logger.trace(_securityTraceCategory, msg);
+                s.Append("\n");
+                s.Append(connInfo);
             }
-            throw new Ice.SecurityException(msg);
+            s.Append("\nauthenticated = " + (stream.IsAuthenticated ? "yes" : "no"));
+            s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
+            s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
+            s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
+            s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
+            s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
+            s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
+            s.Append("\nprotocol = " + stream.SslProtocol);
+            _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        if(!_trustManager.verify(info, desc))
+        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
         {
-            string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
-                desc;
-            if(_securityTraceLevel >= 1)
+            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
-                _logger.trace(_securityTraceCategory, msg);
+                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
+                    _verifyDepthMax + "\n" + desc;
+                if(_securityTraceLevel >= 1)
+                {
+                    _logger.trace(_securityTraceCategory, msg);
+                }
+                throw new Ice.SecurityException(msg);
             }
 
-            throw new Ice.SecurityException($"IceSSL: {msg}");
-        }
-    }
-
-    private static bool isAbsolutePath(string path)
-    {
-        //
-        // Skip whitespace
-        //
-        path = path.Trim();
-
-        if(IceInternal.AssemblyUtil.isWindows)
-        {
-            //
-            // We need at least 3 non-whitespace characters to have an absolute path
-            //
-            if(path.Length < 3)
+            if(!_trustManager.verify(info, desc))
             {
-                return false;
-            }
+                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                    desc;
+                if(_securityTraceLevel >= 1)
+                {
+                    _logger.trace(_securityTraceCategory, msg);
+                }
 
-            //
-            // Check for X:\ path ('\' may have been converted to '/')
-            //
-            if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
-            {
-                return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                throw new Ice.SecurityException($"IceSSL: {msg}");
             }
         }
 
-        //
-        // Check for UNC path
-        //
-        return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
-    }
-
-    private bool checkPath(ref string path)
-    {
-        if(File.Exists(path))
+        private static bool isAbsolutePath(string path)
         {
-            return true;
+            //
+            // Skip whitespace
+            //
+            path = path.Trim();
+
+            if(IceInternal.AssemblyUtil.isWindows)
+            {
+                //
+                // We need at least 3 non-whitespace characters to have an absolute path
+                //
+                if(path.Length < 3)
+                {
+                    return false;
+                }
+
+                //
+                // Check for X:\ path ('\' may have been converted to '/')
+                //
+                if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+                {
+                    return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                }
+            }
+
+            //
+            // Check for UNC path
+            //
+            return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
-        if(_defaultDir.Length > 0 && !isAbsolutePath(path))
+        private bool checkPath(ref string path)
         {
-            string s = _defaultDir + Path.DirectorySeparatorChar + path;
-            if(File.Exists(s))
+            if(File.Exists(path))
             {
-                path = s;
                 return true;
             }
-        }
 
-        return false;
-    }
-
-    private SslProtocols parseProtocols(string[] arr)
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-        SslProtocols result = SslProtocols.Default;
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        if (arr.Length > 0)
-        {
-            result = 0;
-            for(int i = 0; i < arr.Length; ++i)
+            if(_defaultDir.Length > 0 && !isAbsolutePath(path))
             {
-                string protocol = null;
-                string s = arr[i].ToUpperInvariant();
-                switch(s)
+                string s = _defaultDir + Path.DirectorySeparatorChar + path;
+                if(File.Exists(s))
                 {
-                    case "SSL3":
-                    case "SSLV3":
-                    {
-                        protocol = "Ssl3";
-                        break;
-                    }
-                    case "TLS":
-                    case "TLS1":
-                    case "TLS1_0":
-                    case "TLSV1":
-                    case "TLSV1_0":
-                    {
-                        protocol = "Tls";
-                        break;
-                    }
-                    case "TLS1_1":
-                    case "TLSV1_1":
-                    {
-                        protocol = "Tls11";
-                        break;
-                    }
-                    case "TLS1_2":
-                    case "TLSV1_2":
-                    {
-                        protocol = "Tls12";
-                        break;
-                    }
-                    case "TLS1_3":
-                    case "TLSV1_3":
-                    {
-                        protocol = "Tls13";
-                        break;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-
-                try
-                {
-                    SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
-                    result |= value;
-                }
-                catch(Exception)
-                {
-                    throw new Ice.InitializationException($"IceSSL: unrecognized protocol `{s}'");
+                    path = s;
+                    return true;
                 }
             }
-        }
-        return result;
-    }
 
-    private static X509Certificate2Collection findCertificates(string prop, StoreLocation storeLocation,
-                                                               string name, string value)
-    {
-        //
-        // Open the X509 certificate store.
-        //
-        X509Store store = null;
-        try
+            return false;
+        }
+
+        private SslProtocols parseProtocols(string[] arr)
         {
+    #pragma warning disable CS0618 // Type or member is obsolete
+            SslProtocols result = SslProtocols.Default;
+    #pragma warning restore CS0618 // Type or member is obsolete
+
+            if (arr.Length > 0)
+            {
+                result = 0;
+                for(int i = 0; i < arr.Length; ++i)
+                {
+                    string protocol = null;
+                    string s = arr[i].ToUpperInvariant();
+                    switch(s)
+                    {
+                        case "SSL3":
+                        case "SSLV3":
+                        {
+                            protocol = "Ssl3";
+                            break;
+                        }
+                        case "TLS":
+                        case "TLS1":
+                        case "TLS1_0":
+                        case "TLSV1":
+                        case "TLSV1_0":
+                        {
+                            protocol = "Tls";
+                            break;
+                        }
+                        case "TLS1_1":
+                        case "TLSV1_1":
+                        {
+                            protocol = "Tls11";
+                            break;
+                        }
+                        case "TLS1_2":
+                        case "TLSV1_2":
+                        {
+                            protocol = "Tls12";
+                            break;
+                        }
+                        case "TLS1_3":
+                        case "TLSV1_3":
+                        {
+                            protocol = "Tls13";
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+
+                    try
+                    {
+                        SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
+                        result |= value;
+                    }
+                    catch(Exception)
+                    {
+                        throw new Ice.InitializationException($"IceSSL: unrecognized protocol `{s}'");
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static X509Certificate2Collection findCertificates(string prop, StoreLocation storeLocation,
+                                                                string name, string value)
+        {
+            //
+            // Open the X509 certificate store.
+            //
+            X509Store store = null;
             try
             {
-                store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
-            }
-            catch(ArgumentException)
-            {
-                store = new X509Store(name, storeLocation);
-            }
-            store.Open(OpenFlags.ReadOnly);
-        }
-        catch(Exception ex)
-        {
-            throw new Ice.InitializationException($"IceSSL: failure while opening store specified by {prop}", ex);
-        }
-
-        //
-        // Start with all of the certificates in the collection and filter as necessary.
-        //
-        // - If the value is "*", return all certificates.
-        // - Otherwise, search using key:value pairs. The following keys are supported:
-        //
-        //   Issuer
-        //   IssuerDN
-        //   Serial
-        //   Subject
-        //   SubjectDN
-        //   SubjectKeyId
-        //   Thumbprint
-        //
-        //   A value must be enclosed in single or double quotes if it contains whitespace.
-        //
-        X509Certificate2Collection result = [.. store.Certificates];
-        try
-        {
-            if(value != "*")
-            {
-                if(!value.Contains(':'))
+                try
                 {
-                    throw new Ice.InitializationException($"IceSSL: no key in `{value}'");
+                    store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
                 }
-                int start = 0;
-                int pos;
-                while((pos = value.IndexOf(':', start)) != -1)
+                catch(ArgumentException)
                 {
-                    //
-                    // Parse the X509FindType.
-                    //
-                    string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
-                    X509FindType findType;
-                    if(field == "SUBJECT")
-                    {
-                        findType = X509FindType.FindBySubjectName;
-                    }
-                    else if(field == "SUBJECTDN")
-                    {
-                        findType = X509FindType.FindBySubjectDistinguishedName;
-                    }
-                    else if(field == "ISSUER")
-                    {
-                        findType = X509FindType.FindByIssuerName;
-                    }
-                    else if(field == "ISSUERDN")
-                    {
-                        findType = X509FindType.FindByIssuerDistinguishedName;
-                    }
-                    else if(field == "THUMBPRINT")
-                    {
-                        findType = X509FindType.FindByThumbprint;
-                    }
-                    else if(field == "SUBJECTKEYID")
-                    {
-                        findType = X509FindType.FindBySubjectKeyIdentifier;
-                    }
-                    else if(field == "SERIAL")
-                    {
-                        findType = X509FindType.FindBySerialNumber;
-                    }
-                    else
-                    {
-                        throw new Ice.InitializationException($"IceSSL: unknown key in `{value}'");
-                    }
+                    store = new X509Store(name, storeLocation);
+                }
+                store.Open(OpenFlags.ReadOnly);
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.InitializationException($"IceSSL: failure while opening store specified by {prop}", ex);
+            }
 
-                    //
-                    // Parse the argument.
-                    //
-                    start = pos + 1;
-                    while(start < value.Length && (value[start] == ' ' || value[start] == '\t'))
+            //
+            // Start with all of the certificates in the collection and filter as necessary.
+            //
+            // - If the value is "*", return all certificates.
+            // - Otherwise, search using key:value pairs. The following keys are supported:
+            //
+            //   Issuer
+            //   IssuerDN
+            //   Serial
+            //   Subject
+            //   SubjectDN
+            //   SubjectKeyId
+            //   Thumbprint
+            //
+            //   A value must be enclosed in single or double quotes if it contains whitespace.
+            //
+            X509Certificate2Collection result = [.. store.Certificates];
+            try
+            {
+                if(value != "*")
+                {
+                    if(!value.Contains(':'))
                     {
-                        ++start;
+                        throw new Ice.InitializationException($"IceSSL: no key in `{value}'");
                     }
-
-                    if(start == value.Length)
+                    int start = 0;
+                    int pos;
+                    while((pos = value.IndexOf(':', start)) != -1)
                     {
-                        throw new Ice.InitializationException($"IceSSL: missing argument in `{value}'");
-                    }
-
-                    string arg;
-                    if(value[start] == '"' || value[start] == '\'')
-                    {
-                        int end = start;
-                        ++end;
-                        while(end < value.Length)
+                        //
+                        // Parse the X509FindType.
+                        //
+                        string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
+                        X509FindType findType;
+                        if(field == "SUBJECT")
                         {
-                            if(value[end] == value[start] && value[end - 1] != '\\')
-                            {
-                                break;
-                            }
-                            ++end;
+                            findType = X509FindType.FindBySubjectName;
                         }
-                        if(end == value.Length || value[end] != value[start])
+                        else if(field == "SUBJECTDN")
                         {
-                            throw new Ice.InitializationException($"IceSSL: unmatched quote in `{value}'");
+                            findType = X509FindType.FindBySubjectDistinguishedName;
                         }
-                        ++start;
-                        arg = value.Substring(start, end - start);
-                        start = end + 1;
-                    }
-                    else
-                    {
-                        char[] ws = [' ', '\t'];
-                        int end = value.IndexOfAny(ws, start);
-                        if(end == -1)
+                        else if(field == "ISSUER")
                         {
-                            arg = value.Substring(start);
-                            start = value.Length;
+                            findType = X509FindType.FindByIssuerName;
+                        }
+                        else if(field == "ISSUERDN")
+                        {
+                            findType = X509FindType.FindByIssuerDistinguishedName;
+                        }
+                        else if(field == "THUMBPRINT")
+                        {
+                            findType = X509FindType.FindByThumbprint;
+                        }
+                        else if(field == "SUBJECTKEYID")
+                        {
+                            findType = X509FindType.FindBySubjectKeyIdentifier;
+                        }
+                        else if(field == "SERIAL")
+                        {
+                            findType = X509FindType.FindBySerialNumber;
                         }
                         else
                         {
+                            throw new Ice.InitializationException($"IceSSL: unknown key in `{value}'");
+                        }
+
+                        //
+                        // Parse the argument.
+                        //
+                        start = pos + 1;
+                        while(start < value.Length && (value[start] == ' ' || value[start] == '\t'))
+                        {
+                            ++start;
+                        }
+
+                        if(start == value.Length)
+                        {
+                            throw new Ice.InitializationException($"IceSSL: missing argument in `{value}'");
+                        }
+
+                        string arg;
+                        if(value[start] == '"' || value[start] == '\'')
+                        {
+                            int end = start;
+                            ++end;
+                            while(end < value.Length)
+                            {
+                                if(value[end] == value[start] && value[end - 1] != '\\')
+                                {
+                                    break;
+                                }
+                                ++end;
+                            }
+                            if(end == value.Length || value[end] != value[start])
+                            {
+                                throw new Ice.InitializationException($"IceSSL: unmatched quote in `{value}'");
+                            }
+                            ++start;
                             arg = value.Substring(start, end - start);
                             start = end + 1;
                         }
-                    }
-
-                    //
-                    // Execute the query.
-                    //
-                    // TODO: allow user to specify a value for validOnly?
-                    //
-                    bool validOnly = false;
-                    if(findType == X509FindType.FindBySubjectDistinguishedName ||
-                       findType == X509FindType.FindByIssuerDistinguishedName)
-                    {
-                        X500DistinguishedNameFlags[] flags = {
-                            X500DistinguishedNameFlags.None,
-                            X500DistinguishedNameFlags.Reversed,
-                        };
-                        X500DistinguishedName dn = new X500DistinguishedName(arg);
-                        X509Certificate2Collection r = result;
-                        for(int i = 0; i < flags.Length; ++i)
+                        else
                         {
-                            r = result.Find(findType, dn.Decode(flags[i]), validOnly);
-                            if(r.Count > 0)
+                            char[] ws = [' ', '\t'];
+                            int end = value.IndexOfAny(ws, start);
+                            if(end == -1)
                             {
-                                break;
+                                arg = value.Substring(start);
+                                start = value.Length;
+                            }
+                            else
+                            {
+                                arg = value.Substring(start, end - start);
+                                start = end + 1;
                             }
                         }
-                        result = r;
-                    }
-                    else
-                    {
-                        result = result.Find(findType, arg, validOnly);
+
+                        //
+                        // Execute the query.
+                        //
+                        // TODO: allow user to specify a value for validOnly?
+                        //
+                        bool validOnly = false;
+                        if(findType == X509FindType.FindBySubjectDistinguishedName ||
+                        findType == X509FindType.FindByIssuerDistinguishedName)
+                        {
+                            X500DistinguishedNameFlags[] flags = {
+                                X500DistinguishedNameFlags.None,
+                                X500DistinguishedNameFlags.Reversed,
+                            };
+                            X500DistinguishedName dn = new X500DistinguishedName(arg);
+                            X509Certificate2Collection r = result;
+                            for(int i = 0; i < flags.Length; ++i)
+                            {
+                                r = result.Find(findType, dn.Decode(flags[i]), validOnly);
+                                if(r.Count > 0)
+                                {
+                                    break;
+                                }
+                            }
+                            result = r;
+                        }
+                        else
+                        {
+                            result = result.Find(findType, arg, validOnly);
+                        }
                     }
                 }
             }
+            finally
+            {
+                store.Close();
+            }
+
+            return result;
         }
-        finally
+
+        private static SecureString createSecureString(string s)
         {
-            store.Close();
+            var result = new SecureString();
+            foreach(char ch in s)
+            {
+                result.AppendChar(ch);
+            }
+            return result;
         }
 
-        return result;
+        private readonly Ice.Communicator _communicator;
+        private readonly Ice.Logger _logger;
+        private readonly int _securityTraceLevel;
+        private readonly string _securityTraceCategory;
+        private bool _initialized;
+        private string _defaultDir;
+        private SslProtocols _protocols;
+        private bool _checkCertName;
+        private int _verifyDepthMax;
+        private int _checkCRL;
+        private X509Certificate2Collection _certs;
+        private bool _useMachineContext;
+        private X509Certificate2Collection _caCerts;
+        private readonly TrustManager _trustManager;
     }
-
-    private static SecureString createSecureString(string s)
-    {
-        var result = new SecureString();
-        foreach(char ch in s)
-        {
-            result.AppendChar(ch);
-        }
-        return result;
-    }
-
-    private readonly Ice.Communicator _communicator;
-    private readonly Ice.Logger _logger;
-    private readonly int _securityTraceLevel;
-    private readonly string _securityTraceCategory;
-    private bool _initialized;
-    private string _defaultDir;
-    private SslProtocols _protocols;
-    private bool _checkCertName;
-    private int _verifyDepthMax;
-    private int _checkCRL;
-    private X509Certificate2Collection _certs;
-    private bool _useMachineContext;
-    private X509Certificate2Collection _caCerts;
-    private readonly TrustManager _trustManager;
 }

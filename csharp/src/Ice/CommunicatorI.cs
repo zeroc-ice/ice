@@ -229,7 +229,6 @@ namespace Ice
 
         internal CommunicatorI(InitializationData initData)
         {
-            // TODO we should merge CommunicatorI/Communicator/Instance in a single class.
             _instance = new Instance();
             _instance.initialize(this, initData);
         }
