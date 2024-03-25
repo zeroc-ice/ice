@@ -7,7 +7,9 @@
 
 #include <IceGrid/Internal.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#    include <windows.h>
+#else
 #    include <sys/types.h> // for uid_t, gid_t
 #endif
 
