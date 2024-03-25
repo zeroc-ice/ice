@@ -8,10 +8,6 @@ Ice_targetdir           := $(libdir)
 Ice_cppflags            = -DICE_API_EXPORTS $(IceUtil_cppflags)
 Ice_ldflags             = $(iconv_ldflags)
 
-ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
-    Ice_cppflags        += -DICE_PRIO_INHERIT
-endif
-
 Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)

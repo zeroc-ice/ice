@@ -31,16 +31,11 @@ embedded_runpath       ?= yes
 new_dtags              ?= no
 
 #
-# Define OPTIMIZE as no if you want to build with debug iformation and
+# Define OPTIMIZE as no if you want to build with debug information and
 # without optimizations. Otherwise Ice is build with optimizations and
 # without debug information.
 #
 OPTIMIZE                ?= yes
-
-#
-# Default Mutex protocol: one of PrioNone or PrioInherit.
-#
-#DEFAULT_MUTEX_PROTOCOL ?= PrioNone
 
 #
 # Define PLATFORMS to the list of platforms to build. This defaults
