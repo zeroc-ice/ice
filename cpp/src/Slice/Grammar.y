@@ -545,7 +545,7 @@ tag
         auto b = dynamic_pointer_cast<Builtin>(constant->type());
         if(b && b->isIntegralType())
         {
-            std::int64_t l = std::stoll(constant->value(), nullptr, 0);
+            int64_t l = std::stoll(constant->value(), nullptr, 0);
             if (l < 0 || l > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
@@ -658,7 +658,7 @@ optional
         auto b = dynamic_pointer_cast<Builtin>(constant->type());
         if(b && b->isIntegralType())
         {
-            std::int64_t l = std::stoll(constant->value(), nullptr, 0);
+            int64_t l = std::stoll(constant->value(), nullptr, 0);
             if (l < 0 || l > std::numeric_limits<int32_t>::max())
             {
                 currentUnit->error("tag is out of range");
@@ -808,7 +808,7 @@ class_id
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'
 {
-    std::int64_t id = dynamic_pointer_cast<IntegerTok>($3)->v;
+    int64_t id = dynamic_pointer_cast<IntegerTok>($3)->v;
     if(id < 0)
     {
         currentUnit->error("invalid compact id for class: id must be a positive integer");
@@ -1775,7 +1775,7 @@ enumerator_initializer
             {
                 try
                 {
-                    std::int64_t v = std::stoll(constant->value(), nullptr, 0);
+                    int64_t v = std::stoll(constant->value(), nullptr, 0);
                     tok = make_shared<IntegerTok>();
                     tok->v = v;
                     tok->literal = constant->value();

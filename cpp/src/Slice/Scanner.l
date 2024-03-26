@@ -180,7 +180,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an escaped octal value. Octal literals are limited to a max of 3 digits. */
 <STRING_LITERAL>"\\"{oct}{1,3} {
-    std::int64_t value = std::stoll((yytext + 1), nullptr, 8);
+    int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if(value > 255)
     {
         currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
@@ -193,7 +193,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
 <STRING_LITERAL>"\\x"{hex}{1,2} {
-    std::int64_t value = std::stoll((yytext + 2), nullptr, 16);
+    int64_t value = std::stoll((yytext + 2), nullptr, 16);
     assert(value <= 255);
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -211,7 +211,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a 4-char or 8-char size universal character code. */
 <STRING_LITERAL>"\\u"{hex}{4} |
 <STRING_LITERAL>"\\U"{hex}{8} {
-    std::int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
+    int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
     {
         currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
@@ -291,10 +291,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     catch (const std::out_of_range&)
     {
         currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+        itp->v = INT64_MAX;
     }
     catch (const std::invalid_argument&)
     {
         currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+        itp->v = INT64_MAX;
     }
     return ICE_INTEGER_LITERAL;
 }
