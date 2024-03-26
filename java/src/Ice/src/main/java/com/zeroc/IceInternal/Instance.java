@@ -885,8 +885,7 @@ public final class Instance implements java.util.function.Function<String, Class
     //
     // Only for use by com.zeroc.Ice.CommunicatorI
     //
-    public
-    Instance(com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.InitializationData initData)
+    public void initialize(com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.InitializationData initData)
     {
         _state = StateActive;
         _initData = initData;
@@ -1101,6 +1100,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
+            _sslEngine = new com.zeroc.IceSSL.SSLEngine(communicator);
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
             ProtocolInstance tcpProtocol = new ProtocolInstance(this, com.zeroc.Ice.TCPEndpointType.value, "tcp", false);
@@ -1108,6 +1108,9 @@ public final class Instance implements java.util.function.Function<String, Class
 
             ProtocolInstance udpProtocol = new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
+
+            var sslInstance = new com.zeroc.IceSSL.Instance(_sslEngine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
+            _endpointFactoryManager.add(new com.zeroc.IceSSL.EndpointFactoryI(sslInstance, com.zeroc.Ice.TCPEndpointType.value));
 
             ProtocolInstance wsProtocol = new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, com.zeroc.Ice.TCPEndpointType.value));
@@ -1336,6 +1339,9 @@ public final class Instance implements java.util.function.Function<String, Class
                 _referenceFactory = _referenceFactory.setDefaultLocator(loc);
             }
         }
+
+        // SslEngine initialization
+        _sslEngine.initialize();
 
         //
         // Server thread pool initialization is lazy in serverThreadPool().
@@ -1886,6 +1892,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
+    private IceSSL.SSlEngine _engine;
 
     private Map<String,String[]> _builtInModulePackagePrefixes = java.util.Collections.unmodifiableMap(new HashMap<String, String[]>() {{
         put("Glacier2", new String[] { "com.zeroc" });

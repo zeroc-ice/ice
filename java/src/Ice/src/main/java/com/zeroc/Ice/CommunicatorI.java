@@ -99,14 +99,14 @@ public final class CommunicatorI implements Communicator
 
     @Override
     public ObjectAdapter
-    createObjectAdapter(String name)
+    createObjectAdapter(String name, javax.net.ssl.SSLContext sslContext)
     {
-        return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslContext);
     }
 
     @Override
     public ObjectAdapter
-    createObjectAdapterWithEndpoints(String name, String endpoints)
+    createObjectAdapterWithEndpoints(String name, String endpoints, javax.net.ssl.SSLContext sslContext)
     {
         if(name.length() == 0)
         {
@@ -114,7 +114,7 @@ public final class CommunicatorI implements Communicator
         }
 
         getProperties().setProperty(name + ".Endpoints", endpoints);
-        return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslContext);
     }
 
     @Override
@@ -135,7 +135,7 @@ public final class CommunicatorI implements Communicator
             getProperties().setProperty(p.getKey(), p.getValue());
         }
 
-        return _instance.objectAdapterFactory().createObjectAdapter(name, router);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, router, null);
     }
 
     @Override
@@ -275,7 +275,8 @@ public final class CommunicatorI implements Communicator
 
     CommunicatorI(InitializationData initData)
     {
-        _instance = new com.zeroc.IceInternal.Instance(this, initData);
+        _instance = new com.zeroc.IceInternal.Instance();
+        _instance.initialize(this, initData);
     }
 
     /**

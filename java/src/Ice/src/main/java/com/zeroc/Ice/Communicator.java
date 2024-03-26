@@ -137,13 +137,17 @@ public interface Communicator extends java.lang.AutoCloseable
      * by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
      * InitializationException.
      * @param name The object adapter name.
+     * @param sslContext The SSL context used to configure the ssl server-side transport. Pass null if the adapter
+     * doesn't have any secure endpoints, or if the SSL transport was configured using the IceSSL properties. When set
+     * to a non-null value, all IceSSL properties are ignored, and all the required SSL parameters must be set in the
+     * provided SSL context.
      * @return The new object adapter.
      *
      * @see #createObjectAdapterWithEndpoints
      * @see ObjectAdapter
      * @see Properties
      **/
-    ObjectAdapter createObjectAdapter(String name);
+    ObjectAdapter createObjectAdapter(String name, javax.net.ssl.SSLContext sslContext);
 
     /**
      * Create a new object adapter with endpoints. This operation sets the property
@@ -152,13 +156,20 @@ public interface Communicator extends java.lang.AutoCloseable
      * name.
      * @param name The object adapter name.
      * @param endpoints The endpoints for the object adapter.
+     * @param sslContext The SSL context used to configure the ssl server-side transport. Pass null if the adapter
+     * doesn't have any secure endpoints, or if the SSL transport was configured using the IceSSL properties. When set
+     * to a non-null value, all IceSSL properties are ignored, and all the required SSL parameters must be set in the
+     * provided SSL context.
      * @return The new object adapter.
      *
      * @see #createObjectAdapter
      * @see ObjectAdapter
      * @see Properties
      **/
-    ObjectAdapter createObjectAdapterWithEndpoints(String name, String endpoints);
+    ObjectAdapter createObjectAdapterWithEndpoints(
+        String name,
+        String endpoints, 
+        com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
 
     /**
      * Create a new object adapter with a router. This operation creates a routed object adapter.

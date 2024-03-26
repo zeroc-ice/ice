@@ -108,76 +108,6 @@ class SSLEngine
         _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
         //
-        // Check for a certificate verifier.
-        //
-        final String certVerifierClass = properties.getProperty(prefix + "CertVerifier");
-        if(certVerifierClass.length() > 0)
-        {
-            if(_verifier != null)
-            {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "IceSSL: certificate verifier already installed";
-                throw e;
-            }
-
-            Class<?> cls = null;
-            try
-            {
-                cls = _facade.findClass(certVerifierClass);
-            }
-            catch(Throwable ex)
-            {
-                throw new PluginInitializationException(
-                    "IceSSL: unable to load certificate verifier class " + certVerifierClass, ex);
-            }
-
-            try
-            {
-                _verifier = (CertificateVerifier)cls.getDeclaredConstructor().newInstance();
-            }
-            catch(Throwable ex)
-            {
-                throw new PluginInitializationException(
-                    "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass, ex);
-            }
-        }
-
-        //
-        // Check for a password callback.
-        //
-        final String passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
-        if(passwordCallbackClass.length() > 0)
-        {
-            if(_passwordCallback != null)
-            {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "IceSSL: password callback already installed";
-                throw e;
-            }
-
-            Class<?> cls = null;
-            try
-            {
-                cls = _facade.findClass(passwordCallbackClass);
-            }
-            catch(Throwable ex)
-            {
-                throw new PluginInitializationException(
-                    "IceSSL: unable to load password callback class " + passwordCallbackClass, ex);
-            }
-
-            try
-            {
-                _passwordCallback = (PasswordCallback)cls.getDeclaredConstructor().newInstance();
-            }
-            catch(Throwable ex)
-            {
-                throw new PluginInitializationException(
-                    "IceSSL: unable to instantiate password callback class " + passwordCallbackClass, ex);
-            }
-        }
-
-        //
         // If the user doesn't supply an SSLContext, we need to create one based
         // on property settings.
         //
@@ -361,10 +291,6 @@ class SSLEngine
                         {
                             passwordChars = keystorePassword.toCharArray();
                         }
-                        else if(_passwordCallback != null)
-                        {
-                            passwordChars = _passwordCallback.getKeystorePassword();
-                        }
                         else if(keystoreType.equals("BKS") || keystoreType.equals("PKCS12"))
                         {
                             // Bouncy Castle or PKCS12 does not permit null passwords.
@@ -405,10 +331,6 @@ class SSLEngine
                     if(password.length() > 0)
                     {
                         passwordChars = password.toCharArray();
-                    }
-                    else if(_passwordCallback != null)
-                    {
-                        passwordChars = _passwordCallback.getPassword(alias);
                     }
                     kmf.init(keys, passwordChars);
                     if(passwordChars.length > 0)
@@ -504,10 +426,6 @@ class SSLEngine
                             if(truststorePassword.length() > 0)
                             {
                                 passwordChars = truststorePassword.toCharArray();
-                            }
-                            else if(_passwordCallback != null)
-                            {
-                                passwordChars = _passwordCallback.getTruststorePassword();
                             }
                             else if(truststoreType.equals("BKS") || truststoreType.equals("PKCS12"))
                             {
@@ -725,26 +643,6 @@ class SSLEngine
     javax.net.ssl.SSLContext context()
     {
         return _context;
-    }
-
-    void setCertificateVerifier(CertificateVerifier verifier)
-    {
-        _verifier = verifier;
-    }
-
-    CertificateVerifier getCertificateVerifier()
-    {
-        return _verifier;
-    }
-
-    void setPasswordCallback(PasswordCallback callback)
-    {
-        _passwordCallback = callback;
-    }
-
-    PasswordCallback getPasswordCallback()
-    {
-        return _passwordCallback;
     }
 
     void setKeystoreStream(java.io.InputStream stream)
@@ -1047,19 +945,6 @@ class SSLEngine
             ex.reason = msg;
             throw ex;
         }
-
-        if(_verifier != null && !_verifier.verify(info))
-        {
-            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
-                desc;
-            if(_securityTraceLevel >= 1)
-            {
-                _logger.trace(_securityTraceCategory, msg);
-            }
-            com.zeroc.Ice.SecurityException ex = new com.zeroc.Ice.SecurityException();
-            ex.reason = msg;
-            throw ex;
-        }
     }
 
     void trustManagerFailure(boolean incoming, CertificateException ex)
@@ -1221,8 +1106,6 @@ class SSLEngine
     private boolean _serverNameIndication;
     private int _verifyDepthMax;
     private int _verifyPeer;
-    private CertificateVerifier _verifier;
-    private PasswordCallback _passwordCallback;
     private TrustManager _trustManager;
 
     private InputStream _keystoreStream;

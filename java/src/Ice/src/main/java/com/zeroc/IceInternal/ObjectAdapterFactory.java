@@ -139,7 +139,7 @@ public final class ObjectAdapterFactory
     }
 
     public ObjectAdapter
-    createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router)
+    createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router, javax.net.ssl.SSLContext sslContext)
     {
         if(Thread.interrupted())
         {
@@ -173,11 +173,25 @@ public final class ObjectAdapterFactory
             if(name.isEmpty())
             {
                 String uuid = java.util.UUID.randomUUID().toString();
-                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
+                adapter = new com.zeroc.Ice.ObjectAdapterI(
+                    _instance,
+                    _communicator,
+                    this,
+                    uuid,
+                    null,
+                    true,
+                    sslContext);
             }
             else
             {
-                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+                adapter = new com.zeroc.Ice.ObjectAdapterI(
+                    _instance,
+                    _communicator,
+                    this,
+                    name,
+                    router,
+                    false,
+                    sslContext);
             }
 
             synchronized(this)
