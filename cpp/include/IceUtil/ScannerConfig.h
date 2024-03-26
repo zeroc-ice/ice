@@ -21,20 +21,16 @@
 #endif
 
 //
-// Clang++ >= 5.1 and VC++ using C++17 standard deprecate 'register' storage
+// VC++ using C++17 standard deprecate 'register' storage
 // class specifier used by lex generated Scanners.
 //
-#if defined(__clang__)
-#    pragma clang diagnostic ignored "-Wdeprecated-register"
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 #    pragma warning(disable : 5033)
 #endif
 
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
-#    pragma clang diagnostic ignored "-Wsign-conversion"
-#    pragma clang diagnostic ignored "-Wdocumentation"
-#    pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#    pragma clang diagnostic ignored "-Wsign-compare"
 #endif
 
 #ifdef __GNUC__
