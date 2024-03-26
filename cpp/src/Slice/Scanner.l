@@ -18,12 +18,12 @@
 
 #ifdef _MSC_VER
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-#   ifdef slice_wrap
-#      undef slice_wrap
-#      define slice_wrap() 1
-#   endif
-#   define YY_NO_UNISTD_H
+#    pragma warning(disable:4244)
+#    ifdef slice_wrap
+#        undef slice_wrap
+#        define slice_wrap() 1
+#    endif
+#    define YY_NO_UNISTD_H
 #endif
 
 using namespace std;
@@ -31,14 +31,12 @@ using namespace Slice;
 
 namespace Slice
 {
+    // Definitions for the case-insensitive keyword-token map.
+    typedef map<string, int> StringTokenMap;
+    StringTokenMap keywordMap;
 
-// Definitions for the case-insensitive keyword-token map.
-typedef map<string, int> StringTokenMap;
-StringTokenMap keywordMap;
-
-int checkKeyword(string&);
-int checkIsScoped(const string&);
-
+    int checkKeyword(string&);
+    int checkIsScoped(const string&);
 }
 
 // Stores the scanner's current column position. Flex also automatically
@@ -49,16 +47,14 @@ string yyfilename;
 
 namespace
 {
+    void nextLine(int = 1);
+    int scanPosition(const char*);
+    void setLocation(TokenContext*);
+    void startLocation(TokenContext*);
+    void endLocation(TokenContext*);
 
-void nextLine(int = 1);
-int scanPosition(const char*);
-void setLocation(TokenContext*);
-void startLocation(TokenContext*);
-void endLocation(TokenContext*);
-
-void initScanner();
-void preAction();
-
+    void initScanner();
+    void preAction();
 }
 
 // Override some of the functions flex auto-generates with our own implementations.
@@ -181,7 +177,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches an escaped octal value. Octal literals are limited to a max of 3 digits. */
 <STRING_LITERAL>"\\"{oct}{1,3} {
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
-    if(value > 255)
+    if (value > 255)
     {
         currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
     }
@@ -212,7 +208,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>"\\u"{hex}{4} |
 <STRING_LITERAL>"\\U"{hex}{8} {
     int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
-    if(codePoint <= 0xdfff && codePoint >= 0xd800)
+    if (codePoint <= 0xdfff && codePoint >= 0xd800)
     {
         currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
     }
@@ -310,16 +306,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     string literal(yytext);
     ftp->literal = literal;
     char lastChar = literal[literal.size() - 1];
-    if(lastChar == 'f' || lastChar == 'F')
+    if (lastChar == 'f' || lastChar == 'F')
     {
         literal = literal.substr(0, literal.size() - 1);    // Clobber trailing 'f' or 'F' suffix
     }
     ftp->v = strtod(literal.c_str(), 0);
-    if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
+    if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
         currentUnit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
     }
-    else if(ftp->v == 0 && errno == ERANGE)
+    else if (ftp->v == 0 && errno == ERANGE)
     {
         currentUnit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
     }
@@ -388,11 +384,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <*>^{preprocessor_lineno}                         |
 <*>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     int includeAction = scanPosition(yytext);
-    if(yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
+    if (yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
         yy_push_state(INITIAL);
     }
-    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
+    else if (includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
     {
         yy_pop_state();
     }
@@ -423,7 +419,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_push_state(METADATA);
 
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
-    if(yy_top_state() == PRE_SLICE)
+    if (yy_top_state() == PRE_SLICE)
     {
         return ICE_GLOBAL_METADATA_OPEN;
     }
@@ -475,29 +471,29 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylval = ident;
-    if(*yytext == '\\')
+    if (*yytext == '\\')
     {
-        if(checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
+        if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
             currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
     int st = checkKeyword(ident->v);
-    if(st == ICE_IDENTIFIER)
+    if (st == ICE_IDENTIFIER)
     {
         return ICE_IDENT_OPEN;
     }
-    else if(st == ICE_SCOPED_IDENTIFIER)
+    else if (st == ICE_SCOPED_IDENTIFIER)
     {
         currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
-    else if(st == ICE_TAG)
+    else if (st == ICE_TAG)
     {
         return ICE_TAG_OPEN;
     }
-    else if(st == ICE_OPTIONAL)
+    else if (st == ICE_OPTIONAL)
     {
         return ICE_OPTIONAL_OPEN;
     }
@@ -554,154 +550,150 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 namespace Slice
 {
-
-// Check if an identifier looks like a keyword.
-// If the identifier is a keyword, return the
-// corresponding keyword token; otherwise, return
-// an identifier token.
-int checkKeyword(string& id)
-{
-    const StringTokenMap::const_iterator pos = keywordMap.find(id);
-    if(pos != keywordMap.end())
+    // Check if an identifier looks like a keyword.
+    // If the identifier is a keyword, return the
+    // corresponding keyword token; otherwise, return
+    // an identifier token.
+    int checkKeyword(string& id)
     {
-        if(pos->first != id)
+        const StringTokenMap::const_iterator pos = keywordMap.find(id);
+        if (pos != keywordMap.end())
         {
-            currentUnit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
-                        "' only in capitalization");
-            id = pos->first;
+            if (pos->first != id)
+            {
+                currentUnit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                            "' only in capitalization");
+                id = pos->first;
+            }
+            return pos->second;
         }
-        return pos->second;
+        return checkIsScoped(id);
     }
-    return checkIsScoped(id);
-}
 
-// Checks if an identifier is scoped or not, and returns the corresponding token.
-int checkIsScoped(const string& id)
-{
-    return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
-}
-
+    // Checks if an identifier is scoped or not, and returns the corresponding token.
+    int checkIsScoped(const string& id)
+    {
+        return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
+    }
 }
 
 namespace
 {
-
-void nextLine(int count)
-{
-    yylineno += count;
-    yycolno = 0;
-}
-
-int scanPosition(const char* s)
-{
-    string line(s);
-    // Skip the leading '#', optional 'line', and any whitespace before the line number.
-    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
-    if(line.find("line", idx) == idx)
+    void nextLine(int count)
     {
-        idx = line.find_first_not_of(" \t\r", (idx + 4));
+        yylineno += count;
+        yycolno = 0;
     }
-    line.erase(0, idx);
 
-    // Read the line number
-    yylineno = stoi(line.c_str(), &idx) - 1;
-
-    // Scan the remainder of the line for a filename.
-    idx = line.find_first_not_of(" \t\r", idx);
-    line.erase(0, idx);
-
-    int lineTypeCode = 0;
-    if(!line.empty())
+    int scanPosition(const char* s)
     {
-        if(line[0] == '"')
+        string line(s);
+        // Skip the leading '#', optional 'line', and any whitespace before the line number.
+        string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
+        if (line.find("line", idx) == idx)
         {
-            string::size_type edx = line.rfind('"');
-            if(edx != string::npos)
-            {
-                line = line.substr(1, edx - 1);
-            }
-            else
-            {
-                currentUnit->error("mismatched quotations in line directive");
-                line = line.substr(1);
-            }
+            idx = line.find_first_not_of(" \t\r", (idx + 4));
         }
-        lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
-        yyfilename = string(line);
+        line.erase(0, idx);
+
+        // Read the line number
+        yylineno = stoi(line.c_str(), &idx) - 1;
+
+        // Scan the remainder of the line for a filename.
+        idx = line.find_first_not_of(" \t\r", idx);
+        line.erase(0, idx);
+
+        int lineTypeCode = 0;
+        if (!line.empty())
+        {
+            if (line[0] == '"')
+            {
+                string::size_type edx = line.rfind('"');
+                if (edx != string::npos)
+                {
+                    line = line.substr(1, edx - 1);
+                }
+                else
+                {
+                    currentUnit->error("mismatched quotations in line directive");
+                    line = line.substr(1);
+                }
+            }
+            lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
+            yyfilename = string(line);
+        }
+        return lineTypeCode;
     }
-    return lineTypeCode;
-}
 
-void setLocation(TokenContext* location)
-{
-    startLocation(location);
-    endLocation(location);
-}
-
-void startLocation(TokenContext* location)
-{
-    location->firstLine = yylineno;
-    // The string has already been scanned, so the scanner is positioned at the end of it.
-    location->firstColumn = yycolno - yyleng;
-    location->filename = yyfilename;
-}
-
-void endLocation(TokenContext* location)
-{
-    location->lastLine = yylineno;
-    location->lastColumn = yycolno;
-}
-
-// This function is always called once, right before scanning begins.
-void initScanner()
-{
-    // Ensure the scanner starts at line number 1, column position 0.
-    yylineno = 1;
-
-    keywordMap["module"] = ICE_MODULE;
-    keywordMap["class"] = ICE_CLASS;
-    keywordMap["interface"] = ICE_INTERFACE;
-    keywordMap["exception"] = ICE_EXCEPTION;
-    keywordMap["struct"] = ICE_STRUCT;
-    keywordMap["sequence"] = ICE_SEQUENCE;
-    keywordMap["dictionary"] = ICE_DICTIONARY;
-    keywordMap["enum"] = ICE_ENUM;
-    keywordMap["out"] = ICE_OUT;
-    keywordMap["extends"] = ICE_EXTENDS;
-    keywordMap["throws"] = ICE_THROWS;
-    keywordMap["void"] = ICE_VOID;
-    keywordMap["byte"] = ICE_BYTE;
-    keywordMap["bool"] = ICE_BOOL;
-    keywordMap["short"] = ICE_SHORT;
-    keywordMap["int"] = ICE_INT;
-    keywordMap["long"] = ICE_LONG;
-    keywordMap["float"] = ICE_FLOAT;
-    keywordMap["double"] = ICE_DOUBLE;
-    keywordMap["string"] = ICE_STRING;
-    keywordMap["Object"] = ICE_OBJECT;
-    keywordMap["const"] = ICE_CONST;
-    keywordMap["false"] = ICE_FALSE;
-    keywordMap["true"] = ICE_TRUE;
-    keywordMap["idempotent"] = ICE_IDEMPOTENT;
-    keywordMap["tag"] = ICE_TAG;
-    // 'optional' is kept as an alias for 'tag' for backwards compatability.
-    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
-    keywordMap["optional"] = ICE_OPTIONAL;
-    keywordMap["Value"] = ICE_VALUE;
-}
-
-// This function is always called directly after a match has been made, but directly before it's action block is run.
-void preAction()
-{
-    yycolno += yyleng;
-
-    // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
-    // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
-    if(YY_START == INITIAL)
+    void setLocation(TokenContext* location)
     {
-        BEGIN(PRE_SLICE);
+        startLocation(location);
+        endLocation(location);
     }
-}
 
+    void startLocation(TokenContext* location)
+    {
+        location->firstLine = yylineno;
+        // The string has already been scanned, so the scanner is positioned at the end of it.
+        location->firstColumn = yycolno - yyleng;
+        location->filename = yyfilename;
+    }
+
+    void endLocation(TokenContext* location)
+    {
+        location->lastLine = yylineno;
+        location->lastColumn = yycolno;
+    }
+
+    // This function is always called once, right before scanning begins.
+    void initScanner()
+    {
+        // Ensure the scanner starts at line number 1, column position 0.
+        yylineno = 1;
+
+        keywordMap["module"] = ICE_MODULE;
+        keywordMap["class"] = ICE_CLASS;
+        keywordMap["interface"] = ICE_INTERFACE;
+        keywordMap["exception"] = ICE_EXCEPTION;
+        keywordMap["struct"] = ICE_STRUCT;
+        keywordMap["sequence"] = ICE_SEQUENCE;
+        keywordMap["dictionary"] = ICE_DICTIONARY;
+        keywordMap["enum"] = ICE_ENUM;
+        keywordMap["out"] = ICE_OUT;
+        keywordMap["extends"] = ICE_EXTENDS;
+        keywordMap["throws"] = ICE_THROWS;
+        keywordMap["void"] = ICE_VOID;
+        keywordMap["byte"] = ICE_BYTE;
+        keywordMap["bool"] = ICE_BOOL;
+        keywordMap["short"] = ICE_SHORT;
+        keywordMap["int"] = ICE_INT;
+        keywordMap["long"] = ICE_LONG;
+        keywordMap["float"] = ICE_FLOAT;
+        keywordMap["double"] = ICE_DOUBLE;
+        keywordMap["string"] = ICE_STRING;
+        keywordMap["Object"] = ICE_OBJECT;
+        keywordMap["const"] = ICE_CONST;
+        keywordMap["false"] = ICE_FALSE;
+        keywordMap["true"] = ICE_TRUE;
+        keywordMap["idempotent"] = ICE_IDEMPOTENT;
+        keywordMap["tag"] = ICE_TAG;
+        // 'optional' is kept as an alias for 'tag' for backwards compatability.
+        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        keywordMap["optional"] = ICE_OPTIONAL;
+        keywordMap["Value"] = ICE_VALUE;
+    }
+
+    // This function is always called directly after a match has been made, but directly before it's action block is run.
+    void preAction()
+    {
+        yycolno += yyleng;
+
+        // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
+        // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
+        if (YY_START == INITIAL)
+        {
+            BEGIN(PRE_SLICE);
+        }
+    }
 }
