@@ -477,7 +477,7 @@ namespace IceSSL
                                 {
                                     callback(state);
                                 }
-                            }, 
+                            },
                             TaskScheduler.Default);
                     }
                     else
