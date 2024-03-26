@@ -6,7 +6,6 @@ import os
 import shutil
 from Glacier2Util import Glacier2Router
 from IceBoxUtil import IceBox
-from IcePatch2Util import IcePatch2Server
 
 from Util import (
     CSharpMapping,
@@ -132,7 +131,6 @@ class IceGridNode(ProcessFromBinDir, Server):
             "IceGrid.Node.Trace.Activator": 0,
             "IceGrid.Node.Trace.Adapter": 0,
             "IceGrid.Node.Trace.Server": 0,
-            "IceGrid.Node.Trace.Patch": 0,
             "IceGrid.Node.ThreadPool.SizeWarn": 0,
             "IceGrid.Node.PrintServersReady": "node",
             "IceGrid.Node.Name": self.name,
@@ -319,7 +317,6 @@ class IceGridTestCase(TestCase):
                 "icebox.exe": IceBox().getCommandLine(current),
                 "icegridnode.exe": IceGridNode().getCommandLine(current),
                 "glacier2router.exe": Glacier2Router().getCommandLine(current),
-                "icepatch2server.exe": IcePatch2Server().getCommandLine(current),
                 "icegridregistry.exe": IceGridRegistryMaster().getCommandLine(current),
                 "properties-override": self.icegridnode[0].getPropertiesOverride(
                     current
@@ -343,7 +340,7 @@ class IceGridTestCase(TestCase):
                 application = application.replace(".xml", ".dotnet.xml")
             self.runadmin(
                 current,
-                "application add -n {0} {1} {2}".format(application, varStr, targets),
+                "application add {0} {1} {2}".format(application, varStr, targets),
             )
 
     def teardownClientSide(self, current, success):

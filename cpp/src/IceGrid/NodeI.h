@@ -6,7 +6,6 @@
 #define ICE_GRID_NODE_I_H
 
 #include <IceUtil/Timer.h>
-#include <IcePatch2/FileServer.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
@@ -84,16 +83,6 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current& current) override;
 
-        void patchAsync(
-            std::optional<PatcherFeedbackPrx> feedback,
-            std::string application,
-            std::string server,
-            std::shared_ptr<InternalDistributionDescriptor> appDistrib,
-            bool shutdown,
-            std::function<void()> response,
-            std::function<void(std::exception_ptr)> exception,
-            const Ice::Current&) override;
-
         void registerWithReplica(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
         void replicaInit(InternalRegistryPrxSeq, const Ice::Current&) override;
@@ -149,7 +138,6 @@ namespace IceGrid
 
     private:
         std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
-        void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
 
         std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
         std::string getFilePath(const std::string&) const;
@@ -205,7 +193,6 @@ namespace IceGrid
 
         mutable std::mutex _serversMutex;
         std::map<std::string, std::set<std::shared_ptr<ServerI>>> _serversByApplication;
-        std::set<std::string> _patchInProgress;
 
         std::mutex _mutex;
         std::condition_variable _condVar;

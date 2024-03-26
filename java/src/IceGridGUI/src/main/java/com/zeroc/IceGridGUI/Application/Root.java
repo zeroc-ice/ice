@@ -74,7 +74,6 @@ public class Root extends ListTreeNode
 
         _origVariables = _descriptor.variables;
         _origDescription = _descriptor.description;
-        _origDistrib = _descriptor.distrib.clone();
 
         _propertySets = new PropertySets(this, _descriptor.propertySets);
         _replicaGroups = new ReplicaGroups(this, _descriptor.replicaGroups);
@@ -114,7 +113,6 @@ public class Root extends ListTreeNode
 
         copy.nodes = Nodes.copyDescriptors(copy.nodes);
 
-        copy.distrib = copy.distrib.clone();
         return copy;
     }
 
@@ -837,14 +835,6 @@ public class Root extends ListTreeNode
                 }
             }
             update.removeVariables = removeVariables.toArray(new String[0]);
-
-            //
-            // Diff distribution
-            //
-            if(!_descriptor.distrib.equals(_origDistrib))
-            {
-                update.distrib = new com.zeroc.IceGrid.BoxedDistributionDescriptor(_descriptor.distrib);
-            }
         }
         else
         {
@@ -916,7 +906,6 @@ public class Root extends ListTreeNode
         _editable.commit();
         _origVariables = _descriptor.variables;
         _origDescription = _descriptor.description;
-        _origDistrib = _descriptor.distrib.clone();
 
         _nodes.commit();
         _propertySets.commit();
@@ -1016,15 +1005,6 @@ public class Root extends ListTreeNode
                 _descriptor.variables.remove(name);
             }
             _descriptor.variables.putAll(desc.variables);
-
-            //
-            // Distrib
-            //
-            if(desc.distrib != null)
-            {
-                _descriptor.distrib = desc.distrib.value;
-                _origDistrib = _descriptor.distrib.clone();
-            }
 
             //
             // Property Sets
@@ -1211,7 +1191,6 @@ public class Root extends ListTreeNode
     ApplicationDescriptor saveDescriptor()
     {
         ApplicationDescriptor clone = _descriptor.clone();
-        clone.distrib = clone.distrib.clone();
         return clone;
     }
 
@@ -1219,8 +1198,6 @@ public class Root extends ListTreeNode
     {
         _descriptor.name = clone.name;
         _descriptor.variables = clone.variables;
-        _descriptor.distrib.icepatch = clone.distrib.icepatch;
-        _descriptor.distrib.directories = clone.distrib.directories;
         _descriptor.description = clone.description;
     }
 
@@ -1240,7 +1217,6 @@ public class Root extends ListTreeNode
             writer.writeElement("description", _descriptor.description);
         }
         writeVariables(writer, _descriptor.variables);
-        writeDistribution(writer, _descriptor.distrib);
 
         _serviceTemplates.write(writer);
         _serverTemplates.write(writer);
@@ -1457,7 +1433,6 @@ public class Root extends ListTreeNode
     //
     private java.util.Map<String, String> _origVariables;
     private String _origDescription;
-    private DistributionDescriptor _origDistrib;
 
     //
     // When this application (and children) is being updated, we

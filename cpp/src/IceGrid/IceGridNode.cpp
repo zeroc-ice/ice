@@ -343,7 +343,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
         IcePatch2Internal::createDirectory(dataPath + "servers");
         IcePatch2Internal::createDirectory(dataPath + "tmp");
-        IcePatch2Internal::createDirectory(dataPath + "distrib");
 
 #ifdef _WIN32
         //
@@ -356,7 +355,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             setNoIndexingAttribute(dataPath + "servers");
             setNoIndexingAttribute(dataPath + "tmp");
-            setNoIndexingAttribute(dataPath + "distrib");
         }
         catch (const FileException& ex)
         {

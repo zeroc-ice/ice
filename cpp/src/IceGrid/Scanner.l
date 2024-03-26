@@ -25,6 +25,10 @@
 #   pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
@@ -210,7 +214,6 @@ initScanner()
     keywordMap["pid"] = ICE_GRID_PID;
     keywordMap["endpoints"] = ICE_GRID_ENDPOINTS;
     keywordMap["start"] = ICE_GRID_START;
-    keywordMap["patch"] = ICE_GRID_PATCH;
     keywordMap["stop"] = ICE_GRID_STOP;
     keywordMap["signal"] = ICE_GRID_SIGNAL;
     keywordMap["stdout"] = ICE_GRID_STDOUT;

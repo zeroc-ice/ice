@@ -17,7 +17,6 @@
 
 #ifndef ICE_BUILDING_ICEGRIDDB
 [["cpp:dll-export:ICEGRID_API"]]
-
 #endif
 
 #include <Ice/Identity.ice>

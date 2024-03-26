@@ -17,7 +17,6 @@
 
 #ifndef ICE_BUILDING_ICEGRIDDB
 [["cpp:dll-export:ICEGRID_API"]]
-
 #endif
 
 #include <Ice/Identity.ice>
@@ -139,13 +138,6 @@ exception BadSignalException
 {
     /// The details of the unknown signal.
     string reason;
-}
-
-/// This exception is raised if a patch failed.
-exception PatchException
-{
-    /// The reasons why the patch failed.
-    Ice::StringSeq reasons;
 }
 
 /// his exception is raised if a registry lock wasn't acquired or is already held by a session.
