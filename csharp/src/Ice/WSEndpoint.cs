@@ -201,9 +201,9 @@ namespace IceInternal
             _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
         }
 
-        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
         {
-            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, authenticationOptions));
+            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
         }
 
         public WSEndpoint endpoint(EndpointI delEndp)

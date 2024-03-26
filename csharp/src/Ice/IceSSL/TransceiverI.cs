@@ -408,9 +408,9 @@ namespace IceSSL
                 {
                     // Client authentication.
                     if (_instance.initializationData().clientAuthenticationOptions
-                        is SslClientAuthenticationOptions authenticationOptions)
+                        is SslClientAuthenticationOptions clientAuthenticationOptions)
                     {
-                        _writeResult = _sslStream.AuthenticateAsClientAsync(authenticationOptions);
+                        _writeResult = _sslStream.AuthenticateAsClientAsync(clientAuthenticationOptions);
                     }
                     else
                     {

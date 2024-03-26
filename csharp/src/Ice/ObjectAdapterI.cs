@@ -822,7 +822,7 @@ namespace Ice
             string name,
             RouterPrx router,
             bool noConfig,
-            SslServerAuthenticationOptions authenticationOptions)
+            SslServerAuthenticationOptions serverAuthenticationOptions)
         {
             _instance = instance;
             _communicator = communicator;
@@ -834,7 +834,7 @@ namespace Ice
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
-            _serverAuthenticationOptions = authenticationOptions;
+            _serverAuthenticationOptions = serverAuthenticationOptions;
 
             if(_noConfig)
             {
@@ -1456,6 +1456,6 @@ namespace Ice
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private int _messageSizeMax;
-        private SslServerAuthenticationOptions _serverAuthenticationOptions;
+        private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
     }
 }

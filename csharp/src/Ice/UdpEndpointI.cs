@@ -149,9 +149,9 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
         {
-            Debug.Assert(authenticationOptions is null);
+            Debug.Assert(serverAuthenticationOptions is null);
             return null;
         }
 

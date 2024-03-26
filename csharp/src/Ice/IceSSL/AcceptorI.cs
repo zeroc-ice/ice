@@ -36,7 +36,7 @@ namespace IceSSL
                 _delegate.accept(),
                 _adapterName,
                 incoming: true,
-                serverAuthenticationOptions: _authenticationOptions);
+                serverAuthenticationOptions: _serverAuthenticationOptions);
         }
 
         public string protocol()
@@ -65,13 +65,13 @@ namespace IceSSL
             _delegate = del;
             _instance = instance;
             _adapterName = adapterName;
-            _authenticationOptions = authenticationOptions;
+            _serverAuthenticationOptions = authenticationOptions;
 
             //
             // .NET requires that a certificate be supplied.
             //
             var certs = instance.certs();
-            if((certs is null || certs.Count == 0) && _authenticationOptions is null)
+            if((certs is null || certs.Count == 0) && _serverAuthenticationOptions is null)
             {
                 throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");
             }
@@ -81,6 +81,6 @@ namespace IceSSL
         private readonly IceInternal.Acceptor _delegate;
         private readonly Instance _instance;
         private readonly string _adapterName;
-        private readonly SslServerAuthenticationOptions _authenticationOptions;
+        private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
     }
 }

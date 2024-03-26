@@ -397,7 +397,10 @@ namespace IceInternal
                 {
                     if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter(
+                            "Ice.Admin",
+                            router: null,
+                            serverAuthenticationOptions: null);
                     }
                     else
                     {
@@ -456,7 +459,10 @@ namespace IceInternal
                 {
                     if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter(
+                            "Ice.Admin",
+                            router: null,
+                            serverAuthenticationOptions: null);
                     }
                     else
                     {

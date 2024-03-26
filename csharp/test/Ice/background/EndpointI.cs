@@ -157,9 +157,11 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override IceInternal.Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
+    public override IceInternal.Acceptor acceptor(
+        string adapterName,
+        SslServerAuthenticationOptions serverAuthenticationOptions)
     {
-        return new Acceptor(this, _endpoint.acceptor(adapterName, authenticationOptions));
+        return new Acceptor(this, _endpoint.acceptor(adapterName, serverAuthenticationOptions));
     }
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)

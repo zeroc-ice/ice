@@ -131,7 +131,7 @@ namespace IceInternal
         public Ice.ObjectAdapter createObjectAdapter(
             string name,
             Ice.RouterPrx router,
-            SslServerAuthenticationOptions authenticationOptions)
+            SslServerAuthenticationOptions serverAuthenticationOptions)
         {
             lock(this)
             {
@@ -169,7 +169,7 @@ namespace IceInternal
                         System.Guid.NewGuid().ToString(),
                         null,
                         true,
-                        authenticationOptions);
+                        serverAuthenticationOptions);
                 }
                 else
                 {
@@ -180,7 +180,7 @@ namespace IceInternal
                         name,
                         router,
                         false,
-                        authenticationOptions);
+                        serverAuthenticationOptions);
                 }
 
                 lock(this)

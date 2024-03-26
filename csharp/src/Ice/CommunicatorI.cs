@@ -112,7 +112,7 @@ namespace Ice
                 getProperties().setProperty(entry.Key, entry.Value);
             }
 
-            return _instance.objectAdapterFactory().createObjectAdapter(name, router, authenticationOptions: null);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, router, serverAuthenticationOptions: null);
         }
 
         public ValueFactoryManager getValueFactoryManager()

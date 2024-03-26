@@ -117,9 +117,9 @@ namespace IceInternal
             return null;
         }
 
-        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
+        public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
         {
-            Debug.Assert(authenticationOptions is null);
+            Debug.Assert(serverAuthenticationOptions is null);
             return new TcpAcceptor(this, instance_, host_, port_);
         }
 
