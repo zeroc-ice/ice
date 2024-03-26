@@ -253,7 +253,7 @@ class ServiceManagerI : ServiceManagerDisp_
             Ice.ObjectAdapter adapter = null;
             if(properties.getProperty("IceBox.ServiceManager.Endpoints").Length != 0)
             {
-                adapter = _communicator.createObjectAdapter("IceBox.ServiceManager", authenticationOptions: null);
+                adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
                 Ice.Identity identity = new Ice.Identity();
                 identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");

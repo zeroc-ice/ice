@@ -834,7 +834,7 @@ namespace Ice
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
-            _authenticationOptions = authenticationOptions;
+            _serverAuthenticationOptions = authenticationOptions;
 
             if(_noConfig)
             {
@@ -1011,9 +1011,9 @@ namespace Ice
             }
         }
 
-        internal SslServerAuthenticationOptions getSslServerAuthenticationOptions()
+        internal SslServerAuthenticationOptions getServerAuthenticationOptions()
         {
-            return _authenticationOptions;
+            return _serverAuthenticationOptions;
         }
 
         private ObjectPrx newProxy(Identity ident, string facet)
@@ -1456,6 +1456,6 @@ namespace Ice
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private int _messageSizeMax;
-        private SslServerAuthenticationOptions _authenticationOptions;
+        private SslServerAuthenticationOptions _serverAuthenticationOptions;
     }
 }

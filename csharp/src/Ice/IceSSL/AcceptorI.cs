@@ -71,7 +71,7 @@ namespace IceSSL
             // .NET requires that a certificate be supplied.
             //
             var certs = instance.certs();
-            if((certs == null || certs.Count == 0) && _authenticationOptions == null)
+            if((certs is null || certs.Count == 0) && _authenticationOptions is null)
             {
                 throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");
             }

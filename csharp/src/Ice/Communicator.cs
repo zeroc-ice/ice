@@ -155,13 +155,13 @@ namespace Ice
         /// </summary>
         ///  <param name="name">The object adapter name.
         ///  </param>
-        ///  <param name="authenticationOptions">The authentication options used by the ssl transport, pass null if
+        ///  <param name="serverAuthenticationOptions">The authentication options used by the ssl transport, pass null if
         ///  the adapter doesn't have any secure endpoints.</param>
         /// <returns>The new object adapter.
         ///  </returns>
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions authenticationOptions = null);
+        ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions serverAuthenticationOptions = null);
 
         /// <summary>
         /// Create a new object adapter with endpoints.
@@ -174,13 +174,13 @@ namespace Ice
         ///  </param>
         /// <param name="endpoints">The endpoints for the object adapter.
         ///  </param>
-        ///  <param name="authenticationOptions">The authentication options used by the ssl transport, pass null if
+        ///  <param name="serverAuthenticationOptions">The authentication options used by the ssl transport, pass null if
         ///  the adapter doesn't have any secure endpoints.</param>
         /// <returns>The new object adapter.
         ///  </returns>
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions authenticationOptions = null);
+        ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions serverAuthenticationOptions = null);
 
         /// <summary>
         /// Create a new object adapter with a router.

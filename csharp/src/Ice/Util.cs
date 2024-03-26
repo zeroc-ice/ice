@@ -111,7 +111,7 @@ namespace Ice
         /// <summary>
         /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
         /// </summary>
-        public SslClientAuthenticationOptions sslClientAuthenticationOptions;
+        public SslClientAuthenticationOptions clientAuthenticationOptions;
     }
 
     /// <summary>

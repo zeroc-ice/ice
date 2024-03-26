@@ -80,12 +80,12 @@ namespace Ice
             return Util.identityToString(ident, _instance.toStringMode());
         }
 
-        public ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions authenticationOptions)
+        public ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions serverAuthenticationOptions)
         {
-            return _instance.objectAdapterFactory().createObjectAdapter(name, null, authenticationOptions);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
         }
 
-        public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions authenticationOptions)
+        public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions serverAuthenticationOptions)
         {
             if(name.Length == 0)
             {
@@ -93,7 +93,7 @@ namespace Ice
             }
 
             getProperties().setProperty(name + ".Endpoints", endpoints);
-            return _instance.objectAdapterFactory().createObjectAdapter(name, null, authenticationOptions);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
         }
 
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)

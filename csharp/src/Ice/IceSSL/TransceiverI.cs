@@ -49,7 +49,7 @@ namespace IceSSL
                 try
                 {
                     if ((_incoming && _serverAuthenticationOptions is null) ||
-                        (!_incoming && _instance.initializationData().sslClientAuthenticationOptions is null))
+                        (!_incoming && _instance.initializationData().clientAuthenticationOptions is null))
                     {
                         _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false),
                             false,
@@ -407,7 +407,7 @@ namespace IceSSL
                 if(!_incoming)
                 {
                     // Client authentication.
-                    if (_instance.initializationData().sslClientAuthenticationOptions
+                    if (_instance.initializationData().clientAuthenticationOptions
                         is SslClientAuthenticationOptions authenticationOptions)
                     {
                         _writeResult = _sslStream.AuthenticateAsClientAsync(authenticationOptions);

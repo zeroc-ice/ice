@@ -135,7 +135,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public abstract Acceptor acceptor(string adaptrerName, SslServerAuthenticationOptions authenticationOptions);
+        public abstract Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions);
 
         //
         // Expand endpoint out in to separate endpoints for each local
