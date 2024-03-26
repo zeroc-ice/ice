@@ -3132,9 +3132,7 @@ namespace
         keywordMap["true"] = ICE_TRUE;
         keywordMap["idempotent"] = ICE_IDEMPOTENT;
         keywordMap["tag"] = ICE_TAG;
-        // 'optional' is kept as an alias for 'tag' for backwards compatability.
-        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        // 'optional' is kept as an alias for 'tag' for backwards compatibility.
         keywordMap["optional"] = ICE_OPTIONAL;
         keywordMap["Value"] = ICE_VALUE;
     }
