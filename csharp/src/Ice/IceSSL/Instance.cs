@@ -60,6 +60,11 @@ namespace IceSSL
             _engine.verifyPeer(address, info, desc);
         }
 
+        internal Ice.InitializationData initializationData()
+        {
+            return IceInternal.Util.getInstance(_engine.communicator()).initializationData();
+        }
+
         private SSLEngine _engine;
     }
 }

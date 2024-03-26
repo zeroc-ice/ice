@@ -5,6 +5,7 @@
 namespace IceSSL
 {
     using System.Collections.Generic;
+    using System.Net.Security;
 
     sealed class EndpointI : IceInternal.EndpointI
     {
@@ -173,9 +174,14 @@ namespace IceSSL
             _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, callback));
         }
 
-        public override IceInternal.Acceptor acceptor(string adapterName)
+        public override IceInternal.Acceptor acceptor(string adapterName, SslServerAuthenticationOptions authenticationOptions)
         {
-            return new AcceptorI(this, _instance, _delegate.acceptor(adapterName), adapterName);
+            return new AcceptorI(
+                this,
+                _instance,
+                _delegate.acceptor(adapterName, null),
+                adapterName,
+                authenticationOptions);
         }
 
         public EndpointI endpoint(IceInternal.EndpointI del)

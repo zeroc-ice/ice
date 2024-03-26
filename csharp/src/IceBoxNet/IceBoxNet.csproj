@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />
-    <ProjectReference Include="../IceSSL/IceSSL.csproj" />
     <ProjectReference Include="../IceBox/IceBox.csproj" />
   </ItemGroup>
   <ItemGroup>

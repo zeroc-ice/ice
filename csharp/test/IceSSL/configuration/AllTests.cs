@@ -13,6 +13,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Net.Security;
+using Test;
 
 public class AllTests
 {
@@ -35,7 +37,6 @@ public class AllTests
         Ice.InitializationData result = new Ice.InitializationData();
         result.properties = Ice.Util.createProperties();
 
-        result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
         result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
         result.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
@@ -51,7 +52,6 @@ public class AllTests
     createServerProps(Ice.Properties defaultProperties)
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
-        result["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
         result["IceSSL.DefaultDir"] = defaultProperties.getProperty("IceSSL.DefaultDir");
         result["Ice.Default.Host"] = defaultProperties.getProperty("Ice.Default.Host");
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
@@ -147,123 +147,7 @@ public class AllTests
         Dictionary<string, string> d;
         try
         {
-            string[] args = new string[0];
-
-            Console.Out.Write("testing manual initialization... ");
-            Console.Out.Flush();
-            {
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
-                try
-                {
-                    p.ice_ping();
-                    test(false);
-                }
-                catch(Ice.PluginInitializationException)
-                {
-                    // Expected.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                comm.destroy();
-            }
-            {
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                pm.initializePlugins();
-                Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
-                test(obj != null);
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                Test.ServerPrx server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
-            }
-            {
-                //
-                // Supply our own certificate.
-                //
-                X509Certificate2 cert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
-                X509Certificate2Collection coll = new X509Certificate2Collection();
-                coll.Add(cert);
-                initData = createClientProps(defaultProperties);
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                initData.properties.setProperty("IceSSL.CAs", caCert1File);
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
-                test(plugin != null);
-                plugin.setCertificates(coll);
-                pm.initializePlugins();
-                Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
-                test(obj != null);
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "2";
-                Test.ServerPrx server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
-            }
-
-            {
-                //
-                // Supply our own CA certificate.
-                //
-                X509Certificate2 cert = new X509Certificate2(defaultDir + "/cacert1.pem");
-                X509Certificate2Collection coll = new X509Certificate2Collection();
-                coll.Add(cert);
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
-                test(plugin != null);
-                plugin.setCACertificates(coll);
-                pm.initializePlugins();
-                Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
-                test(obj != null);
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "2";
-                Test.ServerPrx server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
-            }
-            Console.Out.WriteLine("ok");
+            var args = new string[] { };
 
             Console.Out.Write("testing certificate without password... ");
             Console.Out.Flush();
@@ -878,6 +762,106 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing hot certificate reloading... ");
+            Console.Out.Flush();
+            {
+                using var serverCertificate1 = new X509Certificate2($"{defaultDir}/s_rsa_ca1.p12", "password");
+                using var serverCertificate2 = new X509Certificate2($"{defaultDir}/s_rsa_ca2.p12", "password");
+                int count = 0;
+                using Ice.Communicator serverCommunicator = Ice.Util.initialize();
+                Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapterWithEndpoints(
+                    "Server",
+                    $"ssl -h {defaultHost}",
+                    new SslServerAuthenticationOptions
+                    {
+                        ServerCertificateSelectionCallback = (object sender, string hostName) =>
+                        {
+                            return count++ == 0 ? serverCertificate1 : serverCertificate2;
+                        }
+                    });
+                Ice.ObjectPrx proxy = adapter.addWithUUID(new Pingable());
+                adapter.activate();
+
+                {
+                    using var rootCA = new X509Certificate2($"{defaultDir}/cacert1.pem");
+                    initData = new Ice.InitializationData
+                    {
+                        clientAuthenticationOptions = new SslClientAuthenticationOptions
+                        {
+                            RemoteCertificateValidationCallback = (
+                                object sender,
+                                X509Certificate certificate,
+                                X509Chain chain,
+                                SslPolicyErrors sslPolicyErrors) =>
+                            {
+                                using var customChain = new X509Chain();
+                                customChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                                customChain.ChainPolicy.DisableCertificateDownloads = true;
+                                customChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+                                customChain.ChainPolicy.CustomTrustStore.Add(rootCA);
+                                return customChain.Build((X509Certificate2)certificate!);
+                            }
+                        }
+                    };
+
+                    using Ice.Communicator clientCommunicator = Ice.Util.initialize(initData);
+                    PingablePrx pingable = PingablePrxHelper.uncheckedCast(
+                        clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
+                    pingable.ping();
+
+                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    test(connectionInfo is not null);
+                    test(connectionInfo.verified);
+                    test(connectionInfo.certs.Length == 1);
+                    test(connectionInfo.certs[0].Subject == serverCertificate1.Subject);
+
+                    pingable.ice_getCachedConnection().close(Ice.ConnectionClose.Gracefully);
+
+                    try
+                    {
+                        pingable.ping();
+                        test(false); // This should fail because the server must have switch certificates.
+                    }
+                    catch (Ice.SecurityException)
+                    {
+                    }
+                }
+
+                // The second connection will pick the new certificate
+                {
+                    using var rootCA = new X509Certificate2($"{defaultDir}/cacert2.pem");
+                    initData = new Ice.InitializationData
+                    {
+                        clientAuthenticationOptions = new SslClientAuthenticationOptions
+                        {
+                            RemoteCertificateValidationCallback = (
+                                object sender,
+                                X509Certificate certificate,
+                                X509Chain chain,
+                                SslPolicyErrors sslPolicyErrors) =>
+                            {
+                                using var customChain = new X509Chain();
+                                customChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                                customChain.ChainPolicy.DisableCertificateDownloads = true;
+                                customChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+                                customChain.ChainPolicy.CustomTrustStore.Add(rootCA);
+                                return customChain.Build((X509Certificate2)certificate!);
+                            }
+                        }
+                    };
+                    using Ice.Communicator clientCommunicator = Ice.Util.initialize(initData);
+                    PingablePrx pingable = PingablePrxHelper.uncheckedCast(clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
+                    pingable.ping();
+
+                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    test(connectionInfo is not null);
+                    test(connectionInfo.verified);
+                    test(connectionInfo.certs.Length == 1);
+                    test(connectionInfo.certs[0].Subject == serverCertificate2.Subject);
+                }
+            }
+            Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing certificate chains... ");
             Console.Out.Flush();
             {
@@ -1187,78 +1171,6 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing custom certificate verifier... ");
-            Console.Out.Flush();
-            {
-                //
-                // Verify that a server certificate is present.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-                test(plugin != null);
-                CertificateVerifierI verifier = new CertificateVerifierI();
-                plugin.setCertificateVerifier(verifier);
-
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "2";
-                Test.ServerPrx server = fact.createServer(d);
-                try
-                {
-                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
-                    server.checkCipher(info.cipher);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                test(verifier.invoked());
-                test(verifier.hadCert());
-
-                //
-                // Have the verifier return false. Close the connection explicitly
-                // to force a new connection to be established.
-                //
-                verifier.reset();
-                verifier.returnValue(false);
-                server.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-                try
-                {
-                    server.ice_ping();
-                    test(false);
-                }
-                catch(Ice.SecurityException)
-                {
-                    // Expected.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                test(verifier.invoked());
-                test(verifier.hadCert());
-                fact.destroyServer(server);
-
-                comm.destroy();
-            }
-            {
-                //
-                // Verify that verifier is installed via property.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                initData.properties.setProperty("IceSSL.CertVerifier", "CertificateVerifierI");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-                test(plugin != null);
-                test(plugin.getCertificateVerifier() != null);
-                comm.destroy();
-            }
-            Console.Out.WriteLine("ok");
-
             Console.Out.Write("testing protocols... ");
             Console.Out.Flush();
             {
@@ -1532,103 +1444,6 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
-            }
-            Console.Out.WriteLine("ok");
-
-            Console.Out.Write("testing passwords... ");
-            Console.Out.Flush();
-            {
-                //
-                // Test password failure.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                // Don't specify the password.
-                initData.properties.setProperty("IceSSL.Password", "");
-                try
-                {
-                    Ice.Util.initialize(ref args, initData);
-                    test(false);
-                }
-                catch(Ice.PluginInitializationException)
-                {
-                    // Expected.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-            }
-            {
-                //
-                // Test password failure with callback.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                // Don't specify the password.
-                initData.properties.setProperty("IceSSL.Password", "");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
-                test(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI("bogus");
-                plugin.setPasswordCallback(cb);
-                try
-                {
-                    pm.initializePlugins();
-                    test(false);
-                }
-                catch(Ice.PluginInitializationException)
-                {
-                    // Expected.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                comm.destroy();
-            }
-            {
-                //
-                // Test installation of password callback.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                initData.properties.setProperty("Ice.InitPlugins", "0");
-                // Don't specify the password.
-                initData.properties.setProperty("IceSSL.Password", "");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
-                test(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI();
-                plugin.setPasswordCallback(cb);
-                test(plugin.getPasswordCallback() == cb);
-                try
-                {
-                    pm.initializePlugins();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                comm.destroy();
-            }
-            {
-                //
-                // Test password callback property.
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
-                initData.properties.setProperty("IceSSL.PasswordCallback", "PasswordCallbackI");
-                // Don't specify the password.
-                initData.properties.setProperty("IceSSL.Password", "");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
-                test(plugin != null);
-                test(plugin.getPasswordCallback() != null);
                 comm.destroy();
             }
             Console.Out.WriteLine("ok");
@@ -2322,26 +2137,26 @@ public class AllTests
             {
                 Console.Out.Write("testing IceSSL.FindCerts properties... ");
                 Console.Out.Flush();
-                string[] clientFindCertProperties = new string[]
-                {
+                string[] clientFindCertProperties =
+                [
                     "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
                     "THUMBPRINT:'8B D3 64 6B 9E 80 AE 56 08 05 0F C8 DE 9B B0 4B CC FD 4D 9C'",
                     "SUBJECTKEYID:'7F 4D BF 80 65 E0 EE A4 18 D5 6A 87 33 63 B3 76 7D 42 82 06'"
-                };
+                ];
 
-                string[] serverFindCertProperties = new string[]
-                {
+                string[] serverFindCertProperties =
+                [
                     "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
                     "THUMBPRINT:'F2 EB 9D E7 A5 DB 32 2B AC 5B 4F 88 8F 5E 62 57 2E 2F 7B 8C'",
                     "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'"
-                };
+                ];
 
-                string[] failFindCertProperties = new string[]
-                {
+                string[] failFindCertProperties =
+                [
                     "nolabel",
                     "unknownlabel:foo",
                     "LABEL:",
@@ -2351,7 +2166,7 @@ public class AllTests
                         " L=Jupiter, S=Florida, C=ES' SUBJECT:Client",
                     "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 ff'",
                     "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'"
-                };
+                ];
 
                 string[] certificates = new string[] {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12"};
 
@@ -2378,8 +2193,8 @@ public class AllTests
 
                         Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         d = createServerProps(defaultProperties, "", "cacert1");
-                        // Use deprecated property here to test it
-                        d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+
+                        d["IceSSL.FindCert"] = serverFindCertProperties[i];
                         //
                         // Use TrustOnly to ensure the peer has pick the expected certificate.
                         //
@@ -2411,7 +2226,7 @@ public class AllTests
                             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                             test(false);
                         }
-                        catch(Ice.PluginInitializationException)
+                        catch(Ice.InitializationException)
                         {
                             // Expected
                         }
@@ -2440,11 +2255,11 @@ public class AllTests
                     try
                     {
                         initData = createClientProps(defaultProperties);
-                        initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", s);
+                        initData.properties.setProperty("IceSSL.FindCert", s);
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                         test(false);
                     }
-                    catch(Ice.PluginInitializationException)
+                    catch(Ice.InitializationException)
                     {
                         // Expected
                     }
@@ -2558,5 +2373,12 @@ public class AllTests
         }
 
         return factory;
+    }
+
+    internal class Pingable : PingableDisp_
+    {
+        public override void ping(Ice.Current current)
+        {
+        }
     }
 }

@@ -12,8 +12,6 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../AllTests.cs" />
-    <Compile Include="../../CertificateVerifierI.cs" />
-    <Compile Include="../../PasswordCallbackI.cs" />
     <Compile Include="../../Client.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
@@ -33,7 +31,6 @@
     <Otherwise>
       <ItemGroup>
         <Reference Include="../../../../../lib/net8.0/Ice.dll" />
-        <Reference Include="../../../../../lib/net8.0/IceSSL.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

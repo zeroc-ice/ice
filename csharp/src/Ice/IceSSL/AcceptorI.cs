@@ -4,6 +4,8 @@
 
 namespace IceSSL
 {
+    using System.Net.Security;
+
     class AcceptorI : IceInternal.Acceptor
     {
         public void close()
@@ -19,15 +21,6 @@ namespace IceSSL
 
         public bool startAccept(IceInternal.AsyncCallback callback, object state)
         {
-            //
-            // The plug-in may not be fully initialized.
-            //
-            if(!_instance.initialized())
-            {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plug-in is not initialized";
-                throw ex;
-            }
             return _delegate.startAccept(callback, state);
         }
 
@@ -38,7 +31,12 @@ namespace IceSSL
 
         public IceInternal.Transceiver accept()
         {
-            return new TransceiverI(_instance, _delegate.accept(), _adapterName, true);
+            return new TransceiverI(
+                _instance,
+                _delegate.accept(),
+                _adapterName,
+                incoming: true,
+                serverAuthenticationOptions: _serverAuthenticationOptions);
         }
 
         public string protocol()
@@ -56,28 +54,33 @@ namespace IceSSL
             return _delegate.toDetailedString();
         }
 
-        internal AcceptorI(EndpointI endpoint, Instance instance, IceInternal.Acceptor del, string adapterName)
+        internal AcceptorI(
+            EndpointI endpoint,
+            Instance instance,
+            IceInternal.Acceptor del,
+            string adapterName,
+            SslServerAuthenticationOptions authenticationOptions)
         {
             _endpoint = endpoint;
             _delegate = del;
             _instance = instance;
             _adapterName = adapterName;
+            _serverAuthenticationOptions = authenticationOptions;
 
             //
             // .NET requires that a certificate be supplied.
             //
             var certs = instance.certs();
-            if(certs == null || certs.Count == 0)
+            if((certs is null || certs.Count == 0) && _serverAuthenticationOptions is null)
             {
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = "IceSSL: certificate required for server endpoint";
-                throw ex;
+                throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");
             }
         }
 
         private EndpointI _endpoint;
-        private IceInternal.Acceptor _delegate;
-        private Instance _instance;
-        private string _adapterName;
+        private readonly IceInternal.Acceptor _delegate;
+        private readonly Instance _instance;
+        private readonly string _adapterName;
+        private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
     }
 }
