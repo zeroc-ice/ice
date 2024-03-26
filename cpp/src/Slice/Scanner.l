@@ -17,8 +17,6 @@
 #include <math.h>
 
 #ifdef _MSC_VER
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#    pragma warning(disable:4244)
 #    ifdef slice_wrap
 #        undef slice_wrap
 #        define slice_wrap() 1

@@ -20,12 +20,9 @@
 #    include <stdint.h>
 #endif
 
-//
-// VC++ using C++17 standard deprecate 'register' storage
-// class specifier used by lex generated Scanners.
-//
 #if defined(_MSC_VER)
-#    pragma warning(disable : 5033)
+// warning C4267: conversion from 'size_t' to 'int', possible loss of data
+#    pragma warning(disable : 4267)
 #endif
 
 #if defined(__clang__)
