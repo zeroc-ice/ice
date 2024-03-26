@@ -416,6 +416,8 @@ namespace IceSSL
                             {
                                 try
                                 {
+                                    // If authentication fails, AuthenticateAsClientAsync throws AuthenticationException,
+                                    // and the task won't complete successfully.
                                     _verified = task.IsCompletedSuccessfully;
                                     if (_verified)
                                     {
@@ -424,10 +426,6 @@ namespace IceSSL
                                         {
                                             _certs = [remoteCertificate];
                                         }
-                                    }
-                                    else
-                                    {
-                                        _certs = [];
                                     }
                                 }
                                 finally
@@ -459,6 +457,8 @@ namespace IceSSL
                             {
                                 try
                                 {
+                                    // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
+                                    // and the task won't complete successfully.
                                     _verified = task.IsCompletedSuccessfully;
                                     if (_verified)
                                     {
@@ -467,10 +467,6 @@ namespace IceSSL
                                         {
                                             _certs = [remoteCertificate];
                                         }
-                                    }
-                                    else
-                                    {
-                                        _certs = [];
                                     }
                                 }
                                 finally
@@ -670,8 +666,9 @@ namespace IceSSL
                         {
                             if(_instance.securityTraceLevel() >= 1)
                             {
-                                _instance.logger().trace(_instance.securityTraceCategory(),
-                                                        "SSL certificate validation failed - client certificate not provided");
+                                _instance.logger().trace(
+                                    _instance.securityTraceCategory(),
+                                    "SSL certificate validation failed - client certificate not provided");
                             }
                             return false;
                         }

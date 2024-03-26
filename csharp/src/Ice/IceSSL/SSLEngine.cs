@@ -451,7 +451,7 @@ namespace IceSSL
         }
 
         private static X509Certificate2Collection findCertificates(string prop, StoreLocation storeLocation,
-                                                                string name, string value)
+                                                                   string name, string value)
         {
             //
             // Open the X509 certificate store.
@@ -599,7 +599,7 @@ namespace IceSSL
                         //
                         bool validOnly = false;
                         if(findType == X509FindType.FindBySubjectDistinguishedName ||
-                        findType == X509FindType.FindByIssuerDistinguishedName)
+                           findType == X509FindType.FindByIssuerDistinguishedName)
                         {
                             X500DistinguishedNameFlags[] flags = {
                                 X500DistinguishedNameFlags.None,
