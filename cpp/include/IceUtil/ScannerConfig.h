@@ -28,6 +28,7 @@
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
 #    pragma clang diagnostic ignored "-Wsign-compare"
+#    pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 #ifdef __GNUC__
