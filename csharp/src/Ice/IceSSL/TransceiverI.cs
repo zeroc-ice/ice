@@ -411,6 +411,31 @@ namespace IceSSL
                         is SslClientAuthenticationOptions clientAuthenticationOptions)
                     {
                         _writeResult = _sslStream.AuthenticateAsClientAsync(clientAuthenticationOptions);
+                        _writeResult.ContinueWith(
+                            task =>
+                            {
+                                try
+                                {
+                                    _verified = task.IsCompletedSuccessfully;
+                                    if (_verified)
+                                    {
+                                        _cipher = _sslStream.CipherAlgorithm.ToString();
+                                        if (_sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
+                                        {
+                                            _certs = [remoteCertificate];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _certs = [];
+                                    }
+                                }
+                                finally
+                                {
+                                    callback(state);
+                                }
+                            },
+                            TaskScheduler.Default);
                     }
                     else
                     {
@@ -420,8 +445,8 @@ namespace IceSSL
                             _instance.certs(),
                             _instance.protocols(),
                             _instance.checkCRL() > 0);
+                        _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                     }
-                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }
                 else
                 {
@@ -429,6 +454,31 @@ namespace IceSSL
                     if (_serverAuthenticationOptions is not null)
                     {
                         _writeResult = _sslStream.AuthenticateAsServerAsync(_serverAuthenticationOptions);
+                        _writeResult.ContinueWith(
+                            task =>
+                            {
+                                try
+                                {
+                                    _verified = task.IsCompletedSuccessfully;
+                                    if (_verified)
+                                    {
+                                        _cipher = _sslStream.CipherAlgorithm.ToString();
+                                        if (_sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
+                                        {
+                                            _certs = [remoteCertificate];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _certs = [];
+                                    }
+                                }
+                                finally
+                                {
+                                    callback(state);
+                                }
+                            }, 
+                            TaskScheduler.Default);
                     }
                     else
                     {
@@ -445,8 +495,8 @@ namespace IceSSL
                             _verifyPeer > 0,
                             _instance.protocols(),
                             _instance.checkCRL() > 0);
+                        _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                     }
-                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }
             }
             catch(IOException ex)
@@ -626,7 +676,7 @@ namespace IceSSL
                             return false;
                         }
                         errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                        message = message + "\nremote certificate not provided (ignored)";
+                        message += "\nremote certificate not provided (ignored)";
                     }
                 }
 
@@ -678,12 +728,12 @@ namespace IceSSL
                             {
                                 if(_verifyPeer > 0)
                                 {
-                                    message = message + "\npuntrusted root certificate";
+                                    message += "\nuntrusted root certificate";
                                     ++errorCount;
                                 }
                                 else
                                 {
-                                    message = message + "\nuntrusted root certificate (ignored)";
+                                    message += "\nuntrusted root certificate (ignored)";
                                 }
                             }
                             else
@@ -695,12 +745,12 @@ namespace IceSSL
                         {
                             if(_instance.checkCRL() > 0)
                             {
-                                message = message + "\ncertificate revoked";
+                                message += "\ncertificate revoked";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\ncertificate revoked (ignored)";
+                                message += "\ncertificate revoked (ignored)";
                             }
                         }
                         else if(status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
@@ -711,29 +761,29 @@ namespace IceSSL
                             //
                             if(_instance.checkCRL() > 1)
                             {
-                                message = message + "\ncertificate revocation status unknown";
+                                message += "\ncertificate revocation status unknown";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\ncertificate revocation status unknown (ignored)";
+                                message += "\ncertificate revocation status unknown (ignored)";
                             }
                         }
                         else if(status.Status == X509ChainStatusFlags.PartialChain)
                         {
                             if(_verifyPeer > 0)
                             {
-                                message = message + "\npartial certificate chain";
+                                message += "\npartial certificate chain";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\npartial certificate chain (ignored)";
+                                message += "\npartial certificate chain (ignored)";
                             }
                         }
                         else if(status.Status != X509ChainStatusFlags.NoError)
                         {
-                            message = message + "\ncertificate chain error: " + status.Status.ToString();
+                            message += "\ncertificate chain error: " + status.Status.ToString();
                             ++errorCount;
                         }
                     }

@@ -808,6 +808,23 @@ public class AllTests
                     PingablePrx pingable = PingablePrxHelper.uncheckedCast(
                         clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
                     pingable.ping();
+
+                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    test(connectionInfo is not null);
+                    test(connectionInfo.verified);
+                    test(connectionInfo.certs.Length == 1);
+                    test(connectionInfo.certs[0].Subject == serverCertificate1.Subject);
+
+                    pingable.ice_getCachedConnection().close(Ice.ConnectionClose.Gracefully);
+
+                    try
+                    {
+                        pingable.ping();
+                        test(false); // This should fail because the server must have switch certificates.
+                    }
+                    catch (Ice.SecurityException)
+                    {
+                    }
                 }
 
                 // The second connection will pick the new certificate
@@ -835,6 +852,12 @@ public class AllTests
                     using Ice.Communicator clientCommunicator = Ice.Util.initialize(initData);
                     PingablePrx pingable = PingablePrxHelper.uncheckedCast(clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
                     pingable.ping();
+
+                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    test(connectionInfo is not null);
+                    test(connectionInfo.verified);
+                    test(connectionInfo.certs.Length == 1);
+                    test(connectionInfo.certs[0].Subject == serverCertificate2.Subject);
                 }
             }
             Console.Out.WriteLine("ok");
