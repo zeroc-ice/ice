@@ -63,7 +63,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
         ":icebt",
         ":icegrid",
         ":icepatch2",
-        ":icessl",
         ":icestorm"
     ]
 
@@ -100,7 +99,6 @@ task clean(type: Delete) {
 if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
     task dist()
     dist.dependsOn(project(":ice").assemble)
-    dist.dependsOn(project(":icessl").assemble)
     dist.dependsOn(project(":glacier2").assemble)
     dist.dependsOn(project(":icegrid").assemble)
     dist.dependsOn(project(":icebox").assemble)

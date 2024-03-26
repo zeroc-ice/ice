@@ -54,7 +54,6 @@ tasks.withType(JavaCompile) {
 
 dependencies {
       implementation project(':ice')
-      implementation project(':icessl')
       implementation project(':icelocatordiscovery')
       implementation project(':icebox')
       implementation project(':icestorm')

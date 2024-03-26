@@ -12,7 +12,6 @@ task copyTmpJars(type: Copy) {
     rename("${tmpJarName}", "${jarName}")
 
     mustRunAfter ":ice:javadoc"
-    mustRunAfter ":icessl:javadoc"
     mustRunAfter ":icelocatordiscovery:javadoc"
     mustRunAfter ":icebox:javadoc"
     mustRunAfter ":icestorm:javadoc"

@@ -6,8 +6,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
     // Main source
     include ':ice'
     project(':ice').projectDir = new File('src/Ice')
-    include ':icessl'
-    project(':icessl').projectDir = new File('src/IceSSL')
     include ':icediscovery'
     project(':icediscovery').projectDir = new File('src/IceDiscovery')
     include ':icelocatordiscovery'
