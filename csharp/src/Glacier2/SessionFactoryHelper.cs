@@ -352,17 +352,6 @@ public class SessionFactoryHelper
             initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity));
         }
 
-        //
-        // If using a secure connection setup the IceSSL plug-in, if IceSSL
-        // plug-in has already been setup we don't want to override the
-        // configuration so it can be loaded from a custom location.
-        //
-        if((_protocol == "ssl" || _protocol == "wss") &&
-           initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
-        {
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
-        }
-
         return initData;
     }
 

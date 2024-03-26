@@ -1091,6 +1091,20 @@ namespace Ice
                 // Opaque endpoint encoded with 1.1 encoding.
                 Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
                 test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+
+                if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
+                {
+                    // Two legal TCP endpoints expressed as opaque endpoints
+                    p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+                    pstr = communicator.proxyToString(p1);
+                    test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+
+                    // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
+                    p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
+                    pstr = communicator.proxyToString(p1);
+                    test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+                }
+
                 output.WriteLine("ok");
 
                 output.Write("testing communicator shutdown/destroy... ");

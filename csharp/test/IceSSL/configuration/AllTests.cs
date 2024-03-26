@@ -786,7 +786,7 @@ public class AllTests
                     using var rootCA = new X509Certificate2($"{defaultDir}/cacert1.pem");
                     initData = new Ice.InitializationData
                     {
-                        sslClientAuthenticationOptions = new SslClientAuthenticationOptions
+                        clientAuthenticationOptions = new SslClientAuthenticationOptions
                         {
                             RemoteCertificateValidationCallback = (
                                 object sender,
@@ -815,7 +815,7 @@ public class AllTests
                     using var rootCA = new X509Certificate2($"{defaultDir}/cacert2.pem");
                     initData = new Ice.InitializationData
                     {
-                        sslClientAuthenticationOptions = new SslClientAuthenticationOptions
+                        clientAuthenticationOptions = new SslClientAuthenticationOptions
                         {
                             RemoteCertificateValidationCallback = (
                                 object sender,
@@ -832,7 +832,6 @@ public class AllTests
                             }
                         }
                     };
-                    Console.WriteLine(serverCommunicator.proxyToString(proxy));
                     using Ice.Communicator clientCommunicator = Ice.Util.initialize(initData);
                     PingablePrx pingable = PingablePrxHelper.uncheckedCast(clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
                     pingable.ping();
