@@ -117,8 +117,8 @@ namespace IceGrid
             lhs->sessionId != rhs->sessionId || lhs->exe != rhs->exe || lhs->pwd != rhs->pwd ||
             lhs->user != rhs->user || lhs->activation != rhs->activation ||
             lhs->activationTimeout != rhs->activationTimeout || lhs->deactivationTimeout != rhs->deactivationTimeout ||
-            lhs->processRegistered != rhs->processRegistered ||
-            lhs->options != rhs->options || lhs->envs != rhs->envs || lhs->logs != rhs->logs)
+            lhs->processRegistered != rhs->processRegistered || lhs->options != rhs->options ||
+            lhs->envs != rhs->envs || lhs->logs != rhs->logs)
         {
             return true;
         }
