@@ -29,11 +29,11 @@ namespace
     bool isRoot(const string& pa)
     {
         string path = simplify(pa);
-    #ifdef _WIN32
+#ifdef _WIN32
         return path == "/" || path.size() == 3 && IceUtilInternal::isAlpha(path[0]) && path[1] == ':' && path[2] == '/';
-    #else
+#else
         return path == "/";
-    #endif
+#endif
     }
 }
 
@@ -382,7 +382,7 @@ IceGrid::createDirectory(const string& pa)
 StringSeq
 IceGrid::readDirectory(const string& pa)
 {
-const string path = simplify(pa);
+    const string path = simplify(pa);
 
 #ifdef _WIN32
 
