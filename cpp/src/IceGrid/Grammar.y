@@ -10,6 +10,8 @@
 #ifdef _MSC_VER
 // warning C4127: conditional expression is constant
 #    pragma warning(disable:4127)
+// warning C4102: 'yyexhausted': unreferenced label
+#    pragma warning(disable:4102)
 #endif
 
 // Avoid old style cast warnings in generated grammar
