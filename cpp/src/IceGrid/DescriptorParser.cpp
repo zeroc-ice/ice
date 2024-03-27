@@ -4,11 +4,10 @@
 
 #include <Ice/Ice.h>
 #include <IceXML/Parser.h>
-#include <IcePatch2Lib/Util.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorBuilder.h>
-#include <IceGrid/Util.h>
+#include "Util.h"
 
 #include <stack>
 #include <fstream>
@@ -775,7 +774,7 @@ DescriptorParser::parseDescriptor(
     const shared_ptr<Ice::Communicator>& communicator,
     IceGrid::AdminPrx admin)
 {
-    string filename = IcePatch2Internal::simplify(descriptor);
+    string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
     handler.setAdmin(std::move(admin));
     handler.setVariables(variables, targets);
@@ -786,7 +785,7 @@ DescriptorParser::parseDescriptor(
 ApplicationDescriptor
 DescriptorParser::parseDescriptor(const string& descriptor, const shared_ptr<Ice::Communicator>& communicator)
 {
-    string filename = IcePatch2Internal::simplify(descriptor);
+    string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
     IceXML::Parser::parse(filename, handler);
     return handler.getApplicationDescriptor();
