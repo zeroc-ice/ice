@@ -4,6 +4,7 @@
 //
 
 #include "IceUtil/ScannerConfig.h"
+#include <cstdint>
 
 }
 

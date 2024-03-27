@@ -4,6 +4,7 @@
 //
 
 #include "IceUtil/ScannerConfig.h"
+#include <cstdint>
 
 }
 
@@ -13,8 +14,8 @@
 #include "Slice/Grammar.h"
 
 #include <iomanip>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #ifdef _MSC_VER
 #    ifdef slice_wrap
