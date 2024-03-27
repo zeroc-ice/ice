@@ -18,8 +18,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
     project(':icebox').projectDir = new File('src/IceBox')
     include ':glacier2'
     project(':glacier2').projectDir = new File('src/Glacier2')
-    include ':icepatch2'
-    project(':icepatch2').projectDir = new File('src/IcePatch2')
     include ':icestorm'
     project(':icestorm').projectDir = new File('src/IceStorm')
     include ':icegrid'
