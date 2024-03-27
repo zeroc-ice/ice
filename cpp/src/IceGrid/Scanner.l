@@ -1,37 +1,17 @@
-%{
-
+%top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "IceUtil/ScannerConfig.h"
+
+}
+
+%{
+
 #include "Ice/Ice.h"
 #include "Parser.h"
 #include "Grammar.h"
-
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#   pragma warning(disable:4267)
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
-#if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-using namespace std;
-using namespace Ice;
-using namespace IceGrid;
 
 #ifdef _MSC_VER
 #   ifdef yywrap
@@ -40,6 +20,10 @@ using namespace IceGrid;
 #   endif
 #   define YY_NO_UNISTD_H
 #endif
+
+using namespace std;
+using namespace Ice;
+using namespace IceGrid;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 

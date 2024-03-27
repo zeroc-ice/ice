@@ -8,31 +8,24 @@
 #include "Parser.h"
 
 #ifdef _MSC_VER
-// warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning(disable:4102)
-// warning C4065: switch statement contains 'default' but no 'case' labels
-#   pragma warning(disable:4065)
-// warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
-#   pragma warning(disable:4244)
-// warning C4702: unreachable code
-#   pragma warning(disable:4702)
+// warning C4127: conditional expression is constant
+#    pragma warning(disable:4127)
 #endif
 
-//
 // Avoid old style cast warnings in generated grammar
-//
 #ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wunused-label"
+
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98753
+#    pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
-//
-// Avoid clang conversion warnings
-//
+// Avoid clang warnings in generate grammar
 #if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wconversion"
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#   pragma clang diagnostic ignored "-Wunused-but-set-variable"
-#   pragma clang diagnostic ignored "-Wunused-label"
+#    pragma clang diagnostic ignored "-Wconversion"
+#    pragma clang diagnostic ignored "-Wsign-conversion"
+#    pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 using namespace std;

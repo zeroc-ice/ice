@@ -1,6 +1,11 @@
 #line 1 "src/IceGrid/Scanner.cpp"
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
 
-#line 3 "src/IceGrid/Scanner.cpp"
+#include "IceUtil/ScannerConfig.h"
+
+#line 8 "src/IceGrid/Scanner.cpp"
 
 #define YY_INT_ALIGNED short int
 
@@ -400,40 +405,12 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char* yytext;
 #line 1 "src/IceGrid/Scanner.l"
-#line 2 "src/IceGrid/Scanner.l"
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+#line 11 "src/IceGrid/Scanner.l"
 
 #include "Ice/Ice.h"
 #include "Parser.h"
 #include "Grammar.h"
-
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#    pragma warning(disable : 4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#    pragma warning(disable : 4244)
-
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#    pragma warning(disable : 4267)
-#endif
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
-#if defined(__clang__)
-#    pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-using namespace std;
-using namespace Ice;
-using namespace IceGrid;
 
 #ifdef _MSC_VER
 #    ifdef yywrap
@@ -442,6 +419,10 @@ using namespace IceGrid;
 #    endif
 #    define YY_NO_UNISTD_H
 #endif
+
+using namespace std;
+using namespace Ice;
+using namespace IceGrid;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
@@ -458,8 +439,8 @@ namespace IceGrid
 }
 #define YY_USER_INIT initScanner();
 
-#line 511 "src/IceGrid/Scanner.cpp"
-#line 512 "src/IceGrid/Scanner.cpp"
+#line 492 "src/IceGrid/Scanner.cpp"
+#line 493 "src/IceGrid/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -679,9 +660,9 @@ YY_DECL
     }
 
     {
-#line 68 "src/IceGrid/Scanner.l"
+#line 52 "src/IceGrid/Scanner.l"
 
-#line 732 "src/IceGrid/Scanner.cpp"
+#line 713 "src/IceGrid/Scanner.cpp"
 
         while (/*CONSTCOND*/ 1) /* loops until end-of-file is reached */
         {
@@ -739,7 +720,7 @@ YY_DECL
 
                 case 1:
                     YY_RULE_SETUP
-#line 70 "src/IceGrid/Scanner.l"
+#line 54 "src/IceGrid/Scanner.l"
                     {
                         // C++-style comment
                         int c;
@@ -751,7 +732,7 @@ YY_DECL
                     YY_BREAK
                 case 2:
                     YY_RULE_SETUP
-#line 80 "src/IceGrid/Scanner.l"
+#line 64 "src/IceGrid/Scanner.l"
                     {
                         // C-style comment
                         while (true)
@@ -780,7 +761,7 @@ YY_DECL
                 case 3:
                     /* rule 3 can match eol */
                     YY_RULE_SETUP
-#line 105 "src/IceGrid/Scanner.l"
+#line 89 "src/IceGrid/Scanner.l"
                     {
                         size_t len = strlen(yytext);
                         for (size_t i = 0; i < len; ++i)
@@ -795,14 +776,14 @@ YY_DECL
                 case 4:
                     /* rule 4 can match eol */
                     YY_RULE_SETUP
-#line 116 "src/IceGrid/Scanner.l"
+#line 100 "src/IceGrid/Scanner.l"
                     {
                         return ';';
                     }
                     YY_BREAK
                 case 5:
                     YY_RULE_SETUP
-#line 120 "src/IceGrid/Scanner.l"
+#line 104 "src/IceGrid/Scanner.l"
                     {
                         // "..."-type strings
                         string s = parseDoubleQuotedString();
@@ -813,7 +794,7 @@ YY_DECL
                     YY_BREAK
                 case 6:
                     YY_RULE_SETUP
-#line 128 "src/IceGrid/Scanner.l"
+#line 112 "src/IceGrid/Scanner.l"
                     {
                         // '...'-type strings
                         string s;
@@ -841,7 +822,7 @@ YY_DECL
                     YY_BREAK
                 case 7:
                     YY_RULE_SETUP
-#line 153 "src/IceGrid/Scanner.l"
+#line 137 "src/IceGrid/Scanner.l"
                     {
                         // Simple strings
                         string s;
@@ -880,10 +861,10 @@ YY_DECL
                     YY_BREAK
                 case 8:
                     YY_RULE_SETUP
-#line 189 "src/IceGrid/Scanner.l"
+#line 173 "src/IceGrid/Scanner.l"
                     ECHO;
                     YY_BREAK
-#line 936 "src/IceGrid/Scanner.cpp"
+#line 917 "src/IceGrid/Scanner.cpp"
                 case YY_STATE_EOF(INITIAL):
                     yyterminate();
 
@@ -1899,7 +1880,7 @@ yyfree(void* ptr)
 
 #define YYTABLES_NAME "yytables"
 
-#line 189 "src/IceGrid/Scanner.l"
+#line 173 "src/IceGrid/Scanner.l"
 
 namespace IceGrid
 {

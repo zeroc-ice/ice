@@ -74,31 +74,24 @@
 #include "Parser.h"
 
 #ifdef _MSC_VER
-// warning C4102: 'yyoverflowlab' : unreferenced label
-#    pragma warning(disable : 4102)
-// warning C4065: switch statement contains 'default' but no 'case' labels
-#    pragma warning(disable : 4065)
-// warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
-#    pragma warning(disable : 4244)
-// warning C4702: unreachable code
-#    pragma warning(disable : 4702)
+// warning C4127: conditional expression is constant
+#    pragma warning(disable : 4127)
 #endif
 
-//
 // Avoid old style cast warnings in generated grammar
-//
 #ifdef __GNUC__
 #    pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wunused-label"
+
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98753
+#    pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
-//
-// Avoid clang conversion warnings
-//
+// Avoid clang warnings in generate grammar
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
 #    pragma clang diagnostic ignored "-Wsign-conversion"
 #    pragma clang diagnostic ignored "-Wunused-but-set-variable"
-#    pragma clang diagnostic ignored "-Wunused-label"
 #endif
 
 using namespace std;
@@ -111,7 +104,7 @@ yyerror(const char* s)
     parser->invalidCommand(s);
 }
 
-#line 120 "src/IceGrid/Grammar.cpp"
+#line 113 "src/IceGrid/Grammar.cpp"
 
 #ifndef YY_CAST
 #    ifdef __cplusplus
@@ -534,14 +527,14 @@ static const yytype_int8 yytranslate[] = {
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] = {
-    0,   102, 102, 106, 113, 116, 123, 131, 135, 139, 143, 147, 151, 155, 159, 163, 167, 171, 175, 179, 183,
-    187, 191, 195, 199, 203, 207, 211, 215, 219, 223, 227, 231, 235, 239, 243, 247, 251, 255, 259, 263, 267,
-    271, 275, 279, 283, 287, 291, 295, 299, 303, 307, 311, 315, 319, 323, 327, 331, 335, 339, 343, 347, 351,
-    355, 359, 363, 367, 371, 375, 379, 383, 387, 391, 395, 399, 403, 407, 411, 415, 419, 423, 427, 431, 435,
-    439, 443, 447, 451, 455, 459, 463, 467, 471, 475, 479, 483, 487, 491, 495, 499, 503, 507, 511, 515, 519,
-    523, 527, 531, 535, 539, 543, 547, 551, 555, 559, 570, 574, 585, 596, 600, 604, 608, 614, 619, 624, 628,
-    636, 641, 646, 652, 659, 667, 670, 673, 676, 679, 682, 685, 688, 691, 694, 697, 700, 703, 706, 709, 712,
-    715, 718, 721, 724, 727, 730, 733, 736, 739, 742, 745, 748, 751, 754, 757, 760, 763, 766, 769, 772, 775};
+    0,   95,  95,  99,  106, 109, 116, 124, 128, 132, 136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176,
+    180, 184, 188, 192, 196, 200, 204, 208, 212, 216, 220, 224, 228, 232, 236, 240, 244, 248, 252, 256, 260,
+    264, 268, 272, 276, 280, 284, 288, 292, 296, 300, 304, 308, 312, 316, 320, 324, 328, 332, 336, 340, 344,
+    348, 352, 356, 360, 364, 368, 372, 376, 380, 384, 388, 392, 396, 400, 404, 408, 412, 416, 420, 424, 428,
+    432, 436, 440, 444, 448, 452, 456, 460, 464, 468, 472, 476, 480, 484, 488, 492, 496, 500, 504, 508, 512,
+    516, 520, 524, 528, 532, 536, 540, 544, 548, 552, 563, 567, 578, 589, 593, 597, 601, 607, 612, 617, 621,
+    629, 634, 639, 645, 652, 660, 663, 666, 669, 672, 675, 678, 681, 684, 687, 690, 693, 696, 699, 702, 705,
+    708, 711, 714, 717, 720, 723, 726, 729, 732, 735, 738, 741, 744, 747, 750, 753, 756, 759, 762, 765, 768};
 #endif
 
 /** Accessing symbol of state STATE.  */
@@ -1356,899 +1349,899 @@ yyreduce:
     switch (yyn)
     {
         case 2: /* start: commands  */
-#line 103 "src/IceGrid/Grammar.y"
+#line 96 "src/IceGrid/Grammar.y"
+        {
+        }
+#line 1803 "src/IceGrid/Grammar.cpp"
+        break;
+
+        case 3: /* start: %empty  */
+#line 99 "src/IceGrid/Grammar.y"
         {
         }
 #line 1810 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 3: /* start: %empty  */
-#line 106 "src/IceGrid/Grammar.y"
+        case 4: /* commands: commands checkInterrupted command  */
+#line 107 "src/IceGrid/Grammar.y"
         {
         }
 #line 1817 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 4: /* commands: commands checkInterrupted command  */
-#line 114 "src/IceGrid/Grammar.y"
+        case 5: /* commands: checkInterrupted command  */
+#line 110 "src/IceGrid/Grammar.y"
         {
         }
 #line 1824 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 5: /* commands: checkInterrupted command  */
-#line 117 "src/IceGrid/Grammar.y"
-        {
-        }
-#line 1831 "src/IceGrid/Grammar.cpp"
-        break;
-
         case 6: /* checkInterrupted: %empty  */
-#line 123 "src/IceGrid/Grammar.y"
+#line 116 "src/IceGrid/Grammar.y"
         {
             parser->checkInterrupted();
         }
-#line 1839 "src/IceGrid/Grammar.cpp"
+#line 1832 "src/IceGrid/Grammar.cpp"
         break;
 
         case 7: /* command: ICE_GRID_HELP ';'  */
-#line 132 "src/IceGrid/Grammar.y"
+#line 125 "src/IceGrid/Grammar.y"
         {
             parser->usage();
         }
-#line 1847 "src/IceGrid/Grammar.cpp"
+#line 1840 "src/IceGrid/Grammar.cpp"
         break;
 
         case 8: /* command: ICE_GRID_EXIT ';'  */
-#line 136 "src/IceGrid/Grammar.y"
+#line 129 "src/IceGrid/Grammar.y"
         {
             return 0;
         }
-#line 1855 "src/IceGrid/Grammar.cpp"
+#line 1848 "src/IceGrid/Grammar.cpp"
         break;
 
         case 9: /* command: ICE_GRID_APPLICATION ICE_GRID_ADD strings ';'  */
-#line 140 "src/IceGrid/Grammar.y"
+#line 133 "src/IceGrid/Grammar.y"
         {
             parser->addApplication(yyvsp[-1]);
         }
-#line 1863 "src/IceGrid/Grammar.cpp"
+#line 1856 "src/IceGrid/Grammar.cpp"
         break;
 
         case 10: /* command: ICE_GRID_APPLICATION ICE_GRID_ADD ICE_GRID_HELP ';'  */
-#line 144 "src/IceGrid/Grammar.y"
+#line 137 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "add");
         }
-#line 1871 "src/IceGrid/Grammar.cpp"
+#line 1864 "src/IceGrid/Grammar.cpp"
         break;
 
         case 11: /* command: ICE_GRID_APPLICATION ICE_GRID_REMOVE strings ';'  */
-#line 148 "src/IceGrid/Grammar.y"
+#line 141 "src/IceGrid/Grammar.y"
         {
             parser->removeApplication(yyvsp[-1]);
         }
-#line 1879 "src/IceGrid/Grammar.cpp"
+#line 1872 "src/IceGrid/Grammar.cpp"
         break;
 
         case 12: /* command: ICE_GRID_APPLICATION ICE_GRID_REMOVE ICE_GRID_HELP ';'  */
-#line 152 "src/IceGrid/Grammar.y"
+#line 145 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "remove");
         }
-#line 1887 "src/IceGrid/Grammar.cpp"
+#line 1880 "src/IceGrid/Grammar.cpp"
         break;
 
         case 13: /* command: ICE_GRID_APPLICATION ICE_GRID_DIFF strings ';'  */
-#line 156 "src/IceGrid/Grammar.y"
+#line 149 "src/IceGrid/Grammar.y"
         {
             parser->diffApplication(yyvsp[-1]);
         }
-#line 1895 "src/IceGrid/Grammar.cpp"
+#line 1888 "src/IceGrid/Grammar.cpp"
         break;
 
         case 14: /* command: ICE_GRID_APPLICATION ICE_GRID_DIFF ICE_GRID_HELP ';'  */
-#line 160 "src/IceGrid/Grammar.y"
+#line 153 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "diff");
         }
-#line 1903 "src/IceGrid/Grammar.cpp"
+#line 1896 "src/IceGrid/Grammar.cpp"
         break;
 
         case 15: /* command: ICE_GRID_APPLICATION ICE_GRID_UPDATE strings ';'  */
-#line 164 "src/IceGrid/Grammar.y"
+#line 157 "src/IceGrid/Grammar.y"
         {
             parser->updateApplication(yyvsp[-1]);
         }
-#line 1911 "src/IceGrid/Grammar.cpp"
+#line 1904 "src/IceGrid/Grammar.cpp"
         break;
 
         case 16: /* command: ICE_GRID_APPLICATION ICE_GRID_UPDATE ICE_GRID_HELP ';'  */
-#line 168 "src/IceGrid/Grammar.y"
+#line 161 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "update");
         }
-#line 1919 "src/IceGrid/Grammar.cpp"
+#line 1912 "src/IceGrid/Grammar.cpp"
         break;
 
         case 17: /* command: ICE_GRID_APPLICATION ICE_GRID_DESCRIBE strings ';'  */
-#line 172 "src/IceGrid/Grammar.y"
+#line 165 "src/IceGrid/Grammar.y"
         {
             parser->describeApplication(yyvsp[-1]);
         }
-#line 1927 "src/IceGrid/Grammar.cpp"
+#line 1920 "src/IceGrid/Grammar.cpp"
         break;
 
         case 18: /* command: ICE_GRID_APPLICATION ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 176 "src/IceGrid/Grammar.y"
+#line 169 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "describe");
         }
-#line 1935 "src/IceGrid/Grammar.cpp"
+#line 1928 "src/IceGrid/Grammar.cpp"
         break;
 
         case 19: /* command: ICE_GRID_APPLICATION ICE_GRID_LIST strings ';'  */
-#line 180 "src/IceGrid/Grammar.y"
+#line 173 "src/IceGrid/Grammar.y"
         {
             parser->listAllApplications(yyvsp[-1]);
         }
-#line 1943 "src/IceGrid/Grammar.cpp"
+#line 1936 "src/IceGrid/Grammar.cpp"
         break;
 
         case 20: /* command: ICE_GRID_APPLICATION ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 184 "src/IceGrid/Grammar.y"
+#line 177 "src/IceGrid/Grammar.y"
         {
             parser->usage("application", "list");
         }
-#line 1951 "src/IceGrid/Grammar.cpp"
+#line 1944 "src/IceGrid/Grammar.cpp"
         break;
 
         case 21: /* command: ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'  */
-#line 188 "src/IceGrid/Grammar.y"
+#line 181 "src/IceGrid/Grammar.y"
         {
             parser->describeServerTemplate(yyvsp[-1]);
         }
-#line 1959 "src/IceGrid/Grammar.cpp"
+#line 1952 "src/IceGrid/Grammar.cpp"
         break;
 
         case 22: /* command: ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 192 "src/IceGrid/Grammar.y"
+#line 185 "src/IceGrid/Grammar.y"
         {
             parser->usage("server template", "describe");
         }
-#line 1967 "src/IceGrid/Grammar.cpp"
+#line 1960 "src/IceGrid/Grammar.cpp"
         break;
 
         case 23: /* command: ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_INSTANTIATE strings ';'  */
-#line 196 "src/IceGrid/Grammar.y"
+#line 189 "src/IceGrid/Grammar.y"
         {
             parser->instantiateServerTemplate(yyvsp[-1]);
         }
-#line 1975 "src/IceGrid/Grammar.cpp"
+#line 1968 "src/IceGrid/Grammar.cpp"
         break;
 
         case 24: /* command: ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_INSTANTIATE ICE_GRID_HELP ';'  */
-#line 200 "src/IceGrid/Grammar.y"
+#line 193 "src/IceGrid/Grammar.y"
         {
             parser->usage("server template", "instantiate");
         }
-#line 1983 "src/IceGrid/Grammar.cpp"
+#line 1976 "src/IceGrid/Grammar.cpp"
         break;
 
         case 25: /* command: ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_HELP ';'  */
-#line 204 "src/IceGrid/Grammar.y"
+#line 197 "src/IceGrid/Grammar.y"
         {
             parser->usage("server template");
         }
-#line 1991 "src/IceGrid/Grammar.cpp"
+#line 1984 "src/IceGrid/Grammar.cpp"
         break;
 
         case 26: /* command: ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'  */
-#line 208 "src/IceGrid/Grammar.y"
+#line 201 "src/IceGrid/Grammar.y"
         {
             parser->describeServiceTemplate(yyvsp[-1]);
         }
-#line 1999 "src/IceGrid/Grammar.cpp"
+#line 1992 "src/IceGrid/Grammar.cpp"
         break;
 
         case 27: /* command: ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 212 "src/IceGrid/Grammar.y"
+#line 205 "src/IceGrid/Grammar.y"
         {
             parser->usage("service template", "describe");
         }
-#line 2007 "src/IceGrid/Grammar.cpp"
+#line 2000 "src/IceGrid/Grammar.cpp"
         break;
 
         case 28: /* command: ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_HELP ';'  */
-#line 216 "src/IceGrid/Grammar.y"
+#line 209 "src/IceGrid/Grammar.y"
         {
             parser->usage("service template");
         }
-#line 2015 "src/IceGrid/Grammar.cpp"
+#line 2008 "src/IceGrid/Grammar.cpp"
         break;
 
         case 29: /* command: ICE_GRID_NODE ICE_GRID_DESCRIBE strings ';'  */
-#line 220 "src/IceGrid/Grammar.y"
+#line 213 "src/IceGrid/Grammar.y"
         {
             parser->describeNode(yyvsp[-1]);
         }
-#line 2023 "src/IceGrid/Grammar.cpp"
+#line 2016 "src/IceGrid/Grammar.cpp"
         break;
 
         case 30: /* command: ICE_GRID_NODE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 224 "src/IceGrid/Grammar.y"
+#line 217 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "describe");
         }
-#line 2031 "src/IceGrid/Grammar.cpp"
+#line 2024 "src/IceGrid/Grammar.cpp"
         break;
 
         case 31: /* command: ICE_GRID_NODE ICE_GRID_PING strings ';'  */
-#line 228 "src/IceGrid/Grammar.y"
+#line 221 "src/IceGrid/Grammar.y"
         {
             parser->pingNode(yyvsp[-1]);
         }
-#line 2039 "src/IceGrid/Grammar.cpp"
+#line 2032 "src/IceGrid/Grammar.cpp"
         break;
 
         case 32: /* command: ICE_GRID_NODE ICE_GRID_PING ICE_GRID_HELP ';'  */
-#line 232 "src/IceGrid/Grammar.y"
+#line 225 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "ping");
         }
-#line 2047 "src/IceGrid/Grammar.cpp"
+#line 2040 "src/IceGrid/Grammar.cpp"
         break;
 
         case 33: /* command: ICE_GRID_NODE ICE_GRID_LOAD strings ';'  */
-#line 236 "src/IceGrid/Grammar.y"
+#line 229 "src/IceGrid/Grammar.y"
         {
             parser->printLoadNode(yyvsp[-1]);
         }
-#line 2055 "src/IceGrid/Grammar.cpp"
+#line 2048 "src/IceGrid/Grammar.cpp"
         break;
 
         case 34: /* command: ICE_GRID_NODE ICE_GRID_LOAD ICE_GRID_HELP ';'  */
-#line 240 "src/IceGrid/Grammar.y"
+#line 233 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "load");
         }
-#line 2063 "src/IceGrid/Grammar.cpp"
+#line 2056 "src/IceGrid/Grammar.cpp"
         break;
 
         case 35: /* command: ICE_GRID_NODE ICE_GRID_SOCKETS strings ';'  */
-#line 244 "src/IceGrid/Grammar.y"
+#line 237 "src/IceGrid/Grammar.y"
         {
             parser->printNodeProcessorSockets(yyvsp[-1]);
         }
-#line 2071 "src/IceGrid/Grammar.cpp"
+#line 2064 "src/IceGrid/Grammar.cpp"
         break;
 
         case 36: /* command: ICE_GRID_NODE ICE_GRID_SOCKETS ICE_GRID_HELP ';'  */
-#line 248 "src/IceGrid/Grammar.y"
+#line 241 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "sockets");
         }
-#line 2079 "src/IceGrid/Grammar.cpp"
+#line 2072 "src/IceGrid/Grammar.cpp"
         break;
 
         case 37: /* command: ICE_GRID_NODE ICE_GRID_SHUTDOWN strings ';'  */
-#line 252 "src/IceGrid/Grammar.y"
+#line 245 "src/IceGrid/Grammar.y"
         {
             parser->shutdownNode(yyvsp[-1]);
         }
-#line 2087 "src/IceGrid/Grammar.cpp"
+#line 2080 "src/IceGrid/Grammar.cpp"
         break;
 
         case 38: /* command: ICE_GRID_NODE ICE_GRID_SHUTDOWN ICE_GRID_HELP ';'  */
-#line 256 "src/IceGrid/Grammar.y"
+#line 249 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "shutdown");
         }
-#line 2095 "src/IceGrid/Grammar.cpp"
+#line 2088 "src/IceGrid/Grammar.cpp"
         break;
 
         case 39: /* command: ICE_GRID_NODE ICE_GRID_LIST strings ';'  */
-#line 260 "src/IceGrid/Grammar.y"
+#line 253 "src/IceGrid/Grammar.y"
         {
             parser->listAllNodes(yyvsp[-1]);
         }
-#line 2103 "src/IceGrid/Grammar.cpp"
+#line 2096 "src/IceGrid/Grammar.cpp"
         break;
 
         case 40: /* command: ICE_GRID_NODE ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 264 "src/IceGrid/Grammar.y"
+#line 257 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "list");
         }
-#line 2111 "src/IceGrid/Grammar.cpp"
+#line 2104 "src/IceGrid/Grammar.cpp"
         break;
 
         case 41: /* command: ICE_GRID_NODE ICE_GRID_SHOW strings ';'  */
-#line 268 "src/IceGrid/Grammar.y"
+#line 261 "src/IceGrid/Grammar.y"
         {
             parser->show("node", yyvsp[-1]);
         }
-#line 2119 "src/IceGrid/Grammar.cpp"
+#line 2112 "src/IceGrid/Grammar.cpp"
         break;
 
         case 42: /* command: ICE_GRID_NODE ICE_GRID_SHOW ICE_GRID_HELP ';'  */
-#line 272 "src/IceGrid/Grammar.y"
+#line 265 "src/IceGrid/Grammar.y"
         {
             parser->usage("node", "show");
         }
-#line 2127 "src/IceGrid/Grammar.cpp"
+#line 2120 "src/IceGrid/Grammar.cpp"
         break;
 
         case 43: /* command: ICE_GRID_REGISTRY ICE_GRID_DESCRIBE strings ';'  */
-#line 276 "src/IceGrid/Grammar.y"
+#line 269 "src/IceGrid/Grammar.y"
         {
             parser->describeRegistry(yyvsp[-1]);
         }
-#line 2135 "src/IceGrid/Grammar.cpp"
+#line 2128 "src/IceGrid/Grammar.cpp"
         break;
 
         case 44: /* command: ICE_GRID_REGISTRY ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 280 "src/IceGrid/Grammar.y"
+#line 273 "src/IceGrid/Grammar.y"
         {
             parser->usage("registry", "describe");
         }
-#line 2143 "src/IceGrid/Grammar.cpp"
+#line 2136 "src/IceGrid/Grammar.cpp"
         break;
 
         case 45: /* command: ICE_GRID_REGISTRY ICE_GRID_PING strings ';'  */
-#line 284 "src/IceGrid/Grammar.y"
+#line 277 "src/IceGrid/Grammar.y"
         {
             parser->pingRegistry(yyvsp[-1]);
         }
-#line 2151 "src/IceGrid/Grammar.cpp"
+#line 2144 "src/IceGrid/Grammar.cpp"
         break;
 
         case 46: /* command: ICE_GRID_REGISTRY ICE_GRID_PING ICE_GRID_HELP ';'  */
-#line 288 "src/IceGrid/Grammar.y"
+#line 281 "src/IceGrid/Grammar.y"
         {
             parser->usage("registry", "ping");
         }
-#line 2159 "src/IceGrid/Grammar.cpp"
+#line 2152 "src/IceGrid/Grammar.cpp"
         break;
 
         case 47: /* command: ICE_GRID_REGISTRY ICE_GRID_SHUTDOWN strings ';'  */
-#line 292 "src/IceGrid/Grammar.y"
+#line 285 "src/IceGrid/Grammar.y"
         {
             parser->shutdownRegistry(yyvsp[-1]);
         }
-#line 2167 "src/IceGrid/Grammar.cpp"
+#line 2160 "src/IceGrid/Grammar.cpp"
         break;
 
         case 48: /* command: ICE_GRID_REGISTRY ICE_GRID_SHUTDOWN ICE_GRID_HELP ';'  */
-#line 296 "src/IceGrid/Grammar.y"
+#line 289 "src/IceGrid/Grammar.y"
         {
             parser->usage("registry", "shutdown");
         }
-#line 2175 "src/IceGrid/Grammar.cpp"
+#line 2168 "src/IceGrid/Grammar.cpp"
         break;
 
         case 49: /* command: ICE_GRID_REGISTRY ICE_GRID_LIST strings ';'  */
-#line 300 "src/IceGrid/Grammar.y"
+#line 293 "src/IceGrid/Grammar.y"
         {
             parser->listAllRegistries(yyvsp[-1]);
         }
-#line 2183 "src/IceGrid/Grammar.cpp"
+#line 2176 "src/IceGrid/Grammar.cpp"
         break;
 
         case 50: /* command: ICE_GRID_REGISTRY ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 304 "src/IceGrid/Grammar.y"
+#line 297 "src/IceGrid/Grammar.y"
         {
             parser->usage("registry", "list");
         }
-#line 2191 "src/IceGrid/Grammar.cpp"
+#line 2184 "src/IceGrid/Grammar.cpp"
         break;
 
         case 51: /* command: ICE_GRID_REGISTRY ICE_GRID_SHOW strings ';'  */
-#line 308 "src/IceGrid/Grammar.y"
+#line 301 "src/IceGrid/Grammar.y"
         {
             parser->show("registry", yyvsp[-1]);
         }
-#line 2199 "src/IceGrid/Grammar.cpp"
+#line 2192 "src/IceGrid/Grammar.cpp"
         break;
 
         case 52: /* command: ICE_GRID_REGISTRY ICE_GRID_SHOW ICE_GRID_HELP ';'  */
-#line 312 "src/IceGrid/Grammar.y"
+#line 305 "src/IceGrid/Grammar.y"
         {
             parser->usage("registry", "show");
         }
-#line 2207 "src/IceGrid/Grammar.cpp"
+#line 2200 "src/IceGrid/Grammar.cpp"
         break;
 
         case 53: /* command: ICE_GRID_SERVER ICE_GRID_REMOVE strings ';'  */
-#line 316 "src/IceGrid/Grammar.y"
+#line 309 "src/IceGrid/Grammar.y"
         {
             parser->removeServer(yyvsp[-1]);
         }
-#line 2215 "src/IceGrid/Grammar.cpp"
+#line 2208 "src/IceGrid/Grammar.cpp"
         break;
 
         case 54: /* command: ICE_GRID_SERVER ICE_GRID_REMOVE ICE_GRID_HELP ';'  */
-#line 320 "src/IceGrid/Grammar.y"
+#line 313 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "remove");
         }
-#line 2223 "src/IceGrid/Grammar.cpp"
+#line 2216 "src/IceGrid/Grammar.cpp"
         break;
 
         case 55: /* command: ICE_GRID_SERVER ICE_GRID_DESCRIBE strings ';'  */
-#line 324 "src/IceGrid/Grammar.y"
+#line 317 "src/IceGrid/Grammar.y"
         {
             parser->describeServer(yyvsp[-1]);
         }
-#line 2231 "src/IceGrid/Grammar.cpp"
+#line 2224 "src/IceGrid/Grammar.cpp"
         break;
 
         case 56: /* command: ICE_GRID_SERVER ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 328 "src/IceGrid/Grammar.y"
+#line 321 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "describe");
         }
-#line 2239 "src/IceGrid/Grammar.cpp"
+#line 2232 "src/IceGrid/Grammar.cpp"
         break;
 
         case 57: /* command: ICE_GRID_SERVER ICE_GRID_START strings ';'  */
-#line 332 "src/IceGrid/Grammar.y"
+#line 325 "src/IceGrid/Grammar.y"
         {
             parser->startServer(yyvsp[-1]);
         }
-#line 2247 "src/IceGrid/Grammar.cpp"
+#line 2240 "src/IceGrid/Grammar.cpp"
         break;
 
         case 58: /* command: ICE_GRID_SERVER ICE_GRID_START ICE_GRID_HELP ';'  */
-#line 336 "src/IceGrid/Grammar.y"
+#line 329 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "start");
         }
-#line 2255 "src/IceGrid/Grammar.cpp"
+#line 2248 "src/IceGrid/Grammar.cpp"
         break;
 
         case 59: /* command: ICE_GRID_SERVER ICE_GRID_STOP strings ';'  */
-#line 340 "src/IceGrid/Grammar.y"
+#line 333 "src/IceGrid/Grammar.y"
         {
             parser->stopServer(yyvsp[-1]);
         }
-#line 2263 "src/IceGrid/Grammar.cpp"
+#line 2256 "src/IceGrid/Grammar.cpp"
         break;
 
         case 60: /* command: ICE_GRID_SERVER ICE_GRID_STOP ICE_GRID_HELP ';'  */
-#line 344 "src/IceGrid/Grammar.y"
+#line 337 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "stop");
         }
-#line 2271 "src/IceGrid/Grammar.cpp"
+#line 2264 "src/IceGrid/Grammar.cpp"
         break;
 
         case 61: /* command: ICE_GRID_SERVER ICE_GRID_SIGNAL strings ';'  */
-#line 348 "src/IceGrid/Grammar.y"
+#line 341 "src/IceGrid/Grammar.y"
         {
             parser->signalServer(yyvsp[-1]);
         }
-#line 2279 "src/IceGrid/Grammar.cpp"
+#line 2272 "src/IceGrid/Grammar.cpp"
         break;
 
         case 62: /* command: ICE_GRID_SERVER ICE_GRID_SIGNAL ICE_GRID_HELP ';'  */
-#line 352 "src/IceGrid/Grammar.y"
+#line 345 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "signal");
         }
-#line 2287 "src/IceGrid/Grammar.cpp"
+#line 2280 "src/IceGrid/Grammar.cpp"
         break;
 
         case 63: /* command: ICE_GRID_SERVER ICE_GRID_STDOUT strings ';'  */
-#line 356 "src/IceGrid/Grammar.y"
+#line 349 "src/IceGrid/Grammar.y"
         {
             parser->writeMessage(yyvsp[-1], 1);
         }
-#line 2295 "src/IceGrid/Grammar.cpp"
+#line 2288 "src/IceGrid/Grammar.cpp"
         break;
 
         case 64: /* command: ICE_GRID_SERVER ICE_GRID_STDOUT ICE_GRID_HELP ';'  */
-#line 360 "src/IceGrid/Grammar.y"
+#line 353 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "stdout");
         }
-#line 2303 "src/IceGrid/Grammar.cpp"
+#line 2296 "src/IceGrid/Grammar.cpp"
         break;
 
         case 65: /* command: ICE_GRID_SERVER ICE_GRID_STDERR strings ';'  */
-#line 364 "src/IceGrid/Grammar.y"
+#line 357 "src/IceGrid/Grammar.y"
         {
             parser->writeMessage(yyvsp[-1], 2);
         }
-#line 2311 "src/IceGrid/Grammar.cpp"
+#line 2304 "src/IceGrid/Grammar.cpp"
         break;
 
         case 66: /* command: ICE_GRID_SERVER ICE_GRID_STDERR ICE_GRID_HELP ';'  */
-#line 368 "src/IceGrid/Grammar.y"
+#line 361 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "stderr");
         }
-#line 2319 "src/IceGrid/Grammar.cpp"
+#line 2312 "src/IceGrid/Grammar.cpp"
         break;
 
         case 67: /* command: ICE_GRID_SERVER ICE_GRID_STATE strings ';'  */
-#line 372 "src/IceGrid/Grammar.y"
+#line 365 "src/IceGrid/Grammar.y"
         {
             parser->stateServer(yyvsp[-1]);
         }
-#line 2327 "src/IceGrid/Grammar.cpp"
+#line 2320 "src/IceGrid/Grammar.cpp"
         break;
 
         case 68: /* command: ICE_GRID_SERVER ICE_GRID_STATE ICE_GRID_HELP ';'  */
-#line 376 "src/IceGrid/Grammar.y"
+#line 369 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "start");
         }
-#line 2335 "src/IceGrid/Grammar.cpp"
+#line 2328 "src/IceGrid/Grammar.cpp"
         break;
 
         case 69: /* command: ICE_GRID_SERVER ICE_GRID_PID strings ';'  */
-#line 380 "src/IceGrid/Grammar.y"
+#line 373 "src/IceGrid/Grammar.y"
         {
             parser->pidServer(yyvsp[-1]);
         }
-#line 2343 "src/IceGrid/Grammar.cpp"
+#line 2336 "src/IceGrid/Grammar.cpp"
         break;
 
         case 70: /* command: ICE_GRID_SERVER ICE_GRID_PID ICE_GRID_HELP ';'  */
-#line 384 "src/IceGrid/Grammar.y"
+#line 377 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "pid");
         }
-#line 2351 "src/IceGrid/Grammar.cpp"
+#line 2344 "src/IceGrid/Grammar.cpp"
         break;
 
         case 71: /* command: ICE_GRID_SERVER ICE_GRID_PROPERTIES strings ';'  */
-#line 388 "src/IceGrid/Grammar.y"
+#line 381 "src/IceGrid/Grammar.y"
         {
             parser->propertiesServer(yyvsp[-1], false);
         }
-#line 2359 "src/IceGrid/Grammar.cpp"
+#line 2352 "src/IceGrid/Grammar.cpp"
         break;
 
         case 72: /* command: ICE_GRID_SERVER ICE_GRID_PROPERTIES ICE_GRID_HELP ';'  */
-#line 392 "src/IceGrid/Grammar.y"
+#line 385 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "properties");
         }
-#line 2367 "src/IceGrid/Grammar.cpp"
+#line 2360 "src/IceGrid/Grammar.cpp"
         break;
 
         case 73: /* command: ICE_GRID_SERVER ICE_GRID_PROPERTY strings ';'  */
-#line 396 "src/IceGrid/Grammar.y"
+#line 389 "src/IceGrid/Grammar.y"
         {
             parser->propertiesServer(yyvsp[-1], true);
         }
-#line 2375 "src/IceGrid/Grammar.cpp"
+#line 2368 "src/IceGrid/Grammar.cpp"
         break;
 
         case 74: /* command: ICE_GRID_SERVER ICE_GRID_PROPERTY ICE_GRID_HELP ';'  */
-#line 400 "src/IceGrid/Grammar.y"
+#line 393 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "property");
         }
-#line 2383 "src/IceGrid/Grammar.cpp"
+#line 2376 "src/IceGrid/Grammar.cpp"
         break;
 
         case 75: /* command: ICE_GRID_SERVER ICE_GRID_ENABLE strings ';'  */
-#line 404 "src/IceGrid/Grammar.y"
+#line 397 "src/IceGrid/Grammar.y"
         {
             parser->enableServer(yyvsp[-1], true);
         }
-#line 2391 "src/IceGrid/Grammar.cpp"
+#line 2384 "src/IceGrid/Grammar.cpp"
         break;
 
         case 76: /* command: ICE_GRID_SERVER ICE_GRID_ENABLE ICE_GRID_HELP ';'  */
-#line 408 "src/IceGrid/Grammar.y"
+#line 401 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "enable");
         }
-#line 2399 "src/IceGrid/Grammar.cpp"
+#line 2392 "src/IceGrid/Grammar.cpp"
         break;
 
         case 77: /* command: ICE_GRID_SERVER ICE_GRID_DISABLE strings ';'  */
-#line 412 "src/IceGrid/Grammar.y"
+#line 405 "src/IceGrid/Grammar.y"
         {
             parser->enableServer(yyvsp[-1], false);
         }
-#line 2407 "src/IceGrid/Grammar.cpp"
+#line 2400 "src/IceGrid/Grammar.cpp"
         break;
 
         case 78: /* command: ICE_GRID_SERVER ICE_GRID_DISABLE ICE_GRID_HELP ';'  */
-#line 416 "src/IceGrid/Grammar.y"
+#line 409 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "disable");
         }
-#line 2415 "src/IceGrid/Grammar.cpp"
+#line 2408 "src/IceGrid/Grammar.cpp"
         break;
 
         case 79: /* command: ICE_GRID_SERVER ICE_GRID_LIST strings ';'  */
-#line 420 "src/IceGrid/Grammar.y"
+#line 413 "src/IceGrid/Grammar.y"
         {
             parser->listAllServers(yyvsp[-1]);
         }
-#line 2423 "src/IceGrid/Grammar.cpp"
+#line 2416 "src/IceGrid/Grammar.cpp"
         break;
 
         case 80: /* command: ICE_GRID_SERVER ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 424 "src/IceGrid/Grammar.y"
+#line 417 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "list");
         }
-#line 2431 "src/IceGrid/Grammar.cpp"
+#line 2424 "src/IceGrid/Grammar.cpp"
         break;
 
         case 81: /* command: ICE_GRID_SERVER ICE_GRID_SHOW strings ';'  */
-#line 428 "src/IceGrid/Grammar.y"
+#line 421 "src/IceGrid/Grammar.y"
         {
             parser->show("server", yyvsp[-1]);
         }
-#line 2439 "src/IceGrid/Grammar.cpp"
+#line 2432 "src/IceGrid/Grammar.cpp"
         break;
 
         case 82: /* command: ICE_GRID_SERVER ICE_GRID_SHOW ICE_GRID_HELP ';'  */
-#line 432 "src/IceGrid/Grammar.y"
+#line 425 "src/IceGrid/Grammar.y"
         {
             parser->usage("server", "show");
         }
-#line 2447 "src/IceGrid/Grammar.cpp"
+#line 2440 "src/IceGrid/Grammar.cpp"
         break;
 
         case 83: /* command: ICE_GRID_SERVICE ICE_GRID_START strings ';'  */
-#line 436 "src/IceGrid/Grammar.y"
+#line 429 "src/IceGrid/Grammar.y"
         {
             parser->startService(yyvsp[-1]);
         }
-#line 2455 "src/IceGrid/Grammar.cpp"
+#line 2448 "src/IceGrid/Grammar.cpp"
         break;
 
         case 84: /* command: ICE_GRID_SERVICE ICE_GRID_START ICE_GRID_HELP ';'  */
-#line 440 "src/IceGrid/Grammar.y"
+#line 433 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "start");
         }
-#line 2463 "src/IceGrid/Grammar.cpp"
+#line 2456 "src/IceGrid/Grammar.cpp"
         break;
 
         case 85: /* command: ICE_GRID_SERVICE ICE_GRID_STOP strings ';'  */
-#line 444 "src/IceGrid/Grammar.y"
+#line 437 "src/IceGrid/Grammar.y"
         {
             parser->stopService(yyvsp[-1]);
         }
-#line 2471 "src/IceGrid/Grammar.cpp"
+#line 2464 "src/IceGrid/Grammar.cpp"
         break;
 
         case 86: /* command: ICE_GRID_SERVICE ICE_GRID_STOP ICE_GRID_HELP ';'  */
-#line 448 "src/IceGrid/Grammar.y"
+#line 441 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "stop");
         }
-#line 2479 "src/IceGrid/Grammar.cpp"
+#line 2472 "src/IceGrid/Grammar.cpp"
         break;
 
         case 87: /* command: ICE_GRID_SERVICE ICE_GRID_DESCRIBE strings ';'  */
-#line 452 "src/IceGrid/Grammar.y"
+#line 445 "src/IceGrid/Grammar.y"
         {
             parser->describeService(yyvsp[-1]);
         }
-#line 2487 "src/IceGrid/Grammar.cpp"
+#line 2480 "src/IceGrid/Grammar.cpp"
         break;
 
         case 88: /* command: ICE_GRID_SERVICE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 456 "src/IceGrid/Grammar.y"
+#line 449 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "describe");
         }
-#line 2495 "src/IceGrid/Grammar.cpp"
+#line 2488 "src/IceGrid/Grammar.cpp"
         break;
 
         case 89: /* command: ICE_GRID_SERVICE ICE_GRID_PROPERTIES strings ';'  */
-#line 460 "src/IceGrid/Grammar.y"
+#line 453 "src/IceGrid/Grammar.y"
         {
             parser->propertiesService(yyvsp[-1], false);
         }
-#line 2503 "src/IceGrid/Grammar.cpp"
+#line 2496 "src/IceGrid/Grammar.cpp"
         break;
 
         case 90: /* command: ICE_GRID_SERVICE ICE_GRID_PROPERTIES ICE_GRID_HELP ';'  */
-#line 464 "src/IceGrid/Grammar.y"
+#line 457 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "properties");
         }
-#line 2511 "src/IceGrid/Grammar.cpp"
+#line 2504 "src/IceGrid/Grammar.cpp"
         break;
 
         case 91: /* command: ICE_GRID_SERVICE ICE_GRID_PROPERTY strings ';'  */
-#line 468 "src/IceGrid/Grammar.y"
+#line 461 "src/IceGrid/Grammar.y"
         {
             parser->propertiesService(yyvsp[-1], true);
         }
-#line 2519 "src/IceGrid/Grammar.cpp"
+#line 2512 "src/IceGrid/Grammar.cpp"
         break;
 
         case 92: /* command: ICE_GRID_SERVICE ICE_GRID_PROPERTY ICE_GRID_HELP ';'  */
-#line 472 "src/IceGrid/Grammar.y"
+#line 465 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "property");
         }
-#line 2527 "src/IceGrid/Grammar.cpp"
+#line 2520 "src/IceGrid/Grammar.cpp"
         break;
 
         case 93: /* command: ICE_GRID_SERVICE ICE_GRID_LIST strings ';'  */
-#line 476 "src/IceGrid/Grammar.y"
+#line 469 "src/IceGrid/Grammar.y"
         {
             parser->listServices(yyvsp[-1]);
         }
-#line 2535 "src/IceGrid/Grammar.cpp"
+#line 2528 "src/IceGrid/Grammar.cpp"
         break;
 
         case 94: /* command: ICE_GRID_SERVICE ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 480 "src/IceGrid/Grammar.y"
+#line 473 "src/IceGrid/Grammar.y"
         {
             parser->usage("service", "list");
         }
-#line 2543 "src/IceGrid/Grammar.cpp"
+#line 2536 "src/IceGrid/Grammar.cpp"
         break;
 
         case 95: /* command: ICE_GRID_ADAPTER ICE_GRID_ENDPOINTS strings ';'  */
-#line 484 "src/IceGrid/Grammar.y"
+#line 477 "src/IceGrid/Grammar.y"
         {
             parser->endpointsAdapter(yyvsp[-1]);
         }
-#line 2551 "src/IceGrid/Grammar.cpp"
+#line 2544 "src/IceGrid/Grammar.cpp"
         break;
 
         case 96: /* command: ICE_GRID_ADAPTER ICE_GRID_ENDPOINTS ICE_GRID_HELP ';'  */
-#line 488 "src/IceGrid/Grammar.y"
+#line 481 "src/IceGrid/Grammar.y"
         {
             parser->usage("adapter", "endpoints");
         }
-#line 2559 "src/IceGrid/Grammar.cpp"
+#line 2552 "src/IceGrid/Grammar.cpp"
         break;
 
         case 97: /* command: ICE_GRID_ADAPTER ICE_GRID_REMOVE strings ';'  */
-#line 492 "src/IceGrid/Grammar.y"
+#line 485 "src/IceGrid/Grammar.y"
         {
             parser->removeAdapter(yyvsp[-1]);
         }
-#line 2567 "src/IceGrid/Grammar.cpp"
+#line 2560 "src/IceGrid/Grammar.cpp"
         break;
 
         case 98: /* command: ICE_GRID_ADAPTER ICE_GRID_REMOVE ICE_GRID_HELP ';'  */
-#line 496 "src/IceGrid/Grammar.y"
+#line 489 "src/IceGrid/Grammar.y"
         {
             parser->usage("adapter", "remove");
         }
-#line 2575 "src/IceGrid/Grammar.cpp"
+#line 2568 "src/IceGrid/Grammar.cpp"
         break;
 
         case 99: /* command: ICE_GRID_ADAPTER ICE_GRID_LIST strings ';'  */
-#line 500 "src/IceGrid/Grammar.y"
+#line 493 "src/IceGrid/Grammar.y"
         {
             parser->listAllAdapters(yyvsp[-1]);
         }
-#line 2583 "src/IceGrid/Grammar.cpp"
+#line 2576 "src/IceGrid/Grammar.cpp"
         break;
 
         case 100: /* command: ICE_GRID_ADAPTER ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 504 "src/IceGrid/Grammar.y"
+#line 497 "src/IceGrid/Grammar.y"
         {
             parser->usage("adapter", "list");
         }
-#line 2591 "src/IceGrid/Grammar.cpp"
+#line 2584 "src/IceGrid/Grammar.cpp"
         break;
 
         case 101: /* command: ICE_GRID_OBJECT ICE_GRID_ADD strings ';'  */
-#line 508 "src/IceGrid/Grammar.y"
+#line 501 "src/IceGrid/Grammar.y"
         {
             parser->addObject(yyvsp[-1]);
         }
-#line 2599 "src/IceGrid/Grammar.cpp"
+#line 2592 "src/IceGrid/Grammar.cpp"
         break;
 
         case 102: /* command: ICE_GRID_OBJECT ICE_GRID_ADD ICE_GRID_HELP ';'  */
-#line 512 "src/IceGrid/Grammar.y"
+#line 505 "src/IceGrid/Grammar.y"
         {
             parser->usage("object", "add");
         }
-#line 2607 "src/IceGrid/Grammar.cpp"
+#line 2600 "src/IceGrid/Grammar.cpp"
         break;
 
         case 103: /* command: ICE_GRID_OBJECT ICE_GRID_REMOVE strings ';'  */
-#line 516 "src/IceGrid/Grammar.y"
+#line 509 "src/IceGrid/Grammar.y"
         {
             parser->removeObject(yyvsp[-1]);
         }
-#line 2615 "src/IceGrid/Grammar.cpp"
+#line 2608 "src/IceGrid/Grammar.cpp"
         break;
 
         case 104: /* command: ICE_GRID_OBJECT ICE_GRID_REMOVE ICE_GRID_HELP ';'  */
-#line 520 "src/IceGrid/Grammar.y"
+#line 513 "src/IceGrid/Grammar.y"
         {
             parser->usage("object", "remove");
         }
-#line 2623 "src/IceGrid/Grammar.cpp"
+#line 2616 "src/IceGrid/Grammar.cpp"
         break;
 
         case 105: /* command: ICE_GRID_OBJECT ICE_GRID_FIND strings ';'  */
-#line 524 "src/IceGrid/Grammar.y"
+#line 517 "src/IceGrid/Grammar.y"
         {
             parser->findObject(yyvsp[-1]);
         }
-#line 2631 "src/IceGrid/Grammar.cpp"
+#line 2624 "src/IceGrid/Grammar.cpp"
         break;
 
         case 106: /* command: ICE_GRID_OBJECT ICE_GRID_FIND ICE_GRID_HELP ';'  */
-#line 528 "src/IceGrid/Grammar.y"
+#line 521 "src/IceGrid/Grammar.y"
         {
             parser->usage("object", "find");
         }
-#line 2639 "src/IceGrid/Grammar.cpp"
+#line 2632 "src/IceGrid/Grammar.cpp"
         break;
 
         case 107: /* command: ICE_GRID_OBJECT ICE_GRID_LIST strings ';'  */
-#line 532 "src/IceGrid/Grammar.y"
+#line 525 "src/IceGrid/Grammar.y"
         {
             parser->listObject(yyvsp[-1]);
         }
-#line 2647 "src/IceGrid/Grammar.cpp"
+#line 2640 "src/IceGrid/Grammar.cpp"
         break;
 
         case 108: /* command: ICE_GRID_OBJECT ICE_GRID_LIST ICE_GRID_HELP ';'  */
-#line 536 "src/IceGrid/Grammar.y"
+#line 529 "src/IceGrid/Grammar.y"
         {
             parser->usage("object", "list");
         }
-#line 2655 "src/IceGrid/Grammar.cpp"
+#line 2648 "src/IceGrid/Grammar.cpp"
         break;
 
         case 109: /* command: ICE_GRID_OBJECT ICE_GRID_DESCRIBE strings ';'  */
-#line 540 "src/IceGrid/Grammar.y"
+#line 533 "src/IceGrid/Grammar.y"
         {
             parser->describeObject(yyvsp[-1]);
         }
-#line 2663 "src/IceGrid/Grammar.cpp"
+#line 2656 "src/IceGrid/Grammar.cpp"
         break;
 
         case 110: /* command: ICE_GRID_OBJECT ICE_GRID_DESCRIBE ICE_GRID_HELP ';'  */
-#line 544 "src/IceGrid/Grammar.y"
+#line 537 "src/IceGrid/Grammar.y"
         {
             parser->usage("object", "describe");
         }
-#line 2671 "src/IceGrid/Grammar.cpp"
+#line 2664 "src/IceGrid/Grammar.cpp"
         break;
 
         case 111: /* command: ICE_GRID_SHOW ICE_GRID_COPYING ';'  */
-#line 548 "src/IceGrid/Grammar.y"
+#line 541 "src/IceGrid/Grammar.y"
         {
             parser->showCopying();
         }
-#line 2679 "src/IceGrid/Grammar.cpp"
+#line 2672 "src/IceGrid/Grammar.cpp"
         break;
 
         case 112: /* command: ICE_GRID_SHOW ICE_GRID_WARRANTY ';'  */
-#line 552 "src/IceGrid/Grammar.y"
+#line 545 "src/IceGrid/Grammar.y"
         {
             parser->showWarranty();
         }
-#line 2687 "src/IceGrid/Grammar.cpp"
+#line 2680 "src/IceGrid/Grammar.cpp"
         break;
 
         case 113: /* command: ICE_GRID_HELP keyword ';'  */
-#line 556 "src/IceGrid/Grammar.y"
+#line 549 "src/IceGrid/Grammar.y"
         {
             parser->usage(yyvsp[-1].front());
         }
-#line 2695 "src/IceGrid/Grammar.cpp"
+#line 2688 "src/IceGrid/Grammar.cpp"
         break;
 
         case 114: /* command: ICE_GRID_HELP keyword keyword ';'  */
-#line 560 "src/IceGrid/Grammar.y"
+#line 553 "src/IceGrid/Grammar.y"
         {
             if ((yyvsp[-2].front() == "server" || yyvsp[-2].front() == "service") && yyvsp[-1].front() == "template")
             {
@@ -2259,19 +2252,19 @@ yyreduce:
                 parser->usage(yyvsp[-2].front(), yyvsp[-1].front());
             }
         }
-#line 2710 "src/IceGrid/Grammar.cpp"
+#line 2703 "src/IceGrid/Grammar.cpp"
         break;
 
         case 115: /* command: ICE_GRID_HELP keyword ICE_GRID_STRING strings ';'  */
-#line 571 "src/IceGrid/Grammar.y"
+#line 564 "src/IceGrid/Grammar.y"
         {
             parser->usage(yyvsp[-3].front(), yyvsp[-2].front());
         }
-#line 2718 "src/IceGrid/Grammar.cpp"
+#line 2711 "src/IceGrid/Grammar.cpp"
         break;
 
         case 116: /* command: ICE_GRID_HELP keyword keyword keyword ';'  */
-#line 575 "src/IceGrid/Grammar.y"
+#line 568 "src/IceGrid/Grammar.y"
         {
             if ((yyvsp[-3].front() == "server" || yyvsp[-3].front() == "service") && yyvsp[-2].front() == "template")
             {
@@ -2282,11 +2275,11 @@ yyreduce:
                 parser->usage(yyvsp[-3].front(), yyvsp[-2].front());
             }
         }
-#line 2733 "src/IceGrid/Grammar.cpp"
+#line 2726 "src/IceGrid/Grammar.cpp"
         break;
 
         case 117: /* command: ICE_GRID_HELP keyword keyword ICE_GRID_STRING strings ';'  */
-#line 586 "src/IceGrid/Grammar.y"
+#line 579 "src/IceGrid/Grammar.y"
         {
             if ((yyvsp[-4].front() == "server" || yyvsp[-4].front() == "service") && yyvsp[-3].front() == "template")
             {
@@ -2297,382 +2290,382 @@ yyreduce:
                 parser->usage(yyvsp[-4].front(), yyvsp[-3].front());
             }
         }
-#line 2748 "src/IceGrid/Grammar.cpp"
+#line 2741 "src/IceGrid/Grammar.cpp"
         break;
 
         case 118: /* command: ICE_GRID_HELP ICE_GRID_STRING strings ';'  */
-#line 597 "src/IceGrid/Grammar.y"
+#line 590 "src/IceGrid/Grammar.y"
         {
             parser->usage(yyvsp[-2].front());
         }
-#line 2756 "src/IceGrid/Grammar.cpp"
+#line 2749 "src/IceGrid/Grammar.cpp"
         break;
 
         case 119: /* command: ICE_GRID_HELP error ';'  */
-#line 601 "src/IceGrid/Grammar.y"
+#line 594 "src/IceGrid/Grammar.y"
         {
             parser->usage();
         }
-#line 2764 "src/IceGrid/Grammar.cpp"
+#line 2757 "src/IceGrid/Grammar.cpp"
         break;
 
         case 120: /* command: keyword ICE_GRID_HELP ';'  */
-#line 605 "src/IceGrid/Grammar.y"
+#line 598 "src/IceGrid/Grammar.y"
         {
             parser->usage(yyvsp[-2].front());
         }
-#line 2772 "src/IceGrid/Grammar.cpp"
+#line 2765 "src/IceGrid/Grammar.cpp"
         break;
 
         case 121: /* command: keyword ICE_GRID_STRING error ';'  */
-#line 609 "src/IceGrid/Grammar.y"
+#line 602 "src/IceGrid/Grammar.y"
         {
             yyvsp[-3].push_back(yyvsp[-2].front());
             parser->invalidCommand(yyvsp[-3]);
             yyerrok;
         }
-#line 2782 "src/IceGrid/Grammar.cpp"
+#line 2775 "src/IceGrid/Grammar.cpp"
         break;
 
         case 122: /* command: keyword error ';'  */
-#line 615 "src/IceGrid/Grammar.y"
+#line 608 "src/IceGrid/Grammar.y"
         {
             parser->invalidCommand(yyvsp[-2]);
             yyerrok;
         }
-#line 2791 "src/IceGrid/Grammar.cpp"
+#line 2784 "src/IceGrid/Grammar.cpp"
         break;
 
         case 123: /* command: ICE_GRID_STRING error ';'  */
-#line 620 "src/IceGrid/Grammar.y"
+#line 613 "src/IceGrid/Grammar.y"
         {
             parser->invalidCommand(yyvsp[-2]);
             yyerrok;
         }
-#line 2800 "src/IceGrid/Grammar.cpp"
+#line 2793 "src/IceGrid/Grammar.cpp"
         break;
 
         case 124: /* command: error ';'  */
-#line 625 "src/IceGrid/Grammar.y"
+#line 618 "src/IceGrid/Grammar.y"
         {
             yyerrok;
+        }
+#line 2801 "src/IceGrid/Grammar.cpp"
+        break;
+
+        case 125: /* command: ';'  */
+#line 622 "src/IceGrid/Grammar.y"
+        {
         }
 #line 2808 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 125: /* command: ';'  */
-#line 629 "src/IceGrid/Grammar.y"
-        {
-        }
-#line 2815 "src/IceGrid/Grammar.cpp"
-        break;
-
         case 126: /* strings: ICE_GRID_STRING strings  */
-#line 637 "src/IceGrid/Grammar.y"
+#line 630 "src/IceGrid/Grammar.y"
         {
             yyval = yyvsp[0];
             yyval.push_front(yyvsp[-1].front());
         }
-#line 2824 "src/IceGrid/Grammar.cpp"
+#line 2817 "src/IceGrid/Grammar.cpp"
         break;
 
         case 127: /* strings: keyword strings  */
-#line 642 "src/IceGrid/Grammar.y"
+#line 635 "src/IceGrid/Grammar.y"
         {
             yyval = yyvsp[0];
             yyval.push_front(yyvsp[-1].front());
         }
-#line 2833 "src/IceGrid/Grammar.cpp"
+#line 2826 "src/IceGrid/Grammar.cpp"
         break;
 
         case 128: /* strings: ICE_GRID_STRING ICE_GRID_HELP strings  */
-#line 647 "src/IceGrid/Grammar.y"
+#line 640 "src/IceGrid/Grammar.y"
         {
             yyval = yyvsp[-1];
             yyval.push_front("help");
             yyval.push_front(yyvsp[-2].front());
         }
-#line 2843 "src/IceGrid/Grammar.cpp"
+#line 2836 "src/IceGrid/Grammar.cpp"
         break;
 
         case 129: /* strings: keyword ICE_GRID_HELP strings  */
-#line 653 "src/IceGrid/Grammar.y"
+#line 646 "src/IceGrid/Grammar.y"
         {
             yyval = yyvsp[-1];
             yyval.push_front("help");
             yyval.push_front(yyvsp[-2].front());
         }
-#line 2853 "src/IceGrid/Grammar.cpp"
+#line 2846 "src/IceGrid/Grammar.cpp"
         break;
 
         case 130: /* strings: %empty  */
-#line 659 "src/IceGrid/Grammar.y"
+#line 652 "src/IceGrid/Grammar.y"
         {
             yyval = YYSTYPE();
+        }
+#line 2854 "src/IceGrid/Grammar.cpp"
+        break;
+
+        case 131: /* keyword: ICE_GRID_EXIT  */
+#line 661 "src/IceGrid/Grammar.y"
+        {
         }
 #line 2861 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 131: /* keyword: ICE_GRID_EXIT  */
-#line 668 "src/IceGrid/Grammar.y"
+        case 132: /* keyword: ICE_GRID_APPLICATION  */
+#line 664 "src/IceGrid/Grammar.y"
         {
         }
 #line 2868 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 132: /* keyword: ICE_GRID_APPLICATION  */
-#line 671 "src/IceGrid/Grammar.y"
+        case 133: /* keyword: ICE_GRID_NODE  */
+#line 667 "src/IceGrid/Grammar.y"
         {
         }
 #line 2875 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 133: /* keyword: ICE_GRID_NODE  */
-#line 674 "src/IceGrid/Grammar.y"
+        case 134: /* keyword: ICE_GRID_REGISTRY  */
+#line 670 "src/IceGrid/Grammar.y"
         {
         }
 #line 2882 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 134: /* keyword: ICE_GRID_REGISTRY  */
-#line 677 "src/IceGrid/Grammar.y"
+        case 135: /* keyword: ICE_GRID_SERVER  */
+#line 673 "src/IceGrid/Grammar.y"
         {
         }
 #line 2889 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 135: /* keyword: ICE_GRID_SERVER  */
-#line 680 "src/IceGrid/Grammar.y"
+        case 136: /* keyword: ICE_GRID_ADAPTER  */
+#line 676 "src/IceGrid/Grammar.y"
         {
         }
 #line 2896 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 136: /* keyword: ICE_GRID_ADAPTER  */
-#line 683 "src/IceGrid/Grammar.y"
+        case 137: /* keyword: ICE_GRID_PING  */
+#line 679 "src/IceGrid/Grammar.y"
         {
         }
 #line 2903 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 137: /* keyword: ICE_GRID_PING  */
-#line 686 "src/IceGrid/Grammar.y"
+        case 138: /* keyword: ICE_GRID_LOAD  */
+#line 682 "src/IceGrid/Grammar.y"
         {
         }
 #line 2910 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 138: /* keyword: ICE_GRID_LOAD  */
-#line 689 "src/IceGrid/Grammar.y"
+        case 139: /* keyword: ICE_GRID_SOCKETS  */
+#line 685 "src/IceGrid/Grammar.y"
         {
         }
 #line 2917 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 139: /* keyword: ICE_GRID_SOCKETS  */
-#line 692 "src/IceGrid/Grammar.y"
+        case 140: /* keyword: ICE_GRID_ADD  */
+#line 688 "src/IceGrid/Grammar.y"
         {
         }
 #line 2924 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 140: /* keyword: ICE_GRID_ADD  */
-#line 695 "src/IceGrid/Grammar.y"
+        case 141: /* keyword: ICE_GRID_REMOVE  */
+#line 691 "src/IceGrid/Grammar.y"
         {
         }
 #line 2931 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 141: /* keyword: ICE_GRID_REMOVE  */
-#line 698 "src/IceGrid/Grammar.y"
+        case 142: /* keyword: ICE_GRID_LIST  */
+#line 694 "src/IceGrid/Grammar.y"
         {
         }
 #line 2938 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 142: /* keyword: ICE_GRID_LIST  */
-#line 701 "src/IceGrid/Grammar.y"
+        case 143: /* keyword: ICE_GRID_SHUTDOWN  */
+#line 697 "src/IceGrid/Grammar.y"
         {
         }
 #line 2945 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 143: /* keyword: ICE_GRID_SHUTDOWN  */
-#line 704 "src/IceGrid/Grammar.y"
+        case 144: /* keyword: ICE_GRID_START  */
+#line 700 "src/IceGrid/Grammar.y"
         {
         }
 #line 2952 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 144: /* keyword: ICE_GRID_START  */
-#line 707 "src/IceGrid/Grammar.y"
+        case 145: /* keyword: ICE_GRID_STOP  */
+#line 703 "src/IceGrid/Grammar.y"
         {
         }
 #line 2959 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 145: /* keyword: ICE_GRID_STOP  */
-#line 710 "src/IceGrid/Grammar.y"
+        case 146: /* keyword: ICE_GRID_SIGNAL  */
+#line 706 "src/IceGrid/Grammar.y"
         {
         }
 #line 2966 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 146: /* keyword: ICE_GRID_SIGNAL  */
-#line 713 "src/IceGrid/Grammar.y"
+        case 147: /* keyword: ICE_GRID_DESCRIBE  */
+#line 709 "src/IceGrid/Grammar.y"
         {
         }
 #line 2973 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 147: /* keyword: ICE_GRID_DESCRIBE  */
-#line 716 "src/IceGrid/Grammar.y"
+        case 148: /* keyword: ICE_GRID_STATE  */
+#line 712 "src/IceGrid/Grammar.y"
         {
         }
 #line 2980 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 148: /* keyword: ICE_GRID_STATE  */
-#line 719 "src/IceGrid/Grammar.y"
+        case 149: /* keyword: ICE_GRID_PID  */
+#line 715 "src/IceGrid/Grammar.y"
         {
         }
 #line 2987 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 149: /* keyword: ICE_GRID_PID  */
-#line 722 "src/IceGrid/Grammar.y"
+        case 150: /* keyword: ICE_GRID_PROPERTIES  */
+#line 718 "src/IceGrid/Grammar.y"
         {
         }
 #line 2994 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 150: /* keyword: ICE_GRID_PROPERTIES  */
-#line 725 "src/IceGrid/Grammar.y"
+        case 151: /* keyword: ICE_GRID_PROPERTY  */
+#line 721 "src/IceGrid/Grammar.y"
         {
         }
 #line 3001 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 151: /* keyword: ICE_GRID_PROPERTY  */
-#line 728 "src/IceGrid/Grammar.y"
+        case 152: /* keyword: ICE_GRID_ENDPOINTS  */
+#line 724 "src/IceGrid/Grammar.y"
         {
         }
 #line 3008 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 152: /* keyword: ICE_GRID_ENDPOINTS  */
-#line 731 "src/IceGrid/Grammar.y"
+        case 153: /* keyword: ICE_GRID_ACTIVATION  */
+#line 727 "src/IceGrid/Grammar.y"
         {
         }
 #line 3015 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 153: /* keyword: ICE_GRID_ACTIVATION  */
-#line 734 "src/IceGrid/Grammar.y"
+        case 154: /* keyword: ICE_GRID_OBJECT  */
+#line 730 "src/IceGrid/Grammar.y"
         {
         }
 #line 3022 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 154: /* keyword: ICE_GRID_OBJECT  */
-#line 737 "src/IceGrid/Grammar.y"
+        case 155: /* keyword: ICE_GRID_FIND  */
+#line 733 "src/IceGrid/Grammar.y"
         {
         }
 #line 3029 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 155: /* keyword: ICE_GRID_FIND  */
-#line 740 "src/IceGrid/Grammar.y"
+        case 156: /* keyword: ICE_GRID_SHOW  */
+#line 736 "src/IceGrid/Grammar.y"
         {
         }
 #line 3036 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 156: /* keyword: ICE_GRID_SHOW  */
-#line 743 "src/IceGrid/Grammar.y"
+        case 157: /* keyword: ICE_GRID_COPYING  */
+#line 739 "src/IceGrid/Grammar.y"
         {
         }
 #line 3043 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 157: /* keyword: ICE_GRID_COPYING  */
-#line 746 "src/IceGrid/Grammar.y"
+        case 158: /* keyword: ICE_GRID_WARRANTY  */
+#line 742 "src/IceGrid/Grammar.y"
         {
         }
 #line 3050 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 158: /* keyword: ICE_GRID_WARRANTY  */
-#line 749 "src/IceGrid/Grammar.y"
+        case 159: /* keyword: ICE_GRID_DIFF  */
+#line 745 "src/IceGrid/Grammar.y"
         {
         }
 #line 3057 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 159: /* keyword: ICE_GRID_DIFF  */
-#line 752 "src/IceGrid/Grammar.y"
+        case 160: /* keyword: ICE_GRID_UPDATE  */
+#line 748 "src/IceGrid/Grammar.y"
         {
         }
 #line 3064 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 160: /* keyword: ICE_GRID_UPDATE  */
-#line 755 "src/IceGrid/Grammar.y"
+        case 161: /* keyword: ICE_GRID_INSTANTIATE  */
+#line 751 "src/IceGrid/Grammar.y"
         {
         }
 #line 3071 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 161: /* keyword: ICE_GRID_INSTANTIATE  */
-#line 758 "src/IceGrid/Grammar.y"
+        case 162: /* keyword: ICE_GRID_TEMPLATE  */
+#line 754 "src/IceGrid/Grammar.y"
         {
         }
 #line 3078 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 162: /* keyword: ICE_GRID_TEMPLATE  */
-#line 761 "src/IceGrid/Grammar.y"
+        case 163: /* keyword: ICE_GRID_SERVICE  */
+#line 757 "src/IceGrid/Grammar.y"
         {
         }
 #line 3085 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 163: /* keyword: ICE_GRID_SERVICE  */
-#line 764 "src/IceGrid/Grammar.y"
+        case 164: /* keyword: ICE_GRID_ENABLE  */
+#line 760 "src/IceGrid/Grammar.y"
         {
         }
 #line 3092 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 164: /* keyword: ICE_GRID_ENABLE  */
-#line 767 "src/IceGrid/Grammar.y"
+        case 165: /* keyword: ICE_GRID_DISABLE  */
+#line 763 "src/IceGrid/Grammar.y"
         {
         }
 #line 3099 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 165: /* keyword: ICE_GRID_DISABLE  */
-#line 770 "src/IceGrid/Grammar.y"
+        case 166: /* keyword: ICE_GRID_STDERR  */
+#line 766 "src/IceGrid/Grammar.y"
         {
         }
 #line 3106 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 166: /* keyword: ICE_GRID_STDERR  */
-#line 773 "src/IceGrid/Grammar.y"
+        case 167: /* keyword: ICE_GRID_STDOUT  */
+#line 769 "src/IceGrid/Grammar.y"
         {
         }
 #line 3113 "src/IceGrid/Grammar.cpp"
         break;
 
-        case 167: /* keyword: ICE_GRID_STDOUT  */
-#line 776 "src/IceGrid/Grammar.y"
-        {
-        }
-#line 3120 "src/IceGrid/Grammar.cpp"
-        break;
-
-#line 3124 "src/IceGrid/Grammar.cpp"
+#line 3117 "src/IceGrid/Grammar.cpp"
 
         default:
             break;
