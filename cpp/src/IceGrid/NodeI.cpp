@@ -5,17 +5,15 @@
 #include <IceUtil/Timer.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <IcePatch2Lib/Util.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/Util.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/NodeSessionManager.h>
+#include "Util.h"
 
 using namespace std;
-using namespace IcePatch2;
 using namespace IceGrid;
 
 NodeI::Update::Update(
@@ -608,7 +606,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     Ice::StringSeq contents;
     try
     {
-        contents = IcePatch2Internal::readDirectory(_serversDir);
+        contents = readDirectory(_serversDir);
     }
     catch (const exception& ex)
     {
@@ -663,7 +661,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                     // If the server directory can be removed and we
                     // either remove it or back it up before to remove it.
                     //
-                    IcePatch2Internal::removeRecursive(_serversDir + "/" + *p);
+                    removeRecursive(_serversDir + "/" + *p);
                     p = remove.erase(p);
                     continue;
                 }
@@ -708,7 +706,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     //
     // Check if there's files which we didn't create.
     //
-    Ice::StringSeq c = IcePatch2Internal::readDirectory(_serversDir + "/" + name);
+    Ice::StringSeq c = readDirectory(_serversDir + "/" + name);
     set<string> contents(c.begin(), c.end());
     contents.erase("dbs");
     contents.erase("config");
@@ -728,7 +726,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         return false;
     }
 
-    c = IcePatch2Internal::readDirectory(_serversDir + "/" + name + "/config");
+    c = readDirectory(_serversDir + "/" + name + "/config");
     for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
     {
         if (p->find("config") != 0)
@@ -739,12 +737,12 @@ NodeI::canRemoveServerDirectory(const string& name)
 
     if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
     {
-        c = IcePatch2Internal::readDirectory(_serversDir + "/" + name + "/dbs");
+        c = readDirectory(_serversDir + "/" + name + "/dbs");
         for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
         {
             try
             {
-                Ice::StringSeq files = IcePatch2Internal::readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
+                Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
                 files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
                 files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
                 if (!files.empty())
@@ -761,7 +759,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 
     if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
     {
-        if (!IcePatch2Internal::readDirectory(_serversDir + "/" + name + "/data").empty())
+        if (!readDirectory(_serversDir + "/" + name + "/data").empty())
         {
             return false;
         }
@@ -771,7 +769,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     {
         try
         {
-            if (!IcePatch2Internal::readDirectory(_serversDir + "/" + name + "/" + *p).empty())
+            if (!readDirectory(_serversDir + "/" + name + "/" + *p).empty())
             {
                 return false;
             }

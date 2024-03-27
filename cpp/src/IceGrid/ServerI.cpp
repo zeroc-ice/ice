@@ -10,12 +10,9 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/NodeI.h>
-#include <IceGrid/Util.h>
 #include <IceGrid/ServerAdapterI.h>
 #include <IceGrid/DescriptorHelper.h>
-
-#include <IcePatch2Lib/Util.h>
-#include <IceUtil/FileUtil.h>
+#include "Util.h"
 
 #include <sys/types.h>
 #include <fstream>
@@ -1693,7 +1690,7 @@ ServerI::destroy()
     {
         try
         {
-            IcePatch2Internal::removeRecursive(_serverDir);
+            removeRecursive(_serverDir);
         }
         catch (const exception& ex)
         {
@@ -1850,7 +1847,7 @@ ServerI::update()
                 //
                 try
                 {
-                    IcePatch2Internal::removeRecursive(_serverDir);
+                    removeRecursive(_serverDir);
                 }
                 catch (const exception&)
                 {
@@ -2067,7 +2064,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     //
     for (const auto& log : _desc->logs)
     {
-        string path = IcePatch2Internal::simplify(log);
+        string path = simplify(log);
         if (IceUtilInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
@@ -2102,10 +2099,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     //
     // Create or update the server directories exists.
     //
-    IcePatch2Internal::createDirectory(_serverDir);
-    IcePatch2Internal::createDirectory(_serverDir + "/config");
-    IcePatch2Internal::createDirectory(_serverDir + "/dbs");
-    IcePatch2Internal::createDirectory(_serverDir + "/data");
+    createDirectory(_serverDir);
+    createDirectory(_serverDir + "/config");
+    createDirectory(_serverDir + "/dbs");
+    createDirectory(_serverDir + "/data");
 
     //
     // Create the configuration files, remove the old ones.
@@ -2148,7 +2145,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         //
         // Remove old configuration files.
         //
-        Ice::StringSeq files = IcePatch2Internal::readDirectory(_serverDir + "/config");
+        Ice::StringSeq files = readDirectory(_serverDir + "/config");
         Ice::StringSeq toDel;
         std::set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
         for (const auto& str : toDel)
@@ -2157,7 +2154,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 try
                 {
-                    IcePatch2Internal::remove(_serverDir + "/config/" + str);
+                    remove(_serverDir + "/config/" + str);
                 }
                 catch (const exception& ex)
                 {
@@ -2177,14 +2174,14 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         for (Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
         {
             knownDirs.push_back("data_" + *q);
-            IcePatch2Internal::createDirectory(_serverDir + "/data_" + *q);
+            createDirectory(_serverDir + "/data_" + *q);
         }
         sort(knownDirs.begin(), knownDirs.end());
 
         //
         // Remove old directories
         //
-        Ice::StringSeq dirs = IcePatch2Internal::readDirectory(_serverDir);
+        Ice::StringSeq dirs = readDirectory(_serverDir);
         Ice::StringSeq svcDirs;
         for (const auto& dir : dirs)
         {
@@ -2199,7 +2196,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         {
             try
             {
-                IcePatch2Internal::removeRecursive(_serverDir + "/" + str);
+                removeRecursive(_serverDir + "/" + str);
             }
             catch (const exception& ex)
             {
@@ -2904,7 +2901,7 @@ ServerI::getFilePath(const string& filename) const
     }
     else if (!filename.empty() && filename[0] == '#')
     {
-        string path = IcePatch2Internal::simplify(filename.substr(1));
+        string path = simplify(filename.substr(1));
         if (!IceUtilInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;
