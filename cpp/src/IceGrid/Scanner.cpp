@@ -1618,10 +1618,7 @@ yy_scan_buffer(char* base, yy_size_t size)
  *       yy_scan_bytes() instead.
  */
 YY_BUFFER_STATE
-yy_scan_string(const char* yystr)
-{
-    return yy_scan_bytes(yystr, (int)strlen(yystr));
-}
+yy_scan_string(const char* yystr) { return yy_scan_bytes(yystr, (int)strlen(yystr)); }
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
