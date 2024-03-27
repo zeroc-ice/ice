@@ -24,6 +24,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
+
 namespace
 {
     bool isRoot(const string& pa)
