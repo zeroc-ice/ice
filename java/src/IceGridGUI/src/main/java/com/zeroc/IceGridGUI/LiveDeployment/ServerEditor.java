@@ -55,6 +55,7 @@ class ServerEditor extends CommunicatorEditor
 
         _options.setEditable(false);
         _user.setEditable(false);
+        _allocatable.setEnabled(false);
 
         Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
