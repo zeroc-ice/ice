@@ -113,10 +113,6 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-    public void patchServer()
-    {
-        assert false;
-    }
     public void addObject()
     {
         assert false;
@@ -187,21 +183,6 @@ public abstract class TreeNode extends TreeNodeBase
         else if(e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
         {
             amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
-        }
-        else if(e instanceof com.zeroc.IceGrid.PatchException)
-        {
-            com.zeroc.IceGrid.PatchException pe = (com.zeroc.IceGrid.PatchException)e;
-
-            String message = "";
-            for(String s : pe.reasons)
-            {
-                if(message.length() > 0)
-                {
-                    message += "\n";
-                }
-                message += s;
-            }
-            amiFailure(prefix, title, message);
         }
         else if(e instanceof com.zeroc.IceGrid.NodeNotExistException)
         {

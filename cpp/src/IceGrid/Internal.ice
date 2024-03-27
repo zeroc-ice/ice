@@ -37,15 +37,6 @@ class InternalAdapterDescriptor
 }
 sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
 
-class InternalDistributionDescriptor
-{
-    /// The proxy of the IcePatch2 server.
-    string icepatch;
-
-    /// The source directories.
-    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
-}
-
 dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;
 
 class InternalServerDescriptor
@@ -82,12 +73,6 @@ class InternalServerDescriptor
 
     /// The server deactivation timeout.
     string deactivationTimeout;
-
-    /// Specifies if the server depends on the application distrib.
-    bool applicationDistrib;
-
-    /// The distribution descriptor of this server.
-    InternalDistributionDescriptor distrib;
 
     /// Specifies if a process object is registered.
     bool processRegistered;
@@ -224,15 +209,6 @@ interface ReplicaObserver
     void replicaRemoved(InternalRegistry* replica);
 }
 
-interface PatcherFeedback
-{
-    /// The patch completed successfully.
-    void finished();
-
-    /// The patch on the given node failed for the given reason.
-    void failed(string reason);
-}
-
 interface Node extends FileReader, ReplicaObserver
 {
     /// Load the given server. If the server resources weren't already created (database environment directories,
@@ -261,16 +237,6 @@ interface Node extends FileReader, ReplicaObserver
     /// Destroy the server if it's not active.
     ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
         throws DeploymentException;
-
-    /// Patch application and server distributions. If some servers using a distribution directory to patch are active,
-    /// this method will raise a PatchException unless shutdown is set to true. In which case the servers will be
-    /// shutdown.
-    ["amd"] idempotent void patch(
-        PatcherFeedback* feedback,
-        string application,
-        string server,
-        InternalDistributionDescriptor appDistrib,
-        bool shutdown);
 
     /// Establish a session to the given replica, this method only returns once the registration was attempted (unlike
     /// replicaAdded below).

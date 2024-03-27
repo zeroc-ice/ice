@@ -401,7 +401,6 @@ public class Coordinator
             _appMenu = new JMenu("Application");
             _appMenu.setEnabled(false);
             toolsMenu.add(_appMenu);
-            _appMenu.add(_patchApplication);
             _appMenu.add(_showApplicationDetails);
             _appMenu.add(_showLiveDeploymentFilters);
             _appMenu.addSeparator();
@@ -1225,7 +1224,6 @@ public class Coordinator
         _logout.setEnabled(false);
         _showLiveDeploymentFilters.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);
-        _patchApplication.setEnabled(false);
         _showApplicationDetails.setEnabled(false);
         _removeApplicationFromRegistry.setEnabled(false);
         _appMenu.setEnabled(false);
@@ -1702,7 +1700,6 @@ public class Coordinator
                 _logout.setEnabled(true);
                 _showLiveDeploymentFilters.setEnabled(true);
                 _openApplicationFromRegistry.setEnabled(true);
-                _patchApplication.setEnabled(true);
                 _showApplicationDetails.setEnabled(true);
                 _removeApplicationFromRegistry.setEnabled(true);
                 _appMenu.setEnabled(true);
@@ -2938,38 +2935,6 @@ public class Coordinator
                 }
             };
 
-        _patchApplication = new AbstractAction("Patch Distribution")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    Object[] applicationNames = _liveDeploymentRoot.getPatchableApplicationNames();
-
-                    if(applicationNames.length == 0)
-                    {
-                        JOptionPane.showMessageDialog(
-                            _mainFrame,
-                            "No application in this IceGrid registry can be patched",
-                            "No application",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    else
-                    {
-                        String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which application do you want to patch?",
-                            "Patch application",
-                            JOptionPane.QUESTION_MESSAGE, null,
-                            applicationNames, applicationNames[0]);
-
-                        if(appName != null)
-                        {
-                            _liveDeploymentRoot.patch(appName);
-                        }
-                    }
-                }
-            };
-        _patchApplication.setEnabled(false);
-
         _showApplicationDetails = new AbstractAction("Show details")
             {
                 @Override
@@ -3169,7 +3134,7 @@ public class Coordinator
                                                                 new java.util.HashMap<String, TemplateDescriptor>(),
                                                                 new java.util.HashMap<String, NodeDescriptor>(),
                                                                 new DistributionDescriptor(
-                                                                    "", new java.util.LinkedList<String>()),
+                                                                    "", new java.util.LinkedList<String>()), // dummy
                                                                 "",
                                                                 new java.util.HashMap<String, PropertySetDescriptor>());
         com.zeroc.IceGridGUI.Application.Root root = new com.zeroc.IceGridGUI.Application.Root(this, desc);
@@ -3833,7 +3798,6 @@ public class Coordinator
     private Action _forward;
     private Action _helpContents;
     private Action _about;
-    private Action _patchApplication;
     private Action _showApplicationDetails;
     private Action _removeApplicationFromRegistry;
 

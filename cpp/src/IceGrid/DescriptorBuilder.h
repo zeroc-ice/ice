@@ -106,9 +106,6 @@ namespace IceGrid
         void addServiceTemplate(const std::string&, const TemplateDescriptor&);
         void addPropertySet(const std::string&, const PropertySetDescriptor&);
 
-        void addDistribution(const XmlAttributesHelper&);
-        void addDistributionDirectory(const std::string&);
-
         bool isOverride(const std::string&);
 
         const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
@@ -242,8 +239,6 @@ namespace IceGrid
         virtual void addEnv(const std::string&);
         virtual void addService(const std::shared_ptr<ServiceDescriptor>&);
         virtual void addServiceInstance(const ServiceInstanceDescriptor&);
-        virtual void addDistribution(const XmlAttributesHelper&);
-        virtual void addDistributionDirectory(const std::string&);
 
         const std::shared_ptr<ServerDescriptor>& getDescriptor() const { return _descriptor; }
 

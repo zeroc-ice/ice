@@ -117,23 +117,10 @@ namespace IceGrid
             lhs->sessionId != rhs->sessionId || lhs->exe != rhs->exe || lhs->pwd != rhs->pwd ||
             lhs->user != rhs->user || lhs->activation != rhs->activation ||
             lhs->activationTimeout != rhs->activationTimeout || lhs->deactivationTimeout != rhs->deactivationTimeout ||
-            lhs->applicationDistrib != rhs->applicationDistrib || lhs->processRegistered != rhs->processRegistered ||
-            lhs->options != rhs->options || lhs->envs != rhs->envs || lhs->logs != rhs->logs)
+            lhs->processRegistered != rhs->processRegistered || lhs->options != rhs->options ||
+            lhs->envs != rhs->envs || lhs->logs != rhs->logs)
         {
             return true;
-        }
-
-        if ((!lhs->distrib && rhs->distrib) || (lhs->distrib && !rhs->distrib))
-        {
-            return true;
-        }
-        else if (lhs->distrib && rhs->distrib)
-        {
-            if (lhs->distrib->icepatch != rhs->distrib->icepatch ||
-                lhs->distrib->directories != rhs->distrib->directories)
-            {
-                return true;
-            }
         }
 
         if (lhs->adapters.size() != rhs->adapters.size())
@@ -594,57 +581,6 @@ DestroyCommand::clearDir() const
     return _clearDir;
 }
 
-PatchCommand::PatchCommand(const std::shared_ptr<ServerI>& server)
-    : ServerCommand(server),
-      _notified(false),
-      _destroyed(false)
-{
-}
-
-bool
-PatchCommand::canExecute(ServerI::InternalServerState state)
-{
-    return state == ServerI::Inactive;
-}
-
-ServerI::InternalServerState
-PatchCommand::nextState()
-{
-    return ServerI::Patching;
-}
-
-void
-PatchCommand::execute()
-{
-    unique_lock lock(_mutex);
-    _notified = true;
-    _condVar.notify_all();
-}
-
-bool
-PatchCommand::waitForPatch()
-{
-    unique_lock lock(_mutex);
-    while (!_notified && !_destroyed)
-    {
-        _condVar.wait(lock);
-    }
-    return _destroyed;
-}
-
-void
-PatchCommand::destroyed()
-{
-    unique_lock lock(_mutex);
-    _destroyed = true;
-    _condVar.notify_all();
-}
-
-void
-PatchCommand::finished()
-{
-}
-
 bool
 StartCommand::canExecute(ServerI::InternalServerState state)
 {
@@ -712,8 +648,7 @@ StopCommand::StopCommand(
 bool
 StopCommand::isStopped(ServerI::InternalServerState state)
 {
-    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading ||
-           state >= ServerI::Destroying;
+    return state == ServerI::Inactive || state == ServerI::Loading || state >= ServerI::Destroying;
 }
 
 bool
@@ -1065,20 +1000,6 @@ ServerI::getId() const
     return _id;
 }
 
-InternalDistributionDescriptorPtr
-ServerI::getDistribution() const
-{
-    lock_guard lock(_mutex);
-    return _desc ? _desc->distrib : InternalDistributionDescriptorPtr();
-}
-
-bool
-ServerI::dependsOnApplicationDistrib() const
-{
-    lock_guard lock(_mutex);
-    return _desc ? _desc->applicationDistrib : false;
-}
-
 void
 ServerI::start(ServerActivation activation, function<void()> response, function<void(exception_ptr)> exception)
 {
@@ -1374,72 +1295,6 @@ ServerI::destroy(const string& uuid, int revision, const string& replicaName, bo
         _destroy->addCallback(std::move(response));
     }
     return nextCommand();
-}
-
-bool
-ServerI::startPatch(bool shutdown)
-{
-    shared_ptr<ServerCommand> command;
-    {
-        lock_guard lock(_mutex);
-        checkDestroyed();
-        if (!StopCommand::isStopped(_state))
-        {
-            if (!shutdown)
-            {
-                return false;
-            }
-            else if (!_stop)
-            {
-                _stop = make_shared<StopCommand>(shared_from_this(), _node->getTimer(), _deactivationTimeout);
-            }
-        }
-        if (!_patch)
-        {
-            _patch = make_shared<PatchCommand>(shared_from_this());
-        }
-        command = nextCommand();
-    }
-    if (command)
-    {
-        command->execute();
-    }
-    return true;
-}
-
-bool
-ServerI::waitForPatch()
-{
-    shared_ptr<PatchCommand> patch;
-    {
-        lock_guard lock(_mutex);
-        if (!_patch)
-        {
-            return true;
-        }
-        patch = _patch;
-    }
-    return patch->waitForPatch();
-}
-
-void
-ServerI::finishPatch()
-{
-#ifndef _WIN32
-    {
-        lock_guard lock(_mutex);
-        try
-        {
-            chownRecursive(_serverDir + "/distrib", _uid, _gid);
-        }
-        catch (const exception& ex)
-        {
-            Ice::Warning out(_node->getTraceLevels()->logger);
-            out << ex.what();
-        }
-    }
-#endif
-    setState(ServerI::Inactive);
 }
 
 void
@@ -1967,7 +1822,6 @@ ServerI::shutdown()
     assert(!_destroy);
     assert(!_stop);
     assert(!_load);
-    assert(!_patch);
     assert(!_start);
     _timerTask = nullptr;
 }
@@ -2251,7 +2105,6 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     IcePatch2Internal::createDirectory(_serverDir);
     IcePatch2Internal::createDirectory(_serverDir + "/config");
     IcePatch2Internal::createDirectory(_serverDir + "/dbs");
-    IcePatch2Internal::createDirectory(_serverDir + "/distrib");
     IcePatch2Internal::createDirectory(_serverDir + "/data");
 
     //
@@ -2690,10 +2543,6 @@ ServerI::nextCommand()
     {
         command = _load;
     }
-    else if (_patch && _patch->canExecute(_state))
-    {
-        command = _patch;
-    }
     else if (_start && _start->canExecute(_state))
     {
         command = _start;
@@ -2714,9 +2563,6 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
     switch (st)
     {
         case Inactive:
-            break;
-        case Patching:
-            assert(_patch && _patch->canExecute(_state));
             break;
         case Loading:
             assert(_load && _load->canExecute(_state));
@@ -2764,10 +2610,6 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             {
                 _load = nullptr;
             }
-            if (previous == Patching)
-            {
-                _patch = nullptr;
-            }
             if (_stop)
             {
                 _stop->finished();
@@ -2797,11 +2639,6 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             break;
         case Destroying:
             loadFailure = _destroy->loadFailure();
-            if (_patch)
-            {
-                _patch->destroyed();
-                _patch = nullptr;
-            }
             if (_load)
             {
                 _load->failed(make_exception_ptr(DeploymentException("The server is being destroyed.")));
@@ -2927,7 +2764,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
         }
         else if (_state == ServerI::Inactive)
         {
-            if (_node->getTraceLevels()->server > 2 || (previous != ServerI::Loading && previous != ServerI::Patching))
+            if (_node->getTraceLevels()->server > 2 || previous != ServerI::Loading)
             {
                 out << "changed server `" << _id << "' state to `Inactive'";
             }
@@ -2966,10 +2803,6 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             {
                 out << "changed server `" << _id << "' state to `Loading'";
             }
-            else if (_state == ServerI::Patching)
-            {
-                out << "changed server `" << _id << "' state to `Patching'";
-            }
         }
         if (!reason.empty())
         {
@@ -2985,7 +2818,6 @@ ServerI::toServerState(InternalServerState st) const
     {
         case InternalServerState::Inactive:
         case InternalServerState::Activating:
-        case InternalServerState::Patching:
         case InternalServerState::Loading:
             return ServerState::Inactive;
         case InternalServerState::WaitForActivation:

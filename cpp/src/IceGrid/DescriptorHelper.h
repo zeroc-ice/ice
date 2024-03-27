@@ -23,7 +23,6 @@ namespace IceGrid
 
         std::string operator()(const std::string&, const std::string& = std::string(), bool = true) const;
         Ice::StringSeq operator()(const Ice::StringSeq&, const std::string&) const;
-        DistributionDescriptor operator()(const DistributionDescriptor&) const;
         PropertyDescriptorSeq
         operator()(const PropertyDescriptorSeq&, const std::string& = std::string("property")) const;
         PropertySetDescriptorDict operator()(const PropertySetDescriptorDict&) const;
@@ -263,7 +262,6 @@ namespace IceGrid
         const NodeDescriptor& getDefinition() const;
         const NodeDescriptor& getInstance() const;
         void getServerInfos(const std::string&, const std::string&, int, std::map<std::string, ServerInfo>&) const;
-        bool hasDistributions(const std::string&) const;
         bool hasServers() const;
         bool hasServer(const std::string&) const;
         void print(IceUtilInternal::Output&) const;
@@ -295,8 +293,6 @@ namespace IceGrid
         void getReplicaGroups(std::set<std::string>&, std::set<std::string>&) const;
         const ApplicationDescriptor& getDefinition() const;
         const ApplicationDescriptor& getInstance() const;
-        void
-        getDistributions(DistributionDescriptor&, std::vector<std::string>&, const std::string& = std::string()) const;
 
         void print(IceUtilInternal::Output&, const ApplicationInfo&) const;
         void printDiff(IceUtilInternal::Output&, const ApplicationHelper&) const;

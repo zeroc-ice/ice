@@ -148,44 +148,6 @@ namespace
         chrono::seconds _deactivationTimeout;
         string _node;
     };
-
-    class AMDPatcherFeedbackAggregator : public PatcherFeedbackAggregator
-    {
-    public:
-        AMDPatcherFeedbackAggregator(
-            function<void()> response,
-            function<void(exception_ptr)> exception,
-            Ice::Identity id,
-            const shared_ptr<TraceLevels>& traceLevels,
-            const string& type,
-            const string& name,
-            int nodeCount)
-            : PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
-              _response(std::move(response)),
-              _exception(std::move(exception))
-        {
-        }
-
-    private:
-        void response() { _response(); }
-
-        void exception(exception_ptr ex) { _exception(ex); }
-
-        function<void()> _response;
-        function<void(exception_ptr)> _exception;
-    };
-
-    shared_ptr<AMDPatcherFeedbackAggregator> static newPatcherFeedback(
-        function<void()> response,
-        function<void(exception_ptr)> exception,
-        Ice::Identity id,
-        const shared_ptr<TraceLevels>& traceLevels,
-        const string& type,
-        const string& name,
-        int nodeCount)
-    {
-        return make_shared<AMDPatcherFeedbackAggregator>(response, exception, id, traceLevels, type, name, nodeCount);
-    }
 }
 
 AdminI::AdminI(
@@ -268,65 +230,6 @@ AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc
     _database->instantiateServer(std::move(app), std::move(node), std::move(desc), _session.get());
 }
 
-void
-AdminI::patchApplicationAsync(
-    string name,
-    bool shutdown,
-    function<void()> response,
-    function<void(exception_ptr)> exception,
-    const Current& current)
-{
-    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationInfo(name).descriptor);
-    DistributionDescriptor appDistrib;
-    vector<string> nodes;
-    helper.getDistributions(appDistrib, nodes);
-
-    if (nodes.empty())
-    {
-        response();
-        return;
-    }
-
-    Ice::Identity id;
-    id.category = current.id.category;
-    id.name = Ice::generateUUID();
-
-    shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(response, exception, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
-
-    for (vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
-    {
-        try
-        {
-            if (_traceLevels->patch > 0)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                out << "started patching of application `" << name << "' on node `" << *p << "'";
-            }
-
-            shared_ptr<NodeEntry> node = _database->getNode(*p);
-            Resolver resolve(node->getInfo(), _database->getCommunicator());
-            DistributionDescriptor desc = resolve(appDistrib);
-            auto intAppDistrib = make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
-            node->getSession()->patch(feedback, name, "", intAppDistrib, shutdown);
-        }
-        catch (const NodeNotExistException&)
-        {
-            feedback->failed(*p, "node doesn't exist");
-        }
-        catch (const NodeUnreachableException& e)
-        {
-            feedback->failed(*p, "node is unreachable: " + e.reason);
-        }
-        catch (const Ice::Exception& e)
-        {
-            ostringstream os;
-            os << e;
-            feedback->failed(*p, "node is unreachable:\n" + os.str());
-        }
-    }
-}
-
 ApplicationInfo
 AdminI::getApplicationInfo(string name, const Current&) const
 {
@@ -359,12 +262,6 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
         Ice::Warning warn(_traceLevels->logger);
         warn << "default application descriptor:\nnode definitions are not allowed.";
         desc.nodes.clear();
-    }
-    if (!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
-    {
-        Ice::Warning warn(_traceLevels->logger);
-        warn << "default application descriptor:\ndistribution is not allowed.";
-        desc.distrib = DistributionDescriptor();
     }
     if (!desc.replicaGroups.empty())
     {
@@ -466,68 +363,6 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
                 exception(current_exception());
             }
         });
-}
-
-void
-AdminI::patchServerAsync(
-    string id,
-    bool shutdown,
-    function<void()> response,
-    function<void(exception_ptr)> exception,
-    const Current& current)
-{
-    ServerInfo info = _database->getServer(id)->getInfo();
-    ApplicationInfo appInfo = _database->getApplicationInfo(info.application);
-    ApplicationHelper helper(current.adapter->getCommunicator(), appInfo.descriptor);
-    DistributionDescriptor appDistrib;
-    vector<string> nodes;
-    helper.getDistributions(appDistrib, nodes, id);
-
-    if (appDistrib.icepatch.empty() && nodes.empty())
-    {
-        response();
-        return;
-    }
-
-    assert(nodes.size() == 1);
-
-    Ice::Identity identity;
-    identity.category = current.id.category;
-    identity.name = Ice::generateUUID();
-
-    shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(response, exception, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));
-
-    vector<string>::const_iterator p = nodes.begin();
-    try
-    {
-        if (_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << "started patching of server `" << id << "' on node `" << *p << "'";
-        }
-
-        shared_ptr<NodeEntry> node = _database->getNode(*p);
-        Resolver resolve(node->getInfo(), _database->getCommunicator());
-        DistributionDescriptor desc = resolve(appDistrib);
-        shared_ptr<InternalDistributionDescriptor> intAppDistrib =
-            make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
-        node->getSession()->patch(feedback, info.application, id, intAppDistrib, shutdown);
-    }
-    catch (const NodeNotExistException&)
-    {
-        feedback->failed(*p, "node doesn't exist");
-    }
-    catch (const NodeUnreachableException& e)
-    {
-        feedback->failed(*p, "node is unreachable: " + e.reason);
-    }
-    catch (const Ice::Exception& e)
-    {
-        ostringstream os;
-        os << e;
-        feedback->failed(*p, "node is unreachable:\n" + os.str());
-    }
 }
 
 void

@@ -39,9 +39,6 @@ namespace IceGrid
         const int activator;
         const std::string activatorCat;
 
-        const int patch;
-        const std::string patchCat;
-
         const int locator;
         const std::string locatorCat;
 

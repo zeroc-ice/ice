@@ -404,18 +404,6 @@ ApplicationDescriptorBuilder::addPropertySet(const string& id, const PropertySet
     }
 }
 
-void
-ApplicationDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
-{
-    _descriptor.distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
-}
-
-void
-ApplicationDescriptorBuilder::addDistributionDirectory(const string& directory)
-{
-    _descriptor.distrib.directories.push_back(directory);
-}
-
 bool
 ApplicationDescriptorBuilder::isOverride(const string& name)
 {
@@ -786,7 +774,6 @@ ServerDescriptorBuilder::init(const shared_ptr<ServerDescriptor>& desc, const Xm
     _descriptor->deactivationTimeout = attrs("deactivation-timeout", "");
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
-    _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
     _descriptor->allocatable = attrs.asBool("allocatable", false);
     _descriptor->user = attrs("user", "");
     _descriptor->iceVersion = attrs("ice-version", "");
@@ -826,18 +813,6 @@ void
 ServerDescriptorBuilder::addServiceInstance(const ServiceInstanceDescriptor& /*desc*/)
 {
     assert(false);
-}
-
-void
-ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
-{
-    _descriptor->distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
-}
-
-void
-ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
-{
-    _descriptor->distrib.directories.push_back(directory);
 }
 
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(

@@ -66,7 +66,6 @@ namespace
         bool _isTopLevel;
         bool _inAdapter;
         bool _inReplicaGroup;
-        bool _inDistrib;
     };
 
     DescriptorHandler::DescriptorHandler(const string& filename, const shared_ptr<Ice::Communicator>& communicator)
@@ -397,25 +396,6 @@ namespace
                 }
                 _currentCommunicator->addAllocatable(attributes);
             }
-            else if (name == "distrib")
-            {
-                if (!_currentApplication.get() ||
-                    ((_currentNode.get() || _currentTemplate.get()) && !_currentServer.get()) ||
-                    _currentServer.get() != _currentCommunicator)
-                {
-                    error(
-                        "the <distrib> element can only be a child of an <application>, <server> or <icebox> element");
-                }
-                if (!_currentServer.get())
-                {
-                    _currentApplication->addDistribution(attributes);
-                }
-                else
-                {
-                    _currentServer->addDistribution(attributes);
-                }
-                _inDistrib = true;
-            }
             else if (name == "log")
             {
                 if (!_currentCommunicator)
@@ -619,21 +599,6 @@ namespace
                 }
                 _currentServer->addEnv(elementValue());
             }
-            else if (name == "directory")
-            {
-                if (!_inDistrib)
-                {
-                    error("the <directory> element can only be a child of a <distrib> element");
-                }
-                if (!_currentServer.get())
-                {
-                    _currentApplication->addDistributionDirectory(elementValue());
-                }
-                else
-                {
-                    _currentServer->addDistributionDirectory(elementValue());
-                }
-            }
             else if (name == "adapter")
             {
                 _inAdapter = false;
@@ -642,10 +607,6 @@ namespace
             {
                 _currentApplication->finishReplicaGroup();
                 _inReplicaGroup = false;
-            }
-            else if (name == "distrib")
-            {
-                _inDistrib = false;
             }
         }
         catch (const exception& ex)
