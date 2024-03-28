@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_ACTIVATOR_H
 #define ICE_GRID_ACTIVATOR_H
 
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 #ifdef _WIN32
 #    include <windows.h>

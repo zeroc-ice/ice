@@ -7,7 +7,7 @@
 
 #include <IceGrid/Cache.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 #include <optional>
 #include <set>

@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_SERVER_ADAPTER_I_H
 #define ICE_GRID_SERVER_ADAPTER_I_H
 
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 namespace IceGrid
 {

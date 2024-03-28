@@ -6,7 +6,7 @@
 #define ICE_GRID_SERVERCACHE_H
 
 #include <IceGrid/Descriptor.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/Registry.h>
 #include <IceGrid/Allocatable.h>
 #include <IceGrid/Cache.h>

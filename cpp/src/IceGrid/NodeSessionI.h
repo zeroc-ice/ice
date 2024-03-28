@@ -5,7 +5,7 @@
 #ifndef ICEGRID_NODE_SESSION_H
 #define ICEGRID_NODE_SESSION_H
 
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <set>
 
 namespace IceGrid
