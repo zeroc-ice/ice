@@ -5,7 +5,7 @@
 #include "Parser.h"
 #include "Ice/ConsoleUtil.h"
 #include "Ice/Ice.h"
-#include "IceStorm/IceStormInternal.h"
+#include "IceStormInternal.h"
 #include "IceUtil/DisableWarnings.h"
 #include <algorithm>
 

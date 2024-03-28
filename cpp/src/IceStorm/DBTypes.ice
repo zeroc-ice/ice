@@ -6,8 +6,8 @@
 
 [["cpp:header-ext:h"]]
 
-#include <IceStorm/SubscriberRecord.ice>
-#include <IceStorm/LLURecord.ice>
+#include "SubscriberRecord.ice"
+#include "LLURecord.ice"
 
 module IceStormElection
 {
