@@ -41,7 +41,7 @@ int yylex(YYSTYPE* yylvalp);
 
 // Avoid old style cast warnings in generated grammar
 #ifdef __GNUC__
-#   pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wold-style-cast"
 #    pragma GCC diagnostic ignored "-Wunused-label"
 #endif
 
