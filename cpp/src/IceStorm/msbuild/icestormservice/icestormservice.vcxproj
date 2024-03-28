@@ -89,12 +89,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile>
-      <HeaderOutputDir>
-      </HeaderOutputDir>
-      <BaseDirectoryForGeneratedInclude>
-      </BaseDirectoryForGeneratedInclude>
-    </SliceCompile>
+    <SliceCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\Election.ice" />

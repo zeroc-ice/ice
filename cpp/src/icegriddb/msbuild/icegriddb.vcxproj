@@ -93,12 +93,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <IncludeDirectories>
-      </IncludeDirectories>
-      <HeaderOutputDir>
-      </HeaderOutputDir>
-      <BaseDirectoryForGeneratedInclude>
-      </BaseDirectoryForGeneratedInclude>
       <AdditionalOptions>-DICE_BUILDING_ICEGRIDDB</AdditionalOptions>
     </SliceCompile>
   </ItemDefinitionGroup>

@@ -100,14 +100,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile>
-      <IncludeDirectories>
-      </IncludeDirectories>
-      <HeaderOutputDir>
-      </HeaderOutputDir>
-      <BaseDirectoryForGeneratedInclude>
-      </BaseDirectoryForGeneratedInclude>
-    </SliceCompile>
+    <SliceCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\IceGridRegistry.rc" />
