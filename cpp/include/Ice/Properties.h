@@ -8,8 +8,10 @@
 #include "Config.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/PropertyDict.h"
+#include "PropertiesF.h"
 #include "StringConverter.h"
 
+#include <mutex>
 #include <set>
 #include <string>
 #include <string_view>
@@ -43,7 +45,7 @@ namespace Ice
          * @param args The command-line arguments. Property arguments are removed from this sequence.
          * @param defaults The default property set.
          */
-        Properties(StringSeq& args, const std::shared_ptr<Properties>& defaults);
+        Properties(StringSeq& args, const PropertiesPtr& defaults);
 
         Properties& operator=(const Properties& rhs) = delete;
 
@@ -142,7 +144,7 @@ namespace Ice
         /**
          * Convert a sequence of command-line options into properties. All options that begin with one of the following
          * prefixes are converted into properties: <code>--Ice</code>, <code>--IceBox</code>, <code>--IceGrid</code>,
-         * <code>--IcePatch2</code>, <code>--IceSSL</code>, <code>--IceStorm</code>, <code>--Freeze</code>, and
+         * <code>--IceSSL</code>, <code>--IceStorm</code>, <code>--Freeze</code>, and
          * <code>--Glacier2</code>.
          * @param options The command-line options.
          * @return The command-line options that do not start with one of the listed prefixes, in their original order.
@@ -159,7 +161,7 @@ namespace Ice
          * Create a copy of this property set.
          * @return A copy of this property set.
          */
-        std::shared_ptr<Properties> clone() { return std::make_shared<Properties>(*this); }
+        PropertiesPtr clone() { return std::make_shared<Properties>(*this); }
 
         /**
          * Get the properties that were never read.
@@ -184,8 +186,6 @@ namespace Ice
         std::map<std::string, PropertyValue, std::less<>> _properties;
         mutable std::mutex _mutex;
     };
-
-    using PropertiesPtr = std::shared_ptr<Properties>;
 }
 
 #endif

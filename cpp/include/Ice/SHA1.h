@@ -22,15 +22,14 @@ namespace IceInternal
         SHA1();
         ~SHA1();
 
+        SHA1(const SHA1&) = delete;
+        SHA1 operator=(const SHA1&) = delete;
+
         void update(const unsigned char*, std::size_t);
         void finalize(std::vector<unsigned char>&);
         void finalize(std::vector<std::byte>&);
 
     private:
-        // noncopyable
-        SHA1(const SHA1&);
-        SHA1 operator=(const SHA1&);
-
         class Hasher;
         std::unique_ptr<Hasher> _hasher;
     };

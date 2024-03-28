@@ -14,13 +14,18 @@
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/PropertiesF.h> // For setTcpBufSize
-#include <Ice/LoggerF.h>     // For setTcpBufSize
-#include <Ice/Protocol.h>
+#include <Ice/Logger.h>      // For setTcpBufSize
+#include "Protocol.h"
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
 #include <Ice/EndpointSelectionType.h>
 
+#include <cassert>
+#include <cstring>
+
 #if defined(_WIN32)
+#    define NOMINMAX
+#    include <windows.h>
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 typedef int ssize_t;

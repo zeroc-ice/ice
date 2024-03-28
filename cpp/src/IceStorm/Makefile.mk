@@ -13,7 +13,6 @@ IceStormService_dependencies    := IceGrid IceBox IceDB
 IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
-                                                             Instrumentation.cpp \
                                                              InstrumentationI.cpp \
                                                              NodeI.cpp \
                                                              Observers.cpp \
@@ -44,7 +43,7 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
                                                              IceStormInternal.ice)
 
 icestormdb_targetdir            := $(bindir)
-icestormdb_dependencies         := IcePatch2 IceDB
+icestormdb_dependencies         := IceDB
 icestormdb_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecord.ice DBTypes.ice)
 

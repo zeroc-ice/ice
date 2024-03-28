@@ -12,7 +12,7 @@
 namespace IceObjC
 {
     class iAPEndpointI;
-    typedef ::std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
+    typedef std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
 
     class iAPEndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<iAPEndpointI>
     {
@@ -58,7 +58,7 @@ namespace IceObjC
         bool operator<(const Ice::Endpoint&) const final;
 
         std::string options() const final;
-        ::std::int32_t hash() const final;
+        std::int32_t hash() const final;
 
     private:
         bool checkOption(const std::string&, const std::string&, const std::string&) final;

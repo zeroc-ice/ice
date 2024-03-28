@@ -5,8 +5,8 @@
 #ifndef ICESTORM_SERVICE_H
 #define ICESTORM_SERVICE_H
 
-#include <IceBox/IceBox.h>
-#include <IceStorm/IceStorm.h>
+#include "IceBox/IceBox.h"
+#include "IceStorm/IceStorm.h"
 
 //
 // Automatically link with IceStormService[D].lib
@@ -38,9 +38,9 @@ namespace IceStormInternal
     {
     public:
         ICESTORM_SERVICE_API static std::shared_ptr<Service> create(
-            const std::shared_ptr<Ice::Communicator>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::CommunicatorPtr&,
+            const Ice::ObjectAdapterPtr&,
+            const Ice::ObjectAdapterPtr&,
             const std::string&,
             const Ice::Identity&,
             const std::string&);

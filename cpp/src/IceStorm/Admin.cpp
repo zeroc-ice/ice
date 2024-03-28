@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <Ice/Ice.h>
-#include <Ice/ConsoleUtil.h>
-#include <IceStorm/Parser.h>
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Ice.h"
+#include "IceUtil/Options.h"
+#include "Parser.h"
 
 #ifdef _WIN32
 #    include <fcntl.h>

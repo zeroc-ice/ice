@@ -13,6 +13,7 @@
 // </auto-generated>
 //
 
+using System.Net.Security;
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -143,39 +144,36 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string identityToString(Identity ident);
 
-        /// <summary>
-        /// Create a new object adapter.
-        /// The endpoints for the object adapter are taken from the property
-        ///  name.Endpoints.
-        ///  It is legal to create an object adapter with the empty string as its name. Such an object adapter is accessible
-        ///  via bidirectional connections or by collocated invocations that originate from the same communicator as is used
-        ///  by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
-        ///  InitializationException.
-        /// </summary>
-        ///  <param name="name">The object adapter name.
-        ///  </param>
-        /// <returns>The new object adapter.
-        ///  </returns>
+        /// <summary>Create a new object adapter. The endpoints for the object adapter are taken from the property
+        /// name.Endpoints. It is legal to create an object adapter with the empty string as its name. Such an object
+        /// adapter is accessible via bidirectional connections or by collocated invocations that originate from the
+        /// same communicator as is used by the adapter. Attempts to create a named object adapter for which no
+        /// configuration can be found raise InitializationException.</summary>
+        /// <param name="name">The object adapter name.</param>
+        /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
+        /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
+        /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are ignored,
+        /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
+        /// </param>
+        /// <returns>The new object adapter.</returns>
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        ObjectAdapter createObjectAdapter(string name);
+        ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions serverAuthenticationOptions = null);
 
-        /// <summary>
-        /// Create a new object adapter with endpoints.
-        /// This operation sets the property
-        ///  name.Endpoints, and then calls createObjectAdapter. It is provided as a
-        ///  convenience function. Calling this operation with an empty name will result in a UUID being generated for the
-        ///  name.
-        /// </summary>
-        ///  <param name="name">The object adapter name.
-        ///  </param>
-        /// <param name="endpoints">The endpoints for the object adapter.
-        ///  </param>
-        /// <returns>The new object adapter.
-        ///  </returns>
+        /// <summary>Create a new object adapter with endpoints. This operation sets the property name.Endpoints, and
+        /// then calls createObjectAdapter. It is provided as a convenience function. Calling this operation with an
+        /// empty name will result in a UUID being generated for the name.</summary>
+        /// <param name="name">The object adapter name.</param>
+        /// <param name="endpoints">The endpoints for the object adapter.</param>
+        /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
+        /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
+        /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are ignored,
+        /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
+        /// </param>
+        /// <returns>The new object adapter.</returns>
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
+        ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions serverAuthenticationOptions = null);
 
         /// <summary>
         /// Create a new object adapter with a router.

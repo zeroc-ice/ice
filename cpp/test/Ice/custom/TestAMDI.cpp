@@ -34,7 +34,7 @@ TestIntfI::opBoolArrayAsync(
 void
 TestIntfI::opByteArrayAsync(
     pair<const byte*, const byte*> in,
-    function<void(const pair<const byte*, const byte*>&, const pair<const byte*, const byte*>&)> response,
+    function<void(pair<const byte*, const byte*>, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
@@ -245,7 +245,7 @@ TestIntfI::opCListAsync(
 void
 TestIntfI::opOutArrayByteSeqAsync(
     ByteSeq in,
-    function<void(const pair<const byte*, const byte*>&)> response,
+    function<void(pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)>,
     const Current&)
 {

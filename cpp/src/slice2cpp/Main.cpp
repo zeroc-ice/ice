@@ -12,6 +12,7 @@
 #include "Gen.h"
 
 #include <algorithm>
+#include <cassert>
 #include <mutex>
 
 using namespace std;

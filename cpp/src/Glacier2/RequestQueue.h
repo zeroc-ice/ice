@@ -23,7 +23,7 @@ namespace Glacier2
     public:
         Request(
             Ice::ObjectPrx,
-            const std::pair<const std::byte*, const std::byte*>&,
+            std::pair<const std::byte*, const std::byte*>,
             const Ice::Current&,
             bool,
             const Ice::Context&,
@@ -39,7 +39,7 @@ namespace Glacier2
 
     private:
         friend class RequestQueue;
-        void response(bool, const std::pair<const std::byte*, const std::byte*>&);
+        void response(bool, std::pair<const std::byte*, const std::byte*>);
         void exception(std::exception_ptr);
         void queued();
 
@@ -49,14 +49,14 @@ namespace Glacier2
         const bool _forwardContext;
         const Ice::Context _sslContext;
         const std::string _override;
-        std::function<void(bool, const std::pair<const std::byte*, const std::byte*>&)> _response;
+        std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> _response;
         std::function<void(std::exception_ptr)> _exception;
     };
 
     class RequestQueue : public std::enable_shared_from_this<RequestQueue>
     {
     public:
-        RequestQueue(std::shared_ptr<RequestQueueThread>, std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>);
+        RequestQueue(std::shared_ptr<RequestQueueThread>, std::shared_ptr<Instance>, Ice::ConnectionPtr);
 
         bool addRequest(std::shared_ptr<Request>);
         void flushRequests();
@@ -68,13 +68,13 @@ namespace Glacier2
     private:
         void flush();
 
-        void response(bool, const std::pair<const std::byte*, const std::byte*>&, const std::shared_ptr<Request>&);
+        void response(bool, std::pair<const std::byte*, const std::byte*>, const std::shared_ptr<Request>&);
         void exception(std::exception_ptr, const std::shared_ptr<Request>&);
         void sent(bool, const std::shared_ptr<Request>&);
 
         const std::shared_ptr<RequestQueueThread> _requestQueueThread;
         const std::shared_ptr<Instance> _instance;
-        const std::shared_ptr<Ice::Connection> _connection;
+        const Ice::ConnectionPtr _connection;
 
         std::deque<std::shared_ptr<Request>> _requests;
         bool _pendingSend;

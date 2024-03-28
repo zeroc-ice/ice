@@ -10,6 +10,8 @@
 #include <IceGrid/Exception.h>
 #include <IceGrid/Admin.h>
 #include <IceUtil/Random.h>
+#include "Ice/BuiltinSequences.h"
+
 #include <functional>
 #include <iterator>
 
@@ -30,13 +32,19 @@ namespace IceGrid
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     std::string escapeProperty(const std::string&, bool = false);
 
-    ObjectInfo toObjectInfo(const std::shared_ptr<Ice::Communicator>&, const ObjectDescriptor&, const std::string&);
+    ObjectInfo toObjectInfo(const Ice::CommunicatorPtr&, const ObjectDescriptor&, const std::string&);
 
-    void setupThreadPool(const std::shared_ptr<Ice::Properties>&, const std::string&, int, int = 0, bool = false);
+    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
 
     int getMMVersion(const std::string&);
 
     int secondsToInt(const std::chrono::seconds&);
+
+    void createDirectory(const std::string&);
+    Ice::StringSeq readDirectory(const std::string&);
+    void remove(const std::string&);
+    void removeRecursive(const std::string&);
+    std::string simplify(const std::string&);
 
     inline void forEachCommunicator(
         const std::shared_ptr<CommunicatorDescriptor>& descriptor,

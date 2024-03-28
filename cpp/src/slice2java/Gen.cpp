@@ -5,10 +5,10 @@
 #include "Gen.h"
 #include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/InputUtil.h>
 #include <cstring>
 
 #include <algorithm>
+#include <cassert>
 #include <limits>
 
 using namespace std;
@@ -2723,11 +2723,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
         else
         {
-            Int64 v = 0;
+            std::int64_t v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if (serialVersionUID != "0")
             {
-                if (!stringToInt64(serialVersionUID, v)) // conversion error
+                try
+                {
+                    v = std::stoll(serialVersionUID, nullptr, 0);
+                }
+                catch (const std::exception&)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped()
@@ -3240,11 +3244,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         else
         {
-            Int64 v = 0;
+            std::int64_t v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if (serialVersionUID != "0")
             {
-                if (!stringToInt64(serialVersionUID, v)) // conversion error
+                try
+                {
+                    v = std::stoll(serialVersionUID, nullptr, 0);
+                }
+                catch (const std::exception&)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
@@ -3605,11 +3613,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         else
         {
-            Int64 v = 0;
+            std::int64_t v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if (serialVersionUID != "0")
             {
-                if (!stringToInt64(serialVersionUID, v)) // conversion error
+                try
+                {
+                    v = std::stoll(serialVersionUID, nullptr, 0);
+                }
+                catch (const std::exception&)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped()

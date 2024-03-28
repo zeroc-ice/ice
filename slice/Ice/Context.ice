@@ -10,6 +10,8 @@
 
 [["cpp:no-default-include"]]
 [["cpp:include:Ice/Config.h"]]
+[["cpp:include:map"]]
+[["cpp:include:string"]]
 
 [["ice-prefix"]]
 

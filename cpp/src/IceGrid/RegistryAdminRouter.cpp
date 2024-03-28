@@ -18,8 +18,8 @@ namespace
     public:
         SynchronizationCallbackI(
             const shared_ptr<RegistryServerAdminRouter>& adminRouter,
-            const pair<const byte*, const byte*>& inParams,
-            function<void(bool, const pair<const byte*, const byte*>&)> response,
+            pair<const byte*, const byte*> inParams,
+            function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(exception_ptr)> exception,
             const Current& current)
             : _adminRouter(adminRouter),
@@ -49,7 +49,7 @@ namespace
 
     private:
         const shared_ptr<RegistryServerAdminRouter> _adminRouter;
-        function<void(bool, const pair<const byte*, const byte*>&)> _response;
+        function<void(bool, pair<const byte*, const byte*>)> _response;
         function<void(exception_ptr)> _exception;
         const vector<byte> _inParams;
         const Current _current;
@@ -65,7 +65,7 @@ RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>&
 void
 RegistryServerAdminRouter::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
@@ -103,10 +103,7 @@ RegistryServerAdminRouter::ice_invokeAsync(
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database)
@@ -119,7 +116,7 @@ RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, c
 void
 RegistryNodeAdminRouter::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
@@ -155,9 +152,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
         }
     }
 
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const shared_ptr<Database>& database)
@@ -170,7 +165,7 @@ RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const
 void
 RegistryReplicaAdminRouter::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
@@ -203,8 +198,5 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
 
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-
-    target = target->ice_facet(current.facet);
-
-    invokeOnTarget(*target, inParams, std::move(response), std::move(exception), current);
+    invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }

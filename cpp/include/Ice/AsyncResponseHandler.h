@@ -6,8 +6,8 @@
 #define ICE_ASYNC_RESPONSE_HANDLER_H
 
 #include "Current.h"
-#include "OutgoingResponse.h"
 #include "LocalException.h"
+#include "OutgoingResponse.h"
 
 #include <atomic>
 
@@ -44,7 +44,7 @@ namespace IceInternal
             // else we ignore this call.
         }
 
-        void sendResponse(bool ok, const std::pair<const std::byte*, const std::byte*>& encaps) noexcept
+        void sendResponse(bool ok, std::pair<const std::byte*, const std::byte*> encaps) noexcept
         {
             if (!_responseSent.test_and_set())
             {

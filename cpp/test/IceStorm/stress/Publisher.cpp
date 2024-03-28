@@ -7,6 +7,8 @@
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
 #include <TestHelper.h>
+
+#include <stdexcept>
 #include <thread>
 
 using namespace std;

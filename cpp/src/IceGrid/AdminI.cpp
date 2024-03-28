@@ -29,11 +29,22 @@ namespace
     class ServerProxyWrapper
     {
     public:
-        ServerProxyWrapper(const shared_ptr<Database>& database, const string& id) : _id(id)
+        static ServerProxyWrapper create(const shared_ptr<Database>& database, string id)
         {
             try
             {
-                _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node, false, 5s);
+                chrono::seconds activationTimeout;
+                chrono::seconds deactivationTimeout;
+                string node;
+                ServerPrx proxy =
+                    database->getServer(id)->getProxy(activationTimeout, deactivationTimeout, node, false, 5s);
+
+                return ServerProxyWrapper(
+                    std::move(id),
+                    std::move(proxy),
+                    activationTimeout,
+                    deactivationTimeout,
+                    std::move(node));
             }
             catch (const SynchronizationException&)
             {
@@ -41,7 +52,7 @@ namespace
             }
         }
 
-        ServerProxyWrapper(const ServerProxyWrapper& wrapper) = default;
+        ServerProxyWrapper(const ServerProxyWrapper& wrapper) = delete;
 
         template<typename Func, typename... Args> auto invoke(Func&& f, Args&&... args)
         {
@@ -63,22 +74,21 @@ namespace
         template<typename Func>
         auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
         {
-            auto exceptionWrapper = [this, exception = std::move(exception)](exception_ptr ex)
-            {
-                try
-                {
-                    handleException(ex);
-                }
-                catch (const std::exception&)
-                {
-                    exception(current_exception());
-                }
-            };
             return std::invoke(
                 std::forward<Func>(f),
                 _proxy,
                 std::move(response),
-                std::move(exceptionWrapper),
+                [this, exception = std::move(exception)](exception_ptr ex)
+                {
+                    try
+                    {
+                        handleException(ex);
+                    }
+                    catch (...)
+                    {
+                        exception(current_exception());
+                    }
+                },
                 nullptr,
                 Ice::noExplicitContext);
         }
@@ -95,17 +105,7 @@ namespace
             _proxy = _proxy->ice_invocationTimeout(timeout);
         }
 
-        ServerPrx* operator->()
-        {
-            if (_proxy)
-            {
-                return &_proxy.value();
-            }
-            else
-            {
-                return nullptr;
-            }
-        }
+        ServerPrx* operator->() { return &_proxy; }
 
         void handleException(exception_ptr ex) const
         {
@@ -128,50 +128,26 @@ namespace
         }
 
     private:
+        ServerProxyWrapper(
+            const string id,
+            ServerPrx proxy,
+            chrono::seconds activationTimeout,
+            chrono::seconds deactivationTimeout,
+            string node)
+            : _id(std::move(id)),
+              _proxy(std::move(proxy)),
+              _activationTimeout(activationTimeout),
+              _deactivationTimeout(deactivationTimeout),
+              _node(std::move(node))
+        {
+        }
+
         string _id;
-        optional<ServerPrx> _proxy;
+        ServerPrx _proxy;
         chrono::seconds _activationTimeout;
         chrono::seconds _deactivationTimeout;
         string _node;
     };
-
-    class AMDPatcherFeedbackAggregator : public PatcherFeedbackAggregator
-    {
-    public:
-        AMDPatcherFeedbackAggregator(
-            function<void()> response,
-            function<void(exception_ptr)> exception,
-            Ice::Identity id,
-            const shared_ptr<TraceLevels>& traceLevels,
-            const string& type,
-            const string& name,
-            int nodeCount)
-            : PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
-              _response(std::move(response)),
-              _exception(std::move(exception))
-        {
-        }
-
-    private:
-        void response() { _response(); }
-
-        void exception(exception_ptr ex) { _exception(ex); }
-
-        function<void()> _response;
-        function<void(exception_ptr)> _exception;
-    };
-
-    shared_ptr<AMDPatcherFeedbackAggregator> static newPatcherFeedback(
-        function<void()> response,
-        function<void(exception_ptr)> exception,
-        Ice::Identity id,
-        const shared_ptr<TraceLevels>& traceLevels,
-        const string& type,
-        const string& name,
-        int nodeCount)
-    {
-        return make_shared<AMDPatcherFeedbackAggregator>(response, exception, id, traceLevels, type, name, nodeCount);
-    }
 }
 
 AdminI::AdminI(
@@ -254,69 +230,10 @@ AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc
     _database->instantiateServer(std::move(app), std::move(node), std::move(desc), _session.get());
 }
 
-void
-AdminI::patchApplicationAsync(
-    string name,
-    bool shutdown,
-    function<void()> response,
-    function<void(exception_ptr)> exception,
-    const Current& current)
-{
-    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationInfo(name).descriptor);
-    DistributionDescriptor appDistrib;
-    vector<string> nodes;
-    helper.getDistributions(appDistrib, nodes);
-
-    if (nodes.empty())
-    {
-        response();
-        return;
-    }
-
-    Ice::Identity id;
-    id.category = current.id.category;
-    id.name = Ice::generateUUID();
-
-    shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(response, exception, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
-
-    for (vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
-    {
-        try
-        {
-            if (_traceLevels->patch > 0)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                out << "started patching of application `" << name << "' on node `" << *p << "'";
-            }
-
-            shared_ptr<NodeEntry> node = _database->getNode(*p);
-            Resolver resolve(node->getInfo(), _database->getCommunicator());
-            DistributionDescriptor desc = resolve(appDistrib);
-            auto intAppDistrib = make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
-            node->getSession()->patch(feedback, name, "", intAppDistrib, shutdown);
-        }
-        catch (const NodeNotExistException&)
-        {
-            feedback->failed(*p, "node doesn't exist");
-        }
-        catch (const NodeUnreachableException& e)
-        {
-            feedback->failed(*p, "node is unreachable: " + e.reason);
-        }
-        catch (const Ice::Exception& e)
-        {
-            ostringstream os;
-            os << e;
-            feedback->failed(*p, "node is unreachable:\n" + os.str());
-        }
-    }
-}
-
 ApplicationInfo
 AdminI::getApplicationInfo(string name, const Current&) const
 {
-    return _database->getApplicationInfo(std::move(name));
+    return _database->getApplicationInfo(name);
 }
 
 ApplicationDescriptor
@@ -345,12 +262,6 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
         Ice::Warning warn(_traceLevels->logger);
         warn << "default application descriptor:\nnode definitions are not allowed.";
         desc.nodes.clear();
-    }
-    if (!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
-    {
-        Ice::Warning warn(_traceLevels->logger);
-        warn << "default application descriptor:\ndistribution is not allowed.";
-        desc.distrib = DistributionDescriptor();
     }
     if (!desc.replicaGroups.empty())
     {
@@ -382,20 +293,20 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(string id, const Current&) const
 {
-    return _database->getServer(std::move(id))->getInfo(true);
+    return _database->getServer(id)->getInfo(true);
 }
 
 ServerState
 AdminI::getServerState(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getState);
 }
 
 int
 AdminI::getServerPid(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getPid);
 }
 
@@ -408,7 +319,7 @@ AdminI::getServerAdminCategory(const Current&) const
 optional<ObjectPrx>
 AdminI::getServerAdmin(string id, const Current& current) const
 {
-    ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
+    auto proxy = ServerProxyWrapper::create(_database, id); // Ensure that the server exists and loaded on the node.
 
     return current.adapter->createProxy({id, _registry->getServerAdminCategory()});
 }
@@ -416,7 +327,7 @@ AdminI::getServerAdmin(string id, const Current& current) const
 void
 AdminI::startServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.useActivationTimeout();
 
     proxy.invokeAsync(
@@ -428,7 +339,7 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
 void
 AdminI::stopServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.useDeactivationTimeout();
 
     //
@@ -455,71 +366,9 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
 }
 
 void
-AdminI::patchServerAsync(
-    string id,
-    bool shutdown,
-    function<void()> response,
-    function<void(exception_ptr)> exception,
-    const Current& current)
-{
-    ServerInfo info = _database->getServer(id)->getInfo();
-    ApplicationInfo appInfo = _database->getApplicationInfo(info.application);
-    ApplicationHelper helper(current.adapter->getCommunicator(), appInfo.descriptor);
-    DistributionDescriptor appDistrib;
-    vector<string> nodes;
-    helper.getDistributions(appDistrib, nodes, id);
-
-    if (appDistrib.icepatch.empty() && nodes.empty())
-    {
-        response();
-        return;
-    }
-
-    assert(nodes.size() == 1);
-
-    Ice::Identity identity;
-    identity.category = current.id.category;
-    identity.name = Ice::generateUUID();
-
-    shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(response, exception, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));
-
-    vector<string>::const_iterator p = nodes.begin();
-    try
-    {
-        if (_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << "started patching of server `" << id << "' on node `" << *p << "'";
-        }
-
-        shared_ptr<NodeEntry> node = _database->getNode(*p);
-        Resolver resolve(node->getInfo(), _database->getCommunicator());
-        DistributionDescriptor desc = resolve(appDistrib);
-        shared_ptr<InternalDistributionDescriptor> intAppDistrib =
-            make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
-        node->getSession()->patch(feedback, info.application, id, intAppDistrib, shutdown);
-    }
-    catch (const NodeNotExistException&)
-    {
-        feedback->failed(*p, "node doesn't exist");
-    }
-    catch (const NodeUnreachableException& e)
-    {
-        feedback->failed(*p, "node is unreachable: " + e.reason);
-    }
-    catch (const Ice::Exception& e)
-    {
-        ostringstream os;
-        os << e;
-        feedback->failed(*p, "node is unreachable:\n" + os.str());
-    }
-}
-
-void
 AdminI::sendSignal(string id, string signal, const Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.invoke(&ServerPrx::sendSignal, std::move(signal));
 }
 
@@ -532,14 +381,14 @@ AdminI::getAllServerIds(const Current&) const
 void
 AdminI::enableServer(string id, bool enable, const Ice::Current&)
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
-    proxy.invoke(&ServerPrx::setEnabled, std::move(enable));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
+    proxy.invoke(&ServerPrx::setEnabled, enable);
 }
 
 bool
 AdminI::isServerEnabled(string id, const Ice::Current&) const
 {
-    ServerProxyWrapper proxy(_database, std::move(id));
+    auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::isEnabled);
 }
 

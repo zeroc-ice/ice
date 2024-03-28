@@ -78,7 +78,7 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& observer, const string& name)
     {
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
-        Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
+        Ice::EncodingVersion v = observer->ice_getEncodingVersion();
         auto p = _topics.find(v);
         if (p == _topics.end())
         {
@@ -114,7 +114,7 @@ void
 ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
 {
     lock_guard lock(_mutex);
-    Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
+    Ice::EncodingVersion v = observer->ice_getEncodingVersion();
     auto q = _topics.find(v);
     if (q == _topics.end())
     {
@@ -366,7 +366,7 @@ RegistryObserverTopic::initObserver(Ice::ObjectPrx observer)
 }
 
 shared_ptr<NodeObserverTopic>
-NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const shared_ptr<Ice::ObjectAdapter>& adapter)
+NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const Ice::ObjectAdapterPtr& adapter)
 {
     Ice::Identity id{Ice::generateUUID(), ""};
     shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager, NodeObserverPrx{adapter->createProxy(id)}));

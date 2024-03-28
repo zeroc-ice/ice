@@ -239,21 +239,6 @@ public class Root extends Communicator
         return _infoMap.keySet().toArray();
     }
 
-    public Object[] getPatchableApplicationNames()
-    {
-        java.util.List<String> result = new java.util.ArrayList<>();
-
-        for(java.util.Map.Entry<String, ApplicationInfo> p : _infoMap.entrySet())
-        {
-            ApplicationInfo app = p.getValue();
-            if(app.descriptor.distrib.icepatch.length() > 0)
-            {
-                result.add(p.getKey());
-            }
-        }
-        return result.toArray();
-    }
-
     public java.util.SortedMap<String, String> getApplicationMap()
     {
         java.util.SortedMap<String, String> r = new java.util.TreeMap<>();
@@ -337,39 +322,6 @@ public class Root extends Communicator
         _editor = null;
     }
 
-    public void patch(final String applicationName)
-    {
-        int shutdown = JOptionPane.showConfirmDialog(
-            _coordinator.getMainFrame(),
-            "You are about to install or refresh your application distribution.\n"
-            + " Do you want shut down all servers affected by this update?",
-            "Patch Confirmation",
-            JOptionPane.YES_NO_CANCEL_OPTION);
-
-        if(shutdown == JOptionPane.CANCEL_OPTION)
-        {
-            return;
-        }
-
-        final String prefix = "Patching application '" + applicationName + "'...";
-        final String errorTitle = "Failed to patch '" + applicationName;
-
-        _coordinator.getStatusBar().setText(prefix);
-        try
-        {
-            final AdminPrx admin = _coordinator.getAdmin();
-            admin.patchApplicationAsync(applicationName, shutdown == JOptionPane.YES_OPTION).whenComplete(
-                (result, ex) ->
-                    {
-                        amiComplete(prefix, errorTitle, ex);
-                    });
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            failure(prefix, errorTitle, ex.toString());
-        }
-    }
-
     public void showApplicationDetails(String appName)
     {
         ApplicationInfo app = _infoMap.get(appName);
@@ -448,10 +400,6 @@ public class Root extends Communicator
         if(update.descriptor.description != null)
         {
             appDesc.description = update.descriptor.description.value;
-        }
-        if(update.descriptor.distrib != null)
-        {
-            appDesc.distrib = update.descriptor.distrib.value;
         }
 
         appDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeVariables));

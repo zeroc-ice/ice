@@ -14,6 +14,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <chrono>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;

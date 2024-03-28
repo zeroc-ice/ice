@@ -7,7 +7,8 @@
 
 // Provides the full IceBox API.
 
-#include <IceBox/Service.h>
-#include <IceBox/ServiceManager.h>
+#include "Config.h"
+#include "IceBox/ServiceManager.h"
+#include "Service.h"
 
 #endif

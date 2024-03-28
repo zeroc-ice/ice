@@ -6,15 +6,15 @@
 #include "Ice/AsyncResponseHandler.h"
 #include "Ice/LocalException.h"
 #include "Ice/SlicedData.h"
+#include "Ice/InputStream.h"
+#include "Ice/OutputStream.h"
+
+#include <algorithm>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-namespace Ice
-{
-    const Current emptyCurrent = Current();
-}
 
 bool
 Ice::Object::ice_isA(string s, const Current& current) const
@@ -275,7 +275,7 @@ Ice::BlobjectArrayAsync::dispatch(IncomingRequest& request, std::function<void(O
     {
         ice_invokeAsync(
             inEncaps,
-            [responseHandler](bool ok, const pair<const byte*, const byte*>& outEncaps)
+            [responseHandler](bool ok, pair<const byte*, const byte*> outEncaps)
             { responseHandler->sendResponse(ok, outEncaps); },
             [responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); },
             responseHandler->current());

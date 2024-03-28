@@ -5,25 +5,34 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
-#include <IceUtil/Timer.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/ConnectionIF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/RequestHandlerF.h>
-#include <Ice/ConnectionF.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/ObserverHelper.h>
-#include <Ice/LocalException.h>
+#include "CommunicatorF.h"
+#include "ConnectionF.h"
+#include "ConnectionIF.h"
+#include "IceUtil/Timer.h"
+#include "InputStream.h"
+#include "LocalException.h"
+#include "ObjectAdapterF.h"
+#include "ObserverHelper.h"
+#include "OutputStream.h"
 #include "Proxy.h"
+#include "RequestHandlerF.h"
 
+#include <cassert>
 #include <exception>
+#include <string_view>
 
 namespace IceInternal
 {
     class OutgoingAsyncBase;
     class RetryException;
     class CollocatedRequestHandler;
+
+    enum AsyncStatus
+    {
+        AsyncStatusQueued = 0,
+        AsyncStatusSent = 1,
+        AsyncStatusInvokeSentCallback = 2
+    };
 
     class ICE_API OutgoingAsyncCompletionCallback
     {
@@ -71,17 +80,9 @@ namespace IceInternal
         void cancel();
 
         void
-        attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, std::int32_t requestId)
-        {
-            const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
-            _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
-        }
+        attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, std::int32_t requestId);
 
-        void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, std::int32_t requestId)
-        {
-            const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
-            _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
-        }
+        void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, std::int32_t requestId);
 
         Ice::OutputStream* getOs() { return &_os; }
 
@@ -129,7 +130,7 @@ namespace IceInternal
         static const unsigned char Sent;
     };
 
-    using OutgoingAsyncBasePtr = ::std::shared_ptr<OutgoingAsyncBase>;
+    using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
 
     //
     // Base class for proxy based invocations. This class handles the
@@ -175,7 +176,7 @@ namespace IceInternal
         bool _sent;
     };
 
-    using ProxyOutgoingAsyncBasePtr = ::std::shared_ptr<ProxyOutgoingAsyncBase>;
+    using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
     //
     // Class for handling Slice operation invocations
@@ -210,7 +211,7 @@ namespace IceInternal
         }
         void endWriteParams() { _os.endEncapsulation(); }
         void writeEmptyParams() { _os.writeEmptyEncapsulation(_encoding); }
-        void writeParamEncaps(const ::std::byte* encaps, std::int32_t size)
+        void writeParamEncaps(const std::byte* encaps, std::int32_t size)
         {
             if (size == 0)
             {
@@ -224,11 +225,11 @@ namespace IceInternal
 
     protected:
         const Ice::EncodingVersion _encoding;
-        std::function<void(const ::Ice::UserException&)> _userException;
+        std::function<void(const Ice::UserException&)> _userException;
         bool _synchronous;
     };
 
-    using OutgoingAsyncPtr = ::std::shared_ptr<OutgoingAsync>;
+    using OutgoingAsyncPtr = std::shared_ptr<OutgoingAsync>;
 
     class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
     {

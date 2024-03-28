@@ -5,18 +5,20 @@
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
-#include <Ice/Initialize.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice.h"
 
 #ifdef _WIN32
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
 #    include <winsvc.h>
 #endif
 
 namespace Ice
 {
     /**
-     * A singleton class comparable to Ice::Application but also provides the low-level, platform-specific
-     * initialization and shutdown procedures common to system services.
+     * A singleton class that helps you write Windows services and Unix daemons using Ice.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Service

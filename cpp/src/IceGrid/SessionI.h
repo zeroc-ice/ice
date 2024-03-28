@@ -57,8 +57,7 @@ namespace IceGrid
     public:
         SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
 
-        Ice::ObjectPrx
-        _register(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Ice::Connection>&);
+        Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
         void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
         void allocateObjectByIdAsync(

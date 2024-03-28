@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/TopicManagerI.h>
-#include <IceStorm/TopicI.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/NodeI.h>
-#include <IceStorm/Observers.h>
-#include <IceStorm/Subscriber.h>
-#include <IceStorm/Util.h>
+#include "TopicManagerI.h"
+#include "Instance.h"
+#include "NodeI.h"
+#include "Observers.h"
+#include "Subscriber.h"
+#include "TopicI.h"
+#include "TraceLevels.h"
+#include "Util.h"
 
 #include <functional>
 
@@ -698,7 +698,7 @@ TopicManagerImpl::shutdown()
     _managerImpl = nullptr;
 }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 TopicManagerImpl::getServant() const
 {
     return _managerImpl;

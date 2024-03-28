@@ -219,9 +219,6 @@
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\Options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -270,6 +267,9 @@
     <ClCompile Include="..\..\ConnectionI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Current.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\FixedRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -304,9 +304,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\FactoryTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\FactoryTableInit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\HttpParser.cpp">
@@ -501,6 +498,9 @@
     <ClCompile Include="..\..\ValueFactoryManagerI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\VersionFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\WSAcceptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -519,31 +519,13 @@
     <ClCompile Include="..\..\Connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Endpoint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ImplicitContext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Instrumentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\LocalException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ObjectAdapter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Plugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Properties.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ServantLocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\UserException.cpp">
@@ -613,164 +595,386 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\EndpointTypes.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Identity.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Locator.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Metrics.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Process.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\RemoteLogger.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Router.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Version.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\EndpointTypes.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Identity.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Locator.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Metrics.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Process.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\PropertiesAdmin.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\RemoteLogger.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Router.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Version.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\EndpointTypes.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Identity.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Locator.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Metrics.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Process.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\RemoteLogger.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Router.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Version.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\BuiltinSequences.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\EndpointTypes.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\EndpointTypes.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Identity.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Identity.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Locator.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Locator.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Metrics.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Metrics.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Process.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Process.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertiesAdmin.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\PropertiesAdmin.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\RemoteLogger.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\RemoteLogger.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Router.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Router.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Version.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Version.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\EndpointI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Context.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Context.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Context.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Context.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Context.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\OperationMode.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\OperationMode.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\OperationMode.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\OperationMode.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\OperationMode.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\PropertyDict.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\PropertyDict.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\PropertyDict.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertyDict.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\PropertyDict.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\AsyncResponseHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\BatchRequestInterceptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\BatchRequestQueueF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Communicator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\CommunicatorF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Comparable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Connection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ConnectionF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ConnectionIF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ConsoleUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Current.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Endpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\EndpointF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\EndpointSelectionType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\FacetMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\FactoryTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Format.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Ice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\IconvStringConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ImplicitContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ImplicitContextF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\IncomingRequest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Initialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\InputStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\InstanceF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\InstrumentationF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\MetricsAdminI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\MetricsFunctional.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\MetricsObserverI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\NativePropertiesAdmin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ObjectAdapter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ObjectAdapterF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ObjectF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ObserverHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\OutgoingAsync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\OutgoingResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\OutputStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\PluginF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Properties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\PropertiesF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ProxyF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ProxyFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ReferenceF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\RegisterPlugins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\RequestHandlerF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ServantLocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ServantManagerF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\SHA1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\SlicedData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\SlicedDataF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\StreamHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ThreadPoolF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\UniqueRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\UserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\UserExceptionFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\UUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ValueF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

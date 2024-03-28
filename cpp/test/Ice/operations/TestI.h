@@ -88,7 +88,7 @@ public:
 
     Test::StringSS opStringSS(Test::StringSS, Test::StringSS, Test::StringSS&, const Ice::Current&) final;
 
-    Test::StringSSS opStringSSS(Test::StringSSS, Test::StringSSS, Test::StringSSS&, const ::Ice::Current&) final;
+    Test::StringSSS opStringSSS(Test::StringSSS, Test::StringSSS, Test::StringSSS&, const Ice::Current&) final;
 
     Test::ByteBoolD opByteBoolD(Test::ByteBoolD, Test::ByteBoolD, Test::ByteBoolD&, const Ice::Current&) final;
 

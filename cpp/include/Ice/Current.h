@@ -2,41 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_Current_h__
-#define __Ice_Current_h__
+#ifndef ICE_CURRENT_H
+#define ICE_CURRENT_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/ConnectionF.h>
-#include <Ice/Context.h>
-#include <Ice/Identity.h>
-#include <Ice/OperationMode.h>
-#include <Ice/Version.h>
-#include <IceUtil/UndefSysMacros.h>
-
-#ifndef ICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_API /**/
-#    elif defined(ICE_API_EXPORTS)
-#        define ICE_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
+#include "ConnectionF.h"
+#include "Ice/Context.h"
+#include "Ice/Identity.h"
+#include "Ice/OperationMode.h"
+#include "Ice/Version.h"
+#include "ObjectAdapterF.h"
 
 namespace Ice
 {
     /**
-     * Information about the current method invocation for servers. Each operation on the server has a
-     * <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
-     * applications ignore this parameter.
+     * Information about an incoming request being dispatched.
      * \headerfile Ice/Ice.h
      */
     struct Current
@@ -44,68 +23,52 @@ namespace Ice
         /**
          * The object adapter.
          */
-        ::std::shared_ptr<::Ice::ObjectAdapter> adapter;
+        ObjectAdapterPtr adapter;
+
         /**
          * Information about the connection over which the current method invocation was received. If the invocation is
          * direct due to collocation optimization, this value is set to null.
          */
-        ::std::shared_ptr<::Ice::Connection> con;
+        ConnectionPtr con;
+
         /**
          * The Ice object identity.
          */
-        ::Ice::Identity id;
+        Identity id;
+
         /**
          * The facet.
          */
-        ::std::string facet;
+        std::string facet;
+
         /**
          * The operation name.
          */
-        ::std::string operation;
+        std::string operation;
+
         /**
          * The mode of the operation.
          */
-        ::Ice::OperationMode mode;
+        OperationMode mode;
+
         /**
          * The request context, as received from the client.
          */
-        ::Ice::Context ctx;
+        Context ctx;
+
         /**
          * The request id unless oneway (0).
          */
         int requestId;
+
         /**
          * The encoding version used to encode the input and output parameters.
          */
-        ::Ice::EncodingVersion encoding;
-
-        /**
-         * Obtains a tuple containing all of the struct's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<
-            const ::std::shared_ptr<::Ice::ObjectAdapter>&,
-            const ::std::shared_ptr<::Ice::Connection>&,
-            const ::Ice::Identity&,
-            const ::std::string&,
-            const ::std::string&,
-            const ::Ice::OperationMode&,
-            const ::Ice::Context&,
-            const int&,
-            const ::Ice::EncodingVersion&>
-        ice_tuple() const
-        {
-            return std::tie(adapter, con, id, facet, operation, mode, ctx, requestId, encoding);
-        }
+        EncodingVersion encoding;
     };
 
-    using Ice::operator<;
-    using Ice::operator<=;
-    using Ice::operator>;
-    using Ice::operator>=;
-    using Ice::operator==;
-    using Ice::operator!=;
+    /** A default-initialized Current instance. */
+    ICE_API extern const Current emptyCurrent;
 }
 
-#include <IceUtil/PopDisableWarnings.h>
 #endif

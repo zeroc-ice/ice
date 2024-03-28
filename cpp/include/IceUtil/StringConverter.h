@@ -5,8 +5,8 @@
 #ifndef ICE_UTIL_STRING_CONVERTER_H
 #define ICE_UTIL_STRING_CONVERTER_H
 
-#include <IceUtil/Config.h>
-#include <IceUtil/Exception.h>
+#include "Config.h"
+#include "Exception.h"
 
 #include <memory>
 #include <string>

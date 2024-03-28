@@ -9,9 +9,10 @@
 [["cpp:header-ext:h"]]
 
 [["cpp:no-default-include"]]
+[["cpp:no-stream"]]
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/Comparable.h"]]
-[["cpp:include:Ice/StreamHelpers.h"]]
+[["cpp:include:cstdint"]]
 
 [["ice-prefix"]]
 
@@ -24,19 +25,17 @@
 
 module Ice
 {
+    /// A version structure for the protocol version.
+    struct ProtocolVersion
+    {
+        byte major;
+        byte minor;
+    }
 
-/// A version structure for the protocol version.
-struct ProtocolVersion
-{
-    byte major;
-    byte minor;
-}
-
-/// A version structure for the encoding version.
-struct EncodingVersion
-{
-    byte major;
-    byte minor;
-}
-
+    /// A version structure for the encoding version.
+    struct EncodingVersion
+    {
+        byte major;
+        byte minor;
+    }
 }

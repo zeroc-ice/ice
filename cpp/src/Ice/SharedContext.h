@@ -11,7 +11,7 @@
 
 namespace Ice
 {
-    typedef ::std::map<::std::string, ::std::string> Context;
+    typedef std::map<std::string, std::string> Context;
 }
 
 namespace IceInternal

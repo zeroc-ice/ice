@@ -3,6 +3,7 @@
 //
 
 #include "ObserverMiddleware.h"
+#include "Ice/UserException.h"
 
 using namespace std;
 using namespace Ice;

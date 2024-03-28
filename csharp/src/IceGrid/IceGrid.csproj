@@ -5,7 +5,7 @@
     <AssemblyName>IceGrid</AssemblyName>
     <Version>$(IceJSONVersion)</Version>
     <OutputPath>../../lib</OutputPath>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

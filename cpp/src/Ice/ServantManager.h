@@ -10,13 +10,13 @@
 #include "Ice/Identity.h"
 #include "Ice/FacetMap.h"
 #include "Ice/Object.h"
+#include "Ice/ServantLocator.h"
 
 #include <mutex>
 
 namespace Ice
 {
     class ObjectAdapterI;
-    class ServantLocator;
 }
 
 namespace IceInternal
@@ -27,19 +27,19 @@ namespace IceInternal
     public:
         ServantManager(const InstancePtr&, const std::string&);
         ~ServantManager();
-        void addServant(const std::shared_ptr<Ice::Object>&, const Ice::Identity&, const std::string&);
-        void addDefaultServant(const std::shared_ptr<Ice::Object>&, const std::string&);
-        std::shared_ptr<Ice::Object> removeServant(const Ice::Identity&, const std::string&);
-        std::shared_ptr<Ice::Object> removeDefaultServant(const std::string&);
+        void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
+        void addDefaultServant(const Ice::ObjectPtr&, const std::string&);
+        Ice::ObjectPtr removeServant(const Ice::Identity&, const std::string&);
+        Ice::ObjectPtr removeDefaultServant(const std::string&);
         Ice::FacetMap removeAllFacets(const Ice::Identity&);
-        std::shared_ptr<Ice::Object> findServant(const Ice::Identity&, const std::string&) const;
-        std::shared_ptr<Ice::Object> findDefaultServant(const std::string&) const;
+        Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
+        Ice::ObjectPtr findDefaultServant(const std::string&) const;
         Ice::FacetMap findAllFacets(const Ice::Identity&) const;
         bool hasServant(const Ice::Identity&) const;
 
-        void addServantLocator(const std::shared_ptr<Ice::ServantLocator>& locator, const std::string&);
-        std::shared_ptr<Ice::ServantLocator> removeServantLocator(const std::string&);
-        std::shared_ptr<Ice::ServantLocator> findServantLocator(const std::string&) const;
+        void addServantLocator(const Ice::ServantLocatorPtr& locator, const std::string&);
+        Ice::ServantLocatorPtr removeServantLocator(const std::string&);
+        Ice::ServantLocatorPtr findServantLocator(const std::string&) const;
 
         void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) final;
 
@@ -52,15 +52,15 @@ namespace IceInternal
         const std::string _adapterName;
 
         typedef std::map<Ice::Identity, Ice::FacetMap> ServantMapMap;
-        typedef std::map<std::string, std::shared_ptr<Ice::Object>> DefaultServantMap;
+        typedef std::map<std::string, Ice::ObjectPtr> DefaultServantMap;
 
         ServantMapMap _servantMapMap;
         mutable ServantMapMap::iterator _servantMapMapHint;
 
         DefaultServantMap _defaultServantMap;
 
-        std::map<std::string, std::shared_ptr<Ice::ServantLocator>> _locatorMap;
-        mutable std::map<std::string, std::shared_ptr<Ice::ServantLocator>>::iterator _locatorMapHint;
+        std::map<std::string, Ice::ServantLocatorPtr> _locatorMap;
+        mutable std::map<std::string, Ice::ServantLocatorPtr>::iterator _locatorMapHint;
         mutable std::mutex _mutex;
     };
 }

@@ -1,4 +1,4 @@
-#include <IceUtil/ScannerConfig.h>
+#include "IceUtil/ScannerConfig.h"
 #line 1 "src/IceStorm/Scanner.cpp"
 
 #line 3 "src/IceStorm/Scanner.cpp"
@@ -18,10 +18,10 @@
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
 /* begin standard C headers. */
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* end standard C headers. */
 
@@ -407,9 +407,9 @@ char* yytext;
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceStorm/Parser.h>
-#include <IceStorm/Grammar.h>
+#include "Ice/Ice.h"
+#include "IceStorm/Grammar.h"
+#include "Parser.h"
 
 #if defined(_MSC_VER)
 // '<' : signed/unsigned mismatch
@@ -417,13 +417,11 @@ char* yytext;
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 #    pragma warning(disable : 4244)
 
-#    if defined(ICE_64)
 //
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
 //
-#        pragma warning(disable : 4267)
-#    endif
+#    pragma warning(disable : 4267)
 #endif
 
 #if defined(__GNUC__)

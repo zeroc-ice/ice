@@ -253,7 +253,6 @@ class ServerTemplate extends Communicator
 
                 writePropertySet(writer, "", "", descriptor.propertySet, descriptor.adapters, descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
-                writeDistribution(writer, descriptor.distrib);
 
                 _adapters.write(writer, descriptor.propertySet.properties);
                 _services.write(writer);
@@ -274,7 +273,6 @@ class ServerTemplate extends Communicator
 
                 writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
-                writeDistribution(writer, descriptor.distrib);
 
                 _adapters.write(writer, descriptor.propertySet.properties);
                 writer.writeEndTag("server");

@@ -5,12 +5,20 @@
 #ifndef ICE_INSTRUMENTATION_H
 #define ICE_INSTRUMENTATION_H
 
-#include "Config.h"
 #include "ConnectionF.h"
-#include "Current.h"
 #include "EndpointF.h"
+#include "Ice/Context.h"
 #include "ObjectAdapterF.h"
+
+#include <cstdint>
 #include <memory>
+#include <optional>
+
+namespace Ice
+{
+    struct Current;
+    class ObjectPrx;
+}
 
 namespace Ice::Instrumentation
 {
@@ -26,29 +34,20 @@ namespace Ice::Instrumentation
     class CommunicatorObserver;
 
     using ObserverPtr = std::shared_ptr<Observer>;
-
     using ThreadObserverPtr = std::shared_ptr<ThreadObserver>;
-
     using ConnectionObserverPtr = std::shared_ptr<ConnectionObserver>;
-
     using DispatchObserverPtr = std::shared_ptr<DispatchObserver>;
-
     using ChildInvocationObserverPtr = std::shared_ptr<ChildInvocationObserver>;
-
     using RemoteObserverPtr = std::shared_ptr<RemoteObserver>;
-
     using CollocatedObserverPtr = std::shared_ptr<CollocatedObserver>;
-
     using InvocationObserverPtr = std::shared_ptr<InvocationObserver>;
-
     using ObserverUpdaterPtr = std::shared_ptr<ObserverUpdater>;
-
     using CommunicatorObserverPtr = std::shared_ptr<CommunicatorObserver>;
 
     /**
      * The thread state enumeration keeps track of the different possible states of Ice threads.
      */
-    enum class ThreadState : unsigned char
+    enum class ThreadState : std::uint8_t
     {
         /**
          * The thread is idle.
@@ -73,7 +72,7 @@ namespace Ice::Instrumentation
     /**
      * The state of an Ice connection.
      */
-    enum class ConnectionState : unsigned char
+    enum class ConnectionState : std::uint8_t
     {
         /**
          * The connection is being validated.
@@ -102,10 +101,10 @@ namespace Ice::Instrumentation
      * The object observer interface used by instrumented objects to notify the observer of their existence.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) Observer
+    class Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~Observer();
+        virtual ~Observer() = default;
 
         /**
          * This method is called when the instrumented object is created or when the observer is attached to an existing
@@ -123,7 +122,7 @@ namespace Ice::Instrumentation
          * Notification of a failure.
          * @param exceptionName The name of the exception.
          */
-        virtual void failed(const ::std::string& exceptionName) = 0;
+        virtual void failed(const std::string& exceptionName) = 0;
     };
 
     /**
@@ -131,11 +130,9 @@ namespace Ice::Instrumentation
      * threads used by the Ice core.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ThreadObserver : public virtual Observer
+    class ThreadObserver : public virtual Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ThreadObserver();
-
         /**
          * Notification of thread state change.
          * @param oldState The previous thread state.
@@ -148,11 +145,9 @@ namespace Ice::Instrumentation
      * The connection observer interface to instrument Ice connections.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ConnectionObserver : public virtual Observer
+    class ConnectionObserver : public virtual Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ConnectionObserver();
-
         /**
          * Notification of sent bytes over the connection.
          * @param num The number of bytes sent.
@@ -170,11 +165,9 @@ namespace Ice::Instrumentation
      * The dispatch observer to instrument servant dispatch.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) DispatchObserver : public virtual Observer
+    class DispatchObserver : public virtual Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~DispatchObserver();
-
         /**
          * Notification of a user exception.
          */
@@ -191,11 +184,9 @@ namespace Ice::Instrumentation
      * The child invocation observer to instrument remote or collocated invocations.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ChildInvocationObserver : public virtual Observer
+    class ChildInvocationObserver : public virtual Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ChildInvocationObserver();
-
         /**
          * Reply notification.
          * @param size The size of the reply.
@@ -207,20 +198,16 @@ namespace Ice::Instrumentation
      * The remote observer to instrument invocations that are sent over the wire.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) RemoteObserver : public virtual ChildInvocationObserver
+    class RemoteObserver : public virtual ChildInvocationObserver
     {
-    public:
-        ICE_MEMBER(ICE_API) virtual ~RemoteObserver();
     };
 
     /**
      * The collocated observer to instrument invocations that are collocated.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CollocatedObserver : public virtual ChildInvocationObserver
+    class CollocatedObserver : public virtual ChildInvocationObserver
     {
-    public:
-        ICE_MEMBER(ICE_API) virtual ~CollocatedObserver();
     };
 
     /**
@@ -228,11 +215,9 @@ namespace Ice::Instrumentation
      * collocated or remote invocation. If it results in a remote invocation, a sub-observer is requested for the remote
      * invocation. \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) InvocationObserver : public virtual Observer
+    class InvocationObserver : public virtual Observer
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~InvocationObserver();
-
         /**
          * Notification of the invocation being retried.
          */
@@ -251,11 +236,8 @@ namespace Ice::Instrumentation
          * @param size The size of the invocation.
          * @return The observer to instrument the remote invocation.
          */
-        virtual RemoteObserverPtr getRemoteObserver(
-            const Ice::ConnectionInfoPtr& con,
-            const Ice::EndpointPtr& endpt,
-            int requestId,
-            int size) = 0;
+        virtual RemoteObserverPtr
+        getRemoteObserver(const ConnectionInfoPtr& con, const EndpointPtr& endpt, int requestId, int size) = 0;
 
         /**
          * Get a collocated observer for this invocation.
@@ -265,7 +247,7 @@ namespace Ice::Instrumentation
          * @return The observer to instrument the collocated invocation.
          */
         virtual CollocatedObserverPtr
-        getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size) = 0;
+        getCollocatedObserver(const ObjectAdapterPtr& adapter, int requestId, int size) = 0;
     };
 
     /**
@@ -276,10 +258,10 @@ namespace Ice::Instrumentation
      * implementing the {@link CommunicatorObserver} interface to update the observers of connections and threads.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ObserverUpdater
+    class ObserverUpdater
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ObserverUpdater();
+        virtual ~ObserverUpdater() = default;
 
         /**
          * Update connection observers associated with each of the Ice connection from the communicator and its object
@@ -306,10 +288,10 @@ namespace Ice::Instrumentation
      * initialization data.
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) CommunicatorObserver
+    class CommunicatorObserver
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~CommunicatorObserver();
+        virtual ~CommunicatorObserver() = default;
 
         /**
          * This method should return an observer for the given endpoint information and connector. The Ice run-time
@@ -320,7 +302,7 @@ namespace Ice::Instrumentation
          * @return The observer to instrument the connection establishment.
          */
         virtual ObserverPtr
-        getConnectionEstablishmentObserver(const Ice::EndpointPtr& endpt, const ::std::string& connector) = 0;
+        getConnectionEstablishmentObserver(const EndpointPtr& endpt, const std::string& connector) = 0;
 
         /**
          * This method should return an observer for the given endpoint information. The Ice run-time calls this method
@@ -329,7 +311,7 @@ namespace Ice::Instrumentation
          * @param endpt The endpoint.
          * @return The observer to instrument the endpoint lookup.
          */
-        virtual ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr& endpt) = 0;
+        virtual ObserverPtr getEndpointLookupObserver(const EndpointPtr& endpt) = 0;
 
         /**
          * This method should return a connection observer for the given connection. The Ice run-time calls this method
@@ -342,8 +324,8 @@ namespace Ice::Instrumentation
          * @return The connection observer to instrument the connection.
          */
         virtual ConnectionObserverPtr getConnectionObserver(
-            const Ice::ConnectionInfoPtr& c,
-            const Ice::EndpointPtr& e,
+            const ConnectionInfoPtr& c,
+            const EndpointPtr& e,
             ConnectionState s,
             const ConnectionObserverPtr& o) = 0;
 
@@ -358,8 +340,8 @@ namespace Ice::Instrumentation
          * @return The thread observer to instrument the thread.
          */
         virtual ThreadObserverPtr getThreadObserver(
-            const ::std::string& parent,
-            const ::std::string& id,
+            const std::string& parent,
+            const std::string& id,
             ThreadState s,
             const ThreadObserverPtr& o) = 0;
 
@@ -371,10 +353,8 @@ namespace Ice::Instrumentation
          * @param ctx The context specified by the user.
          * @return The invocation observer to instrument the invocation.
          */
-        virtual InvocationObserverPtr getInvocationObserver(
-            const std::optional<Ice::ObjectPrx>& prx,
-            std::string_view operation,
-            const ::Ice::Context& ctx) = 0;
+        virtual InvocationObserverPtr
+        getInvocationObserver(const std::optional<ObjectPrx>& prx, std::string_view operation, const Context& ctx) = 0;
 
         /**
          * This method should return a dispatch observer for the given dispatch. The Ice run-time calls this method each
@@ -383,7 +363,7 @@ namespace Ice::Instrumentation
          * @param size The size of the dispatch.
          * @return The dispatch observer to instrument the dispatch.
          */
-        virtual DispatchObserverPtr getDispatchObserver(const ::Ice::Current& c, int size) = 0;
+        virtual DispatchObserverPtr getDispatchObserver(const Current& c, int size) = 0;
 
         /**
          * The Ice run-time calls this method when the communicator is initialized. The add-in implementing this

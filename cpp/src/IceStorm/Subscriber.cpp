@@ -2,16 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/Subscriber.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/NodeI.h>
-#include <IceStorm/Util.h>
-#include <Ice/LoggerUtil.h>
-#include <IceUtil/StringUtil.h>
-#include <iterator>
-
+#include "Subscriber.h"
+#include "Ice/LoggerUtil.h"
+#include "IceUtil/StringUtil.h"
+#include "Instance.h"
+#include "NodeI.h"
 #include "SendQueueSizeMaxReached.h"
+#include "TraceLevels.h"
+#include "Util.h"
+
+#include <iterator>
+#include <stdexcept>
 
 using namespace std;
 using namespace IceStorm;

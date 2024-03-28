@@ -37,7 +37,7 @@ ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<Ro
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 
-shared_ptr<Object>
+ObjectPtr
 ServantLocatorI::locate(const Current& current, shared_ptr<void>& cookie)
 {
     test(!_deactivated);
@@ -56,7 +56,7 @@ ServantLocatorI::locate(const Current& current, shared_ptr<void>& cookie)
 }
 
 void
-ServantLocatorI::finished(const Current& current, const shared_ptr<Object>&, const shared_ptr<void>& cookie)
+ServantLocatorI::finished(const Current& current, const ObjectPtr&, const shared_ptr<void>& cookie)
 {
     test(!_deactivated);
     if (current.id.name == "router")

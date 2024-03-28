@@ -10,6 +10,7 @@
 #include <Slice/Util.h>
 #include <Gen.h>
 
+#include <cassert>
 #include <mutex>
 #include <algorithm>
 

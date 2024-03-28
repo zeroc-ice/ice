@@ -112,7 +112,7 @@ namespace
         shared_ptr<Process> _origProcess;
     };
 
-    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const shared_ptr<ConnectionInfo>& info)
+    shared_ptr<IPConnectionInfo> getIPConnectionInfo(const ConnectionInfoPtr& info)
     {
         for (auto p = info; p; p = p->underlying)
         {
@@ -140,7 +140,7 @@ namespace
 }
 
 RegistryI::RegistryI(
-    const shared_ptr<Communicator>& communicator,
+    const CommunicatorPtr& communicator,
     const shared_ptr<TraceLevels>& traceLevels,
     bool nowarn,
     bool readonly,
@@ -510,16 +510,30 @@ RegistryI::startImpl()
     _wellKnownObjects->addEndpoint("Server", _serverAdapter->createDirectProxy(dummy));
     _wellKnownObjects->addEndpoint("Internal", _registryAdapter->createDirectProxy(dummy));
 
-    if (!setupUserAccountMapper())
+    //
+    // Setup file user account mapper object if the property is set.
+    //
+    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
+    if (!userAccountFileProperty.empty())
     {
-        return false;
+        try
+        {
+            Identity mapperId{
+                _master ? "RegistryUserAccountMapper" : "RegistryUserAccountMapper-" + _replicaName,
+                _instanceName};
+            _registryAdapter->add(make_shared<FileUserAccountMapperI>(userAccountFileProperty), mapperId);
+            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), string{UserAccountMapper::ice_staticId()});
+        }
+        catch (const Ice::Exception& ex)
+        {
+            Error out(_communicator->getLogger());
+            out << "unable to setup file user account mapper:\n" << ex;
+            return false;
+        }
     }
 
-    QueryPrx query = setupQuery();
-    RegistryPrx registry = setupRegistry();
-
     setupLocatorRegistry();
-    LocatorPrx internalLocator = setupLocator(std::move(registry), std::move(query));
+    LocatorPrx internalLocator = setupLocator(setupRegistry(), setupQuery());
 
     //
     // Create the session servant manager. The session servant manager is responsible
@@ -587,7 +601,7 @@ RegistryI::startImpl()
     // Setup the discovery object adapter and also add it the lookup
     // servant to receive multicast lookup queries.
     //
-    shared_ptr<ObjectAdapter> discoveryAdapter;
+    ObjectAdapterPtr discoveryAdapter;
     if (properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Enabled", 1) > 0)
     {
         bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -684,13 +698,9 @@ RegistryI::setupQuery()
 RegistryPrx
 RegistryI::setupRegistry()
 {
-    Identity registryId = {"Registry", _instanceName};
-    if (!_master)
-    {
-        registryId.name += "-" + _replicaName;
-    }
-
-    RegistryPrx proxy(_clientAdapter->add(shared_from_this(), std::move(registryId)));
+    RegistryPrx proxy(_clientAdapter->add(
+        shared_from_this(),
+        Identity{_master ? "Registry" : "Registry-" + _replicaName, _instanceName}));
     _wellKnownObjects->add(proxy, string{Registry::ice_staticId()});
     return proxy;
 }
@@ -723,44 +733,12 @@ RegistryI::setupInternalRegistry()
     return registry;
 }
 
-bool
-RegistryI::setupUserAccountMapper()
-{
-    auto properties = _communicator->getProperties();
-
-    //
-    // Setup file user account mapper object if the property is set.
-    //
-    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
-    if (!userAccountFileProperty.empty())
-    {
-        try
-        {
-            Identity mapperId{"RegistryUserAccountMapper", _instanceName};
-            if (!_master)
-            {
-                mapperId.name += "-" + _replicaName;
-            }
-
-            _registryAdapter->add(make_shared<FileUserAccountMapperI>(userAccountFileProperty), mapperId);
-            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), string{UserAccountMapper::ice_staticId()});
-        }
-        catch (const string& msg)
-        {
-            Error out(_communicator->getLogger());
-            out << msg;
-            return false;
-        }
-    }
-    return true;
-}
-
-shared_ptr<ObjectAdapter>
+ObjectAdapterPtr
 RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
 {
     auto properties = _communicator->getProperties();
 
-    shared_ptr<ObjectAdapter> adapter;
+    ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
     if (!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
@@ -799,16 +777,16 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
     return adapter;
 }
 
-shared_ptr<ObjectAdapter>
+ObjectAdapterPtr
 RegistryI::setupAdminSessionFactory(
-    const shared_ptr<Object>& serverAdminRouter,
-    const shared_ptr<Object>& nodeAdminRouter,
-    const shared_ptr<Object>& replicaAdminRouter,
+    const ObjectPtr& serverAdminRouter,
+    const ObjectPtr& nodeAdminRouter,
+    const ObjectPtr& replicaAdminRouter,
     const IceGrid::LocatorPrx& locator)
 {
     auto properties = _communicator->getProperties();
 
-    shared_ptr<ObjectAdapter> adapter;
+    ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
     if (!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
@@ -851,8 +829,7 @@ RegistryI::setupAdminSessionFactory(
 
     if (adapter)
     {
-        Ice::Identity dummy = {"dummy", ""};
-        _wellKnownObjects->addEndpoint("AdminSessionManager", adapter->createDirectProxy(std::move(dummy)));
+        _wellKnownObjects->addEndpoint("AdminSessionManager", adapter->createDirectProxy(Ice::Identity{"dummy", ""}));
     }
 
     _adminVerifier = getPermissionsVerifier(locator, "IceGrid.Registry.AdminPermissionsVerifier");
@@ -1232,7 +1209,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
 }
 
 Glacier2::SSLInfo
-RegistryI::getSSLInfo(const shared_ptr<Connection>& connection, string& userDN)
+RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 {
     Glacier2::SSLInfo sslinfo;
     try
@@ -1325,8 +1302,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
     {
         if (registryPrx.first->ice_getIdentity() != internalRegistry->ice_getIdentity())
         {
-            auto fut = registryPrx.first->registerWithReplicaAsync(internalRegistry);
-            results.insert({registryPrx.first, std::move(fut)});
+            results.insert({registryPrx.first, registryPrx.first->registerWithReplicaAsync(internalRegistry)});
         }
     }
 

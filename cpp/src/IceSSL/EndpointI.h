@@ -29,7 +29,7 @@ namespace IceSSL
         std::int32_t timeout() const final;
         IceInternal::EndpointIPtr timeout(std::int32_t) const final;
         const std::string& connectionId() const final;
-        IceInternal::EndpointIPtr connectionId(const ::std::string&) const final;
+        IceInternal::EndpointIPtr connectionId(const std::string&) const final;
         bool compress() const final;
         IceInternal::EndpointIPtr compress(bool) const final;
         bool datagram() const final;
@@ -44,7 +44,7 @@ namespace IceSSL
         std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
         std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;
         bool equivalent(const IceInternal::EndpointIPtr&) const final;
-        ::std::int32_t hash() const final;
+        std::int32_t hash() const final;
         std::string options() const final;
 
         EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;

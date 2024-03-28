@@ -2,14 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef TOPIC_I_H
-#define TOPIC_I_H
+#ifndef ICESTORM_TOPIC_I_H
+#define ICESTORM_TOPIC_I_H
 
-#include <IceStorm/IceStormInternal.h>
-#include <IceStorm/Election.h>
-#include <IceStorm/Instrumentation.h>
-#include <IceStorm/Util.h>
-#include <Ice/ObserverHelper.h>
+#include "Ice/ObserverHelper.h"
+#include "IceStorm/Election.h"
+#include "IceStorm/IceStormInternal.h"
+#include "Instrumentation.h"
+#include "Util.h"
+
 #include <list>
 
 namespace IceStorm
@@ -56,7 +57,7 @@ namespace IceStorm
         void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
         void observerDestroyTopic(const IceStormElection::LogUpdate&);
 
-        std::shared_ptr<Ice::Object> getServant() const;
+        Ice::ObjectPtr getServant() const;
 
         void updateObserver();
         void updateSubscriberObservers();
@@ -83,7 +84,7 @@ namespace IceStorm
         std::optional<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
         std::optional<TopicLinkPrx> _linkPrx;        // The link proxy.
 
-        std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
+        Ice::ObjectPtr _servant; // The topic implementation servant.
 
         // Mutex protecting the subscribers.
         mutable std::mutex _subscribersMutex;

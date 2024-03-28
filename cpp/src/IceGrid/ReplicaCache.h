@@ -34,7 +34,7 @@ namespace IceGrid
     class ReplicaCache final : public CacheByString<ReplicaEntry>
     {
     public:
-        ReplicaCache(const std::shared_ptr<Ice::Communicator>&, const IceStorm::TopicManagerPrx&);
+        ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
 
         std::shared_ptr<ReplicaEntry> add(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
         std::shared_ptr<ReplicaEntry> remove(const std::string&, bool);
@@ -49,7 +49,7 @@ namespace IceGrid
         InternalRegistryPrx getInternalRegistry() const;
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const IceStorm::TopicPrx _topic;
         const ReplicaObserverPrx _observers;
         std::optional<InternalRegistryPrx> _self; // This replica internal registry proxy.

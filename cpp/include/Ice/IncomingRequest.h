@@ -5,6 +5,7 @@
 #ifndef ICE_INCOMING_REQUEST_H
 #define ICE_INCOMING_REQUEST_H
 
+#include "Config.h"
 #include "ConnectionF.h"
 #include "Current.h"
 #include "ObjectAdapterF.h"

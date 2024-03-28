@@ -5,24 +5,13 @@
 #ifndef ICE_REQUEST_HANDLER_H
 #define ICE_REQUEST_HANDLER_H
 
-#include <Ice/RequestHandlerF.h>
-#include <Ice/ReferenceF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ConnectionIF.h>
-
-namespace Ice
-{
-    class LocalException;
-}
+#include "Ice/RequestHandlerF.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/ConnectionIF.h"
+#include "Ice/OutgoingAsync.h"
 
 namespace IceInternal
 {
-    class OutgoingAsyncBase;
-    class ProxyOutgoingAsyncBase;
-
-    using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
-    using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
-
     //
     // An exception wrapper, which is used to notify that the request
     // handler should be cleared and the invocation retried.

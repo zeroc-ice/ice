@@ -9,6 +9,7 @@
 #include <mutex>
 #include <set>
 #include <vector>
+#include <stdexcept>
 
 using namespace IceUtil;
 using namespace std;

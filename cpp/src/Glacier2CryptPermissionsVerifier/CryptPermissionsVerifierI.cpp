@@ -8,7 +8,6 @@
 
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/InputUtil.h>
 
 #include <fstream>
 #include <mutex>
@@ -56,13 +55,13 @@ namespace
     class CryptPermissionsVerifierPlugin final : public Ice::Plugin
     {
     public:
-        CryptPermissionsVerifierPlugin(shared_ptr<Communicator>);
+        CryptPermissionsVerifierPlugin(CommunicatorPtr);
 
         void initialize() override;
         void destroy() override;
 
     private:
-        shared_ptr<Communicator> _communicator;
+        CommunicatorPtr _communicator;
     };
 
     map<string, string> retrievePasswordMap(const string& file)
@@ -254,8 +253,12 @@ namespace
             return false; // Rounds end token not found
         }
 
-        IceUtil::Int64 rounds = 0;
-        if (!IceUtilInternal::stringToInt64(p->second.substr(beg, (end - beg)), rounds))
+        int64_t rounds;
+        try
+        {
+            rounds = std::stoll(p->second.substr(beg, (end - beg)), nullptr, 0);
+        }
+        catch (const std::exception&)
         {
             return false; // Invalid rounds value
         }
@@ -439,7 +442,7 @@ namespace
 #endif
     }
 
-    CryptPermissionsVerifierPlugin::CryptPermissionsVerifierPlugin(shared_ptr<Communicator> communicator)
+    CryptPermissionsVerifierPlugin::CryptPermissionsVerifierPlugin(CommunicatorPtr communicator)
         : _communicator(std::move(communicator))
     {
     }
@@ -482,10 +485,8 @@ namespace
 //
 extern "C"
 {
-    CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin* createCryptPermissionsVerifier(
-        const shared_ptr<Communicator>& communicator,
-        const string& name,
-        const StringSeq& args)
+    CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin*
+    createCryptPermissionsVerifier(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
     {
         if (args.size() > 0)
         {

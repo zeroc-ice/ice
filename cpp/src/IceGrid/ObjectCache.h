@@ -34,7 +34,7 @@ namespace IceGrid
     class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
     {
     public:
-        ObjectCache(const std::shared_ptr<Ice::Communicator>&);
+        ObjectCache(const Ice::CommunicatorPtr&);
 
         void add(const ObjectInfo&, const std::string&, const std::string&);
         std::shared_ptr<ObjectEntry> get(const Ice::Identity&) const;
@@ -45,7 +45,7 @@ namespace IceGrid
         ObjectInfoSeq getAll(const std::string&);
         ObjectInfoSeq getAllByType(const std::string&);
 
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
         class TypeEntry
@@ -60,7 +60,7 @@ namespace IceGrid
             std::vector<std::shared_ptr<ObjectEntry>> _objects;
         };
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         std::map<std::string, TypeEntry> _types;
     };
 

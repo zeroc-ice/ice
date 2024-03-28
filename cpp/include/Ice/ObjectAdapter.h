@@ -5,17 +5,24 @@
 #ifndef ICE_OBJECT_ADAPTER_H
 #define ICE_OBJECT_ADAPTER_H
 
-#include "Config.h"
 #include "CommunicatorF.h"
 #include "Endpoint.h"
 #include "FacetMap.h"
+#include "ObjectAdapterF.h"
 #include "ServantLocator.h"
-#include "Proxy.h"
+
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
 
 #include <memory>
+#include <optional>
 
 namespace Ice
 {
+    class LocatorPrx;
+    class ObjectPrx;
+
     /**
      * The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
      * object adapter is responsible for receiving requests from endpoints, and for mapping between servants,
@@ -24,16 +31,16 @@ namespace Ice
      * @see ServantLocator
      * \headerfile Ice/Ice.h
      */
-    class ICE_CLASS(ICE_API) ObjectAdapter
+    class ObjectAdapter
     {
     public:
-        ICE_MEMBER(ICE_API) virtual ~ObjectAdapter();
+        virtual ~ObjectAdapter() = default;
 
         /**
          * Get the name of this object adapter.
          * @return This object adapter's name.
          */
-        virtual ::std::string getName() const noexcept = 0;
+        virtual std::string getName() const noexcept = 0;
 
         /**
          * Get the communicator this object adapter belongs to.
@@ -127,7 +134,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx add(const ::std::shared_ptr<Object>& servant, const Identity& id) = 0;
+        virtual ObjectPrx add(const ObjectPtr& servant, const Identity& id) = 0;
 
         /**
          * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
@@ -142,8 +149,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx
-        addFacet(const ::std::shared_ptr<Object>& servant, const Identity& id, const ::std::string& facet) = 0;
+        virtual ObjectPrx addFacet(const ObjectPtr& servant, const Identity& id, const std::string& facet) = 0;
 
         /**
          * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
@@ -157,7 +163,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        virtual ObjectPrx addWithUUID(const ::std::shared_ptr<Object>& servant) = 0;
+        virtual ObjectPrx addWithUUID(const ObjectPtr& servant) = 0;
 
         /**
          * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to
@@ -172,7 +178,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        virtual ObjectPrx addFacetWithUUID(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
+        virtual ObjectPrx addFacetWithUUID(const ObjectPtr& servant, const std::string& facet) = 0;
 
         /**
          * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
@@ -192,7 +198,7 @@ namespace Ice
          * @see #removeDefaultServant
          * @see #findDefaultServant
          */
-        virtual void addDefaultServant(const ::std::shared_ptr<Object>& servant, const ::std::string& category) = 0;
+        virtual void addDefaultServant(const ObjectPtr& servant, const std::string& category) = 0;
 
         /**
          * Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
@@ -204,7 +210,7 @@ namespace Ice
          * @see #add
          * @see #addWithUUID
          */
-        virtual ::std::shared_ptr<::Ice::Object> remove(const Identity& id) = 0;
+        virtual ObjectPtr remove(const Identity& id) = 0;
 
         /**
          * Like {@link #remove}, but with a facet. Calling <code>remove(id)</code> is equivalent to calling
@@ -216,7 +222,7 @@ namespace Ice
          * @see #addFacet
          * @see #addFacetWithUUID
          */
-        virtual ::std::shared_ptr<::Ice::Object> removeFacet(const Identity& id, const ::std::string& facet) = 0;
+        virtual ObjectPtr removeFacet(const Identity& id, const std::string& facet) = 0;
 
         /**
          * Remove all facets with the given identity from the Active Servant Map. The operation completely removes the
@@ -227,7 +233,7 @@ namespace Ice
          * @see #remove
          * @see #removeFacet
          */
-        virtual ::Ice::FacetMap removeAllFacets(const Identity& id) = 0;
+        virtual FacetMap removeAllFacets(const Identity& id) = 0;
 
         /**
          * Remove the default servant for a specific category. Attempting to remove a default servant for a category
@@ -237,7 +243,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #findDefaultServant
          */
-        virtual ::std::shared_ptr<Object> removeDefaultServant(const ::std::string& category) = 0;
+        virtual ObjectPtr removeDefaultServant(const std::string& category) = 0;
 
         /**
          * Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it
@@ -250,7 +256,7 @@ namespace Ice
          * @see #findFacet
          * @see #findByProxy
          */
-        virtual ::std::shared_ptr<Object> find(const Identity& id) const = 0;
+        virtual ObjectPtr find(const Identity& id) const = 0;
 
         /**
          * Like {@link #find}, but with a facet. Calling <code>find(id)</code> is equivalent to calling {@link
@@ -263,7 +269,7 @@ namespace Ice
          * @see #find
          * @see #findByProxy
          */
-        virtual ::std::shared_ptr<Object> findFacet(const Identity& id, const ::std::string& facet) const = 0;
+        virtual ObjectPtr findFacet(const Identity& id, const std::string& facet) const = 0;
 
         /**
          * Find all facets with the given identity in the Active Servant Map.
@@ -284,7 +290,7 @@ namespace Ice
          * @see #find
          * @see #findFacet
          */
-        virtual ::std::shared_ptr<Object> findByProxy(const ObjectPrx& proxy) const = 0;
+        virtual ObjectPtr findByProxy(const ObjectPrx& proxy) const = 0;
 
         /**
          * Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
@@ -308,8 +314,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual void
-        addServantLocator(const ::std::shared_ptr<ServantLocator>& locator, const ::std::string& category) = 0;
+        virtual void addServantLocator(const ServantLocatorPtr& locator, const std::string& category) = 0;
 
         /**
          * Remove a Servant Locator from this object adapter.
@@ -322,7 +327,7 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual ::std::shared_ptr<::Ice::ServantLocator> removeServantLocator(const ::std::string& category) = 0;
+        virtual ServantLocatorPtr removeServantLocator(const std::string& category) = 0;
 
         /**
          * Find a Servant Locator installed with this object adapter.
@@ -334,7 +339,7 @@ namespace Ice
          * @see #removeServantLocator
          * @see ServantLocator
          */
-        virtual ::std::shared_ptr<::Ice::ServantLocator> findServantLocator(const ::std::string& category) const = 0;
+        virtual ServantLocatorPtr findServantLocator(const std::string& category) const = 0;
 
         /**
          * Find the default servant for a specific category.
@@ -343,7 +348,7 @@ namespace Ice
          * @see #addDefaultServant
          * @see #removeDefaultServant
          */
-        virtual ::std::shared_ptr<::Ice::Object> findDefaultServant(const ::std::string& category) const = 0;
+        virtual ObjectPtr findDefaultServant(const std::string& category) const = 0;
 
         /**
          * Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
@@ -408,7 +413,7 @@ namespace Ice
          * @return The set of endpoints.
          * @see Endpoint
          */
-        virtual ::Ice::EndpointSeq getEndpoints() const noexcept = 0;
+        virtual EndpointSeq getEndpoints() const noexcept = 0;
 
         /**
          * Refresh the set of published endpoints. The run time re-reads the PublishedEndpoints property if it is set
@@ -424,7 +429,7 @@ namespace Ice
          * @see #refreshPublishedEndpoints
          * @see Endpoint
          */
-        virtual ::Ice::EndpointSeq getPublishedEndpoints() const noexcept = 0;
+        virtual EndpointSeq getPublishedEndpoints() const noexcept = 0;
 
         /**
          * Set of the endpoints that proxies created by this object adapter will contain.
@@ -438,8 +443,6 @@ namespace Ice
         virtual dispatch_queue_t getDispatchQueue() const = 0;
 #endif
     };
-
-    using ObjectAdapterPtr = ::std::shared_ptr<ObjectAdapter>;
 }
 
 #endif

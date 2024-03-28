@@ -5,7 +5,7 @@
 #ifndef ICE_WS_ACCEPTOR_I_H
 #define ICE_WS_ACCEPTOR_I_H
 
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>

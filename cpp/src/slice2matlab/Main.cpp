@@ -4,7 +4,6 @@
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -15,6 +14,8 @@
 #include <Slice/Parser.h>
 #include <Slice/Util.h>
 
+#include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <climits>
 #include <iterator>

@@ -8,6 +8,8 @@
 #include <Single.h>
 #include <TestHelper.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -16,7 +18,7 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-    SingleI(const shared_ptr<Communicator>& communicator, const string& name, int max)
+    SingleI(const CommunicatorPtr& communicator, const string& name, int max)
         : _communicator(communicator),
           _name(name),
           _max(max),
@@ -53,7 +55,7 @@ public:
     }
 
 private:
-    shared_ptr<Communicator> _communicator;
+    CommunicatorPtr _communicator;
     const string _name;
     const int _max;
     int _count;

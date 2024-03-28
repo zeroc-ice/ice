@@ -13,6 +13,8 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/NetworkF.h>
 
+#include <cstdint>
+
 namespace IceInternal
 {
     //

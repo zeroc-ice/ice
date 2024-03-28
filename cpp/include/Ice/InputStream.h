@@ -5,30 +5,34 @@
 #ifndef ICE_INPUT_STREAM_H
 #define ICE_INPUT_STREAM_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Object.h>
-#include <Ice/ValueF.h>
-#include "ProxyF.h"
-#include <Ice/LoggerF.h>
-#include <Ice/ValueFactory.h>
-#include <Ice/Buffer.h>
-#include <Ice/Protocol.h>
-#include <Ice/SlicedDataF.h>
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/FactoryTable.h>
+#include "Buffer.h"
+#include "CommunicatorF.h"
+#include "Exception.h"
+#include "Ice/Version.h"
+#include "InstanceF.h"
+#include "Logger.h"
 #include "ReferenceF.h"
+#include "SlicedDataF.h"
+#include "StreamableTraits.h"
+#include "UserExceptionFactory.h"
+#include "ValueF.h"
+#include "ValueFactory.h"
+
+#include <cassert>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <string_view>
 
 namespace Ice
 {
-    class UserException;
+    class ObjectPrx;
 
     /// \cond INTERNAL
-    template<typename T> inline void patchValue(void* addr, const std::shared_ptr<Value>& v)
+    template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
-        std::shared_ptr<T>* ptr = static_cast<::std::shared_ptr<T>*>(addr);
-        *ptr = ::std::dynamic_pointer_cast<T>(v);
+        std::shared_ptr<T>* ptr = static_cast<std::shared_ptr<T>*>(addr);
+        *ptr = std::dynamic_pointer_cast<T>(v);
         if (v && !(*ptr))
         {
             IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
@@ -50,7 +54,7 @@ namespace Ice
          * @param addr The target address.
          * @param v The unmarshaled value.
          */
-        using PatchFunc = std::function<void(void* addr, const std::shared_ptr<Value>& v)>;
+        using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
         /**
          * Constructs a stream using the latest encoding version but without a communicator.
@@ -76,7 +80,7 @@ namespace Ice
          * You can supply a communicator later by calling initialize().
          * @param bytes The encoded data.
          */
-        InputStream(const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(IceInternal::Buffer&, bool = false);
@@ -100,7 +104,7 @@ namespace Ice
          * @param communicator The communicator to use for unmarshaling tasks.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator, const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
@@ -133,7 +137,7 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const EncodingVersion& version, const std::pair<const std::byte*, const std::byte*>& bytes);
+        InputStream(const EncodingVersion& version, std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -166,7 +170,7 @@ namespace Ice
         InputStream(
             const CommunicatorPtr& communicator,
             const EncodingVersion& version,
-            const std::pair<const std::byte*, const std::byte*>& bytes);
+            std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -345,124 +349,19 @@ namespace Ice
          *
          * @return The encoding version used by the encapsulation.
          */
-        const EncodingVersion& startEncapsulation()
-        {
-            Encaps* oldEncaps = _currentEncaps;
-            if (!oldEncaps) // First allocated encaps?
-            {
-                _currentEncaps = &_preAllocatedEncaps;
-            }
-            else
-            {
-                _currentEncaps = new Encaps();
-                _currentEncaps->previous = oldEncaps;
-            }
-            _currentEncaps->start = static_cast<size_t>(i - b.begin());
-
-            //
-            // I don't use readSize() and writeSize() for encapsulations,
-            // because when creating an encapsulation, I must know in advance
-            // how many bytes the size information will require in the data
-            // stream. If I use an Int, it is always 4 bytes. For
-            // readSize()/writeSize(), it could be 1 or 5 bytes.
-            //
-            std::int32_t sz;
-            read(sz);
-            if (sz < 6)
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            _currentEncaps->sz = sz;
-
-            read(_currentEncaps->encoding);
-            IceInternal::checkSupportedEncoding(_currentEncaps->encoding); // Make sure the encoding is supported
-
-            return _currentEncaps->encoding;
-        }
+        const EncodingVersion& startEncapsulation();
 
         /**
          * Ends the current encapsulation.
          */
-        void endEncapsulation()
-        {
-            assert(_currentEncaps);
-
-            if (_currentEncaps->encoding != Encoding_1_0)
-            {
-                skipOptionals();
-                if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-            {
-                if (i + 1 != b.begin() + _currentEncaps->start + _currentEncaps->sz)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-
-                //
-                // Ice version < 3.3 had a bug where user exceptions with
-                // class members could be encoded with a trailing byte
-                // when dispatched with AMD. So we tolerate an extra byte
-                // in the encapsulation.
-                //
-                ++i;
-            }
-
-            Encaps* oldEncaps = _currentEncaps;
-            _currentEncaps = _currentEncaps->previous;
-            if (oldEncaps == &_preAllocatedEncaps)
-            {
-                oldEncaps->reset();
-            }
-            else
-            {
-                delete oldEncaps;
-            }
-        }
+        void endEncapsulation();
 
         /**
          * Skips an empty encapsulation.
          *
          * @return The encapsulation's encoding version.
          */
-        EncodingVersion skipEmptyEncapsulation()
-        {
-            std::int32_t sz;
-            read(sz);
-            if (sz < 6)
-            {
-                throwEncapsulationException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            Ice::EncodingVersion encoding;
-            read(encoding);
-            IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported
-
-            if (encoding == Ice::Encoding_1_0)
-            {
-                if (sz != static_cast<std::int32_t>(sizeof(std::int32_t)) + 2)
-                {
-                    throwEncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else
-            {
-                // Skip the optional content of the encapsulation if we are expecting an
-                // empty encapsulation.
-                i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
-            }
-            return encoding;
-        }
+        EncodingVersion skipEmptyEncapsulation();
 
         /**
          * Returns a blob of bytes representing an encapsulation.
@@ -471,24 +370,7 @@ namespace Ice
          * @param sz The number of bytes in the encapsulation.
          * @return encoding The encapsulation's encoding version.
          */
-        EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz)
-        {
-            EncodingVersion encoding;
-            v = i;
-            read(sz);
-            if (sz < 6)
-            {
-                throwEncapsulationException(__FILE__, __LINE__);
-            }
-            if (i - sizeof(std::int32_t) + sz > b.end())
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-
-            read(encoding);
-            i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
-            return encoding;
-        }
+        EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz);
 
         /**
          * Determines the current encoding version.
@@ -951,8 +833,8 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
-        void read(::std::shared_ptr<T>& v)
+        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
+        void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }
@@ -1064,7 +946,7 @@ namespace Ice
 
         std::string resolveCompactId(int) const;
 
-        void postUnmarshal(const std::shared_ptr<Value>&) const;
+        void postUnmarshal(const ValuePtr&) const;
 
         class Encaps;
         enum SliceType
@@ -1082,12 +964,15 @@ namespace Ice
 
         std::function<std::string(int)> compactIdResolver() const;
 
-        using ValueList = std::vector<std::shared_ptr<Value>>;
+        using ValueList = std::vector<ValuePtr>;
 
-        class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
+        class ICE_API EncapsDecoder
         {
         public:
+            EncapsDecoder(const EncapsDecoder&) = delete;
             virtual ~EncapsDecoder();
+
+            EncapsDecoder& operator=(const EncapsDecoder&) = delete;
 
             virtual void read(PatchFunc, void*) = 0;
             virtual void throwException(UserExceptionFactory) = 0;
@@ -1120,12 +1005,12 @@ namespace Ice
             }
 
             std::string readTypeId(bool);
-            std::shared_ptr<Value> newInstance(std::string_view);
+            ValuePtr newInstance(std::string_view);
 
             void addPatchEntry(std::int32_t, PatchFunc, void*);
-            void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
+            void unmarshal(std::int32_t, const ValuePtr&);
 
-            typedef std::map<std::int32_t, std::shared_ptr<Value>> IndexToPtrMap;
+            typedef std::map<std::int32_t, ValuePtr> IndexToPtrMap;
             typedef std::map<std::int32_t, std::string> TypeIdMap;
 
             struct PatchEntry
@@ -1288,18 +1173,22 @@ namespace Ice
             std::int32_t _valueIdIndex; // The ID of the next value to unmarshal.
         };
 
-        class Encaps : private ::IceUtil::noncopyable
+        class Encaps
         {
         public:
             Encaps() : start(0), decoder(0), previous(0)
             {
                 // Inlined for performance reasons.
             }
+            Encaps(const Encaps&) = delete;
             ~Encaps()
             {
                 // Inlined for performance reasons.
                 delete decoder;
             }
+
+            Encaps& operator=(const Encaps&) = delete;
+
             void reset()
             {
                 // Inlined for performance reasons.

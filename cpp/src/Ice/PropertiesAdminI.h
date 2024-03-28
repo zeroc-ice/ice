@@ -8,7 +8,7 @@
 #include <Ice/Properties.h>
 #include <Ice/PropertiesAdmin.h>
 #include <Ice/NativePropertiesAdmin.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 
 #include <list>
 #include <mutex>
@@ -24,7 +24,7 @@ namespace IceInternal
 
         std::string getProperty(std::string, const Ice::Current&) final;
         Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&) final;
-        void setProperties(::Ice::PropertyDict, const Ice::Current&) final;
+        void setProperties(Ice::PropertyDict, const Ice::Current&) final;
 
         std::function<void()> addUpdateCallback(std::function<void(const Ice::PropertyDict&)>) final;
 

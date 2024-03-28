@@ -5,9 +5,10 @@
 #ifndef ICE_UTIL_EXCEPTION_H
 #define ICE_UTIL_EXCEPTION_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
 
 #include <exception>
+#include <ostream>
 #include <vector>
 
 namespace IceUtil
@@ -74,35 +75,10 @@ namespace IceUtil
         const char* _file;
         int _line;
         const std::vector<void*> _stackFrames;
-        mutable ::std::string _str; // Initialized lazily in what().
+        mutable std::string _str; // Initialized lazily in what().
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
-
-    /**
-     * This exception indicates that a function was called with an illegal parameter
-     * value. It is used only by the Slice to C++98 mapping; std::invalid_argument is
-     * used by the Slice to C++11 mapping.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IllegalArgumentException : public Exception
-    {
-    public:
-        using Exception::Exception;
-        IllegalArgumentException(const char*, int, std::string) noexcept;
-
-        std::string ice_id() const override;
-        void ice_print(std::ostream&) const override;
-
-        /**
-         * Provides the reason this exception was thrown.
-         * @return The reason.
-         */
-        std::string reason() const noexcept;
-
-    private:
-        const std::string _reason;
-    };
 
     /**
      * This exception indicates the failure of a string conversion.

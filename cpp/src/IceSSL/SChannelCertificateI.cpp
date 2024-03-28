@@ -11,8 +11,10 @@
 
 #include <wincrypt.h>
 
+#include <cassert>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -84,8 +86,8 @@ namespace
         mutable std::mutex _mutex;
     };
 
-    const int64_t TICKS_PER_MSECOND = 10000LL;
-    const int64_t MSECS_TO_EPOCH = 11644473600000LL;
+    const int64_t TICKS_PER_MSECOND = INT64_C(10000);
+    const int64_t MSECS_TO_EPOCH = INT64_C(11644473600000);
 
     void loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const char* buffer, DWORD length)
     {

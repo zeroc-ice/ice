@@ -2,34 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_EndpointSelectionType_h__
-#define __Ice_EndpointSelectionType_h__
+#ifndef ICE_ENDPOINT_SELECTION_TYPE_H
+#define ICE_ENDPOINT_SELECTION_TYPE_H
 
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <IceUtil/UndefSysMacros.h>
-
-#ifndef ICE_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICE_API /**/
-#    elif defined(ICE_API_EXPORTS)
-#        define ICE_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
+#include <cstdint>
 
 namespace Ice
 {
     /**
      * Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
      */
-    enum class EndpointSelectionType : unsigned char
+    enum class EndpointSelectionType : std::uint8_t
     {
         /**
          * <code>Random</code> causes the endpoints to be arranged in a random order.

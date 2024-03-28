@@ -2,10 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/FactoryTable.h>
-#include <Ice/ValueFactory.h>
+#include "Ice/FactoryTable.h"
+#include "Ice/ValueFactory.h"
+
+#include <atomic>
 
 using namespace std;
+
+namespace IceInternal
+{
+    // Single global instance of the factory table.
+    ICE_API FactoryTable* factoryTable;
+}
+
+namespace
+{
+    atomic<int> initCount = 0; // Initialization count
+}
 
 //
 // Add a factory to the exception factory table.
@@ -62,7 +75,7 @@ IceInternal::FactoryTable::removeExceptionFactory(string_view t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactoryFunc f)
+IceInternal::FactoryTable::addValueFactory(string_view t, Ice::ValueFactory f)
 {
     lock_guard lock(_mutex);
     assert(f);
@@ -80,7 +93,7 @@ IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactoryFun
 //
 // Return the value factory for a given type ID
 //
-::Ice::ValueFactoryFunc
+Ice::ValueFactory
 IceInternal::FactoryTable::getValueFactory(string_view t) const
 {
     lock_guard lock(_mutex);
@@ -151,3 +164,36 @@ IceInternal::FactoryTable::removeTypeId(int compactId)
         }
     }
 }
+
+// This constructor initializes the single global
+// IceInternal::factoryTable instance from the outside (if it hasn't
+// been initialized yet). The constructor here is triggered by a
+// file-static instance of FactoryTable in each slice2cpp-generated
+// header file that uses non-local exceptions or non-abstract classes.
+// This ensures that IceInternal::factoryTable is always initialized
+// before it is used.
+IceInternal::FactoryTableInit::FactoryTableInit()
+{
+    if (0 == initCount++)
+    {
+        factoryTable = new FactoryTable;
+    }
+}
+
+// The destructor decrements the reference count and, once the
+// count drops to zero, deletes the table.
+IceInternal::FactoryTableInit::~FactoryTableInit()
+{
+    if (0 == --initCount)
+    {
+        delete factoryTable;
+    }
+}
+
+IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) : _compactId(compactId)
+{
+    assert(_compactId >= 0);
+    factoryTable->addTypeId(_compactId, typeId);
+}
+
+IceInternal::CompactIdInit::~CompactIdInit() { factoryTable->removeTypeId(_compactId); }

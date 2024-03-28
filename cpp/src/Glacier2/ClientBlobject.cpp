@@ -30,7 +30,7 @@ Glacier2::ClientBlobject::ClientBlobject(
 void
 Glacier2::ClientBlobject::ice_invokeAsync(
     pair<const byte*, const byte*> inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> error,
     const Current& current)
 {

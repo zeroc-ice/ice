@@ -9,6 +9,8 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 
+#include <stdexcept>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -90,7 +92,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
     {
         _instance->timer()->schedule(task, chrono::milliseconds(interval));
     }
-    catch (const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
+    catch (const invalid_argument&) // Expected if the communicator destroyed the timer.
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }

@@ -26,7 +26,7 @@ namespace IceGrid
         bool start(int, char*[], int&) override;
         void waitForShutdown() override;
         bool stop() override;
-        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
     private:
         void usage(const std::string&);
@@ -138,7 +138,7 @@ RegistryService::stop()
     return true;
 }
 
-shared_ptr<Communicator>
+CommunicatorPtr
 RegistryService::initializeCommunicator(
     int& argc,
     char* argv[],

@@ -147,9 +147,9 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
         {
             (*p)->setACM(timeout, close, heartbeat);
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw RubyException(rb_eArgError, ex.reason().c_str());
+            throw RubyException(rb_eArgError, ex.what());
         }
     }
     ICE_RUBY_CATCH

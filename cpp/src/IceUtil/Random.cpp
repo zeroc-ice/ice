@@ -4,6 +4,8 @@
 
 #include <IceUtil/Random.h>
 
+#include <cassert>
+
 using namespace std;
 
 void

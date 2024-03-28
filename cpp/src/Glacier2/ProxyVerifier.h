@@ -28,7 +28,7 @@ namespace Glacier2
     class ProxyVerifier final
     {
     public:
-        ProxyVerifier(std::shared_ptr<Ice::Communicator>);
+        ProxyVerifier(Ice::CommunicatorPtr);
         ~ProxyVerifier();
 
         //
@@ -38,7 +38,7 @@ namespace Glacier2
         bool verify(const Ice::ObjectPrx&);
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const int _traceLevel;
 
         std::vector<ProxyRule*> _acceptRules;

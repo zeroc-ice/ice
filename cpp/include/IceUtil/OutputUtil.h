@@ -5,34 +5,36 @@
 #ifndef ICE_UTIL_OUTPUT_UTIL_H
 #define ICE_UTIL_OUTPUT_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
 #include <fstream>
+#include <sstream>
 #include <stack>
-#include <vector>
 #include <string_view>
+#include <vector>
 
 namespace IceUtilInternal
 {
-    ICE_API std::string int64ToString(IceUtil::Int64);
-
     // ----------------------------------------------------------------------
     // OutputBase
     // ----------------------------------------------------------------------
 
     //
     // Technically it's not necessary to have print() & newline() as virtual
-    // since the opeator<< functions are specific to each OutputBase
+    // since the operator<< functions are specific to each OutputBase
     // derivative. However, since it's possible to call print() & newline()
     // manually I've decided to leave them as virtual.
     //
 
-    class ICE_API OutputBase : private ::IceUtil::noncopyable
+    class ICE_API OutputBase
     {
     public:
         OutputBase();
         OutputBase(std::ostream&);
         OutputBase(const std::string&);
+        OutputBase(const OutputBase&) = delete;
         virtual ~OutputBase();
+
+        OutputBase& operator=(const OutputBase&) = delete;
 
         void setIndent(int);  // What is the indent level?
         void setUseTab(bool); // Should we output tabs?
@@ -47,7 +49,7 @@ namespace IceUtilInternal
         void dec(); // Decrement indentation level.
 
         void useCurrentPosAsIndent(); // Save the current position as indentation.
-        void zeroIndent();            // Use zero identation.
+        void zeroIndent();            // Use zero indentation.
         void restoreIndent();         // Restore indentation.
         int currIndent();             // Return current indent value.
 
@@ -227,7 +229,7 @@ namespace IceUtilInternal
         std::string currentElement() const;
 
     private:
-        ::std::string escape(const ::std::string&) const;
+        std::string escape(const std::string&) const;
 
         std::stack<std::string> _elementStack;
 
@@ -290,14 +292,14 @@ namespace IceUtilInternal
     class ICE_API Attribute
     {
     public:
-        Attribute(const ::std::string&, const ::std::string&);
+        Attribute(const std::string&, const std::string&);
 
-        const ::std::string& getName() const;
-        const ::std::string& getValue() const;
+        const std::string& getName() const;
+        const std::string& getValue() const;
 
     private:
-        const ::std::string _name;
-        const ::std::string _value;
+        const std::string _name;
+        const std::string _value;
     };
 
     typedef Attribute attr;

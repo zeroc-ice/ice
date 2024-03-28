@@ -11,7 +11,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/PropertiesF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 
 #include <condition_variable>
 #include <mutex>

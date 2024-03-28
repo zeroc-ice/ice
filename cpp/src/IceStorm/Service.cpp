@@ -4,24 +4,21 @@
 
 #define ICESTORM_SERVICE_API_EXPORTS
 
-#include <Ice/PluginManagerI.h> // For loadPlugin
+#include "Service.h"
+#include "Ice/PluginManagerI.h" // For loadPlugin
+#include "IceGrid/Registry.h"
+#include "IceUtil/StringUtil.h"
+#include "Instance.h"
+#include "NodeI.h"
+#include "Observers.h"
+#include "TopicI.h"
+#include "TopicManagerI.h"
+#include "TraceLevels.h"
+#include "TransientTopicI.h"
+#include "TransientTopicManagerI.h"
+#include "Util.h"
 
-#include <IceStorm/TopicI.h>
-#include <IceStorm/TopicManagerI.h>
-#include <IceStorm/TransientTopicManagerI.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/Util.h>
-
-#include <IceStorm/Service.h>
-
-#include <IceStorm/Observers.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceUtil/StringUtil.h>
-
-#include <IceStorm/NodeI.h>
-#include <IceStorm/TransientTopicI.h>
-
-#include <IceGrid/Registry.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -35,24 +32,21 @@ namespace
     {
     public:
         void start(
-            const std::shared_ptr<Ice::Communicator>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::CommunicatorPtr&,
+            const Ice::ObjectAdapterPtr&,
+            const Ice::ObjectAdapterPtr&,
             const std::string&,
             const Ice::Identity&,
             const std::string&);
 
         IceStorm::TopicManagerPrx getTopicManager() const final;
 
-        void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) final;
+        void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
         void stop() final;
 
     private:
-        void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
-        void validateProperties(
-            const std::string&,
-            const std::shared_ptr<Ice::Properties>&,
-            const std::shared_ptr<Ice::Logger>&);
+        void createDbEnv(const Ice::CommunicatorPtr&);
+        void validateProperties(const std::string&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -74,14 +68,14 @@ namespace
 
 extern "C"
 {
-    ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const shared_ptr<Communicator>&) { return new ServiceI; }
+    ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const CommunicatorPtr&) { return new ServiceI; }
 }
 
 shared_ptr<IceStormInternal::Service>
 IceStormInternal::Service::create(
-    const shared_ptr<Communicator>& communicator,
-    const shared_ptr<ObjectAdapter>& topicAdapter,
-    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const CommunicatorPtr& communicator,
+    const ObjectAdapterPtr& topicAdapter,
+    const ObjectAdapterPtr& publishAdapter,
     const string& name,
     const Ice::Identity& id,
     const string& dbEnv)
@@ -92,7 +86,7 @@ IceStormInternal::Service::create(
 }
 
 void
-ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator, const StringSeq&)
+ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq&)
 {
     auto properties = communicator->getProperties();
 
@@ -367,9 +361,9 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 
 void
 ServiceI::start(
-    const shared_ptr<Communicator>& communicator,
-    const shared_ptr<ObjectAdapter>& topicAdapter,
-    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const CommunicatorPtr& communicator,
+    const ObjectAdapterPtr& topicAdapter,
+    const ObjectAdapterPtr& publishAdapter,
     const string& name,
     const Identity& id,
     const string&)
@@ -428,10 +422,7 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(
-    const string& name,
-    const shared_ptr<Properties>& properties,
-    const shared_ptr<Logger>& logger)
+ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
 {
     static const string suffixes[] = {
         "ReplicatedTopicManagerEndpoints",

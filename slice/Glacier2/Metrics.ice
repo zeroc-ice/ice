@@ -17,7 +17,7 @@
 
 #include <Ice/Metrics.ice>
 
-[["java:package:com.zeroc"]]
+[["java:package:com.zeroc.Glacier2"]]
 
 ["swift:module:Glacier2:MX"]
 module IceMX

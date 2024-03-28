@@ -8,9 +8,10 @@
 #include "Exception.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/Identity.h"
-#include "Protocol.h"
+#include "Ice/Version.h"
 
 #include <string>
+#include <string_view>
 #include <utility>
 
 #if defined(__clang__)

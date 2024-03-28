@@ -494,7 +494,7 @@ CallbackClient::run(int argc, char** argv)
 
     CallbackPrx twoway(base);
 
-    shared_ptr<ObjectAdapter> adapter;
+    ObjectAdapterPtr adapter;
 
     {
         cout << "creating and activating callback receiver adapter with router... " << flush;

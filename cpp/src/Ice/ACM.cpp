@@ -306,7 +306,7 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
 }
 
 void
-IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr& connection)
+IceInternal::ConnectionACMMonitor::remove([[maybe_unused]] const ConnectionIPtr& connection)
 {
 #ifdef _MSC_VER
     UNREFERENCED_PARAMETER(connection);

@@ -7,11 +7,11 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/ProxyF.h>
 #include <Ice/Properties.h>
 
 namespace Ice
 {
+    class ObjectPrx;
     class OutputStream;
     class InputStream;
 }

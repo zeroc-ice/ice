@@ -4,8 +4,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceStorm/Parser.h>
+#include "Ice/Ice.h"
+#include "Parser.h"
 
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label

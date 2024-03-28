@@ -5,36 +5,30 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-#include <Ice/ValueF.h>
-#include <Ice/SlicedDataF.h>
-#include "InputStream.h"
-#include "OutputStream.h"
+#include "Config.h"
+#include "SlicedDataF.h"
+#include "ValueF.h"
 
 namespace Ice
 {
     class OutputStream;
     class InputStream;
-}
 
-namespace Ice
-{
     /**
-     * The base class for instances of Slice classes.
+     * The base class for instances of Slice-defined classes.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Value
     {
     public:
-        // See "Rule of zero" at http://en.cppreference.com/w/cpp/language/rule_of_three
-        // The virtual dtor is actually not strictly necessary since Values are always stored
-        // in std::shared_ptr
-
+        // There is no copy constructor, move constructor, copy-assignment operator or move-assignment operator
+        // to prevent accidental slicing.
         Value() = default;
-        Value(const Value&) = default;
-        Value(Value&&) = default;
-        Value& operator=(const Value&) = default;
-        Value& operator=(Value&&) = default;
+        Value(Value&&) = delete;
         virtual ~Value() = default;
+
+        Value& operator=(const Value&) = delete;
+        Value& operator=(Value&&) = delete;
 
         /**
          * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
@@ -56,15 +50,15 @@ namespace Ice
 
         /**
          * Obtains the Slice type ID of this type.
-         * @return The return value is always "::Ice::Object".
+         * @return The return value is always "Ice::Object".
          */
         static std::string_view ice_staticId() noexcept;
 
         /**
-         * Returns a shallow copy of the object.
+         * Creates a shallow polymorphic copy of this instance.
          * @return The cloned value.
          */
-        inline std::shared_ptr<Value> ice_clone() const { return _iceCloneImpl(); }
+        ValuePtr ice_clone() const { return _iceCloneImpl(); }
 
         /**
          * Obtains the sliced data associated with this instance.
@@ -80,7 +74,16 @@ namespace Ice
 
     protected:
         /// \cond INTERNAL
-        virtual std::shared_ptr<Value> _iceCloneImpl() const;
+        Value(const Value&) = default; // for clone
+
+        // Helper class that allows derived classes to clone "this" even though the copy constructor is protected.
+        template<class T> struct CloneEnabler : public T
+        {
+            CloneEnabler(const T& other) : T(other) {}
+            static std::shared_ptr<T> clone(const T& other) { return std::make_shared<CloneEnabler>(other); }
+        };
+
+        virtual ValuePtr _iceCloneImpl() const;
         /// \endcond
 
         /// \cond STREAM
@@ -91,42 +94,6 @@ namespace Ice
     private:
         SlicedDataPtr _slicedData;
     };
-
-    /// \cond INTERNAL
-    template<typename T, typename Base> class ValueHelper : public Base
-    {
-    public:
-        using Base::Base;
-
-        ValueHelper() = default;
-
-        std::shared_ptr<T> ice_clone() const { return std::static_pointer_cast<T>(_iceCloneImpl()); }
-
-        std::string ice_id() const override { return std::string{T::ice_staticId()}; }
-
-    protected:
-        virtual std::shared_ptr<Value> _iceCloneImpl() const override
-        {
-            return std::make_shared<T>(static_cast<const T&>(*this));
-        }
-
-        virtual void _iceWriteImpl(Ice::OutputStream* os) const override
-        {
-            os->startSlice(T::ice_staticId(), -1, std::is_same<Base, Ice::Value>::value ? true : false);
-            Ice::StreamWriter<T, Ice::OutputStream>::write(os, static_cast<const T&>(*this));
-            os->endSlice();
-            Base::_iceWriteImpl(os);
-        }
-
-        virtual void _iceReadImpl(Ice::InputStream* is) override
-        {
-            is->startSlice();
-            Ice::StreamReader<T, Ice::InputStream>::read(is, static_cast<T&>(*this));
-            is->endSlice();
-            Base::_iceReadImpl(is);
-        }
-    };
-    /// \endcond
 }
 
 #endif

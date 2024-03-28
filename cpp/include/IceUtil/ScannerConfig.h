@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_SCANNER_CONFIG_H
 #define ICE_UTIL_SCANNER_CONFIG_H
 
-#include <IceUtil/Config.h> // Required by generated Scanners.
+#include "Config.h" // Required by generated Scanners.
 
 //
 // COMPILERFIX: VC compilers does not provide stdint.h header until v100
@@ -20,26 +20,21 @@
 #    include <stdint.h>
 #endif
 
-//
-// Clang++ >= 5.1 and VC++ using C++17 standard deprecate 'register' storage
-// class specifier used by lex generated Scanners.
-//
-#if defined(__clang__)
-#    pragma clang diagnostic ignored "-Wdeprecated-register"
-#elif defined(_MSC_VER)
-#    pragma warning(disable : 5033)
+#if defined(_MSC_VER)
+// warning C4267: conversion from 'size_t' to 'int', possible loss of data
+#    pragma warning(disable : 4267)
 #endif
 
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
-#    pragma clang diagnostic ignored "-Wsign-conversion"
-#    pragma clang diagnostic ignored "-Wdocumentation"
+#    pragma clang diagnostic ignored "-Wsign-compare"
 #    pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 #ifdef __GNUC__
 #    pragma GCC diagnostic ignored "-Wunused-function"
 #    pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#    pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
 #endif

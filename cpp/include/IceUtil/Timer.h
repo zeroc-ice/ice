@@ -5,14 +5,17 @@
 #ifndef ICE_UTIL_TIMER_H
 #define ICE_UTIL_TIMER_H
 
-#include <IceUtil/Exception.h>
+#include "Exception.h"
 
-#include <set>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
 #include <map>
 #include <mutex>
-#include <chrono>
-#include <functional>
 #include <optional>
+#include <set>
+#include <stdexcept>
+#include <thread>
 
 namespace IceUtil
 {
@@ -47,25 +50,25 @@ namespace IceUtil
             std::lock_guard lock(_mutex);
             if (_destroyed)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
+                throw std::invalid_argument("timer destroyed");
             }
 
             if (delay < std::chrono::nanoseconds::zero())
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "invalid negative delay");
+                throw std::invalid_argument("invalid negative delay");
             }
 
             auto now = std::chrono::steady_clock::now();
             auto time = now + delay;
             if (delay > std::chrono::nanoseconds::zero() && time < now)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+                throw std::invalid_argument("delay too large, resulting in overflow");
             }
 
             bool inserted = _tasks.insert(make_pair(task, time)).second;
             if (!inserted)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
+                throw std::invalid_argument("task is already scheduled");
             }
             _tokens.insert({time, std::nullopt, task});
 
@@ -82,25 +85,25 @@ namespace IceUtil
             std::lock_guard lock(_mutex);
             if (_destroyed)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
+                throw std::invalid_argument("timer destroyed");
             }
 
             if (delay < std::chrono::nanoseconds::zero())
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "invalid negative delay");
+                throw std::invalid_argument("invalid negative delay");
             }
 
             auto now = std::chrono::steady_clock::now();
             auto time = now + delay;
             if (delay > std::chrono::nanoseconds::zero() && time < now)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+                throw std::invalid_argument("delay too large, resulting in overflow");
             }
 
             bool inserted = _tasks.insert(make_pair(task, time)).second;
             if (!inserted)
             {
-                throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
+                throw std::invalid_argument("task is already scheduled");
             }
             _tokens.insert({time, std::chrono::duration_cast<std::chrono::nanoseconds>(delay), task});
 

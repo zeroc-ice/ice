@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
+#include "Ice/Protocol.h"
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/WellKnownObjectsManager.h>
@@ -521,17 +522,16 @@ namespace
                     catch (const SynchronizationException&)
                     {
                         assert(_adapters.empty());
-                        bool callback;
-                        auto self = dynamic_pointer_cast<SynchronizationCallback>(shared_from_this());
-                        assert(self);
-                        if (!_waitForActivation)
-                        {
-                            callback = _database->addAdapterSyncCallback(_id, std::move(self), _activatingOrFailed);
-                        }
-                        else
-                        {
-                            callback = _database->addAdapterSyncCallback(_id, std::move(self), _failed);
-                        }
+                        bool callback = _waitForActivation
+                                            ? _database->addAdapterSyncCallback(
+                                                  _id,
+                                                  dynamic_pointer_cast<SynchronizationCallback>(shared_from_this()),
+                                                  _failed)
+                                            : _database->addAdapterSyncCallback(
+                                                  _id,
+                                                  dynamic_pointer_cast<SynchronizationCallback>(shared_from_this()),
+                                                  _activatingOrFailed);
+
                         if (callback)
                         {
                             return LocatorAdapterInfo();

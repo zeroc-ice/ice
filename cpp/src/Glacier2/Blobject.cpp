@@ -21,10 +21,7 @@ namespace
     const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 }
 
-Glacier2::Blobject::Blobject(
-    shared_ptr<Instance> instance,
-    shared_ptr<Connection> reverseConnection,
-    const Context& context)
+Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, const Context& context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),
       _forwardContext(
@@ -67,8 +64,8 @@ Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::S
 void
 Glacier2::Blobject::invoke(
     ObjectPrx& proxy,
-    const std::pair<const byte*, const byte*>& inParams,
-    function<void(bool, const pair<const byte*, const byte*>&)> response,
+    pair<const byte*, const byte*> inParams,
+    function<void(bool, pair<const byte*, const byte*>)> response,
     function<void(exception_ptr)> exception,
     const Current& current)
 {

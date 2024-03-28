@@ -8,6 +8,8 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <stdexcept>
+
 #ifdef _MSC_VER
 #    pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
 #endif
@@ -859,31 +861,25 @@ allTests(TestHelper* helper)
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
 
     test(
-        endpts1.size() != endpts2.size() || !equal(
-                                                endpts1.begin(),
-                                                endpts1.end(),
-                                                endpts2.begin(),
-                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+        endpts1.size() != endpts2.size() ||
+        !equal(endpts1.begin(), endpts1.end(), endpts2.begin(), Ice::TargetCompare<Ice::EndpointPtr, std::equal_to>()));
     test(lexicographical_compare(
         endpts1.begin(),
         endpts1.end(),
         endpts2.begin(),
         endpts2.end(),
-        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+        Ice::TargetCompare<Ice::EndpointPtr, std::less>()));
     test(!lexicographical_compare(
         endpts2.begin(),
         endpts2.end(),
         endpts1.begin(),
         endpts1.end(),
-        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+        Ice::TargetCompare<Ice::EndpointPtr, std::less>()));
 
     Ice::EndpointSeq endpts3 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     test(
-        endpts1.size() == endpts3.size() && equal(
-                                                endpts1.begin(),
-                                                endpts1.end(),
-                                                endpts3.begin(),
-                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+        endpts1.size() == endpts3.size() &&
+        equal(endpts1.begin(), endpts1.end(), endpts3.begin(), Ice::TargetCompare<Ice::EndpointPtr, std::equal_to>()));
 
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) == compObj1->ice_encodingVersion(Ice::Encoding_1_0));
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) != compObj1->ice_encodingVersion(Ice::Encoding_1_1));
@@ -1015,18 +1011,23 @@ allTests(TestHelper* helper)
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
 
+    string ref13 = "test -e 1.3:" + endp;
+    MyClassPrx cl13(communicator, ref13);
+    try
+    {
+        cl13->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnsupportedEncodingException&)
+    {
+        // Same for 1.3
+    }
+
     string ref10 = "test -e 1.0:" + endp;
     MyClassPrx cl10(communicator, ref10);
     cl10->ice_ping();
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
     cl->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-    // call will use the 1.1 encoding
-    string ref13 = "test -e 1.3:" + endp;
-    MyClassPrx cl13(communicator, ref13);
-    cl13->ice_ping();
-    cl13->ice_pingAsync().get();
 
     try
     {
@@ -1086,17 +1087,21 @@ allTests(TestHelper* helper)
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
+    ref13 = "test -p 1.3:" + endp;
+    cl13 = MyClassPrx(communicator, ref13);
+    try
+    {
+        cl13->ice_ping();
+        test(false);
+    }
+    catch (const Ice::UnsupportedProtocolException&)
+    {
+        // Same with 1.3
+    }
+
     ref10 = "test -p 1.0:" + endp;
     cl10 = MyClassPrx(communicator, ref10);
     cl10->ice_ping();
-
-    // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
-    // call will use the 1.0 encoding
-    ref13 = "test -p 1.3:" + endp;
-    cl13 = MyClassPrx(communicator, ref13);
-    cl13->ice_ping();
-    cl13->ice_pingAsync().get();
-    cout << "ok" << endl;
 
     cout << "testing opaque endpoints... " << flush;
 

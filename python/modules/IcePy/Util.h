@@ -5,10 +5,8 @@
 #ifndef ICEPY_UTIL_H
 #define ICEPY_UTIL_H
 
-#include <Config.h>
-#include <Ice/BuiltinSequences.h>
-#include <Ice/Current.h>
-#include <Ice/Exception.h>
+#include "Config.h"
+#include "Ice/Ice.h"
 
 //
 // These macros replace Py_RETURN_FALSE and Py_RETURN_TRUE. We use these

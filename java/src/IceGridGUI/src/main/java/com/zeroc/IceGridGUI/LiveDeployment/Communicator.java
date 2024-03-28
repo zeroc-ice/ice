@@ -229,8 +229,8 @@ abstract public class Communicator extends TreeNode
         final String prefix = "Retrieving metrics for " + getDisplayName() + "...";
         if(!provideAdmin(prefix, (admin) ->
             {
-                final com.zeroc.IceMX.MetricsAdminPrx metricsAdmin =
-                    com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(getAdminFacet(admin, "Metrics"));
+                final com.zeroc.Ice.IceMX.MetricsAdminPrx metricsAdmin =
+                    com.zeroc.Ice.IceMX.MetricsAdminPrx.uncheckedCast(getAdminFacet(admin, "Metrics"));
 
                 metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) ->
                     {

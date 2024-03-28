@@ -40,7 +40,7 @@ namespace IceGrid
         };
 
     public:
-        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const std::shared_ptr<Ice::Logger>& logger)
+        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const Ice::LoggerPtr& logger)
             : _registry(std::move(registry)),
               _logger(logger),
               _state(InProgress),
@@ -305,7 +305,7 @@ namespace IceGrid
 
     protected:
         std::optional<InternalRegistryPrx> _registry;
-        std::shared_ptr<Ice::Logger> _logger;
+        Ice::LoggerPtr _logger;
         std::optional<TPrx> _session;
         State _state;
         Action _nextAction;
@@ -318,7 +318,7 @@ namespace IceGrid
     class SessionManager
     {
     public:
-        SessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
+        SessionManager(const Ice::CommunicatorPtr&, const std::string&);
         virtual ~SessionManager() = default;
 
         virtual bool isDestroyed() = 0;
@@ -326,7 +326,7 @@ namespace IceGrid
     protected:
         std::vector<IceGrid::QueryPrx> findAllQueryObjects(bool);
 
-        std::shared_ptr<Ice::Communicator> _communicator;
+        Ice::CommunicatorPtr _communicator;
         std::string _instanceName;
         std::optional<InternalRegistryPrx> _master;
         std::vector<IceGrid::QueryPrx> _queryObjects;

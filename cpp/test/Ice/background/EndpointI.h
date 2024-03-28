@@ -24,7 +24,7 @@ public:
     std::int16_t type() const final;
     const std::string& protocol() const final;
     IceInternal::EndpointIPtr timeout(std::int32_t) const final;
-    IceInternal::EndpointIPtr connectionId(const ::std::string&) const final;
+    IceInternal::EndpointIPtr connectionId(const std::string&) const final;
     IceInternal::EndpointIPtr compress(bool) const final;
     IceInternal::TransceiverPtr transceiver() const final;
     void connectorsAsync(

@@ -5,6 +5,8 @@
 #include <Ice/EndpointI.h>
 #include <Ice/OutputStream.h>
 
+#include <sstream>
+
 using namespace std;
 
 void

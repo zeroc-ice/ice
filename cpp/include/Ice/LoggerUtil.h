@@ -5,11 +5,14 @@
 #ifndef ICE_LOGGER_UTIL_H
 #define ICE_LOGGER_UTIL_H
 
-#include <Ice/Logger.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/Plugin.h>
-#include <Ice/Exception.h>
+#include "CommunicatorF.h"
+#include "Config.h"
+#include "Exception.h"
+#include "Logger.h"
+#include "Plugin.h"
 #include "Proxy.h"
+
+#include <sstream>
 
 namespace Ice
 {
@@ -17,9 +20,14 @@ namespace Ice
      * Base class for logger output utility classes.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API LoggerOutputBase : private IceUtil::noncopyable
+    class ICE_API LoggerOutputBase
     {
     public:
+        LoggerOutputBase() = default;
+        LoggerOutputBase(const LoggerOutputBase&) = delete;
+
+        LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
+
         /** Obtains the collected output. */
         std::string str() const;
 
@@ -63,14 +71,14 @@ namespace Ice
     }
 
     template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-    inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const ::std::optional<Prx>& p)
+    inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const std::optional<Prx>& p)
     {
         return os << (p ? p->ice_toString() : "");
     }
 
     inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const ObjectPrx& p) { return os << p.ice_toString(); }
 
-    inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const ::std::exception& ex)
+    inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const std::exception& ex)
     {
         out._stream() << ex.what();
         return out;

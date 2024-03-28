@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+#include <stdexcept>
+
 using namespace std;
 
 namespace

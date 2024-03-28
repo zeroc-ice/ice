@@ -10,7 +10,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-QueryI::QueryI(const shared_ptr<Communicator>& communicator, const shared_ptr<Database>& database)
+QueryI::QueryI(const CommunicatorPtr& communicator, const shared_ptr<Database>& database)
     : _communicator(communicator),
       _database(database)
 {

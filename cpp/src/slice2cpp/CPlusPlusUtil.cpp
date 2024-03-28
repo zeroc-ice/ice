@@ -4,6 +4,7 @@
 
 #include "CPlusPlusUtil.h"
 #include <Slice/Util.h>
+#include <cassert>
 #include <cstring>
 #include <functional>
 #include <algorithm>
@@ -91,6 +92,51 @@ namespace
         {
             return dictType;
         }
+    }
+
+    // Do we pass this type by value when it's an input parameter?
+    bool inputParamByValue(const TypePtr& type, const StringList& metaData)
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)))
+        {
+            return true;
+        }
+        if (dynamic_pointer_cast<Enum>(type))
+        {
+            return true;
+        }
+        if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+        {
+            static const string prefix = "cpp:";
+
+            // Return true for view-type (sequence and dictionary) and array (sequence only)
+            for (const auto& str : metaData)
+            {
+                if (str.find(prefix) == 0)
+                {
+                    string::size_type pos = str.find(':', prefix.size());
+                    if (pos != string::npos)
+                    {
+                        string ss = str.substr(prefix.size());
+                        if (ss.find("view-type:") == 0)
+                        {
+                            return true;
+                        }
+                        // else check remaining meta data
+                    }
+                    else
+                    {
+                        if (str.substr(prefix.size()) == "array")
+                        {
+                            return true;
+                        }
+                        // else check remaining meta data
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     void writeParamAllocateCode(
@@ -388,11 +434,6 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
             prefix += "const ";
         }
 
-        if (type.find("::std::shared_ptr<", prefix.size()) == prefix.size())
-        {
-            prefix += "::std::shared_ptr<";
-        }
-
         if (type.find(scope, prefix.size()) == prefix.size())
         {
             string t = type.substr(prefix.size() + scope.size());
@@ -437,9 +478,9 @@ Slice::typeToString(
         "float",
         "double",
         "****", // string or wstring, see below
-        "::std::shared_ptr<::Ice::Value>",
+        "::Ice::ValuePtr",
         "::std::optional<::Ice::ObjectPrx>",
-        "::std::shared_ptr<::Ice::Value>"};
+        "::Ice::ValuePtr"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -464,7 +505,7 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
+        return getUnqualified(cl->scoped(), scope) + "Ptr";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -512,9 +553,7 @@ Slice::inputTypeToString(
     assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
     typeCtx = (typeCtx | TypeContext::MarshalParam);
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)) ||
-        dynamic_pointer_cast<Enum>(type))
+    if (inputParamByValue(type, metaData))
     {
         // Pass by value, even if it's optional.
         return typeToString(type, optional, scope, metaData, typeCtx);
@@ -780,16 +819,16 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     //
     if (!optionalMembers.empty() || hasBaseDataMembers)
     {
-        out << nl << "template<typename S>";
-        out << nl << "struct StreamWriter<" << fullName << ", S>";
+        out << nl << "template<>";
+        out << nl << "struct StreamWriter<" << fullName << ">";
         out << sb;
         if (requiredMembers.empty() && optionalMembers.empty())
         {
-            out << nl << "static void write(S*, const " << fullName << "&)";
+            out << nl << "static void write(OutputStream*, const " << fullName << "&)";
         }
         else
         {
-            out << nl << "static void write(S* ostr, const " << fullName << "& v)";
+            out << nl << "static void write(OutputStream* ostr, const " << fullName << "& v)";
         }
 
         out << sb;
@@ -804,16 +843,16 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     //
     // Generate StreamReader
     //
-    out << nl << "template<typename S>";
-    out << nl << "struct StreamReader<" << fullName << ", S>";
+    out << nl << "template<>";
+    out << nl << "struct StreamReader<" << fullName << ">";
     out << sb;
     if (requiredMembers.empty() && optionalMembers.empty())
     {
-        out << nl << "static void read(S*, " << fullName << "&)";
+        out << nl << "static void read(InputStream*, " << fullName << "&)";
     }
     else
     {
-        out << nl << "static void read(S* istr, " << fullName << "& v)";
+        out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
     }
 
     out << sb;

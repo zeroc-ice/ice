@@ -11,7 +11,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ServantManagerF.h>
-#include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>
@@ -22,13 +21,17 @@
 #include <Ice/Proxy.h>
 #include <Ice/ACM.h>
 
+#ifdef ICE_SWIFT
+#    include <dispatch/dispatch.h>
+#endif
+
 #include <list>
 #include <mutex>
 
 namespace IceInternal
 {
     class CommunicatorFlushBatchAsync;
-    using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+    using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 }
 
 namespace Ice
@@ -48,23 +51,23 @@ namespace Ice
         bool isDeactivated() const noexcept final;
         void destroy() noexcept final;
 
-        ObjectPrx add(const std::shared_ptr<Object>&, const Identity&) final;
-        ObjectPrx addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
-        ObjectPrx addWithUUID(const std::shared_ptr<Object>&) final;
-        ObjectPrx addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
-        void addDefaultServant(const std::shared_ptr<Object>&, const std::string&) final;
-        std::shared_ptr<Object> remove(const Identity&) final;
-        std::shared_ptr<Object> removeFacet(const Identity&, const std::string&) final;
+        ObjectPrx add(const ObjectPtr&, const Identity&) final;
+        ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&) final;
+        ObjectPrx addWithUUID(const ObjectPtr&) final;
+        ObjectPrx addFacetWithUUID(const ObjectPtr&, const std::string&) final;
+        void addDefaultServant(const ObjectPtr&, const std::string&) final;
+        ObjectPtr remove(const Identity&) final;
+        ObjectPtr removeFacet(const Identity&, const std::string&) final;
         FacetMap removeAllFacets(const Identity&) final;
-        std::shared_ptr<Object> removeDefaultServant(const std::string&) final;
-        std::shared_ptr<Object> find(const Identity&) const final;
-        std::shared_ptr<Object> findFacet(const Identity&, const std::string&) const final;
+        ObjectPtr removeDefaultServant(const std::string&) final;
+        ObjectPtr find(const Identity&) const final;
+        ObjectPtr findFacet(const Identity&, const std::string&) const final;
         FacetMap findAllFacets(const Identity&) const final;
-        std::shared_ptr<Object> findByProxy(const ObjectPrx&) const final;
-        std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
-        void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
-        std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
-        std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
+        ObjectPtr findByProxy(const ObjectPrx&) const final;
+        ObjectPtr findDefaultServant(const std::string&) const final;
+        void addServantLocator(const ServantLocatorPtr&, const std::string&) final;
+        ServantLocatorPtr removeServantLocator(const std::string&) final;
+        ServantLocatorPtr findServantLocator(const std::string&) const final;
         ObjectPtr dispatcher() const noexcept final;
 
         ObjectPrx createProxy(const Identity&) const final;

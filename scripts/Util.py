@@ -77,7 +77,7 @@ def val(v, quoteValue=True):
         return str(v)
 
 
-illegalXMLChars = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]")
+illegalXMLChars = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]")
 
 
 def escapeXml(s, attribute=False):
@@ -338,7 +338,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netstandard2.0")
+            return os.path.join(installDir, "lib", "net8.0")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -573,7 +573,7 @@ class Windows(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib/netstandard2.0")
+            return os.path.join(installDir, "lib/net8.0")
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = (
@@ -1775,9 +1775,9 @@ class EchoServer(Server):
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props[
-            "Ice.MessageSizeMax"
-        ] = 8192  # Don't limit the amount of data to transmit between client/server
+        props["Ice.MessageSizeMax"] = (
+            8192  # Don't limit the amount of data to transmit between client/server
+        )
         return props
 
     def getCommandLine(self, current, args=""):
@@ -3157,6 +3157,7 @@ class BrowserProcessController(RemoteProcessController):
 
     def getControllerIdentity(self, current):
         import Ice
+
         #
         # Load the controller page each time we're asked for the controller and if we're running
         # another testcase, the controller page will connect to the process controller registry
@@ -3901,27 +3902,9 @@ class JavaMapping(Mapping):
 
 
 class CSharpMapping(Mapping):
-    class Config(Mapping.Config):
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["framework="])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("C# mapping options:")
-            print(
-                "--framework=net48|net6.0|net8.0 Choose the framework used to run .NET tests"
-            )
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            if self.framework == "":
-                self.framework = "net6.0"
 
     def getTargetFramework(self, current):
-        return current.config.framework
+        return "net8.0"
 
     def getBuildDir(self, name, current):
         return os.path.join("msbuild", name, self.getTargetFramework(current))
@@ -3962,7 +3945,7 @@ class CSharpMapping(Mapping):
         plugindir += os.sep
 
         return {
-            "IceSSL": plugindir + "IceSSL.dll:IceSSL.PluginFactory",
+            "IceSSL": "",
             "IceDiscovery": plugindir + "IceDiscovery.dll:IceDiscovery.PluginFactory",
             "IceLocatorDiscovery": plugindir
             + "IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory",
@@ -4295,23 +4278,29 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLine(self, current, process, exe, args):
-        matlabHome = os.getenv("MATLAB_HOME")
-        # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
-        return (
-            "{0} -nodesktop -nosplash{1} -r \"cd '{2}', runTest {3} {4} {5}\"".format(
+        # The MATLAB_COMMAND environment variable can be used to specify the MATLAB command.
+        # This is currently used for GitHub Actions to specify the path to a custom MATLAB executable
+        # which is required to run the tests and does not need any additional arguments.
+        matlabCmd = os.getenv("MATLAB_COMMAND")
+
+        if not matlabCmd:
+            matlabHome = os.getenv("MATLAB_HOME")
+            # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
+            matlabCmd = "{0} -nodesktop -nosplash {1} -r".format(
                 "matlab"
                 if matlabHome is None
                 else os.path.join(matlabHome, "bin", "matlab"),
                 " -wait -log -minimize" if isinstance(platform, Windows) else "",
-                os.path.abspath(
-                    os.path.join(
-                        os.path.dirname(__file__), "..", "matlab", "test", "lib"
-                    )
-                ),
-                self.getTestCwd(process, current),
-                current.driver.getComponent().getLibDir(process, self, current),
-                args,
             )
+
+        return "{0} \"cd '{1}', runTest {2} {3} {4}\"".format(
+            matlabCmd,
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")
+            ),
+            self.getTestCwd(process, current),
+            current.driver.getComponent().getLibDir(process, self, current),
+            args,
         )
 
     def getServerMapping(self, testId=None):

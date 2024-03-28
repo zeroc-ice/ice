@@ -2,19 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_ImplicitContext_h__
-#define __Ice_ImplicitContext_h__
+#ifndef ICE_IMPLICIT_CONTEXT_H
+#define ICE_IMPLICIT_CONTEXT_H
 
 #include "Config.h"
-#include "OutputStream.h"
-#include <Ice/Context.h>
+#include "Ice/Context.h"
 
+#include <memory>
+#include <mutex>
 #include <string>
 
 namespace Ice
 {
+    class OutputStream;
+
     /**
-     * An interface to associate implict contexts with communicators. When you make a remote invocation without an
+     * An interface to associate implicit contexts with communicators. When you make a remote invocation without an
      * explicit context parameter, Ice uses the per-proxy context (if any) combined with the
      * <code>ImplicitContext</code> associated with the communicator. Ice provides several implementations of
      * <code>ImplicitContext</code>. The implementation used depends on the value of the

@@ -16,7 +16,7 @@ public:
     ServantLocatorI(const string& category) : Test::ServantLocatorI(category) {}
 
 protected:
-    shared_ptr<Ice::Object> newServantAndCookie(shared_ptr<void>& cookie) const final
+    Ice::ObjectPtr newServantAndCookie(shared_ptr<void>& cookie) const final
     {
         cookie = make_shared<Cookie>();
         return make_shared<TestI>();

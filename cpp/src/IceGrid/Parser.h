@@ -40,7 +40,7 @@ namespace IceGrid
     class Parser
     {
     public:
-        Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrx, std::optional<AdminPrx>, bool);
+        Parser(Ice::CommunicatorPtr, AdminSessionPrx, std::optional<AdminPrx>, bool);
 
         void usage();
         void usage(const std::string&, const std::string& = std::string());
@@ -56,7 +56,6 @@ namespace IceGrid
         void describeApplication(const std::list<std::string>&);
         void diffApplication(const std::list<std::string>&);
         void updateApplication(const std::list<std::string>&);
-        void patchApplication(const std::list<std::string>&);
         void listAllApplications(const std::list<std::string>&);
 
         void describeServerTemplate(const std::list<std::string>&);
@@ -78,7 +77,6 @@ namespace IceGrid
         void removeServer(const std::list<std::string>&);
         void startServer(const std::list<std::string>&);
         void stopServer(const std::list<std::string>&);
-        void patchServer(const std::list<std::string>&);
         void signalServer(const std::list<std::string>&);
         void writeMessage(const std::list<std::string>&, int fd);
         void describeServer(const std::list<std::string>&);
@@ -126,7 +124,6 @@ namespace IceGrid
 
         void invalidCommand(const std::list<std::string>&);
 
-        std::string patchFailed(const Ice::StringSeq&);
         void error(const char*);
         void error(const std::string&);
 
@@ -146,7 +143,7 @@ namespace IceGrid
         std::condition_variable _condVar;
 
         std::string _commands;
-        std::shared_ptr<Ice::Communicator> _communicator;
+        Ice::CommunicatorPtr _communicator;
         AdminSessionPrx _session;
         std::optional<AdminPrx> _admin;
         bool _continue;

@@ -10,10 +10,14 @@
 
 namespace Slice
 {
-    class CsGenerator : private ::IceUtil::noncopyable
+    class CsGenerator
     {
     public:
-        virtual ~CsGenerator(){};
+        CsGenerator() = default;
+        CsGenerator(const CsGenerator&) = delete;
+        virtual ~CsGenerator() = default;
+
+        CsGenerator& operator=(const CsGenerator&) = delete;
 
         //
         // Convert a dimension-less array declaration to one with a dimension.

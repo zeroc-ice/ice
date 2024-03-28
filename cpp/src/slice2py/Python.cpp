@@ -14,6 +14,7 @@
 #include "PythonUtil.h"
 #include <Slice/Util.h>
 
+#include <cassert>
 #include <cstring>
 #include <fstream>
 #include <mutex>

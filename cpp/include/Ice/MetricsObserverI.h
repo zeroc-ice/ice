@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICEMX_METRICSOBSERVER_I_H
-#define ICEMX_METRICSOBSERVER_I_H
+#ifndef ICEMX_METRICS_OBSERVER_I_H
+#define ICEMX_METRICS_OBSERVER_I_H
 
-#include <IceUtil/StopWatch.h>
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Ice/Metrics.h"
+#include "IceUtil/StopWatch.h"
+#include "Instrumentation.h"
+#include "MetricsAdminI.h"
+#include "MetricsFunctional.h"
 
-#include <Ice/Instrumentation.h>
-#include <Ice/Endpoint.h>
-#include <Ice/Connection.h>
-
-#include <Ice/Metrics.h>
-#include <Ice/MetricsAdminI.h>
-#include <Ice/MetricsFunctional.h>
-
+#include <cassert>
+#include <sstream>
 #include <stdexcept>
 
 namespace IceMX
@@ -253,9 +253,9 @@ namespace IceMX
 
             static const std::string& toString(const std::string& s) { return s; }
 
-            static std::string toString(const ::Ice::EndpointPtr& e) { return e->toString(); }
+            static std::string toString(const Ice::EndpointPtr& e) { return e->toString(); }
 
-            static std::string toString(const ::Ice::ConnectionPtr& e) { return e->toString(); }
+            static std::string toString(const Ice::ConnectionPtr& e) { return e->toString(); }
 
             static std::string toString(bool v) { return v ? "true" : "false"; }
 
@@ -295,7 +295,7 @@ namespace IceMX
         }
     }
 
-    template<typename T> class ObserverT : public virtual ::Ice::Instrumentation::Observer
+    template<typename T> class ObserverT : public virtual Ice::Instrumentation::Observer
     {
     public:
         typedef T MetricsType;
@@ -407,9 +407,9 @@ namespace IceMX
     template<typename ObserverImplType> class ObserverFactoryT : public Updater
     {
     public:
-        using ObserverImplPtrType = ::std::shared_ptr<ObserverImplType>;
+        using ObserverImplPtrType = std::shared_ptr<ObserverImplType>;
         using MetricsType = typename ObserverImplType::MetricsType;
-        using MetricsMapSeqType = std::vector<::std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
+        using MetricsMapSeqType = std::vector<std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 
         ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name)
             : _metrics(metrics),
@@ -514,7 +514,7 @@ namespace IceMX
                 _maps.clear();
                 for (std::vector<IceInternal::MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
                 {
-                    _maps.push_back(::std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(*p));
+                    _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(*p));
                     assert(_maps.back());
                 }
                 _enabled.exchange(_maps.empty() ? 0 : 1);

@@ -20,7 +20,7 @@ ServantLocatorI::ServantLocatorI(const string& category) : _category(category), 
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 ServantLocatorI::locate(const Ice::Current& current, shared_ptr<void>& cookie)
 {
     test(!_deactivated);
@@ -52,7 +52,7 @@ ServantLocatorI::locate(const Ice::Current& current, shared_ptr<void>& cookie)
 }
 
 void
-ServantLocatorI::finished(const Ice::Current& current, const shared_ptr<Ice::Object>&, const shared_ptr<void>& cookie)
+ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, const shared_ptr<void>& cookie)
 {
     test(!_deactivated);
 

@@ -5,7 +5,7 @@
 package com.zeroc.IceInternal;
 
 public class DispatchObserverI
-    extends com.zeroc.IceMX.ObserverWithDelegate<com.zeroc.IceMX.DispatchMetrics,
+    extends com.zeroc.Ice.IceMX.ObserverWithDelegate<com.zeroc.Ice.IceMX.DispatchMetrics,
                                                  com.zeroc.Ice.Instrumentation.DispatchObserver>
     implements com.zeroc.Ice.Instrumentation.DispatchObserver
 {
@@ -22,10 +22,10 @@ public class DispatchObserverI
     @Override
     public void reply(final int size)
     {
-        forEach(new MetricsUpdate<com.zeroc.IceMX.DispatchMetrics>()
+        forEach(new MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics>()
                 {
                     @Override
-                    public void update(com.zeroc.IceMX.DispatchMetrics v)
+                    public void update(com.zeroc.Ice.IceMX.DispatchMetrics v)
                     {
                         v.replySize += size;
                     }
@@ -36,11 +36,11 @@ public class DispatchObserverI
         }
     }
 
-    final private MetricsUpdate<com.zeroc.IceMX.DispatchMetrics> _userException =
-        new MetricsUpdate<com.zeroc.IceMX.DispatchMetrics>()
+    final private MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics> _userException =
+        new MetricsUpdate<com.zeroc.Ice.IceMX.DispatchMetrics>()
     {
         @Override
-        public void update(com.zeroc.IceMX.DispatchMetrics v)
+        public void update(com.zeroc.Ice.IceMX.DispatchMetrics v)
         {
             ++v.userException;
         }

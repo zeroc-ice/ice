@@ -107,8 +107,8 @@ namespace IcePHP
         OperationIPtr _op;
 
         bool prepareRequest(int, zval*, Ice::OutputStream*, pair<const byte*, const byte*>&);
-        void unmarshalResults(int, zval*, zval*, const pair<const byte*, const byte*>&);
-        void unmarshalException(zval*, const pair<const byte*, const byte*>&);
+        void unmarshalResults(int, zval*, zval*, pair<const byte*, const byte*>);
+        void unmarshalException(zval*, pair<const byte*, const byte*>);
         bool validateException(const ExceptionInfoPtr&) const;
         void checkTwowayOnly(const Ice::ObjectPrx&) const;
     };
@@ -445,7 +445,7 @@ IcePHP::TypedInvocation::prepareRequest(
 }
 
 void
-IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, const pair<const byte*, const byte*>& bytes)
+IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<const byte*, const byte*> bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
@@ -529,7 +529,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, const
 }
 
 void
-IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const byte*, const byte*>& bytes)
+IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const byte*> bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 

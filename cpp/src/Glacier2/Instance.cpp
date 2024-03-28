@@ -20,8 +20,8 @@ namespace
 
 Glacier2::Instance::Instance(
     shared_ptr<Ice::Communicator> communicator,
-    shared_ptr<Ice::ObjectAdapter> clientAdapter,
-    shared_ptr<Ice::ObjectAdapter> serverAdapter)
+    Ice::ObjectAdapterPtr clientAdapter,
+    Ice::ObjectAdapterPtr serverAdapter)
     : _communicator(std::move(communicator)),
       _properties(_communicator->getProperties()),
       _logger(_communicator->getLogger()),

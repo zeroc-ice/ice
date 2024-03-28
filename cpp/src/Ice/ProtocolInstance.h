@@ -8,7 +8,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/ConnectorF.h>

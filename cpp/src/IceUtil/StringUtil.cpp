@@ -4,11 +4,17 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
+#include <cassert>
 #include <cstring>
 #include <string.h> // for strerror_r
 
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
+
+#ifdef _WIN32
+#    include <windows.h>
+#endif
 
 using namespace std;
 using namespace IceUtil;
@@ -32,14 +38,14 @@ namespace
     {
         if (p == end)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "UTF-8 sequence too short");
+            throw invalid_argument("UTF-8 sequence too short");
         }
 
         uint8_t b = static_cast<uint8_t>(*p++);
 
         if ((b >> 6) != 2)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "Invalid UTF-8 sequence");
+            throw invalid_argument("Invalid UTF-8 sequence");
         }
         return (codePoint << 6) + (b & 0x3F);
     }
@@ -77,7 +83,7 @@ namespace
         {
             ostringstream ostr;
             ostr << "Invalid first byte 0x" << hex << static_cast<unsigned short>(b) << " in UTF-8 sequence" << endl;
-            throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
+            throw invalid_argument(ostr.str());
         }
 
         if (codePoint > 0xFFFF)
@@ -109,7 +115,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
     {
         if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "Special characters must be in ASCII range 32-126");
+            throw invalid_argument("Special characters must be in ASCII range 32-126");
         }
     }
 
@@ -280,7 +286,7 @@ namespace
                 ostr << "first character";
             }
             ostr << " has invalid ordinal value " << static_cast<int>(c);
-            throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
+            throw invalid_argument(ostr.str());
         }
         return static_cast<char>(c);
     }
@@ -292,10 +298,7 @@ namespace
     {
         if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
         {
-            throw IllegalArgumentException(
-                __FILE__,
-                __LINE__,
-                "A universal character name cannot designate a surrogate");
+            throw invalid_argument("A universal character name cannot designate a surrogate");
         }
 
         if (codePoint <= 0x7F)
@@ -326,7 +329,7 @@ namespace
         }
         else
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "Invalid universal character name");
+            throw invalid_argument("Invalid universal character name");
         }
     }
 
@@ -448,10 +451,7 @@ namespace
                     }
                     if (size > 0)
                     {
-                        throw IllegalArgumentException(
-                            __FILE__,
-                            __LINE__,
-                            "Invalid universal character name: too few hex digits");
+                        throw invalid_argument("Invalid universal character name: too few hex digits");
                     }
 
                     appendUTF8(codePoint, result);
@@ -485,7 +485,7 @@ namespace
                     {
                         ostringstream ostr;
                         ostr << "octal value \\" << oct << val << dec << " (" << val << ") is out of range";
-                        throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
+                        throw invalid_argument(ostr.str());
                     }
                     result.push_back(static_cast<char>(val));
                     if (val > 127)
@@ -525,7 +525,7 @@ namespace
                     }
                     if (size == 2)
                     {
-                        throw IllegalArgumentException(__FILE__, __LINE__, "Invalid \\x escape sequence: no hex digit");
+                        throw invalid_argument("Invalid \\x escape sequence: no hex digit");
                     }
                     result.push_back(static_cast<char>(val));
                     if (val > 127)
@@ -566,7 +566,7 @@ IceUtilInternal::unescapeString(const string& s, string::size_type start, string
     {
         if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "Special characters must be in ASCII range 32-126");
+            throw invalid_argument("Special characters must be in ASCII range 32-126");
         }
     }
 

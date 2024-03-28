@@ -41,7 +41,7 @@ namespace IceGrid
     {
     public:
         static std::shared_ptr<Database> create(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             IceStorm::TopicManagerPrx,
             const std::string&,
             const std::shared_ptr<TraceLevels>&,
@@ -51,8 +51,8 @@ namespace IceGrid
         std::string getInstanceName() const;
         bool isReadOnly() const { return _readonly; }
         const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
-        const std::shared_ptr<Ice::ObjectAdapter>& getInternalAdapter() { return _internalAdapter; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
 
         void destroy();
 
@@ -105,7 +105,7 @@ namespace IceGrid
         std::optional<Ice::ObjectPrx> getAdapterDirectProxy(
             const std::string&,
             const Ice::EncodingVersion&,
-            const std::shared_ptr<Ice::Connection>&,
+            const Ice::ConnectionPtr&,
             const Ice::Context&);
 
         void removeAdapter(const std::string&);
@@ -114,7 +114,7 @@ namespace IceGrid
 
         void getLocatorAdapterInfo(
             const std::string&,
-            const std::shared_ptr<Ice::Connection>&,
+            const Ice::ConnectionPtr&,
             const Ice::Context&,
             LocatorAdapterInfoSeq&,
             int&,
@@ -131,8 +131,7 @@ namespace IceGrid
 
         AdapterInfoSeq getAdapterInfo(const std::string&);
 
-        AdapterInfoSeq
-        getFilteredAdapterInfo(const std::string&, const std::shared_ptr<Ice::Connection>&, const Ice::Context&);
+        AdapterInfoSeq getFilteredAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&);
 
         std::string getAdapterServer(const std::string&) const;
         std::string getAdapterApplication(const std::string&) const;
@@ -148,21 +147,17 @@ namespace IceGrid
 
         Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
 
-        std::optional<Ice::ObjectPrx> getObjectByType(
-            const std::string&,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
-            const Ice::Context& = Ice::Context());
+        std::optional<Ice::ObjectPrx>
+        getObjectByType(const std::string&, const Ice::ConnectionPtr& = nullptr, const Ice::Context& = Ice::Context());
 
         std::optional<Ice::ObjectPrx> getObjectByTypeOnLeastLoadedNode(
             const std::string&,
             LoadSample,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
+            const Ice::ConnectionPtr& = nullptr,
             const Ice::Context& = Ice::Context());
 
-        Ice::ObjectProxySeq getObjectsByType(
-            const std::string&,
-            const std::shared_ptr<Ice::Connection>& = nullptr,
-            const Ice::Context& = Ice::Context());
+        Ice::ObjectProxySeq
+        getObjectsByType(const std::string&, const Ice::ConnectionPtr& = nullptr, const Ice::Context& = Ice::Context());
         ObjectInfo getObjectInfo(const Ice::Identity&);
         ObjectInfoSeq getObjectInfosByType(const std::string&);
         ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
@@ -173,7 +168,7 @@ namespace IceGrid
 
     private:
         Database(
-            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const Ice::ObjectAdapterPtr&,
             IceStorm::TopicManagerPrx,
             const std::string&,
             const std::shared_ptr<TraceLevels>&,
@@ -231,8 +226,8 @@ namespace IceGrid
         static const std::string _adapterDbName;
         static const std::string _replicaGroupDbName;
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
-        const std::shared_ptr<Ice::ObjectAdapter> _internalAdapter;
+        const Ice::CommunicatorPtr _communicator;
+        const Ice::ObjectAdapterPtr _internalAdapter;
         const IceStorm::TopicManagerPrx _topicManager;
         const std::string _instanceName;
         const std::shared_ptr<TraceLevels> _traceLevels;

@@ -15,6 +15,7 @@
 #include "CheckIdentity.h"
 
 #include <mutex>
+#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
@@ -255,7 +256,7 @@ Ice::initialize(int& argc, const char* argv[], const InitializationData& initial
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(int& argc, const char* argv[], const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -274,7 +275,7 @@ Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& init
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(int& argc, const wchar_t* argv[], const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -293,7 +294,7 @@ Ice::initialize(StringSeq& args, const InitializationData& initializationData, i
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(StringSeq& args, const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -318,7 +319,7 @@ Ice::initialize(const InitializationData& initData, int version)
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(ICE_CONFIG_FILE_STRING configFile, int version)
+Ice::initialize(const string& configFile, int version)
 {
     InitializationData initData;
     initData.properties = createProperties();
@@ -361,13 +362,10 @@ Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool 
 
 Ice::CommunicatorHolder::CommunicatorHolder() {}
 
-Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator)
-    : _communicator(std::move(communicator))
-{
-}
+Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 Ice::CommunicatorHolder&
-Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
+Ice::CommunicatorHolder::operator=(CommunicatorPtr communicator)
 {
     if (_communicator)
     {
@@ -473,9 +471,9 @@ Ice::stringToIdentity(const string& s)
         {
             ident.name = unescapeString(s, 0, s.size(), "/");
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.reason());
+            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.what());
         }
     }
     else
@@ -484,12 +482,9 @@ Ice::stringToIdentity(const string& s)
         {
             ident.category = unescapeString(s, 0, slash, "/");
         }
-        catch (const IceUtil::IllegalArgumentException& ex)
+        catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(
-                __FILE__,
-                __LINE__,
-                "invalid category in identity `" + s + "': " + ex.reason());
+            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.what());
         }
 
         if (slash + 1 < s.size())
@@ -498,12 +493,9 @@ Ice::stringToIdentity(const string& s)
             {
                 ident.name = unescapeString(s, slash + 1, s.size(), "/");
             }
-            catch (const IceUtil::IllegalArgumentException& ex)
+            catch (const invalid_argument& ex)
             {
-                throw IdentityParseException(
-                    __FILE__,
-                    __LINE__,
-                    "invalid name in identity `" + s + "': " + ex.reason());
+                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.what());
             }
         }
     }

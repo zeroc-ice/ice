@@ -28,12 +28,6 @@ namespace IceGrid
         void syncApplicationWithoutRestart(ApplicationDescriptor, const Ice::Current&) final;
         void updateApplicationWithoutRestart(ApplicationUpdateDescriptor, const Ice::Current&) final;
         void removeApplication(std::string, const Ice::Current&) final;
-        void patchApplicationAsync(
-            std::string,
-            bool,
-            std::function<void()>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
         void instantiateServer(std::string, std::string, ServerInstanceDescriptor, const Ice::Current&) final;
         ApplicationInfo getApplicationInfo(std::string, const Ice::Current&) const final;
         ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const final;
@@ -55,28 +49,22 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
 
-        void patchServerAsync(
-            std::string,
-            bool,
-            std::function<void()>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
         void sendSignal(std::string, std::string, const Ice::Current&) final;
         Ice::StringSeq getAllServerIds(const Ice::Current&) const final;
         void enableServer(std::string, bool, const Ice::Current&) final;
         bool isServerEnabled(std::string, const Ice::Current&) const final;
 
-        AdapterInfoSeq getAdapterInfo(std::string, const ::Ice::Current&) const final;
+        AdapterInfoSeq getAdapterInfo(std::string, const Ice::Current&) const final;
         void removeAdapter(std::string, const Ice::Current&) final;
-        Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const final;
+        Ice::StringSeq getAllAdapterIds(const Ice::Current&) const final;
 
-        void addObject(std::optional<Ice::ObjectPrx>, const ::Ice::Current&) final;
-        void updateObject(std::optional<Ice::ObjectPrx>, const ::Ice::Current&) final;
-        void addObjectWithType(std::optional<Ice::ObjectPrx>, std::string, const ::Ice::Current&) final;
-        void removeObject(Ice::Identity, const ::Ice::Current&) final;
-        ObjectInfo getObjectInfo(Ice::Identity, const ::Ice::Current&) const final;
-        ObjectInfoSeq getObjectInfosByType(std::string, const ::Ice::Current&) const final;
-        ObjectInfoSeq getAllObjectInfos(std::string, const ::Ice::Current&) const final;
+        void addObject(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
+        void updateObject(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
+        void addObjectWithType(std::optional<Ice::ObjectPrx>, std::string, const Ice::Current&) final;
+        void removeObject(Ice::Identity, const Ice::Current&) final;
+        ObjectInfo getObjectInfo(Ice::Identity, const Ice::Current&) const final;
+        ObjectInfoSeq getObjectInfosByType(std::string, const Ice::Current&) const final;
+        ObjectInfoSeq getAllObjectInfos(std::string, const Ice::Current&) const final;
 
         NodeInfo getNodeInfo(std::string, const Ice::Current&) const final;
         std::optional<Ice::ObjectPrx> getNodeAdmin(std::string, const Ice::Current&) const final;
@@ -85,13 +73,13 @@ namespace IceGrid
         int getNodeProcessorSocketCount(std::string, const Ice::Current&) const final;
         void shutdownNode(std::string, const Ice::Current&) final;
         std::string getNodeHostname(std::string, const Ice::Current&) const final;
-        Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const final;
+        Ice::StringSeq getAllNodeNames(const Ice::Current&) const final;
 
         RegistryInfo getRegistryInfo(std::string, const Ice::Current&) const final;
         std::optional<Ice::ObjectPrx> getRegistryAdmin(std::string, const Ice::Current&) const final;
         bool pingRegistry(std::string, const Ice::Current&) const final;
         void shutdownRegistry(std::string, const Ice::Current&) final;
-        Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const final;
+        Ice::StringSeq getAllRegistryNames(const Ice::Current&) const final;
 
         void shutdown(const Ice::Current&) final;
 

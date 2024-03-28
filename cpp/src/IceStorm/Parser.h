@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_STORM_PARSER_H
-#define ICE_STORM_PARSER_H
+#ifndef ICESTORM_PARSER_H
+#define ICESTORM_PARSER_H
 
-#include <IceStorm/IceStorm.h>
+#include "IceStorm/IceStorm.h"
+
 #include <list>
 #include <stdio.h>
 
@@ -38,7 +39,7 @@ namespace IceStorm
     class Parser
     {
     public:
-        Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrx, std::map<Ice::Identity, TopicManagerPrx>);
+        Parser(Ice::CommunicatorPtr, TopicManagerPrx, std::map<Ice::Identity, TopicManagerPrx>);
 
         void usage();
 
@@ -83,7 +84,7 @@ namespace IceStorm
 
         void exception(std::exception_ptr, bool = false);
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         TopicManagerPrx _defaultManager;
         const std::map<Ice::Identity, TopicManagerPrx> _managers;
         std::string _commands;

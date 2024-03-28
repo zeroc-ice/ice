@@ -7,6 +7,7 @@
 
 #include "Parser.h"
 #include "Util.h"
+#include <cassert>
 #include <memory>
 
 namespace Slice
@@ -94,7 +95,7 @@ namespace Slice
     {
     public:
         IntegerTok() : v(0) {}
-        IceUtil::Int64 v;
+        std::int64_t v;
         std::string literal;
     };
 

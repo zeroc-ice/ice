@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceStorm/TransientTopicManagerI.h>
-#include <IceStorm/TransientTopicI.h>
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/Instance.h>
-#include <IceStorm/Subscriber.h>
-
-#include <Ice/Ice.h>
+#include "TransientTopicManagerI.h"
+#include "Ice/Ice.h"
+#include "Instance.h"
+#include "Subscriber.h"
+#include "TraceLevels.h"
+#include "TransientTopicI.h"
 
 #include <functional>
 

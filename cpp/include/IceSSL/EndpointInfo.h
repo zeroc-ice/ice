@@ -2,48 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceSSL_EndpointInfo_h__
-#define __IceSSL_EndpointInfo_h__
+#ifndef ICESSL_ENDPOINT_INFO_H
+#define ICESSL_ENDPOINT_INFO_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/Endpoint.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Ice/Endpoint.h"
 
-#ifndef ICESSL_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICESSL_API /**/
-#    elif defined(ICESSL_API_EXPORTS)
-#        define ICESSL_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICESSL_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 namespace IceSSL
 {
-    class EndpointInfo;
     /**
      * Provides access to an SSL endpoint information.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICE_CLASS(ICESSL_API) EndpointInfo : public ::Ice::EndpointInfo
+    class EndpointInfo : public Ice::EndpointInfo
     {
     public:
-        ICE_MEMBER(ICESSL_API) virtual ~EndpointInfo();
-
         EndpointInfo() = default;
-
-        EndpointInfo(const EndpointInfo&) = default;
-        EndpointInfo(EndpointInfo&&) = default;
-        EndpointInfo& operator=(const EndpointInfo&) = default;
-        EndpointInfo& operator=(EndpointInfo&&) = default;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -51,19 +32,22 @@ namespace IceSSL
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          */
-        EndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying, int timeout, bool compress)
-            : ::Ice::EndpointInfo(underlying, timeout, compress)
+        EndpointInfo(const Ice::EndpointInfoPtr& underlying, int timeout, bool compress)
+            : Ice::EndpointInfo(underlying, timeout, compress)
         {
         }
+
+        EndpointInfo(const EndpointInfo&) = delete;
+        EndpointInfo& operator=(const EndpointInfo&) = delete;
     };
+
+    using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;
 }
 
-/// \cond INTERNAL
-namespace IceSSL
-{
-    using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
-}
-/// \endcond
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-#include <IceUtil/PopDisableWarnings.h>
 #endif

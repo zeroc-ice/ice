@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Util.h>
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
-#include <Ice/UUID.h>
+#include "Util.h"
+#include "Ice/Protocol.h"
+#include "IceUtil/DisableWarnings.h"
 #include "PythonUtil.h"
+
 #include <compile.h>
 #include <frameobject.h>
+#include <cstddef>
 
 using namespace std;
 using namespace Slice::Python;

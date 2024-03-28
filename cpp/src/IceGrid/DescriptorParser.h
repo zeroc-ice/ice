@@ -13,10 +13,10 @@ namespace IceGrid
             const std::string&,
             const Ice::StringSeq&,
             const std::map<std::string, std::string>&,
-            const std::shared_ptr<Ice::Communicator>&,
+            const Ice::CommunicatorPtr&,
             IceGrid::AdminPrx);
 
-        ApplicationDescriptor parseDescriptor(const std::string&, const std::shared_ptr<Ice::Communicator>&);
+        ApplicationDescriptor parseDescriptor(const std::string&, const Ice::CommunicatorPtr&);
 
     }
 }

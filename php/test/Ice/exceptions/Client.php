@@ -5,8 +5,40 @@
 
 require_once('Test.php');
 
+class MyValueFactory implements Ice\ValueFactory
+{
+    function create($id)
+    {
+        return null;
+    }
+}
+
 function allTests($helper)
 {
+    echo "testing value factory registration exceptions...";
+    flush();
+    $communicator = $helper->communicator();
+    $vf = new MyValueFactory;
+    $communicator->getValueFactoryManager()->add($vf, "x");
+    try
+    {
+        $communicator->getValueFactoryManager()->add($vf, "x");
+        test(false);
+    }
+    catch(Ice\AlreadyRegisteredException $ex)
+    {
+    }
+    $communicator->getValueFactoryManager()->add($vf, "");
+    try
+    {
+        $communicator->getValueFactoryManager()->add($vf, "");
+        test(false);
+    }
+    catch(Ice\AlreadyRegisteredException $ex)
+    {
+    }
+    echo "ok\n";
+
     echo "testing stringToProxy... ";
     flush();
     $ref = sprintf("thrower:%s", $helper->getTestEndpoint());
@@ -20,7 +52,6 @@ function allTests($helper)
     $thrower = $base->ice_checkedCast("::Test::Thrower");
     test($thrower != null);
     test($thrower == $base);
-    echo "ok\n";
 
     echo "catching exact types... ";
     flush();

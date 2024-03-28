@@ -8,6 +8,7 @@
 #include <Ice/Ice.h>
 
 #include <algorithm> // required by max
+#include <stdexcept>
 
 using namespace std;
 
@@ -204,11 +205,6 @@ SessionHelperI::objectAdapter()
     return internalObjectAdapter();
 }
 
-Glacier2::SessionHelper::~SessionHelper()
-{
-    // Out of line to avoid weak vtable
-}
-
 Ice::ObjectAdapterPtr
 SessionHelperI::internalObjectAdapter()
 {
@@ -224,11 +220,6 @@ SessionHelperI::internalObjectAdapter()
             "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
     }
     return _adapter;
-}
-
-Glacier2::SessionCallback::~SessionCallback()
-{
-    // Out of line to avoid weak vtable
 }
 
 namespace

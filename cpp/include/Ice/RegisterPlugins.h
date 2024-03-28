@@ -5,7 +5,7 @@
 #ifndef ICE_REGISTER_PLUGINS_H
 #define ICE_REGISTER_PLUGINS_H
 
-#include <Ice/Config.h>
+#include "Config.h"
 
 //
 // Register functions for Ice plugins are declared here.

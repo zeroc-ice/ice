@@ -15,7 +15,7 @@ using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(
     shared_ptr<Instance> instance,
-    shared_ptr<Connection> connection,
+    ConnectionPtr connection,
     const string& userId,
     optional<SessionPrx> session,
     const Identity& controlId,

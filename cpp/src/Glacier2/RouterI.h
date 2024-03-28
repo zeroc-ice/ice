@@ -21,7 +21,7 @@ namespace Glacier2
     public:
         RouterI(
             std::shared_ptr<Instance>,
-            std::shared_ptr<Ice::Connection>,
+            Ice::ConnectionPtr,
             const std::string&,
             std::optional<SessionPrx>,
             const Ice::Identity&,
@@ -71,7 +71,7 @@ namespace Glacier2
         const std::shared_ptr<ServerBlobject> _serverBlobject;
         const bool _clientBlobjectBuffered;
         const bool _serverBlobjectBuffered;
-        const std::shared_ptr<Ice::Connection> _connection;
+        const Ice::ConnectionPtr _connection;
         const std::string _userId;
         const std::optional<SessionPrx> _session;
         const Ice::Identity _controlId;

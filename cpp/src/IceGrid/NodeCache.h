@@ -90,16 +90,16 @@ namespace IceGrid
     public:
         using ValueType = NodeEntry*;
 
-        NodeCache(const std::shared_ptr<Ice::Communicator>&, ReplicaCache&, const std::string&);
+        NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, const std::string&);
 
         std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
 
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
         const std::string& getReplicaName() const { return _replicaName; }
         ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::string _replicaName;
         ReplicaCache& _replicaCache;
     };

@@ -4,7 +4,7 @@
 
 #include "RubyUtil.h"
 #include <Slice/Util.h>
-#include <IceUtil/InputUtil.h>
+#include <cassert>
 #include <iterator>
 #include <algorithm>
 
@@ -1302,14 +1302,8 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
                 case Slice::Builtin::KindInt:
                 case Slice::Builtin::KindFloat:
                 case Slice::Builtin::KindDouble:
-                {
-                    _out << value;
-                    break;
-                }
                 case Slice::Builtin::KindLong:
                 {
-                    IceUtil::Int64 l;
-                    IceUtilInternal::stringToInt64(value, l);
                     _out << value;
                     break;
                 }

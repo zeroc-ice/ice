@@ -179,7 +179,7 @@ classdef Properties < IceInternal.WrapperObject
             % parseIceCommandLineOptions - Convert a sequence of command-line
             %   options into properties. All options that begin with one of the
             %   following prefixes are converted into properties: "--Ice",
-            %   "--IceBox", "--IceGrid", "--IcePatch2", "--IceSSL",
+            %   "--IceBox", "--IceGrid", "--IceSSL",
             %   "--IceStorm", "--Freeze", and "--Glacier2".
             %
             % Parameters:

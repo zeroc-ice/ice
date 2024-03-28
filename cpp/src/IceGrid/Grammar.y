@@ -4,34 +4,32 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/Parser.h>
+#include "Ice/Ice.h"
+#include "Parser.h"
 
 #ifdef _MSC_VER
-// warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning(disable:4102)
-// warning C4065: switch statement contains 'default' but no 'case' labels
-#   pragma warning(disable:4065)
-// warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
-#   pragma warning(disable:4244)
+// warning C4127: conditional expression is constant
+#    pragma warning(disable:4127)
+// warning C4102: 'yyexhausted': unreferenced label
+#    pragma warning(disable:4102)
 // warning C4702: unreachable code
-#   pragma warning(disable:4702)
+#    pragma warning(disable:4702)
 #endif
 
-//
 // Avoid old style cast warnings in generated grammar
-//
 #ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wold-style-cast"
+#    pragma GCC diagnostic ignored "-Wunused-label"
+
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98753
+#    pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
-//
-// Avoid clang conversion warnings
-//
+// Avoid clang warnings in generate grammar
 #if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wconversion"
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#   pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#    pragma clang diagnostic ignored "-Wconversion"
+#    pragma clang diagnostic ignored "-Wsign-conversion"
+#    pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 using namespace std;
@@ -46,7 +44,7 @@ yyerror(const char* s)
 
 %}
 
-%pure-parser
+%define api.pure
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this
@@ -70,7 +68,6 @@ yyerror(const char* s)
 %token ICE_GRID_STRING
 %token ICE_GRID_START
 %token ICE_GRID_STOP
-%token ICE_GRID_PATCH
 %token ICE_GRID_SIGNAL
 %token ICE_GRID_STDOUT
 %token ICE_GRID_STDERR
@@ -175,14 +172,6 @@ command
 | ICE_GRID_APPLICATION ICE_GRID_DESCRIBE ICE_GRID_HELP ';'
 {
     parser->usage("application", "describe");
-}
-| ICE_GRID_APPLICATION ICE_GRID_PATCH strings ';'
-{
-    parser->patchApplication($3);
-}
-| ICE_GRID_APPLICATION ICE_GRID_PATCH ICE_GRID_HELP ';'
-{
-    parser->usage("application", "patch");
 }
 | ICE_GRID_APPLICATION ICE_GRID_LIST strings ';'
 {
@@ -351,14 +340,6 @@ command
 | ICE_GRID_SERVER ICE_GRID_STOP ICE_GRID_HELP ';'
 {
     parser->usage("server", "stop");
-}
-| ICE_GRID_SERVER ICE_GRID_PATCH strings ';'
-{
-    parser->patchServer($3);
-}
-| ICE_GRID_SERVER ICE_GRID_PATCH ICE_GRID_HELP ';'
-{
-    parser->usage("server", "patch");
 }
 | ICE_GRID_SERVER ICE_GRID_SIGNAL strings ';'
 {
@@ -723,9 +704,6 @@ keyword
 {
 }
 | ICE_GRID_STOP
-{
-}
-| ICE_GRID_PATCH
 {
 }
 | ICE_GRID_SIGNAL

@@ -17,6 +17,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <DotNetNames.h>
+#include <cassert>
 #include <string.h>
 #include <iterator>
 #include <algorithm>

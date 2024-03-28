@@ -97,7 +97,7 @@ allTests(Test::TestHelper* helper)
     test(*ba2 > *ba1);
     test(*ba1 != *ba2);
 
-    *ba1 = *ba2;
+    ba1 = ba2->ice_clone();
     test(ba1->theS.str == "hello");
     test(ba1->str == "hi");
 
@@ -106,7 +106,7 @@ allTests(Test::TestHelper* helper)
     test(*ba1 <= *ba2);
 
     BasePtr bp1 = make_shared<Base>();
-    *bp1 = *ba2;
+    bp1 = ba2->ice_clone();
     test(bp1->theS.str == "hello");
     test(bp1->str == "hi");
 

@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -142,7 +142,7 @@ public:
     virtual void _iceRead(Ice::InputStream*) {}
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -184,7 +184,7 @@ public:
     void check() { test((*a)->mc == 18); }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -216,7 +216,7 @@ public:
     FPtr getF() { return _f; }
 
 protected:
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
+    virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -233,7 +233,7 @@ class FactoryI
 public:
     FactoryI() : _enabled(false) {}
 
-    shared_ptr<Ice::Value> create(string_view typeId)
+    Ice::ValuePtr create(string_view typeId)
     {
         if (!_enabled)
         {
@@ -291,10 +291,10 @@ allTests(Test::TestHelper* helper, bool)
     OneOptionalPtr oo2 = make_shared<OneOptional>(16);
     test(oo2->a && *oo2->a == 16);
 
-    OneOptionalPtr oo3 = make_shared<OneOptional>(*oo2);
+    OneOptionalPtr oo3 = oo2->ice_clone();
     test(oo3->a && *oo3->a == 16);
 
-    *oo3 = *oo1;
+    oo3 = oo1->ice_clone();
     test(oo3->a && *oo3->a == 15);
 
     OneOptionalPtr oon = make_shared<OneOptional>(nullopt);
@@ -359,10 +359,10 @@ allTests(Test::TestHelper* helper, bool)
     mo1->bos->push_back(true);
     mo1->bos->push_back(false);
 
-    MultiOptionalPtr mo2 = make_shared<MultiOptional>(*mo1);
+    MultiOptionalPtr mo2 = mo1->ice_clone();
 
     MultiOptionalPtr mo3 = make_shared<MultiOptional>();
-    *mo3 = *mo2;
+    mo3 = mo2->ice_clone();
 
     test(mo3->a == static_cast<uint8_t>(15));
     test(mo3->b == true);
@@ -507,7 +507,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->bos == mo1->bos);
 
     // Clear the first half of the optional parameters
-    MultiOptionalPtr mo6 = make_shared<MultiOptional>(*mo5);
+    MultiOptionalPtr mo6 = mo5->ice_clone();
     mo6->a = nullopt;
     mo6->c = nullopt;
     mo6->e = nullopt;
@@ -559,7 +559,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->imipd);
 
     // Clear the second half of the optional parameters
-    MultiOptionalPtr mo8 = make_shared<MultiOptional>(*mo5);
+    MultiOptionalPtr mo8 = mo5->ice_clone();
     mo8->b = nullopt;
     mo8->d = nullopt;
     mo8->f = nullopt;

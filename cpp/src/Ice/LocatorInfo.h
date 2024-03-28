@@ -10,7 +10,6 @@
 #include <Ice/Identity.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
-#include <Ice/Version.h>
 #include "Ice/Locator.h"
 
 #include <mutex>
@@ -49,9 +48,9 @@ namespace IceInternal
 
         void clear();
 
-        bool getAdapterEndpoints(const std::string&, int, ::std::vector<EndpointIPtr>&);
-        void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointIPtr>&);
-        ::std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
+        bool getAdapterEndpoints(const std::string&, int, std::vector<EndpointIPtr>&);
+        void addAdapterEndpoints(const std::string&, const std::vector<EndpointIPtr>&);
+        std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
 
         bool getObjectReference(const Ice::Identity&, int, ReferencePtr&);
         void addObjectReference(const Ice::Identity&, const ReferencePtr&);

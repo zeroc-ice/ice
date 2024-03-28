@@ -23,7 +23,7 @@ namespace IceGrid
             Thread(
                 ReplicaSessionManager& manager,
                 const std::optional<InternalRegistryPrx>& master,
-                const std::shared_ptr<Ice::Logger>& logger)
+                const Ice::LoggerPtr& logger)
                 : SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
                   _manager(manager)
             {

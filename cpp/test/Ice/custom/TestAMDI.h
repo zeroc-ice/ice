@@ -24,9 +24,8 @@ public:
 
     void opByteArrayAsync(
         std::pair<const std::byte*, const std::byte*>,
-        std::function<void(
-            const std::pair<const std::byte*, const std::byte*>&,
-            const std::pair<const std::byte*, const std::byte*>&)>,
+        std::function<
+            void(std::pair<const std::byte*, const std::byte*>, std::pair<const std::byte*, const std::byte*>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
@@ -152,7 +151,7 @@ public:
 
     void opOutArrayByteSeqAsync(
         Test::ByteSeq,
-        std::function<void(const std::pair<const std::byte*, const std::byte*>&)>,
+        std::function<void(std::pair<const std::byte*, const std::byte*>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 

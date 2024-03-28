@@ -5,7 +5,7 @@
 #ifndef ICE_BATCH_REQUEST_QUEUE_H
 #define ICE_BATCH_REQUEST_QUEUE_H
 
-#include <Ice/BatchRequestInterceptor.h>
+#include "Ice/BatchRequest.h"
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/OutputStream.h>

@@ -15,7 +15,7 @@ namespace IceGrid
     class QueryI final : public Query
     {
     public:
-        QueryI(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<Database>&);
+        QueryI(const Ice::CommunicatorPtr&, const std::shared_ptr<Database>&);
 
         std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
 
@@ -29,7 +29,7 @@ namespace IceGrid
         Ice::ObjectProxySeq findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<Database> _database;
     };
 }

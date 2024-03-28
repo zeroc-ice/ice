@@ -8,7 +8,7 @@
 #include <Ice/RequestHandler.h>
 #include <Ice/OutputStream.h>
 #include <Ice/ObjectAdapterF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/TraceLevelsF.h>
 
 #include <condition_variable>

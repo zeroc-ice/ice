@@ -12,15 +12,15 @@ using namespace std;
 using namespace IceGrid;
 
 SessionServantManager::SessionServantManager(
-    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    const Ice::ObjectAdapterPtr& adapter,
     const string& instanceName,
     bool checkConnection,
     const string& serverAdminCategory,
-    const shared_ptr<Ice::Object>& serverAdminRouter,
+    const Ice::ObjectPtr& serverAdminRouter,
     const string& nodeAdminCategory,
-    const shared_ptr<Ice::Object>& nodeAdminRouter,
+    const Ice::ObjectPtr& nodeAdminRouter,
     const string& replicaAdminCategory,
-    const shared_ptr<Ice::Object>& replicaAdminRouter,
+    const Ice::ObjectPtr& replicaAdminRouter,
     const shared_ptr<AdminCallbackRouter>& adminCallbackRouter)
     : _adapter(adapter),
       _instanceName(instanceName),
@@ -35,12 +35,12 @@ SessionServantManager::SessionServantManager(
 {
 }
 
-shared_ptr<Ice::Object>
+Ice::ObjectPtr
 SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
 {
     lock_guard lock(_mutex);
 
-    shared_ptr<Ice::Object> servant;
+    Ice::ObjectPtr servant;
     bool plainServant = false;
 
     if (_serverAdminRouter && current.id.category == _serverAdminCategory)
@@ -79,7 +79,7 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
 }
 
 void
-SessionServantManager::finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&)
+SessionServantManager::finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&)
 {
 }
 
@@ -94,7 +94,7 @@ SessionServantManager::deactivate(const std::string&)
 
 Ice::ObjectPrx
 SessionServantManager::addSession(
-    const shared_ptr<Ice::Object>& session,
+    const Ice::ObjectPtr& session,
     const shared_ptr<Ice::Connection>& connection,
     const string& category)
 {
@@ -119,7 +119,7 @@ SessionServantManager::addSession(
 
 void
 SessionServantManager::setSessionControl(
-    const shared_ptr<Ice::Object>& session,
+    const Ice::ObjectPtr& session,
     const Glacier2::SessionControlPrx& ctl,
     const Ice::IdentitySeq& ids)
 {
@@ -141,14 +141,12 @@ SessionServantManager::setSessionControl(
     // Allow invocations on server admin objects.
     if (!p->second.category.empty() && _serverAdminRouter)
     {
-        Ice::StringSeq seq;
-        seq.push_back(_serverAdminCategory);
-        ctl->categories()->add(seq);
+        ctl->categories()->add(Ice::StringSeq{_serverAdminCategory});
     }
 }
 
 optional<Glacier2::IdentitySetPrx>
-SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& session)
+SessionServantManager::getGlacier2IdentitySet(const Ice::ObjectPtr& session)
 {
     lock_guard lock(_mutex);
     auto p = _sessions.find(session);
@@ -167,7 +165,7 @@ SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& ses
 }
 
 optional<Glacier2::StringSetPrx>
-SessionServantManager::getGlacier2AdapterIdSet(const shared_ptr<Ice::Object>& session)
+SessionServantManager::getGlacier2AdapterIdSet(const Ice::ObjectPtr& session)
 {
     lock_guard lock(_mutex);
     auto p = _sessions.find(session);
@@ -186,7 +184,7 @@ SessionServantManager::getGlacier2AdapterIdSet(const shared_ptr<Ice::Object>& se
 }
 
 void
-SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
+SessionServantManager::removeSession(const Ice::ObjectPtr& session)
 {
     lock_guard lock(_mutex);
 
@@ -220,7 +218,7 @@ SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
 }
 
 Ice::ObjectPrx
-SessionServantManager::add(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
+SessionServantManager::add(const Ice::ObjectPtr& servant, const Ice::ObjectPtr& session)
 {
     lock_guard lock(_mutex);
     return addImpl(servant, session);
@@ -237,7 +235,7 @@ SessionServantManager::remove(const Ice::Identity& id)
     // Find the session associated to the servant and remove the servant identity from the
     // session identities.
     //
-    map<shared_ptr<Ice::Object>, SessionInfo>::iterator q = _sessions.find(p->second.session);
+    map<Ice::ObjectPtr, SessionInfo>::iterator q = _sessions.find(p->second.session);
     assert(q != _sessions.end());
     q->second.identities.erase(id);
 
@@ -262,7 +260,7 @@ SessionServantManager::remove(const Ice::Identity& id)
 }
 
 Ice::ObjectPrx
-SessionServantManager::addImpl(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
+SessionServantManager::addImpl(const Ice::ObjectPtr& servant, const Ice::ObjectPtr& session)
 {
     auto p = _sessions.find(session);
     assert(p != _sessions.end());

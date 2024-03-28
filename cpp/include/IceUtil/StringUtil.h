@@ -5,7 +5,9 @@
 #ifndef ICE_UTIL_STRING_UTIL_H
 #define ICE_UTIL_STRING_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
+
+#include <string>
 #include <vector>
 
 namespace IceUtilInternal
@@ -13,7 +15,7 @@ namespace IceUtilInternal
     //
     // Must be kept in sync with Ice::ToStringMode
     //
-    enum class ToStringMode : unsigned char
+    enum class ToStringMode : std::uint8_t
     {
         Unicode,
         ASCII,
@@ -28,7 +30,7 @@ namespace IceUtilInternal
     ICE_API std::string escapeString(const std::string&, const std::string&, ToStringMode);
 
     //
-    // Remove escape sequences added by escapeString. Throws IllegalArgumentException
+    // Remove escape sequences added by escapeString. Throws std::invalid_argument
     // for an invalid input string.
     //
     ICE_API std::string
@@ -72,7 +74,7 @@ namespace IceUtilInternal
     //
     ICE_API std::string lastErrorToString();
 #ifdef _WIN32
-    ICE_API std::string errorToString(int, LPCVOID = nullptr);
+    ICE_API std::string errorToString(int, const void* = nullptr);
 #else
     ICE_API std::string errorToString(int);
 #endif

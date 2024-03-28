@@ -2,26 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceBox_Service_h__
-#define __IceBox_Service_h__
+#ifndef ICEBOX_SERVICE_H
+#define ICEBOX_SERVICE_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include "Ice/Ice.h"
 #include "Config.h"
+#include "Ice/Ice.h"
 
-#ifndef ICEBOX_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICEBOX_API /**/
-#    elif defined(ICEBOX_API_EXPORTS)
-#        define ICEBOX_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICEBOX_API ICE_DECLSPEC_IMPORT
-#    endif
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
 #endif
-namespace IceBox
-{
-    class Service;
-}
 
 namespace IceBox
 {
@@ -33,8 +26,6 @@ namespace IceBox
     class ICEBOX_API FailureException : public Ice::LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * One-shot constructor to initialize all data members.
          * The file and line number are required for all local exceptions.
@@ -43,7 +34,7 @@ namespace IceBox
          * @param reason The reason for the failure.
          */
         FailureException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
+            : Ice::LocalException(file, line),
               reason(std::move(reason))
         {
         }
@@ -52,13 +43,13 @@ namespace IceBox
          * Obtains a tuple containing all of the exception's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::string&> ice_tuple() const noexcept { return std::tie(reason); }
+        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        static ::std::string_view ice_staticId() noexcept;
+        static std::string_view ice_staticId() noexcept;
 
         std::string ice_id() const override;
 
@@ -67,20 +58,17 @@ namespace IceBox
         /**
          * The reason for the failure.
          */
-        ::std::string reason;
+        std::string reason;
     };
-}
 
-namespace IceBox
-{
     /**
      * An application service managed by a {@link ServiceManager}.
      * \headerfile IceBox/IceBox.h
      */
-    class ICE_CLASS(ICEBOX_API) Service
+    class Service
     {
     public:
-        ICE_MEMBER(ICEBOX_API) virtual ~Service();
+        virtual ~Service() = default;
 
         /**
          * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service.
@@ -91,24 +79,22 @@ namespace IceBox
          * @param args The service arguments that were not converted into properties.
          * @throws IceBox::FailureException Raised if {@link #start} failed.
          */
-        virtual void start(
-            const ::std::string& name,
-            const ::std::shared_ptr<::Ice::Communicator>& communicator,
-            const ::Ice::StringSeq& args) = 0;
+        virtual void
+        start(const std::string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) = 0;
 
         /**
          * Stop the service.
          */
         virtual void stop() = 0;
     };
+
+    using ServicePtr = std::shared_ptr<Service>;
 }
 
-/// \cond INTERNAL
-namespace IceBox
-{
-    using ServicePtr = ::std::shared_ptr<Service>;
-}
-/// \endcond
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
-#include <IceUtil/PopDisableWarnings.h>
 #endif

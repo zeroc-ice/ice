@@ -4,9 +4,6 @@
   <PropertyGroup>
     <IceSoVersion>38a0</IceSoVersion>
     <IceBuildingSrc>no</IceBuildingSrc>
-
-    <!-- TODO remove once we move generated headers to a common directory -->
-    <IceCppMapping>cpp11</IceCppMapping>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>
@@ -39,17 +36,6 @@
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\test\Common\msbuild\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-
-  <!--
-      C++11 import library settings.
-  -->
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Debug|DynamicLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)++11d</TargetName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Release|DynamicLibrary'">
-    <TargetName>$(ProjectName)$(IceSoVersion)++11</TargetName>
-  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>

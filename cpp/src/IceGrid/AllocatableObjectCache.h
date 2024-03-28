@@ -59,7 +59,7 @@ namespace IceGrid
     class AllocatableObjectCache : public Cache<Ice::Identity, AllocatableObjectEntry>
     {
     public:
-        AllocatableObjectCache(const std::shared_ptr<Ice::Communicator>&);
+        AllocatableObjectCache(const Ice::CommunicatorPtr&);
 
         void add(const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
         std::shared_ptr<AllocatableObjectEntry> get(const Ice::Identity&) const;
@@ -68,7 +68,7 @@ namespace IceGrid
         void allocateByType(const std::string&, const std::shared_ptr<ObjectAllocationRequest>&);
         bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&);
 
-        const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
+        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
         class TypeEntry
@@ -87,7 +87,7 @@ namespace IceGrid
             std::list<std::shared_ptr<ObjectAllocationRequest>> _requests;
         };
 
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
         std::map<std::string, TypeEntry> _types;
         std::map<std::string, std::vector<Ice::Identity>> _allocatablesByType;
     };

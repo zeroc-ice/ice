@@ -47,6 +47,7 @@ cppHeaderPreamble = (
 #define ICE_INTERNAL_%(classname)s_H
 
 #include <Ice/Config.h>
+#include <string>
 
 namespace IceInternal
 {

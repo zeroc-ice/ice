@@ -40,16 +40,16 @@ public:
 
     void shutdown(const Ice::Current&) override;
 
-    void removeConnection(const std::shared_ptr<Ice::Connection>&);
-    void incHeartbeatCount(const std::shared_ptr<Ice::Connection>&);
+    void removeConnection(const Ice::ConnectionPtr&);
+    void incHeartbeatCount(const Ice::ConnectionPtr&);
 
 private:
-    void checkConnection(const std::shared_ptr<Ice::Connection>&);
+    void checkConnection(const Ice::ConnectionPtr&);
 
     std::mutex _lock;
     std::condition_variable _condVar;
     int _datagramCount = 0;
-    std::map<std::shared_ptr<Ice::Connection>, int> _connections;
+    std::map<Ice::ConnectionPtr, int> _connections;
     int _counter = 0;
 };
 

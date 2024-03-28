@@ -8,6 +8,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/ConsoleUtil.h>
+#include <cassert>
 #include <climits>
 #include <cstring>
 #include <algorithm>

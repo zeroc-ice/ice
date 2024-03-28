@@ -18,8 +18,9 @@
 #include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
-#include <IceGrid/Util.h>
-#include <IcePatch2Lib/Util.h>
+#include "Util.h"
+
+#include <iostream>
 
 #ifdef _WIN32
 #    include <direct.h>
@@ -57,7 +58,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
     private:
         void usage(const std::string&);
@@ -67,14 +68,14 @@ namespace
         shared_ptr<RegistryI> _registry;
         shared_ptr<NodeI> _node;
         unique_ptr<NodeSessionManager> _sessions;
-        shared_ptr<ObjectAdapter> _adapter;
+        ObjectAdapterPtr _adapter;
     };
 
     class CollocatedRegistry final : public RegistryI
     {
     public:
         CollocatedRegistry(
-            const shared_ptr<Communicator>&,
+            const CommunicatorPtr&,
             const shared_ptr<Activator>&,
             bool,
             bool,
@@ -104,7 +105,7 @@ namespace
 }
 
 CollocatedRegistry::CollocatedRegistry(
-    const shared_ptr<Communicator>& com,
+    const CommunicatorPtr& com,
     const shared_ptr<Activator>& activator,
     bool nowarn,
     bool readonly,
@@ -136,7 +137,7 @@ ProcessI::shutdown(const Current&)
 void
 ProcessI::writeMessage(string message, int fd, const Current& current)
 {
-    _origProcess->writeMessage(std::move(message), std::move(fd), current);
+    _origProcess->writeMessage(std::move(message), fd, current);
 }
 
 bool
@@ -339,9 +340,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             dataPath += "/";
         }
 
-        IcePatch2Internal::createDirectory(dataPath + "servers");
-        IcePatch2Internal::createDirectory(dataPath + "tmp");
-        IcePatch2Internal::createDirectory(dataPath + "distrib");
+        createDirectory(dataPath + "servers");
+        createDirectory(dataPath + "tmp");
 
 #ifdef _WIN32
         //
@@ -354,7 +354,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             setNoIndexingAttribute(dataPath + "servers");
             setNoIndexingAttribute(dataPath + "tmp");
-            setNoIndexingAttribute(dataPath + "distrib");
         }
         catch (const FileException& ex)
         {
@@ -723,7 +722,7 @@ NodeService::stop()
     return true;
 }
 
-shared_ptr<Communicator>
+CommunicatorPtr
 NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData, int version)
 {
     InitializationData initData = initializationData;

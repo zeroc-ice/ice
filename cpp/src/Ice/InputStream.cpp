@@ -12,13 +12,13 @@
 #include <Ice/ValueFactory.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
-#include <Ice/FactoryTableInit.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
+
+#include "Ice/FactoryTable.h"
 #include "ReferenceFactory.h"
 #include "Endian.h"
 #include <iterator>
@@ -33,11 +33,17 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+    // Make sure the global factory table is initialized before we use it.
+    const FactoryTableInit factoryTableInit;
+}
+
 Ice::InputStream::InputStream() { initialize(currentEncoding); }
 
 Ice::InputStream::InputStream(const vector<byte>& v) : Buffer(v) { initialize(currentEncoding); }
 
-Ice::InputStream::InputStream(const pair<const byte*, const byte*>& p) : Buffer(p.first, p.second)
+Ice::InputStream::InputStream(pair<const byte*, const byte*> p) : Buffer(p.first, p.second)
 {
     initialize(currentEncoding);
 }
@@ -51,7 +57,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<
     initialize(communicator);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const pair<const byte*, const byte*>& p)
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator);
@@ -69,7 +75,7 @@ Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<byte
     initialize(encoding);
 }
 
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const pair<const byte*, const byte*>& p)
+Ice::InputStream::InputStream(const EncodingVersion& encoding, pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(encoding);
@@ -97,7 +103,7 @@ Ice::InputStream::InputStream(
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     const EncodingVersion& encoding,
-    const pair<const byte*, const byte*>& p)
+    pair<const byte*, const byte*> p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator, encoding);
@@ -268,6 +274,140 @@ Ice::InputStream::resetEncapsulation()
     }
 
     _preAllocatedEncaps.reset();
+}
+
+const EncodingVersion&
+Ice::InputStream::startEncapsulation()
+{
+    Encaps* oldEncaps = _currentEncaps;
+    if (!oldEncaps) // First allocated encaps?
+    {
+        _currentEncaps = &_preAllocatedEncaps;
+    }
+    else
+    {
+        _currentEncaps = new Encaps();
+        _currentEncaps->previous = oldEncaps;
+    }
+    _currentEncaps->start = static_cast<size_t>(i - b.begin());
+
+    //
+    // I don't use readSize() and writeSize() for encapsulations,
+    // because when creating an encapsulation, I must know in advance
+    // how many bytes the size information will require in the data
+    // stream. If I use an Int, it is always 4 bytes. For
+    // readSize()/writeSize(), it could be 1 or 5 bytes.
+    //
+    std::int32_t sz;
+    read(sz);
+    if (sz < 6)
+    {
+        throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    if (i - sizeof(std::int32_t) + sz > b.end())
+    {
+        throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    _currentEncaps->sz = sz;
+
+    read(_currentEncaps->encoding);
+    IceInternal::checkSupportedEncoding(_currentEncaps->encoding); // Make sure the encoding is supported
+
+    return _currentEncaps->encoding;
+}
+
+void
+Ice::InputStream::endEncapsulation()
+{
+    assert(_currentEncaps);
+
+    if (_currentEncaps->encoding != Encoding_1_0)
+    {
+        skipOptionals();
+        if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
+    }
+    else if (i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
+    {
+        if (i + 1 != b.begin() + _currentEncaps->start + _currentEncaps->sz)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
+
+        //
+        // Ice version < 3.3 had a bug where user exceptions with
+        // class members could be encoded with a trailing byte
+        // when dispatched with AMD. So we tolerate an extra byte
+        // in the encapsulation.
+        //
+        ++i;
+    }
+
+    Encaps* oldEncaps = _currentEncaps;
+    _currentEncaps = _currentEncaps->previous;
+    if (oldEncaps == &_preAllocatedEncaps)
+    {
+        oldEncaps->reset();
+    }
+    else
+    {
+        delete oldEncaps;
+    }
+}
+
+EncodingVersion
+Ice::InputStream::skipEmptyEncapsulation()
+{
+    std::int32_t sz;
+    read(sz);
+    if (sz < 6)
+    {
+        throwEncapsulationException(__FILE__, __LINE__);
+    }
+    if (i - sizeof(std::int32_t) + sz > b.end())
+    {
+        throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    Ice::EncodingVersion encoding;
+    read(encoding);
+    IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported
+
+    if (encoding == Ice::Encoding_1_0)
+    {
+        if (sz != static_cast<std::int32_t>(sizeof(std::int32_t)) + 2)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
+    }
+    else
+    {
+        // Skip the optional content of the encapsulation if we are expecting an
+        // empty encapsulation.
+        i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
+    }
+    return encoding;
+}
+
+EncodingVersion
+Ice::InputStream::readEncapsulation(const std::byte*& v, std::int32_t& sz)
+{
+    EncodingVersion encoding;
+    v = i;
+    read(sz);
+    if (sz < 6)
+    {
+        throwEncapsulationException(__FILE__, __LINE__);
+    }
+    if (i - sizeof(std::int32_t) + sz > b.end())
+    {
+        throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+
+    read(encoding);
+    i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
+    return encoding;
 }
 
 int32_t
@@ -1599,7 +1739,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
     }
 }
 
-shared_ptr<Ice::Value>
+ValuePtr
 Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 {
     shared_ptr<Value> v;
@@ -1692,7 +1832,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFun
 }
 
 void
-Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const shared_ptr<Ice::Value>& v)
+Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
 {
     //
     // Add the object to the map of unmarshaled instances, this must

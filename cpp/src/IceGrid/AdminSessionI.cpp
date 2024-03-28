@@ -25,7 +25,7 @@ namespace
 
         void ice_invokeAsync(
             pair<const byte*, const byte*> inParams,
-            function<void(bool, const pair<const byte*, const byte*>&)> response,
+            function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(exception_ptr)> exception,
             const Ice::Current& current) override
         {
@@ -275,11 +275,7 @@ AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Curr
 {
     try
     {
-        return addFileIterator(
-            _database->getServer(std::move(id))->getProxy(false, 5s),
-            "#" + std::move(path),
-            nLines,
-            current);
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "#" + path, nLines, current);
     }
     catch (const SynchronizationException&)
     {
@@ -292,7 +288,7 @@ AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& curre
 {
     try
     {
-        return addFileIterator(_database->getServer(std::move(id))->getProxy(false, 5s), "stdout", nLines, current);
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stdout", nLines, current);
     }
     catch (const SynchronizationException&)
     {
@@ -305,7 +301,7 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
 {
     try
     {
-        return addFileIterator(_database->getServer(std::move(id))->getProxy(false, 5s), "stderr", nLines, current);
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stderr", nLines, current);
     }
     catch (const SynchronizationException&)
     {
@@ -316,13 +312,13 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
 optional<FileIteratorPrx>
 AdminSessionI::openNodeStdOut(string name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stdout", nLines, current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
 }
 
 optional<FileIteratorPrx>
 AdminSessionI::openNodeStdErr(string name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stderr", nLines, current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
 }
 
 optional<FileIteratorPrx>
@@ -330,7 +326,7 @@ AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& c
 {
     return addFileIterator(
         name == _replicaName ? _database->getReplicaCache().getInternalRegistry()
-                             : _database->getReplica(std::move(name))->getProxy(),
+                             : _database->getReplica(name)->getProxy(),
         "stdout",
         nLines,
         current);
@@ -341,7 +337,7 @@ AdminSessionI::openRegistryStdErr(string name, int nLines, const Ice::Current& c
 {
     return addFileIterator(
         name == _replicaName ? _database->getReplicaCache().getInternalRegistry()
-                             : _database->getReplica(std::move(name))->getProxy(),
+                             : _database->getReplica(name)->getProxy(),
         "stderr",
         nLines,
         current);

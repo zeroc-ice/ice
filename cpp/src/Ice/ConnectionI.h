@@ -17,7 +17,7 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/ConnectorF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/Logger.h>
 #include <Ice/TraceLevelsF.h>
 #include "Ice/OutgoingAsync.h"
 #include <Ice/EventHandler.h>
@@ -27,6 +27,7 @@
 #include <Ice/ACM.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include "Ice/OutgoingResponse.h"
 
 #include <condition_variable>
 #include <deque>
@@ -70,7 +71,7 @@ namespace Ice
     public:
         std::shared_ptr<ConnectionI> shared_from_this()
         {
-            return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
+            return std::dynamic_pointer_cast<ConnectionI>(IceInternal::EventHandler::shared_from_this());
         }
 
         struct OutgoingMessage
@@ -153,8 +154,8 @@ namespace Ice
 
         virtual std::function<void()> flushBatchRequestsAsync(
             CompressBatch,
-            ::std::function<void(::std::exception_ptr)>,
-            ::std::function<void(bool)> = nullptr);
+            std::function<void(std::exception_ptr)>,
+            std::function<void(bool)> = nullptr);
 
         virtual void setCloseCallback(CloseCallback);
         virtual void setHeartbeatCallback(HeartbeatCallback);
@@ -162,7 +163,7 @@ namespace Ice
         virtual void heartbeat();
 
         virtual std::function<void()>
-            heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
+            heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr);
 
         virtual void
         setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&);

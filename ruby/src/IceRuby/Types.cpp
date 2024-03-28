@@ -5,7 +5,6 @@
 #include <Types.h>
 #include <Proxy.h>
 #include <Util.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
@@ -705,7 +704,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintOb
         case PrimitiveInfo::KindLong:
         {
             int64_t l = getLong(value);
-            out << IceUtilInternal::int64ToString(l);
+            out << l;
             break;
         }
         case PrimitiveInfo::KindFloat:
@@ -1292,11 +1291,8 @@ IceRuby::SequenceInfo::unmarshal(
 void
 IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 {
-#ifdef ICE_64
-    long i = static_cast<long>(reinterpret_cast<long long>(closure));
-#else
+    static_assert(sizeof(long) == sizeof(void*), "long and void* must have the same size");
     long i = reinterpret_cast<long>(closure);
-#endif
     RARRAY_ASET(target, i, val);
 }
 

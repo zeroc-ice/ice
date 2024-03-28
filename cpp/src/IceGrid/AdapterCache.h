@@ -151,7 +151,7 @@ namespace IceGrid
     class AdapterCache : public CacheByString<AdapterEntry>
     {
     public:
-        AdapterCache(const std::shared_ptr<Ice::Communicator>&);
+        AdapterCache(const Ice::CommunicatorPtr&);
 
         void addServerAdapter(const AdapterDescriptor&, const std::shared_ptr<ServerEntry>&, const std::string&);
         void addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
@@ -166,7 +166,7 @@ namespace IceGrid
         virtual void removeImpl(const std::string&);
 
     private:
-        const std::shared_ptr<Ice::Communicator> _communicator;
+        const Ice::CommunicatorPtr _communicator;
     };
 
 };

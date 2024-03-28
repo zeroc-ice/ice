@@ -5,11 +5,19 @@
 #ifndef ICE_FILE_UTIL_H
 #define ICE_FILE_UTIL_H
 
-#include <IceUtil/Config.h>
+#include "Config.h"
 
-#include <sys/stat.h>
+#ifdef _WIN32
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
+#endif
+
 #include <fcntl.h>
 #include <stdio.h>
+#include <string>
+#include <sys/stat.h>
 
 namespace IceUtilInternal
 {
@@ -17,7 +25,7 @@ namespace IceUtilInternal
     extern const ICE_API std::string separator;
 
     //
-    // Detemine if path is an absolute path.
+    // Determine if path is an absolute path.
     //
     ICE_API bool isAbsolutePath(const std::string&);
 
@@ -86,7 +94,7 @@ namespace IceUtilInternal
     // This class is used to implement process file locking. This class
     // is not intended to do file locking within the same process.
     //
-    class ICE_API FileLock : public IceUtil::noncopyable
+    class ICE_API FileLock
     {
     public:
         //
@@ -99,10 +107,14 @@ namespace IceUtilInternal
         //
         FileLock(const std::string&);
 
+        FileLock(const FileLock&) = delete;
+
         //
         // The destructor releases the lock and removes the file.
         //
         virtual ~FileLock();
+
+        FileLock& operator=(const FileLock&) = delete;
 
     private:
 #ifdef _WIN32

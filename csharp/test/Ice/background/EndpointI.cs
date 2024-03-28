@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
 
 internal class EndpointI : IceInternal.EndpointI
 {
@@ -156,9 +157,11 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override IceInternal.Acceptor acceptor(string adapterName)
+    public override IceInternal.Acceptor acceptor(
+        string adapterName,
+        SslServerAuthenticationOptions serverAuthenticationOptions)
     {
-        return new Acceptor(this, _endpoint.acceptor(adapterName));
+        return new Acceptor(this, _endpoint.acceptor(adapterName, serverAuthenticationOptions));
     }
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)

@@ -6,12 +6,14 @@
 #include "Ice/LocalException.h"
 #include "Ice/SlicedData.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::Ex::throwUOE(const string& expectedType, const shared_ptr<Ice::Value>& v)
+IceInternal::Ex::throwUOE(const string& expectedType, const ValuePtr& v)
 {
     //
     // If the object is an unknown sliced object, we didn't find an

@@ -4,9 +4,8 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Communicator.h>
-#include <Ice/ObjectAdapter.h>
+#include "Ice/Ice.h"
+#include "Ice/Protocol.h"
 #include <IceGrid/Database.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>
@@ -177,7 +176,7 @@ namespace
 
 shared_ptr<Database>
 Database::create(
-    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const Ice::ObjectAdapterPtr& registryAdapter,
     IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
@@ -193,7 +192,7 @@ Database::create(
 }
 
 Database::Database(
-    const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
+    const Ice::ObjectAdapterPtr& registryAdapter,
     IceStorm::TopicManagerPrx topicManager,
     const string& instanceName,
     const shared_ptr<TraceLevels>& traceLevels,

@@ -8,6 +8,8 @@
 #include <Ice/MetricsObserverI.h>
 #include <Ice/Connection.h>
 
+#include <sstream>
+
 namespace IceInternal
 {
     template<typename T, typename O> class ObserverWithDelegateT : public IceMX::ObserverT<T>, public virtual O

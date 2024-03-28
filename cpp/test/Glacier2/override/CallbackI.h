@@ -12,7 +12,7 @@ class CallbackReceiverI final : public Test::CallbackReceiver
 {
 public:
     void callback(int token, const Ice::Current&) override;
-    void callbackWithPayload(Ice::ByteSeq, const ::Ice::Current&) override;
+    void callbackWithPayload(Ice::ByteSeq, const Ice::Current&) override;
 
     int callbackOK(int, int);
     int callbackWithPayloadOK(int);
@@ -46,7 +46,7 @@ public:
         std::optional<Test::CallbackReceiverPrx>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) override;
+        const Ice::Current&) override;
     void shutdown(const Ice::Current&) override;
 };
 

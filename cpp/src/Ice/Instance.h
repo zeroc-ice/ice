@@ -10,7 +10,7 @@
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/InstrumentationF.h>
+#include <Ice/Instrumentation.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
@@ -23,13 +23,16 @@
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/RetryQueueF.h>
-#include <Ice/PluginF.h>
+#include <Ice/Plugin.h>
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/Initialize.h>
 #include <Ice/ImplicitContext.h>
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
+
+#include "Protocol.h"
+
 #include <list>
 
 namespace Ice
@@ -102,9 +105,9 @@ namespace IceInternal
 
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
-        void addAdminFacet(const std::shared_ptr<Ice::Object>&, const std::string&);
-        std::shared_ptr<Ice::Object> removeAdminFacet(const std::string&);
-        std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
+        void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
+        Ice::ObjectPtr removeAdminFacet(const std::string&);
+        Ice::ObjectPtr findAdminFacet(const std::string&);
         Ice::FacetMap findAllAdminFacets();
 
         const Ice::ImplicitContextPtr& getImplicitContext() const;

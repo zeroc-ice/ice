@@ -2,30 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/ArgVector.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/ConsoleUtil.h>
-#include <Ice/StringConverter.h>
-#include <Ice/Service.h>
-#include <Ice/LoggerI.h>
-#include <Ice/Initialize.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/Service.h"
+#include "ArgVector.h"
+#include "ConsoleUtil.h"
+#include "LoggerI.h"
+#include "IceUtil/StringUtil.h"
 
 #ifdef _WIN32
+#    include "Ice/EventLoggerMsg.h"
 #    include <winsock2.h>
-#    include <Ice/EventLoggerMsg.h>
 #else
-#    include <Ice/Logger.h>
-#    include <Ice/Network.h>
-#    include <sys/types.h>
-#    include <sys/stat.h>
+#    include "Network.h"
 #    include <csignal>
+#    include <sys/stat.h>
+#    include <sys/types.h>
 #    ifdef ICE_USE_SYSTEMD
 #        include <systemd/sd-daemon.h>
 #    endif
@@ -36,10 +26,10 @@ using namespace Ice;
 using namespace IceInternal;
 
 Ice::Service* Ice::Service::_instance = 0;
-static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
+static CtrlCHandler* _ctrlCHandler = 0;
 
 //
-// Callback for IceUtil::CtrlCHandler.
+// Callback for CtrlCHandler.
 //
 static void
 ctrlCHandlerCallback(int sig)
@@ -745,7 +735,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         // communicator because we need to ensure that this is done before any
         // additional threads are created.
         //
-        _ctrlCHandler = new IceUtil::CtrlCHandler;
+        _ctrlCHandler = new CtrlCHandler;
 
         //
         // Initialize the communicator.
@@ -806,22 +796,6 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
 #ifdef ICE_USE_SYSTEMD
         const string msg = err.str();
         sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
-#endif
-    }
-    catch (const std::string& msg)
-    {
-        ServiceError err(this);
-        err << "service terminating after catching exception:\n" << msg;
-#ifdef ICE_USE_SYSTEMD
-        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
-#endif
-    }
-    catch (const char* msg)
-    {
-        ServiceError err(this);
-        err << "service terminating after catching exception:\n" << msg;
-#ifdef ICE_USE_SYSTEMD
-        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg);
 #endif
     }
     catch (...)
@@ -1198,7 +1172,7 @@ Ice::Service::showServiceStatus(const string& msg, SERVICE_STATUS& status)
 void
 Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
 {
-    _ctrlCHandler = new IceUtil::CtrlCHandler;
+    _ctrlCHandler = new CtrlCHandler;
 
     //
     // Register the control handler function.
@@ -1639,7 +1613,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // communicator thread pools currently use lazy initialization, but a thread can
         // be created to monitor connections.
         //
-        _ctrlCHandler = new IceUtil::CtrlCHandler;
+        _ctrlCHandler = new CtrlCHandler;
 
         //
         // Initialize the communicator.

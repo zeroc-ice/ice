@@ -45,7 +45,7 @@ IceSSL::fromCFString(CFStringRef v)
 
 #endif
 
-IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v)
+IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const ConnectionInfoPtr&)> v)
     : _verify(std::move(v))
 {
 }

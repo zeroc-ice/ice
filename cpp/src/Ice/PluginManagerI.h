@@ -15,7 +15,7 @@
 
 namespace Ice
 {
-    typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
+    typedef Ice::Plugin* (*PluginFactory)(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 
     class PluginManagerI : public PluginManager
     {

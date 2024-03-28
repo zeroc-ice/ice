@@ -24,6 +24,12 @@ def allTests(helper, communicator)
         test(false)
     rescue Ice::AlreadyRegisteredException
     end
+    communicator.getValueFactoryManager().add(vf, "")
+    begin
+        communicator.getValueFactoryManager().add(vf, "")
+        test(false)
+    rescue Ice::AlreadyRegisteredException
+    end
     puts "ok"
 
     print "testing stringToProxy... "

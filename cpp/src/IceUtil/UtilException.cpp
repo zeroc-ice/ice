@@ -25,10 +25,16 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/StringUtil.h>
 
+#ifdef _WIN32
+#    include <windows.h>
+#endif
+
 #include <mutex>
+#include <sstream>
 #include <ostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cassert>
 
 #ifdef __GNUC__
 #    if defined(ICE_LIBBACKTRACE)
@@ -110,7 +116,7 @@ namespace
         // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
     }
 
-    int ignoreFrame(void*, ICE_MAYBE_UNUSED uintptr_t pc, const char*, int, const char*)
+    int ignoreFrame(void*, [[maybe_unused]] uintptr_t pc, const char*, int, const char*)
     {
         assert(pc == 0);
         return 0;
@@ -560,31 +566,6 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 {
     ex.ice_print(out);
     return out;
-}
-
-IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
-      _reason(std::move(r))
-{
-}
-
-void
-IceUtil::IllegalArgumentException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ": " << _reason;
-}
-
-string
-IceUtil::IllegalArgumentException::ice_id() const
-{
-    return "::IceUtil::IllegalArgumentException";
-}
-
-string
-IceUtil::IllegalArgumentException::reason() const noexcept
-{
-    return _reason;
 }
 
 //

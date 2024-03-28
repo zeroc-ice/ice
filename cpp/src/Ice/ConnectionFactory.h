@@ -18,7 +18,7 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/EndpointI.h>
-#include <Ice/InstrumentationF.h>
+#include <Ice/Instrumentation.h>
 #include <Ice/ACMF.h>
 #include <Ice/Comparable.h>
 
@@ -34,8 +34,10 @@ namespace Ice
 
 namespace IceInternal
 {
+    class ThreadPoolCurrent;
+
     class CommunicatorFlushBatchAsync;
-    using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+    using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
 
     template<typename T> class ThreadPoolMessage;
 

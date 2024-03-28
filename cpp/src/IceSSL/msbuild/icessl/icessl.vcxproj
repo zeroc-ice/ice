@@ -96,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
+      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceSSL</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemDefinitionGroup>
@@ -106,10 +106,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\AcceptorI.cpp" />
     <ClCompile Include="..\..\CertificateI.cpp" />
-    <ClCompile Include="..\..\ConnectionInfo.cpp" />
     <ClCompile Include="..\..\ConnectorI.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
-    <ClCompile Include="..\..\EndpointInfo.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />
     <ClCompile Include="..\..\PluginI.cpp" />
     <ClCompile Include="..\..\RFC2253.cpp" />

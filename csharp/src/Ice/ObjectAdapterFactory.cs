@@ -5,6 +5,7 @@
 namespace IceInternal
 {
     using System.Collections.Generic;
+    using System.Net.Security;
 
     public sealed class ObjectAdapterFactory
     {
@@ -127,7 +128,10 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
+        public Ice.ObjectAdapter createObjectAdapter(
+            string name,
+            Ice.RouterPrx router,
+            SslServerAuthenticationOptions serverAuthenticationOptions)
         {
             lock(this)
             {
@@ -156,14 +160,27 @@ namespace IceInternal
             Ice.ObjectAdapterI adapter = null;
             try
             {
-                if(name.Length == 0)
+                if (name.Length == 0)
                 {
-                    string uuid = System.Guid.NewGuid().ToString();
-                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
+                    adapter = new Ice.ObjectAdapterI(
+                        _instance,
+                        _communicator,
+                        this,
+                        System.Guid.NewGuid().ToString(),
+                        null,
+                        true,
+                        serverAuthenticationOptions);
                 }
                 else
                 {
-                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+                    adapter = new Ice.ObjectAdapterI(
+                        _instance,
+                        _communicator,
+                        this,
+                        name,
+                        router,
+                        false,
+                        serverAuthenticationOptions);
                 }
 
                 lock(this)

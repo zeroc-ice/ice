@@ -2,15 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/Ice.h>
-#include <Ice/ConsoleUtil.h>
-#include <IceStorm/Parser.h>
-#include <IceStorm/IceStormInternal.h>
+#include "Parser.h"
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Ice.h"
+#include "IceStorm/IceStormInternal.h"
+#include "IceUtil/DisableWarnings.h"
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
+#    include <unistd.h>
+#elif defined(_WIN32)
+#    include <windows.h>
 #endif
 
 extern FILE* yyin;
@@ -46,10 +49,7 @@ namespace
     };
 }
 
-Parser::Parser(
-    shared_ptr<Communicator> communicator,
-    TopicManagerPrx admin,
-    map<Ice::Identity, TopicManagerPrx> managers)
+Parser::Parser(CommunicatorPtr communicator, TopicManagerPrx admin, map<Ice::Identity, TopicManagerPrx> managers)
     : _communicator(std::move(communicator)),
       _defaultManager(std::move(admin)),
       _managers(std::move(managers))

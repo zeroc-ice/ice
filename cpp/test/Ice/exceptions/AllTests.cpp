@@ -22,8 +22,8 @@ class EmptyI final : public Empty
 class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
-    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
-    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
+    Ice::ObjectPtr locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
+    void finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&) final {}
     void deactivate(const string&) final {}
 };
 

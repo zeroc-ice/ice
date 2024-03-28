@@ -13,6 +13,10 @@
 [["cpp:include:Ice/ObjectF.h"]]
 [["cpp:include:Ice/ProxyF.h"]]
 [["cpp:include:Ice/ValueF.h"]]
+[["cpp:include:cstdint"]]
+[["cpp:include:optional"]]
+[["cpp:include:string"]]
+[["cpp:include:vector"]]
 
 [["ice-prefix"]]
 
