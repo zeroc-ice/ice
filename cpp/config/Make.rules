@@ -31,8 +31,7 @@ coreandstub_components  = IceUtil \
                           Glacier2 \
                           IceStorm \
                           IceGrid \
-                          IceBox \
-                          IcePatch2
+                          IceBox
 
 # Add the Bluetooth transport if Bluetooth system libraries are available
 ifneq ($(IceBT_system_libs),)

@@ -1895,7 +1895,6 @@ public final class Instance implements java.util.function.Function<String, Class
         put("IceGrid", new String[] { "com.zeroc" });
         put("IceLocatorDiscovery", new String[] { "com.zeroc" });
         put("IceMX", new String[] { "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm" });
-        put("IcePatch2", new String[] { "com.zeroc" });
         put("IceStorm", new String[] { "com.zeroc" });
     }});
 }

@@ -24,7 +24,7 @@ This feature has been deprecated since Ice 3.7.
 
 - Slice classes no longer represent remote Ice objects; the syntax `MyClass*` (a proxy to a class) is now invalid.
 
-- An interface can no longer be used as a type This feature, known as "interface by value", has been deprecated since
+- An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
 Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
 ## C++ Changes
@@ -39,3 +39,12 @@ C++ compiler with support for std=c++17 or higher.
 ## PHP Changes
 
 - Removed the flattened mapping deprecated in 3.7.
+
+## IceGrid Changes
+
+- Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
+service.
+
+## IcePatch2 Changes
+
+- The IcePatch2 service was removed.
