@@ -22,6 +22,9 @@
 #define YYMAXDEPTH  10000
 #define YYINITDEPTH YYMAXDEPTH
 
+// Newer bison versions allow to disable stack resizing by defining yyoverflow.
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+
 }
 
 %code top{
@@ -71,6 +74,8 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #include <limits>
 
 #ifdef _MSC_VER
+// warning C4102: 'yyoverflowlab' : unreferenced label
+#   pragma warning(disable:4102)
 // warning C4127: conditional expression is constant
 #    pragma warning(disable:4127)
 #endif
@@ -84,11 +89,12 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #    pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
-// Avoid clang warnings in generate grammar
+// Avoid clang warnings in generated grammar
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
 #    pragma clang diagnostic ignored "-Wsign-conversion"
 #    pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#    pragma clang diagnostic ignored "-Wunused-label"
 #endif
 
 using namespace std;

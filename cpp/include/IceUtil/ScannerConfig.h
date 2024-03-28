@@ -7,21 +7,11 @@
 
 #include "Config.h" // Required by generated Scanners.
 
-//
-// COMPILERFIX: VC compilers does not provide stdint.h header until v100
-// the header must be included before that macros for integral types
-// in flex generated Scanners are defined.
-//
-// in C99 conformant compilers we don't need to include it because the
-// header is included by inttypes.h, that is included by the generated
-// Scanners.
-//
 #if defined(_MSC_VER)
-#    include <stdint.h>
-#endif
-
-#if defined(_MSC_VER)
+// Warning C4244: conversion from `int` to `_Elem`, possible loss of data
+#    pragma warning(disable : 4244)
 // warning C4267: conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
 #    pragma warning(disable : 4267)
 #endif
 
