@@ -101,40 +101,40 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceGrid\Descriptor.h">
+    <ClInclude Include="Win32\Debug\Descriptor.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Descriptor.h">
+    <ClInclude Include="x64\Debug\Descriptor.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Descriptor.h">
+    <ClInclude Include="Win32\Release\Descriptor.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Descriptor.h">
+    <ClInclude Include="x64\Release\Descriptor.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\Exception.h">
+    <ClInclude Include="Win32\Debug\Exception.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Exception.h">
+    <ClInclude Include="x64\Debug\Exception.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Exception.h">
+    <ClInclude Include="Win32\Release\Exception.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Exception.h">
+    <ClInclude Include="x64\Release\Exception.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\DBTypes.h">
+    <ClInclude Include="Win32\Debug\DBTypes.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\DBTypes.h">
+    <ClInclude Include="x64\Debug\DBTypes.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\DBTypes.h">
+    <ClInclude Include="Win32\Release\DBTypes.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\DBTypes.h">
+    <ClInclude Include="x64\Release\DBTypes.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>

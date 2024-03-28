@@ -101,40 +101,40 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceStorm\DBTypes.h">
+    <ClInclude Include="Win32\Debug\DBTypes.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceStorm\LLURecord.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Debug\IceStorm\SubscriberRecord.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\IceStorm\DBTypes.h">
+    <ClInclude Include="x64\Debug\DBTypes.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceStorm\LLURecord.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\IceStorm\SubscriberRecord.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\IceStorm\DBTypes.h">
+    <ClInclude Include="Win32\Release\DBTypes.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceStorm\LLURecord.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\IceStorm\SubscriberRecord.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Release\IceStorm\DBTypes.h">
+    <ClInclude Include="x64\Release\DBTypes.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceStorm\LLURecord.h">
+    <ClInclude Include="Win32\Debug\LLURecord.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\LLURecord.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\LLURecord.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\LLURecord.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceStorm\SubscriberRecord.h">
+    <ClInclude Include="Win32\Debug\SubscriberRecord.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\SubscriberRecord.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\SubscriberRecord.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\SubscriberRecord.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>

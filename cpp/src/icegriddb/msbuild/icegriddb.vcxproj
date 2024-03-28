@@ -93,9 +93,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <IncludeDirectories>$(IceSrcRootDir)\src\;%(IncludeDirectories)</IncludeDirectories>
-      <HeaderOutputDir>$(Platform)\$(Configuration)\IceGrid\</HeaderOutputDir>
-      <BaseDirectoryForGeneratedInclude>IceGrid</BaseDirectoryForGeneratedInclude>
+      <IncludeDirectories>
+      </IncludeDirectories>
+      <HeaderOutputDir>
+      </HeaderOutputDir>
+      <BaseDirectoryForGeneratedInclude>
+      </BaseDirectoryForGeneratedInclude>
       <AdditionalOptions>-DICE_BUILDING_ICEGRIDDB</AdditionalOptions>
     </SliceCompile>
   </ItemDefinitionGroup>
@@ -183,73 +186,73 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceGrid\DBTypes.h">
+    <ClInclude Include="Win32\Debug\DBTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\DBTypes.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\Descriptor.h">
+    <ClInclude Include="Win32\Debug\Descriptor.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Descriptor.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\Exception.h">
+    <ClInclude Include="Win32\Debug\Exception.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Exception.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\DBTypes.h">
+    <ClInclude Include="Win32\Release\DBTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\DBTypes.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Descriptor.h">
+    <ClInclude Include="Win32\Release\Descriptor.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Descriptor.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Exception.h">
+    <ClInclude Include="Win32\Release\Exception.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Exception.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\DBTypes.h">
+    <ClInclude Include="x64\Debug\DBTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\DBTypes.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Descriptor.h">
+    <ClInclude Include="x64\Debug\Descriptor.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Descriptor.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Exception.h">
+    <ClInclude Include="x64\Debug\Exception.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Exception.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\DBTypes.h">
+    <ClInclude Include="x64\Release\DBTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\DBTypes.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Descriptor.h">
+    <ClInclude Include="x64\Release\Descriptor.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\slice\IceGrid\Descriptor.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Exception.h">
+    <ClInclude Include="x64\Release\Exception.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
