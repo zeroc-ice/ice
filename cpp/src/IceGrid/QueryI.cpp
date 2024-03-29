@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/QueryI.h>
 #include <IceGrid/Database.h>
 

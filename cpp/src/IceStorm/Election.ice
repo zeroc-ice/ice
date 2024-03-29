@@ -8,8 +8,8 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
-#include <IceStorm/SubscriberRecord.ice>
-#include <IceStorm/LLURecord.ice>
+#include "SubscriberRecord.ice"
+#include "LLURecord.ice"
 
 module IceStormElection
 {

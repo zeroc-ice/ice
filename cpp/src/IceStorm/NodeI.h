@@ -6,7 +6,7 @@
 #define ICESTORM_NODE_I_H
 
 #include "Ice/Ice.h"
-#include "IceStorm/Election.h"
+#include "Election.h"
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/Timer.h"
 #include "Instance.h"

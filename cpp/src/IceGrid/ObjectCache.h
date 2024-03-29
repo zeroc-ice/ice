@@ -7,7 +7,7 @@
 
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 namespace IceGrid
 {

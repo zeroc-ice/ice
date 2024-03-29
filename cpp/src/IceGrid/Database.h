@@ -8,7 +8,7 @@
 #include <IceUtil/FileUtil.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/ReplicaCache.h>

@@ -9,7 +9,7 @@
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/DBTypes.h>
+#include "DBTypes.h"
 #include <IceUtil/DisableWarnings.h>
 
 #include <iterator>

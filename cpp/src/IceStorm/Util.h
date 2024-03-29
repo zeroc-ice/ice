@@ -7,8 +7,8 @@
 
 #include "Ice/Ice.h"
 #include "IceDB/IceDB.h"
-#include "IceStorm/LLURecord.h"
-#include "IceStorm/SubscriberRecord.h"
+#include "LLURecord.h"
+#include "SubscriberRecord.h"
 
 namespace IceStorm
 {

@@ -7,7 +7,7 @@
 
 #include <IceGrid/SessionManager.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <set>
 
 namespace IceGrid

@@ -8,7 +8,7 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <set>
 
 namespace IceGrid

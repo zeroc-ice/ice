@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "IceStorm/SubscriberRecord.h"
+#include "SubscriberRecord.h"
 #include "Instance.h"
 
 using namespace IceStorm;

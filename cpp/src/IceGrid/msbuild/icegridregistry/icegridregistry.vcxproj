@@ -100,11 +100,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
-    <SliceCompile>
-      <IncludeDirectories>$(IceSrcRootDir)\src\;%(IncludeDirectories)</IncludeDirectories>
-      <HeaderOutputDir>$(Platform)\$(Configuration)\IceGrid</HeaderOutputDir>
-      <BaseDirectoryForGeneratedInclude>IceGrid</BaseDirectoryForGeneratedInclude>
-    </SliceCompile>
+    <SliceCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\IceGridRegistry.rc" />
@@ -202,49 +198,49 @@
     <SliceCompile Include="..\..\Internal.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Debug\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\Internal.h">
+    <ClInclude Include="Win32\Debug\Internal.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Internal.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Release\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Internal.h">
+    <ClInclude Include="Win32\Release\Internal.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Internal.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Debug\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Internal.h">
+    <ClInclude Include="x64\Debug\Internal.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Internal.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Release\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Internal.h">
+    <ClInclude Include="x64\Release\Internal.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

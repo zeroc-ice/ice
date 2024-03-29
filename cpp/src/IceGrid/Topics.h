@@ -6,7 +6,7 @@
 #define ICEGRID_TOPICS_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/Registry.h>
 #include <set>
 

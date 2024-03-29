@@ -7,7 +7,7 @@
 
 #include <IceUtil/Timer.h>
 #include <IceGrid/Activator.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 #include <optional>
 #include <set>

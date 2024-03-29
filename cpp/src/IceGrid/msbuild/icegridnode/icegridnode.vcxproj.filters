@@ -218,28 +218,28 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Debug\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceGrid\Internal.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Debug\IceLocatorDiscovery.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceGrid\Internal.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Release\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceGrid\Internal.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Release\IceLocatorDiscovery.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceGrid\Internal.h">
+    <ClInclude Include="Win32\Debug\Internal.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\Internal.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\Internal.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\Internal.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>

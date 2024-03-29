@@ -6,7 +6,7 @@
 #define ICE_GRID_INTERNALREGISTRYI_H
 
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 namespace IceGrid
 {

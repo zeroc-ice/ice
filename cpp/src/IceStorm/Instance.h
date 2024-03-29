@@ -8,7 +8,7 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/ObjectAdapterF.h"
 #include "Ice/PropertiesF.h"
-#include "IceStorm/Election.h"
+#include "Election.h"
 #include "Instrumentation.h"
 #include "Util.h"
 
