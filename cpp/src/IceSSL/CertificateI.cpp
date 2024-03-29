@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/StringUtil.h"
 #include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>

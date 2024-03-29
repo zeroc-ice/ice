@@ -3,7 +3,7 @@
 //
 
 #include <TestHelper.h>
-#include <IceUtil/CtrlCHandler.h>
+#include "IceUtil/CtrlCHandler.h"
 
 #include <thread>
 #include <chrono>

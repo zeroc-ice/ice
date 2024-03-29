@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/IceUtil.h"
+#include "IceUtil/Options.h"
 #include <Ice/Ice.h>
 #include <Ice/TimeUtil.h>
 #include <IceXML/Parser.h>

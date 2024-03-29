@@ -5,7 +5,7 @@
 #ifndef ICE_TCP_ENDPOINT_I_H
 #define ICE_TCP_ENDPOINT_I_H
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/Network.h> // for IceIternal::Address

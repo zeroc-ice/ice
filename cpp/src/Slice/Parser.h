@@ -5,7 +5,7 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include <IceUtil/Exception.h>
+#include "IceUtil/Exception.h"
 #include <array>
 #include <string>
 #include <vector>

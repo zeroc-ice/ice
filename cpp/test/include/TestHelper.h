@@ -11,7 +11,7 @@
 #include <iostream>
 #include <mutex>
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 
 #if defined(_MSC_VER) && !defined(TEST_API_EXPORTS)
 #    pragma comment(lib, ICE_LIBNAME("testcommon"))
@@ -23,7 +23,7 @@
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 
-#include <IceUtil/IceUtil.h>
+#include "IceUtil/IceUtil.h"
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)

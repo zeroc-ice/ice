@@ -6,7 +6,7 @@
 
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

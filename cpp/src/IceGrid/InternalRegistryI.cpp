@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 #include <Ice/Ice.h>
 
 #include <IceGrid/RegistryI.h>

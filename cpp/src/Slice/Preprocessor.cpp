@@ -4,11 +4,11 @@
 
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/StringConverter.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/UUID.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/StringConverter.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/UUID.h"
+#include "IceUtil/ConsoleUtil.h"
 #include <algorithm>
 #include <cassert>
 #include <iterator>

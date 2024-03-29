@@ -11,7 +11,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/DefaultsAndOverrides.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

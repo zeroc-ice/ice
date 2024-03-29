@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
 #include <Slice/Util.h>

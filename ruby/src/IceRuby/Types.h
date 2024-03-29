@@ -11,7 +11,7 @@
 #include <Ice/FactoryTable.h>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
-#include <IceUtil/OutputUtil.h>
+#include "IceUtil/OutputUtil.h"
 
 namespace IceRuby
 {

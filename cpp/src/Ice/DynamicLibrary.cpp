@@ -3,7 +3,7 @@
 //
 
 #include <Ice/DynamicLibrary.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 #include <Ice/StringConverter.h>
 
 #include <cassert>

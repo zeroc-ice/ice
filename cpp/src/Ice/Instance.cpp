@@ -37,9 +37,9 @@
 #include <Ice/ObserverHelper.h>
 #include <Ice/ConsoleUtil.h>
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include <Ice/UUID.h>
 
 #include "Ice/ProxyFunctions.h"

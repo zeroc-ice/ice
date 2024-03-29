@@ -4,7 +4,7 @@
 
 #include "PythonUtil.h"
 #include <Slice/Util.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/ConsoleUtil.h"
 
 using namespace std;
 using namespace Slice;

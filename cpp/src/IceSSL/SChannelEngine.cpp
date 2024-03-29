@@ -12,8 +12,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/StringConverter.h>
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 #include <Ice/UUID.h>
 
 #include <wincrypt.h>

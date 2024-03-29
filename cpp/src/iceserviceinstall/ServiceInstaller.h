@@ -6,7 +6,7 @@
 #define ICE_SERVICE_INSTALLER_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
+#include "IceUtil/IceUtil.h"
 #include <AccCtrl.h>
 
 class IceServiceInstaller

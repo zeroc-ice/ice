@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/DynamicLibrary.h>

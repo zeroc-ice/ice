@@ -6,8 +6,8 @@
 #include <IceBT/DBus.h>
 #include <IceBT/Util.h>
 #include <Ice/LocalException.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/UUID.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/UUID.h"
 
 #include <thread>
 

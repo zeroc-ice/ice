@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <IceSSL/Plugin.h>
 #include <IceSSL/RFC2253.h>

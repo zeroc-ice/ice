@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
+#include "IceUtil/Options.h"
 #include <Ice/PluginManagerI.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/Communicator.h>

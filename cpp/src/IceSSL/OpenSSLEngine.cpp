@@ -16,8 +16,8 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 
 #include <mutex>
 

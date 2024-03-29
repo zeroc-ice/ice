@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LocalException.h>

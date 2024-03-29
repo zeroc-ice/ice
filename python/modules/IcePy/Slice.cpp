@@ -7,8 +7,8 @@
 #include <Slice/Preprocessor.h>
 #include "PythonUtil.h"
 #include <Slice/Util.h>
-#include <IceUtil/Options.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/ConsoleUtil.h"
 
 //
 // Python headers needed for PyEval_EvalCode.

@@ -14,7 +14,7 @@
 #    include <Ice/LocalException.h>
 #    include <Ice/Properties.h>
 #    include <Ice/StreamSocket.h>
-#    include <IceUtil/StringUtil.h>
+#    include "IceUtil/StringUtil.h"
 
 #    if defined(ICE_USE_IOCP)
 #        include <Mswsock.h>

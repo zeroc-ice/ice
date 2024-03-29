@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Timer.h>
-#include <IceUtil/Exception.h>
+#include "IceUtil/Timer.h"
+#include "IceUtil/Exception.h"
 #include <Ice/ConsoleUtil.h>
 
 using namespace std;

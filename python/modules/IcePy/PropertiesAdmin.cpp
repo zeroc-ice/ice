@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 #include <PropertiesAdmin.h>
 #include <Util.h>
 #include <Thread.h>

@@ -9,9 +9,9 @@
 #include "Types.h"
 #include "Util.h"
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/Timer.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/Timer.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -23,7 +23,7 @@
 #    undef getcwd
 #endif
 
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/FileUtil.h"
 
 using namespace std;
 using namespace IcePHP;

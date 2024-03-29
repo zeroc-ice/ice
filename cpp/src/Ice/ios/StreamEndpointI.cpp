@@ -10,7 +10,7 @@
 #    include "StreamAcceptor.h"
 #    include "StreamConnector.h"
 
-#    include <IceUtil/StringUtil.h>
+#    include "IceUtil/StringUtil.h"
 
 #    include <Ice/Network.h>
 #    include <Ice/InputStream.h>

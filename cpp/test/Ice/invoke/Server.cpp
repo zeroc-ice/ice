@@ -4,7 +4,7 @@
 
 #include <Ice/Ice.h>
 #include <TestHelper.h>
-#include <IceUtil/Options.h>
+#include "IceUtil/Options.h"
 #include <BlobjectI.h>
 
 using namespace std;

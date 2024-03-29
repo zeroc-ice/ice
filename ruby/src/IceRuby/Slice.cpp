@@ -7,7 +7,7 @@
 #include <Slice/Preprocessor.h>
 #include "RubyUtil.h"
 #include <Slice/Util.h>
-#include <IceUtil/Options.h>
+#include "IceUtil/Options.h"
 
 #include <iostream>
 

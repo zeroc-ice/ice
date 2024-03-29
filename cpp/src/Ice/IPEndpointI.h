@@ -5,7 +5,7 @@
 #ifndef ICE_IP_ENDPOINT_I_H
 #define ICE_IP_ENDPOINT_I_H
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 #include <Ice/IPEndpointIF.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Network.h>

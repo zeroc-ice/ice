@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
 
 #include <cassert>
 #include <iostream>

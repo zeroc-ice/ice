@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 #include <Ice/InputStream.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Instance.h>

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 #include <Gen.h>
 
 #include <limits>
@@ -13,7 +13,7 @@
 #    include <direct.h>
 #endif
 
-#include <IceUtil/UUID.h>
+#include "IceUtil/UUID.h"
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <DotNetNames.h>

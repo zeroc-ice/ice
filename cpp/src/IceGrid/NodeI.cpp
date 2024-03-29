@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Timer.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/Timer.h"
+#include "IceUtil/FileUtil.h"
 #include <Ice/Ice.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>

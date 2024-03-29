@@ -4,7 +4,7 @@
 
 #include <IceSSL/SChannelTransceiverI.h>
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>

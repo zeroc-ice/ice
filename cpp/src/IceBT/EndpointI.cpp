@@ -15,7 +15,7 @@
 #include <Ice/Object.h>
 #include <Ice/Properties.h>
 #include <Ice/UUID.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

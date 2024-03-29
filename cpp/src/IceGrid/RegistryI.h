@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_REGISTRYI_H
 #define ICE_GRID_REGISTRYI_H
 
-#include <IceUtil/Timer.h>
+#include "IceUtil/Timer.h"
 #include <IceGrid/Registry.h>
 #include "Internal.h"
 #include <IceGrid/PlatformInfo.h>

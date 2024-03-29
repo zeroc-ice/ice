@@ -4,7 +4,6 @@
 
 #include "Gen.h"
 #include "CPlusPlusUtil.h"
-
 #include "Slice/Util.h"
 #include "IceUtil/StringUtil.h"
 #include "Slice/FileTracker.h"
@@ -753,8 +752,6 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
     }
-
-    H << "\n#include <IceUtil/UndefSysMacros.h>";
 
     // Emit #include statements for any cpp:include metadata directives in the top-level Slice file.
     {

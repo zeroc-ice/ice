@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
+#include "IceUtil/IceUtil.h"
 #include <TestHelper.h>
 #include "../../../src/Ice/Endian.h"
 

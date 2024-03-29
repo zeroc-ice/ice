@@ -5,10 +5,10 @@
 #include <Ice/LoggerI.h>
 #include <Ice/TimeUtil.h>
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <Ice/LocalException.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/FileUtil.h"
 
 #include <iostream>
 #include <mutex>

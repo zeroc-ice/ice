@@ -19,7 +19,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Communicator.h>
-#include <IceUtil/Random.h>
+#include "IceUtil/Random.h"
 
 #include "CommunicatorFlushBatchAsync.h"
 #include <iterator>

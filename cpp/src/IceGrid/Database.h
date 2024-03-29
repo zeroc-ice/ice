@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_DATABASE_H
 #define ICE_GRID_DATABASE_H
 
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/FileUtil.h"
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
 #include "Internal.h"

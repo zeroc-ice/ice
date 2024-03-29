@@ -5,7 +5,7 @@
 #ifndef ICE_PROTOCOL_PLUGIN_FACADE_H
 #define ICE_PROTOCOL_PLUGIN_FACADE_H
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/EndpointFactoryF.h>

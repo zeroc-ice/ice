@@ -4,7 +4,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/Router.h>
-#include <IceUtil/IceUtil.h>
+#include "IceUtil/IceUtil.h"
 #include <TestHelper.h>
 #include <Test.h>
 

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 #include <Gen.h>
-#include <IceUtil/UUID.h>
+#include "IceUtil/UUID.h"
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include "../Ice/Endian.h"

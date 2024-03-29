@@ -5,7 +5,7 @@
 #ifndef ICE_SELECTOR_H
 #define ICE_SELECTOR_H
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>

@@ -3,9 +3,9 @@
 //
 
 #include <Ice/UUID.h>
-#include <IceUtil/Timer.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/Timer.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/Locator.h>

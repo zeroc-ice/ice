@@ -10,7 +10,7 @@
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

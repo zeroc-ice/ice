@@ -3,7 +3,7 @@
 //
 
 #include <Ice/ArgVector.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/FileUtil.h"
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Admin.h>

@@ -12,7 +12,7 @@
 #include <Ice/OutputStream.h>
 #include <Ice/Value.h>
 #include <Ice/SlicedDataF.h>
-#include <IceUtil/OutputUtil.h>
+#include "IceUtil/OutputUtil.h"
 
 #include <memory>
 #include <set>

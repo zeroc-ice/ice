@@ -4,7 +4,7 @@
 
 #include <Slice/Util.h>
 
-#include <IceUtil/StringConverter.h>
+#include "IceUtil/StringConverter.h"
 
 #include <cassert>
 #include <ostream>

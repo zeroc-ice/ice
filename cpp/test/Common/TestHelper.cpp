@@ -5,7 +5,7 @@
 #include <TestHelper.h>
 #include <Ice/Communicator.h>
 #include <Ice/RegisterPlugins.h>
-#include <IceUtil/CtrlCHandler.h>
+#include "IceUtil/CtrlCHandler.h"
 
 using namespace std;
 using namespace Test;

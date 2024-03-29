@@ -26,7 +26,7 @@
 #include <Ice/Comparable.h>
 #include <Ice/StringUtil.h>
 
-#include <IceUtil/Random.h>
+#include "IceUtil/Random.h"
 
 #include <functional>
 #include <algorithm>

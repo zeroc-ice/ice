@@ -6,7 +6,7 @@
 // Disable deprecation warnings for SecCertificateCopyNormalizedIssuerContent and
 // SecCertificateCopyNormalizedSubjectContent
 //
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 #include <IceSSL/PluginI.h>
 #include <IceSSL/SecureTransport.h>

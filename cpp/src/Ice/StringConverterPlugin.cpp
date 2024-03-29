@@ -9,7 +9,7 @@
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <cstring>
 

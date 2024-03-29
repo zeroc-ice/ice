@@ -3,7 +3,7 @@
 //
 
 #include <Ice/UUID.h>
-#include <IceUtil/Options.h>
+#include "IceUtil/Options.h"
 #include <Ice/ConsoleUtil.h>
 #include <Ice/Service.h>
 #include <Glacier2/Instance.h>

@@ -10,7 +10,7 @@
 #    include "StreamEndpointI.h"
 #    include "StreamAcceptor.h"
 
-#    include <IceUtil/StringUtil.h>
+#    include "IceUtil/StringUtil.h"
 
 #    include <Ice/Instance.h>
 #    include <Ice/UniqueRef.h>

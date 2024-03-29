@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Random.h>
+#include "IceUtil/IceUtil.h"
+#include "IceUtil/Random.h"
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <Test.h>

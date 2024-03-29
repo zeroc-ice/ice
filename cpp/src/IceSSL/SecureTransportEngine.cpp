@@ -7,8 +7,8 @@
 #include <IceSSL/SecureTransportEngineF.h>
 #include <IceSSL/SecureTransportEngine.h>
 
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
@@ -25,7 +25,7 @@
 #include <regex.h>
 
 // Disable deprecation warnings from SecureTransport APIs
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace IceUtil;

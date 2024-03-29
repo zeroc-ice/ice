@@ -6,7 +6,7 @@
 #include "Proxy.h"
 #include "Util.h"
 
-#include <IceUtil/OutputUtil.h>
+#include "IceUtil/OutputUtil.h"
 #include "PHPUtil.h"
 #include <Ice/SlicedData.h>
 

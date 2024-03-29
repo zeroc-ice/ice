@@ -5,8 +5,8 @@
 #ifndef ICE_INSTANCE_H
 #define ICE_INSTANCE_H
 
-#include <IceUtil/Config.h>
-#include <IceUtil/Timer.h>
+#include "IceUtil/Config.h"
+#include "IceUtil/Timer.h"
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>

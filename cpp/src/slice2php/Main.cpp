@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
-#include <IceUtil/OutputUtil.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/CtrlCHandler.h"
+#include "IceUtil/IceUtil.h"
+#include "IceUtil/Options.h"
+#include "IceUtil/OutputUtil.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/ConsoleUtil.h"
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include "PHPUtil.h"

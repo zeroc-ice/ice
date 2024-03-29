@@ -5,7 +5,7 @@
 #include <Types.h>
 #include <Proxy.h>
 #include <Util.h>
-#include <IceUtil/OutputUtil.h>
+#include "IceUtil/OutputUtil.h"
 #include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/OutputStream.h>

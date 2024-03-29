@@ -12,9 +12,9 @@
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 #include <Ice/Base64.h>
-#include <IceUtil/Random.h>
+#include "IceUtil/Random.h"
 #include <Ice/SHA1.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 #include "Endian.h"
 
 #include <stdint.h>

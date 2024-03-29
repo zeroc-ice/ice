@@ -5,8 +5,8 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include <IceUtil/StopWatch.h>
-#include <IceUtil/Timer.h>
+#include "IceUtil/StopWatch.h"
+#include "IceUtil/Timer.h"
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/Connection.h>

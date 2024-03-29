@@ -3,8 +3,8 @@
 //
 
 #include <Slice/FileTracker.h>
-#include <IceUtil/ConsoleUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/FileUtil.h"
 
 #include <cassert>
 

@@ -11,7 +11,7 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <chrono>
 #include <stdexcept>

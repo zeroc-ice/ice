@@ -5,8 +5,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/IceUtil.h"
+#include "IceUtil/StringUtil.h"
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/FilterT.h>
 
