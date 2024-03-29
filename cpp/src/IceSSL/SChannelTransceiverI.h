@@ -7,10 +7,10 @@
 
 #ifdef _WIN32
 
-#    include <IceSSL/Config.h>
+#    include "IceSSL/Config.h"
 #    include "InstanceF.h"
-#    include <IceSSL/Plugin.h>
-#    include <IceSSL/SChannelEngineF.h>
+#    include "IceSSL/Plugin.h"
+#    include "IceSSL/SChannelEngineF.h"
 
 #    include "../Ice/Transceiver.h"
 #    include "../Ice/Network.h"

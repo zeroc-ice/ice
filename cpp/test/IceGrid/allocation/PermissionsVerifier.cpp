@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <Glacier2/PermissionsVerifier.h>
+#include "Glacier2/PermissionsVerifier.h"
 #include <TestHelper.h>
 
 using namespace std;

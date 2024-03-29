@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/Instance.h>
-#include <IceBT/Engine.h>
+#include "IceBT/Instance.h"
+#include "IceBT/Engine.h"
 
 using namespace std;
 using namespace Ice;

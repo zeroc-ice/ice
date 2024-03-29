@@ -8,7 +8,7 @@
 #include "AdminCallbackRouter.h"
 #include "Ice/ServantLocator.h"
 
-#include <Glacier2/Session.h>
+#include "Glacier2/Session.h"
 
 #include <set>
 

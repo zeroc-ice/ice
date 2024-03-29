@@ -7,7 +7,7 @@
 
 #include "SSLEngine.h"
 #include "InstanceF.h"
-#include <IceSSL/OpenSSLUtil.h>
+#include "IceSSL/OpenSSLUtil.h"
 
 #include "Ice/BuiltinSequences.h"
 

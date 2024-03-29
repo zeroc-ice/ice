@@ -7,10 +7,10 @@
 
 #ifdef __APPLE__
 
-#    include <IceSSL/Config.h>
+#    include "IceSSL/Config.h"
 #    include "InstanceF.h"
 #    include "SecureTransportEngineF.h"
-#    include <IceSSL/Plugin.h>
+#    include "IceSSL/Plugin.h"
 
 #    include "../Ice/Transceiver.h"
 #    include "Ice/UniqueRef.h"

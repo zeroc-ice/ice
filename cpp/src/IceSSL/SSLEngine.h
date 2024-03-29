@@ -5,7 +5,7 @@
 #ifndef ICESSL_ENGINE_H
 #define ICESSL_ENGINE_H
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 #include "Util.h"
 #include "SSLEngineF.h"
 #include "TrustManagerF.h"

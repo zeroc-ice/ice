@@ -4,7 +4,7 @@
 
 #include "IceUtil/Options.h"
 #include "Ice/Ice.h"
-#include <IceStorm/IceStorm.h>
+#include "IceStorm/IceStorm.h"
 #include <Single.h>
 #include <TestHelper.h>
 

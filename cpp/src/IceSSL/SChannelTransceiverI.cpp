@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SChannelTransceiverI.h>
+#include "IceSSL/SChannelTransceiverI.h"
 
 #include "IceUtil/StringUtil.h"
 
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/ConnectionInfo.h"
 #include "Instance.h"
-#include <IceSSL/SChannelEngine.h>
+#include "IceSSL/SChannelEngine.h"
 #include "PluginI.h"
 #include "Util.h"
 #include "Ice/Communicator.h"

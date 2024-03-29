@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/TransceiverI.h>
-#include <IceBT/ConnectionInfo.h>
-#include <IceBT/Engine.h>
-#include <IceBT/Instance.h>
-#include <IceBT/Util.h>
+#include "IceBT/TransceiverI.h"
+#include "IceBT/ConnectionInfo.h"
+#include "IceBT/Engine.h"
+#include "IceBT/Instance.h"
+#include "IceBT/Util.h"
 
 #include "Ice/Connection.h"
 #include "Ice/LocalException.h"

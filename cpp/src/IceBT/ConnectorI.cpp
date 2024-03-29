@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/ConnectorI.h>
-#include <IceBT/Instance.h>
-#include <IceBT/TransceiverI.h>
+#include "IceBT/ConnectorI.h"
+#include "IceBT/Instance.h"
+#include "IceBT/TransceiverI.h"
 
 #include "Ice/LocalException.h"
 

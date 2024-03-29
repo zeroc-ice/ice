@@ -12,9 +12,9 @@
 #include "DescriptorHelper.h"
 #include "NodeSessionI.h"
 #include "ReplicaSessionI.h"
-#include <IceGrid/Session.h>
+#include "IceGrid/Session.h"
 #include "Topics.h"
-#include <IceGrid/IceGrid.h>
+#include "IceGrid/IceGrid.h"
 
 #include <algorithm>
 #include <functional>

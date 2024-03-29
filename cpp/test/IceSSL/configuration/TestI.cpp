@@ -5,8 +5,8 @@
 #include "Ice/Ice.h"
 #include <TestI.h>
 #include <TestHelper.h>
-#include <IceSSL/Plugin.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/Plugin.h"
+#include "IceSSL/ConnectionInfo.h"
 
 using namespace std;
 using namespace Ice;

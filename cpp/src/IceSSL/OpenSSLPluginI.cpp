@@ -3,8 +3,8 @@
 //
 
 #include "PluginI.h"
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/OpenSSLEngine.h>
+#include "IceSSL/OpenSSL.h"
+#include "IceSSL/OpenSSLEngine.h"
 
 #include "Ice/Initialize.h"
 

@@ -12,7 +12,7 @@
 #include "Util.h"
 #include "DescriptorParser.h"
 #include "DescriptorHelper.h"
-#include <IceBox/IceBox.h>
+#include "IceBox/IceBox.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>

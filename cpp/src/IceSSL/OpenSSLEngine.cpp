@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Config.h>
+#include "IceSSL/Config.h"
 
-#include <IceSSL/OpenSSLEngineF.h>
-#include <IceSSL/OpenSSLEngine.h>
-#include <IceSSL/OpenSSLTransceiverI.h>
+#include "IceSSL/OpenSSLEngineF.h"
+#include "IceSSL/OpenSSLEngine.h"
+#include "IceSSL/OpenSSLTransceiverI.h"
 #include "Util.h"
 #include "TrustManager.h"
 

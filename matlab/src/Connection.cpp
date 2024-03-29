@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceSSL/IceSSL.h>
+#include "IceSSL/IceSSL.h"
 #include "ice.h"
 #include "Future.h"
 #include "Util.h"

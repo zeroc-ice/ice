@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceGrid/IceGrid.h>
+#include "IceGrid/IceGrid.h"
 #include <TestHelper.h>
 #include <Test.h>
 #include <thread>

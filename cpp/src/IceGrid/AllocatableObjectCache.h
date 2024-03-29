@@ -7,7 +7,7 @@
 
 #include "Ice/CommunicatorF.h"
 #include "Cache.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "Allocatable.h"
 
 namespace IceGrid

@@ -5,8 +5,8 @@
 #ifndef ICE_BT_STREAM_SOCKET_H
 #define ICE_BT_STREAM_SOCKET_H
 
-#include <IceBT/Config.h>
-#include <IceBT/InstanceF.h>
+#include "IceBT/Config.h"
+#include "IceBT/InstanceF.h"
 
 #include "../Ice/Network.h"
 #include "Ice/Buffer.h"

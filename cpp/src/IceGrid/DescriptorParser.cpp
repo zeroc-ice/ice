@@ -4,7 +4,7 @@
 
 #include "Ice/Ice.h"
 #include "../IceXML/Parser.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "DescriptorParser.h"
 #include "DescriptorBuilder.h"
 #include "Util.h"

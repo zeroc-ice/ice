@@ -6,7 +6,7 @@
 #define ICE_GRID_WELL_KNOWN_OBJECTS_MANAGER_H
 
 #include "Internal.h"
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
 
 namespace IceGrid
 {

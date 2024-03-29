@@ -3,10 +3,10 @@
 //
 
 #include "Ice/Ice.h"
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Session.h>
+#include "Glacier2/PermissionsVerifier.h"
+#include "Glacier2/Session.h"
 #include <TestHelper.h>
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 using namespace std;
 using namespace Test;

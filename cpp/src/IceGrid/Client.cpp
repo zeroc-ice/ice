@@ -9,9 +9,9 @@
 #include "Ice/Ice.h"
 #include "Parser.h"
 #include "FileParserI.h"
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
 #include "../IceLocatorDiscovery/Plugin.h"
-#include <Glacier2/Router.h>
+#include "Glacier2/Router.h"
 
 #include <iostream>
 #include <fstream>

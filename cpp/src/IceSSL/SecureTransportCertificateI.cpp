@@ -9,7 +9,7 @@
 #include "IceUtil/DisableWarnings.h"
 
 #include "PluginI.h"
-#include <IceSSL/SecureTransport.h>
+#include "IceSSL/SecureTransport.h"
 #include "CertificateI.h"
 #include "SecureTransportUtil.h"
 #include "RFC2253.h"

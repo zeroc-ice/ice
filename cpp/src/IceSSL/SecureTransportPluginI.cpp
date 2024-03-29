@@ -3,7 +3,7 @@
 //
 
 #include "PluginI.h"
-#include <IceSSL/SecureTransport.h>
+#include "IceSSL/SecureTransport.h"
 #include "SecureTransportEngine.h"
 
 #include "Ice/Initialize.h"

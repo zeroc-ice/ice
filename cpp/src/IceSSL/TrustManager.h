@@ -7,7 +7,7 @@
 
 #include "Ice/CommunicatorF.h"
 #include "TrustManagerF.h"
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 #include "RFC2253.h"
 #include <list>
 #include <map>

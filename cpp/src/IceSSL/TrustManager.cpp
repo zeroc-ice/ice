@@ -4,7 +4,7 @@
 
 #include "TrustManager.h"
 #include "RFC2253.h"
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/ConnectionInfo.h"
 
 #include "Ice/Properties.h"
 #include "Ice/Communicator.h"

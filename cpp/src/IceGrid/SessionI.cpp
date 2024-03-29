@@ -8,9 +8,9 @@
 #include "QueryI.h"
 #include "LocatorI.h"
 #include "Database.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 using namespace std;
 using namespace IceGrid;

@@ -3,7 +3,7 @@
 //
 
 #include "SecureTransportUtil.h"
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 #include "../Ice/Base64.h"
 #include "Ice/UniqueRef.h"

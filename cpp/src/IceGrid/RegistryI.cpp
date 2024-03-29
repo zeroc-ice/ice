@@ -9,9 +9,9 @@
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 
 #include "../IceStorm/Service.h"
-#include <IceSSL/IceSSL.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/NullPermissionsVerifier.h>
+#include "IceSSL/IceSSL.h"
+#include "Glacier2/PermissionsVerifier.h"
+#include "Glacier2/NullPermissionsVerifier.h"
 
 #include "TraceLevels.h"
 #include "Database.h"

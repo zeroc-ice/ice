@@ -6,7 +6,7 @@
 #define ICE_GRID_LOCATOR_I_H
 
 #include "Internal.h"
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
 
 #include <set>
 

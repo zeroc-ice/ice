@@ -7,7 +7,7 @@
 #include <Types.h>
 #include <Util.h>
 #include "Ice/Object.h"
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/ConnectionInfo.h"
 
 using namespace std;
 using namespace IceRuby;

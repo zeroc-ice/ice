@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Endpoint.h"
-#include <Glacier2/PermissionsVerifier.h>
+#include "Glacier2/PermissionsVerifier.h"
 #include "WellKnownObjectsManager.h"
 #include "Database.h"
 

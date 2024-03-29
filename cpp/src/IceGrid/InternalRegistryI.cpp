@@ -15,7 +15,7 @@
 #include "ReplicaSessionI.h"
 #include "ReplicaSessionManager.h"
 #include "FileCache.h"
-#include <IceSSL/IceSSL.h>
+#include "IceSSL/IceSSL.h"
 #include "../IceSSL/RFC2253.h"
 
 using namespace std;

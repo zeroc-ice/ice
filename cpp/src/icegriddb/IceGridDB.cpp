@@ -8,7 +8,7 @@
 #include "Ice/Ice.h"
 #include "../Ice/ConsoleUtil.h"
 #include"../IceDB/IceDB.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "DBTypes.h"
 #include "IceUtil/DisableWarnings.h"
 

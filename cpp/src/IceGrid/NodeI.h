@@ -8,7 +8,7 @@
 #include "IceUtil/Timer.h"
 #include "Internal.h"
 #include "PlatformInfo.h"
-#include <IceGrid/UserAccountMapper.h>
+#include "IceGrid/UserAccountMapper.h"
 #include "FileCache.h"
 
 #include <deque>

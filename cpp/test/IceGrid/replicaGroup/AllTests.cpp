@@ -4,7 +4,7 @@
 
 #include "Ice/Ice.h"
 #include "Ice/BuiltinSequences.h"
-#include <IceGrid/IceGrid.h>
+#include "IceGrid/IceGrid.h"
 #include <TestHelper.h>
 #include <Test.h>
 

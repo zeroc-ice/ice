@@ -10,7 +10,7 @@
 
 #include "Ice/UUID.h"
 
-#include <IceSSL/IceSSL.h>
+#include "IceSSL/IceSSL.h"
 
 using namespace std;
 using namespace Ice;

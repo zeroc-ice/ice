@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceSSL/IceSSL.h>
+#include "IceSSL/IceSSL.h"
 #include <TestHelper.h>
 #include <TestI.h>
 

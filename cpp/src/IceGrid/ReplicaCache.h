@@ -7,7 +7,7 @@
 
 #include "Cache.h"
 #include "Internal.h"
-#include <IceStorm/IceStorm.h>
+#include "IceStorm/IceStorm.h"
 
 namespace IceGrid
 {

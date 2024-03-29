@@ -4,7 +4,7 @@
 
 #include "SSLEngine.h"
 #include "TrustManager.h"
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/ConnectionInfo.h"
 
 #include "IceUtil/StringUtil.h"
 

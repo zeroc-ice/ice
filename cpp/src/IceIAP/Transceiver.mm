@@ -9,7 +9,7 @@
 #    include "Transceiver.h"
 #    include "EndpointI.h"
 
-#    include <IceIAP/ConnectionInfo.h>
+#    include "IceIAP/ConnectionInfo.h"
 
 #    include "Ice/LocalException.h"
 #    include "../Ice/ProtocolInstance.h"

@@ -6,7 +6,7 @@
 #include "IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
 #include "Activator.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "Internal.h"
 #include "TraceLevels.h"
 #include "ServerI.h"

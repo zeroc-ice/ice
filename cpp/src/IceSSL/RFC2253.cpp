@@ -4,7 +4,7 @@
 
 #include "IceUtil/StringUtil.h"
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 #include "RFC2253.h"
 #include "Ice/Object.h"
 

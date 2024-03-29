@@ -7,7 +7,7 @@
 
 #include "IceUtil/Timer.h"
 
-#include <IceGrid/Session.h>
+#include "IceGrid/Session.h"
 
 #include <list>
 #include <set>

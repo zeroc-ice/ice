@@ -7,7 +7,7 @@
 
 #include "IceUtil/FileUtil.h"
 #include "Ice/CommunicatorF.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "Internal.h"
 #include "ServerCache.h"
 #include "NodeCache.h"

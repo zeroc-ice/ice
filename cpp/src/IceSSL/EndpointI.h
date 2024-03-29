@@ -9,7 +9,7 @@
 #include "../Ice/IPEndpointI.h"
 #include "../Ice/EndpointFactory.h"
 #include "InstanceF.h"
-#include <IceSSL/EndpointInfo.h>
+#include "IceSSL/EndpointInfo.h"
 #include "SSLEngineF.h"
 #include "../Ice/Network.h"
 

@@ -6,8 +6,8 @@
 #define ICE_BT_PLUGIN_I_H
 
 #include "Ice/CommunicatorF.h"
-#include <IceBT/Plugin.h>
-#include <IceBT/EngineF.h>
+#include "IceBT/Plugin.h"
+#include "IceBT/EngineF.h"
 
 namespace IceBT
 {

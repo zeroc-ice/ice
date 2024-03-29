@@ -5,7 +5,7 @@
 #include <Endpoint.h>
 #include <Util.h>
 #include "Ice/Object.h"
-#include <IceSSL/EndpointInfo.h>
+#include "IceSSL/EndpointInfo.h"
 
 using namespace std;
 using namespace IceRuby;

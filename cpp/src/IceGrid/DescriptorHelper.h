@@ -7,7 +7,7 @@
 
 #include "IceUtil/OutputUtil.h"
 #include "../IceXML/Parser.h"
-#include <IceGrid/Admin.h>
+#include "IceGrid/Admin.h"
 #include "Internal.h"
 #include <set>
 

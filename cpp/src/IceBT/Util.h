@@ -5,8 +5,8 @@
 #ifndef ICE_BT_UTIL_H
 #define ICE_BT_UTIL_H
 
-#include <IceBT/Config.h>
-#include <IceBT/Types.h>
+#include "IceBT/Config.h"
+#include "IceBT/Types.h"
 
 #include "../Ice/Network.h"
 

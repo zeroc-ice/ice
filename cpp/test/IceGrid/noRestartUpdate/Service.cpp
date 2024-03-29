@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceBox/IceBox.h>
+#include "IceBox/IceBox.h"
 #include <TestI.h>
 
 using namespace std;

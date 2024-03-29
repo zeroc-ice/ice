@@ -9,7 +9,7 @@
 #include "AdminI.h"
 #include "Database.h"
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 #include "SynchronizationException.h"
 

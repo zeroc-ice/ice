@@ -8,7 +8,7 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
 #include "Internal.h"
 #include "Util.h"
 

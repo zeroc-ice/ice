@@ -7,7 +7,7 @@
 #include "PluginI.h"
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/ConnectionInfo.h"
 
 #include "Ice/LoggerUtil.h"
 #include "Ice/LocalException.h"

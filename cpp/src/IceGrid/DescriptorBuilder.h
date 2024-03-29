@@ -7,7 +7,7 @@
 
 #include "Ice/Logger.h"
 #include "../IceXML/Parser.h"
-#include <IceGrid/Descriptor.h>
+#include "IceGrid/Descriptor.h"
 #include <set>
 
 namespace IceGrid

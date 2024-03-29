@@ -5,7 +5,7 @@
 #include "Ice/Ice.h"
 #include "../Ice/ConsoleUtil.h"
 #include "IceUtil/Options.h"
-#include <IceBox/IceBox.h>
+#include "IceBox/IceBox.h"
 
 using namespace std;
 using namespace IceInternal;

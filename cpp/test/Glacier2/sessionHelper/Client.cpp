@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <Glacier2/Glacier2.h>
+#include "Glacier2/Glacier2.h"
 
 #include <TestHelper.h>
 
