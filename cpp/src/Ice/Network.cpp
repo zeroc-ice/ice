@@ -19,8 +19,8 @@
 #include "Ice/StringConverter.h"
 #include "Ice/LocalException.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
-#include "Ice/Properties.h"       // For setTcpBufSize
-#include "Ice/LoggerUtil.h"       // For setTcpBufSize
+#include "Ice/Properties.h"   // For setTcpBufSize
+#include "Ice/LoggerUtil.h"   // For setTcpBufSize
 #include "Ice/Buffer.h"
 #include "IceUtil/Random.h"
 #include <functional>

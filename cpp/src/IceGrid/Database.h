@@ -18,7 +18,7 @@
 #include "Topics.h"
 #include "PluginFacadeI.h"
 
-#include"../IceDB/IceDB.h"
+#include "../IceDB/IceDB.h"
 
 namespace IceGrid
 {
