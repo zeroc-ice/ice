@@ -7,10 +7,10 @@
 
 #include "../Ice/EndpointI.h"
 #include "../Ice/EndpointFactory.h"
-#include "IceBT/Config.h"
+#include "Config.h"
 #include "IceBT/EndpointInfo.h"
-#include "IceBT/Engine.h"
-#include "IceBT/InstanceF.h"
+#include "Engine.h"
+#include "InstanceF.h"
 
 namespace IceBT
 {

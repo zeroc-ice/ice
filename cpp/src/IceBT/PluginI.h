@@ -7,7 +7,7 @@
 
 #include "Ice/CommunicatorF.h"
 #include "IceBT/Plugin.h"
-#include "IceBT/EngineF.h"
+#include "EngineF.h"
 
 namespace IceBT
 {

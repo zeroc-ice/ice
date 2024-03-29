@@ -7,9 +7,9 @@
 
 #include "../Ice/TransceiverF.h"
 #include "../Ice/Acceptor.h"
-#include "IceBT/Config.h"
-#include "IceBT/EngineF.h"
-#include "IceBT/InstanceF.h"
+#include "Config.h"
+#include "EngineF.h"
+#include "InstanceF.h"
 
 #include <mutex>
 #include <stack>

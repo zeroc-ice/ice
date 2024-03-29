@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceBT/StreamSocket.h"
+#include "StreamSocket.h"
 #include "IceBT/EndpointInfo.h"
-#include "IceBT/Instance.h"
-#include "IceBT/Util.h"
+#include "Instance.h"
+#include "Util.h"
 
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"

@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceBT/EndpointI.h"
-#include "IceBT/AcceptorI.h"
-#include "IceBT/ConnectorI.h"
-#include "IceBT/Engine.h"
-#include "IceBT/Instance.h"
-#include "IceBT/Util.h"
-
+#include "EndpointI.h"
+#include "AcceptorI.h"
+#include "ConnectorI.h"
+#include "Engine.h"
+#include "Instance.h"
+#include "Util.h"
 #include "Ice/LocalException.h"
 #include "../Ice/DefaultsAndOverrides.h"
 #include "../Ice/HashUtil.h"

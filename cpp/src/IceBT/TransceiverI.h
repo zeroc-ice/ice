@@ -5,9 +5,9 @@
 #ifndef ICE_BT_TRANSCEIVER_H
 #define ICE_BT_TRANSCEIVER_H
 
-#include "IceBT/InstanceF.h"
-#include "IceBT/Engine.h"
-#include "IceBT/StreamSocket.h"
+#include "InstanceF.h"
+#include "Engine.h"
+#include "StreamSocket.h"
 
 #include "../Ice/Transceiver.h"
 

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceBT/Util.h"
+#include "Util.h"
 
 #include "Ice/LocalException.h"
 #include "../Ice/Network.h"
