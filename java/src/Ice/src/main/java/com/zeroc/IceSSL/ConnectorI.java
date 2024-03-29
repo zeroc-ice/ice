@@ -4,22 +4,17 @@
 
 package com.zeroc.IceSSL;
 
-import com.zeroc.Ice.InitializationData;
-
 final class ConnectorI implements com.zeroc.IceInternal.Connector
 {
     @Override
     public com.zeroc.IceInternal.Transceiver connect()
     {
-        InitializationData initData = _instance.initializationData();
-        SSLEngineFactory sslEngineFactory = initData.sslEngineFactory == null ? 
-            (peerHost, peerPort) -> _instance.engine().createSSLEngine(false, peerHost, peerPort) : initData.sslEngineFactory;
-        return new TransceiverI(
-            _instance, 
-            _delegate.connect(),
-            _host,
-            false,
-            sslEngineFactory);
+        SSLEngineFactory clientSSLEngineFactory = _instance.initializationData().clientSSLEngineFactory;
+        if (clientSSLEngineFactory == null)
+        {
+            clientSSLEngineFactory = (peerHost, peerPort) -> _instance.engine().createSSLEngine(false, peerHost, peerPort);
+        }
+        return new TransceiverI(_instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
     }
 
     @Override

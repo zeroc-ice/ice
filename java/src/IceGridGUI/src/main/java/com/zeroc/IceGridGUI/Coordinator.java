@@ -44,6 +44,12 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+
 import com.zeroc.Ice.LocatorFinderPrx;
 import com.zeroc.IceGrid.*;
 
@@ -1252,27 +1258,265 @@ public class Coordinator
 
         com.zeroc.Ice.InitializationData initData = _initData.clone();
         initData.properties = initData.properties._clone();
-        initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+
+        class AcceptInvalidCertDialog implements Runnable
+        {
+            public TrustDecision show(X509Certificate certificate)
+            {
+                _certificate = certificate;
+
+                while(true)
+                {
+                    try
+                    {
+                        SwingUtilities.invokeAndWait(this);
+                        break;
+                    }
+                    catch(java.lang.InterruptedException e)
+                    {
+                        // Ignore and retry
+                    }
+                    catch(java.lang.reflect.InvocationTargetException e)
+                    {
+                        break;
+                    }
+                }
+                return _decision;
+            }
+
+            @Override
+            public void
+            run()
+            {
+                try
+                {
+                    UntrustedCertificateDialog dialog = new UntrustedCertificateDialog(parent, _certificate);
+                    Utils.addEscapeListener(dialog);
+                    _decision = dialog.showDialog();
+                }
+                catch(java.lang.Exception ex)
+                {
+                    JOptionPane.showMessageDialog(parent, ex.toString(), "Failed to inspect certificate details",
+                                                    JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+            private X509Certificate _certificate;
+            private TrustDecision _decision = TrustDecision.No;
+        }
+
+        final class TrustManagerI implements javax.net.ssl.X509TrustManager
+        {
+            TrustManagerI(
+                KeyStore trustedServerKeyStore,
+                javax.net.ssl.X509TrustManager decoratee)
+            {
+                _trustedServerKeyStore = trustedServerKeyStore;
+                _decoratee = decoratee;
+            }
+
+            @Override
+            public void
+            checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                throws java.security.cert.CertificateException
+            {
+                _decoratee.checkClientTrusted(chain, authType);
+            }
+
+            @Override
+            public void
+            checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                throws java.security.cert.CertificateException
+            {
+                X509Certificate serverCertificate;
+                try
+                {
+                    _decoratee.checkServerTrusted(chain, authType);
+                }
+                catch (java.security.cert.CertificateException certificateException)
+                {
+                    if (chain == null || chain.length == 0)
+                    {
+                        throw certificateException;
+                    }
+
+                    serverCertificate = chain[0];
+
+                    //
+                    // Compare the server certificate with a previous accepted certificate if
+                    // any, the transient certificate is reset by Coordinator.login, and is only
+                    // useful in case the connection is retry, because a timeout or ACM closed
+                    // it while the certificate verifier was waiting for the user decision.
+                    //
+                    // This avoids to show the dialog again if the user already granted the cert for
+                    // this login operation.
+                    //
+                    if (_transientCert != null && _transientCert.equals(serverCertificate))
+                    {
+                        return;
+                    }
+
+                    //
+                    // Check the certificate date is valid.
+                    //
+                    TrustDecision decision = new AcceptInvalidCertDialog().show(serverCertificate);
+
+                    if(decision == TrustDecision.YesThisTime)
+                    {
+                        _transientCert = serverCertificate;
+                        return;
+                    }
+                    else if(decision == TrustDecision.YesAlways)
+                    {
+                        try
+                        {
+                            String CN = "";
+                            LdapName dn = new LdapName(serverCertificate.getSubjectX500Principal().getName());
+                            for(Rdn rdn: dn.getRdns())
+                            {
+                                if(rdn.getType().toUpperCase().equals("CN"))
+                                {
+                                    CN = rdn.getValue().toString();
+                                    break;
+                                }
+                            }
+                            _trustedServerKeyStore.setCertificateEntry(CN, serverCertificate);
+                            _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
+                                                        new char[]{});
+                            sessionKeeper.certificateManager(parent).load();
+                            return;
+                        }
+                        catch(final java.lang.Exception ex)
+                        {
+                            while(true)
+                            {
+                                try
+                                {
+                                    SwingUtilities.invokeAndWait(() ->
+                                                                {
+                                                                    JOptionPane.showMessageDialog(parent, ex.toString(),
+                                                                                                "Error saving certificate",
+                                                                                                JOptionPane.ERROR_MESSAGE);
+                                                                });
+                                    break;
+                                }
+                                catch(java.lang.InterruptedException e)
+                                {
+                                }
+                                catch(java.lang.reflect.InvocationTargetException e)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    throw certificateException;
+                }
+            }
+
+            @Override
+            public java.security.cert.X509Certificate[]
+            getAcceptedIssuers()
+            {
+                return _decoratee.getAcceptedIssuers();
+            }
+
+            private javax.net.ssl.X509TrustManager _decoratee;
+            private KeyStore _trustedServerKeyStore;
+        }
 
         if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType | info.getUseX509Certificate())
         {
+            TrustManagerFactory trustManagerFactory;
             try
             {
-                initData.properties.setProperty("IceSSL.Keystore", getDataDirectory() + "/MyCerts.jks");
+                trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             }
-            catch(java.lang.Exception e)
+            catch (java.security.NoSuchAlgorithmException e)
+            {
+                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to create trust manager factory",
+                                              JOptionPane.ERROR_MESSAGE);
+                _sessionKeeper.loginFailed();
+                return;
+            }
+
+            KeyStore trustedCaKeyStore;
+            try
+            {
+                trustedCaKeyStore = KeyStore.getInstance("JKS");
+                try(java.io.InputStream stream = new FileInputStream(getDataDirectory() + "/AuthorityCerts.jks"))
+                {
+                    trustedCaKeyStore.load(stream, null);
+                }
+                trustManagerFactory.init(trustedCaKeyStore);
+            }
+            catch (java.lang.Exception e)
             {
                 JOptionPane.showMessageDialog(parent, e.toString(), "Failed to access data directory",
                                               JOptionPane.ERROR_MESSAGE);
                 _sessionKeeper.loginFailed();
                 return;
             }
-            if(info.getKeyPassword() != null)
+
+            KeyManagerFactory keyManagerFactory;
+            KeyManager[] keyManagers;
+            try
             {
-                initData.properties.setProperty("IceSSL.Password", new String(info.getKeyPassword()));
+                KeyStore myCerts = KeyStore.getInstance("JKS");
+                try(java.io.InputStream stream = new FileInputStream(getDataDirectory() + "/MyCerts.jks"))
+                {
+                    myCerts.load(stream, info.getPassword());
+                }
+                keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyManagerFactory.init(myCerts, info.getKeyPassword());
+                keyManagers = keyManagerFactory.getKeyManagers();
             }
-            initData.properties.setProperty("IceSSL.Alias", info.getAlias());
+            catch(java.lang.Exception e)
+            {
+                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to initialize key manager",
+                                              JOptionPane.ERROR_MESSAGE);
+                _sessionKeeper.loginFailed();
+                return;
+            }
+
+            KeyStore trustedServerKeyStore;
+            try
+            {
+                trustedServerKeyStore = KeyStore.getInstance("JKS");
+                try (java.io.InputStream stream = new FileInputStream(getDataDirectory() + "/ServerCerts.jks"))
+                {
+                    trustedServerKeyStore.load(stream, null);
+                }
+            }
+            catch (java.lang.Exception e)
+            {
+                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to access data directory",
+                                              JOptionPane.ERROR_MESSAGE);
+                _sessionKeeper.loginFailed();
+                return;
+            }
+
+            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+            for (int i = 0; i < trustManagers.length; ++i)
+            {
+                trustManagers[i] = new TrustManagerI(
+                    trustedServerKeyStore,
+                    (javax.net.ssl.X509TrustManager)trustManagers[i]);
+            }
+
+            try
+            {
+                SSLContext context = SSLContext.getInstance("TLS");
+                context.init(keyManagers, trustManagers, null);
+                initData.clientSSLEngineFactory = (peerHost, peerPort) -> context.createSSLEngine(peerHost, peerPort);
+            }
+            catch (java.lang.Exception e)
+            {
+                JOptionPane.showMessageDialog(parent, e.toString(), "Failed to initialize SSL",
+                                              JOptionPane.ERROR_MESSAGE);
+                _sessionKeeper.loginFailed();
+                return;
+            }
         }
 
         //
@@ -1294,380 +1538,6 @@ public class Coordinator
             _sessionKeeper.loginFailed();
             return;
         }
-
-        // TODO replace with a custom TrustManager
-        class CertificateVerifier
-        {
-            public CertificateVerifier()
-                throws java.io.IOException, java.security.GeneralSecurityException, java.lang.Exception
-            {
-                {
-                    _trustedCaKeyStore = KeyStore.getInstance("JKS");
-
-                    FileInputStream is = null;
-                    final String path = getDataDirectory() + "/AuthorityCerts.jks";
-                    if(new File(path).isFile())
-                    {
-                        is = new FileInputStream(new File(path));
-                    }
-
-                    _trustedCaKeyStore.load(is, null);
-                }
-
-                {
-                    _trustedServerKeyStore = KeyStore.getInstance("JKS");
-
-                    FileInputStream is = null;
-                    final String path = getDataDirectory() + "/ServerCerts.jks";
-                    if(new File(path).isFile())
-                    {
-                        is = new FileInputStream(new File(path));
-                    }
-
-                    _trustedServerKeyStore.load(is, null);
-                }
-            }
-
-            class AcceptInvalidCertDialog implements Runnable
-            {
-                public TrustDecision show(com.zeroc.IceSSL.ConnectionInfo info, boolean validDate,
-                                          boolean validAlternateName, boolean trustedCA)
-                {
-                    _info = info;
-                    _validDate = validDate;
-                    _validAlternateName = validAlternateName;
-                    _trustedCA = trustedCA;
-
-                    while(true)
-                    {
-                        try
-                        {
-                            SwingUtilities.invokeAndWait(this);
-                            break;
-                        }
-                        catch(java.lang.InterruptedException e)
-                        {
-                            // Ignore and retry
-                        }
-                        catch(java.lang.reflect.InvocationTargetException e)
-                        {
-                            break;
-                        }
-                    }
-                    return _decision;
-                }
-
-                @Override
-                public void
-                run()
-                {
-                    try
-                    {
-                        UntrustedCertificateDialog dialog = new UntrustedCertificateDialog(parent, _info, _validDate,
-                                                                                           _validAlternateName,
-                                                                                           _trustedCA);
-                        Utils.addEscapeListener(dialog);
-                        _decision = dialog.showDialog();
-                    }
-                    catch(java.lang.Exception ex)
-                    {
-                        JOptionPane.showMessageDialog(parent, ex.toString(), "Failed to inspect certificate details",
-                                                      JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-
-                private com.zeroc.IceSSL.ConnectionInfo _info;
-                private boolean _validDate;
-                private boolean _validAlternateName;
-                private boolean _trustedCA;
-                private TrustDecision _decision = TrustDecision.No;
-            }
-
-            public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
-            {
-                if(!(info.certs[0] instanceof X509Certificate))
-                {
-                    return false;
-                }
-
-                X509Certificate cert = (X509Certificate) info.certs[0];
-                byte[] encoded;
-                try
-                {
-                    encoded = cert.getEncoded();
-                }
-                catch(java.security.GeneralSecurityException ex)
-                {
-                    return false;
-                }
-
-                //
-                // Compare the server certificate with a previous accepted certificate if
-                // any, the transient certificate is reset by Coordinator.login, and is only
-                // useful in case the connection is retry, because a timeout or ACM closed
-                // it while the certificate verifier was waiting for the user decision.
-                //
-                // This avoids to show the dialog again if the user already granted the cert for
-                // this login operation.
-                //
-                if(_transientCert != null && _transientCert.equals(cert))
-                {
-                    return true;
-                }
-
-                //
-                // Compare the server with the user trusted server certificates.
-                //
-                try
-                {
-                    for(Enumeration<String> e = _trustedServerKeyStore.aliases(); e.hasMoreElements() ;)
-                    {
-                        String alias = e.nextElement();
-                        if(!_trustedServerKeyStore.isCertificateEntry(alias))
-                        {
-                            continue;
-                        }
-
-                        Certificate c = _trustedServerKeyStore.getCertificate(alias);
-                        try
-                        {
-                            if(java.util.Arrays.equals(encoded, c.getEncoded()))
-                            {
-                                return true;
-                            }
-                        }
-                        catch(java.security.GeneralSecurityException ex)
-                        {
-                            // Skip to next certificate
-                            continue;
-                        }
-                    }
-                }
-                catch(final java.security.KeyStoreException ex)
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            SwingUtilities.invokeAndWait(() ->
-                                                         {
-                                                             JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
-                                                                                           JOptionPane.ERROR_MESSAGE);
-                                                         });
-                            break;
-                        }
-                        catch(java.lang.InterruptedException e)
-                        {
-                        }
-                        catch(java.lang.reflect.InvocationTargetException e)
-                        {
-                            break;
-                        }
-                    }
-                    return false;
-                }
-
-                boolean validDate = true;
-                boolean trustedCA = false;
-                boolean validAlternateName = false;
-
-                //
-                // Check the certificate date is valid.
-                //
-
-                java.util.Date now = new java.util.Date();
-                if(now.getTime() > cert.getNotAfter().getTime() || now.getTime() < cert.getNotBefore().getTime())
-                {
-                    validDate = false;
-                }
-
-                String remoteAddress = null;
-                for(com.zeroc.Ice.ConnectionInfo p = info.underlying; p != null; p = p.underlying)
-                {
-                    if(p instanceof com.zeroc.Ice.IPConnectionInfo)
-                    {
-                        remoteAddress = ((com.zeroc.Ice.IPConnectionInfo)p).remoteAddress;
-                        break;
-                    }
-                }
-
-                //
-                // Check server alternate names match the connection remote address
-                //
-                if(remoteAddress != null)
-                {
-                    try
-                    {
-                        Collection<java.util.List<?>> altNames = cert.getSubjectAlternativeNames();
-                        if(altNames != null)
-                        {
-                            for(java.util.List<?> l : altNames)
-                            {
-                                Integer kind = (Integer)l.get(0);
-                                if(kind != 2 && kind != 7)
-                                {
-                                    continue;
-                                }
-                                if(remoteAddress.equalsIgnoreCase(l.get(1).toString()))
-                                {
-                                    validAlternateName = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch(java.security.cert.CertificateParsingException ex)
-                    {
-                        validAlternateName = false;
-                    }
-                }
-
-                //
-                // Check if the certificate has been signed by any of the trusted certificate
-                // authorities.
-                //
-                try
-                {
-                    for(Enumeration<String> e = _trustedCaKeyStore.aliases(); e.hasMoreElements() ;)
-                    {
-                        String alias = e.nextElement();
-                        if(!_trustedCaKeyStore.isCertificateEntry(alias))
-                        {
-                            continue;
-                        }
-                        Certificate c = _trustedCaKeyStore.getCertificate(alias);
-                        try
-                        {
-                            cert.verify(c.getPublicKey());
-                            trustedCA = true;
-                            break;
-                        }
-                        catch(java.security.GeneralSecurityException ex)
-                        {
-                            // Skip to next certificate
-                            continue;
-                        }
-                    }
-                }
-                catch(final java.security.KeyStoreException ex)
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            SwingUtilities.invokeAndWait(() ->
-                                                         {
-                                                             JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
-                                                                                           JOptionPane.ERROR_MESSAGE);
-                                                         });
-                            break;
-                        }
-                        catch(java.lang.InterruptedException e)
-                        {
-                        }
-                        catch(java.lang.reflect.InvocationTargetException e)
-                        {
-                            break;
-                        }
-                    }
-                    return false;
-                }
-
-                if(validDate && validAlternateName && trustedCA)
-                {
-                    return true;
-                }
-
-                TrustDecision decision = new AcceptInvalidCertDialog().show(info, validDate, validAlternateName,
-                                                                            trustedCA);
-
-                if(decision == TrustDecision.YesThisTime)
-                {
-                    _transientCert = (X509Certificate) info.certs[0];
-                    return true;
-                }
-                else if(decision == TrustDecision.YesAlways)
-                {
-                    try
-                    {
-                        String CN = "";
-                        LdapName dn = new LdapName(cert.getSubjectX500Principal().getName());
-                        for(Rdn rdn: dn.getRdns())
-                        {
-                            if(rdn.getType().toUpperCase().equals("CN"))
-                            {
-                                CN = rdn.getValue().toString();
-                                break;
-                            }
-                        }
-                        _trustedServerKeyStore.setCertificateEntry(CN, info.certs[0]);
-                        _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
-                                                     new char[]{});
-                        sessionKeeper.certificateManager(parent).load();
-                        return true;
-                    }
-                    catch(final java.lang.Exception ex)
-                    {
-                        while(true)
-                        {
-                            try
-                            {
-                                SwingUtilities.invokeAndWait(() ->
-                                                             {
-                                                                 JOptionPane.showMessageDialog(parent, ex.toString(),
-                                                                                               "Error saving certificate",
-                                                                                               JOptionPane.ERROR_MESSAGE);
-                                                             });
-                                break;
-                            }
-                            catch(java.lang.InterruptedException e)
-                            {
-                            }
-                            catch(java.lang.reflect.InvocationTargetException e)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-
-            private KeyStore _trustedCaKeyStore;
-            private KeyStore _trustedServerKeyStore;
-        }
-
-        // TODO set the sslEngineFactory
-        /*com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
-        try
-        {
-            plugin.setCertificateVerifier(new CertificateVerifier());
-        }
-        catch(final java.lang.Exception ex)
-        {
-            while(true)
-            {
-                try
-                {
-                    SwingUtilities.invokeAndWait(() ->
-                                                 {
-                                                     JOptionPane.showMessageDialog(parent, ex.toString(),
-                                                                                   "Error creating certificate verifier",
-                                                                                   JOptionPane.ERROR_MESSAGE);
-                                                     _sessionKeeper.loginFailed();
-                                                 });
-                    break;
-                }
-                catch(java.lang.InterruptedException e)
-                {
-                }
-                catch(java.lang.reflect.InvocationTargetException e)
-                {
-                    break;
-                }
-            }
-            return;
-        }*/
 
         final String finderStr = "Ice/" + (info.getDirect() ? "LocatorFinder" : "RouterFinder") + ":" +
             (info.getDefaultEndpoint() ?
@@ -3621,8 +3491,7 @@ public class Coordinator
 
     static class UntrustedCertificateDialog extends JDialog
     {
-        public UntrustedCertificateDialog(java.awt.Window owner, com.zeroc.IceSSL.ConnectionInfo info,
-                                          boolean validDate, boolean validAlternateName, boolean trustedCA)
+        public UntrustedCertificateDialog(java.awt.Window owner, X509Certificate cert)
             throws java.security.GeneralSecurityException, java.io.IOException,
             javax.naming.InvalidNameException
         {
@@ -3631,49 +3500,6 @@ public class Coordinator
 
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-
-            X509Certificate cert = (X509Certificate)info.certs[0];
-            {
-                DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("pref", "pref"));
-                builder.border(Borders.DIALOG);
-                builder.rowGroupingEnabled(true);
-                builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-
-                builder.append(new JLabel("The validation of the SSL Certificate provided by the server has failed"));
-
-                if(validDate)
-                {
-                    builder.append(new JLabel("The certificate date is valid.", _infoIcon, SwingConstants.LEADING));
-                }
-                else
-                {
-                    builder.append(new JLabel("The certificate date is invalid.", _warnIcon, SwingConstants.LEADING));
-                }
-
-                if(validAlternateName)
-                {
-                    builder.append(new JLabel("The subject alternate name matches the connection remote address.",
-                                              _infoIcon, SwingConstants.LEADING));
-                }
-                else
-                {
-                    builder.append(new JLabel("The subject alternate name doesn't match the connection remote address.",
-                                              _warnIcon, SwingConstants.LEADING));
-                }
-
-                if(trustedCA)
-                {
-                    builder.append(new JLabel("The server certificate is signed by a trusted CA.", _infoIcon,
-                                              SwingConstants.LEADING));
-                }
-                else
-                {
-                    builder.append(new JLabel("The server certificate is not signed by a trusted CA.", _warnIcon,
-                                              SwingConstants.LEADING));
-                }
-                contentPane.add(builder.getPanel());
-            }
-
             contentPane.add(SessionKeeper.getSubjectPanel(cert));
             contentPane.add(SessionKeeper.getSubjectAlternativeNamesPanel(cert));
             contentPane.add(SessionKeeper.getIssuerPanel(cert));

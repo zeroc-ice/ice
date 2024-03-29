@@ -116,5 +116,5 @@ public final class InitializationData implements Cloneable
     /**
      * The ssl engine factory used to configure the ssl transport for outgoing connections.
      **/
-    public SSLEngineFactory sslEngineFactory;
+    public SSLEngineFactory clientSSLEngineFactory;
 }
