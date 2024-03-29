@@ -9,10 +9,10 @@
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/ConsoleUtil.h"
 #include "IceUtil/FileUtil.h"
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
-#include <Slice/Parser.h>
-#include <Slice/Util.h>
+#include "Slice/Preprocessor.h"
+#include "Slice/FileTracker.h"
+#include "Slice/Parser.h"
+#include "Slice/Util.h"
 
 #include <algorithm>
 #include <cassert>

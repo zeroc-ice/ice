@@ -5,7 +5,7 @@
 #ifndef C_PLUS_PLUS_UTIL_H
 #define C_PLUS_PLUS_UTIL_H
 
-#include <Slice/Parser.h>
+#include "Slice/Parser.h"
 #include "IceUtil/OutputUtil.h"
 #include "TypeContext.h"
 

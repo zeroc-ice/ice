@@ -8,11 +8,11 @@
 #include "IceUtil/OutputUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/ConsoleUtil.h"
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
+#include "Slice/Preprocessor.h"
+#include "Slice/FileTracker.h"
 #include "PHPUtil.h"
-#include <Slice/Parser.h>
-#include <Slice/Util.h>
+#include "Slice/Parser.h"
+#include "Slice/Util.h"
 
 #include <cassert>
 #include <cstring>

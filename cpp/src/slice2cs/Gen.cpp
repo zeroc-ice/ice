@@ -14,8 +14,8 @@
 #endif
 
 #include "IceUtil/UUID.h"
-#include <Slice/FileTracker.h>
-#include <Slice/Util.h>
+#include "Slice/FileTracker.h"
+#include "Slice/Util.h"
 #include <DotNetNames.h>
 #include <cassert>
 #include <string.h>

@@ -5,7 +5,7 @@
 #ifndef SLICE_UTIL_H
 #define SLICE_UTIL_H
 
-#include <Slice/Parser.h>
+#include "Parser.h"
 #include "IceUtil/OutputUtil.h"
 
 namespace Slice

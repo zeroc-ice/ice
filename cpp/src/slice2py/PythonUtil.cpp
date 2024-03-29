@@ -3,7 +3,7 @@
 //
 
 #include "PythonUtil.h"
-#include <Slice/Util.h>
+#include "Slice/Util.h"
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/StringUtil.h"
 #include <algorithm>

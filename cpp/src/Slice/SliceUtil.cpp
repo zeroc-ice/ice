@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/Util.h>
-#include <Slice/FileTracker.h>
+#include "Util.h"
+#include "FileTracker.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/StringConverter.h"

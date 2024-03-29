@@ -6,10 +6,10 @@
 #include "IceUtil/Options.h"
 #include "IceUtil/CtrlCHandler.h"
 #include "IceUtil/ConsoleUtil.h"
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
+#include "Slice/Preprocessor.h"
+#include "Slice/FileTracker.h"
 #include "RubyUtil.h"
-#include <Slice/Util.h>
+#include "Slice/Util.h"
 
 #include <mutex>
 #include <algorithm>

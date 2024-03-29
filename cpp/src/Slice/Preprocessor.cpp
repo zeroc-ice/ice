@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/Preprocessor.h>
-#include <Slice/Util.h>
+#include "Preprocessor.h"
+#include "Util.h"
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/StringConverter.h"
 #include "IceUtil/FileUtil.h"
