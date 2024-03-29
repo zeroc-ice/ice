@@ -55,6 +55,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             }
             catch(javax.net.ssl.SSLException ex)
             {
+                _engine = null;
                 throw new com.zeroc.Ice.SecurityException("IceSSL: handshake error", ex);
             }
 
@@ -87,7 +88,6 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         catch(javax.net.ssl.SSLPeerUnverifiedException ex)
         {
             // No peer certificates.
-            _verified = false;
         }
 
         //

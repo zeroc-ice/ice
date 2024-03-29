@@ -1114,10 +1114,6 @@ public class AllTests
 
         if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
         {
-            // Working?
-            boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
-            boolean tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("tcp");
-
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
             pstr = communicator.proxyToString(p1);
@@ -1129,14 +1125,7 @@ public class AllTests
             //
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
             pstr = communicator.proxyToString(p1);
-            if(ssl)
-            {
-                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
-            }
-            else if(tcp)
-            {
-                test(pstr.equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
-            }
+            test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
 
             //
             // Test that the proxy with an SSL endpoint and a nonsense
@@ -1146,16 +1135,7 @@ public class AllTests
             //
             p2 = derived.echo(p1);
             pstr = communicator.proxyToString(p2);
-            if(ssl)
-            {
-                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
-            }
-            else if(tcp)
-            {
-                test(pstr.equals(
-                    "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
-            }
-
+            test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
         }
         out.println("ok");
 

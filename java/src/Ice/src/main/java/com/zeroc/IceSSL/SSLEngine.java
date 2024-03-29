@@ -11,7 +11,7 @@ import java.security.cert.*;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;
-import com.zeroc.Ice.PluginInitializationException;
+import com.zeroc.Ice.InitializationException;
 
 public class SSLEngine
 {
@@ -68,9 +68,7 @@ public class SSLEngine
                 }
                 else
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "IceSSL: unrecognized protocol `" + prot + "'";
-                    throw e;
+                    throw new InitializationException("IceSSL: unrecognized protocol `" + prot + "'");
                 }
             }
             _protocols = new String[l.size()];
@@ -180,10 +178,7 @@ public class SSLEngine
                             keystoreStream = openResource(keystorePath);
                             if(keystoreStream == null)
                             {
-                                PluginInitializationException e =
-                                    new PluginInitializationException();
-                                e.reason = "IceSSL: keystore not found:\n" + keystorePath;
-                                throw e;
+                                throw new InitializationException("IceSSL: keystore not found:\n" + keystorePath);
                             }
                         }
 
@@ -209,8 +204,7 @@ public class SSLEngine
                     }
                     catch(java.io.IOException ex)
                     {
-                        throw new PluginInitializationException(
-                            "IceSSL: unable to load keystore:\n" + keystorePath, ex);
+                        throw new InitializationException("IceSSL: unable to load keystore:\n" + keystorePath, ex);
                     }
                     finally
                     {
@@ -271,10 +265,8 @@ public class SSLEngine
                         //
                         if(!keys.isKeyEntry(alias))
                         {
-                            PluginInitializationException e =
-                                new PluginInitializationException();
-                            e.reason = "IceSSL: keystore does not contain an entry with alias `" + alias + "'";
-                            throw e;
+                            throw new InitializationException(
+                                "IceSSL: keystore does not contain an entry with alias `" + alias + "'");
                         }
 
                         for(int i = 0; i < keyManagers.length; ++i)
@@ -315,10 +307,7 @@ public class SSLEngine
                                 truststoreStream = openResource(truststorePath);
                                 if(truststoreStream == null)
                                 {
-                                    PluginInitializationException e =
-                                        new PluginInitializationException();
-                                    e.reason = "IceSSL: truststore not found:\n" + truststorePath;
-                                    throw e;
+                                    throw new InitializationException("IceSSL: truststore not found:\n" + truststorePath);
                                 }
                             }
 
@@ -345,7 +334,7 @@ public class SSLEngine
                         }
                         catch(java.io.IOException ex)
                         {
-                            throw new PluginInitializationException(
+                            throw new InitializationException(
                                 "IceSSL: unable to load truststore:\n" + truststorePath, ex);
                         }
                         finally
@@ -433,7 +422,7 @@ public class SSLEngine
                     //
                     if(trustStore != null && trustStore.size() == 0)
                     {
-                        throw new PluginInitializationException("IceSSL: truststore is empty");
+                        throw new InitializationException("IceSSL: truststore is empty");
                     }
 
                     if(trustManagers == null)
@@ -452,7 +441,7 @@ public class SSLEngine
             }
             catch(java.security.GeneralSecurityException ex)
             {
-                throw new PluginInitializationException("IceSSL: unable to initialize context", ex);
+                throw new InitializationException("IceSSL: unable to initialize context", ex);
             }
         }
 
@@ -690,7 +679,8 @@ public class SSLEngine
             }
         }
 
-        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
+        // Verify depath max includes the root CA, Java doesn't provide it in the certificate chain.
+        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length >= _verifyDepthMax)
         {
             String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
                 "length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
@@ -752,9 +742,7 @@ public class SSLEngine
             {
                 if(i != 0)
                 {
-                    PluginInitializationException ex = new PluginInitializationException();
-                    ex.reason = "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'";
-                    throw ex;
+                    throw new InitializationException("IceSSL: `ALL' must be first in cipher list `" + ciphers + "'");
                 }
                 _allCiphers = true;
             }
@@ -762,9 +750,7 @@ public class SSLEngine
             {
                 if(i != 0)
                 {
-                    PluginInitializationException ex = new PluginInitializationException();
-                    ex.reason = "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'";
-                    throw ex;
+                    throw new InitializationException("IceSSL: `NONE' must be first in cipher list `" + ciphers + "'");
                 }
                 _noCiphers = true;
             }
@@ -781,10 +767,7 @@ public class SSLEngine
                     }
                     else
                     {
-                        PluginInitializationException ex =
-                            new PluginInitializationException();
-                        ex.reason = "IceSSL: invalid cipher expression `" + exp + "'";
-                        throw ex;
+                        throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
                     }
                 }
 
@@ -792,9 +775,7 @@ public class SSLEngine
                 {
                     if(!exp.endsWith(")"))
                     {
-                        PluginInitializationException ex = new PluginInitializationException();
-                        ex.reason = "IceSSL: invalid cipher expression `" + exp + "'";
-                        throw ex;
+                        throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
                     }
 
                     try
@@ -803,7 +784,7 @@ public class SSLEngine
                     }
                     catch(java.util.regex.PatternSyntaxException ex)
                     {
-                        throw new PluginInitializationException("IceSSL: invalid cipher expression `" + exp + "'", ex);
+                        throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'", ex);
                     }
                 }
                 else
