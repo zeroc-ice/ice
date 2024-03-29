@@ -459,8 +459,6 @@ public class Coordinator
             _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ENABLE));
             _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.DISABLE));
             _serverMenu.addSeparator();
-            _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
-            _serverMenu.addSeparator();
             _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
             _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_ICE_LOG));
             _serverMenu.add(_liveActionsForMenu.get(com.zeroc.IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
