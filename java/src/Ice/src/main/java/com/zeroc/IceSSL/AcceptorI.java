@@ -34,17 +34,7 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor
     @Override
     public com.zeroc.IceInternal.Transceiver accept()
     {
-        //
-        // The plug-in may not be fully initialized.
-        //
-        if(!_instance.initialized())
-        {
-            com.zeroc.Ice.PluginInitializationException ex = new com.zeroc.Ice.PluginInitializationException();
-            ex.reason = "IceSSL: plug-in is not initialized";
-            throw ex;
-        }
-
-        return new TransceiverI(_instance, _delegate.accept(), _adapterName, true);
+        return new TransceiverI(_instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
     }
 
     @Override
@@ -65,16 +55,30 @@ final class AcceptorI implements com.zeroc.IceInternal.Acceptor
         return _delegate.toDetailedString();
     }
 
-    AcceptorI(EndpointI endpoint, Instance instance, com.zeroc.IceInternal.Acceptor delegate, String adapterName)
+    AcceptorI(
+        EndpointI endpoint,
+        Instance instance,
+        com.zeroc.IceInternal.Acceptor delegate,
+        String adapterName,
+        SSLEngineFactory sslEngineFactory)
     {
         _endpoint = endpoint;
         _instance = instance;
         _delegate = delegate;
         _adapterName = adapterName;
+        if (sslEngineFactory == null)
+        {
+            _sslEngineFactory = (peerHost, peerPort) -> instance.engine().createSSLEngine(true, peerHost, peerPort);
+        }
+        else
+        {
+            _sslEngineFactory = sslEngineFactory;
+        }
     }
 
     private EndpointI _endpoint;
     private Instance _instance;
     private com.zeroc.IceInternal.Acceptor _delegate;
     private String _adapterName;
+    private SSLEngineFactory _sslEngineFactory;
 }

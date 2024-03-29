@@ -3862,7 +3862,7 @@ class JavaMapping(Mapping):
 
     def getPluginEntryPoint(self, plugin, process, current):
         return {
-            "IceSSL": "com.zeroc.IceSSL.PluginFactory",
+            "IceSSL": "",
             "IceBT": "com.zeroc.IceBT.PluginFactory",
             "IceDiscovery": "com.zeroc.IceDiscovery.PluginFactory",
             "IceLocatorDiscovery": "com.zeroc.IceLocatorDiscovery.PluginFactory",

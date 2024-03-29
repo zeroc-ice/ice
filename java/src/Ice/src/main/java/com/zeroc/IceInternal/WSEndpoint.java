@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.WSEndpointInfo;
+import com.zeroc.IceSSL.SSLEngineFactory;
 
 final class WSEndpoint extends EndpointI
 {
@@ -193,9 +194,9 @@ final class WSEndpoint extends EndpointI
     }
 
     @Override
-    public Acceptor acceptor(String adapterName)
+    public Acceptor acceptor(String adapterName, SSLEngineFactory factory)
     {
-        Acceptor delAcc = _delegate.acceptor(adapterName);
+        Acceptor delAcc = _delegate.acceptor(adapterName, factory);
         return new WSAcceptor(this, _instance, delAcc);
     }
 

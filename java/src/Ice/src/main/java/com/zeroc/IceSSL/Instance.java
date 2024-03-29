@@ -4,9 +4,11 @@
 
 package com.zeroc.IceSSL;
 
-class Instance extends com.zeroc.IceInternal.ProtocolInstance
+import com.zeroc.Ice.InitializationData;
+
+public class Instance extends com.zeroc.IceInternal.ProtocolInstance
 {
-    Instance(SSLEngine engine, short type, String protocol)
+    public Instance(SSLEngine engine, short type, String protocol)
     {
         super(engine.communicator(), type, protocol, true);
         _engine = engine;
@@ -25,11 +27,6 @@ class Instance extends com.zeroc.IceInternal.ProtocolInstance
     String securityTraceCategory()
     {
         return _engine.securityTraceCategory();
-    }
-
-    boolean initialized()
-    {
-        return _engine.initialized();
     }
 
     javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
@@ -51,6 +48,11 @@ class Instance extends com.zeroc.IceInternal.ProtocolInstance
         throws java.security.cert.CertificateException
     {
         _engine.trustManagerFailure(incoming, ex);
+    }
+
+    InitializationData initializationData()
+    {
+        return com.zeroc.IceInternal.Util.getInstance(_engine.communicator()).initializationData();
     }
 
     private SSLEngine _engine;

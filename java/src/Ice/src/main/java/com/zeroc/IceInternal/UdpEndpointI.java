@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointParseException;
+import com.zeroc.IceSSL.SSLEngineFactory;
 
 final class UdpEndpointI extends IPEndpointI
 {
@@ -154,8 +155,9 @@ final class UdpEndpointI extends IPEndpointI
     // Return an acceptor for this endpoint, or null if no acceptor is available.
     //
     @Override
-    public Acceptor acceptor(String adapterName)
+    public Acceptor acceptor(String adapterName, SSLEngineFactory factory)
     {
+        assert(factory == null);
         return null;
     }
 

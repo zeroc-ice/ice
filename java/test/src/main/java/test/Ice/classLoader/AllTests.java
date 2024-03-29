@@ -89,27 +89,6 @@ public class AllTests
         }
 
         //
-        // Verify that the class loader is used for IceSSL certificate verifiers and password callbacks.
-        //
-        if(communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl"))
-        {
-            out.print("testing IceSSL certificate verifier and password callback... ");
-            out.flush();
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
-            initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
-            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
-            initData.classLoader = classLoader;
-            try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
-            {
-                test(classLoader.check("test.Ice.classLoader.CertificateVerifierI"));
-                test(classLoader.check("test.Ice.classLoader.PasswordCallbackI"));
-                out.println("ok");
-            }
-        }
-
-        //
         // Marshaling tests.
         //
         {

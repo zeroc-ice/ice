@@ -137,17 +137,34 @@ public interface Communicator extends java.lang.AutoCloseable
      * by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
      * InitializationException.
      * @param name The object adapter name.
-     * @param sslContext The SSL context used to configure the ssl server-side transport. Pass null if the adapter
-     * doesn't have any secure endpoints, or if the SSL transport was configured using the IceSSL properties. When set
-     * to a non-null value, all IceSSL properties are ignored, and all the required SSL parameters must be set in the
-     * provided SSL context.
      * @return The new object adapter.
      *
      * @see #createObjectAdapterWithEndpoints
      * @see ObjectAdapter
      * @see Properties
      **/
-    ObjectAdapter createObjectAdapter(String name, javax.net.ssl.SSLContext sslContext);
+    ObjectAdapter createObjectAdapter(String name);
+
+    /**
+     * Create a new object adapter. The endpoints for the object adapter are taken from the property
+     * <code><em>name</em>.Endpoints</code>.
+     * It is legal to create an object adapter with the empty string as its name. Such an object adapter is accessible
+     * via bidirectional connections or by collocated invocations that originate from the same communicator as is used
+     * by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
+     * InitializationException.
+     * @param name The object adapter name.
+     * @param sslEngineFactory The SSLEngineFactory responsible for creating {@link javax.net.ssl.SSLEngine} instances
+     * used by the SSL server-side transport. This factory allows to programmatically configure the SSL server-side
+     * transport. If secure endpoints are not used, or if SSL settings are fully defined by IceSSL configuration
+     * properties, pass <code>null</code> to ignore this parameter. When provided, this factory takes precedence over
+     * IceSSL property-based.
+     * @return The new object adapter.
+     *
+     * @see #createObjectAdapterWithEndpoints
+     * @see ObjectAdapter
+     * @see Properties
+     **/
+    ObjectAdapter createObjectAdapter(String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
 
     /**
      * Create a new object adapter with endpoints. This operation sets the property
@@ -156,10 +173,26 @@ public interface Communicator extends java.lang.AutoCloseable
      * name.
      * @param name The object adapter name.
      * @param endpoints The endpoints for the object adapter.
-     * @param sslContext The SSL context used to configure the ssl server-side transport. Pass null if the adapter
-     * doesn't have any secure endpoints, or if the SSL transport was configured using the IceSSL properties. When set
-     * to a non-null value, all IceSSL properties are ignored, and all the required SSL parameters must be set in the
-     * provided SSL context.
+     * @return The new object adapter.
+     *
+     * @see #createObjectAdapter
+     * @see ObjectAdapter
+     * @see Properties
+     **/
+    ObjectAdapter createObjectAdapterWithEndpoints(String name, String endpoints);
+
+    /**
+     * Create a new object adapter with endpoints. This operation sets the property
+     * <code><em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as a
+     * convenience function. Calling this operation with an empty name will result in a UUID being generated for the
+     * name.
+     * @param name The object adapter name.
+     * @param endpoints The endpoints for the object adapter.
+     * @param sslEngineFactory The SSLEngineFactory responsible for creating {@link javax.net.ssl.SSLEngine} instances
+     * used by the SSL server-side transport. This factory allows to programmatically configure the SSL server-side
+     * transport. If secure endpoints are not used, or if SSL settings are fully defined by IceSSL configuration
+     * properties, pass <code>null</code> to ignore this parameter. When provided, this factory takes precedence over
+     * IceSSL property-based.
      * @return The new object adapter.
      *
      * @see #createObjectAdapter

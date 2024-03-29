@@ -6,6 +6,7 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectAdapterI;
+import com.zeroc.IceSSL.SSLEngineFactory;
 
 public final class ObjectAdapterFactory
 {
@@ -139,7 +140,7 @@ public final class ObjectAdapterFactory
     }
 
     public ObjectAdapter
-    createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router, javax.net.ssl.SSLContext sslContext)
+    createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router, SSLEngineFactory sslEngineFactory)
     {
         if(Thread.interrupted())
         {
@@ -180,7 +181,7 @@ public final class ObjectAdapterFactory
                     uuid,
                     null,
                     true,
-                    sslContext);
+                    sslEngineFactory);
             }
             else
             {
@@ -191,7 +192,7 @@ public final class ObjectAdapterFactory
                     name,
                     router,
                     false,
-                    sslContext);
+                    sslEngineFactory);
             }
 
             synchronized(this)

@@ -4,9 +4,9 @@
 
 package com.zeroc.IceSSL;
 
-final class EndpointFactoryI extends com.zeroc.IceInternal.EndpointFactoryWithUnderlying
+final public class EndpointFactoryI extends com.zeroc.IceInternal.EndpointFactoryWithUnderlying
 {
-    EndpointFactoryI(Instance instance, short type)
+    public EndpointFactoryI(Instance instance, short type)
     {
         super(instance, type);
         _instance = instance;

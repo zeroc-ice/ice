@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.zeroc.IceInternal.IncomingConnectionFactory;
+import com.zeroc.IceSSL.SSLEngineFactory;
 import com.zeroc.IceInternal.EndpointI;
 
 public final class ObjectAdapterI implements ObjectAdapter
@@ -874,7 +875,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     public
     ObjectAdapterI(com.zeroc.IceInternal.Instance instance, Communicator communicator,
                    com.zeroc.IceInternal.ObjectAdapterFactory objectAdapterFactory, String name,
-                   RouterPrx router, boolean noConfig, javax.net.ssl.SSLContext sslContext)
+                   RouterPrx router, boolean noConfig, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory)
     {
         _instance = instance;
         _communicator = communicator;
@@ -883,7 +884,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         _name = name;
         _directCount = 0;
         _noConfig = noConfig;
-        _sslContext = sslContext;
+        _sslEngineFactory = sslEngineFactory;
 
         if(_noConfig)
         {
@@ -1062,6 +1063,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             destroy();
             throw ex;
         }
+    }
+
+    public SSLEngineFactory getSSLEngineFactory()
+    {
+        return _sslEngineFactory;
     }
 
     @SuppressWarnings("deprecation")
@@ -1562,5 +1568,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
     private final int _messageSizeMax;
-    private final javax.net.ssl.SSLContext _sslContext;
+    private final com.zeroc.IceSSL.SSLEngineFactory _sslEngineFactory;
 }

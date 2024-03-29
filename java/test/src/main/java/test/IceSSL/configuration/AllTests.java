@@ -121,31 +121,6 @@ public class AllTests
         defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);
         defaultProperties.setProperty("Ice.Default.Host", defaultHost);
 
-        out.print("testing manual initialization... ");
-        out.flush();
-        {
-            InitializationData initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
-            try
-            {
-                p.ice_ping();
-                test(false);
-            }
-            catch(com.zeroc.Ice.PluginInitializationException ex)
-            {
-                // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            comm.destroy();
-        }
-        out.println("ok");
-
         out.print("testing certificate verification... ");
         out.flush();
         {
@@ -999,54 +974,6 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing custom certificate verifier... ");
-        out.flush();
-        {
-            //
-            // Verify that a server certificate is present.
-            //
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.IceSSL.Plugin plugin =
-                (com.zeroc.IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-            test(plugin != null);
-            CertificateVerifierI verifier = new CertificateVerifierI();
-            plugin.setCertificateVerifier(verifier);
-
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-            d.put("IceSSL.VerifyPeer", "2");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            test(verifier.invoked());
-            test(verifier.hadCert());
-            fact.destroyServer(server);
-            comm.destroy();
-        }
-        {
-            //
-            // Verify that verifier is installed via property.
-            //
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            initData.properties.setProperty("IceSSL.CertVerifier", "test.IceSSL.configuration.CertificateVerifierI");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.IceSSL.Plugin plugin =
-                (com.zeroc.IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-            test(plugin != null);
-            test(plugin.getCertificateVerifier() != null);
-            comm.destroy();
-        }
-        out.println("ok");
-
         out.print("testing protocols... ");
         out.flush();
         {
@@ -1298,74 +1225,6 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-        }
-        {
-            //
-            // Test password failure with callback.
-            //
-            initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
-            com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
-            test(plugin != null);
-            PasswordCallbackI cb = new PasswordCallbackI("bogus");
-            plugin.setPasswordCallback(cb);
-            try
-            {
-                pm.initializePlugins();
-                test(false);
-            }
-            catch(com.zeroc.Ice.PluginInitializationException ex)
-            {
-                // Expected.
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            comm.destroy();
-        }
-        {
-            //
-            // Test installation of password callback.
-            //
-            initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
-            com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
-            test(plugin != null);
-            PasswordCallbackI cb = new PasswordCallbackI();
-            plugin.setPasswordCallback(cb);
-            test(plugin.getPasswordCallback() == cb);
-            try
-            {
-                pm.initializePlugins();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            comm.destroy();
-        }
-        {
-            //
-            // Test password callback property.
-            //
-            initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
-            initData.properties.setProperty("IceSSL.PasswordCallback", "test.IceSSL.configuration.PasswordCallbackI");
-            Communicator comm = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
-            com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
-            test(plugin != null);
-            test(plugin.getPasswordCallback() != null);
-            comm.destroy();
         }
         out.println("ok");
 

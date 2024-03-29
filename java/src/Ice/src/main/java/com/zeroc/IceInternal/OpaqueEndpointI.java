@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointParseException;
+import com.zeroc.IceSSL.SSLEngineFactory;
 import com.zeroc.IceUtilInternal.Base64;
 
 final class OpaqueEndpointI extends EndpointI
@@ -202,8 +203,9 @@ final class OpaqueEndpointI extends EndpointI
     // is available.
     //
     @Override
-    public Acceptor acceptor(String adapterName)
+    public Acceptor acceptor(String adapterName, SSLEngineFactory factory)
     {
+        assert(factory == null);
         return null;
     }
 

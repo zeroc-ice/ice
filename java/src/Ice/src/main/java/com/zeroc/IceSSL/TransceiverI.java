@@ -46,7 +46,18 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             }
             final String host = _incoming ? (ipInfo != null ? ipInfo.remoteAddress : "") : _host;
             final int port = ipInfo != null ? ipInfo.remotePort : -1;
-            _engine = _instance.createSSLEngine(_incoming, host, port);
+            _engine = _sslEngineFactory.createSSLEngine(host, port);
+            _engine.setUseClientMode(!_incoming);
+
+            try
+            {
+                _engine.beginHandshake();
+            }
+            catch(javax.net.ssl.SSLException ex)
+            {
+                throw new com.zeroc.Ice.SecurityException("IceSSL: handshake error", ex);
+            }
+
             _appInput = ByteBuffer.allocate(_engine.getSession().getApplicationBufferSize() * 2);
 
             // Require BIG_ENDIAN byte buffers. This is needed for Android >= 8.0 which can read
@@ -70,14 +81,13 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         _cipher = session.getCipherSuite();
         try
         {
-            java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
-            java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
-            _verified = vcerts != null;
-            _certs = _verified ? vcerts : pcerts;
+            _certs = session.getPeerCertificates();
+            _verified = true;
         }
         catch(javax.net.ssl.SSLPeerUnverifiedException ex)
         {
             // No peer certificates.
+            _verified = false;
         }
 
         //
@@ -304,12 +314,17 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         _delegate.checkSendSize(buf);
     }
 
-    TransceiverI(Instance instance, com.zeroc.IceInternal.Transceiver delegate, String hostOrAdapterName,
-                 boolean incoming)
+    TransceiverI(
+        Instance instance,
+        com.zeroc.IceInternal.Transceiver delegate,
+        String hostOrAdapterName,
+        boolean incoming,
+        SSLEngineFactory sslEngineFactory)
     {
         _instance = instance;
         _delegate = delegate;
         _incoming = incoming;
+        _sslEngineFactory = sslEngineFactory;
         if(_incoming)
         {
             _adapterName = hostOrAdapterName;
@@ -595,4 +610,5 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
     private String _cipher;
     private java.security.cert.Certificate[] _certs;
     private boolean _verified;
+    private SSLEngineFactory _sslEngineFactory;
 }

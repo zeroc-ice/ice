@@ -1297,7 +1297,8 @@ public class Coordinator
             return;
         }
 
-        class CertificateVerifier implements com.zeroc.IceSSL.CertificateVerifier
+        // TODO replace with a custom TrustManager
+        class CertificateVerifier
         {
             public CertificateVerifier()
                 throws java.io.IOException, java.security.GeneralSecurityException, java.lang.Exception
@@ -1384,7 +1385,6 @@ public class Coordinator
                 private TrustDecision _decision = TrustDecision.No;
             }
 
-            @Override
             public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
             {
                 if(!(info.certs[0] instanceof X509Certificate))
@@ -1639,7 +1639,8 @@ public class Coordinator
             private KeyStore _trustedServerKeyStore;
         }
 
-        com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
+        // TODO set the sslEngineFactory
+        /*com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
         try
         {
             plugin.setCertificateVerifier(new CertificateVerifier());
@@ -1668,7 +1669,7 @@ public class Coordinator
                 }
             }
             return;
-        }
+        }*/
 
         final String finderStr = "Ice/" + (info.getDirect() ? "LocatorFinder" : "RouterFinder") + ":" +
             (info.getDefaultEndpoint() ?
@@ -1998,7 +1999,7 @@ public class Coordinator
                                {
                                    try
                                    {
-                                       com.zeroc.Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
+                                       com.zeroc.Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("", null);
                                        com.zeroc.Ice.ObjectPrx router =
                                            colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
                                        _communicator.setDefaultRouter(com.zeroc.Ice.RouterPrx.uncheckedCast(router));

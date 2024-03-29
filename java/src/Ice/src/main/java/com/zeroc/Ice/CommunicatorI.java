@@ -99,14 +99,28 @@ public final class CommunicatorI implements Communicator
 
     @Override
     public ObjectAdapter
-    createObjectAdapter(String name, javax.net.ssl.SSLContext sslContext)
+    createObjectAdapter(String name)
     {
-        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslContext);
+        return createObjectAdapter(name, null);
     }
 
     @Override
     public ObjectAdapter
-    createObjectAdapterWithEndpoints(String name, String endpoints, javax.net.ssl.SSLContext sslContext)
+    createObjectAdapter(String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory)
+    {
+        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
+    }
+
+    @Override
+    public ObjectAdapter
+    createObjectAdapterWithEndpoints(String name, String endpoints)
+    {
+        return createObjectAdapterWithEndpoints(name, endpoints, null);
+    }
+
+    @Override
+    public ObjectAdapter
+    createObjectAdapterWithEndpoints(String name, String endpoints, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory)
     {
         if(name.length() == 0)
         {
@@ -114,7 +128,7 @@ public final class CommunicatorI implements Communicator
         }
 
         getProperties().setProperty(name + ".Endpoints", endpoints);
-        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslContext);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
     }
 
     @Override

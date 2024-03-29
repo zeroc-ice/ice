@@ -13,25 +13,19 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;
 import com.zeroc.Ice.PluginInitializationException;
 
-class SSLEngine
+public class SSLEngine
 {
-    SSLEngine(com.zeroc.IceInternal.ProtocolPluginFacade facade)
+    public SSLEngine(com.zeroc.Ice.Communicator communicator)
     {
-        _communicator = facade.getCommunicator();
+        _communicator = communicator;
         _logger = _communicator.getLogger();
-        _facade = facade;
         _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(_communicator);
     }
 
-    void initialize()
+    public void initialize()
     {
-        if(_initialized)
-        {
-            return;
-        }
-
         final String prefix = "IceSSL.";
         com.zeroc.Ice.Properties properties = communicator().getProperties();
 
@@ -120,98 +114,6 @@ class SSLEngine
                 // files mentioned in the configuration.
                 //
                 _defaultDir = properties.getProperty(prefix + "DefaultDir");
-
-                //
-                // We need a SecureRandom object.
-                //
-                // NOTE: The JDK recommends obtaining a SecureRandom object like this:
-                //
-                // java.security.SecureRandom rand = java.security.SecureRandom.getInstance("SHA1PRNG");
-                //
-                // However, there is a bug (6202721) which causes it to always use /dev/random,
-                // which can lead to long delays at program startup. The workaround is to use
-                // the default constructor.
-                //
-                java.security.SecureRandom rand = new java.security.SecureRandom();
-
-                //
-                // Check for seed data for the random number generator.
-                //
-                final String seedFiles = properties.getProperty(prefix + "Random");
-                if(seedFiles.length() > 0)
-                {
-                    final String[] arr = seedFiles.split(java.io.File.pathSeparator);
-                    for(String file : arr)
-                    {
-                        try
-                        {
-                            java.io.InputStream seedStream = openResource(file);
-                            if(seedStream == null)
-                            {
-                                PluginInitializationException e =
-                                    new PluginInitializationException();
-                                e.reason = "IceSSL: random seed file not found:\n" + file;
-                                throw e;
-                            }
-
-                            _seeds.add(seedStream);
-                        }
-                        catch(java.io.IOException ex)
-                        {
-                            throw new PluginInitializationException(
-                                "IceSSL: unable to access random seed file:\n" + file, ex);
-                        }
-                    }
-                }
-
-                if(!_seeds.isEmpty())
-                {
-                    byte[] seed = null;
-                    int start = 0;
-                    for(InputStream in : _seeds)
-                    {
-                        try
-                        {
-                            int num = in.available();
-                            if(seed == null)
-                            {
-                                seed = new byte[num];
-                            }
-                            else
-                            {
-                                byte[] tmp = new byte[seed.length + num];
-                                System.arraycopy(seed, 0, tmp, 0, seed.length);
-                                start = seed.length;
-                                seed = tmp;
-                            }
-                            in.read(seed, start, num);
-                        }
-                        catch(java.io.IOException ex)
-                        {
-                            throw new PluginInitializationException(
-                                "IceSSL: error while reading random seed", ex);
-                        }
-                        finally
-                        {
-                            try
-                            {
-                                in.close();
-                            }
-                            catch(java.io.IOException e)
-                            {
-                                // Ignore.
-                            }
-                        }
-                    }
-                    rand.setSeed(seed);
-                }
-                _seeds.clear();
-
-                //
-                // We call nextInt() in order to force the object to perform any time-consuming
-                // initialization tasks now.
-                //
-                rand.nextInt();
 
                 //
                 // The keystore holds private keys and associated certificates.
@@ -543,43 +445,10 @@ class SSLEngine
                 }
 
                 //
-                // Create a certificate path validator to build the full
-                // certificate chain of the peer certificate. NOTE: this must
-                // be done before wrapping the trust manager since our wrappers
-                // return an empty list of accepted issuers.
-                //
-                _validator = CertPathValidator.getInstance("PKIX");
-                java.util.Set<TrustAnchor> anchors = new java.util.HashSet<>();
-                for(javax.net.ssl.TrustManager tm : trustManagers)
-                {
-                    X509Certificate[] certs = ((javax.net.ssl.X509TrustManager)tm).getAcceptedIssuers();
-                    for(X509Certificate cert : certs)
-                    {
-                        if(cert.getBasicConstraints() >= 0) // Only add CAs
-                        {
-                            anchors.add(new TrustAnchor(cert, null));
-                        }
-                    }
-                }
-                if(!anchors.isEmpty())
-                {
-                    _validatorParams = new PKIXParameters(anchors);
-                    _validatorParams.setRevocationEnabled(false);
-                }
-
-                //
-                // Wrap each trust manager.
-                //
-                for(int i = 0; i < trustManagers.length; ++i)
-                {
-                    trustManagers[i] = new X509TrustManagerI(this, (javax.net.ssl.X509TrustManager)trustManagers[i]);
-                }
-
-                //
                 // Initialize the SSL context.
                 //
                 _context = javax.net.ssl.SSLContext.getInstance("TLS");
-                _context.init(keyManagers, trustManagers, rand);
+                _context.init(keyManagers, trustManagers, null);
             }
             catch(java.security.GeneralSecurityException ex)
             {
@@ -590,88 +459,8 @@ class SSLEngine
         //
         // Clear cached input streams.
         //
-        _seeds.clear();
         _keystoreStream = null;
         _truststoreStream = null;
-
-        _initialized = true;
-    }
-
-    Certificate[] getVerifiedCertificateChain(Certificate[] chain)
-    {
-        if(_validator == null)
-        {
-            return chain; // The user provided a custom SSLContext
-        }
-
-        if(_validatorParams == null)
-        {
-            return null; // Couldn't validate the given certificate chain, no trust anchors configured.
-        }
-
-        List<Certificate> certs = new ArrayList<>(java.util.Arrays.asList(chain));
-        try
-        {
-            CertPath path = CertificateFactory.getInstance("X.509").generateCertPath(certs);
-            CertPathValidatorResult result = _validator.validate(path, _validatorParams);
-            Certificate root = ((PKIXCertPathValidatorResult)result).getTrustAnchor().getTrustedCert();
-            if(!root.equals(chain[chain.length - 1])) // Only add the root certificate if it's not already in the chain
-            {
-                certs.add(root);
-            }
-            return certs.toArray(new Certificate[certs.size()]);
-        }
-        catch(Exception ex)
-        {
-            return null; // Couldn't validate the given certificate chain.
-        }
-    }
-
-    void context(javax.net.ssl.SSLContext context)
-    {
-        if(_initialized)
-        {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "IceSSL: plug-in is already initialized";
-            throw ex;
-        }
-
-        assert(_context == null);
-        _context = context;
-    }
-
-    javax.net.ssl.SSLContext context()
-    {
-        return _context;
-    }
-
-    void setKeystoreStream(java.io.InputStream stream)
-    {
-        if(_initialized)
-        {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "IceSSL: plugin is already initialized";
-            throw ex;
-        }
-
-        _keystoreStream = stream;
-    }
-
-    void setTruststoreStream(java.io.InputStream stream)
-    {
-        if(_initialized)
-        {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "IceSSL: plugin is already initialized";
-            throw ex;
-        }
-
-        _truststoreStream = stream;
-    }
-
-    void addSeedStream(java.io.InputStream stream)
-    {
-        _seeds.add(stream);
     }
 
     int securityTraceLevel()
@@ -682,11 +471,6 @@ class SSLEngine
     String securityTraceCategory()
     {
         return _securityTraceCategory;
-    }
-
-    boolean initialized()
-    {
-        return _initialized;
     }
 
     javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
@@ -802,15 +586,6 @@ class SSLEngine
             }
         }
 
-        try
-        {
-            engine.beginHandshake();
-        }
-        catch(javax.net.ssl.SSLException ex)
-        {
-            throw new com.zeroc.Ice.SecurityException("IceSSL: handshake error", ex);
-        }
-
         return engine;
     }
 
@@ -885,11 +660,6 @@ class SSLEngine
         String[] arr = new String[result.size()];
         result.toArray(arr);
         return arr;
-    }
-
-    String[] protocols()
-    {
-        return _protocols;
     }
 
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming)
@@ -1092,7 +862,6 @@ class SSLEngine
 
     private com.zeroc.Ice.Communicator _communicator;
     private com.zeroc.Ice.Logger _logger;
-    private com.zeroc.IceInternal.ProtocolPluginFacade _facade;
     private int _securityTraceLevel;
     private String _securityTraceCategory;
     private boolean _initialized;
@@ -1110,8 +879,4 @@ class SSLEngine
 
     private InputStream _keystoreStream;
     private InputStream _truststoreStream;
-    private List<InputStream> _seeds = new ArrayList<>();
-
-    private CertPathValidator _validator;
-    private PKIXParameters _validatorParams;
 }
