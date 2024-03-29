@@ -9,12 +9,10 @@
 #    include "StreamTransceiver.h"
 #    include "StreamEndpointI.h"
 #    include "StreamAcceptor.h"
-
 #    include "IceUtil/StringUtil.h"
-
-#    include "Instance.h"
+#    include "../Instance.h"
 #    include "Ice/UniqueRef.h"
-#    include "Network.h"
+#    include "../Network.h"
 #    include "Ice/Exception.h"
 #    include "Ice/Properties.h"
 

@@ -5,7 +5,7 @@
 #ifndef ICE_IAP_ENDPOINT_I_H
 #define ICE_IAP_ENDPOINT_I_H
 
-#include "Ice/ProtocolInstanceF.h"
+#include "../Ice/ProtocolInstanceF.h"
 #include "../Ice/EndpointI.h"
 #include "../Ice/EndpointFactory.h"
 

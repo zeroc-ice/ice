@@ -9,10 +9,10 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "ProtocolInstance.h"
-#    include "IPEndpointI.h"
-#    include "WSEndpoint.h"
-#    include "EndpointFactory.h"
+#    include "../ProtocolInstance.h"
+#    include "../IPEndpointI.h"
+#    include "../WSEndpoint.h"
+#    include "../EndpointFactory.h"
 #    include "Ice/InstanceF.h"
 #    include "Ice/UniqueRef.h"
 

@@ -9,12 +9,11 @@
 #    include "StreamTransceiver.h"
 #    include "StreamEndpointI.h"
 #    include "StreamConnector.h"
-
-#    include "Network.h"
+#    include "../Network.h"
 #    include "Ice/UniqueRef.h"
 #    include "Ice/Exception.h"
 #    include "Ice/Properties.h"
-#    include "NetworkProxy.h"
+#    include "../NetworkProxy.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

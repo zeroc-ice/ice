@@ -9,18 +9,16 @@
 #    include "StreamEndpointI.h"
 #    include "StreamAcceptor.h"
 #    include "StreamConnector.h"
-
 #    include "IceUtil/StringUtil.h"
-
-#    include "Network.h"
+#    include "../Network.h"
 #    include "Ice/InputStream.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/LocalException.h"
 #    include "Ice/Communicator.h"
-#    include "EndpointFactoryManager.h"
+#    include "../EndpointFactoryManager.h"
 #    include "Ice/Properties.h"
-#    include "HashUtil.h"
-#    include "NetworkProxy.h"
+#    include "../HashUtil.h"
+#    include "../NetworkProxy.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

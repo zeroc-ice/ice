@@ -9,8 +9,8 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "TransceiverF.h"
-#    include "Connector.h"
+#    include "../TransceiverF.h"
+#    include "../Connector.h"
 
 namespace IceObjC
 {

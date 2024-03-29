@@ -6,8 +6,8 @@
 #define ICE_IAP_CONNECTOR_H
 
 #include "../Ice/TransceiverF.h"
-#include "Ice/ProtocolInstanceF.h"
-#include "Ice/TraceLevelsF.h"
+#include "../Ice/ProtocolInstanceF.h"
+#include "../Ice/TraceLevelsF.h"
 #include "Ice/Logger.h"
 #include "../Ice/Connector.h"
 

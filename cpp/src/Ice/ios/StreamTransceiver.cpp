@@ -8,13 +8,12 @@
 
 #    include "StreamTransceiver.h"
 #    include "StreamEndpointI.h"
-
 #    include "Ice/Properties.h"
-#    include "TraceLevels.h"
+#    include "../TraceLevels.h"
 #    include "Ice/Connection.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/Buffer.h"
-#    include "Network.h"
+#    include "../Network.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 
