@@ -5,7 +5,6 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
-import java.awt.Cursor;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
@@ -293,8 +292,6 @@ public class Server extends Communicator
             _popup.addSeparator();
             _popup.add(la.get(ENABLE));
             _popup.add(la.get(DISABLE));
-            _popup.addSeparator();
-            _popup.add(la.get(PATCH_SERVER));
             _popup.addSeparator();
             _popup.add(la.get(WRITE_MESSAGE));
             _popup.add(la.get(RETRIEVE_ICE_LOG));
