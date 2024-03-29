@@ -4,8 +4,8 @@
 
 #include <IceBT/Util.h>
 
-#include <Ice/LocalException.h>
-#include <Ice/Network.h>
+#include "Ice/LocalException.h"
+#include "Ice/Network.h"
 #include "IceUtil/StringUtil.h"
 
 using namespace std;

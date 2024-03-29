@@ -8,11 +8,11 @@
 
 #include "IceUtil/StringUtil.h"
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 
 #include <string>
 

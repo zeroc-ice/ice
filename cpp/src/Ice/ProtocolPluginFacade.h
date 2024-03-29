@@ -6,12 +6,12 @@
 #define ICE_PROTOCOL_PLUGIN_FACADE_H
 
 #include "IceUtil/Config.h"
-#include <Ice/ProtocolPluginFacadeF.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/EndpointFactoryF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/NetworkF.h>
+#include "ProtocolPluginFacadeF.h"
+#include "Ice/CommunicatorF.h"
+#include "EndpointFactoryF.h"
+#include "Ice/InstanceF.h"
+#include "EndpointIF.h"
+#include "NetworkF.h"
 
 #include <cstdint>
 

@@ -5,8 +5,8 @@
 #ifndef ICE_BT_ENDPOINT_I_H
 #define ICE_BT_ENDPOINT_I_H
 
-#include <Ice/EndpointI.h>
-#include <Ice/EndpointFactory.h>
+#include "Ice/EndpointI.h"
+#include "Ice/EndpointFactory.h"
 #include <IceBT/Config.h>
 #include <IceBT/EndpointInfo.h>
 #include <IceBT/Engine.h>

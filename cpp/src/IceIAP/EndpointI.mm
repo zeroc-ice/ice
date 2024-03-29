@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
@@ -11,18 +11,18 @@
 
 #    include "IceIAP/EndpointInfo.h"
 
-#    include <Ice/Network.h>
-#    include <Ice/InputStream.h>
-#    include <Ice/OutputStream.h>
-#    include <Ice/LocalException.h>
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/DefaultsAndOverrides.h>
-#    include <Ice/Initialize.h>
-#    include <Ice/EndpointFactoryManager.h>
-#    include <Ice/Properties.h>
-#    include <Ice/HashUtil.h>
-#    include <Ice/ProtocolPluginFacade.h>
-#    include <Ice/RegisterPlugins.h>
+#    include "Ice/Network.h"
+#    include "Ice/InputStream.h"
+#    include "Ice/OutputStream.h"
+#    include "Ice/LocalException.h"
+#    include "Ice/ProtocolInstance.h"
+#    include "Ice/DefaultsAndOverrides.h"
+#    include "Ice/Initialize.h"
+#    include "Ice/EndpointFactoryManager.h"
+#    include "Ice/Properties.h"
+#    include "Ice/HashUtil.h"
+#    include "Ice/ProtocolPluginFacade.h"
+#    include "Ice/RegisterPlugins.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

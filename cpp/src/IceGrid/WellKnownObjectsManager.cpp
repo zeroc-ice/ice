@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Endpoint.h>
+#include "Ice/Endpoint.h"
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/Database.h>

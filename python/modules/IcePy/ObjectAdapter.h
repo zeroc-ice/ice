@@ -6,7 +6,7 @@
 #define ICEPY_OBJECT_ADAPTER_H
 
 #include <Config.h>
-#include <Ice/ObjectAdapterF.h>
+#include "Ice/ObjectAdapterF.h"
 
 namespace IcePy
 {

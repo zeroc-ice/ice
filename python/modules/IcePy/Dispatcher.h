@@ -7,7 +7,7 @@
 
 #include <Config.h>
 #include <Util.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
 
 namespace IcePy
 {

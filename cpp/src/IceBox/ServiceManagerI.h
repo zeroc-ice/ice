@@ -6,8 +6,8 @@
 #define SERVICE_MANAGER_I_H
 
 #include <IceBox/IceBox.h>
-#include <Ice/Logger.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/Logger.h"
+#include "Ice/CommunicatorF.h"
 #include <map>
 
 namespace IceBox

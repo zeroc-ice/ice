@@ -5,10 +5,10 @@
 #ifndef ICE_UDP_CONNECTOR_H
 #define ICE_UDP_CONNECTOR_H
 
-#include <Ice/TransceiverF.h>
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/Connector.h>
-#include <Ice/Network.h>
+#include "TransceiverF.h"
+#include "ProtocolInstanceF.h"
+#include "Connector.h"
+#include "Network.h"
 
 namespace IceInternal
 {

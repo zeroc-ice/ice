@@ -4,8 +4,8 @@
 
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/FileUtil.h"
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
+#include "Ice/Ice.h"
+#include "Ice/TimeUtil.h"
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>

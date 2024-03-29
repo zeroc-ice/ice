@@ -3,9 +3,9 @@
 //
 
 #include "IceUtil/IceUtil.h"
-#include <Ice/Ice.h>
-#include <Ice/Network.h> // For getInterfacesForMulticast
-#include <Ice/LoggerUtil.h>
+#include "Ice/Ice.h"
+#include "Ice/Network.h" // For getInterfacesForMulticast
+#include "Ice/LoggerUtil.h"
 
 #include <IceLocatorDiscovery/Plugin.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>

@@ -5,8 +5,8 @@
 #ifndef ICE_TRACE_UTIL_H
 #define ICE_TRACE_UTIL_H
 
-#include <Ice/Logger.h>
-#include <Ice/TraceLevelsF.h>
+#include "Ice/Logger.h"
+#include "TraceLevelsF.h"
 
 namespace Ice
 {

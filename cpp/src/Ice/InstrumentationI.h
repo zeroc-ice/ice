@@ -5,8 +5,8 @@
 #ifndef ICE_INSTRUMENTATION_I_H
 #define ICE_INSTRUMENTATION_I_H
 
-#include <Ice/MetricsObserverI.h>
-#include <Ice/Connection.h>
+#include "Ice/MetricsObserverI.h"
+#include "Ice/Connection.h"
 
 #include <sstream>
 

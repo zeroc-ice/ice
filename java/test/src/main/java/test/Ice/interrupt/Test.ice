@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 [["java:package:test.Ice.interrupt"]]
 module Test

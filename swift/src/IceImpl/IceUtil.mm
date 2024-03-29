@@ -8,9 +8,9 @@
 #import "Convert.h"
 #import "LoggerWrapperI.h"
 
-#import <Ice/Instance.h>
-#import <Ice/StringUtil.h>
-#import <Ice/Network.h>
+#import "Ice/Instance.h"
+#import "Ice/StringUtil.h"
+#import "Ice/Network.h"
 
 namespace
 {

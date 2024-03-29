@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/LoggerUtil.h"
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/NodeSessionI.h>

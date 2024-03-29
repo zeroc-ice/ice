@@ -5,8 +5,8 @@
 #ifndef TEST_TRANSCEIVER_H
 #define TEST_TRANSCEIVER_H
 
-#include <Ice/Buffer.h>
-#include <Ice/Transceiver.h>
+#include "Ice/Buffer.h"
+#include "Ice/Transceiver.h"
 #include <Configuration.h>
 
 class Transceiver final : public IceInternal::Transceiver

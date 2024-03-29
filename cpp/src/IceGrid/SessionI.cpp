@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/UUID.h>
+#include "Ice/Ice.h"
+#include "Ice/UUID.h"
 #include <IceGrid/SessionI.h>
 #include <IceGrid/QueryI.h>
 #include <IceGrid/LocatorI.h>

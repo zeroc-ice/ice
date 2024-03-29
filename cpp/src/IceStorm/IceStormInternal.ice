@@ -8,10 +8,10 @@
 
 #include <IceStorm/IceStorm.ice>
 #include "Election.ice"
-#include <Ice/Context.ice>
-#include <Ice/OperationMode.ice>
-#include <Ice/BuiltinSequences.ice>
-#include <Ice/Identity.ice>
+#include "Ice/Context.ice"
+#include "Ice/OperationMode.ice"
+#include "Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
 
 [["cpp:include:deque"]]
 

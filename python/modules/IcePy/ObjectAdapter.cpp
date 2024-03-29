@@ -11,13 +11,13 @@
 #include <Thread.h>
 #include <Types.h>
 #include <Util.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Locator.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Router.h>
-#include <Ice/ServantLocator.h>
-#include <Ice/Logger.h>
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Router.h"
+#include "Ice/ServantLocator.h"
+#include "Ice/Logger.h"
 
 #include <pythread.h>
 

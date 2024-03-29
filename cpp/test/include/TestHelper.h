@@ -17,11 +17,11 @@
 #    pragma comment(lib, ICE_LIBNAME("testcommon"))
 #endif
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/Initialize.h>
-#include <Ice/Logger.h>
-#include <Ice/LocalException.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/ProxyF.h"
+#include "Ice/Initialize.h"
+#include "Ice/Logger.h"
+#include "Ice/LocalException.h"
 
 #include "IceUtil/IceUtil.h"
 

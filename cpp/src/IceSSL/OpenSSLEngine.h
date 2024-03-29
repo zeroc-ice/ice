@@ -9,7 +9,7 @@
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/OpenSSLUtil.h>
 
-#include <Ice/BuiltinSequences.h>
+#include "Ice/BuiltinSequences.h"
 
 namespace IceSSL
 {

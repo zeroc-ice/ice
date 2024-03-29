@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_SESSION_MANAGER_H
 #define ICE_GRID_SESSION_MANAGER_H
 
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
 
 #include <IceGrid/Registry.h>
 #include "Internal.h"

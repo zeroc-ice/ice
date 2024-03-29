@@ -6,7 +6,7 @@
 
 #include <Glacier2/Session.h>
 
-#include <Ice/Identity.h>
+#include "Ice/Identity.h"
 
 #include <list>
 #include <mutex>

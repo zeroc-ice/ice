@@ -3,16 +3,16 @@
 //
 
 #include "IceUtil/DisableWarnings.h"
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/EndpointI.h>
-#include <Ice/Reference.h>
-#include <Ice/Properties.h>
-#include <Ice/Comparable.h>
+#include "LocatorInfo.h"
+#include "Ice/Locator.h"
+#include "Ice/LocalException.h"
+#include "Instance.h"
+#include "TraceLevels.h"
+#include "Ice/LoggerUtil.h"
+#include "EndpointI.h"
+#include "Reference.h"
+#include "Ice/Properties.h"
+#include "Ice/Comparable.h"
 #include "Ice/ProxyFunctions.h"
 
 #include <iterator>

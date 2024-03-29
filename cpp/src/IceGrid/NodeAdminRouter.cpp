@@ -3,7 +3,7 @@
 //
 
 #include <IceGrid/NodeAdminRouter.h>
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <IceGrid/ServerI.h>
 #include <IceGrid/ServerAdapterI.h>
 

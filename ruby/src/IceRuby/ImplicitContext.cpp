@@ -4,8 +4,8 @@
 
 #include <ImplicitContext.h>
 #include <Util.h>
-#include <Ice/Initialize.h>
-#include <Ice/ImplicitContext.h>
+#include "Ice/Initialize.h"
+#include "Ice/ImplicitContext.h"
 
 using namespace std;
 using namespace IceRuby;

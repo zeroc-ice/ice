@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ObjectAdapterFactory.h>
-#include <Ice/ObjectAdapterI.h>
-#include <Ice/Object.h>
-#include <Ice/LocalException.h>
-#include <Ice/UUID.h>
+#include "ObjectAdapterFactory.h"
+#include "ObjectAdapterI.h"
+#include "Ice/Object.h"
+#include "Ice/LocalException.h"
+#include "Ice/UUID.h"
 #include "Ice/Router.h"
 
 using namespace std;

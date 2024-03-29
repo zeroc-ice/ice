@@ -5,9 +5,9 @@
 #include <IceDiscovery/LocatorI.h>
 #include <IceDiscovery/LookupI.h>
 
-#include <Ice/LocalException.h>
-#include <Ice/Communicator.h>
-#include <Ice/ObjectAdapter.h>
+#include "Ice/LocalException.h"
+#include "Ice/Communicator.h"
+#include "Ice/ObjectAdapter.h"
 
 #include "IceUtil/Random.h"
 

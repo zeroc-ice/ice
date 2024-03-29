@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UdpTransceiver.h>
-#include <Ice/UdpEndpointI.h>
-#include <Ice/Connection.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
+#include "UdpTransceiver.h"
+#include "UdpEndpointI.h"
+#include "Ice/Connection.h"
+#include "ProtocolInstance.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Buffer.h"
+#include "Ice/LocalException.h"
+#include "Ice/Properties.h"
 #include "IceUtil/StringUtil.h"
 
 using namespace std;

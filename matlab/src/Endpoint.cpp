@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <IceSSL/IceSSL.h>
 #include "ice.h"
 #include "Util.h"

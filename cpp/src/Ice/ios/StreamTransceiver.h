@@ -5,14 +5,14 @@
 #ifndef ICE_STREAM_TRANSCEIVER_H
 #define ICE_STREAM_TRANSCEIVER_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include <Ice/WSTransceiver.h>
-#    include <Ice/Network.h>
-#    include <Ice/Selector.h>
-#    include <Ice/UniqueRef.h>
+#    include "WSTransceiver.h"
+#    include "Network.h"
+#    include "Selector.h"
+#    include "Ice/UniqueRef.h"
 
 struct __CFError;
 typedef struct __CFError* CFErrorRef;

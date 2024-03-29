@@ -3,8 +3,8 @@
 //
 
 #include "IceUtil/Config.h"
-#include <Ice/HttpParser.h>
-#include <Ice/LocalException.h>
+#include "HttpParser.h"
+#include "Ice/LocalException.h"
 #include "IceUtil/StringUtil.h"
 
 #include <cassert>

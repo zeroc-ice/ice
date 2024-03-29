@@ -8,7 +8,7 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngineF.h>
 #include <IceSSL/ConnectionInfo.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
 
 namespace IceSSL
 {

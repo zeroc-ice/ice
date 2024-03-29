@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/Random.h"
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <TestHelper.h>
 #include <Test.h>
 #include <set>

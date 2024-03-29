@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/IconvStringConverter.h>
+#include "Ice/IconvStringConverter.h"
 
 #ifndef _WIN32
 

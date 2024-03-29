@@ -8,8 +8,8 @@
 #include <IceBT/Instance.h>
 #include <IceBT/Util.h>
 
-#include <Ice/Connection.h>
-#include <Ice/LocalException.h>
+#include "Ice/Connection.h"
+#include "Ice/LocalException.h"
 
 #include "IceUtil/DisableWarnings.h"
 

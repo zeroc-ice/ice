@@ -7,8 +7,8 @@
 #include <IceBT/Instance.h>
 #include <IceBT/Util.h>
 
-#include <Ice/LoggerUtil.h>
-#include <Ice/Properties.h>
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace Ice;

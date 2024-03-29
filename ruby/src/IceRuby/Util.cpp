@@ -3,8 +3,8 @@
 //
 
 #include <Util.h>
-#include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
+#include "Ice/LocalException.h"
+#include "Ice/Protocol.h"
 #include <stdarg.h>
 
 using namespace std;

@@ -3,7 +3,7 @@
 //
 
 #include <IceDB/IceDB.h>
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 #include <lmdb.h>
 

@@ -9,8 +9,8 @@
 #include <IceSSL/SecureTransportUtil.h>
 #include <IceSSL/ConnectionInfo.h>
 
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"

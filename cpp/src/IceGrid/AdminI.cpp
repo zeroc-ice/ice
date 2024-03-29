@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
 
-#include <Ice/Ice.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceUtil.h>
+#include "Ice/Ice.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/TraceUtil.h"
 
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>

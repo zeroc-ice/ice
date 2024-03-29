@@ -5,8 +5,8 @@
 #ifndef ICE_ROUTING_TABLE_H
 #define ICE_ROUTING_TABLE_H
 
-#include <Ice/Ice.h>
-#include <Ice/ObserverHelper.h>
+#include "Ice/Ice.h"
+#include "Ice/ObserverHelper.h"
 
 #include <Glacier2/ProxyVerifier.h>
 #include <Glacier2/Instrumentation.h>

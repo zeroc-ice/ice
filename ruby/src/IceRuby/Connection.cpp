@@ -6,7 +6,7 @@
 #include <Endpoint.h>
 #include <Types.h>
 #include <Util.h>
-#include <Ice/Object.h>
+#include "Ice/Object.h"
 #include <IceSSL/ConnectionInfo.h>
 
 using namespace std;

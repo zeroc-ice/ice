@@ -7,14 +7,14 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/Util.h>
 
-#include <Ice/LocalException.h>
-#include <Ice/Logger.h>
-#include <Ice/Communicator.h>
-#include <Ice/StringConverter.h>
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/Communicator.h"
+#include "Ice/StringConverter.h"
 
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
 
 #include <wincrypt.h>
 

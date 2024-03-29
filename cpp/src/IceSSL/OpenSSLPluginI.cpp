@@ -6,7 +6,7 @@
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/OpenSSLEngine.h>
 
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 using namespace std;
 

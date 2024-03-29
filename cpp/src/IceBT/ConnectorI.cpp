@@ -6,7 +6,7 @@
 #include <IceBT/Instance.h>
 #include <IceBT/TransceiverI.h>
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace Ice;

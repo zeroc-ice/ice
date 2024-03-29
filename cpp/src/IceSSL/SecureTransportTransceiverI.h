@@ -12,9 +12,9 @@
 #    include <IceSSL/SecureTransportEngineF.h>
 #    include <IceSSL/Plugin.h>
 
-#    include <Ice/Transceiver.h>
-#    include <Ice/UniqueRef.h>
-#    include <Ice/Network.h>
+#    include "Ice/Transceiver.h"
+#    include "Ice/UniqueRef.h"
+#    include "Ice/Network.h"
 
 #    include <Security/Security.h>
 #    include <Security/SecureTransport.h>

@@ -6,7 +6,7 @@
 
 #include <IceSSL/Plugin.h>
 #include <IceSSL/RFC2253.h>
-#include <Ice/Object.h>
+#include "Ice/Object.h"
 
 using namespace std;
 using namespace IceSSL;

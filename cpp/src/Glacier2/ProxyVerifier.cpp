@@ -3,7 +3,7 @@
 //
 
 #include <Glacier2/ProxyVerifier.h>
-#include <Ice/ConsoleUtil.h>
+#include "Ice/ConsoleUtil.h"
 
 #include <vector>
 #include <string>

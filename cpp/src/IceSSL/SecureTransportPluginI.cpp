@@ -6,7 +6,7 @@
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/SecureTransportEngine.h>
 
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 using namespace Ice;
 using namespace std;

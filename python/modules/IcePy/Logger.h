@@ -7,7 +7,7 @@
 
 #include <Config.h>
 #include <Util.h>
-#include <Ice/Logger.h>
+#include "Ice/Logger.h"
 
 #include <memory>
 

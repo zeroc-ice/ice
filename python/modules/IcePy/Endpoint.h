@@ -6,7 +6,7 @@
 #define ICEPY_ENDPOINT_H
 
 #include <Config.h>
-#include <Ice/Endpoint.h>
+#include "Ice/Endpoint.h"
 
 namespace IcePy
 {

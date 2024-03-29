@@ -6,7 +6,7 @@
 #define ICE_RUBY_OPERATION_H
 
 #include "Config.h"
-#include <Ice/ProxyF.h>
+#include "Ice/ProxyF.h"
 
 #include <memory>
 

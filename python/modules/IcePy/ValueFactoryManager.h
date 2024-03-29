@@ -6,7 +6,7 @@
 #define ICEPY_VALUE_FACTORY_MANAGER_H
 
 #include "Config.h"
-#include <Ice/ValueFactory.h>
+#include "Ice/ValueFactory.h"
 
 #include <map>
 #include <mutex>

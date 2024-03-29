@@ -6,7 +6,7 @@
 #define ICE_GRID_DATABASE_H
 
 #include "IceUtil/FileUtil.h"
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
 #include <IceGrid/Admin.h>
 #include "Internal.h"
 #include <IceGrid/ServerCache.h>

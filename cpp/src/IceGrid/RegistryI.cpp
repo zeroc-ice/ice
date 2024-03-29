@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
 #include "IceUtil/FileUtil.h"
-#include <Ice/Ice.h>
-#include <Ice/Network.h>
-#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
+#include "Ice/Ice.h"
+#include "Ice/Network.h"
+#include "Ice/ProtocolPluginFacade.h" // Just to get the hostname
 
 #include <IceStorm/Service.h>
 #include <IceSSL/IceSSL.h>

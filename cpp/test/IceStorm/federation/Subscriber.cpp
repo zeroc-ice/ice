@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
 #include <TestHelper.h>

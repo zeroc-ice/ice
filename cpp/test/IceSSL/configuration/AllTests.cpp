@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <IceSSL/IceSSL.h>
 #include <TestHelper.h>
 #include <Test.h>
@@ -12,7 +12,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include <Ice/UniqueRef.h>
+#include "Ice/UniqueRef.h"
 
 #if defined(__APPLE__)
 #    include <sys/sysctl.h>

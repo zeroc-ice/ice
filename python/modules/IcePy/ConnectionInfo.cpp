@@ -5,7 +5,7 @@
 #include <ConnectionInfo.h>
 #include <EndpointInfo.h>
 #include <Util.h>
-#include <Ice/Object.h>
+#include "Ice/Object.h"
 #include <IceSSL/ConnectionInfo.h>
 
 using namespace std;

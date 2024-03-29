@@ -6,8 +6,8 @@
 #include <IceSSL/SChannel.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/Util.h>
-#include <Ice/StringUtil.h>
-#include <Ice/StringConverter.h>
+#include "Ice/StringUtil.h"
+#include "Ice/StringConverter.h"
 
 #include <wincrypt.h>
 

@@ -5,7 +5,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/PropertyDict.ice>
+#include "Ice/PropertyDict.ice"
 
 ["cs:namespace:Ice.admin"]
 module Test

@@ -3,8 +3,8 @@
 //
 
 #include "IceUtil/IceUtil.h"
-#include <Ice/Ice.h>
-#include <Ice/Network.h> // For getInterfacesForMulticast
+#include "Ice/Ice.h"
+#include "Ice/Network.h" // For getInterfacesForMulticast
 
 #include <IceDiscovery/PluginI.h>
 #include <IceDiscovery/LocatorI.h>

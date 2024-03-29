@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/CheckIdentity.h>
+#include "Ice/CheckIdentity.h"
 
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/FilterManager.h>

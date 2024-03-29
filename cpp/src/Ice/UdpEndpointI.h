@@ -6,9 +6,9 @@
 #define ICE_UDP_ENDPOINT_I_H
 
 #include "IceUtil/Config.h"
-#include <Ice/IPEndpointI.h>
-#include <Ice/EndpointFactory.h>
-#include <Ice/Network.h>
+#include "IPEndpointI.h"
+#include "EndpointFactory.h"
+#include "Network.h"
 
 namespace IceInternal
 {

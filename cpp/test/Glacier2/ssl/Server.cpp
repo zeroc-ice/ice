@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Session.h>
 #include <TestHelper.h>

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
 #include "IceUtil/Options.h"
-#include <Ice/ConsoleUtil.h>
-#include <Ice/Service.h>
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Service.h"
 #include <Glacier2/Instance.h>
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>

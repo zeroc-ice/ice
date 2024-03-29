@@ -3,9 +3,9 @@
 //
 
 #include "IceUtil/Random.h"
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Locator.h>
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Locator.h"
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>

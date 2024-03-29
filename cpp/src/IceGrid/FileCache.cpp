@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
 
 #include "IceUtil/FileUtil.h"
 

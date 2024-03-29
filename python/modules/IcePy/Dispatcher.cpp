@@ -5,7 +5,7 @@
 #include <Dispatcher.h>
 #include <Connection.h>
 #include <Thread.h>
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 #include <memory>
 #include <functional>

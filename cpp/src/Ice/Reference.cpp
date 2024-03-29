@@ -2,29 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Reference.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/EndpointI.h>
-#include <Ice/OpaqueEndpointI.h>
-#include <Ice/OutputStream.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/Router.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/ConnectionFactory.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/HashUtil.h>
+#include "Reference.h"
+#include "ReferenceFactory.h"
+#include "Ice/LocalException.h"
+#include "Instance.h"
+#include "EndpointI.h"
+#include "OpaqueEndpointI.h"
+#include "Ice/OutputStream.h"
+#include "RouterInfo.h"
+#include "Ice/Router.h"
+#include "LocatorInfo.h"
+#include "Ice/Locator.h"
+#include "ConnectionI.h"
+#include "ConnectionFactory.h"
+#include "Ice/LoggerUtil.h"
+#include "TraceLevels.h"
+#include "HashUtil.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
 #include "FixedRequestHandler.h"
 #include "ObjectAdapterFactory.h"
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/Comparable.h>
-#include <Ice/StringUtil.h>
+#include "DefaultsAndOverrides.h"
+#include "Ice/Comparable.h"
+#include "StringUtil.h"
 
 #include "IceUtil/Random.h"
 

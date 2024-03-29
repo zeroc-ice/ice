@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Connection.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Initialize.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/UUID.h>
+#include "Ice/Connection.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Initialize.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/UUID.h"
 
 #include <IceDiscovery/LookupI.h>
 #include <iterator>

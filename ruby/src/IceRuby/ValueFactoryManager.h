@@ -6,7 +6,7 @@
 #define ICE_RUBY_OBJECT_FACTORY_H
 
 #include "Config.h"
-#include <Ice/ValueFactory.h>
+#include "Ice/ValueFactory.h"
 
 #include <map>
 #include <mutex>

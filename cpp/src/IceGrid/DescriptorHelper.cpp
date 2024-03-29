@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
+#include "Ice/Ice.h"
+#include "Ice/TimeUtil.h"
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/Util.h>
 

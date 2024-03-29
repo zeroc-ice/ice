@@ -11,14 +11,14 @@
 #include <Connection.h>
 #include <Util.h>
 
-#include <Ice/Communicator.h>
-#include <Ice/Initialize.h>
-#include <Ice/Instance.h>
-#include <Ice/LocalException.h>
-#include <Ice/Logger.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Properties.h>
-#include <Ice/Proxy.h>
+#include "Ice/Communicator.h"
+#include "Ice/Initialize.h"
+#include "Ice/Instance.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Properties.h"
+#include "Ice/Proxy.h"
 
 #include "PythonUtil.h"
 

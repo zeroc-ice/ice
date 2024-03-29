@@ -36,16 +36,17 @@
    private implementation details that can be changed or removed.  */
 
 #ifndef YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED
-#define YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED
+# define YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-#    define YYDEBUG 1
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int slice_debug;
 #endif
 /* "%code requires" blocks.  */
 #line 12 "src/Slice/Grammar.y"
+
 
 // Define a custom location type for storing the location (and filename) of tokens.
 #define YYLTYPE Slice::TokenContext
@@ -55,88 +56,93 @@ extern int slice_debug;
 // simple malloc/alloc/memcpy calls, which do not work for the
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
-#define YYMAXDEPTH 10000
+#define YYMAXDEPTH  10000
 #define YYINITDEPTH YYMAXDEPTH
+
 
 #line 64 "src/Slice/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
-#    define YYTOKENTYPE
-enum yytokentype
-{
+# define YYTOKENTYPE
+  enum yytokentype
+  {
     YYEMPTY = -2,
-    YYEOF = 0,                        /* "end of file"  */
-    YYerror = 256,                    /* error  */
-    YYUNDEF = 257,                    /* "invalid token"  */
-    ICE_MODULE = 258,                 /* ICE_MODULE  */
-    ICE_CLASS = 259,                  /* ICE_CLASS  */
-    ICE_INTERFACE = 260,              /* ICE_INTERFACE  */
-    ICE_EXCEPTION = 261,              /* ICE_EXCEPTION  */
-    ICE_STRUCT = 262,                 /* ICE_STRUCT  */
-    ICE_SEQUENCE = 263,               /* ICE_SEQUENCE  */
-    ICE_DICTIONARY = 264,             /* ICE_DICTIONARY  */
-    ICE_ENUM = 265,                   /* ICE_ENUM  */
-    ICE_OUT = 266,                    /* ICE_OUT  */
-    ICE_EXTENDS = 267,                /* ICE_EXTENDS  */
-    ICE_THROWS = 268,                 /* ICE_THROWS  */
-    ICE_VOID = 269,                   /* ICE_VOID  */
-    ICE_BOOL = 270,                   /* ICE_BOOL  */
-    ICE_BYTE = 271,                   /* ICE_BYTE  */
-    ICE_SHORT = 272,                  /* ICE_SHORT  */
-    ICE_INT = 273,                    /* ICE_INT  */
-    ICE_LONG = 274,                   /* ICE_LONG  */
-    ICE_FLOAT = 275,                  /* ICE_FLOAT  */
-    ICE_DOUBLE = 276,                 /* ICE_DOUBLE  */
-    ICE_STRING = 277,                 /* ICE_STRING  */
-    ICE_OBJECT = 278,                 /* ICE_OBJECT  */
-    ICE_CONST = 279,                  /* ICE_CONST  */
-    ICE_FALSE = 280,                  /* ICE_FALSE  */
-    ICE_TRUE = 281,                   /* ICE_TRUE  */
-    ICE_IDEMPOTENT = 282,             /* ICE_IDEMPOTENT  */
-    ICE_TAG = 283,                    /* ICE_TAG  */
-    ICE_OPTIONAL = 284,               /* ICE_OPTIONAL  */
-    ICE_VALUE = 285,                  /* ICE_VALUE  */
-    ICE_STRING_LITERAL = 286,         /* ICE_STRING_LITERAL  */
-    ICE_INTEGER_LITERAL = 287,        /* ICE_INTEGER_LITERAL  */
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    ICE_MODULE = 258,              /* ICE_MODULE  */
+    ICE_CLASS = 259,               /* ICE_CLASS  */
+    ICE_INTERFACE = 260,           /* ICE_INTERFACE  */
+    ICE_EXCEPTION = 261,           /* ICE_EXCEPTION  */
+    ICE_STRUCT = 262,              /* ICE_STRUCT  */
+    ICE_SEQUENCE = 263,            /* ICE_SEQUENCE  */
+    ICE_DICTIONARY = 264,          /* ICE_DICTIONARY  */
+    ICE_ENUM = 265,                /* ICE_ENUM  */
+    ICE_OUT = 266,                 /* ICE_OUT  */
+    ICE_EXTENDS = 267,             /* ICE_EXTENDS  */
+    ICE_THROWS = 268,              /* ICE_THROWS  */
+    ICE_VOID = 269,                /* ICE_VOID  */
+    ICE_BOOL = 270,                /* ICE_BOOL  */
+    ICE_BYTE = 271,                /* ICE_BYTE  */
+    ICE_SHORT = 272,               /* ICE_SHORT  */
+    ICE_INT = 273,                 /* ICE_INT  */
+    ICE_LONG = 274,                /* ICE_LONG  */
+    ICE_FLOAT = 275,               /* ICE_FLOAT  */
+    ICE_DOUBLE = 276,              /* ICE_DOUBLE  */
+    ICE_STRING = 277,              /* ICE_STRING  */
+    ICE_OBJECT = 278,              /* ICE_OBJECT  */
+    ICE_CONST = 279,               /* ICE_CONST  */
+    ICE_FALSE = 280,               /* ICE_FALSE  */
+    ICE_TRUE = 281,                /* ICE_TRUE  */
+    ICE_IDEMPOTENT = 282,          /* ICE_IDEMPOTENT  */
+    ICE_TAG = 283,                 /* ICE_TAG  */
+    ICE_OPTIONAL = 284,            /* ICE_OPTIONAL  */
+    ICE_VALUE = 285,               /* ICE_VALUE  */
+    ICE_STRING_LITERAL = 286,      /* ICE_STRING_LITERAL  */
+    ICE_INTEGER_LITERAL = 287,     /* ICE_INTEGER_LITERAL  */
     ICE_FLOATING_POINT_LITERAL = 288, /* ICE_FLOATING_POINT_LITERAL  */
-    ICE_IDENTIFIER = 289,             /* ICE_IDENTIFIER  */
-    ICE_SCOPED_IDENTIFIER = 290,      /* ICE_SCOPED_IDENTIFIER  */
-    ICE_METADATA_OPEN = 291,          /* ICE_METADATA_OPEN  */
-    ICE_METADATA_CLOSE = 292,         /* ICE_METADATA_CLOSE  */
-    ICE_GLOBAL_METADATA_OPEN = 293,   /* ICE_GLOBAL_METADATA_OPEN  */
+    ICE_IDENTIFIER = 289,          /* ICE_IDENTIFIER  */
+    ICE_SCOPED_IDENTIFIER = 290,   /* ICE_SCOPED_IDENTIFIER  */
+    ICE_METADATA_OPEN = 291,       /* ICE_METADATA_OPEN  */
+    ICE_METADATA_CLOSE = 292,      /* ICE_METADATA_CLOSE  */
+    ICE_GLOBAL_METADATA_OPEN = 293, /* ICE_GLOBAL_METADATA_OPEN  */
     ICE_GLOBAL_METADATA_IGNORE = 294, /* ICE_GLOBAL_METADATA_IGNORE  */
-    ICE_GLOBAL_METADATA_CLOSE = 295,  /* ICE_GLOBAL_METADATA_CLOSE  */
-    ICE_IDENT_OPEN = 296,             /* ICE_IDENT_OPEN  */
-    ICE_KEYWORD_OPEN = 297,           /* ICE_KEYWORD_OPEN  */
-    ICE_TAG_OPEN = 298,               /* ICE_TAG_OPEN  */
-    ICE_OPTIONAL_OPEN = 299,          /* ICE_OPTIONAL_OPEN  */
-    BAD_CHAR = 300                    /* BAD_CHAR  */
-};
-typedef enum yytokentype yytoken_kind_t;
+    ICE_GLOBAL_METADATA_CLOSE = 295, /* ICE_GLOBAL_METADATA_CLOSE  */
+    ICE_IDENT_OPEN = 296,          /* ICE_IDENT_OPEN  */
+    ICE_KEYWORD_OPEN = 297,        /* ICE_KEYWORD_OPEN  */
+    ICE_TAG_OPEN = 298,            /* ICE_TAG_OPEN  */
+    ICE_OPTIONAL_OPEN = 299,       /* ICE_OPTIONAL_OPEN  */
+    BAD_CHAR = 300                 /* BAD_CHAR  */
+  };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
-#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef Slice::GrammarBasePtr YYSTYPE;
-#    define YYSTYPE_IS_TRIVIAL 1
-#    define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
+# define YYSTYPE_IS_DECLARED 1
 #endif
 
 /* Location type.  */
-#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
 typedef struct YYLTYPE YYLTYPE;
 struct YYLTYPE
 {
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
 };
-#    define YYLTYPE_IS_DECLARED 1
-#    define YYLTYPE_IS_TRIVIAL 1
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-int slice_parse(void);
+
+
+
+int slice_parse (void);
+
 
 #endif /* !YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED  */

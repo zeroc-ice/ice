@@ -9,7 +9,7 @@
 #include <IceBT/Config.h>
 #include <IceBT/Plugin.h>
 #include <IceBT/Types.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
 
 #include <mutex>
 

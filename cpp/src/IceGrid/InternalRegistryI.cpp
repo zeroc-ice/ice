@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/DisableWarnings.h"
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/InternalRegistryI.h>

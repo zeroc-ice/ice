@@ -5,7 +5,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 #include <Glacier2/Instrumentation.h>
 

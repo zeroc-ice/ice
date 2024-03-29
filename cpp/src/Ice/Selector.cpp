@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Selector.h>
-#include <Ice/EventHandler.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Selector.h"
+#include "EventHandler.h"
+#include "Instance.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 
 #ifdef ICE_USE_CFSTREAM
 #    include <CoreFoundation/CoreFoundation.h>

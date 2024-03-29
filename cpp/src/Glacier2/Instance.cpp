@@ -5,7 +5,7 @@
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/Instance.h>
 #include <Glacier2/InstrumentationI.h>
-#include <Ice/InstrumentationI.h>
+#include "Ice/InstrumentationI.h"
 
 using namespace std;
 using namespace Glacier2;

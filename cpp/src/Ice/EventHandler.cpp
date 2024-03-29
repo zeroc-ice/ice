@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/EventHandler.h>
-#include <Ice/Instance.h>
+#include "EventHandler.h"
+#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

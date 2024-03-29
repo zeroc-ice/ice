@@ -6,7 +6,7 @@
 #define ICEPY_CONNECTION_H
 
 #include <Config.h>
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 #include <string>
 

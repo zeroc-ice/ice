@@ -5,9 +5,9 @@
 #ifndef ICE_PROXY_FACTORY_H
 #define ICE_PROXY_FACTORY_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/ReferenceF.h>
-#include <Ice/Properties.h>
+#include "Ice/InstanceF.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/Properties.h"
 
 namespace Ice
 {

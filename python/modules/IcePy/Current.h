@@ -6,7 +6,7 @@
 #define ICEPY_CURRENT_H
 
 #include <Config.h>
-#include <Ice/Current.h>
+#include "Ice/Current.h"
 
 namespace IcePy
 {

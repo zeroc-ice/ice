@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_FILE_CACHE_H
 #define ICE_GRID_FILE_CACHE_H
 
-#include <Ice/BuiltinSequences.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/BuiltinSequences.h"
+#include "Ice/CommunicatorF.h"
 
 namespace IceGrid
 {

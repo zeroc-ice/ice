@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/PropertiesAdminI.h>
-#include <Ice/Instance.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/ThreadPool.h>
+#include "PropertiesAdminI.h"
+#include "Instance.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "ThreadPool.h"
 
 using namespace std;
 using namespace Ice;

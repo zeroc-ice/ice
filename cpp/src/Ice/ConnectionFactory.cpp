@@ -2,26 +2,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ConnectionFactory.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/Properties.h>
-#include <Ice/Transceiver.h>
-#include <Ice/Connector.h>
-#include <Ice/Acceptor.h>
-#include <Ice/ThreadPool.h>
-#include <Ice/ObjectAdapterI.h> // For getThreadPool().
-#include <Ice/Reference.h>
-#include <Ice/EndpointI.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/LocalException.h>
-#include <Ice/Communicator.h>
+#include "ConnectionFactory.h"
+#include "ConnectionI.h"
+#include "Instance.h"
+#include "Ice/LoggerUtil.h"
+#include "TraceLevels.h"
+#include "DefaultsAndOverrides.h"
+#include "Ice/Properties.h"
+#include "Transceiver.h"
+#include "Connector.h"
+#include "Acceptor.h"
+#include "ThreadPool.h"
+#include "ObjectAdapterI.h" // For getThreadPool().
+#include "Reference.h"
+#include "EndpointI.h"
+#include "RouterInfo.h"
+#include "Ice/LocalException.h"
+#include "Ice/Communicator.h"
 #include "IceUtil/Random.h"
-
 #include "CommunicatorFlushBatchAsync.h"
+
 #include <iterator>
 
 #if TARGET_OS_IPHONE != 0

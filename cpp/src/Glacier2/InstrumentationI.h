@@ -5,7 +5,7 @@
 #ifndef INSTRUMENTATION_I_H
 #define INSTRUMENTATION_I_H
 
-#include <Ice/MetricsObserverI.h>
+#include "Ice/MetricsObserverI.h"
 
 #include <Glacier2/Instrumentation.h>
 #include <Glacier2/Metrics.h>

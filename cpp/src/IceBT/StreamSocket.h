@@ -8,8 +8,8 @@
 #include <IceBT/Config.h>
 #include <IceBT/InstanceF.h>
 
-#include <Ice/Network.h>
-#include <Ice/Buffer.h>
+#include "Ice/Network.h"
+#include "Ice/Buffer.h"
 
 namespace IceBT
 {

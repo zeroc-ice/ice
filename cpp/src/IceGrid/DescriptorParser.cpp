@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <IceXML/Parser.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DescriptorParser.h>

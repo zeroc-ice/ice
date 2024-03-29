@@ -6,7 +6,7 @@
 #define ICEPY_PROPERTIES_ADMIN_H
 
 #include <Config.h>
-#include <Ice/NativePropertiesAdmin.h>
+#include "Ice/NativePropertiesAdmin.h"
 
 namespace IcePy
 {

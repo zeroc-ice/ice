@@ -8,11 +8,11 @@
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/SSLEngine.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/StreamSocket.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/NetworkProxy.h>
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/StreamSocket.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/NetworkProxy.h"
 
 using namespace std;
 using namespace Ice;

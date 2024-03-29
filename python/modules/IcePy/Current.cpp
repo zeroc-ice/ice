@@ -7,7 +7,7 @@
 #include <Connection.h>
 #include <ObjectAdapter.h>
 #include <Util.h>
-#include <Ice/ObjectAdapter.h>
+#include "Ice/ObjectAdapter.h"
 
 using namespace std;
 using namespace IcePy;

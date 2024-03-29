@@ -8,9 +8,9 @@
 #include <IceBT/Instance.h>
 #include <IceBT/Util.h>
 
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolPluginFacade.h>
-#include <Ice/ProtocolInstance.h>
+#include "Ice/LocalException.h"
+#include "Ice/ProtocolPluginFacade.h"
+#include "Ice/ProtocolInstance.h"
 
 using namespace std;
 using namespace Ice;

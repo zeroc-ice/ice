@@ -8,7 +8,7 @@
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/RouterI.h>
 
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
 
 #include <IceSSL/IceSSL.h>
 

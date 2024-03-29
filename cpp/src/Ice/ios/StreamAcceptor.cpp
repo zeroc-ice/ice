@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
@@ -12,11 +12,11 @@
 
 #    include "IceUtil/StringUtil.h"
 
-#    include <Ice/Instance.h>
-#    include <Ice/UniqueRef.h>
-#    include <Ice/Network.h>
-#    include <Ice/Exception.h>
-#    include <Ice/Properties.h>
+#    include "Instance.h"
+#    include "Ice/UniqueRef.h"
+#    include "Network.h"
+#    include "Ice/Exception.h"
+#    include "Ice/Properties.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

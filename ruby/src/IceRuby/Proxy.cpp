@@ -9,10 +9,10 @@
 #include <Endpoint.h>
 #include <Util.h>
 #include <Types.h>
-#include <Ice/LocalException.h>
-#include <Ice/Locator.h>
-#include <Ice/Proxy.h>
-#include <Ice/Router.h>
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/Proxy.h"
+#include "Ice/Router.h"
 
 using namespace std;
 using namespace IceRuby;

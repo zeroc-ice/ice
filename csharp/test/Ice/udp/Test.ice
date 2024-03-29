@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Identity.ice>
+#include "Ice/Identity.ice"
 
 ["cs:namespace:Ice.udp"]
 module Test

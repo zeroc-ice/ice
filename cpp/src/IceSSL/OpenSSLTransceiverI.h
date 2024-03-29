@@ -11,10 +11,10 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/OpenSSLEngineF.h>
 
-#include <Ice/Transceiver.h>
-#include <Ice/Network.h>
-#include <Ice/StreamSocket.h>
-#include <Ice/WSTransceiver.h>
+#include "Ice/Transceiver.h"
+#include "Ice/Network.h"
+#include "Ice/StreamSocket.h"
+#include "Ice/WSTransceiver.h"
 
 #include <openssl/ssl.h>
 

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/FixedRequestHandler.h>
-#include <Ice/Proxy.h>
-#include <Ice/Reference.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/RouterInfo.h>
+#include "FixedRequestHandler.h"
+#include "Ice/Proxy.h"
+#include "Reference.h"
+#include "ConnectionI.h"
+#include "RouterInfo.h"
 #include "Ice/OutgoingAsync.h"
 
 using namespace std;

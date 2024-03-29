@@ -4,7 +4,7 @@
 
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/Random.h"
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <TestHelper.h>
 #include <Test.h>
 #include <PluginI.h>

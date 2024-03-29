@@ -5,7 +5,7 @@
 #ifndef ICESSL_INSTANCE_H
 #define ICESSL_INSTANCE_H
 
-#include <Ice/ProtocolInstance.h>
+#include "Ice/ProtocolInstance.h"
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/SSLEngineF.h>
 

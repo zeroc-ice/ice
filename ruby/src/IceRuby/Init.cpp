@@ -14,7 +14,7 @@
 #include <Endpoint.h>
 #include <ValueFactoryManager.h>
 
-#include <Ice/RegisterPlugins.h>
+#include "Ice/RegisterPlugins.h"
 
 using namespace std;
 using namespace IceRuby;

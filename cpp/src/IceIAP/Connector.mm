@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
@@ -10,8 +10,8 @@
 #    include "EndpointI.h"
 #    include "Connector.h"
 
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/Exception.h>
+#    include "Ice/ProtocolInstance.h"
+#    include "Ice/Exception.h"
 
 using namespace std;
 using namespace Ice;

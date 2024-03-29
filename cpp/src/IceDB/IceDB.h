@@ -7,9 +7,9 @@
 
 #include "IceUtil/Exception.h"
 #include "IceUtil/FileUtil.h"
-#include <Ice/Initialize.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
+#include "Ice/Initialize.h"
+#include "Ice/OutputStream.h"
+#include "Ice/InputStream.h"
 
 #include <lmdb.h>
 

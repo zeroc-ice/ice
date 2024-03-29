@@ -8,7 +8,7 @@
 
 #include "IceUtil/OutputUtil.h"
 #include "PHPUtil.h"
-#include <Ice/SlicedData.h>
+#include "Ice/SlicedData.h"
 
 #include <limits>
 #include <memory>

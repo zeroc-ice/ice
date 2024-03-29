@@ -8,10 +8,10 @@
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>
 #include <IceSSL/CertificateI.h>
-#include <Ice/Object.h>
-#include <Ice/Base64.h>
-#include <Ice/LocalException.h>
-#include <Ice/StringConverter.h>
+#include "Ice/Object.h"
+#include "Ice/Base64.h"
+#include "Ice/LocalException.h"
+#include "Ice/StringConverter.h"
 
 using namespace std;
 using namespace Ice;

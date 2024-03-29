@@ -11,10 +11,10 @@
 #include <IceSSL/SChannelEngine.h>
 #include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/LocalException.h>
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Buffer.h"
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace Ice;

@@ -6,7 +6,7 @@
 #define ICE_GRID_QUERY_I_H
 
 #include <IceGrid/Registry.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
 
 namespace IceGrid
 {

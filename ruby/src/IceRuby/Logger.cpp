@@ -4,7 +4,7 @@
 
 #include <Logger.h>
 #include <Util.h>
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 using namespace std;
 using namespace IceRuby;

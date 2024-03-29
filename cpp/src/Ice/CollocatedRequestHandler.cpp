@@ -2,16 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/CollocatedRequestHandler.h>
-#include <Ice/ObjectAdapterI.h>
-#include <Ice/ThreadPool.h>
-#include <Ice/Reference.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
+#include "CollocatedRequestHandler.h"
+#include "ObjectAdapterI.h"
+#include "ThreadPool.h"
+#include "Reference.h"
+#include "Instance.h"
+#include "TraceLevels.h"
 #include "Ice/OutgoingAsync.h"
 #include "Endian.h"
-
-#include <Ice/TraceUtil.h>
+#include "TraceUtil.h"
 
 using namespace std;
 using namespace Ice;

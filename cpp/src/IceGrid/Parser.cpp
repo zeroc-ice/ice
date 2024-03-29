@@ -5,8 +5,8 @@
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/Options.h"
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
+#include "Ice/Ice.h"
+#include "Ice/TimeUtil.h"
 #include <IceXML/Parser.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/Util.h>

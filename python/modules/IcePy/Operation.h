@@ -6,9 +6,9 @@
 #define ICEPY_OPERATION_H
 
 #include <Config.h>
-#include <Ice/Current.h>
-#include <Ice/Object.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/Current.h"
+#include "Ice/Object.h"
+#include "Ice/CommunicatorF.h"
 #include <Util.h>
 
 #include <functional>

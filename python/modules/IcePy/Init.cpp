@@ -20,8 +20,8 @@
 #include <Slice.h>
 #include <Types.h>
 #include <ValueFactoryManager.h>
-#include <Ice/Initialize.h>
-#include <Ice/RegisterPlugins.h>
+#include "Ice/Initialize.h"
+#include "Ice/RegisterPlugins.h"
 
 using namespace std;
 using namespace IcePy;

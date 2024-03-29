@@ -5,7 +5,7 @@
 #ifndef SERVANT_LOCATOR_I_H
 #define SERVANT_LOCATOR_I_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 namespace Test
 {

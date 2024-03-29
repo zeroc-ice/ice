@@ -10,11 +10,11 @@
 #include <Types.h>
 #include <Util.h>
 #include <ValueFactoryManager.h>
-#include <Ice/Communicator.h>
-#include <Ice/Initialize.h>
-#include <Ice/Locator.h>
-#include <Ice/Properties.h>
-#include <Ice/Router.h>
+#include "Ice/Communicator.h"
+#include "Ice/Initialize.h"
+#include "Ice/Locator.h"
+#include "Ice/Properties.h"
+#include "Ice/Router.h"
 
 using namespace std;
 using namespace IceRuby;

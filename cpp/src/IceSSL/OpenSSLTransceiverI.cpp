@@ -12,11 +12,11 @@
 #include <IceSSL/Util.h>
 #include <IceSSL/OpenSSL.h>
 
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/LocalException.h>
-#include <Ice/Network.h>
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Buffer.h"
+#include "Ice/LocalException.h"
+#include "Ice/Network.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>

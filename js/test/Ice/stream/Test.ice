@@ -9,7 +9,7 @@
 //
 [["suppress-warning:invalid-metadata, deprecated"]]
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 module Test
 {

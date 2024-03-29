@@ -4,7 +4,7 @@
 
 #include "IceUtil/Timer.h"
 #include "IceUtil/Exception.h"
-#include <Ice/ConsoleUtil.h>
+#include "ConsoleUtil.h"
 
 using namespace std;
 using namespace IceUtil;

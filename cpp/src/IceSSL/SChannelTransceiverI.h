@@ -12,11 +12,11 @@
 #    include <IceSSL/Plugin.h>
 #    include <IceSSL/SChannelEngineF.h>
 
-#    include <Ice/Transceiver.h>
-#    include <Ice/Network.h>
-#    include <Ice/Buffer.h>
-#    include <Ice/StreamSocket.h>
-#    include <Ice/WSTransceiver.h>
+#    include "Ice/Transceiver.h"
+#    include "Ice/Network.h"
+#    include "Ice/Buffer.h"
+#    include "Ice/StreamSocket.h"
+#    include "Ice/WSTransceiver.h"
 
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32

@@ -4,8 +4,8 @@
 
 #include "Util.h"
 
-#include <Ice/UUID.h>
-#include <Ice/Protocol.h>
+#include "Ice/UUID.h"
+#include "Ice/Protocol.h"
 #include "PHPUtil.h"
 
 #include <algorithm>

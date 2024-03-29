@@ -3,11 +3,11 @@
 //
 
 #include <Glacier2/InstrumentationI.h>
-#include <Ice/InstrumentationI.h>
+#include "Ice/InstrumentationI.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/LocalException.h"
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
 
 using namespace std;
 using namespace Glacier2;

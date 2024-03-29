@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
@@ -11,9 +11,9 @@
 
 #    include <IceIAP/ConnectionInfo.h>
 
-#    include <Ice/LocalException.h>
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/Buffer.h>
+#    include "Ice/LocalException.h"
+#    include "Ice/ProtocolInstance.h"
+#    include "Ice/Buffer.h"
 
 #    import <Foundation/NSRunLoop.h>
 #    import <Foundation/NSError.h>

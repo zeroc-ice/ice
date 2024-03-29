@@ -14,7 +14,7 @@
 
 [["python:pkgdir:IceLocatorDiscovery"]]
 
-#include <Ice/Locator.ice>
+#include "Ice/Locator.ice"
 
 [["java:package:com.zeroc"]]
 

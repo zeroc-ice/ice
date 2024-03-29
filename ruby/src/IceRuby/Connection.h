@@ -6,7 +6,7 @@
 #define ICE_RUBY_CONNECTION_H
 
 #include <Config.h>
-#include <Ice/Connection.h>
+#include "Ice/Connection.h"
 
 namespace IceRuby
 {

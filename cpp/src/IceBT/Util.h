@@ -8,7 +8,7 @@
 #include <IceBT/Config.h>
 #include <IceBT/Types.h>
 
-#include <Ice/Network.h>
+#include "Ice/Network.h"
 
 namespace IceBT
 {

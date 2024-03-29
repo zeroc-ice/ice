@@ -6,9 +6,9 @@
 #define ICE_TCP_ENDPOINT_I_H
 
 #include "IceUtil/Config.h"
-#include <Ice/IPEndpointI.h>
-#include <Ice/EndpointFactory.h>
-#include <Ice/Network.h> // for IceIternal::Address
+#include "IPEndpointI.h"
+#include "EndpointFactory.h"
+#include "Network.h" // for IceIternal::Address
 
 namespace IceInternal
 {

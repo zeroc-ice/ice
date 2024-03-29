@@ -11,9 +11,9 @@
 #include <IceSSL/TrustManagerF.h>
 #include <IceSSL/InstanceF.h>
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/Network.h>
-#include <Ice/TransceiverF.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/Network.h"
+#include "Ice/TransceiverF.h"
 
 #include <mutex>
 

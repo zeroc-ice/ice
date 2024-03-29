@@ -3,14 +3,14 @@
 //
 
 #include "ConnectRequestHandler.h"
-#include <Ice/Instance.h>
-#include <Ice/Proxy.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/RouterInfo.h>
+#include "Instance.h"
+#include "Ice/Proxy.h"
+#include "ConnectionI.h"
+#include "RouterInfo.h"
 #include "Ice/OutgoingAsync.h"
-#include <Ice/Properties.h>
-#include <Ice/ThreadPool.h>
-#include <Ice/ProxyFactory.h>
+#include "Ice/Properties.h"
+#include "ThreadPool.h"
+#include "ProxyFactory.h"
 
 using namespace std;
 using namespace IceInternal;

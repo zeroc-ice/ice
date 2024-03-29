@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/LoggerI.h>
-#include <Ice/TimeUtil.h>
+#include "LoggerI.h"
+#include "TimeUtil.h"
 
 #include "IceUtil/StringUtil.h"
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 #include "IceUtil/FileUtil.h"
 
 #include <iostream>

@@ -11,7 +11,7 @@
 //
 #include <Glacier2/Instance.h>
 #include <Glacier2/FilterT.h>
-#include <Ice/ObjectAdapter.h>
+#include "Ice/ObjectAdapter.h"
 
 namespace Glacier2
 {

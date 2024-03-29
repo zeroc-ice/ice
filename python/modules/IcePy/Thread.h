@@ -7,7 +7,7 @@
 
 #include <Config.h>
 #include <Util.h>
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 namespace IcePy
 {

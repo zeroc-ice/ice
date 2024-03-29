@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/SHA1.h>
+#include "Ice/SHA1.h"
 
 #if defined(_WIN32)
 #    include <windows.h>
 #    include <Wincrypt.h>
-#    include <Ice/LocalException.h>
+#    include "Ice/LocalException.h"
 #elif defined(__APPLE__)
 #    include <CommonCrypto/CommonDigest.h>
 #else

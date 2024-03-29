@@ -9,8 +9,8 @@
 #include <IceBT/Engine.h>
 #include <IceBT/InstanceF.h>
 
-#include <Ice/TransceiverF.h>
-#include <Ice/Connector.h>
+#include "Ice/TransceiverF.h"
+#include "Ice/Connector.h"
 
 namespace IceBT
 {

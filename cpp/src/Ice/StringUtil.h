@@ -5,7 +5,7 @@
 #ifndef ICE_STRING_UTIL_H
 #define ICE_STRING_UTIL_H
 
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 #include "IceUtil/StringUtil.h"
 
 namespace IceInternal

@@ -5,7 +5,7 @@
 #include <IceGrid/FileParserI.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceXML/Parser.h>
-#include <Ice/ObjectAdapter.h>
+#include "Ice/ObjectAdapter.h"
 
 using namespace std;
 using namespace IceGrid;

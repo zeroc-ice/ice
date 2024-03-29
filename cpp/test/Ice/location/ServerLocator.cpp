@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/BuiltinSequences.h>
+#include "Ice/Ice.h"
+#include "Ice/BuiltinSequences.h"
 #include <TestHelper.h>
 #include <ServerLocator.h>
 

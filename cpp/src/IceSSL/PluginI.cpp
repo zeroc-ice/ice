@@ -7,10 +7,10 @@
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/EndpointI.h>
 
-#include <Ice/ProtocolPluginFacade.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/LocalException.h>
-#include <Ice/RegisterPlugins.h>
+#include "Ice/ProtocolPluginFacade.h"
+#include "Ice/ProtocolInstance.h"
+#include "Ice/LocalException.h"
+#include "Ice/RegisterPlugins.h"
 
 using namespace std;
 using namespace Ice;

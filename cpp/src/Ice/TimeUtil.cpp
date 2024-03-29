@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/TimeUtil.h>
+#include "TimeUtil.h"
 
 #include <sstream>
 

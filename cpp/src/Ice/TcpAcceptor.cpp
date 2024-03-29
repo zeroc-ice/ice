@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#    include <Ice/TcpAcceptor.h>
-#    include <Ice/TcpTransceiver.h>
-#    include <Ice/TcpEndpointI.h>
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/LoggerUtil.h>
-#    include <Ice/LocalException.h>
-#    include <Ice/Properties.h>
-#    include <Ice/StreamSocket.h>
+#    include "TcpAcceptor.h"
+#    include "TcpTransceiver.h"
+#    include "TcpEndpointI.h"
+#    include "ProtocolInstance.h"
+#    include "Ice/LoggerUtil.h"
+#    include "Ice/LocalException.h"
+#    include "Ice/Properties.h"
+#    include "StreamSocket.h"
 #    include "IceUtil/StringUtil.h"
 
 #    if defined(ICE_USE_IOCP)

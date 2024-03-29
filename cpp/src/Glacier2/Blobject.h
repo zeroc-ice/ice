@@ -5,7 +5,7 @@
 #ifndef BLOBJECT_H
 #define BLOBJECT_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <Glacier2/RequestQueue.h>
 #include <Glacier2/Instance.h>
 

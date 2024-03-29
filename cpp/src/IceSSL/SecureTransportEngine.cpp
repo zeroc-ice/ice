@@ -10,11 +10,11 @@
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/Communicator.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/LocalException.h"
+#include "Ice/Properties.h"
+#include "Ice/Communicator.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
 
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/SecureTransportUtil.h>
