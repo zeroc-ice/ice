@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceSSL/SChannelEngine.h"
-#include "IceSSL/SChannelTransceiverI.h"
+#include "SChannelEngine.h"
+#include "SChannelTransceiverI.h"
 #include "IceSSL/Plugin.h"
 #include "Util.h"
 

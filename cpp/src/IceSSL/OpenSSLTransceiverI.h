@@ -9,12 +9,11 @@
 #include "Util.h"
 #include "InstanceF.h"
 #include "IceSSL/Plugin.h"
-#include "IceSSL/OpenSSLEngineF.h"
-
+#include "OpenSSLEngineF.h"
 #include "../Ice/Transceiver.h"
 #include "../Ice/Network.h"
 #include "../Ice/StreamSocket.h"
-#include "Ice/WSTransceiver.h"
+#include "../Ice/WSTransceiver.h"
 
 #include <openssl/ssl.h>
 

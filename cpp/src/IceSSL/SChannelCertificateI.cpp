@@ -6,7 +6,7 @@
 #include "IceSSL/SChannel.h"
 #include "CertificateI.h"
 #include "Util.h"
-#include "Ice/StringUtil.h"
+#include "../Ice/StringUtil.h"
 #include "Ice/StringConverter.h"
 
 #include <wincrypt.h>

@@ -4,8 +4,7 @@
 
 #include "PluginI.h"
 #include "IceSSL/OpenSSL.h"
-#include "IceSSL/OpenSSLEngine.h"
-
+#include "OpenSSLEngine.h"
 #include "Ice/Initialize.h"
 
 using namespace std;

@@ -3,7 +3,7 @@
 //
 
 #include "PluginI.h"
-#include "IceSSL/SChannelEngine.h"
+#include "SChannelEngine.h"
 
 #include "Ice/Initialize.h"
 
