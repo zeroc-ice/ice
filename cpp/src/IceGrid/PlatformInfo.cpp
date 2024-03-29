@@ -10,8 +10,8 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 
-#include <IceGrid/PlatformInfo.h>
-#include <IceGrid/TraceLevels.h>
+#include "PlatformInfo.h"
+#include "TraceLevels.h"
 
 #include <set>
 #include <climits>

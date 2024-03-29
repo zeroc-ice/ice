@@ -5,7 +5,7 @@
 #ifndef SERVER_BLOBJECT_H
 #define SERVER_BLOBJECT_H
 
-#include <Glacier2/Blobject.h>
+#include "Blobject.h"
 
 namespace Glacier2
 {

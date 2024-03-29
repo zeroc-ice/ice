@@ -5,7 +5,7 @@
 #include <IceSSL/SChannelEngine.h>
 #include <IceSSL/SChannelTransceiverI.h>
 #include <IceSSL/Plugin.h>
-#include <IceSSL/Util.h>
+#include "Util.h"
 
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"

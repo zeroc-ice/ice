@@ -4,7 +4,7 @@
 
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
-#include <IceGrid/FileUserAccountMapperI.h>
+#include "FileUserAccountMapperI.h"
 #include <fstream>
 
 using namespace std;

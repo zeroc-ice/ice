@@ -10,8 +10,8 @@
 #include <IceBT/Util.h>
 
 #include "Ice/LocalException.h"
-#include "Ice/DefaultsAndOverrides.h"
-#include "Ice/HashUtil.h"
+#include "../Ice/DefaultsAndOverrides.h"
+#include "../Ice/HashUtil.h"
 #include "Ice/Object.h"
 #include "Ice/Properties.h"
 #include "Ice/UUID.h"

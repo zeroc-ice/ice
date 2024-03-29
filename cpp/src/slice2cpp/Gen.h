@@ -5,7 +5,7 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include "Slice/Parser.h"
+#include "../Slice/Parser.h"
 #include "IceUtil/OutputUtil.h"
 #include "TypeContext.h"
 

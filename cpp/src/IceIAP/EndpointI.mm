@@ -11,17 +11,17 @@
 
 #    include "IceIAP/EndpointInfo.h"
 
-#    include "Ice/Network.h"
+#    include "../Ice/Network.h"
 #    include "Ice/InputStream.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/LocalException.h"
-#    include "Ice/ProtocolInstance.h"
-#    include "Ice/DefaultsAndOverrides.h"
+#    include "../Ice/ProtocolInstance.h"
+#    include "../Ice/DefaultsAndOverrides.h"
 #    include "Ice/Initialize.h"
 #    include "Ice/EndpointFactoryManager.h"
 #    include "Ice/Properties.h"
-#    include "Ice/HashUtil.h"
-#    include "Ice/ProtocolPluginFacade.h"
+#    include "../Ice/HashUtil.h"
+#    include "../Ice/ProtocolPluginFacade.h"
 #    include "Ice/RegisterPlugins.h"
 
 #    include <CoreFoundation/CoreFoundation.h>

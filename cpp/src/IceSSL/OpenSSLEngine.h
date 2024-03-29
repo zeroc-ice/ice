@@ -5,8 +5,8 @@
 #ifndef ICESSL_OPENSSL_ENGINE_H
 #define ICESSL_OPENSSL_ENGINE_H
 
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/InstanceF.h>
+#include "SSLEngine.h"
+#include "InstanceF.h"
 #include <IceSSL/OpenSSLUtil.h>
 
 #include "Ice/BuiltinSequences.h"

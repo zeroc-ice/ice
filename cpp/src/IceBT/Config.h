@@ -6,7 +6,7 @@
 #define ICE_BT_CONFIG_H
 
 #include "Ice/Config.h"
-#include "Ice/Network.h"
+#include "../Ice/Network.h"
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>

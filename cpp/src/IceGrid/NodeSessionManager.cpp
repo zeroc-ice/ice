@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceGrid/NodeSessionManager.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/NodeI.h>
+#include "NodeSessionManager.h"
+#include "TraceLevels.h"
+#include "NodeI.h"
 
 using namespace std;
 using namespace IceGrid;

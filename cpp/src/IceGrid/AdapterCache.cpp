@@ -6,11 +6,11 @@
 #include "Ice/Communicator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Locator.h"
-#include <IceGrid/AdapterCache.h>
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/ServerCache.h>
-#include <IceGrid/NodeCache.h>
-#include <IceGrid/SessionI.h>
+#include "AdapterCache.h"
+#include "NodeSessionI.h"
+#include "ServerCache.h"
+#include "NodeCache.h"
+#include "SessionI.h"
 
 #include <functional>
 

@@ -6,8 +6,8 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/LocalException.h"
 #include "Ice/Initialize.h"
-#include <IceGrid/DescriptorBuilder.h>
-#include <IceGrid/Util.h>
+#include "DescriptorBuilder.h"
+#include "Util.h"
 
 #include <stdexcept>
 

@@ -6,7 +6,7 @@
 #define PLUGIN_I_H
 
 #include "Ice/Plugin.h"
-#include <IceDiscovery/LookupI.h>
+#include "LookupI.h"
 
 namespace IceDiscovery
 {

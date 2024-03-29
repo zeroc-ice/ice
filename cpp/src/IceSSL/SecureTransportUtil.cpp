@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SecureTransportUtil.h>
+#include "SecureTransportUtil.h"
 #include <IceSSL/Plugin.h>
 
-#include "Ice/Base64.h"
+#include "../Ice/Base64.h"
 #include "Ice/UniqueRef.h"
 #include "Ice/LocalException.h"
 

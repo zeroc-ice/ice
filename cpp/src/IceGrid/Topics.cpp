@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceGrid/Topics.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "Topics.h"
+#include "DescriptorHelper.h"
 
 using namespace std;
 using namespace IceGrid;

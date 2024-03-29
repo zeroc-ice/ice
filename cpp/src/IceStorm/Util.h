@@ -6,7 +6,7 @@
 #define ICESTORM_UTIL_H
 
 #include "Ice/Ice.h"
-#include "IceDB/IceDB.h"
+#include "../IceDB/IceDB.h"
 #include "LLURecord.h"
 #include "SubscriberRecord.h"
 

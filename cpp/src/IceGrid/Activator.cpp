@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/ArgVector.h"
+#include "../Ice/ArgVector.h"
 #include "IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
-#include <IceGrid/Activator.h>
+#include "Activator.h"
 #include <IceGrid/Admin.h>
 #include "Internal.h"
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/ServerI.h>
+#include "TraceLevels.h"
+#include "ServerI.h"
 #include "Util.h"
 
 #include <thread>

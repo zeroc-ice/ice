@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_ADAPTERCACHE_H
 #define ICE_GRID_ADAPTERCACHE_H
 
-#include <IceGrid/Cache.h>
+#include "Cache.h"
 #include <IceGrid/Registry.h>
 #include "Internal.h"
 

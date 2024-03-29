@@ -7,9 +7,9 @@
 
 #include "Ice/Ice.h"
 
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Router.h>
-#include <Glacier2/Instrumentation.h>
+#include "Glacier2/PermissionsVerifier.h"
+#include "Glacier2/Router.h"
+#include "Instrumentation.h"
 
 #include <set>
 

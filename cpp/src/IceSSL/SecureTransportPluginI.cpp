@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
+#include "PluginI.h"
 #include <IceSSL/SecureTransport.h>
-#include <IceSSL/SecureTransportEngine.h>
+#include "SecureTransportEngine.h"
 
 #include "Ice/Initialize.h"
 

@@ -3,10 +3,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/SessionRouterI.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/FilterManager.h>
-#include <Glacier2/RouterI.h>
+#include "SessionRouterI.h"
+#include "Glacier2/PermissionsVerifier.h"
+#include "FilterManager.h"
+#include "RouterI.h"
 
 #include "Ice/UUID.h"
 

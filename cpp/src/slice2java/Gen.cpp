@@ -3,7 +3,7 @@
 //
 
 #include "Gen.h"
-#include "Slice/Util.h"
+#include "../Slice/Util.h"
 #include "IceUtil/StringUtil.h"
 #include <cstring>
 

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/Allocatable.h>
-#include <IceGrid/SessionI.h>
+#include "Allocatable.h"
+#include "SessionI.h"
 
 using namespace std;
 using namespace IceGrid;

@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/EndpointI.h>
-#include <IceSSL/AcceptorI.h>
-#include <IceSSL/ConnectorI.h>
-#include <IceSSL/Instance.h>
+#include "EndpointI.h"
+#include "AcceptorI.h"
+#include "ConnectorI.h"
+#include "Instance.h"
 #include "Ice/OutputStream.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
-#include "Ice/DefaultsAndOverrides.h"
+#include "../Ice/DefaultsAndOverrides.h"
 #include "Ice/Object.h"
-#include "Ice/HashUtil.h"
+#include "../Ice/HashUtil.h"
 #include "Ice/Comparable.h"
 
 using namespace std;

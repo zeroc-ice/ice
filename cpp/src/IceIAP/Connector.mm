@@ -10,7 +10,7 @@
 #    include "EndpointI.h"
 #    include "Connector.h"
 
-#    include "Ice/ProtocolInstance.h"
+#    include "../Ice/ProtocolInstance.h"
 #    include "Ice/Exception.h"
 
 using namespace std;

@@ -6,7 +6,7 @@
 #define ICE_GRID_SERVER_I_H
 
 #include "IceUtil/Timer.h"
-#include <IceGrid/Activator.h>
+#include "Activator.h"
 #include "Internal.h"
 
 #include <optional>

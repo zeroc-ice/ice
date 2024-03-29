@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
+#include "PluginI.h"
 #include <IceSSL/SChannelEngine.h>
 
 #include "Ice/Initialize.h"

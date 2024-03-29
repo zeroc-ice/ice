@@ -4,7 +4,7 @@
 
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-#include <IceGrid/TraceLevels.h>
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceGrid;

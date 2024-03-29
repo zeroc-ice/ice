@@ -6,7 +6,7 @@
 #define ICE_GRID_OBJECTCACHE_H
 
 #include "Ice/CommunicatorF.h"
-#include <IceGrid/Cache.h>
+#include "Cache.h"
 #include "Internal.h"
 
 namespace IceGrid

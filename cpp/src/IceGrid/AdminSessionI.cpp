@@ -4,10 +4,10 @@
 
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/AdminSessionI.h>
-#include <IceGrid/AdminI.h>
-#include <IceGrid/Database.h>
+#include "RegistryI.h"
+#include "AdminSessionI.h"
+#include "AdminI.h"
+#include "Database.h"
 
 #include <IceSSL/Plugin.h>
 

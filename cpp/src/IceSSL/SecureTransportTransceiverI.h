@@ -8,13 +8,13 @@
 #ifdef __APPLE__
 
 #    include <IceSSL/Config.h>
-#    include <IceSSL/InstanceF.h>
-#    include <IceSSL/SecureTransportEngineF.h>
+#    include "InstanceF.h"
+#    include "SecureTransportEngineF.h"
 #    include <IceSSL/Plugin.h>
 
-#    include "Ice/Transceiver.h"
+#    include "../Ice/Transceiver.h"
 #    include "Ice/UniqueRef.h"
-#    include "Ice/Network.h"
+#    include "../Ice/Network.h"
 
 #    include <Security/Security.h>
 #    include <Security/SecureTransport.h>

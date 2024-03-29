@@ -8,15 +8,15 @@
 //
 #include "IceUtil/DisableWarnings.h"
 
-#include <IceSSL/PluginI.h>
+#include "PluginI.h"
 #include <IceSSL/SecureTransport.h>
-#include <IceSSL/CertificateI.h>
-#include <IceSSL/SecureTransportUtil.h>
-#include <IceSSL/RFC2253.h>
+#include "CertificateI.h"
+#include "SecureTransportUtil.h"
+#include "RFC2253.h"
 
 #include "Ice/LocalException.h"
 #include "Ice/UniqueRef.h"
-#include "Ice/Base64.h"
+#include "../Ice/Base64.h"
 
 #include <Security/Security.h>
 

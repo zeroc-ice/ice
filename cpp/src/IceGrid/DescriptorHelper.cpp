@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include "Ice/TimeUtil.h"
-#include <IceGrid/DescriptorHelper.h>
-#include <IceGrid/Util.h>
+#include "../Ice/TimeUtil.h"
+#include "DescriptorHelper.h"
+#include "Util.h"
 
 #include <iterator>
 #include <stdexcept>

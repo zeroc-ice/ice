@@ -7,7 +7,7 @@
 
 #include <IceBT/InstanceF.h>
 #include <IceBT/EngineF.h>
-#include "Ice/ProtocolInstance.h"
+#include "../Ice/ProtocolInstance.h"
 
 namespace IceBT
 {

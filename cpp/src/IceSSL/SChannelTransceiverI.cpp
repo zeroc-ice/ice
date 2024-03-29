@@ -7,10 +7,10 @@
 #include "IceUtil/StringUtil.h"
 
 #include <IceSSL/ConnectionInfo.h>
-#include <IceSSL/Instance.h>
+#include "Instance.h"
 #include <IceSSL/SChannelEngine.h>
-#include <IceSSL/PluginI.h>
-#include <IceSSL/Util.h>
+#include "PluginI.h"
+#include "Util.h"
 #include "Ice/Communicator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Buffer.h"

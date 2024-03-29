@@ -6,8 +6,8 @@
 #define ICE_IAP_TRANSCEIVER_H
 
 #include "Ice/ProtocolInstanceF.h"
-#include "Ice/Transceiver.h"
-#include "Ice/Network.h"
+#include "../Ice/Transceiver.h"
+#include "../Ice/Network.h"
 #include "Ice/Selector.h"
 
 #import <Foundation/Foundation.h>

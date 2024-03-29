@@ -4,7 +4,7 @@
 #ifndef FILTER_I_H
 #define FILTER_I_H
 
-#include <Glacier2/Session.h>
+#include "Glacier2/Session.h"
 
 #include "Ice/Identity.h"
 

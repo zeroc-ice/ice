@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_REGISTRY_ADMIN_ROUTER_H
 #define ICE_GRID_REGISTRY_ADMIN_ROUTER_H
 
-#include <IceGrid/Database.h>
-#include <IceGrid/AdminRouter.h>
+#include "Database.h"
+#include "AdminRouter.h"
 
 namespace IceGrid
 {

@@ -10,7 +10,7 @@
 
 #include <IceGrid/Registry.h>
 #include "Internal.h"
-#include <IceGrid/Util.h>
+#include "Util.h"
 
 namespace IceGrid
 {

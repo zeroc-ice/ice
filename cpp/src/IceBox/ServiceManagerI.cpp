@@ -5,11 +5,11 @@
 #include "IceUtil/Options.h"
 #include "IceUtil/StringUtil.h"
 #include "Ice/Ice.h"
-#include "Ice/ConsoleUtil.h"
-#include "Ice/DynamicLibrary.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/DynamicLibrary.h"
 #include "Ice/Initialize.h"
-#include "Ice/Instance.h"
-#include <IceBox/ServiceManagerI.h>
+#include "../Ice/Instance.h"
+#include "ServiceManagerI.h"
 
 using namespace Ice;
 using namespace IceUtilInternal;

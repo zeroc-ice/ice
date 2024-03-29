@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceGrid/SessionManager.h>
+#include "SessionManager.h"
 
 #include <set>
 

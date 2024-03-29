@@ -8,7 +8,7 @@
 #ifdef __APPLE__
 
 #    include <IceSSL/SecureTransport.h>
-#    include <IceSSL/Util.h>
+#    include "Util.h"
 
 namespace IceSSL
 {

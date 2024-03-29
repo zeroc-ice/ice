@@ -4,12 +4,12 @@
 
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/StringUtil.h"
-#include <IceSSL/PluginI.h>
-#include <IceSSL/Util.h>
-#include <IceSSL/RFC2253.h>
-#include <IceSSL/CertificateI.h>
+#include "PluginI.h"
+#include "Util.h"
+#include "RFC2253.h"
+#include "CertificateI.h"
 #include "Ice/Object.h"
-#include "Ice/Base64.h"
+#include "../Ice/Base64.h"
 #include "Ice/LocalException.h"
 #include "Ice/StringConverter.h"
 

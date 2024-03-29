@@ -6,12 +6,12 @@
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/Options.h"
 #include "Ice/Ice.h"
-#include "Ice/TimeUtil.h"
-#include <IceXML/Parser.h>
-#include <IceGrid/Parser.h>
-#include <IceGrid/Util.h>
-#include <IceGrid/DescriptorParser.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "../Ice/TimeUtil.h"
+#include "../IceXML/Parser.h"
+#include "Parser.h"
+#include "Util.h"
+#include "DescriptorParser.h"
+#include "DescriptorHelper.h"
 #include <IceBox/IceBox.h>
 
 #if defined(__APPLE__) || defined(__linux__)

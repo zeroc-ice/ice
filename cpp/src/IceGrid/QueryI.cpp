@@ -3,8 +3,8 @@
 //
 
 #include "Internal.h"
-#include <IceGrid/QueryI.h>
-#include <IceGrid/Database.h>
+#include "QueryI.h"
+#include "Database.h"
 
 using namespace std;
 using namespace Ice;

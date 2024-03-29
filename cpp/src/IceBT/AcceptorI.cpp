@@ -12,9 +12,9 @@
 #include "Ice/Communicator.h"
 #include "Ice/Exception.h"
 #include "Ice/LocalException.h"
-#include "Ice/Network.h"
+#include "../Ice/Network.h"
 #include "Ice/Properties.h"
-#include "Ice/StreamSocket.h"
+#include "../Ice/StreamSocket.h"
 #include "IceUtil/StringUtil.h"
 
 using namespace std;

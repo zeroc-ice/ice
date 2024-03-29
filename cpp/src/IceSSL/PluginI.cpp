@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/Instance.h>
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/EndpointI.h>
+#include "PluginI.h"
+#include "Instance.h"
+#include "SSLEngine.h"
+#include "EndpointI.h"
 
-#include "Ice/ProtocolPluginFacade.h"
-#include "Ice/ProtocolInstance.h"
+#include "../Ice/ProtocolPluginFacade.h"
+#include "../Ice/ProtocolInstance.h"
 #include "Ice/LocalException.h"
 #include "Ice/RegisterPlugins.h"
 

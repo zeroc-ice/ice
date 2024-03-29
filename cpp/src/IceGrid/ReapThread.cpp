@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <IceGrid/ReapThread.h>
+#include "ReapThread.h"
 
 using namespace std;
 using namespace IceGrid;

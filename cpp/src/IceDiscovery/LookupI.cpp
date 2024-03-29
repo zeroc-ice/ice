@@ -10,7 +10,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/UUID.h"
 
-#include <IceDiscovery/LookupI.h>
+#include "LookupI.h"
 #include <iterator>
 
 using namespace std;

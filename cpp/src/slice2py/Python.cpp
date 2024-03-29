@@ -9,10 +9,10 @@
 #include "IceUtil/ConsoleUtil.h"
 // BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
 #include "IceUtil/FileUtil.h"
-#include "Slice/Preprocessor.h"
-#include "Slice/FileTracker.h"
+#include "../Slice/Preprocessor.h"
+#include "../Slice/FileTracker.h"
 #include "PythonUtil.h"
-#include "Slice/Util.h"
+#include "../Slice/Util.h"
 
 #include <cassert>
 #include <cstring>

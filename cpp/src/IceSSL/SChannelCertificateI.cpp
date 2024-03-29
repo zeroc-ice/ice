@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
+#include "PluginI.h"
 #include <IceSSL/SChannel.h>
-#include <IceSSL/CertificateI.h>
-#include <IceSSL/Util.h>
+#include "CertificateI.h"
+#include "Util.h"
 #include "Ice/StringUtil.h"
 #include "Ice/StringConverter.h"
 

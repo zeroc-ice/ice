@@ -7,8 +7,8 @@
 #include <IceSSL/OpenSSLEngineF.h>
 #include <IceSSL/OpenSSLEngine.h>
 #include <IceSSL/OpenSSLTransceiverI.h>
-#include <IceSSL/Util.h>
-#include <IceSSL/TrustManager.h>
+#include "Util.h"
+#include "TrustManager.h"
 
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"

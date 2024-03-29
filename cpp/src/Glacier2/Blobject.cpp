@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/Blobject.h>
-#include <Glacier2/SessionRouterI.h>
-#include <Glacier2/Instrumentation.h>
+#include "Blobject.h"
+#include "SessionRouterI.h"
+#include "Instrumentation.h"
 
 using namespace std;
 using namespace Ice;

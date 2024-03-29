@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 
-#    include <IceSSL/SSLEngine.h>
+#    include "SSLEngine.h"
 #    include <IceSSL/SChannelEngineF.h>
 
 //

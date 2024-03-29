@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
+#include "PluginI.h"
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/OpenSSLEngine.h>
 

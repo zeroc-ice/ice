@@ -4,9 +4,9 @@
 
 #include "Ice/UUID.h"
 #include "Ice/Ice.h"
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/Topics.h>
+#include "NodeSessionI.h"
+#include "Database.h"
+#include "Topics.h"
 
 using namespace std;
 using namespace IceGrid;

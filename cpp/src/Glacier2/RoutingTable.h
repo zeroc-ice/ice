@@ -8,8 +8,8 @@
 #include "Ice/Ice.h"
 #include "Ice/ObserverHelper.h"
 
-#include <Glacier2/ProxyVerifier.h>
-#include <Glacier2/Instrumentation.h>
+#include "ProxyVerifier.h"
+#include "Instrumentation.h"
 
 #include <list>
 #include <mutex>

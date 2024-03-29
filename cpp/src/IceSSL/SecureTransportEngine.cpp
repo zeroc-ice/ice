@@ -4,8 +4,8 @@
 
 #include <IceSSL/Config.h>
 
-#include <IceSSL/SecureTransportEngineF.h>
-#include <IceSSL/SecureTransportEngine.h>
+#include "SecureTransportEngineF.h"
+#include "SecureTransportEngine.h"
 
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
@@ -16,11 +16,11 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 
-#include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/SecureTransportUtil.h>
+#include "SecureTransportTransceiverI.h"
+#include "SecureTransportUtil.h"
 #include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/Util.h>
+#include "SSLEngine.h"
+#include "Util.h"
 
 #include <regex.h>
 

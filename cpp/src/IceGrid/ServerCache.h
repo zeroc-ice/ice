@@ -8,8 +8,8 @@
 #include <IceGrid/Descriptor.h>
 #include "Internal.h"
 #include <IceGrid/Registry.h>
-#include <IceGrid/Allocatable.h>
-#include <IceGrid/Cache.h>
+#include "Allocatable.h"
+#include "Cache.h"
 
 namespace IceGrid
 {

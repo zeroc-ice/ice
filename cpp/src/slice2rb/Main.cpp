@@ -3,7 +3,7 @@
 //
 
 #include "RubyUtil.h"
-#include "Slice/Util.h"
+#include "../Slice/Util.h"
 #include "IceUtil/ConsoleUtil.h"
 
 using namespace std;

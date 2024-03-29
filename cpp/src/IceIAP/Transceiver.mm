@@ -12,7 +12,7 @@
 #    include <IceIAP/ConnectionInfo.h>
 
 #    include "Ice/LocalException.h"
-#    include "Ice/ProtocolInstance.h"
+#    include "../Ice/ProtocolInstance.h"
 #    include "Ice/Buffer.h"
 
 #    import <Foundation/NSRunLoop.h>

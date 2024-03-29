@@ -5,7 +5,7 @@
 #include "Ice/UUID.h"
 #include "Ice/LocalException.h"
 #include "Ice/ObjectAdapter.h"
-#include <IceGrid/SessionServantManager.h>
+#include "SessionServantManager.h"
 #include <iterator>
 
 using namespace std;

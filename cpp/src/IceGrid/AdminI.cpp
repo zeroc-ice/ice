@@ -6,16 +6,16 @@
 
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-#include "Ice/TraceUtil.h"
+#include "../Ice/TraceUtil.h"
 
-#include <IceGrid/AdminI.h>
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/Util.h>
-#include <IceGrid/DescriptorParser.h>
-#include <IceGrid/DescriptorHelper.h>
-#include <IceGrid/AdminSessionI.h>
-#include <IceGrid/NodeSessionI.h>
+#include "AdminI.h"
+#include "RegistryI.h"
+#include "Database.h"
+#include "Util.h"
+#include "DescriptorParser.h"
+#include "DescriptorHelper.h"
+#include "AdminSessionI.h"
+#include "NodeSessionI.h"
 
 #include "SynchronizationException.h"
 

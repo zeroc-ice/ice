@@ -7,7 +7,7 @@
 
 #include "IceUtil/FileUtil.h"
 
-#include <IceGrid/FileCache.h>
+#include "FileCache.h"
 #include <IceGrid/Exception.h>
 
 #include <deque>

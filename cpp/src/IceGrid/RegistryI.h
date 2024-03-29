@@ -8,11 +8,11 @@
 #include "IceUtil/Timer.h"
 #include <IceGrid/Registry.h>
 #include "Internal.h"
-#include <IceGrid/PlatformInfo.h>
-#include <IceGrid/ReplicaSessionManager.h>
+#include "PlatformInfo.h"
+#include "ReplicaSessionManager.h"
 #include <IceGrid/PluginFacade.h>
 #include <Glacier2/PermissionsVerifier.h>
-#include <IceStorm/Service.h>
+#include "../IceStorm/Service.h"
 
 namespace IceGrid
 {

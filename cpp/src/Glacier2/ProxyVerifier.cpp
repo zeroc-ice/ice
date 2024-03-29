@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/ProxyVerifier.h>
-#include "Ice/ConsoleUtil.h"
+#include "ProxyVerifier.h"
+#include "../Ice/ConsoleUtil.h"
 
 #include <vector>
 #include <string>

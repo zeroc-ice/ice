@@ -9,7 +9,7 @@
 #include <IceBT/Engine.h>
 #include <IceBT/StreamSocket.h>
 
-#include "Ice/Transceiver.h"
+#include "../Ice/Transceiver.h"
 
 namespace IceBT
 {

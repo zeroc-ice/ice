@@ -7,17 +7,17 @@
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
-#include "Ice/ConsoleUtil.h"
+#include "../Ice/ConsoleUtil.h"
 #include "Ice/Locator.h"
 #include "Ice/Service.h"
-#include <IceGrid/Activator.h>
-#include <IceGrid/NodeAdminRouter.h>
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/FileUserAccountMapperI.h>
-#include <IceGrid/NodeI.h>
-#include <IceGrid/NodeSessionManager.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/DescriptorParser.h>
+#include "Activator.h"
+#include "NodeAdminRouter.h"
+#include "RegistryI.h"
+#include "FileUserAccountMapperI.h"
+#include "NodeI.h"
+#include "NodeSessionManager.h"
+#include "TraceLevels.h"
+#include "DescriptorParser.h"
 #include "Util.h"
 
 #include <iostream>

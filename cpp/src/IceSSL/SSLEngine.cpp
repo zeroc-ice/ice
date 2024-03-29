@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/TrustManager.h>
+#include "SSLEngine.h"
+#include "TrustManager.h"
 #include <IceSSL/ConnectionInfo.h>
 
 #include "IceUtil/StringUtil.h"

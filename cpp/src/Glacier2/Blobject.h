@@ -6,8 +6,8 @@
 #define BLOBJECT_H
 
 #include "Ice/Ice.h"
-#include <Glacier2/RequestQueue.h>
-#include <Glacier2/Instance.h>
+#include "RequestQueue.h"
+#include "Instance.h"
 
 namespace Glacier2
 {

@@ -5,7 +5,7 @@
 //
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
-#include "Slice/GrammarUtil.h"
+#include "GrammarUtil.h"
 
 }
 

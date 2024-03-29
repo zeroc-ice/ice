@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceDiscovery/LocatorI.h>
-#include <IceDiscovery/LookupI.h>
+#include "LocatorI.h"
+#include "LookupI.h"
 
 #include "Ice/LocalException.h"
 #include "Ice/Communicator.h"

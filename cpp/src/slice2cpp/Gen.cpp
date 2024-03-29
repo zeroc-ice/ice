@@ -4,9 +4,9 @@
 
 #include "Gen.h"
 #include "CPlusPlusUtil.h"
-#include "Slice/Util.h"
+#include "../Slice/Util.h"
 #include "IceUtil/StringUtil.h"
-#include "Slice/FileTracker.h"
+#include "../Slice/FileTracker.h"
 #include "IceUtil/FileUtil.h"
 
 #include <cassert>

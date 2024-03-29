@@ -6,9 +6,9 @@
 #define ICESSL_TRUST_MANAGER_H
 
 #include "Ice/CommunicatorF.h"
-#include <IceSSL/TrustManagerF.h>
+#include "TrustManagerF.h"
 #include <IceSSL/Plugin.h>
-#include <IceSSL/RFC2253.h>
+#include "RFC2253.h"
 #include <list>
 #include <map>
 

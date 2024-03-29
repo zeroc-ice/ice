@@ -5,33 +5,33 @@
 #include "Ice/UUID.h"
 #include "IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
-#include "Ice/Network.h"
-#include "Ice/ProtocolPluginFacade.h" // Just to get the hostname
+#include "../Ice/Network.h"
+#include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 
-#include <IceStorm/Service.h>
+#include "../IceStorm/Service.h"
 #include <IceSSL/IceSSL.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/NullPermissionsVerifier.h>
 
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/ReapThread.h>
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/LocatorI.h>
-#include <IceGrid/LocatorRegistryI.h>
-#include <IceGrid/AdminI.h>
-#include <IceGrid/QueryI.h>
-#include <IceGrid/SessionI.h>
-#include <IceGrid/AdminCallbackRouter.h>
-#include <IceGrid/AdminSessionI.h>
-#include <IceGrid/InternalRegistryI.h>
-#include <IceGrid/SessionServantManager.h>
-#include <IceGrid/FileUserAccountMapperI.h>
-#include <IceGrid/WellKnownObjectsManager.h>
-#include <IceGrid/FileCache.h>
+#include "TraceLevels.h"
+#include "Database.h"
+#include "ReapThread.h"
+#include "RegistryI.h"
+#include "LocatorI.h"
+#include "LocatorRegistryI.h"
+#include "AdminI.h"
+#include "QueryI.h"
+#include "SessionI.h"
+#include "AdminCallbackRouter.h"
+#include "AdminSessionI.h"
+#include "InternalRegistryI.h"
+#include "SessionServantManager.h"
+#include "FileUserAccountMapperI.h"
+#include "WellKnownObjectsManager.h"
+#include "FileCache.h"
 #include "IceLocatorDiscovery.h"
 
-#include <IceGrid/RegistryAdminRouter.h>
+#include "RegistryAdminRouter.h"
 
 #include <fstream>
 

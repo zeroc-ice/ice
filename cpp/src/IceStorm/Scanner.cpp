@@ -408,7 +408,7 @@ char* yytext;
 //
 
 #include "Ice/Ice.h"
-#include "IceStorm/Grammar.h"
+#include "Grammar.h"
 #include "Parser.h"
 
 #if defined(_MSC_VER)
