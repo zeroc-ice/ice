@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_PLATFORM_INFO_H
 #define ICE_GRID_PLATFORM_INFO_H
 
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 #ifdef _WIN32
 #    include <pdh.h> // Performance data helper API

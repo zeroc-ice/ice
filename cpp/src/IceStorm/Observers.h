@@ -6,7 +6,7 @@
 #define ICESTORM_OBSERVERS_H
 
 #include "Ice/Ice.h"
-#include "IceStorm/Election.h"
+#include "Election.h"
 #include "IceUtil/IceUtil.h"
 #include "Replica.h"
 

@@ -7,7 +7,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/ServerI.h>
 #include "Util.h"

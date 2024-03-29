@@ -6,7 +6,7 @@
 #define ICEGRID_REPLICA_SESSION_H
 
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 namespace IceGrid
 {

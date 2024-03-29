@@ -6,7 +6,7 @@
 #define ICE_GRID_REPLICACACHE_H
 
 #include <IceGrid/Cache.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceStorm/IceStorm.h>
 
 namespace IceGrid

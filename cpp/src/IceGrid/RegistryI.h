@@ -7,7 +7,7 @@
 
 #include <IceUtil/Timer.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/ReplicaSessionManager.h>
 #include <IceGrid/PluginFacade.h>

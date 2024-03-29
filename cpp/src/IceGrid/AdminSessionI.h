@@ -8,7 +8,7 @@
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Topics.h>
 #include <IceGrid/ReapThread.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 
 namespace IceGrid
 {

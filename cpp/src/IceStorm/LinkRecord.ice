@@ -7,7 +7,7 @@
 [["cpp:header-ext:h"]]
 
 #include <Ice/Identity.ice>
-#include <IceStorm/IceStormInternal.ice>
+#include "IceStormInternal.ice"
 
 module IceStorm
 {

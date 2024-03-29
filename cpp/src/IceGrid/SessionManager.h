@@ -9,7 +9,7 @@
 #include <Ice/LoggerUtil.h>
 
 #include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
 #include <IceGrid/Util.h>
 
 namespace IceGrid

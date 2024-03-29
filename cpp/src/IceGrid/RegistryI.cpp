@@ -29,7 +29,7 @@
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/FileCache.h>
-#include <IceGrid/IceLocatorDiscovery.h>
+#include "IceLocatorDiscovery.h"
 
 #include <IceGrid/RegistryAdminRouter.h>
 

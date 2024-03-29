@@ -6,7 +6,7 @@
 #define ICESTORM_REPLICA_H
 
 #include "Ice/Ice.h"
-#include "IceStorm/Election.h"
+#include "Election.h"
 
 #include <set>
 
