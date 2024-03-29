@@ -23,4 +23,9 @@ interface ServerFactory
     void shutdown();
 }
 
+interface Pingable
+{
+    void ping();
+}
+
 }

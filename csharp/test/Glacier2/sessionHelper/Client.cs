@@ -48,8 +48,9 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
                 _app.wakeUp();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                Console.Out.WriteLine(ex);
                 test(false);
             }
         }

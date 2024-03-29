@@ -18,8 +18,7 @@
 #include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
-#include <IceGrid/Util.h>
-#include <IcePatch2Lib/Util.h>
+#include "Util.h"
 
 #include <iostream>
 
@@ -341,9 +340,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             dataPath += "/";
         }
 
-        IcePatch2Internal::createDirectory(dataPath + "servers");
-        IcePatch2Internal::createDirectory(dataPath + "tmp");
-        IcePatch2Internal::createDirectory(dataPath + "distrib");
+        createDirectory(dataPath + "servers");
+        createDirectory(dataPath + "tmp");
 
 #ifdef _WIN32
         //
@@ -356,7 +354,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             setNoIndexingAttribute(dataPath + "servers");
             setNoIndexingAttribute(dataPath + "tmp");
-            setNoIndexingAttribute(dataPath + "distrib");
         }
         catch (const FileException& ex)
         {

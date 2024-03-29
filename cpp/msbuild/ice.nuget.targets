@@ -30,7 +30,6 @@
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegridadmin.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
-                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormadmin.exe;
                                      $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormdb.exe"

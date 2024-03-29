@@ -88,22 +88,6 @@ class ApplicationEditor extends Editor
         // Variables
         //
         _variables = new SimpleMapField(this, false, "Name", "Value");
-
-        //
-        // Distrib
-        //
-        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
-        _distrib.setEditable(true);
-        _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
-
-        JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
-        distribTextField.getDocument().addDocumentListener(_updateListener);
-
-        _distribDirs.getDocument().addDocumentListener(_updateListener);
-        _distribDirs.setToolTipText(
-            "<html>Include only these directories when patching.<br>"
-            + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
-
     }
 
     @Override
@@ -134,15 +118,6 @@ class ApplicationEditor extends Editor
         builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
-
-        JComponent c = builder.appendSeparator("Distribution");
-        c.setToolTipText("Files shared by all servers in your application");
-        builder.append("IcePatch2 Proxy");
-        builder.append(_distrib, 3);
-        builder.nextLine();
-        builder.append("Directories");
-        builder.append(_distribDirs, 3);
-        builder.nextLine();
     }
 
     @Override
@@ -164,16 +139,6 @@ class ApplicationEditor extends Editor
         descriptor.name = _name.getText().trim();
         descriptor.variables = _variables.get();
         descriptor.description = _description.getText();
-
-        if(_distrib.getSelectedItem() == NO_DISTRIB)
-        {
-            descriptor.distrib.icepatch = "";
-        }
-        else
-        {
-            descriptor.distrib.icepatch = _distrib.getSelectedItem().toString().trim();
-        }
-        descriptor.distrib.directories = _distribDirs.getList();
     }
 
     @Override
@@ -202,23 +167,6 @@ class ApplicationEditor extends Editor
 
         _variables.set(descriptor.variables, resolver, isEditable);
 
-        _distrib.setEnabled(true);
-        _distrib.setEditable(true);
-        String icepatch = Utils.substitute(descriptor.distrib.icepatch, resolver);
-        if(icepatch.equals(""))
-        {
-            _distrib.setSelectedItem(NO_DISTRIB);
-        }
-        else
-        {
-            _distrib.setSelectedItem(icepatch);
-        }
-        _distrib.setEnabled(isEditable);
-        _distrib.setEditable(isEditable);
-
-        _distribDirs.setList(descriptor.distrib.directories, resolver);
-        _distribDirs.setEditable(isEditable);
-
         _applyButton.setEnabled(false);
         _discardButton.setEnabled(false);
         detectUpdates(true);
@@ -237,19 +185,7 @@ class ApplicationEditor extends Editor
         }
     }
 
-    static private final Object NO_DISTRIB = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "None selected";
-            }
-        };
-    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
-
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
     private SimpleMapField _variables;
-    private JComboBox _distrib;
-    private ListTextField _distribDirs = new ListTextField(20);
 }

@@ -84,7 +84,7 @@ namespace IceDiscovery
             _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator");
 
             //
-            // Setup locatory registry.
+            // Setup locator registry.
             //
             LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
             Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(

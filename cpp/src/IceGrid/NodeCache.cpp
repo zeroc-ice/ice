@@ -742,14 +742,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     server->activation = info.descriptor->activation;
     server->activationTimeout = info.descriptor->activationTimeout;
     server->deactivationTimeout = info.descriptor->deactivationTimeout;
-    server->applicationDistrib = info.descriptor->applicationDistrib;
     server->services = Ice::StringSeq();
-    if (!info.descriptor->distrib.icepatch.empty())
-    {
-        server->distrib = make_shared<InternalDistributionDescriptor>(
-            info.descriptor->distrib.icepatch,
-            info.descriptor->distrib.directories);
-    }
     server->options = info.descriptor->options;
     server->envs = info.descriptor->envs;
 

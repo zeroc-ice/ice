@@ -12,6 +12,8 @@
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
 #    include <unistd.h>
+#elif defined(_WIN32)
+#    include <windows.h>
 #endif
 
 extern FILE* yyin;

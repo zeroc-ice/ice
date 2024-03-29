@@ -42,8 +42,6 @@ public class Server extends Communicator
             actions[RETRIEVE_STDERR] = true;
             actions[RETRIEVE_LOG_FILE] = _serverDescriptor.logs.length > 0;
 
-            actions[PATCH_SERVER] = !_serverDescriptor.distrib.icepatch.equals("");
-
             if(_state != ServerState.Inactive)
             {
                 Node node = (Node)_parent;
@@ -242,45 +240,6 @@ public class Server extends Communicator
         {
             final AdminPrx admin = getCoordinator().getAdmin();
             admin.sendSignalAsync(_id, s).whenComplete((result, ex) ->
-                {
-                    amiComplete(prefix, errorTitle, ex);
-                });
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            failure(prefix, errorTitle, ex.toString());
-        }
-    }
-
-    @Override
-    public void patchServer()
-    {
-        String message = _serverDescriptor.applicationDistrib ?
-            "You are about to install or refresh your"
-            + " server distribution and your application distribution onto this node.\n"
-            + "Do you want shut down all servers affected by this update?" :
-            "You are about to install or refresh the distribution for this server.\n"
-            + "Do you want to shut down the server for this update?";
-
-        int shutdown = JOptionPane.showConfirmDialog(
-            getCoordinator().getMainFrame(),
-            message,
-            "Patch Confirmation",
-            JOptionPane.YES_NO_CANCEL_OPTION);
-
-        if(shutdown == JOptionPane.CANCEL_OPTION)
-        {
-            return;
-        }
-
-        final String prefix = "Patching server '" + _id + "'...";
-        final String errorTitle = "Failed to patch " + _id;
-
-        getCoordinator().getStatusBar().setText(prefix);
-        try
-        {
-            final AdminPrx admin = getCoordinator().getAdmin();
-            admin.patchServerAsync(_id, shutdown == JOptionPane.YES_OPTION).whenComplete((result, ex) ->
                 {
                     amiComplete(prefix, errorTitle, ex);
                 });

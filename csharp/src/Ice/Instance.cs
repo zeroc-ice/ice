@@ -4,25 +4,25 @@
 
 namespace IceInternal
 {
-    using System.Collections;
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Net.Security;
     using System.Text;
     using System.Threading;
-    using System;
 
     public sealed class BufSizeWarnInfo
     {
         // Whether send size warning has been emitted
         public bool sndWarn;
 
-        // The send size for which the warning wwas emitted
+        // The send size for which the warning was emitted
         public int sndSize;
 
         // Whether receive size warning has been emitted
         public bool rcvWarn;
 
-        // The receive size for which the warning wwas emitted
+        // The receive size for which the warning was emitted
         public int rcvSize;
     }
 
@@ -367,8 +367,7 @@ namespace IceInternal
             return _implicitContext;
         }
 
-        public Ice.ObjectPrx
-        createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
+        public Ice.ObjectPrx createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {
             bool createAdapter = (adminAdapter == null);
 
@@ -398,7 +397,10 @@ namespace IceInternal
                 {
                     if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter(
+                            "Ice.Admin",
+                            router: null,
+                            serverAuthenticationOptions: null);
                     }
                     else
                     {
@@ -457,7 +459,10 @@ namespace IceInternal
                 {
                     if(_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = _objectAdapterFactory.createObjectAdapter(
+                            "Ice.Admin",
+                            router: null,
+                            serverAuthenticationOptions: null);
                     }
                     else
                     {
@@ -753,7 +758,7 @@ namespace IceInternal
         //
         // Only for use by Ice.CommunicatorI
         //
-        public Instance(Ice.Communicator communicator, Ice.InitializationData initData)
+        internal void initialize(Ice.Communicator communicator, Ice.InitializationData initData)
         {
             _state = StateActive;
             _initData = initData;
@@ -964,6 +969,8 @@ namespace IceInternal
 
                 _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
+                _sslEngine = new IceSSL.SSLEngine(communicator);
+
                 _endpointFactoryManager = new EndpointFactoryManager(this);
 
                 ProtocolInstance tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
@@ -974,6 +981,9 @@ namespace IceInternal
 
                 ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
                 _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
+
+                var sslInstance = new IceSSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
+                _endpointFactoryManager.add(new IceSSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
 
                 ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
                 _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
@@ -1180,6 +1190,9 @@ namespace IceInternal
                     _printProcessIdDone = true;
                 }
             }
+
+            // SslEngine initialization
+            _sslEngine.initialize();
 
             //
             // Server thread pool initialization is lazy in serverThreadPool().
@@ -1615,6 +1628,7 @@ namespace IceInternal
         private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
         private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
+        private IceSSL.SSLEngine _sslEngine;
         private static bool _printProcessIdDone = false;
         private static bool _oneOffDone = false;
         private static object _staticLock = new object();

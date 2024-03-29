@@ -24,7 +24,6 @@ namespace IceGrid
     class DestroyCommand;
     class StopCommand;
     class StartCommand;
-    class PatchCommand;
     class LoadCommand;
 
     class ServerI final : public Server, public std::enable_shared_from_this<ServerI>
@@ -37,7 +36,6 @@ namespace IceGrid
         enum InternalServerState
         {
             Loading,
-            Patching,
             Inactive,
             Activating,
             WaitForActivation,
@@ -86,8 +84,6 @@ namespace IceGrid
 
         bool isAdapterActivatable(const std::string&) const;
         const std::string& getId() const;
-        InternalDistributionDescriptorPtr getDistribution() const;
-        bool dependsOnApplicationDistrib() const;
 
         void
             start(ServerActivation, std::function<void()> = nullptr, std::function<void(std::exception_ptr)> = nullptr);
@@ -101,10 +97,6 @@ namespace IceGrid
         void checkRemove(bool, const Ice::Current&);
         std::shared_ptr<ServerCommand>
         destroy(const std::string&, int, const std::string&, bool, std::function<void()>);
-
-        bool startPatch(bool);
-        bool waitForPatch();
-        void finishPatch();
 
         void adapterActivated(const std::string&);
         void adapterDeactivated(const std::string&);
@@ -180,7 +172,6 @@ namespace IceGrid
         std::shared_ptr<DestroyCommand> _destroy;
         std::shared_ptr<StopCommand> _stop;
         std::shared_ptr<LoadCommand> _load;
-        std::shared_ptr<PatchCommand> _patch;
         std::shared_ptr<StartCommand> _start;
 
         int _pid;
@@ -275,26 +266,6 @@ namespace IceGrid
 
     private:
         std::vector<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> _startCB;
-    };
-
-    class PatchCommand : public ServerCommand
-    {
-    public:
-        PatchCommand(const std::shared_ptr<ServerI>&);
-
-        bool canExecute(ServerI::InternalServerState);
-        ServerI::InternalServerState nextState();
-        void execute();
-
-        bool waitForPatch();
-        void destroyed();
-        void finished();
-
-    private:
-        bool _notified;
-        bool _destroyed;
-        std::condition_variable _condVar;
-        std::mutex _mutex;
     };
 
     class LoadCommand : public ServerCommand

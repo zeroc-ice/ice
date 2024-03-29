@@ -51,7 +51,6 @@
 
 #    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 #        include "CtrlCHandler.h"
-#        include "Service.h"
 #    endif
 #endif
 

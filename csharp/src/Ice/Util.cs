@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Collections;
 using System.Globalization;
+using System.Net.Security;
 
 namespace Ice
 {
@@ -32,7 +33,7 @@ namespace Ice
     }
 
     /// <summary>
-    /// A class that encpasulates data to initialize a communicator.
+    /// A class that encapsulates data to initialize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
     {
@@ -106,6 +107,11 @@ namespace Ice
         /// The list of TypeId namespaces. Default is Ice.TypeId.
         /// </summary>
         public string[] typeIdNamespaces = { "Ice.TypeId" };
+
+        /// <summary>
+        /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
+        /// </summary>
+        public SslClientAuthenticationOptions clientAuthenticationOptions;
     }
 
     /// <summary>

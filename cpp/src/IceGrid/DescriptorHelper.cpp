@@ -529,15 +529,6 @@ Resolver::operator()(const Ice::StringSeq& values, const string& name) const
     return result;
 }
 
-DistributionDescriptor
-Resolver::operator()(const DistributionDescriptor& desc) const
-{
-    DistributionDescriptor result;
-    result.icepatch = operator()(desc.icepatch, "IcePatch2 server proxy");
-    result.directories = operator()(desc.directories, "distribution source directory");
-    return result;
-}
-
 PropertyDescriptorSeq
 Resolver::operator()(const PropertyDescriptorSeq& properties, const string& name) const
 {
@@ -984,8 +975,6 @@ Resolver::getReserved()
     reserved["node.datadir"] = "";
     reserved["node.data"] = "";
     reserved["session.id"] = "";
-    reserved["application.distrib"] = "${node.data}/distrib/${application}";
-    reserved["server.distrib"] = "${node.data}/servers/${server}/distrib";
     reserved["server"] = "";
     reserved["server.data"] = "${node.data}/servers/${server}/data";
     reserved["service"] = "";
@@ -1438,11 +1427,6 @@ ServerHelper::operator==(const CommunicatorHelper& h) const
         return false;
     }
 
-    if (_desc->distrib != helper->_desc->distrib)
-    {
-        return false;
-    }
-
     if (_desc->allocatable != helper->_desc->allocatable)
     {
         return false;
@@ -1534,10 +1518,6 @@ ServerHelper::printImpl(const shared_ptr<Ice::Communicator>& communicator, Outpu
     {
         out << nl << "user = `" << _desc->user << "'";
     }
-    if (!_desc->applicationDistrib)
-    {
-        out << nl << "application distribution = `false'";
-    }
     if (!_desc->options.empty())
     {
         out << nl << "options = `" << toString(_desc->options) << "'";
@@ -1545,17 +1525,6 @@ ServerHelper::printImpl(const shared_ptr<Ice::Communicator>& communicator, Outpu
     if (!_desc->envs.empty())
     {
         out << nl << "envs = `" << toString(_desc->envs) << "'";
-    }
-    if (!_desc->distrib.icepatch.empty())
-    {
-        out << nl << "distribution";
-        out << sb;
-        out << nl << "proxy = `" << _desc->distrib.icepatch << "'";
-        if (!_desc->distrib.directories.empty())
-        {
-            out << nl << "directories = `" << toString(_desc->distrib.directories) << "'";
-        }
-        out << eb;
     }
     CommunicatorHelper::print(communicator, out);
 }
@@ -1573,7 +1542,6 @@ ServerHelper::instantiateImpl(
     instance->iceVersion = resolve(_desc->iceVersion, "ice version");
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
-    instance->applicationDistrib = _desc->applicationDistrib;
     instance->allocatable = _desc->allocatable;
     instance->user = resolve(_desc->user, "user");
     if (!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand" &&
@@ -1585,7 +1553,6 @@ ServerHelper::instantiateImpl(
     instance->deactivationTimeout = resolve.asInt(_desc->deactivationTimeout, "deactivation timeout");
     instance->options = resolve(_desc->options, "option");
     instance->envs = resolve(_desc->envs, "environment variable");
-    instance->distrib = resolve(_desc->distrib);
     instance->propertySet.properties.insert(instance->propertySet.properties.end(), props.begin(), props.end());
 }
 
@@ -2356,52 +2323,6 @@ NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, 
 }
 
 bool
-NodeHelper::hasDistributions(const string& server) const
-{
-    assert(_instantiated);
-
-    //
-    // Get the server distributions to patch.
-    //
-    if (server.empty())
-    {
-        for (ServerInstanceHelperDict::const_iterator p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
-        {
-            if (!p->second.getServerInstance()->distrib.icepatch.empty())
-            {
-                return true;
-            }
-        }
-        for (ServerInstanceHelperDict::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
-        {
-            if (!p->second.getServerInstance()->distrib.icepatch.empty())
-            {
-                return true;
-            }
-        }
-    }
-    else
-    {
-        ServerInstanceHelperDict::const_iterator p = _serverInstances.find(server);
-        if (p == _serverInstances.end())
-        {
-            p = _servers.find(server);
-            if (p == _servers.end())
-            {
-                return false;
-            }
-        }
-
-        if (!p->second.getServerInstance()->distrib.icepatch.empty())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 NodeHelper::hasServers() const
 {
     return !_serverInstances.empty() || !_servers.empty();
@@ -2585,7 +2506,6 @@ ApplicationHelper::ApplicationHelper(
         _instance.serverTemplates = _def.serverTemplates;
         _instance.serviceTemplates = _def.serviceTemplates;
         _instance.description = resolve(_def.description, "description");
-        _instance.distrib = resolve(_def.distrib);
         _instance.propertySets = resolve(_def.propertySets);
 
         for (ReplicaGroupDescriptorSeq::iterator r = _def.replicaGroups.begin(); r != _def.replicaGroups.end(); ++r)
@@ -2718,11 +2638,6 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
     updt.propertySets = getDictUpdatedElts(helper._def.propertySets, _def.propertySets);
     updt.removePropertySets = getDictRemovedElts(helper._def.propertySets, _def.propertySets);
 
-    if (_def.distrib != helper._def.distrib)
-    {
-        updt.distrib = make_shared<BoxedDistributionDescriptor>(_def.distrib);
-    }
-
     updt.replicaGroups =
         getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId, replicaGroupEqual);
     updt.removeReplicaGroups = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId);
@@ -2767,7 +2682,6 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 
     def.name = _def.name;
     def.description = updt.description ? updt.description->value : _def.description;
-    def.distrib = updt.distrib ? updt.distrib->value : _def.distrib;
     def.replicaGroups =
         updateSeqElts(_def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, getReplicaGroupId);
     def.variables = updateDictElts(_def.variables, updt.variables, updt.removeVariables);
@@ -2923,32 +2837,6 @@ ApplicationHelper::getServerInfos(const string& uuid, int revision) const
 }
 
 void
-ApplicationHelper::getDistributions(DistributionDescriptor& distribution, vector<string>& nodes, const string& server)
-    const
-{
-    assert(!_instance.name.empty());
-
-    distribution = _instance.distrib;
-    for (NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
-    {
-        if (n->second.hasDistributions(server))
-        {
-            nodes.push_back(n->first);
-            if (!server.empty())
-            {
-                break;
-            }
-        }
-        else if (
-            !_instance.distrib.icepatch.empty() &&
-            ((server.empty() && n->second.hasServers()) || n->second.hasServer(server)))
-        {
-            nodes.push_back(n->first);
-        }
-    }
-}
-
-void
 ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
 {
     assert(!_instance.name.empty());
@@ -2998,17 +2886,6 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             }
             out << eb;
         }
-    }
-    if (!_instance.distrib.icepatch.empty())
-    {
-        out << nl << "distribution";
-        out << sb;
-        out << nl << "proxy = `" << _instance.distrib.icepatch << "'";
-        if (!_instance.distrib.directories.empty())
-        {
-            out << nl << "directories = `" << toString(_instance.distrib.directories) << "'";
-        }
-        out << eb;
     }
     if (!_instance.replicaGroups.empty())
     {
@@ -3099,12 +2976,6 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         if (!variables.empty() || !removeVariables.empty())
         {
             out << nl << "variables updated";
-        }
-    }
-    {
-        if (_def.distrib != helper._def.distrib)
-        {
-            out << nl << "distribution updated";
         }
     }
     {
