@@ -8,7 +8,7 @@
 
 #include "../Slice/Util.h"
 
-#include <SwiftUtil.h>
+#include "SwiftUtil.h"
 
 #include <cassert>
 #include <functional>

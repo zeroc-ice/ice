@@ -4,7 +4,7 @@
 
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
-#include <Gen.h>
+#include "Gen.h"
 
 #include <limits>
 #ifndef _WIN32
@@ -16,7 +16,7 @@
 #include "IceUtil/UUID.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include <DotNetNames.h>
+#include "DotNetNames.h"
 #include <cassert>
 #include <string.h>
 #include <iterator>

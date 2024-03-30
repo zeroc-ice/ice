@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <CsUtil.h>
-#include <DotNetNames.h>
+#include "CsUtil.h"
+#include "DotNetNames.h"
 #include "../Slice/Util.h"
 #include "IceUtil/StringUtil.h"
 
