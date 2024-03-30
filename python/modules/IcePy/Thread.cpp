@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Thread.h>
+#include "Thread.h"
 
 using namespace std;
 using namespace IcePy;

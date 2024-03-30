@@ -5,8 +5,8 @@
 #ifndef ICEPY_TYPES_H
 #define ICEPY_TYPES_H
 
-#include <Config.h>
-#include <Util.h>
+#include "Config.h"
+#include "Util.h"
 #include "Ice/FactoryTable.h"
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"

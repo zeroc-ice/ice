@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Current.h>
+#include "Current.h"
 #include <structmember.h>
-#include <Connection.h>
-#include <ObjectAdapter.h>
-#include <Util.h>
+#include "Connection.h"
+#include "ObjectAdapter.h"
+#include "Util.h"
 #include "Ice/ObjectAdapter.h"
 
 using namespace std;

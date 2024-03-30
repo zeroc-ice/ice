@@ -3,10 +3,10 @@
 //
 
 #include "IceUtil/DisableWarnings.h"
-#include <PropertiesAdmin.h>
-#include <Util.h>
-#include <Thread.h>
-#include <Types.h>
+#include "PropertiesAdmin.h"
+#include "Util.h"
+#include "Thread.h"
+#include "Types.h"
 
 using namespace std;
 using namespace IcePy;

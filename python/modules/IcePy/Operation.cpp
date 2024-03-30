@@ -2,25 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Operation.h>
-#include <Communicator.h>
-#include <Current.h>
-#include <Proxy.h>
-#include <Thread.h>
-#include <Types.h>
-#include <Connection.h>
-#include <Util.h>
-
+#include "Operation.h"
+#include "Communicator.h"
+#include "Current.h"
+#include "Proxy.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Connection.h"
+#include "Util.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
-#include "Ice/Instance.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Properties.h"
 #include "Ice/Proxy.h"
-
-#include "PythonUtil.h"
+#include "slice2py/PythonUtil.h"
 
 using namespace std;
 using namespace IcePy;

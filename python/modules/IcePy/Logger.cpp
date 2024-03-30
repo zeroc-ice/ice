@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Logger.h>
-#include <Thread.h>
+#include "Logger.h"
+#include "Thread.h"
 #include "Ice/Initialize.h"
 
 using namespace std;

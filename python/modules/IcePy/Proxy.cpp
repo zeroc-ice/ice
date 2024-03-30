@@ -3,15 +3,15 @@
 //
 
 #include "IceUtil/DisableWarnings.h"
-#include <Proxy.h>
+#include "Proxy.h"
 #include <structmember.h>
-#include <Communicator.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Operation.h>
-#include <Thread.h>
-#include <Util.h>
-#include <Types.h>
+#include "Communicator.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Operation.h"
+#include "Thread.h"
+#include "Util.h"
+#include "Types.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Locator.h"

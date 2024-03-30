@@ -5,8 +5,8 @@
 #ifndef ICEPY_DISPATCHER_H
 #define ICEPY_DISPATCHER_H
 
-#include <Config.h>
-#include <Util.h>
+#include "Config.h"
+#include "Util.h"
 #include "Ice/CommunicatorF.h"
 
 namespace IcePy

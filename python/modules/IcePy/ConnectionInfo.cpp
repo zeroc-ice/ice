@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ConnectionInfo.h>
-#include <EndpointInfo.h>
-#include <Util.h>
+#include "ConnectionInfo.h"
+#include "EndpointInfo.h"
+#include "Util.h"
 #include "Ice/Object.h"
 #include "IceSSL/ConnectionInfo.h"
 
