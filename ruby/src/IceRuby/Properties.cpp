@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Properties.h>
-#include <Util.h>
+#include "Properties.h"
+#include "Util.h"
 #include "Ice/Initialize.h"
 #include "Ice/Properties.h"
 

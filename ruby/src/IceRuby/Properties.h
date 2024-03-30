@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_PROPERTIES_H
 #define ICE_RUBY_PROPERTIES_H
 
-#include <Config.h>
+#include "Config.h"
 #include "Ice/PropertiesF.h"
 
 namespace IceRuby

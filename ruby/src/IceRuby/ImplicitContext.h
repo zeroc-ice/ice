@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_IMPLICIT_CONTEXT_H
 #define ICE_RUBY_IMPLICIT_CONTEXT_H
 
-#include <Config.h>
+#include "Config.h"
 #include "Ice/ImplicitContext.h"
 
 namespace IceRuby

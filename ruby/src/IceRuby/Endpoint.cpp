@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Endpoint.h>
-#include <Util.h>
+#include "Endpoint.h"
+#include "Util.h"
 #include "Ice/Object.h"
 #include "IceSSL/EndpointInfo.h"
 

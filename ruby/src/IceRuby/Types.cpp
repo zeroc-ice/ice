@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Types.h>
-#include <Proxy.h>
-#include <Util.h>
+#include "Types.h"
+#include "Proxy.h"
+#include "Util.h"
 #include "IceUtil/OutputUtil.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"

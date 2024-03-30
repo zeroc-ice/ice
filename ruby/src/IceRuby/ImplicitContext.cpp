@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ImplicitContext.h>
-#include <Util.h>
+#include "ImplicitContext.h"
+#include "Util.h"
 #include "Ice/Initialize.h"
 #include "Ice/ImplicitContext.h"
 

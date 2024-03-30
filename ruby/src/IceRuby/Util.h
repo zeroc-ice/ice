@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_UTIL_H
 #define ICE_RUBY_UTIL_H
 
-#include <Config.h>
+#include "Config.h"
 #include "Ice/Ice.h"
 
 //

@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Communicator.h>
-#include <ImplicitContext.h>
-#include <Logger.h>
-#include <Operation.h>
-#include <Properties.h>
-#include <Proxy.h>
-#include <Slice.h>
-#include <Types.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <ValueFactoryManager.h>
+#include "Communicator.h"
+#include "ImplicitContext.h"
+#include "Logger.h"
+#include "Operation.h"
+#include "Properties.h"
+#include "Proxy.h"
+#include "Slice.h"
+#include "Types.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "ValueFactoryManager.h"
 
 #include "Ice/RegisterPlugins.h"
 

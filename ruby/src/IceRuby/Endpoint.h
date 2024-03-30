@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_ENDPOINT_H
 #define ICE_RUBY_ENDPOINT_H
 
-#include <Config.h>
+#include "Config.h"
 #include "Ice/Connection.h"
 
 namespace IceRuby
