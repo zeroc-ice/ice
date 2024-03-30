@@ -17,7 +17,7 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..;..\..\..\..\cpp\src\slice2py;$(PythonHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\..\..\..\cpp\src\slice2py;..\..\..\..\cpp\src;$(PythonHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(PythonHome)\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
