@@ -16,7 +16,7 @@
 
 [["python:pkgdir:IceStorm"]]
 
-#include <Ice/Metrics.ice>
+#include "../Ice/Metrics.ice"
 
 [["java:package:com.zeroc.IceStorm"]]
 

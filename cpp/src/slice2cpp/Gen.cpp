@@ -751,7 +751,15 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             extension = _headerExtension;
         }
-        H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
+        if (isAbsolutePath(includeFile))
+        {
+            // This means mcpp found the .ice file in its -I paths. So we generate an angled include for the C++ header.
+            H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
+        }
+        else
+        {
+            H << "\n#include \"" << removeExtension(includeFile) << "." << extension << "\"";
+        }
     }
 
     H << "\n#include <IceUtil/UndefSysMacros.h>";
