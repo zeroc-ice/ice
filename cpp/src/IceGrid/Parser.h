@@ -11,30 +11,6 @@
 #include <list>
 #include <stdio.h>
 
-//
-// Stuff for flex and bison
-//
-
-#define YYSTYPE std::list<std::string>
-#define YY_DECL int yylex(YYSTYPE* yylvalp)
-YY_DECL;
-
-//
-// I must set the initial stack depth to the maximum stack depth to
-// disable bison stack resizing. The bison stack resizing routines use
-// simple malloc/alloc/memcpy calls, which do not work for the
-// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
-// assignment operator, etc.
-//
-#define YYMAXDEPTH 10000       // 10000 should suffice. Bison default is 10000 as maximum.
-#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
-
-//
-// Newer bison versions allow to disable stack resizing by defining
-// yyoverflow.
-//
-#define yyoverflow(a, b, c, d, e, f) yyerror(a)
-
 namespace IceGrid
 {
     class Parser

@@ -879,7 +879,7 @@ YY_DECL
                         yylval->clear();
                         yylval->push_back(s);
 
-                        StringTokenMap::const_iterator pos = keywordMap.find(s);
+                        const auto pos = keywordMap.find(s);
                         return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
                     }
                     YY_BREAK

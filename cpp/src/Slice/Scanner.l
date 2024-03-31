@@ -547,7 +547,7 @@ namespace Slice
     // an identifier token.
     int checkKeyword(string& id)
     {
-        const StringTokenMap::const_iterator pos = keywordMap.find(id);
+        const auto pos = keywordMap.find(id);
         if (pos != keywordMap.end())
         {
             if (pos->first != id)
