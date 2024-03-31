@@ -14,21 +14,13 @@
 #include "Parser.h"
 #include "Grammar.h"
 
-#ifdef _MSC_VER
-#    ifdef yywrap
-#        undef yywrap
-#        define yywrap() 1
-#    endif
-#    define YY_NO_UNISTD_H
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
 namespace IceStorm
 {
-    typedef map<string, int> StringTokenMap;
+    using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
     void initScanner();

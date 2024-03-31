@@ -47,9 +47,6 @@ extern int slice_debug;
 /* "%code requires" blocks.  */
 #line 12 "src/Slice/Grammar.y"
 
-// Define a custom location type for storing the location (and filename) of tokens.
-#define YYLTYPE Slice::TokenContext
-
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
@@ -61,7 +58,7 @@ extern int slice_debug;
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
-#line 67 "src/Slice/Grammar.h"
+#line 64 "src/Slice/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -127,18 +124,7 @@ typedef Slice::GrammarBasePtr YYSTYPE;
 #endif
 
 /* Location type.  */
-#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
-typedef struct YYLTYPE YYLTYPE;
-struct YYLTYPE
-{
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
-};
-#    define YYLTYPE_IS_DECLARED 1
-#    define YYLTYPE_IS_TRIVIAL 1
-#endif
+typedef Slice::TokenContext YYLTYPE;
 
 int slice_parse(void);
 

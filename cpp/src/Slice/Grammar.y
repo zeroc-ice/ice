@@ -11,9 +11,6 @@
 
 %code requires{
 
-// Define a custom location type for storing the location (and filename) of tokens.
-#define YYLTYPE Slice::TokenContext
-
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
@@ -124,6 +121,8 @@ slice_error(const char* s)
 %define api.value.type {Slice::GrammarBasePtr}
 // Enables Bison's token location tracking functionality.
 %locations
+// Specify a custom location type for storing the location & filename of tokens.
+%define api.location.type {Slice::TokenContext}
 
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
