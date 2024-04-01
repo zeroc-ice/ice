@@ -7,8 +7,8 @@
 #include "IceUtil/StringConverter.h"
 
 #include <cassert>
-#include <ostream>
 #include <iomanip>
+#include <ostream>
 
 using namespace std;
 using namespace Slice;
