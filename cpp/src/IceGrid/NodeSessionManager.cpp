@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "NodeSessionManager.h"
-#include "TraceLevels.h"
+#include "Ice/Ice.h"
 #include "NodeI.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceGrid;

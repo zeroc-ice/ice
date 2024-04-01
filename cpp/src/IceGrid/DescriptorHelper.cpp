@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-#include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
+#include "../Ice/TimeUtil.h"
+#include "Ice/Ice.h"
 #include "Util.h"
 
 #include <iterator>

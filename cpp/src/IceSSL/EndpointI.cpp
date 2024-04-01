@@ -3,16 +3,16 @@
 //
 
 #include "EndpointI.h"
+#include "../Ice/DefaultsAndOverrides.h"
+#include "../Ice/HashUtil.h"
 #include "AcceptorI.h"
 #include "ConnectorI.h"
-#include "Instance.h"
-#include "Ice/OutputStream.h"
+#include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
-#include "../Ice/DefaultsAndOverrides.h"
 #include "Ice/Object.h"
-#include "../Ice/HashUtil.h"
-#include "Ice/Comparable.h"
+#include "Ice/OutputStream.h"
+#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

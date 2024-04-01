@@ -3,9 +3,9 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
-#include "Ice/Ice.h"
 #include "../IceDB/IceDB.h"
 #include "DBTypes.h"
+#include "Ice/Ice.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/Options.h"
 #include "IceUtil/StringUtil.h"

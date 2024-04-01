@@ -3,9 +3,9 @@
 //
 
 #include "Ice/ObserverHelper.h"
-#include "Reference.h"
-#include "Instance.h"
 #include "Ice/Proxy.h"
+#include "Instance.h"
+#include "Reference.h"
 
 using namespace std;
 using namespace Ice;

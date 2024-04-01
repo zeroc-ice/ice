@@ -2,28 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/DisableWarnings.h"
 #include "ConnectionI.h"
-#include "Instance.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Properties.h"
-#include "TraceUtil.h"
-#include "TraceLevels.h"
-#include "DefaultsAndOverrides.h"
-#include "Transceiver.h"
-#include "ThreadPool.h"
 #include "ACM.h"
-#include "ObjectAdapterI.h" // For getThreadPool()
-#include "EndpointI.h"
-#include "Ice/LocalException.h"
-#include "RequestHandler.h"   // For RetryException
-#include "ReferenceFactory.h" // For createProxy().
-#include "ProxyFactory.h"     // For createProxy().
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
+#include "DefaultsAndOverrides.h"
 #include "Endian.h"
+#include "EndpointI.h"
 #include "Ice/IncomingRequest.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingResponse.h"
+#include "Ice/Properties.h"
+#include "IceUtil/DisableWarnings.h"
+#include "Instance.h"
+#include "ObjectAdapterI.h"   // For getThreadPool()
+#include "ProxyFactory.h"     // For createProxy().
+#include "ReferenceFactory.h" // For createProxy().
+#include "RequestHandler.h"   // For RetryException
+#include "ThreadPool.h"
+#include "TraceLevels.h"
+#include "TraceUtil.h"
+#include "Transceiver.h"
 
 #include <stdexcept>
 

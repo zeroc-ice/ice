@@ -3,11 +3,11 @@
 //
 
 #include "RouterInfo.h"
-#include "Ice/Router.h"
-#include "Ice/LocalException.h"
 #include "Ice/Connection.h" // For ice_connection()->timeout().
-#include "Reference.h"
+#include "Ice/LocalException.h"
 #include "Ice/ProxyFunctions.h"
+#include "Ice/Router.h"
+#include "Reference.h"
 
 using namespace std;
 using namespace Ice;

@@ -2,25 +2,25 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/DisableWarnings.h"
 #include "Ice/InputStream.h"
 #include "DefaultsAndOverrides.h"
-#include "Instance.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/Object.h"
 #include "Ice/Proxy.h"
-#include "ProxyFactory.h"
-#include "Ice/ValueFactory.h"
-#include "Ice/UserExceptionFactory.h"
-#include "Ice/LocalException.h"
-#include "TraceUtil.h"
-#include "TraceLevels.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
+#include "Ice/UserExceptionFactory.h"
+#include "Ice/ValueFactory.h"
+#include "IceUtil/DisableWarnings.h"
+#include "Instance.h"
+#include "ProxyFactory.h"
+#include "TraceLevels.h"
+#include "TraceUtil.h"
 
+#include "Endian.h"
 #include "Ice/FactoryTable.h"
 #include "ReferenceFactory.h"
-#include "Endian.h"
 #include <iterator>
 
 #ifndef ICE_UNALIGNED

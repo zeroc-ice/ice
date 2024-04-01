@@ -4,10 +4,10 @@
 
 #include "Engine.h"
 #include "DBus.h"
-#include "Util.h"
 #include "Ice/LocalException.h"
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/UUID.h"
+#include "Util.h"
 
 #include <thread>
 

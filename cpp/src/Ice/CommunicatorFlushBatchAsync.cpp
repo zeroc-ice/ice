@@ -4,8 +4,8 @@
 
 #include "CommunicatorFlushBatchAsync.h"
 #include "BatchRequestQueue.h"
-#include "ConnectionI.h"
 #include "ConnectionFactory.h"
+#include "ConnectionI.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
 

@@ -47,6 +47,8 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 9 "src/IceStorm/Grammar.y"
 
+#include <list>
+
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
@@ -58,7 +60,7 @@ extern int yydebug;
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
-#line 64 "src/IceStorm/Grammar.h"
+#line 66 "src/IceStorm/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE

@@ -3,11 +3,11 @@
 //
 
 #include "ProtocolPluginFacade.h"
-#include "Instance.h"
-#include "EndpointFactoryManager.h"
-#include "TraceLevels.h"
-#include "Ice/Initialize.h"
 #include "DefaultsAndOverrides.h"
+#include "EndpointFactoryManager.h"
+#include "Ice/Initialize.h"
+#include "Instance.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace Ice;

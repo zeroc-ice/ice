@@ -3,9 +3,9 @@
 //
 
 #include "PluginFacadeI.h"
-#include "PlatformInfo.h"
-#include "NodeSessionI.h"
 #include "Database.h"
+#include "NodeSessionI.h"
+#include "PlatformInfo.h"
 
 using namespace std;
 using namespace IceGrid;

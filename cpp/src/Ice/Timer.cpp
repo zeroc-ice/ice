@@ -3,8 +3,8 @@
 //
 
 #include "IceUtil/Timer.h"
-#include "IceUtil/Exception.h"
 #include "ConsoleUtil.h"
+#include "IceUtil/Exception.h"
 
 using namespace std;
 using namespace IceUtil;

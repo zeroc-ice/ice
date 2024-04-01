@@ -6,15 +6,15 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#    include "TcpAcceptor.h"
-#    include "TcpTransceiver.h"
-#    include "TcpEndpointI.h"
-#    include "ProtocolInstance.h"
-#    include "Ice/LoggerUtil.h"
 #    include "Ice/LocalException.h"
+#    include "Ice/LoggerUtil.h"
 #    include "Ice/Properties.h"
-#    include "StreamSocket.h"
 #    include "IceUtil/StringUtil.h"
+#    include "ProtocolInstance.h"
+#    include "StreamSocket.h"
+#    include "TcpAcceptor.h"
+#    include "TcpEndpointI.h"
+#    include "TcpTransceiver.h"
 
 #    if defined(ICE_USE_IOCP)
 #        include <Mswsock.h>

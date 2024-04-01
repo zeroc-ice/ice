@@ -3,9 +3,9 @@
 //
 
 #include "WSConnector.h"
-#include "WSTransceiver.h"
-#include "WSEndpoint.h"
 #include "HttpParser.h"
+#include "WSEndpoint.h"
+#include "WSTransceiver.h"
 
 using namespace std;
 using namespace Ice;

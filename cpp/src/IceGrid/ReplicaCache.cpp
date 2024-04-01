@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "ReplicaCache.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "ReplicaCache.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"
 

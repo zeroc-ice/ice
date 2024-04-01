@@ -4,8 +4,8 @@
 
 #include "Ice/MarshaledResult.h"
 #include "Ice/ObjectAdapter.h"
-#include "ReplyStatus.h"
 #include "Protocol.h"
+#include "ReplyStatus.h"
 
 using namespace Ice;
 using namespace IceInternal;

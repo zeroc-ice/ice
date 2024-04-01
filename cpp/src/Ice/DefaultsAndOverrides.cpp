@@ -3,9 +3,9 @@
 //
 
 #include "DefaultsAndOverrides.h"
-#include "Ice/Properties.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace Ice;

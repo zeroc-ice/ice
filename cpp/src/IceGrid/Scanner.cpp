@@ -35,10 +35,10 @@
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
 /* begin standard C headers. */
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* end standard C headers. */
 
@@ -422,9 +422,9 @@ char* yytext;
 
 #line 12 "src/IceGrid/Scanner.l"
 
+#include "Grammar.h"
 #include "Ice/Ice.h"
 #include "Parser.h"
-#include "Grammar.h"
 
 using namespace std;
 using namespace Ice;

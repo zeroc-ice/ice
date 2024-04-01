@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/OutputStream.h"
-#include "Ice/InputStream.h"
 #include "Ice/Value.h"
-#include "Ice/SlicedData.h"
+#include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
+#include "Ice/SlicedData.h"
 
 using namespace std;
 using namespace Ice;

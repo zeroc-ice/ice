@@ -3,15 +3,15 @@
 //
 
 #include "Gen.h"
-#include "CPlusPlusUtil.h"
-#include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/Util.h"
+#include "CPlusPlusUtil.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <limits>
-#include <algorithm>
 #include <string.h>
 
 using namespace std;

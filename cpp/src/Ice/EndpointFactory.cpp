@@ -3,8 +3,8 @@
 //
 
 #include "EndpointFactory.h"
-#include "Instance.h"
 #include "EndpointFactoryManager.h"
+#include "Instance.h"
 #include "ProtocolInstance.h"
 
 using namespace std;

@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "ArgVector.h"
-#include "Ice/Communicator.h"
-#include "Ice/Properties.h"
 #include "Ice/Initialize.h"
+#include "ArgVector.h"
+#include "CheckIdentity.h"
+#include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
-#include "LoggerI.h"
+#include "Ice/Properties.h"
+#include "Ice/StringConverter.h"
 #include "Instance.h"
+#include "LoggerI.h"
 #include "PluginManagerI.h"
 #include "StringUtil.h"
-#include "Ice/StringConverter.h"
-#include "CheckIdentity.h"
 
 #include <mutex>
 #include <stdexcept>

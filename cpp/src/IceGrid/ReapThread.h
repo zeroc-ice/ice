@@ -11,6 +11,7 @@
 #include "Ice/LoggerUtil.h"
 
 #include <list>
+#include <set>
 
 namespace IceGrid
 {

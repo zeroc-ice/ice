@@ -8,8 +8,8 @@
 #include <cstring>
 #include <string.h> // for strerror_r
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 #ifdef _WIN32

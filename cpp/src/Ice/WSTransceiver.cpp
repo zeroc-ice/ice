@@ -3,22 +3,22 @@
 //
 
 #include "WSTransceiver.h"
-#include "Ice/Endpoint.h"
-#include "Ice/Connection.h"
-#include "ProtocolInstance.h"
-#include "HttpParser.h"
-#include "Ice/Communicator.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
 #include "Base64.h"
-#include "IceUtil/Random.h"
-#include "Ice/SHA1.h"
-#include "IceUtil/StringUtil.h"
 #include "Endian.h"
+#include "HttpParser.h"
+#include "Ice/Buffer.h"
+#include "Ice/Communicator.h"
+#include "Ice/Connection.h"
+#include "Ice/Endpoint.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/SHA1.h"
+#include "IceUtil/Random.h"
+#include "IceUtil/StringUtil.h"
+#include "ProtocolInstance.h"
 
-#include <stdint.h>
 #include <climits>
+#include <stdint.h>
 
 using namespace std;
 using namespace Ice;

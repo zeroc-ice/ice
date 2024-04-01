@@ -3,12 +3,12 @@
 //
 
 #include "ServantManager.h"
-#include "Ice/ServantLocator.h"
+#include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/ServantLocator.h"
 #include "Instance.h"
 #include "StringUtil.h"
-#include "Ice/InputStream.h"
 
 using namespace std;
 using namespace Ice;

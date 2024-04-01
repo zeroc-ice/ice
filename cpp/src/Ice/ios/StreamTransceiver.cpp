@@ -6,14 +6,14 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "StreamTransceiver.h"
-#    include "StreamEndpointI.h"
-#    include "Ice/Properties.h"
+#    include "../Network.h"
 #    include "../TraceLevels.h"
+#    include "Ice/Buffer.h"
 #    include "Ice/Connection.h"
 #    include "Ice/LoggerUtil.h"
-#    include "Ice/Buffer.h"
-#    include "../Network.h"
+#    include "Ice/Properties.h"
+#    include "StreamEndpointI.h"
+#    include "StreamTransceiver.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

@@ -3,14 +3,14 @@
 //
 
 #include "UdpTransceiver.h"
-#include "UdpEndpointI.h"
-#include "Ice/Connection.h"
-#include "ProtocolInstance.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/Buffer.h"
+#include "Ice/Connection.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "IceUtil/StringUtil.h"
+#include "ProtocolInstance.h"
+#include "UdpEndpointI.h"
 
 using namespace std;
 using namespace Ice;
