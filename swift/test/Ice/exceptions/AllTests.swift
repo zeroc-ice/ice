@@ -278,7 +278,8 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
       str = "thrower:\(helper.getTestEndpoint(num: 2))"
       let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
       do {
-        _ = try thrower3.throwMemoryLimitException(ByteSeq(repeating: 0, count: 1024))  // 1KB limit
+        // 1KB limit
+        _ = try thrower3.throwMemoryLimitException(ByteSeq(repeating: 0, count: 1024))
         try test(false)
       } catch is Ice.ConnectionLostException {}
     } catch is Ice.ConnectionRefusedException {

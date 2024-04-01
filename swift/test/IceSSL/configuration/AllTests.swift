@@ -1183,7 +1183,9 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
 
   properties = createClientProps(
     defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.TrustOnly", value: "!CN=Server1")  // Should not match "Server"
+
+  // Should not match "Server"
+  properties.setProperty(key: "IceSSL.TrustOnly", value: "!CN=Server1")
   comm = try helper.initialize(properties)
 
   fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!

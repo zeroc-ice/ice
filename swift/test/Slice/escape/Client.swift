@@ -6,17 +6,17 @@ import Ice
 import PromiseKit
 import TestCommon
 
-class breakI: `break` {
+class BreakI: `break` {
   func caseAsync(catch _: Int32, current _: Current) -> Promise<Int32> {
     return Promise.value(0)
   }
 }
 
-class funcI: `func` {
+class FuncI: `func` {
   func `public`(current _: Current) throws {}
 }
 
-class doI: `do` {
+class DoI: `do` {
   func `public`(current _: Current) throws {}
 
   func caseAsync(catch _: Int32, current _: Current) -> Promise<Int32> {
@@ -33,9 +33,9 @@ public class Client: TestHelperI {
     communicator.getProperties().setProperty(
       key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
     let adapter = try communicator.createObjectAdapter("TestAdapter")
-    try adapter.add(servant: breakDisp(breakI()), id: Ice.stringToIdentity("test"))
-    try adapter.add(servant: funcDisp(funcI()), id: Ice.stringToIdentity("test1"))
-    try adapter.add(servant: doDisp(doI()), id: Ice.stringToIdentity("test2"))
+    try adapter.add(servant: breakDisp(BreakI()), id: Ice.stringToIdentity("test"))
+    try adapter.add(servant: funcDisp(FuncI()), id: Ice.stringToIdentity("test1"))
+    try adapter.add(servant: doDisp(DoI()), id: Ice.stringToIdentity("test2"))
     try adapter.activate()
 
     let out = getWriter()

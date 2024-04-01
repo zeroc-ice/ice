@@ -202,7 +202,8 @@ func allTests(_ helper: TestHelper) throws {
   count += 1
   try test(count == locator.getRequestCount())
 
-  try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
+  // No locator cache.
+  try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(0).ice_ping()
   count += 2
   try test(count == locator.getRequestCount())
   try communicator.stringToProxy("test")!.ice_locatorCacheTimeout(2).ice_ping()  // 2s timeout
@@ -397,13 +398,17 @@ func allTests(_ helper: TestHelper) throws {
     try registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
 
     count = try locator.getRequestCount()
-    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
+
+    // No locator cache.
+    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(0).ice_ping()
     try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(0).ice_ping()  // No locator cache.
     count += 3
     try test(count == locator.getRequestCount())
     try registry.setAdapterDirectProxy(id: "TestAdapter5", proxy: nil)
     try registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
-    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()  // 10s timeout.
+
+    // 10s timeout.
+    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()
     try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping()  // 10s timeout.
     try test(count == locator.getRequestCount())
     Thread.sleep(forTimeInterval: 1.2)
@@ -411,12 +416,15 @@ func allTests(_ helper: TestHelper) throws {
     // The following request should trigger the background
     // updates but still use the cached endpoints and
     // therefore succeed.
-    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
+
+    // 1s timeout.
+    try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
     try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
 
     do {
       while true {
-        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
+        // 1s timeout.
+        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
         Thread.sleep(forTimeInterval: 0.1)
       }
     } catch is Ice.LocalException {
@@ -504,7 +512,8 @@ func allTests(_ helper: TestHelper) throws {
   try adapter.add(servant: HelloDisp(HelloI()), id: ident)
 
   do {
-    /* let helloPrx */ _ = try checkedCast(
+    // let helloPrx
+    _ = try checkedCast(
       prx: communicator.stringToProxy("\"\(communicator.identityToString(ident))\"")!,
       type: HelloPrx.self
     )!

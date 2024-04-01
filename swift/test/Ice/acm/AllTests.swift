@@ -277,7 +277,8 @@ class TestCase {
 class InvocationHeartbeatTest: TestCase {
   init(com: RemoteCommunicatorPrx, helper: TestHelper) {
     super.init(name: "invocation heartbeat", com: com, helper: helper)
-    setServerACM(timeout: 1, close: -1, heartbeat: -1)  // Faster ACM to make sure we receive enough ACM hearbeats
+    // Faster ACM to make sure we receive enough ACM heartbeats
+    setServerACM(timeout: 1, close: -1, heartbeat: -1)
   }
 
   override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
