@@ -5,10 +5,10 @@
 #ifndef ICE_GRID_SESSIONSERVANTLOCATOR_H
 #define ICE_GRID_SESSIONSERVANTLOCATOR_H
 
-#include <IceGrid/AdminCallbackRouter.h>
-#include <Ice/ServantLocator.h>
+#include "AdminCallbackRouter.h"
+#include "Ice/ServantLocator.h"
 
-#include <Glacier2/Session.h>
+#include "Glacier2/Session.h"
 
 #include <set>
 

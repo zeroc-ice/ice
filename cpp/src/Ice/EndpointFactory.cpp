@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/EndpointFactory.h>
-#include <Ice/Instance.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/ProtocolInstance.h>
+#include "EndpointFactory.h"
+#include "Instance.h"
+#include "EndpointFactoryManager.h"
+#include "ProtocolInstance.h"
 
 using namespace std;
 using namespace Ice;

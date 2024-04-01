@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ArgVector.h>
+#include "ArgVector.h"
 #include <cassert>
 #include <cstring>
 

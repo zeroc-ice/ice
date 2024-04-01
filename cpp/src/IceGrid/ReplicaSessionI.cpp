@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
-#include <IceGrid/ReplicaSessionI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/WellKnownObjectsManager.h>
-#include <IceGrid/PlatformInfo.h>
+#include "ReplicaSessionI.h"
+#include "Database.h"
+#include "WellKnownObjectsManager.h"
+#include "PlatformInfo.h"
 
 using namespace std;
 using namespace IceGrid;

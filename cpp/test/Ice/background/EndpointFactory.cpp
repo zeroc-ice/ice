@@ -6,7 +6,7 @@
 #    define TEST_API_EXPORTS
 #endif
 
-#include <Ice/EndpointFactoryManager.h>
+#include "Ice/EndpointFactoryManager.h"
 
 #include <EndpointFactory.h>
 #include <EndpointI.h>

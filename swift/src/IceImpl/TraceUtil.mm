@@ -4,7 +4,7 @@
 
 #import "TraceUtil.h"
 
-#import <Ice/TraceUtil.h>
+#import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"
 
 @implementation ICETraceUtil

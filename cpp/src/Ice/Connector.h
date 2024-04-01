@@ -5,19 +5,18 @@
 #ifndef ICE_CONNECTOR_H
 #define ICE_CONNECTOR_H
 
-#include <Ice/Config.h>
-#include <Ice/ConnectorF.h>
-#include <Ice/TransceiverF.h>
+#include "ConnectorF.h"
+#include "TransceiverF.h"
 
 #include <string>
 #include <cstdint>
 
 namespace IceInternal
 {
-    class ICE_API Connector
+    class Connector
     {
     public:
-        virtual ~Connector();
+        virtual ~Connector() = default;
 
         virtual TransceiverPtr connect() = 0;
 

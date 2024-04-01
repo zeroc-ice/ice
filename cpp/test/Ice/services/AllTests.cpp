@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Glacier2/Glacier2.h>
-#include <IceStorm/IceStorm.h>
-#include <IceGrid/IceGrid.h>
+#include "Ice/Ice.h"
+#include "Glacier2/Glacier2.h"
+#include "IceStorm/IceStorm.h"
+#include "IceGrid/IceGrid.h"
 #include <TestHelper.h>
 #include <Test.h>
 

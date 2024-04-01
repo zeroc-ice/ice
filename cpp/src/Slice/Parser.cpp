@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <Slice/Parser.h>
-#include <Slice/GrammarUtil.h>
-#include <Slice/Util.h>
+#include "IceUtil/StringUtil.h"
+#include "Parser.h"
+#include "GrammarUtil.h"
+#include "Util.h"
 
 #include <algorithm>
 #include <cassert>

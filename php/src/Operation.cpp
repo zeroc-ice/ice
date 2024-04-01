@@ -7,8 +7,7 @@
 #include "Proxy.h"
 #include "Types.h"
 #include "Util.h"
-
-#include "PHPUtil.h"
+#include "slice2php/PHPUtil.h"
 
 using namespace std;
 using namespace IcePHP;

@@ -173,11 +173,14 @@ def create_platform_targets(project, platform, bindist)
             target_add_files(target, group, "../slice/#{component}", ["*.ice"])
             target_add_slice2cpp_build_rule(project, target, component)
 
+            # The inclusion of incluce/IceDiscovery and inclue/IceLocatorDiscovery is a workaround. In the regular C++
+            # build system, these are "internal" includes generated without an include directory.
             target.build_configurations.each { |config|
                 config.build_settings["HEADER_SEARCH_PATHS"] = [
                     "$(SRCROOT)/../cpp/include/",
                     "$(SYMROOT)/$(PLATFORM_NAME)/include/",
-                    "$(SRCROOT)/../cpp/src/"
+                    "$(SYMROOT)/$(PLATFORM_NAME)/include/IceDiscovery",
+                    "$(SYMROOT)/$(PLATFORM_NAME)/include/IceLocatorDiscovery"
                 ]
                 config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
                     "ICE_BUILDING_SRC",

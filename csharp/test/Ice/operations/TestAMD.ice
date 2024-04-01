@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Context.ice>
+#include "Ice/Context.ice"
 
 [["cs:typeid-namespace:Ice.operations.AMD.TypeId"]]
 

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/AdminCallbackRouter.h>
+#include "AdminCallbackRouter.h"
 
 using namespace std;
 using namespace IceGrid;

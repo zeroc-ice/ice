@@ -3,7 +3,7 @@
 //
 
 #include "Ice/LocalException.h"
-#include "Ice/StringUtil.h"
+#include "StringUtil.h"
 #include "Network.h"
 
 #include <iomanip>

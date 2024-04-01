@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/OutputUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/OutputUtil.h"
+#include "IceUtil/FileUtil.h"
 #include <cassert>
 #include <cstring>
 

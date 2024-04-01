@@ -497,7 +497,6 @@
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
-    <ClCompile Include="..\..\Acceptor.cpp" />
     <ClCompile Include="..\..\ACM.cpp" />
     <ClCompile Include="..\..\ArgVector.cpp" />
     <ClCompile Include="..\..\Base64.cpp" />
@@ -508,7 +507,6 @@
     <ClCompile Include="..\..\ConnectionI.cpp" />
     <ClCompile Include="..\..\Current.cpp" />
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
-    <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
     <ClCompile Include="..\..\DLLMain.cpp" />
@@ -535,7 +533,6 @@
     <ClCompile Include="..\..\LoggerI.cpp" />
     <ClCompile Include="..\..\LoggerUtil.cpp" />
     <ClCompile Include="..\..\MetricsAdminI.cpp" />
-    <ClCompile Include="..\..\MetricsObserverI.cpp" />
     <ClCompile Include="..\..\Network.cpp" />
     <ClCompile Include="..\..\NetworkProxy.cpp" />
     <ClCompile Include="..\..\Object.cpp" />

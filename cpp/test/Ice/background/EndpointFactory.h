@@ -5,7 +5,7 @@
 #ifndef TEST_ENDPOINT_FACTORY_H
 #define TEST_ENDPOINT_FACTORY_H
 
-#include <Ice/EndpointFactory.h>
+#include "Ice/EndpointFactory.h"
 
 class EndpointFactory final : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {

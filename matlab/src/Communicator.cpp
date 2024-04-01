@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Proxy.h>
-#include <Ice/ImplicitContext.h>
-#include <Ice/Logger.h>
+#include "Ice/Communicator.h"
+#include "Ice/Proxy.h"
+#include "Ice/ImplicitContext.h"
+#include "Ice/Logger.h"
 #include "ice.h"
 #include "Future.h"
 #include "Util.h"

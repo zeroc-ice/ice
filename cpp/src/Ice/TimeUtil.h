@@ -5,7 +5,7 @@
 #ifndef ICE_TIME_UTIL_H
 #define ICE_TIME_UTIL_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #include <chrono>
 #include <string>

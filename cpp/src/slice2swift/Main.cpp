@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/ConsoleUtil.h>
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/Options.h>
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
-#include <Slice/Parser.h>
-#include <Slice/Util.h>
+#include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/CtrlCHandler.h"
+#include "IceUtil/Options.h"
+#include "../Slice/Preprocessor.h"
+#include "../Slice/FileTracker.h"
+#include "../Slice/Parser.h"
+#include "../Slice/Util.h"
 #include "Gen.h"
 
 #include <cstring>

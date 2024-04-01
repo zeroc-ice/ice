@@ -5,7 +5,7 @@
 #ifndef ICE_OBJECT_ADAPTER_FACTORY_H
 #define ICE_OBJECT_ADAPTER_FACTORY_H
 
-#include <Ice/ObjectAdapterI.h>
+#include "ObjectAdapterI.h"
 
 #include <set>
 #include <mutex>

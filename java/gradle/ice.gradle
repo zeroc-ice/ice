@@ -33,6 +33,7 @@ buildscript {
     }
     dependencies {
         classpath group: "${iceBuilderClassPath}", name: 'slice', version: "${iceBuilderVersion}"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
     }
 }
 
@@ -42,6 +43,7 @@ buildscript {
 // included in stretch and the Plugin DSL.
 //
 project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
+project.apply(plugin: com.diffplug.gradle.spotless.SpotlessPlugin)
 
 slice {
     cppConfiguration = project.cppConfiguration
@@ -50,6 +52,15 @@ slice {
         iceHome =  project.hasProperty('iceHome') ? project.iceHome
             : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
     }
+}
+
+spotless {
+  java {
+    target project.fileTree("src/main/java") {
+        include '**/*.java'
+    }
+    googleJavaFormat()
+  }
 }
 
 // Android does not have a compileJava task

@@ -4,6 +4,10 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.zeroc.IceGrid.*;
+import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,376 +20,333 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
+class RegistryEditor extends CommunicatorEditor {
+  RegistryEditor() {
+    _hostname.setEditable(false);
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+    Action openDefinition =
+        new AbstractAction("Open definition") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            int selectedRow = _applications.getSelectedRow();
+            if (selectedRow != -1) {
+              String appName = (String) _applications.getValueAt(selectedRow, 0);
+              ApplicationPane app = ((Root) _target).getCoordinator().openLiveApplication(appName);
 
-class RegistryEditor extends CommunicatorEditor
-{
-    RegistryEditor()
-    {
-        _hostname.setEditable(false);
+              if (app != null && app.getRoot().getSelectedNode() == null) {
+                app.getRoot().setSelectedNode(app.getRoot());
+              }
+            }
+          }
+        };
 
-        Action openDefinition = new AbstractAction("Open definition")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int selectedRow = _applications.getSelectedRow();
-                    if(selectedRow != -1)
-                    {
-                        String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        ApplicationPane app = ((Root)_target).getCoordinator().openLiveApplication(appName);
+    Action showDetails =
+        new AbstractAction("Show details") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            int selectedRow = _applications.getSelectedRow();
+            if (selectedRow != -1) {
+              String appName = (String) _applications.getValueAt(selectedRow, 0);
+              ((Root) _target).showApplicationDetails(appName);
+            }
+          }
+        };
 
-                        if(app != null && app.getRoot().getSelectedNode() == null)
-                        {
-                            app.getRoot().setSelectedNode(app.getRoot());
-                        }
-                    }
-                }
-            };
+    Action removeApplication =
+        new AbstractAction("Remove from registry") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            int selectedRow = _applications.getSelectedRow();
+            if (selectedRow != -1) {
+              String appName = (String) _applications.getValueAt(selectedRow, 0);
 
-        Action showDetails = new AbstractAction("Show details")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int selectedRow = _applications.getSelectedRow();
-                    if(selectedRow != -1)
-                    {
-                        String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        ((Root)_target).showApplicationDetails(appName);
-                    }
-                }
-            };
+              int confirm =
+                  JOptionPane.showConfirmDialog(
+                      ((Root) _target).getCoordinator().getMainFrame(),
+                      "You are about to remove application '"
+                          + appName
+                          + "' from the IceGrid registry. "
+                          + "Do you want to proceed?",
+                      "Remove Confirmation",
+                      JOptionPane.YES_NO_OPTION);
 
-        Action removeApplication = new AbstractAction("Remove from registry")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int selectedRow = _applications.getSelectedRow();
-                    if(selectedRow != -1)
-                    {
-                        String appName = (String)_applications.getValueAt(selectedRow, 0);
+              if (confirm == JOptionPane.YES_OPTION) {
+                ((Root) _target).getCoordinator().removeApplicationFromRegistry(appName);
+              }
+            }
+          }
+        };
 
-                        int confirm = JOptionPane.showConfirmDialog(
-                            ((Root)_target).getCoordinator().getMainFrame(),
-                            "You are about to remove application '" + appName + "' from the IceGrid registry. "
-                            + "Do you want to proceed?",
-                            "Remove Confirmation",
-                            JOptionPane.YES_NO_OPTION);
+    removeApplication.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
-                        if(confirm == JOptionPane.YES_OPTION)
-                        {
-                            ((Root)_target).getCoordinator().removeApplicationFromRegistry(appName);
-                        }
-                    }
-                }
-            };
+    _applications.getActionMap().put("delete", removeApplication);
+    _applications.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 
-        removeApplication.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
+    final JPopupMenu appPopup = new JPopupMenu();
+    appPopup.add(openDefinition);
+    appPopup.add(showDetails);
+    appPopup.addSeparator();
+    appPopup.addSeparator();
+    appPopup.add(removeApplication);
 
-        _applications.getActionMap().put("delete", removeApplication);
-        _applications.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
+    _applications.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+              int selectedRow = _applications.getSelectedRow();
+              if (selectedRow != -1) {
+                String appName = (String) _applications.getValueAt(selectedRow, 0);
+                ((Root) _target).showApplicationDetails(appName);
+              }
+            }
+          }
 
-        final JPopupMenu appPopup = new JPopupMenu();
-        appPopup.add(openDefinition);
-        appPopup.add(showDetails);
-        appPopup.addSeparator();
-        appPopup.addSeparator();
-        appPopup.add(removeApplication);
+          @Override
+          public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-        _applications.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    if(e.getClickCount() == 2)
-                    {
-                        int selectedRow = _applications.getSelectedRow();
-                        if(selectedRow != -1)
-                        {
-                            String appName = (String)_applications.getValueAt(selectedRow, 0);
-                            ((Root)_target).showApplicationDetails(appName);
-                        }
-                    }
-                }
+          @Override
+          public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-                @Override
-                public void mousePressed(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+          private void maybeShowPopup(MouseEvent e) {
+            int selectedRow = _applications.getSelectedRow();
+            if (e.isPopupTrigger() && selectedRow != -1) {
+              appPopup.show(_applications, e.getX(), e.getY());
+            }
+          }
+        });
 
-                @Override
-                public void mouseReleased(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+    Action deleteObject =
+        new AbstractAction("Remove selected object") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (((Root) _target).getCoordinator().connectedToMaster()) {
+              int selectedRow = _objects.getSelectedRow();
+              if (selectedRow != -1) {
+                ((Root) _target).removeObject((String) _objects.getValueAt(selectedRow, 0));
+              }
+            }
+          }
+        };
+    deleteObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
-                private void maybeShowPopup(MouseEvent e)
-                {
-                    int selectedRow = _applications.getSelectedRow();
-                    if (e.isPopupTrigger() && selectedRow != -1)
-                    {
-                        appPopup.show(_applications, e.getX(), e.getY());
-                    }
-                }
-            });
+    _objects.getActionMap().put("delete", deleteObject);
+    _objects.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 
-        Action deleteObject = new AbstractAction("Remove selected object")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(((Root)_target).getCoordinator().connectedToMaster())
-                    {
-                        int selectedRow = _objects.getSelectedRow();
-                        if(selectedRow != -1)
-                        {
-                            ((Root)_target).removeObject((String)_objects.getValueAt(selectedRow, 0));
-                        }
-                    }
-                }
-            };
-        deleteObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
+    Action showObject =
+        new AbstractAction("Show details") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            int selectedRow = _objects.getSelectedRow();
+            if (selectedRow != -1) {
+              String proxy = (String) _objects.getValueAt(selectedRow, 0);
+              String type = (String) _objects.getValueAt(selectedRow, 1);
+              ((Root) _target).showObject(proxy, type);
+            }
+          }
+        };
 
-        _objects.getActionMap().put("delete", deleteObject);
-        _objects.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
+    Action addObject =
+        new AbstractAction("Add a new well-known object") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (((Root) _target).getCoordinator().connectedToMaster()) {
+              ((Root) _target).addObject();
+            }
+          }
+        };
+    addObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("INSERT"));
 
-        Action showObject = new AbstractAction("Show details")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int selectedRow = _objects.getSelectedRow();
-                    if(selectedRow != -1)
-                    {
-                        String proxy = (String)_objects.getValueAt(selectedRow, 0);
-                        String type = (String)_objects.getValueAt(selectedRow, 1);
-                        ((Root)_target).showObject(proxy, type);
-                    }
-                }
-            };
+    _objects.getActionMap().put("insert", addObject);
+    _objects.getInputMap().put(KeyStroke.getKeyStroke("INSERT"), "insert");
 
-        Action addObject = new AbstractAction("Add a new well-known object")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(((Root)_target).getCoordinator().connectedToMaster())
-                    {
-                        ((Root)_target).addObject();
-                    }
-                }
-            };
-        addObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("INSERT"));
+    _objects.setToolTipText(
+        "<html>Well-known objects registered through the Admin interface.<br>"
+            + "Well-known objects registered using Adapter or Replica Group<br>"
+            + "definitions are not displayed here.</html>");
 
-        _objects.getActionMap().put("insert", addObject);
-        _objects.getInputMap().put(KeyStroke.getKeyStroke("INSERT"), "insert");
+    final JPopupMenu objectsPopup = new JPopupMenu();
+    objectsPopup.add(addObject);
+    objectsPopup.addSeparator();
+    final JMenuItem deleteObjectMenuItem = objectsPopup.add(deleteObject);
+    objectsPopup.addSeparator();
+    final JMenuItem showObjectMenuItem = objectsPopup.add(showObject);
 
-        _objects.setToolTipText("<html>Well-known objects registered through the Admin interface.<br>"
-                                + "Well-known objects registered using Adapter or Replica Group<br>"
-                                + "definitions are not displayed here.</html>");
+    _objects.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+              int selectedRow = _objects.getSelectedRow();
+              if (selectedRow != -1) {
+                String proxy = (String) _objects.getValueAt(selectedRow, 0);
+                String type = (String) _objects.getValueAt(selectedRow, 1);
+                ((Root) _target).showObject(proxy, type);
+              }
+            }
+          }
 
-        final JPopupMenu objectsPopup = new JPopupMenu();
-        objectsPopup.add(addObject);
-        objectsPopup.addSeparator();
-        final JMenuItem deleteObjectMenuItem = objectsPopup.add(deleteObject);
-        objectsPopup.addSeparator();
-        final JMenuItem showObjectMenuItem = objectsPopup.add(showObject);
+          @Override
+          public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-        _objects.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    if(e.getClickCount() == 2)
-                    {
-                        int selectedRow = _objects.getSelectedRow();
-                        if(selectedRow != -1)
-                        {
-                            String proxy = (String)_objects.getValueAt(selectedRow, 0);
-                            String type = (String)_objects.getValueAt(selectedRow, 1);
-                            ((Root)_target).showObject(proxy, type);
-                        }
-                    }
-                }
+          @Override
+          public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-                @Override
-                public void mousePressed(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+          private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+              showObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
+              deleteObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
+              objectsPopup.show(_objects, e.getX(), e.getY());
+            }
+          }
+        });
 
-                @Override
-                public void mouseReleased(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+    Action deleteAdapter =
+        new AbstractAction("Remove selected adapter") {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (((Root) _target).getCoordinator().connectedToMaster()) {
+              int selectedRow = _adapters.getSelectedRow();
+              if (selectedRow != -1) {
+                ((Root) _target).removeAdapter((String) _adapters.getValueAt(selectedRow, 0));
+              }
+            }
+          }
+        };
+    deleteAdapter.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
-                private void maybeShowPopup(MouseEvent e)
-                {
-                    if (e.isPopupTrigger())
-                    {
-                        showObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
-                        deleteObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
-                        objectsPopup.show(_objects, e.getX(), e.getY());
-                    }
-                }
-            });
+    _adapters.getActionMap().put("delete", deleteAdapter);
+    _adapters.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
+    _adapters.setToolTipText("<html>Object adapters registered at run time.</html>");
 
-        Action deleteAdapter = new AbstractAction("Remove selected adapter")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(((Root)_target).getCoordinator().connectedToMaster())
-                    {
-                        int selectedRow = _adapters.getSelectedRow();
-                        if(selectedRow != -1)
-                        {
-                            ((Root)_target).removeAdapter((String)_adapters.getValueAt(selectedRow, 0));
-                        }
-                    }
-                }
-            };
-        deleteAdapter.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
+    final JPopupMenu adaptersPopup = new JPopupMenu();
+    adaptersPopup.add(deleteAdapter);
 
-        _adapters.getActionMap().put("delete", deleteAdapter);
-        _adapters.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
-        _adapters.setToolTipText("<html>Object adapters registered at run time.</html>");
+    _adapters.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-        final JPopupMenu adaptersPopup = new JPopupMenu();
-        adaptersPopup.add(deleteAdapter);
+          @Override
+          public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+          }
 
-        _adapters.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mousePressed(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+          private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger() && _adapters.getSelectedRow() != -1) {
+              adaptersPopup.show(_adapters, e.getX(), e.getY());
+            }
+          }
+        });
+  }
 
-                @Override
-                public void mouseReleased(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
+  @Override
+  protected void appendProperties(DefaultFormBuilder builder) {
+    CellConstraints cc = new CellConstraints();
 
-                private void maybeShowPopup(MouseEvent e)
-                {
-                    if (e.isPopupTrigger() && _adapters.getSelectedRow() != -1)
-                    {
-                        adaptersPopup.show(_adapters, e.getX(), e.getY());
-                    }
-                }
-            });
-    }
+    builder.append("Hostname");
+    builder.append(_hostname, 3);
+    builder.nextLine();
+    appendRuntimeProperties(builder);
 
-    @Override
-    protected void appendProperties(DefaultFormBuilder builder)
-    {
-        CellConstraints cc = new CellConstraints();
+    builder.appendSeparator("Deployed Applications");
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextRow(-14);
+    JScrollPane scrollPane = new JScrollPane(_applications);
+    scrollPane.setToolTipText(_applications.getToolTipText());
+    builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
+    builder.nextRow(14);
+    builder.nextLine();
 
-        builder.append("Hostname" );
-        builder.append(_hostname, 3);
-        builder.nextLine();
-        appendRuntimeProperties(builder);
+    builder.appendSeparator("Dynamic Well-Known Objects");
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextRow(-14);
+    scrollPane = new JScrollPane(_objects);
+    scrollPane.setToolTipText(_objects.getToolTipText());
+    builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
+    builder.nextRow(14);
+    builder.nextLine();
 
-        builder.appendSeparator("Deployed Applications");
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextRow(-14);
-        JScrollPane scrollPane = new JScrollPane(_applications);
-        scrollPane.setToolTipText(_applications.getToolTipText());
-        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
-        builder.nextRow(14);
-        builder.nextLine();
+    builder.appendSeparator("Dynamic Object Adapters");
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextLine();
+    builder.append("");
+    builder.nextRow(-14);
+    scrollPane = new JScrollPane(_adapters);
+    scrollPane.setToolTipText(_adapters.getToolTipText());
+    builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
+    builder.nextRow(14);
+    builder.nextLine();
+  }
 
-        builder.appendSeparator("Dynamic Well-Known Objects");
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextRow(-14);
-        scrollPane = new JScrollPane(_objects);
-        scrollPane.setToolTipText(_objects.getToolTipText());
-        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
-        builder.nextRow(14);
-        builder.nextLine();
+  @Override
+  protected void buildPropertiesPanel() {
+    super.buildPropertiesPanel();
+    _propertiesPanel.setName("Registry Properties");
+  }
 
-        builder.appendSeparator("Dynamic Object Adapters");
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-        builder.nextRow(-14);
-        scrollPane = new JScrollPane(_adapters);
-        scrollPane.setToolTipText(_adapters.getToolTipText());
-        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
-        builder.nextRow(14);
-        builder.nextLine();
-    }
+  void show(Root root) {
+    Root previous = (Root) _target;
+    _target = root;
+    _hostname.setText(root.getRegistryInfo().hostname);
+    showRuntimeProperties(previous);
+    _applications.setSortedMap(root.getApplicationMap());
+    _objects.setObjects(root.getObjects());
+    _adapters.setAdapters(root.getAdapters());
+  }
 
-    @Override
-    protected void buildPropertiesPanel()
-    {
-        super.buildPropertiesPanel();
-        _propertiesPanel.setName("Registry Properties");
-    }
-
-    void show(Root root)
-    {
-        Root previous = (Root)_target;
-        _target = root;
-        _hostname.setText(root.getRegistryInfo().hostname);
-        showRuntimeProperties(previous);
-        _applications.setSortedMap(root.getApplicationMap());
-        _objects.setObjects(root.getObjects());
-        _adapters.setAdapters(root.getAdapters());
-    }
-
-    private JTextField _hostname = new JTextField(20);
-    private TableField _applications = new TableField("Name", "Last Update");
-    private TableField _objects = new TableField("Proxy", "Type");
-    private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
+  private JTextField _hostname = new JTextField(20);
+  private TableField _applications = new TableField("Name", "Last Update");
+  private TableField _objects = new TableField("Proxy", "Type");
+  private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
 }

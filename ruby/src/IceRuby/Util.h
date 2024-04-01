@@ -5,8 +5,8 @@
 #ifndef ICE_RUBY_UTIL_H
 #define ICE_RUBY_UTIL_H
 
-#include <Config.h>
-#include <Ice/Ice.h>
+#include "Config.h"
+#include "Ice/Ice.h"
 
 //
 // Avoid clang conversion warnings in "callRuby" calls

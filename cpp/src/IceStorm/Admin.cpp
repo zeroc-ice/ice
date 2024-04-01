@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/ConsoleUtil.h"
+#include "../Ice/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "IceUtil/Options.h"
 #include "Parser.h"

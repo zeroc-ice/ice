@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/UUID.h>
-#include <IceUtil/Random.h>
+#include "IceUtil/UUID.h"
+#include "IceUtil/Random.h"
 #include <TestHelper.h>
 
 #include <mutex>

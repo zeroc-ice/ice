@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Instance.h>
-#include <IceSSL/SSLEngine.h>
+#include "Instance.h"
+#include "SSLEngine.h"
 
 using namespace std;
 using namespace Ice;

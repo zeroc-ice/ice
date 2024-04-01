@@ -5,7 +5,7 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include <JsUtil.h>
+#include "JsUtil.h"
 
 namespace Slice
 {

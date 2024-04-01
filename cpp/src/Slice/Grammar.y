@@ -5,22 +5,22 @@
 //
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
-#include "Slice/GrammarUtil.h"
+#include "GrammarUtil.h"
 
 }
 
 %code requires{
-
-// Define a custom location type for storing the location (and filename) of tokens.
-#define YYLTYPE Slice::TokenContext
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
-#define YYMAXDEPTH  10000
-#define YYINITDEPTH YYMAXDEPTH
+#define YYMAXDEPTH  10000      // 10000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
+
+// Newer bison versions allow to disable stack resizing by defining yyoverflow.
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
 }
 
@@ -71,8 +71,12 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #include <limits>
 
 #ifdef _MSC_VER
+// warning C4102: 'yyoverflowlab' : unreferenced label
+#    pragma warning(disable:4102)
 // warning C4127: conditional expression is constant
 #    pragma warning(disable:4127)
+// warning C4702: unreachable code
+#    pragma warning(disable:4702)
 #endif
 
 // Avoid old style cast warnings in generated grammar
@@ -84,11 +88,12 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #    pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
-// Avoid clang warnings in generate grammar
+// Avoid clang warnings in generated grammar
 #if defined(__clang__)
 #    pragma clang diagnostic ignored "-Wconversion"
 #    pragma clang diagnostic ignored "-Wsign-conversion"
 #    pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#    pragma clang diagnostic ignored "-Wunused-label"
 #endif
 
 using namespace std;
@@ -118,6 +123,8 @@ slice_error(const char* s)
 %define api.value.type {Slice::GrammarBasePtr}
 // Enables Bison's token location tracking functionality.
 %locations
+// Specify a custom location type for storing the location & filename of tokens.
+%define api.location.type {Slice::TokenContext}
 
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the

@@ -5,13 +5,13 @@
 #ifndef ICESSL_ENDPOINT_I_H
 #define ICESSL_ENDPOINT_I_H
 
-#include <Ice/EndpointI.h>
-#include <Ice/IPEndpointI.h>
-#include <Ice/EndpointFactory.h>
-#include <IceSSL/InstanceF.h>
-#include <IceSSL/EndpointInfo.h>
-#include <IceSSL/SSLEngineF.h>
-#include <Ice/Network.h>
+#include "../Ice/EndpointI.h"
+#include "../Ice/IPEndpointI.h"
+#include "../Ice/EndpointFactory.h"
+#include "InstanceF.h"
+#include "IceSSL/EndpointInfo.h"
+#include "SSLEngineF.h"
+#include "../Ice/Network.h"
 
 namespace IceSSL
 {

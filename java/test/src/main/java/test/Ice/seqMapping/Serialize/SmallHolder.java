@@ -4,7 +4,6 @@
 
 package test.Ice.seqMapping.Serialize;
 
-public class SmallHolder
-{
-    public Small value;
+public class SmallHolder {
+  public Small value;
 }

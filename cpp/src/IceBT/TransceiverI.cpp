@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/TransceiverI.h>
-#include <IceBT/ConnectionInfo.h>
-#include <IceBT/Engine.h>
-#include <IceBT/Instance.h>
-#include <IceBT/Util.h>
+#include "TransceiverI.h"
+#include "IceBT/ConnectionInfo.h"
+#include "Engine.h"
+#include "Instance.h"
+#include "Util.h"
 
-#include <Ice/Connection.h>
-#include <Ice/LocalException.h>
+#include "Ice/Connection.h"
+#include "Ice/LocalException.h"
 
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

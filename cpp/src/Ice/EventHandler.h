@@ -5,10 +5,10 @@
 #ifndef ICE_EVENT_HANDLER_H
 #define ICE_EVENT_HANDLER_H
 
-#include <Ice/EventHandlerF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/ThreadPoolF.h>
-#include <Ice/Network.h>
+#include "EventHandlerF.h"
+#include "Ice/InstanceF.h"
+#include "ThreadPoolF.h"
+#include "Network.h"
 
 #include <memory>
 

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/ServerBlobject.h>
+#include "ServerBlobject.h"
 
 using namespace std;
 using namespace Ice;

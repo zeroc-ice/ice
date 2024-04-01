@@ -6,7 +6,7 @@
 #define GEN_H
 
 #include "JavaUtil.h"
-#include <Slice/Parser.h>
+#include "../Slice/Parser.h"
 
 namespace Slice
 {

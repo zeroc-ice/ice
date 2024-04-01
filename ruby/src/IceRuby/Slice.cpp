@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice.h>
-#include <Util.h>
-#include <Slice/Preprocessor.h>
-#include "RubyUtil.h"
-#include <Slice/Util.h>
-#include <IceUtil/Options.h>
+#include "Slice.h"
+#include "Util.h"
+#include "Slice/Preprocessor.h"
+#include "slice2rb/RubyUtil.h"
+#include "Slice/Util.h"
+#include "IceUtil/Options.h"
 
 #include <iostream>
 

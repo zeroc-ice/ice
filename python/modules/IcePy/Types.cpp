@@ -7,17 +7,16 @@
 #    define NOMINMAX
 #endif
 
-#include <Types.h>
-#include <Current.h>
-#include <Proxy.h>
-#include <Thread.h>
-#include <Util.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/OutputStream.h>
-#include <Ice/SlicedData.h>
-
-#include <IceUtil/DisableWarnings.h>
+#include "Types.h"
+#include "Current.h"
+#include "Proxy.h"
+#include "Thread.h"
+#include "Util.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
+#include "Ice/SlicedData.h"
+#include "IceUtil/DisableWarnings.h"
 
 #include <list>
 #include <limits>

@@ -15,36 +15,30 @@
 
 package com.zeroc.Ice;
 
-/**
- * This exception indicates that a response for an unknown request ID has been received.
- **/
-public class UnknownRequestIdException extends ProtocolException
-{
-    public UnknownRequestIdException()
-    {
-        super();
-    }
+/** This exception indicates that a response for an unknown request ID has been received. */
+public class UnknownRequestIdException extends ProtocolException {
+  public UnknownRequestIdException() {
+    super();
+  }
 
-    public UnknownRequestIdException(Throwable cause)
-    {
-        super(cause);
-    }
+  public UnknownRequestIdException(Throwable cause) {
+    super(cause);
+  }
 
-    public UnknownRequestIdException(String reason)
-    {
-        super(reason);
-    }
+  public UnknownRequestIdException(String reason) {
+    super(reason);
+  }
 
-    public UnknownRequestIdException(String reason, Throwable cause)
-    {
-        super(reason, cause);
-    }
+  public UnknownRequestIdException(String reason, Throwable cause) {
+    super(reason, cause);
+  }
 
-    public String ice_id()
-    {
-        return "::Ice::UnknownRequestIdException";
-    }
+  public String ice_id() {
+    return "::Ice::UnknownRequestIdException";
+  }
 
-    /** @hidden */
-    public static final long serialVersionUID = 1900170096924258667L;
+  /**
+   * @hidden
+   */
+  public static final long serialVersionUID = 1900170096924258667L;
 }

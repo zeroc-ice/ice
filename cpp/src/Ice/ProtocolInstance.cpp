@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ProtocolInstance.h>
-#include <Ice/Instance.h>
-#include <Ice/Initialize.h>
-#include <Ice/IPEndpointI.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/EndpointFactoryManager.h>
+#include "ProtocolInstance.h"
+#include "Instance.h"
+#include "Ice/Initialize.h"
+#include "IPEndpointI.h"
+#include "DefaultsAndOverrides.h"
+#include "TraceLevels.h"
+#include "EndpointFactoryManager.h"
 
 using namespace std;
 using namespace Ice;

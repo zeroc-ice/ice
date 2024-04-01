@@ -7,8 +7,8 @@
 
 #ifdef _WIN32
 
-#    include <IceSSL/SSLEngine.h>
-#    include <IceSSL/SChannelEngineF.h>
+#    include "SSLEngine.h"
+#    include "SChannelEngineF.h"
 
 //
 // SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h

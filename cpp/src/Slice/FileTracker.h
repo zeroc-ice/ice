@@ -5,7 +5,7 @@
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
 
-#include <Slice/Parser.h>
+#include "Parser.h"
 
 namespace Slice
 {

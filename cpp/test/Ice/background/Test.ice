@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 [["cpp:dll-export:TEST_API"]]
 

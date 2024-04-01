@@ -5,17 +5,17 @@
 #ifndef ICE_ACCEPTOR_H
 #define ICE_ACCEPTOR_H
 
-#include <Ice/AcceptorF.h>
-#include <Ice/TransceiverF.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/Network.h>
+#include "AcceptorF.h"
+#include "TransceiverF.h"
+#include "EndpointIF.h"
+#include "Network.h"
 
 namespace IceInternal
 {
-    class ICE_API Acceptor
+    class Acceptor
     {
     public:
-        virtual ~Acceptor();
+        virtual ~Acceptor() = default;
 
         virtual NativeInfoPtr getNativeInfo() = 0;
         virtual void close() = 0;

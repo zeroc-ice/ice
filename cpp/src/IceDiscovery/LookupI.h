@@ -5,12 +5,12 @@
 #ifndef LOOKUPI_H
 #define LOOKUPI_H
 
-#include <IceDiscovery/IceDiscovery.h>
-#include <IceDiscovery/LocatorI.h>
+#include "IceDiscovery.h"
+#include "LocatorI.h"
 
-#include <IceUtil/Timer.h>
-#include <Ice/Properties.h>
-#include <Ice/Comparable.h>
+#include "IceUtil/Timer.h"
+#include "Ice/Properties.h"
+#include "Ice/Comparable.h"
 
 #include <set>
 #include <chrono>

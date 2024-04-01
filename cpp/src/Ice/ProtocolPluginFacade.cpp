@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ProtocolPluginFacade.h>
-#include <Ice/Instance.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/Initialize.h>
-#include <Ice/DefaultsAndOverrides.h>
+#include "ProtocolPluginFacade.h"
+#include "Instance.h"
+#include "EndpointFactoryManager.h"
+#include "TraceLevels.h"
+#include "Ice/Initialize.h"
+#include "DefaultsAndOverrides.h"
 
 using namespace std;
 using namespace Ice;

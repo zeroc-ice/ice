@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Glacier2/Router.h>
+#include "Ice/Ice.h"
+#include "Glacier2/Router.h"
 #include <TestHelper.h>
 #include <CallbackI.h>
 #include <mutex>

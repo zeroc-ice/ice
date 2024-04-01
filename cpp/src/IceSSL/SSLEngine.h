@@ -5,15 +5,15 @@
 #ifndef ICESSL_ENGINE_H
 #define ICESSL_ENGINE_H
 
-#include <IceSSL/Plugin.h>
-#include <IceSSL/Util.h>
-#include <IceSSL/SSLEngineF.h>
-#include <IceSSL/TrustManagerF.h>
-#include <IceSSL/InstanceF.h>
+#include "IceSSL/Plugin.h"
+#include "Util.h"
+#include "SSLEngineF.h"
+#include "TrustManagerF.h"
+#include "InstanceF.h"
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/Network.h>
-#include <Ice/TransceiverF.h>
+#include "Ice/CommunicatorF.h"
+#include "../Ice/Network.h"
+#include "../Ice/TransceiverF.h"
 
 #include <mutex>
 

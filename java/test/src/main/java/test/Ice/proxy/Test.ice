@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Context.ice>
+#include "Ice/Context.ice"
 
 [["java:package:test.Ice.proxy"]]
 module Test

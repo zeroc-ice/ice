@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/AcceptorI.h>
-#include <IceSSL/EndpointI.h>
-#include <IceSSL/Instance.h>
-#include <IceSSL/SSLEngine.h>
+#include "AcceptorI.h"
+#include "EndpointI.h"
+#include "Instance.h"
+#include "SSLEngine.h"
 
-#include <IceSSL/Util.h>
+#include "Util.h"
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace Ice;

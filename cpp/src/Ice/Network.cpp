@@ -12,17 +12,17 @@
 #    include <netinet/in.h>
 #endif
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/Network.h>
-#include <Ice/NetworkProxy.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/StringConverter.h>
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolInstance.h> // For setTcpBufSize
-#include <Ice/Properties.h>       // For setTcpBufSize
-#include <Ice/LoggerUtil.h>       // For setTcpBufSize
-#include <Ice/Buffer.h>
-#include <IceUtil/Random.h>
+#include "IceUtil/DisableWarnings.h"
+#include "Network.h"
+#include "NetworkProxy.h"
+#include "IceUtil/StringUtil.h"
+#include "Ice/StringConverter.h"
+#include "Ice/LocalException.h"
+#include "ProtocolInstance.h" // For setTcpBufSize
+#include "Ice/Properties.h"   // For setTcpBufSize
+#include "Ice/LoggerUtil.h"   // For setTcpBufSize
+#include "Ice/Buffer.h"
+#include "IceUtil/Random.h"
 #include <functional>
 
 // TODO: fix this warning

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
-#include <Ice/Ice.h>
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/Topics.h>
+#include "Ice/UUID.h"
+#include "Ice/Ice.h"
+#include "NodeSessionI.h"
+#include "Database.h"
+#include "Topics.h"
 
 using namespace std;
 using namespace IceGrid;

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/RegisterPluginsInit.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/Initialize.h>
+#include "RegisterPluginsInit.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/Initialize.h"
 
 extern "C"
 {

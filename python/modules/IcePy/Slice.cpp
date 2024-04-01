@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice.h>
-#include <Util.h>
-#include <Slice/Preprocessor.h>
-#include "PythonUtil.h"
-#include <Slice/Util.h>
-#include <IceUtil/Options.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "Slice.h"
+#include "Util.h"
+#include "Slice/Preprocessor.h"
+#include "slice2py/PythonUtil.h"
+#include "Slice/Util.h"
+#include "IceUtil/Options.h"
+#include "IceUtil/ConsoleUtil.h"
 
 //
 // Python headers needed for PyEval_EvalCode.

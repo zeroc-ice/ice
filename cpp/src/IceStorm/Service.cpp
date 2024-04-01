@@ -5,7 +5,7 @@
 #define ICESTORM_SERVICE_API_EXPORTS
 
 #include "Service.h"
-#include "Ice/PluginManagerI.h" // For loadPlugin
+#include "../Ice/PluginManagerI.h" // For loadPlugin
 #include "IceGrid/Registry.h"
 #include "IceUtil/StringUtil.h"
 #include "Instance.h"

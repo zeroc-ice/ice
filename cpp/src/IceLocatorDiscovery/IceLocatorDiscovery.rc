@@ -1,4 +1,4 @@
-#include<IceUtil/ResourceConfig.h>
+#include "IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME ICE_LIBNAME("icelocatordiscovery") "\0"
 #define ICE_ORIGINALFILENAME ICE_LIBNAME("icelocatordiscovery") ".dll\0"

@@ -5,7 +5,7 @@
 #ifndef ICE_RUBY_SLICE_H
 #define ICE_RUBY_SLICE_H
 
-#include <Config.h>
+#include "Config.h"
 
 namespace IceRuby
 {

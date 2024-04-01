@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Ice.h"
-#include "Ice/Protocol.h"
-#include <IceGrid/LocatorI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/WellKnownObjectsManager.h>
-#include <IceGrid/SessionI.h>
-#include <IceGrid/Util.h>
+#include "../Ice/Protocol.h"
+#include "LocatorI.h"
+#include "Database.h"
+#include "WellKnownObjectsManager.h"
+#include "SessionI.h"
+#include "Util.h"
 
 #include "SynchronizationException.h"
 

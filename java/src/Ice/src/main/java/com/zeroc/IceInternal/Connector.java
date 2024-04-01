@@ -4,17 +4,17 @@
 
 package com.zeroc.IceInternal;
 
-public interface Connector
-{
-    Transceiver connect();
+public interface Connector {
+  Transceiver connect();
 
-    short type();
-    @Override
-    String toString();
+  short type();
 
-    //
-    // Compare connectors for sorting process.
-    //
-    @Override
-    boolean equals(java.lang.Object obj);
+  @Override
+  String toString();
+
+  //
+  // Compare connectors for sorting process.
+  //
+  @Override
+  boolean equals(java.lang.Object obj);
 }

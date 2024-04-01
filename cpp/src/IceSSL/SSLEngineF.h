@@ -5,7 +5,7 @@
 #ifndef ICESSL_ENGINE_F_H
 #define ICESSL_ENGINE_F_H
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 #include <memory>
 

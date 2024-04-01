@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceSSL/IceSSL.h>
+#include "Ice/Ice.h"
+#include "IceSSL/IceSSL.h"
 #include <TestHelper.h>
 #include <Test.h>
 
@@ -12,12 +12,12 @@
 #include <fstream>
 #include <algorithm>
 
-#include <Ice/UniqueRef.h>
+#include "Ice/UniqueRef.h"
 
 #if defined(__APPLE__)
 #    include <sys/sysctl.h>
 #    if TARGET_OS_IPHONE != 0
-#        include <IceSSL/SecureTransportUtil.h> // For loadCertificateChain
+#        include "IceSSL/SecureTransportUtil.h" // For loadCertificateChain
 #    endif
 #endif
 
@@ -37,7 +37,7 @@
 #endif
 
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-#    include <IceSSL/OpenSSL.h>
+#    include "IceSSL/OpenSSL.h"
 #endif
 
 using namespace std;

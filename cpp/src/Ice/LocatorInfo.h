@@ -5,11 +5,11 @@
 #ifndef ICE_LOCATOR_INFO_H
 #define ICE_LOCATOR_INFO_H
 
-#include <Ice/LocatorInfoF.h>
-#include <Ice/ReferenceF.h>
-#include <Ice/Identity.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/PropertiesF.h>
+#include "LocatorInfoF.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/Identity.h"
+#include "EndpointIF.h"
+#include "Ice/PropertiesF.h"
 #include "Ice/Locator.h"
 
 #include <mutex>

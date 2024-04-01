@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/ConnectorI.h>
-#include <IceBT/Instance.h>
-#include <IceBT/TransceiverI.h>
+#include "ConnectorI.h"
+#include "Instance.h"
+#include "TransceiverI.h"
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace Ice;

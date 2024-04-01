@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/RequestQueue.h>
-#include <Glacier2/Instance.h>
-#include <Glacier2/SessionRouterI.h>
+#include "RequestQueue.h"
+#include "Instance.h"
+#include "SessionRouterI.h"
 
 using namespace std;
 using namespace Ice;

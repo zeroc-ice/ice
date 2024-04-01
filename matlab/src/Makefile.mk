@@ -9,8 +9,7 @@ IceMatlab_targetname    := ice
 IceMatlab_targetdir     := $(lang_srcdir)/lib
 IceMatlab_cppflags      := -I$(project) \
     -I$(top_srcdir)/cpp/include \
-    -I$(top_srcdir)/cpp/include/generated \
-    -I$(top_srcdir)/cpp/src $(matlab_cppflags)
+    -I$(top_srcdir)/cpp/include/generated $(matlab_cppflags)
 
 IceMatlab_system_libs   := $(matlab_ldflags) \
     -L$(top_srcdir)/cpp/lib/x86_64-linux-gnu \

@@ -9,6 +9,7 @@
 #include "Ice/Version.h"
 
 #include <ostream>
+#include <sstream>
 
 namespace Ice
 {
@@ -63,6 +64,25 @@ namespace Ice
     ICE_API std::ostream& operator<<(std::ostream& out, const ProtocolVersion& version);
 
     ICE_API std::ostream& operator<<(std::ostream& out, const EncodingVersion& version);
+}
+
+namespace IceInternal
+{
+    ICE_API void stringToMajorMinor(std::string_view, std::uint8_t&, std::uint8_t&);
+
+    template<typename T> std::string versionToString(const T& v)
+    {
+        std::ostringstream os;
+        os << v;
+        return os.str();
+    }
+
+    template<typename T> T stringToVersion(std::string_view str)
+    {
+        T v;
+        stringToMajorMinor(str, v.major, v.minor);
+        return v;
+    }
 }
 
 #endif
