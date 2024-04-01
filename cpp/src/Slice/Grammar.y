@@ -71,8 +71,10 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #include <limits>
 
 #ifdef _MSC_VER
+// warning C2220: 'yyoverflowlab' : unreachable code
+#    pragma warning(disable:2220)
 // warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning(disable:4102)
+#    pragma warning(disable:4102)
 // warning C4127: conditional expression is constant
 #    pragma warning(disable:4127)
 #endif
