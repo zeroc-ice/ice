@@ -679,7 +679,7 @@ public class SSLEngine
             }
         }
 
-        // Verify depath max includes the root CA, Java doesn't provide it in the certificate chain.
+        // Verify depth max includes the root CA, Java doesn't provide it in the certificate chain.
         if(_verifyDepthMax > 0 && info.certs != null && info.certs.length >= _verifyDepthMax)
         {
             String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +

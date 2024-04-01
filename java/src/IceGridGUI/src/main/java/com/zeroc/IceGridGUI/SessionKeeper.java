@@ -262,7 +262,7 @@ public class SessionKeeper
                 // (indirect, locator-dependent).
                 //
                 com.zeroc.Ice.ObjectAdapter adminRouterAdapter = _coordinator.getCommunicator().
-                    createObjectAdapterWithEndpoints("IceGrid.AdminRouter", "tcp -h localhost", null);
+                    createObjectAdapterWithEndpoints("IceGrid.AdminRouter", "tcp -h localhost");
 
                 _routedAdmin = AdminPrx.uncheckedCast(adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
 
@@ -351,7 +351,7 @@ public class SessionKeeper
 
                 String adapterName = _adminCallbackCategory == null ? "" : "CallbackAdapter";
 
-                _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName, null);
+                _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName);
                 _adapter.activate();
                 _session.ice_getConnection().setAdapter(_adapter);
             }

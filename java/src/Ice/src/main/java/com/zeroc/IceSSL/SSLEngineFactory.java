@@ -11,8 +11,7 @@ package com.zeroc.IceSSL;
 public interface SSLEngineFactory
 {
     /**
-     * Creates a new SSLEngine instance for SSL transport. The IceSSL SSL transport transceiver class
-     * uses this method to obtain an SSLEngine object when creating a connection.
+     * Creates a new SSLEngine instance used to configure the ssl transport.
      * @param peerHost The hostname or IP address of the peer.
      * @param peerPort The port number of the peer. For outgoing connections, this is always set to -1.
      * @return The new SSLEngine instance.

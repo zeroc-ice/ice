@@ -1299,9 +1299,10 @@ public class Coordinator
             private TrustDecision _decision = TrustDecision.No;
         }
 
-        // Decorates a trust manager and alllows the user to accept invalid certificates in case that
-        // decorated trust manager throws a CertificateException. When this happens the user is presented
-        // with a dialog that allows him to accept the certificate or not.
+        // This class acts as a decorator around an existing trust manager, enabling it to intercept and react to
+        // certificate exceptions thrown due to invalid certificates. In such cases, rather than terminating the
+        // connection, this class presents the user with an interactive dialog, allowing them to manually decide
+        // whether to trust the certificate. If the user rejects the certificate, the original exception is rethrown.
         final class TrustManagerI implements javax.net.ssl.X509TrustManager
         {
             TrustManagerI(
