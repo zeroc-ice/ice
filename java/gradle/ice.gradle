@@ -37,6 +37,11 @@ buildscript {
     }
 }
 
+//
+// We do not use the new gradle Plugin DSL because on debian we want to use the plug-in
+// from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
+// included in stretch and the Plugin DSL.
+//
 project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 project.apply(plugin: com.diffplug.gradle.spotless.SpotlessPlugin)
 
@@ -53,7 +58,6 @@ spotless {
   java {
     target project.fileTree("src/main/java") {
         include '**/*.java'
-        exclude '**/generated-src/**/*.java'
     }
     googleJavaFormat()
   }
