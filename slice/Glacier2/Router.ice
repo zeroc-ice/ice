@@ -14,7 +14,7 @@
 
 [["python:pkgdir:Glacier2"]]
 
-#include <Ice/Router.ice>
+#include "Ice/Router.ice"
 #include <Glacier2/Session.ice>
 #include <Glacier2/PermissionsVerifier.ice>
 

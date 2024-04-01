@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Service.h>
+#include "Ice/Service.h"
 
 extern "C" BOOL WINAPI _CRT_INIT(HINSTANCE, DWORD, LPVOID);
 

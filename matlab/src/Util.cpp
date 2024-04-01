@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 #include <iostream>
 #include <string>
 #include <locale>

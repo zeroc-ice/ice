@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/Instance.h>
-#include <IceSSL/PluginI.h>
-#include <IceSSL/SecureTransportEngine.h>
-#include <IceSSL/SecureTransportUtil.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "SecureTransportTransceiverI.h"
+#include "Instance.h"
+#include "PluginI.h"
+#include "SecureTransportEngine.h"
+#include "SecureTransportUtil.h"
+#include "IceSSL/ConnectionInfo.h"
 
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 
 // Disable deprecation warnings from SecureTransport APIs
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

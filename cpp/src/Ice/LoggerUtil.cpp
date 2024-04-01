@@ -3,11 +3,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/LoggerUtil.h>
-#include <Ice/Logger.h>
-#include <Ice/Plugin.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
+#include "Ice/LoggerUtil.h"
+#include "Ice/Logger.h"
+#include "Ice/Plugin.h"
+#include "Ice/LocalException.h"
+#include "Instance.h"
 
 using namespace std;
 

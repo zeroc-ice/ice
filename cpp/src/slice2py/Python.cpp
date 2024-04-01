@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/IceUtil.h"
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/CtrlCHandler.h"
+#include "IceUtil/ConsoleUtil.h"
 // BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
-#include <IceUtil/FileUtil.h>
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
+#include "IceUtil/FileUtil.h"
+#include "../Slice/Preprocessor.h"
+#include "../Slice/FileTracker.h"
 #include "PythonUtil.h"
-#include <Slice/Util.h>
+#include "../Slice/Util.h"
 
 #include <cassert>
 #include <cstring>

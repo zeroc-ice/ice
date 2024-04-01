@@ -5,9 +5,9 @@
 #ifndef ICE_STREAM_SOCKET_H
 #define ICE_STREAM_SOCKET_H
 
-#include <Ice/Network.h>
-#include <Ice/Buffer.h>
-#include <Ice/ProtocolInstanceF.h>
+#include "Network.h"
+#include "Ice/Buffer.h"
+#include "ProtocolInstanceF.h"
 
 #include <memory>
 

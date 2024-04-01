@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
-#include <IceGrid/ServerI.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/Activator.h>
-#include <IceGrid/NodeI.h>
-#include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Ice.h"
+#include "../Ice/TimeUtil.h"
+#include "ServerI.h"
+#include "TraceLevels.h"
+#include "Activator.h"
+#include "NodeI.h"
+#include "ServerAdapterI.h"
+#include "DescriptorHelper.h"
 #include "Util.h"
 
 #include <sys/types.h>
@@ -1841,7 +1841,7 @@ ServerI::update()
             if (_load->clearDir())
             {
                 //
-                // The server was explicitely destroyed then updated,
+                // The server was explicitly destroyed then updated,
                 // we first need to cleanup the directory to remove
                 // any user created files.
                 //
@@ -2014,7 +2014,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     // the first time it's being updated). Set the activation mode
     // based on the descriptor activation. Otherwise, if the server is
     // disabled and failure time isn't set, we don't change the
-    // activation since the user explicitely disabled the server.
+    // activation since the user explicitly disabled the server.
     //
     if (_activation != Disabled || _failureTime != nullopt)
     {

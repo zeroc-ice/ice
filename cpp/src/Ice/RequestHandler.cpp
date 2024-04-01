@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/RequestHandler.h>
-#include <Ice/Reference.h>
+#include "RequestHandler.h"
+#include "Reference.h"
 
 using namespace std;
 using namespace Ice;

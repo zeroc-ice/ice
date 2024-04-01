@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/NetworkProxy.h>
-#include <Ice/HttpParser.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
+#include "NetworkProxy.h"
+#include "HttpParser.h"
+#include "Ice/LocalException.h"
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace IceInternal;

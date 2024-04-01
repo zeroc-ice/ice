@@ -3,8 +3,8 @@
 //
 
 #include "JsUtil.h"
-#include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
+#include "../Slice/Util.h"
+#include "IceUtil/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>

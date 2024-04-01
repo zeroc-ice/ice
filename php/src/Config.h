@@ -5,7 +5,7 @@
 #ifndef ICE_PHP_CONFIG_H
 #define ICE_PHP_CONFIG_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
 // Surpress various warnings emitted from including the PHP headers
 #if defined(__clang__)

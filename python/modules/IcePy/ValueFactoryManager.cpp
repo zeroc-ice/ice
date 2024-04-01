@@ -8,7 +8,7 @@
 #include "ValueFactoryManager.h"
 #include "Thread.h"
 #include "Types.h"
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace IcePy;

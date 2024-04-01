@@ -2,26 +2,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <BatchRequestInterceptor.h>
-#include <Communicator.h>
-#include <Connection.h>
-#include <ConnectionInfo.h>
-#include <Current.h>
-#include <Dispatcher.h>
-#include <Endpoint.h>
-#include <EndpointInfo.h>
-#include <ImplicitContext.h>
-#include <Logger.h>
-#include <ObjectAdapter.h>
-#include <Operation.h>
-#include <Properties.h>
-#include <PropertiesAdmin.h>
-#include <Proxy.h>
-#include <Slice.h>
-#include <Types.h>
-#include <ValueFactoryManager.h>
-#include <Ice/Initialize.h>
-#include <Ice/RegisterPlugins.h>
+#include "BatchRequestInterceptor.h"
+#include "Communicator.h"
+#include "Connection.h"
+#include "ConnectionInfo.h"
+#include "Current.h"
+#include "Dispatcher.h"
+#include "Endpoint.h"
+#include "EndpointInfo.h"
+#include "ImplicitContext.h"
+#include "Logger.h"
+#include "ObjectAdapter.h"
+#include "Operation.h"
+#include "Properties.h"
+#include "PropertiesAdmin.h"
+#include "Proxy.h"
+#include "Slice.h"
+#include "Types.h"
+#include "ValueFactoryManager.h"
+#include "Ice/Initialize.h"
+#include "Ice/RegisterPlugins.h"
 
 using namespace std;
 using namespace IcePy;

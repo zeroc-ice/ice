@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/LocalException.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 
-#include <IceGrid/PlatformInfo.h>
-#include <IceGrid/TraceLevels.h>
+#include "PlatformInfo.h"
+#include "TraceLevels.h"
 
 #include <set>
 #include <climits>

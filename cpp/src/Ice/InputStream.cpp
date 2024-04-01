@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/InputStream.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/Instance.h>
-#include <Ice/Object.h>
-#include <Ice/Proxy.h>
-#include <Ice/ProxyFactory.h>
-#include <Ice/ValueFactory.h>
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/LocalException.h>
-#include <Ice/TraceUtil.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/SlicedData.h>
-#include <Ice/StringConverter.h>
+#include "IceUtil/DisableWarnings.h"
+#include "Ice/InputStream.h"
+#include "DefaultsAndOverrides.h"
+#include "Instance.h"
+#include "Ice/Object.h"
+#include "Ice/Proxy.h"
+#include "ProxyFactory.h"
+#include "Ice/ValueFactory.h"
+#include "Ice/UserExceptionFactory.h"
+#include "Ice/LocalException.h"
+#include "TraceUtil.h"
+#include "TraceLevels.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/SlicedData.h"
+#include "Ice/StringConverter.h"
 
 #include "Ice/FactoryTable.h"
 #include "ReferenceFactory.h"

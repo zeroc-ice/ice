@@ -4,7 +4,6 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-public interface MetricsFieldContext
-{
-    public int getRefreshPeriod();
+public interface MetricsFieldContext {
+  public int getRefreshPeriod();
 }

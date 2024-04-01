@@ -4,7 +4,7 @@
 
 #ifdef ICE_SWIFT
 
-#    include <Ice/OSLogLoggerI.h>
+#    include "OSLogLoggerI.h"
 #    include <os/log.h>
 
 using namespace std;

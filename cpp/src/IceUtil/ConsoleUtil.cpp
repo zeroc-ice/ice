@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/ConsoleUtil.h>
+#include "IceUtil/ConsoleUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>

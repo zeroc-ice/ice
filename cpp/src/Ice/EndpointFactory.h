@@ -6,11 +6,11 @@
 #define ICE_ENDPOINT_FACTORY_H
 
 #include "Ice/Config.h"
-#include <Ice/EndpointIF.h>
-#include <Ice/EndpointFactoryF.h>
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/Plugin.h>
+#include "EndpointIF.h"
+#include "EndpointFactoryF.h"
+#include "ProtocolInstanceF.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/Plugin.h"
 
 namespace Ice
 {

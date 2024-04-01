@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/Exception.h>
-#include <IceUtil/StringConverter.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/Exception.h"
+#include "IceUtil/StringConverter.h"
 #include <cassert>
 #include <climits>
 #include <sstream>

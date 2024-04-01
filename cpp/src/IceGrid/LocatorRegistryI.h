@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_LOCATOR_REGISTRY_I_H
 #define ICE_GRID_LOCATOR_REGISTRY_I_H
 
-#include <Ice/Locator.h>
+#include "Ice/Locator.h"
 #include "Internal.h"
 
 namespace IceGrid

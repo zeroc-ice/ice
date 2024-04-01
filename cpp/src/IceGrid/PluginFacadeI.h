@@ -5,7 +5,7 @@
 #ifndef ICEGRID_PLUGIN_FACADE_I_H
 #define ICEGRID_PLUGIN_FACADE_I_H
 
-#include <IceGrid/PluginFacade.h>
+#include "IceGrid/PluginFacade.h"
 
 namespace IceGrid
 {

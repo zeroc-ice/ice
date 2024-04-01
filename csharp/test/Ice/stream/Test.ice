@@ -9,7 +9,7 @@
 //
 [["cs:typeid-namespace:Ice.stream.TypeId", "suppress-warning:invalid-metadata"]]
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 ["cs:namespace:Ice.stream"]
 module Test

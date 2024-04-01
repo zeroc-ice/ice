@@ -5,7 +5,7 @@
 #ifndef TEST_ENDPOINT_I_H
 #define TEST_ENDPOINT_I_H
 
-#include <Ice/EndpointI.h>
+#include "Ice/EndpointI.h"
 #include <Test.h>
 #include <Configuration.h>
 

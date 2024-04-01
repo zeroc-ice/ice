@@ -5,7 +5,7 @@
 #ifndef ICE_SERVANT_MANAGER_H
 #define ICE_SERVANT_MANAGER_H
 
-#include "Ice/ServantManagerF.h"
+#include "ServantManagerF.h"
 #include "Ice/InstanceF.h"
 #include "Ice/Identity.h"
 #include "Ice/FacetMap.h"

@@ -14,8 +14,8 @@
 
 [["python:pkgdir:Glacier2"]]
 
-#include <Ice/BuiltinSequences.ice>
-#include <Ice/Identity.ice>
+#include "Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
 #include <Glacier2/SSLInfo.ice>
 
 [["java:package:com.zeroc"]]

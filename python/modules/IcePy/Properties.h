@@ -5,8 +5,8 @@
 #ifndef ICEPY_PROPERTIES_H
 #define ICEPY_PROPERTIES_H
 
-#include <Config.h>
-#include <Ice/PropertiesF.h>
+#include "Config.h"
+#include "Ice/PropertiesF.h"
 
 namespace IcePy
 {

@@ -3,12 +3,12 @@
 //
 //
 
-#include <IceUtil/OutputUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/OutputUtil.h"
+#include "IceUtil/StringUtil.h"
 
-#include <Slice/Util.h>
+#include "../Slice/Util.h"
 
-#include <SwiftUtil.h>
+#include "SwiftUtil.h"
 
 #include <cassert>
 #include <functional>

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <Ice/Ice.h>
-#include <Ice/Service.h>
-#include <Ice/ConsoleUtil.h>
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/Util.h>
+#include "IceUtil/Options.h"
+#include "Ice/Ice.h"
+#include "Ice/Service.h"
+#include "../Ice/ConsoleUtil.h"
+#include "RegistryI.h"
+#include "TraceLevels.h"
+#include "Util.h"
 
 using namespace std;
 using namespace Ice;

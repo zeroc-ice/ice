@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceXML/Parser.h>
-#include <IceUtil/FileUtil.h>
+#include "Parser.h"
+#include "IceUtil/FileUtil.h"
 
 #include <expat.h>
 

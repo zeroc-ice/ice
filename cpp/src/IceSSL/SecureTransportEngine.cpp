@@ -2,30 +2,30 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Config.h>
+#include "IceSSL/Config.h"
 
-#include <IceSSL/SecureTransportEngineF.h>
-#include <IceSSL/SecureTransportEngine.h>
+#include "SecureTransportEngineF.h"
+#include "SecureTransportEngine.h"
 
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/Communicator.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/LocalException.h"
+#include "Ice/Properties.h"
+#include "Ice/Communicator.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
 
-#include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/SecureTransportUtil.h>
-#include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/Util.h>
+#include "SecureTransportTransceiverI.h"
+#include "SecureTransportUtil.h"
+#include "IceSSL/Plugin.h"
+#include "SSLEngine.h"
+#include "Util.h"
 
 #include <regex.h>
 
 // Disable deprecation warnings from SecureTransport APIs
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace IceUtil;

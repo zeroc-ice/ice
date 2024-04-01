@@ -5,7 +5,7 @@
 #ifndef BLOBJECT_H
 #define BLOBJECT_H
 
-#include <Ice/Object.h>
+#include "Ice/Object.h"
 
 class BlobjectI final : public Ice::Blobject
 {

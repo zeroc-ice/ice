@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <Test.h>
 
 ICE_DECLSPEC_IMPORT void consume(const Ice::ObjectPtr&, const Ice::ObjectPrx&);

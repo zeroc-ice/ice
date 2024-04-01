@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/OpenSSLUtil.h>
+#include "OpenSSLUtil.h"
 
 #include <openssl/err.h>
 

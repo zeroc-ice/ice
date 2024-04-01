@@ -5,7 +5,7 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include <SwiftUtil.h>
+#include "SwiftUtil.h"
 
 using namespace std;
 using namespace Slice;

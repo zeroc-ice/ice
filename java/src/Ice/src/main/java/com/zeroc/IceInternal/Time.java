@@ -4,11 +4,8 @@
 
 package com.zeroc.IceInternal;
 
-final public class Time
-{
-    static public long
-    currentMonotonicTimeMillis()
-    {
-        return System.nanoTime() / 1000000;
-    }
+public final class Time {
+  public static long currentMonotonicTimeMillis() {
+    return System.nanoTime() / 1000000;
+  }
 }

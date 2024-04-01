@@ -4,7 +4,6 @@
 
 package com.zeroc.IceInternal;
 
-public interface ReadyCallback
-{
-    void ready(int op, boolean value);
+public interface ReadyCallback {
+  void ready(int op, boolean value);
 }

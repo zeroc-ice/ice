@@ -5,7 +5,8 @@
 #ifndef ICE_BASE_64_H
 #define ICE_BASE_64_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
+
 #include <string>
 #include <vector>
 

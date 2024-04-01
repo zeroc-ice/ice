@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_FILEUSERACCOUNTMAPPERI_H
 #define ICE_GRID_FILEUSERACCOUNTMAPPERI_H
 
-#include <IceGrid/UserAccountMapper.h>
+#include "IceGrid/UserAccountMapper.h"
 
 namespace IceGrid
 {

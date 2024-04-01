@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/WSConnector.h>
-#include <Ice/WSTransceiver.h>
-#include <Ice/WSEndpoint.h>
-#include <Ice/HttpParser.h>
+#include "WSConnector.h"
+#include "WSTransceiver.h"
+#include "WSEndpoint.h"
+#include "HttpParser.h"
 
 using namespace std;
 using namespace Ice;

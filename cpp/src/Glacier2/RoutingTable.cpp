@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Glacier2/RoutingTable.h>
-#include <Glacier2/Instrumentation.h>
+#include "RoutingTable.h"
+#include "Instrumentation.h"
 
 using namespace std;
 using namespace Ice;

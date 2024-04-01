@@ -5,12 +5,12 @@
 #ifndef ICE_WS_ENDPOINT_I_H
 #define ICE_WS_ENDPOINT_I_H
 
-#include <Ice/EndpointI.h>
-#include <Ice/IPEndpointIF.h>
-#include <Ice/EndpointFactory.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Endpoint.h>
-#include <Ice/ProtocolInstance.h>
+#include "EndpointI.h"
+#include "IPEndpointIF.h"
+#include "EndpointFactory.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Endpoint.h"
+#include "ProtocolInstance.h"
 
 namespace IceInternal
 {

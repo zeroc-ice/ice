@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/Options.h>
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/ConsoleUtil.h>
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/Options.h"
+#include "IceUtil/CtrlCHandler.h"
+#include "IceUtil/ConsoleUtil.h"
+#include "../Slice/Preprocessor.h"
+#include "../Slice/FileTracker.h"
 #include "RubyUtil.h"
-#include <Slice/Util.h>
+#include "../Slice/Util.h"
 
 #include <mutex>
 #include <algorithm>

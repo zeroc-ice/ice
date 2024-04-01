@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Transceiver.h>
+#include "Transceiver.h"
 
 using namespace std;
 using namespace Ice;

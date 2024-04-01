@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Timer.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <IceGrid/NodeI.h>
-#include <IceGrid/Activator.h>
-#include <IceGrid/ServerI.h>
-#include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/NodeSessionManager.h>
+#include "IceUtil/Timer.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Ice.h"
+#include "NodeI.h"
+#include "Activator.h"
+#include "ServerI.h"
+#include "ServerAdapterI.h"
+#include "TraceLevels.h"
+#include "NodeSessionManager.h"
 #include "Util.h"
 
 using namespace std;

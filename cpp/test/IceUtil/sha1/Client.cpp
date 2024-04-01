@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/SHA1.h>
+#include "Ice/SHA1.h"
 #include <TestHelper.h>
 
 #include <cstring>

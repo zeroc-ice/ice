@@ -5,11 +5,11 @@
 #ifndef ICE_DB_H
 #define ICE_DB_H
 
-#include <IceUtil/Exception.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Initialize.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
+#include "IceUtil/Exception.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Initialize.h"
+#include "Ice/OutputStream.h"
+#include "Ice/InputStream.h"
 
 #include <lmdb.h>
 

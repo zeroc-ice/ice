@@ -4,8 +4,8 @@
 
 #ifdef ICE_USE_SYSTEMD
 
-#    include <Ice/SystemdJournalI.h>
-#    include <Ice/LocalException.h>
+#    include "SystemdJournalI.h"
+#    include "Ice/LocalException.h"
 #    include <syslog.h>
 #    include <systemd/sd-journal.h>
 

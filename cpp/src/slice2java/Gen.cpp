@@ -3,8 +3,8 @@
 //
 
 #include "Gen.h"
-#include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
+#include "../Slice/Util.h"
+#include "IceUtil/StringUtil.h"
 #include <cstring>
 
 #include <algorithm>

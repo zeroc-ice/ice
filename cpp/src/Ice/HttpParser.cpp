@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Config.h>
-#include <Ice/HttpParser.h>
-#include <Ice/LocalException.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/Config.h"
+#include "HttpParser.h"
+#include "Ice/LocalException.h"
+#include "IceUtil/StringUtil.h"
 
 #include <cassert>
 

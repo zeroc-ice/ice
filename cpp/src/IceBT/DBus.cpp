@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/DBus.h>
+#include "DBus.h"
 
 #include <dbus/dbus.h>
 

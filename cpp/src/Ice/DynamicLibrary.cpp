@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/DynamicLibrary.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/StringConverter.h>
+#include "DynamicLibrary.h"
+#include "IceUtil/StringUtil.h"
+#include "Ice/StringConverter.h"
 
 #include <cassert>
 #include <sstream>

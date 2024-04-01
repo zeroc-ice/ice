@@ -5,7 +5,7 @@
 #ifndef ICE_DYNAMIC_LIBRARY_H
 #define ICE_DYNAMIC_LIBRARY_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #ifdef _WIN32
 #    include <windows.h>

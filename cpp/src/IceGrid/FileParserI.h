@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_FILE_PARSERI_H
 #define ICE_GRID_FILE_PARSERI_H
 
-#include <IceGrid/FileParser.h>
+#include "IceGrid/FileParser.h"
 
 namespace IceGrid
 {

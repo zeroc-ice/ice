@@ -7,7 +7,7 @@
 
 #ifdef ICE_USE_SYSTEMD
 
-#    include <Ice/Logger.h>
+#    include "Ice/Logger.h"
 
 namespace Ice
 {

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/StreamSocket.h>
-#include <Ice/NetworkProxy.h>
-#include <Ice/ProtocolInstance.h>
+#include "StreamSocket.h"
+#include "NetworkProxy.h"
+#include "ProtocolInstance.h"
 
 using namespace IceInternal;
 

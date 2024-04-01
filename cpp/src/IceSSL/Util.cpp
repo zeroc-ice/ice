@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 #if defined(_WIN32)
 #    include <winsock2.h>
 #endif
 
-#include <IceSSL/Util.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "Util.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
-#include <Ice/Base64.h>
-#include <Ice/LocalException.h>
-#include <Ice/Network.h>
-#include <Ice/Object.h>
-#include <Ice/StringConverter.h>
-#include <Ice/UniqueRef.h>
+#include "../Ice/Base64.h"
+#include "Ice/LocalException.h"
+#include "../Ice/Network.h"
+#include "Ice/Object.h"
+#include "Ice/StringConverter.h"
+#include "Ice/UniqueRef.h"
 
 #include <fstream>
 

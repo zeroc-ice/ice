@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <TestI.h>
 #include <TestHelper.h>
-#include <IceSSL/Plugin.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "IceSSL/Plugin.h"
+#include "IceSSL/ConnectionInfo.h"
 
 using namespace std;
 using namespace Ice;

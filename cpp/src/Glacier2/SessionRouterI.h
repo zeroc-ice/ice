@@ -5,11 +5,11 @@
 #ifndef GLACIER2_SESSION_ROUTER_I_H
 #define GLACIER2_SESSION_ROUTER_I_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Router.h>
-#include <Glacier2/Instrumentation.h>
+#include "Glacier2/PermissionsVerifier.h"
+#include "Glacier2/Router.h"
+#include "Instrumentation.h"
 
 #include <set>
 

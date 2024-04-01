@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Connection.h>
-#include <Communicator.h>
-#include <ConnectionInfo.h>
-#include <Endpoint.h>
-#include <ObjectAdapter.h>
-#include <Operation.h>
-#include <Proxy.h>
-#include <Thread.h>
-#include <Types.h>
-#include <Util.h>
+#include "Connection.h"
+#include "Communicator.h"
+#include "ConnectionInfo.h"
+#include "Endpoint.h"
+#include "ObjectAdapter.h"
+#include "Operation.h"
+#include "Proxy.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

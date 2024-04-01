@@ -5,12 +5,12 @@
 #ifndef ICE_IP_ENDPOINT_I_H
 #define ICE_IP_ENDPOINT_I_H
 
-#include <IceUtil/Config.h>
-#include <Ice/IPEndpointIF.h>
-#include <Ice/EndpointI.h>
-#include <Ice/Network.h>
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/ObserverHelper.h>
+#include "IceUtil/Config.h"
+#include "IPEndpointIF.h"
+#include "EndpointI.h"
+#include "Network.h"
+#include "ProtocolInstanceF.h"
+#include "Ice/ObserverHelper.h"
 
 #include <deque>
 #include <condition_variable>

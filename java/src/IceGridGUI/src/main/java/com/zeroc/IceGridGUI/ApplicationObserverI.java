@@ -4,130 +4,119 @@
 
 package com.zeroc.IceGridGUI;
 
-import javax.swing.SwingUtilities;
 import com.zeroc.IceGrid.*;
+import javax.swing.SwingUtilities;
 
-class ApplicationObserverI implements ApplicationObserver
-{
-    ApplicationObserverI(String instanceName, Coordinator coordinator)
-    {
-        _instanceName = instanceName;
-        _coordinator = coordinator;
-        _trace = coordinator.traceObservers();
-    }
+class ApplicationObserverI implements ApplicationObserver {
+  ApplicationObserverI(String instanceName, Coordinator coordinator) {
+    _instanceName = instanceName;
+    _coordinator = coordinator;
+    _trace = coordinator.traceObservers();
+  }
 
+  //
+  // Runs in the UI thread
+  //
+  synchronized void waitForInit() {
     //
-    // Runs in the UI thread
+    // TODO: configurable timeout
     //
-    synchronized void waitForInit()
-    {
-        //
-        // TODO: configurable timeout
-        //
-        long timeout = 10000;
+    long timeout = 10000;
 
-        if(!_initialized)
-        {
-            try
-            {
-                wait(timeout);
-            }
-            catch(InterruptedException e)
-            {
-            }
-        }
-
-        if(_initialized)
-        {
-            _coordinator.applicationInit(_instanceName, _serial, _applications);
-        }
-        else
-        {
-            throw new com.zeroc.Ice.TimeoutException();
-        }
+    if (!_initialized) {
+      try {
+        wait(timeout);
+      } catch (InterruptedException e) {
+      }
     }
 
-    @Override
-    public synchronized void applicationInit(int serial, java.util.List<ApplicationInfo> applications,
-                                             com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            if(applications.size() == 0)
-            {
-                _coordinator.traceObserver("applicationInit (no application);" + "serial is " + serial);
-            }
-            else
-            {
-                String names = "";
-                for(ApplicationInfo p : applications)
-                {
-                    names += " " + p.descriptor.name;
-                }
+    if (_initialized) {
+      _coordinator.applicationInit(_instanceName, _serial, _applications);
+    } else {
+      throw new com.zeroc.Ice.TimeoutException();
+    }
+  }
 
-                _coordinator.traceObserver("applicationInit for application"
-                                           + (applications.size() == 1 ? "" : "s")
-                                           + names
-                                           + "; serial is " + serial);
-            }
+  @Override
+  public synchronized void applicationInit(
+      int serial, java.util.List<ApplicationInfo> applications, com.zeroc.Ice.Current current) {
+    if (_trace) {
+      if (applications.size() == 0) {
+        _coordinator.traceObserver("applicationInit (no application);" + "serial is " + serial);
+      } else {
+        String names = "";
+        for (ApplicationInfo p : applications) {
+          names += " " + p.descriptor.name;
         }
 
-        _initialized = true;
-        _serial = serial;
-
-        _applications = applications;
-
-        notify();
+        _coordinator.traceObserver(
+            "applicationInit for application"
+                + (applications.size() == 1 ? "" : "s")
+                + names
+                + "; serial is "
+                + serial);
+      }
     }
 
-    @Override
-    public void applicationAdded(final int serial, final ApplicationInfo info, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            _coordinator.traceObserver("applicationAdded for application "
-                                       + info.descriptor.name
-                                       + "; serial is " + serial);
-        }
+    _initialized = true;
+    _serial = serial;
 
-        SwingUtilities.invokeLater(() -> { _coordinator.applicationAdded(serial, info); });
+    _applications = applications;
+
+    notify();
+  }
+
+  @Override
+  public void applicationAdded(
+      final int serial, final ApplicationInfo info, com.zeroc.Ice.Current current) {
+    if (_trace) {
+      _coordinator.traceObserver(
+          "applicationAdded for application " + info.descriptor.name + "; serial is " + serial);
     }
 
-    @Override
-    public void applicationRemoved(final int serial, final String name, final com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            _coordinator.traceObserver("applicationRemoved for application "
-                                       + name
-                                       + "; serial is " + serial);
-        }
+    SwingUtilities.invokeLater(
+        () -> {
+          _coordinator.applicationAdded(serial, info);
+        });
+  }
 
-        SwingUtilities.invokeLater(() -> { _coordinator.applicationRemoved(serial, name); });
+  @Override
+  public void applicationRemoved(
+      final int serial, final String name, final com.zeroc.Ice.Current current) {
+    if (_trace) {
+      _coordinator.traceObserver(
+          "applicationRemoved for application " + name + "; serial is " + serial);
     }
 
-    @Override
-    public void applicationUpdated(final int serial, final ApplicationUpdateInfo info, com.zeroc.Ice.Current current)
-    {
-        if(_trace)
-        {
-            _coordinator.traceObserver("applicationUpdated for application "
-                                       + info.descriptor.name
-                                       + "; serial is " + serial);
-        }
+    SwingUtilities.invokeLater(
+        () -> {
+          _coordinator.applicationRemoved(serial, name);
+        });
+  }
 
-        SwingUtilities.invokeLater(() ->  { _coordinator.applicationUpdated(serial, info); });
+  @Override
+  public void applicationUpdated(
+      final int serial, final ApplicationUpdateInfo info, com.zeroc.Ice.Current current) {
+    if (_trace) {
+      _coordinator.traceObserver(
+          "applicationUpdated for application " + info.descriptor.name + "; serial is " + serial);
     }
 
-    private final Coordinator _coordinator;
-    private final boolean _trace;
+    SwingUtilities.invokeLater(
+        () -> {
+          _coordinator.applicationUpdated(serial, info);
+        });
+  }
 
-    private boolean _initialized = false;
+  private final Coordinator _coordinator;
+  private final boolean _trace;
 
-    //
-    // Values given to init
-    //
-    private final String _instanceName;
-    private int _serial;
-    private java.util.List<ApplicationInfo> _applications;
+  private boolean _initialized = false;
+
+  //
+  // Values given to init
+  //
+  private final String _instanceName;
+  private int _serial;
+  private java.util.List<ApplicationInfo> _applications;
 }

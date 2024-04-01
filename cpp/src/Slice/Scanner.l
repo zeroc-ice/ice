@@ -10,20 +10,12 @@
 
 %{
 
-#include "Slice/GrammarUtil.h"
-#include "Slice/Grammar.h"
+#include "GrammarUtil.h"
+#include "Grammar.h"
 
 #include <iomanip>
 #include <cstdlib>
 #include <cmath>
-
-#ifdef _MSC_VER
-#    ifdef slice_wrap
-#        undef slice_wrap
-#        define slice_wrap() 1
-#    endif
-#    define YY_NO_UNISTD_H
-#endif
 
 using namespace std;
 using namespace Slice;
@@ -31,7 +23,7 @@ using namespace Slice;
 namespace Slice
 {
     // Definitions for the case-insensitive keyword-token map.
-    typedef map<string, int> StringTokenMap;
+    using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
     int checkKeyword(string&);
@@ -555,7 +547,7 @@ namespace Slice
     // an identifier token.
     int checkKeyword(string& id)
     {
-        const StringTokenMap::const_iterator pos = keywordMap.find(id);
+        const auto pos = keywordMap.find(id);
         if (pos != keywordMap.end())
         {
             if (pos->first != id)

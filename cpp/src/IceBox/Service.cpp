@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBox/Service.h>
+#include "IceBox/Service.h"
 
 using namespace std;
 

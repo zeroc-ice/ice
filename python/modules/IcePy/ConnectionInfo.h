@@ -5,8 +5,8 @@
 #ifndef ICEPY_CONNECTION_INFO_H
 #define ICEPY_CONNECTION_INFO_H
 
-#include <Config.h>
-#include <Ice/Connection.h>
+#include "Config.h"
+#include "Ice/Connection.h"
 
 namespace IcePy
 {

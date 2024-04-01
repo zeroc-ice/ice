@@ -4,10 +4,9 @@
 
 #include "Gen.h"
 #include "CPlusPlusUtil.h"
-
-#include "Slice/Util.h"
+#include "../Slice/Util.h"
 #include "IceUtil/StringUtil.h"
-#include "Slice/FileTracker.h"
+#include "../Slice/FileTracker.h"
 #include "IceUtil/FileUtil.h"
 
 #include <cassert>
@@ -730,12 +729,12 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     C << "\n#define ICE_BUILDING_GENERATED_CODE";
-    C << "\n#include <";
+    C << "\n#include \"";
     if (_include.size())
     {
         C << _include << '/';
     }
-    C << _base << "." << _headerExtension << ">";
+    C << _base << "." << _headerExtension << "\"";
 
     H << "\n#include <IceUtil/PushDisableWarnings.h>";
 
@@ -753,8 +752,6 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
     }
-
-    H << "\n#include <IceUtil/UndefSysMacros.h>";
 
     // Emit #include statements for any cpp:include metadata directives in the top-level Slice file.
     {

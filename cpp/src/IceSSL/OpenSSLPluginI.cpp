@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/OpenSSLEngine.h>
-
-#include <Ice/Initialize.h>
+#include "PluginI.h"
+#include "IceSSL/OpenSSL.h"
+#include "OpenSSLEngine.h"
+#include "Ice/Initialize.h"
 
 using namespace std;
 

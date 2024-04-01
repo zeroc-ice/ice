@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/ConsoleUtil.h>
-#include <Ice/UUID.h>
-#include <Ice/Ice.h>
-#include <IceGrid/Parser.h>
-#include <IceGrid/FileParserI.h>
-#include <IceGrid/Registry.h>
-#include <IceLocatorDiscovery/Plugin.h>
-#include <Glacier2/Router.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "Ice/UUID.h"
+#include "Ice/Ice.h"
+#include "Parser.h"
+#include "FileParserI.h"
+#include "IceGrid/Registry.h"
+#include "../IceLocatorDiscovery/Plugin.h"
+#include "Glacier2/Router.h"
 
 #include <iostream>
 #include <fstream>

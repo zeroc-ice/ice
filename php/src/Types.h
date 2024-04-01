@@ -9,7 +9,7 @@
 #include "Communicator.h"
 #include "Operation.h"
 
-#include <IceUtil/OutputUtil.h>
+#include "IceUtil/OutputUtil.h"
 
 //
 // Global functions.

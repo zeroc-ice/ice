@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Connection.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Router.h>
-#include <Ice/Service.h>
-#include <Ice/UUID.h>
-#include <IceUtil/Options.h>
+#include "Ice/Connection.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Router.h"
+#include "Ice/Service.h"
+#include "Ice/UUID.h"
+#include "IceUtil/Options.h"
 
 #include <iostream>
 

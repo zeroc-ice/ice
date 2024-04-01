@@ -16,7 +16,7 @@
 
 [["python:pkgdir:IceBox"]]
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 

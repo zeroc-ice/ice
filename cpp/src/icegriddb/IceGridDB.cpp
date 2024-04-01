@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <Ice/ConsoleUtil.h>
-#include <IceDB/IceDB.h>
-#include <IceGrid/Admin.h>
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Ice.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../IceDB/IceDB.h"
+#include "IceGrid/Admin.h"
 #include "DBTypes.h"
-#include <IceUtil/DisableWarnings.h>
+#include "IceUtil/DisableWarnings.h"
 
 #include <iterator>
 #include <fstream>

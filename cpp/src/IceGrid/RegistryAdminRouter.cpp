@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/RegistryAdminRouter.h>
-#include <Ice/Ice.h>
+#include "RegistryAdminRouter.h"
+#include "Ice/Ice.h"
 
 #include "SynchronizationException.h"
 

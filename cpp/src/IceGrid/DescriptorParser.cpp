@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceXML/Parser.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/DescriptorParser.h>
-#include <IceGrid/DescriptorBuilder.h>
+#include "Ice/Ice.h"
+#include "../IceXML/Parser.h"
+#include "IceGrid/Admin.h"
+#include "DescriptorParser.h"
+#include "DescriptorBuilder.h"
 #include "Util.h"
 
 #include <stack>
