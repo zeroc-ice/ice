@@ -7,6 +7,7 @@
 
 #include "../Acceptor.h"
 #include "../TransceiverF.h"
+#include "StreamEndpointI.h"
 
 namespace IceObjC
 {
