@@ -46,7 +46,6 @@ cppHeaderPreamble = (
 #ifndef ICE_INTERNAL_%(classname)s_H
 #define ICE_INTERNAL_%(classname)s_H
 
-#include <Ice/Config.h>
 #include <string>
 
 namespace IceInternal
@@ -106,7 +105,7 @@ cppHeaderPostamble = """
 cppSrcPreamble = (
     commonPreamble
     + """
-#include <Ice/%(classname)s.h>
+#include "%(classname)s.h"
 
 """
 )
