@@ -37,6 +37,8 @@ int yylex(YYSTYPE* yylvalp);
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #   pragma warning(disable:4102)
+// warning C4702: unreachable code
+#    pragma warning(disable:4702)
 #endif
 
 // Avoid old style cast warnings in generated grammar

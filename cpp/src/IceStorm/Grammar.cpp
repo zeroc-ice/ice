@@ -81,6 +81,8 @@
 #ifdef _MSC_VER
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #    pragma warning(disable : 4102)
+// warning C4702: unreachable code
+#    pragma warning(disable : 4702)
 #endif
 
 // Avoid old style cast warnings in generated grammar
@@ -105,7 +107,7 @@ yyerror(const char* s)
     parser->error(s);
 }
 
-#line 115 "src/IceStorm/Grammar.cpp"
+#line 117 "src/IceStorm/Grammar.cpp"
 
 #ifndef YY_CAST
 #    ifdef __cplusplus
@@ -165,7 +167,7 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 // This must match the definition of 'yylex' in the generated scanner.
 int yylex(YYSTYPE* yylvalp);
 
-#line 179 "src/IceStorm/Grammar.cpp"
+#line 181 "src/IceStorm/Grammar.cpp"
 
 #ifdef short
 #    undef short
@@ -505,8 +507,8 @@ static const yytype_int8 yytranslate[] = {
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] = {0,   92,  92,  95,  103, 106, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150,
-                                       154, 158, 162, 166, 174, 179, 184, 193, 196, 199, 202, 205, 208, 211, 214, 217};
+static const yytype_uint8 yyrline[] = {0,   94,  94,  97,  105, 108, 116, 120, 124, 128, 132, 136, 140, 144, 148, 152,
+                                       156, 160, 164, 168, 176, 181, 186, 195, 198, 201, 204, 207, 210, 213, 216, 219};
 #endif
 
 /** Accessing symbol of state STATE.  */
@@ -1029,234 +1031,234 @@ yyreduce:
     switch (yyn)
     {
         case 2: /* start: commands  */
-#line 93 "src/IceStorm/Grammar.y"
+#line 95 "src/IceStorm/Grammar.y"
         {
         }
-#line 1167 "src/IceStorm/Grammar.cpp"
+#line 1169 "src/IceStorm/Grammar.cpp"
         break;
 
         case 3: /* start: %empty  */
-#line 96 "src/IceStorm/Grammar.y"
+#line 98 "src/IceStorm/Grammar.y"
         {
         }
-#line 1174 "src/IceStorm/Grammar.cpp"
+#line 1176 "src/IceStorm/Grammar.cpp"
         break;
 
         case 4: /* commands: commands command  */
-#line 104 "src/IceStorm/Grammar.y"
+#line 106 "src/IceStorm/Grammar.y"
         {
         }
-#line 1181 "src/IceStorm/Grammar.cpp"
+#line 1183 "src/IceStorm/Grammar.cpp"
         break;
 
         case 5: /* commands: command  */
-#line 107 "src/IceStorm/Grammar.y"
+#line 109 "src/IceStorm/Grammar.y"
         {
         }
-#line 1188 "src/IceStorm/Grammar.cpp"
+#line 1190 "src/IceStorm/Grammar.cpp"
         break;
 
         case 6: /* command: ICE_STORM_HELP ';'  */
-#line 115 "src/IceStorm/Grammar.y"
+#line 117 "src/IceStorm/Grammar.y"
         {
             parser->usage();
         }
-#line 1196 "src/IceStorm/Grammar.cpp"
+#line 1198 "src/IceStorm/Grammar.cpp"
         break;
 
         case 7: /* command: ICE_STORM_EXIT ';'  */
-#line 119 "src/IceStorm/Grammar.y"
+#line 121 "src/IceStorm/Grammar.y"
         {
             return 0;
         }
-#line 1204 "src/IceStorm/Grammar.cpp"
+#line 1206 "src/IceStorm/Grammar.cpp"
         break;
 
         case 8: /* command: ICE_STORM_CREATE strings ';'  */
-#line 123 "src/IceStorm/Grammar.y"
+#line 125 "src/IceStorm/Grammar.y"
         {
             parser->create(yyvsp[-1]);
         }
-#line 1212 "src/IceStorm/Grammar.cpp"
+#line 1214 "src/IceStorm/Grammar.cpp"
         break;
 
         case 9: /* command: ICE_STORM_CURRENT strings ';'  */
-#line 127 "src/IceStorm/Grammar.y"
+#line 129 "src/IceStorm/Grammar.y"
         {
             parser->current(yyvsp[-1]);
         }
-#line 1220 "src/IceStorm/Grammar.cpp"
+#line 1222 "src/IceStorm/Grammar.cpp"
         break;
 
         case 10: /* command: ICE_STORM_DESTROY strings ';'  */
-#line 131 "src/IceStorm/Grammar.y"
+#line 133 "src/IceStorm/Grammar.y"
         {
             parser->destroy(yyvsp[-1]);
         }
-#line 1228 "src/IceStorm/Grammar.cpp"
+#line 1230 "src/IceStorm/Grammar.cpp"
         break;
 
         case 11: /* command: ICE_STORM_LINK strings ';'  */
-#line 135 "src/IceStorm/Grammar.y"
+#line 137 "src/IceStorm/Grammar.y"
         {
             parser->link(yyvsp[-1]);
         }
-#line 1236 "src/IceStorm/Grammar.cpp"
+#line 1238 "src/IceStorm/Grammar.cpp"
         break;
 
         case 12: /* command: ICE_STORM_UNLINK strings ';'  */
-#line 139 "src/IceStorm/Grammar.y"
+#line 141 "src/IceStorm/Grammar.y"
         {
             parser->unlink(yyvsp[-1]);
         }
-#line 1244 "src/IceStorm/Grammar.cpp"
+#line 1246 "src/IceStorm/Grammar.cpp"
         break;
 
         case 13: /* command: ICE_STORM_LINKS strings ';'  */
-#line 143 "src/IceStorm/Grammar.y"
+#line 145 "src/IceStorm/Grammar.y"
         {
             parser->links(yyvsp[-1]);
         }
-#line 1252 "src/IceStorm/Grammar.cpp"
+#line 1254 "src/IceStorm/Grammar.cpp"
         break;
 
         case 14: /* command: ICE_STORM_TOPICS strings ';'  */
-#line 147 "src/IceStorm/Grammar.y"
+#line 149 "src/IceStorm/Grammar.y"
         {
             parser->topics(yyvsp[-1]);
         }
-#line 1260 "src/IceStorm/Grammar.cpp"
+#line 1262 "src/IceStorm/Grammar.cpp"
         break;
 
         case 15: /* command: ICE_STORM_REPLICA strings ';'  */
-#line 151 "src/IceStorm/Grammar.y"
+#line 153 "src/IceStorm/Grammar.y"
         {
             parser->replica(yyvsp[-1]);
         }
-#line 1268 "src/IceStorm/Grammar.cpp"
+#line 1270 "src/IceStorm/Grammar.cpp"
         break;
 
         case 16: /* command: ICE_STORM_SUBSCRIBERS strings ';'  */
-#line 155 "src/IceStorm/Grammar.y"
+#line 157 "src/IceStorm/Grammar.y"
         {
             parser->subscribers(yyvsp[-1]);
         }
-#line 1276 "src/IceStorm/Grammar.cpp"
+#line 1278 "src/IceStorm/Grammar.cpp"
         break;
 
         case 17: /* command: ICE_STORM_STRING error ';'  */
-#line 159 "src/IceStorm/Grammar.y"
+#line 161 "src/IceStorm/Grammar.y"
         {
             parser->invalidCommand("unknown command `" + yyvsp[-2].front() + "' (type `help' for more info)");
         }
-#line 1284 "src/IceStorm/Grammar.cpp"
+#line 1286 "src/IceStorm/Grammar.cpp"
         break;
 
         case 18: /* command: error ';'  */
-#line 163 "src/IceStorm/Grammar.y"
+#line 165 "src/IceStorm/Grammar.y"
         {
             yyerrok;
         }
-#line 1292 "src/IceStorm/Grammar.cpp"
+#line 1294 "src/IceStorm/Grammar.cpp"
         break;
 
         case 19: /* command: ';'  */
-#line 167 "src/IceStorm/Grammar.y"
+#line 169 "src/IceStorm/Grammar.y"
         {
         }
-#line 1299 "src/IceStorm/Grammar.cpp"
+#line 1301 "src/IceStorm/Grammar.cpp"
         break;
 
         case 20: /* strings: ICE_STORM_STRING strings  */
-#line 175 "src/IceStorm/Grammar.y"
+#line 177 "src/IceStorm/Grammar.y"
         {
             yyval = yyvsp[0];
             yyval.push_front(yyvsp[-1].front());
         }
-#line 1308 "src/IceStorm/Grammar.cpp"
+#line 1310 "src/IceStorm/Grammar.cpp"
         break;
 
         case 21: /* strings: keyword strings  */
-#line 180 "src/IceStorm/Grammar.y"
+#line 182 "src/IceStorm/Grammar.y"
         {
             yyval = yyvsp[0];
             yyval.push_front(yyvsp[-1].front());
         }
-#line 1317 "src/IceStorm/Grammar.cpp"
+#line 1319 "src/IceStorm/Grammar.cpp"
         break;
 
         case 22: /* strings: %empty  */
-#line 185 "src/IceStorm/Grammar.y"
+#line 187 "src/IceStorm/Grammar.y"
         {
             yyval = YYSTYPE();
         }
-#line 1325 "src/IceStorm/Grammar.cpp"
+#line 1327 "src/IceStorm/Grammar.cpp"
         break;
 
         case 23: /* keyword: ICE_STORM_HELP  */
-#line 194 "src/IceStorm/Grammar.y"
+#line 196 "src/IceStorm/Grammar.y"
         {
         }
-#line 1332 "src/IceStorm/Grammar.cpp"
+#line 1334 "src/IceStorm/Grammar.cpp"
         break;
 
         case 24: /* keyword: ICE_STORM_EXIT  */
-#line 197 "src/IceStorm/Grammar.y"
+#line 199 "src/IceStorm/Grammar.y"
         {
         }
-#line 1339 "src/IceStorm/Grammar.cpp"
+#line 1341 "src/IceStorm/Grammar.cpp"
         break;
 
         case 25: /* keyword: ICE_STORM_CURRENT  */
-#line 200 "src/IceStorm/Grammar.y"
+#line 202 "src/IceStorm/Grammar.y"
         {
         }
-#line 1346 "src/IceStorm/Grammar.cpp"
+#line 1348 "src/IceStorm/Grammar.cpp"
         break;
 
         case 26: /* keyword: ICE_STORM_CREATE  */
-#line 203 "src/IceStorm/Grammar.y"
+#line 205 "src/IceStorm/Grammar.y"
         {
         }
-#line 1353 "src/IceStorm/Grammar.cpp"
+#line 1355 "src/IceStorm/Grammar.cpp"
         break;
 
         case 27: /* keyword: ICE_STORM_DESTROY  */
-#line 206 "src/IceStorm/Grammar.y"
+#line 208 "src/IceStorm/Grammar.y"
         {
         }
-#line 1360 "src/IceStorm/Grammar.cpp"
+#line 1362 "src/IceStorm/Grammar.cpp"
         break;
 
         case 28: /* keyword: ICE_STORM_LINK  */
-#line 209 "src/IceStorm/Grammar.y"
+#line 211 "src/IceStorm/Grammar.y"
         {
         }
-#line 1367 "src/IceStorm/Grammar.cpp"
+#line 1369 "src/IceStorm/Grammar.cpp"
         break;
 
         case 29: /* keyword: ICE_STORM_UNLINK  */
-#line 212 "src/IceStorm/Grammar.y"
+#line 214 "src/IceStorm/Grammar.y"
         {
         }
-#line 1374 "src/IceStorm/Grammar.cpp"
+#line 1376 "src/IceStorm/Grammar.cpp"
         break;
 
         case 30: /* keyword: ICE_STORM_LINKS  */
-#line 215 "src/IceStorm/Grammar.y"
+#line 217 "src/IceStorm/Grammar.y"
         {
         }
-#line 1381 "src/IceStorm/Grammar.cpp"
+#line 1383 "src/IceStorm/Grammar.cpp"
         break;
 
         case 31: /* keyword: ICE_STORM_TOPICS  */
-#line 218 "src/IceStorm/Grammar.y"
+#line 220 "src/IceStorm/Grammar.y"
         {
         }
-#line 1388 "src/IceStorm/Grammar.cpp"
+#line 1390 "src/IceStorm/Grammar.cpp"
         break;
 
-#line 1392 "src/IceStorm/Grammar.cpp"
+#line 1394 "src/IceStorm/Grammar.cpp"
 
         default:
             break;
@@ -1435,4 +1437,4 @@ yyreturnlab:
     return yyresult;
 }
 
-#line 221 "src/IceStorm/Grammar.y"
+#line 223 "src/IceStorm/Grammar.y"
