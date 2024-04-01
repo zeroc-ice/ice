@@ -1,63 +1,67 @@
-%{
-
+%top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+
+#include "IceUtil/ScannerConfig.h"
+#include <cstdint>
+
+}
+
+%{
 
 #include "Ice/Ice.h"
 #include "Parser.h"
 #include "Grammar.h"
 
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#   pragma warning(disable:4267)
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-#ifdef _MSC_VER
-#   ifdef yywrap
-#      undef yywrap
-#      define yywrap() 1
-#   endif
-#   define YY_NO_UNISTD_H
-#endif
-
-#define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
-
 namespace IceStorm
 {
+    using StringTokenMap = map<string, int>;
+    StringTokenMap keywordMap;
 
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
-
-void initScanner();
-
+    void initScanner();
 }
-#define         YY_USER_INIT initScanner();
+
+// Override some of the functions flex auto-generates with our own implementations.
+#define YY_USER_INIT initScanner();
+#define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 %}
+
+  /* Instructs flex to not suppress any warnings when generating the scanner. */
+%option warn
+  /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
+   * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
+%option nodefault
+  /* Directs flex to generate a scanner tailored for use by bison.
+   * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
+%option bison-bridge
+
+  /* Ensures flex generates a scanner that supports reading 8-bit characters. */
+%option 8bit
+  /* Directs flex to generate lookup tables that are better aligned in memory to
+   * improve access speeds, even if this means allocating larger tables. */
+%option align
+  /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
+%option pointer
+  /* We always want the scanner to run in interactive mode. */
+%option always-interactive
+
+  /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
+%option noyywrap
+%option noyy_scan_buffer noyy_scan_bytes noyy_scan_string
+%option noyyget_extra noyyset_extra noyyget_leng noyyget_text
+%option noyyget_in noyyset_in noyyget_out noyyset_out
+%option noyyget_lineno noyyset_lineno noyyget_lloc noyyset_lloc
+%option noyyget_lval noyyset_lval noyyget_debug noyyset_debug
 
 WS      [ \t\v\f\r]
 NL      [\n]
 keyword [[:alpha:]]*
-
-%option noyywrap
-%option always-interactive
 
 %%
 
@@ -68,18 +72,18 @@ keyword [[:alpha:]]*
     {
         c = yyinput();
     }
-    while(c != '\n' && c != EOF);
+    while (c != '\n' && c != EOF);
 }
 
 "/*" {
     // C-style comment
-    while(true)
+    while (true)
     {
         int c = yyinput();
-        if(c == '*')
+        if (c == '*')
         {
             int next = yyinput();
-            if(next == '/')
+            if (next == '/')
             {
                 break;
             }
@@ -88,7 +92,7 @@ keyword [[:alpha:]]*
                 unput(next);
             }
         }
-        else if(c == EOF)
+        else if (c == EOF)
         {
             parser->warning("EOF in comment");
             break;
@@ -98,9 +102,9 @@ keyword [[:alpha:]]*
 
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);
-    for(size_t i = 0; i < len; ++i)
+    for (size_t i = 0; i < len; ++i)
     {
-        if(yytext[i] == '\\')
+        if (yytext[i] == '\\')
         {
             parser->continueLine();
         }
@@ -114,19 +118,19 @@ keyword [[:alpha:]]*
 \" {
     // "..."-type strings
     string s;
-    while(true)
+    while (true)
     {
         int c = yyinput();
-        if(c == '"')
+        if (c == '"')
         {
             break;
         }
-        else if(c == EOF)
+        else if (c == EOF)
         {
             parser->warning("EOF in string");
             break;
         }
-        else if(c == '\\')
+        else if (c == '\\')
         {
             int next = yyinput();
             switch(next)
@@ -150,22 +154,22 @@ keyword [[:alpha:]]*
             s += static_cast<char>(c);
         }
     }
-    yylvalp->clear();
-    yylvalp->push_back(s);
+    yylval->clear();
+    yylval->push_back(s);
     return ICE_STORM_STRING;
 }
 
 \' {
     // '...'-type strings
     string s;
-    while(true)
+    while (true)
     {
         int c = yyinput();
-        if(c == '\'')
+        if (c == '\'')
         {
             break;
         }
-        else if(c == EOF)
+        else if (c == EOF)
         {
             parser->warning("EOF in string");
             break;
@@ -175,8 +179,8 @@ keyword [[:alpha:]]*
             s += c;
         }
     }
-    yylvalp->clear();
-    yylvalp->push_back(s);
+    yylval->clear();
+    yylval->push_back(s);
     return ICE_STORM_STRING;
 }
 
@@ -184,14 +188,14 @@ keyword [[:alpha:]]*
     // Simple strings
     string s;
     s += yytext[0];
-    while(true)
+    while (true)
     {
         int c = yyinput();
-        if(c == EOF)
+        if (c == EOF)
         {
             break;
         }
-        else if(isspace(c) || c == ';')
+        else if (isspace(c) || c == ';')
         {
             unput(c);
             break;
@@ -200,8 +204,8 @@ keyword [[:alpha:]]*
         s += static_cast<char>(c);
     }
 
-    yylvalp->clear();
-    yylvalp->push_back(s);
+    yylval->clear();
+    yylval->push_back(s);
 
     StringTokenMap::const_iterator pos = keywordMap.find(s);
     return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
@@ -209,27 +213,23 @@ keyword [[:alpha:]]*
 
 %%
 
-namespace IceStorm {
-
-//
-// initScanner() fills the keyword map with all keyword-token pairs.
-//
-
-void
-initScanner()
+namespace IceStorm
 {
-    keywordMap["help"] = ICE_STORM_HELP;
-    keywordMap["quit"] = ICE_STORM_EXIT;
-    keywordMap["exit"] = ICE_STORM_EXIT;
-    keywordMap["current"] = ICE_STORM_CURRENT;
-    keywordMap["create"] = ICE_STORM_CREATE;
-    keywordMap["destroy"] = ICE_STORM_DESTROY;
-    keywordMap["link"] = ICE_STORM_LINK;
-    keywordMap["unlink"] = ICE_STORM_UNLINK;
-    keywordMap["links"] = ICE_STORM_LINKS;
-    keywordMap["topics"] = ICE_STORM_TOPICS;
-    keywordMap["replica"] = ICE_STORM_REPLICA;
-    keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
-}
-
+    // This function is always called once, right before scanning begins.
+    // It fills the keyword map with all keyword-token pairs.
+    void initScanner()
+    {
+        keywordMap["help"] = ICE_STORM_HELP;
+        keywordMap["quit"] = ICE_STORM_EXIT;
+        keywordMap["exit"] = ICE_STORM_EXIT;
+        keywordMap["current"] = ICE_STORM_CURRENT;
+        keywordMap["create"] = ICE_STORM_CREATE;
+        keywordMap["destroy"] = ICE_STORM_DESTROY;
+        keywordMap["link"] = ICE_STORM_LINK;
+        keywordMap["unlink"] = ICE_STORM_UNLINK;
+        keywordMap["links"] = ICE_STORM_LINKS;
+        keywordMap["topics"] = ICE_STORM_TOPICS;
+        keywordMap["replica"] = ICE_STORM_REPLICA;
+        keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
+    }
 }

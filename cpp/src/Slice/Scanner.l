@@ -17,21 +17,13 @@
 #include <cstdlib>
 #include <cmath>
 
-#ifdef _MSC_VER
-#    ifdef slice_wrap
-#        undef slice_wrap
-#        define slice_wrap() 1
-#    endif
-#    define YY_NO_UNISTD_H
-#endif
-
 using namespace std;
 using namespace Slice;
 
 namespace Slice
 {
     // Definitions for the case-insensitive keyword-token map.
-    typedef map<string, int> StringTokenMap;
+    using StringTokenMap = map<string, int>;
     StringTokenMap keywordMap;
 
     int checkKeyword(string&);
