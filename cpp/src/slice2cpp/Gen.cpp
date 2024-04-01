@@ -730,12 +730,12 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     C << "\n#define ICE_BUILDING_GENERATED_CODE";
-    C << "\n#include <";
+    C << "\n#include \"";
     if (_include.size())
     {
         C << _include << '/';
     }
-    C << _base << "." << _headerExtension << ">";
+    C << _base << "." << _headerExtension << "\"";
 
     H << "\n#include <IceUtil/PushDisableWarnings.h>";
 
