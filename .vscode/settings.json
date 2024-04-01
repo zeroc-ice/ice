@@ -86,8 +86,4 @@
         "unmarshal",
         "unmarshaling"
     ],
-    "java.format.settings.url": ".vscode/java-formatter.xml",
-    "[java]": {
-        "editor.detectIndentation": false
-    },
 }
