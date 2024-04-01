@@ -20,12 +20,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SwiftLints
-        run: brew install swiftformat
+      - name: Install swift-format
+        run: brew install swift-format
 
-      - name: SwiftLint
+      - name: swift-format Lint
         working-directory: swift
-        run: swiftlint --config .swiftlint.yml --strict
+        run: swift-format lint . --recursive
 
   swift-format:
     name: Swift Format
@@ -34,9 +34,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SwiftFormat
-        run: brew install swiftformat
+      - name: Install swift-format
+        run: brew install swift-format
 
-      - name: SwiftFormat
+      - name: swift-format Format
         working-directory: swift
-        run: swiftformat --lint --verbose  **/*.swift
+        run: swift-format . --recursive
