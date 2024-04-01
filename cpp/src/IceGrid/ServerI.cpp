@@ -1841,7 +1841,7 @@ ServerI::update()
             if (_load->clearDir())
             {
                 //
-                // The server was explicitely destroyed then updated,
+                // The server was explicitly destroyed then updated,
                 // we first need to cleanup the directory to remove
                 // any user created files.
                 //
@@ -2014,7 +2014,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     // the first time it's being updated). Set the activation mode
     // based on the descriptor activation. Otherwise, if the server is
     // disabled and failure time isn't set, we don't change the
-    // activation since the user explicitely disabled the server.
+    // activation since the user explicitly disabled the server.
     //
     if (_activation != Disabled || _failureTime != nullopt)
     {
