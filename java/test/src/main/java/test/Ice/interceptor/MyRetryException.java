@@ -4,15 +4,11 @@
 
 package test.Ice.interceptor;
 
-public class MyRetryException extends com.zeroc.Ice.LocalException
-{
-    public MyRetryException()
-    {
-    }
+public class MyRetryException extends com.zeroc.Ice.LocalException {
+  public MyRetryException() {}
 
-    @Override
-    public String ice_id()
-    {
-        return "::MyRetryException";
-    }
+  @Override
+  public String ice_id() {
+    return "::MyRetryException";
+  }
 }

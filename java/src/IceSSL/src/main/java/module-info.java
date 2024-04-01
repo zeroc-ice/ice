@@ -3,7 +3,7 @@
 //
 
 module com.zeroc.icessl {
-    exports com.zeroc.IceSSL;
+  exports com.zeroc.IceSSL;
 
-    requires transitive com.zeroc.ice;
+  requires transitive com.zeroc.ice;
 }

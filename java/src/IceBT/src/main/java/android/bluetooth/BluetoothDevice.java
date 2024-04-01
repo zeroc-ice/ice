@@ -8,22 +8,18 @@
 
 package android.bluetooth;
 
-public final class BluetoothDevice
-{
-    public BluetoothSocket createInsecureRfcommSocketToServiceRecord(java.util.UUID uuid)
-        throws java.io.IOException
-    {
-        return null;
-    }
+public final class BluetoothDevice {
+  public BluetoothSocket createInsecureRfcommSocketToServiceRecord(java.util.UUID uuid)
+      throws java.io.IOException {
+    return null;
+  }
 
-    public BluetoothSocket createRfcommSocketToServiceRecord(java.util.UUID uuid)
-        throws java.io.IOException
-    {
-        return null;
-    }
+  public BluetoothSocket createRfcommSocketToServiceRecord(java.util.UUID uuid)
+      throws java.io.IOException {
+    return null;
+  }
 
-    public String getAddress()
-    {
-        return "";
-    }
+  public String getAddress() {
+    return "";
+  }
 }
