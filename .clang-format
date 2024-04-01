@@ -23,6 +23,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 NamespaceIndentation: All
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
+SortIncludes: Never
 SpaceAfterTemplateKeyword: false
 TabWidth: 4
 UseTab: Never
@@ -47,6 +48,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 NamespaceIndentation: All
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
+SortIncludes: Never
 SpaceAfterTemplateKeyword: false
 TabWidth: 4
 UseTab: Never
