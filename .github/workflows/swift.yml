@@ -19,23 +19,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install swift-format
         run: brew install swift-format
-
       - name: swift-format Lint
         working-directory: swift
-        run: swift-format lint . --recursive --strict --configuration swift/.swift-format.json
+        run: swift-format lint . --recursive --strict --configuration swift/swift-format.json
   swift-format:
     name: Swift Format
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install swift-format
         run: brew install swift-format
-
       - name: swift-format Format
         working-directory: swift
-        run: swift-format . --recursive --configuration swift/.swift-format.json
+        run: swift-format . --recursive --configuration swift/swift-format.json
