@@ -5,12 +5,12 @@
 #ifndef ICE_BT_DBUS_H
 #define ICE_BT_DBUS_H
 
-#include <vector>
-#include <string>
+#include <cassert>
 #include <map>
 #include <memory>
-#include <cassert>
 #include <sstream>
+#include <string>
+#include <vector>
 
 using namespace std;
 

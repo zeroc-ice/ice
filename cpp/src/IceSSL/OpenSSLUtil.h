@@ -8,9 +8,9 @@
 #include <openssl/ssl.h>
 
 #include <list>
-#include <string>
-#include <mutex>
 #include <memory>
+#include <mutex>
+#include <string>
 
 namespace IceSSL
 {

@@ -5,9 +5,9 @@
 #ifndef GLACIER2_ROUTER_I_H
 #define GLACIER2_ROUTER_I_H
 
-#include "Ice/Ice.h"
-#include "Glacier2/Router.h"
 #include "ClientBlobject.h"
+#include "Glacier2/Router.h"
+#include "Ice/Ice.h"
 #include "ServerBlobject.h"
 
 namespace Glacier2

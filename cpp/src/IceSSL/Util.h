@@ -7,8 +7,8 @@
 
 #include "IceSSL/Plugin.h"
 
-#include <string>
 #include <functional>
+#include <string>
 #include <vector>
 
 #if defined(__APPLE__)

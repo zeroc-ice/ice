@@ -9,10 +9,10 @@
 #include "Ice/ObjectAdapterF.h"
 #include "Ice/PropertiesF.h"
 
-#include "RequestQueue.h"
-#include "ProxyVerifier.h"
-#include "SessionRouterI.h"
 #include "Instrumentation.h"
+#include "ProxyVerifier.h"
+#include "RequestQueue.h"
+#include "SessionRouterI.h"
 
 namespace Glacier2
 {

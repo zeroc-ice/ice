@@ -5,21 +5,21 @@
 #ifndef ICE_REFERENCE_H
 #define ICE_REFERENCE_H
 
-#include "Ice/ReferenceF.h"
-#include "ReferenceFactoryF.h"
-#include "EndpointIF.h"
-#include "Ice/InstanceF.h"
-#include "Ice/Router.h"
-#include "Ice/Locator.h"
-#include "RouterInfoF.h"
-#include "LocatorInfoF.h"
-#include "Ice/ConnectionIF.h"
-#include "Ice/RequestHandlerF.h"
 #include "BatchRequestQueue.h"
-#include "SharedContext.h"
+#include "EndpointIF.h"
+#include "Ice/ConnectionIF.h"
 #include "Ice/Identity.h"
-#include "Ice/VersionFunctions.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Locator.h"
 #include "Ice/Properties.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/RequestHandlerF.h"
+#include "Ice/Router.h"
+#include "Ice/VersionFunctions.h"
+#include "LocatorInfoF.h"
+#include "ReferenceFactoryF.h"
+#include "RouterInfoF.h"
+#include "SharedContext.h"
 
 #include <mutex>
 

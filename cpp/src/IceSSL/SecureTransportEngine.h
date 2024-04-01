@@ -7,11 +7,11 @@
 
 #ifdef __APPLE__
 
-#    include "SSLEngine.h"
 #    include "Ice/UniqueRef.h"
+#    include "SSLEngine.h"
 
-#    include <Security/Security.h>
 #    include <Security/SecureTransport.h>
+#    include <Security/Security.h>
 
 namespace IceSSL
 {

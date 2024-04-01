@@ -5,13 +5,13 @@
 #ifndef ICE_ROUTER_INFO_H
 #define ICE_ROUTER_INFO_H
 
-#include "RouterInfoF.h"
-#include "Ice/Router.h"
-#include "Ice/ReferenceF.h"
 #include "EndpointIF.h"
 #include "Ice/BuiltinSequences.h"
-#include "Ice/Identity.h"
 #include "Ice/Comparable.h"
+#include "Ice/Identity.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/Router.h"
+#include "RouterInfoF.h"
 
 #include <mutex>
 #include <set>

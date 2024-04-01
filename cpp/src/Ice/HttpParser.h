@@ -7,10 +7,10 @@
 
 #include "Ice/Config.h"
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace IceInternal
 {

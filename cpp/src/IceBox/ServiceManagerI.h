@@ -5,9 +5,9 @@
 #ifndef SERVICE_MANAGER_I_H
 #define SERVICE_MANAGER_I_H
 
-#include "IceBox/IceBox.h"
-#include "Ice/Logger.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/Logger.h"
+#include "IceBox/IceBox.h"
 #include <map>
 
 namespace IceBox

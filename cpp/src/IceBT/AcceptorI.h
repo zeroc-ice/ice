@@ -5,8 +5,8 @@
 #ifndef ICE_BT_ACCEPTOR_I_H
 #define ICE_BT_ACCEPTOR_I_H
 
-#include "../Ice/TransceiverF.h"
 #include "../Ice/Acceptor.h"
+#include "../Ice/TransceiverF.h"
 #include "Config.h"
 #include "EngineF.h"
 #include "InstanceF.h"

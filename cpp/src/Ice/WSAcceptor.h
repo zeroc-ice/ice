@@ -5,11 +5,11 @@
 #ifndef ICE_WS_ACCEPTOR_I_H
 #define ICE_WS_ACCEPTOR_I_H
 
-#include "Ice/Logger.h"
-#include "TransceiverF.h"
 #include "Acceptor.h"
+#include "Ice/Logger.h"
 #include "Network.h"
 #include "ProtocolInstance.h"
+#include "TransceiverF.h"
 
 namespace IceInternal
 {

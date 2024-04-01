@@ -6,8 +6,8 @@
 #define ICE_ARGVECTOR_H
 
 #include "Ice/Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace IceInternal
 {

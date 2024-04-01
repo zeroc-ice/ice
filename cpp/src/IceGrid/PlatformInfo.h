@@ -8,8 +8,8 @@
 #include "Internal.h"
 
 #ifdef _WIN32
-#    include <pdh.h> // Performance data helper API
 #    include <deque>
+#    include <pdh.h> // Performance data helper API
 #endif
 
 namespace IceGrid

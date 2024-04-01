@@ -5,12 +5,12 @@
 #ifndef ICE_ENDPOINT_I_H
 #define ICE_ENDPOINT_I_H
 
+#include "AcceptorF.h"
+#include "ConnectorF.h"
 #include "EndpointIF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/EndpointSelectionType.h"
 #include "TransceiverF.h"
-#include "ConnectorF.h"
-#include "AcceptorF.h"
 
 namespace Ice
 {

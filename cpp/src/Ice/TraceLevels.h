@@ -5,8 +5,8 @@
 #ifndef ICE_TRACE_LEVELS_H
 #define ICE_TRACE_LEVELS_H
 
-#include "TraceLevelsF.h"
 #include "Ice/PropertiesF.h"
+#include "TraceLevelsF.h"
 
 namespace IceInternal
 {

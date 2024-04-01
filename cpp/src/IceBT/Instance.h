@@ -5,9 +5,9 @@
 #ifndef ICE_BT_INSTANCE_H
 #define ICE_BT_INSTANCE_H
 
-#include "InstanceF.h"
-#include "EngineF.h"
 #include "../Ice/ProtocolInstance.h"
+#include "EngineF.h"
+#include "InstanceF.h"
 
 namespace IceBT
 {

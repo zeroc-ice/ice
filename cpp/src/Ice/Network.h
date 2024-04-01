@@ -11,14 +11,14 @@
 
 #include "Ice/Config.h"
 
+#include "Ice/EndpointSelectionType.h"
+#include "Ice/EndpointTypes.h"
+#include "Ice/Logger.h"      // For setTcpBufSize
+#include "Ice/PropertiesF.h" // For setTcpBufSize
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
-#include "Ice/PropertiesF.h" // For setTcpBufSize
-#include "Ice/Logger.h"      // For setTcpBufSize
 #include "Protocol.h"
 #include "ProtocolInstanceF.h"
-#include "Ice/EndpointTypes.h"
-#include "Ice/EndpointSelectionType.h"
 
 #include <cassert>
 #include <cstring>
@@ -30,14 +30,14 @@
 #    include <ws2tcpip.h>
 typedef int ssize_t;
 #else
-#    include <unistd.h>
+#    include <arpa/inet.h>
 #    include <fcntl.h>
-#    include <sys/socket.h>
-#    include <sys/poll.h>
+#    include <netdb.h>
 #    include <netinet/in.h>
 #    include <netinet/tcp.h>
-#    include <arpa/inet.h>
-#    include <netdb.h>
+#    include <sys/poll.h>
+#    include <sys/socket.h>
+#    include <unistd.h>
 #endif
 
 #if defined(__linux__) && !defined(ICE_NO_EPOLL)

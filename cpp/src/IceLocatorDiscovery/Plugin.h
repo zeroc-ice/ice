@@ -6,8 +6,8 @@
 #define LOCATOR_DISCOVERY_PLUGIN_I_H
 
 #include "Ice/Config.h"
-#include "Ice/Plugin.h"
 #include "Ice/Locator.h"
+#include "Ice/Plugin.h"
 
 #include <chrono>
 

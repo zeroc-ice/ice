@@ -5,9 +5,9 @@
 #ifndef ICEGRID_TOPICS_H
 #define ICEGRID_TOPICS_H
 
+#include "IceGrid/Registry.h"
 #include "IceStorm/IceStorm.h"
 #include "Internal.h"
-#include "IceGrid/Registry.h"
 #include <set>
 
 namespace IceGrid

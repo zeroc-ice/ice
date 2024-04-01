@@ -5,10 +5,10 @@
 #ifndef ICE_REQUEST_HANDLER_H
 #define ICE_REQUEST_HANDLER_H
 
-#include "Ice/RequestHandlerF.h"
-#include "Ice/ReferenceF.h"
 #include "Ice/ConnectionIF.h"
 #include "Ice/OutgoingAsync.h"
+#include "Ice/ReferenceF.h"
+#include "Ice/RequestHandlerF.h"
 
 namespace IceInternal
 {

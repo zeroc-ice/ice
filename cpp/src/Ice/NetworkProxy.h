@@ -5,8 +5,8 @@
 #ifndef ICE_NETWORK_PROXY_H
 #define ICE_NETWORK_PROXY_H
 
-#include "Network.h"
 #include "Ice/Buffer.h"
+#include "Network.h"
 
 namespace IceInternal
 {

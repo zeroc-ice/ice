@@ -5,10 +5,10 @@
 #ifndef ICE_REFERENCE_FACTORY_H
 #define ICE_REFERENCE_FACTORY_H
 
-#include "ReferenceFactoryF.h"
-#include "Reference.h" // For Reference::Mode
-#include "Ice/ConnectionIF.h"
 #include "Ice/BuiltinSequences.h"
+#include "Ice/ConnectionIF.h"
+#include "Reference.h" // For Reference::Mode
+#include "ReferenceFactoryF.h"
 
 namespace IceInternal
 {

@@ -5,10 +5,10 @@
 #ifndef ICEGRID_REAPER_THREAD_H
 #define ICEGRID_REAPER_THREAD_H
 
-#include "Ice/Logger.h"
-#include "Ice/LocalException.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/Connection.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
 
 #include <list>
 

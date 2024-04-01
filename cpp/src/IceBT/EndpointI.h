@@ -5,11 +5,11 @@
 #ifndef ICE_BT_ENDPOINT_I_H
 #define ICE_BT_ENDPOINT_I_H
 
-#include "../Ice/EndpointI.h"
 #include "../Ice/EndpointFactory.h"
+#include "../Ice/EndpointI.h"
 #include "Config.h"
-#include "IceBT/EndpointInfo.h"
 #include "Engine.h"
+#include "IceBT/EndpointInfo.h"
 #include "InstanceF.h"
 
 namespace IceBT
