@@ -201,7 +201,7 @@ public interface Communicator extends java.lang.AutoCloseable
      **/
     ObjectAdapter createObjectAdapterWithEndpoints(
         String name,
-        String endpoints, 
+        String endpoints,
         com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
 
     /**
