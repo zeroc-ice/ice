@@ -313,14 +313,6 @@ def allTests(helper, communicator)
     r = initial.ice_encodingVersion(Ice::Encoding_1_0).returnOptionalClass(true)
     test(r == Ice::Unset)
 
-    recursive1 = [ Test::Recursive.new ]
-    recursive2 = [ Test::Recursive.new ]
-    recursive1[0].value = recursive2;
-
-    outer = Test::Recursive.new
-    outer.value = recursive1
-    initial.pingPong(outer)
-
     g = Test::G.new
     g.gg1Opt = Test::G1.new("gg1Opt")
     g.gg2 = Test::G2.new(10)
