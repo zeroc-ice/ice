@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/LoggerUtil.h>
-#include <IceGrid/NodeCache.h>
-#include <IceGrid/SessionI.h>
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/ServerCache.h>
-#include <IceGrid/ReplicaCache.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/LoggerUtil.h"
+#include "NodeCache.h"
+#include "SessionI.h"
+#include "NodeSessionI.h"
+#include "ServerCache.h"
+#include "ReplicaCache.h"
+#include "DescriptorHelper.h"
 
 using namespace std;
 using namespace IceGrid;

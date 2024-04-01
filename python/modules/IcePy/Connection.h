@@ -5,8 +5,8 @@
 #ifndef ICEPY_CONNECTION_H
 #define ICEPY_CONNECTION_H
 
-#include <Config.h>
-#include <Ice/Ice.h>
+#include "Config.h"
+#include "Ice/Ice.h"
 
 #include <string>
 

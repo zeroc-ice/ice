@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_NODECACHE_H
 #define ICE_GRID_NODECACHE_H
 
-#include <IceGrid/Cache.h>
+#include "Cache.h"
 #include "Internal.h"
 
 namespace IceGrid

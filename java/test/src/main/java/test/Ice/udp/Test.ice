@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <Ice/Identity.ice>
+#include "Ice/Identity.ice"
 
 [["java:package:test.Ice.udp"]]
 module Test

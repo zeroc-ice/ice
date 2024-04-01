@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/TrustManager.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "SSLEngine.h"
+#include "TrustManager.h"
+#include "IceSSL/ConnectionInfo.h"
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 
 #include <string>
 

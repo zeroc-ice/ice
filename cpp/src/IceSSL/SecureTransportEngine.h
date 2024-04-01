@@ -7,8 +7,8 @@
 
 #ifdef __APPLE__
 
-#    include <IceSSL/SSLEngine.h>
-#    include <Ice/UniqueRef.h>
+#    include "SSLEngine.h"
+#    include "Ice/UniqueRef.h"
 
 #    include <Security/Security.h>
 #    include <Security/SecureTransport.h>

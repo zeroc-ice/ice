@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/SChannelEngine.h>
+#include "PluginI.h"
+#include "SChannelEngine.h"
 
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 using namespace std;
 

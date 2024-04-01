@@ -5,8 +5,8 @@
 #ifndef ICEPY_IMPLICIT_CONTEXT_H
 #define ICEPY_IMPLICIT_CONTEXT_H
 
-#include <Config.h>
-#include <Ice/ImplicitContext.h>
+#include "Config.h"
+#include "Ice/ImplicitContext.h"
 
 namespace IcePy
 {

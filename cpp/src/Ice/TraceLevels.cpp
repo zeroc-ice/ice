@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/TraceLevels.h>
-#include <Ice/Properties.h>
+#include "TraceLevels.h"
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace Ice;

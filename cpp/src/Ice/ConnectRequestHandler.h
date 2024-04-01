@@ -5,10 +5,10 @@
 #ifndef ICE_CONNECT_REQUEST_HANDLER_H
 #define ICE_CONNECT_REQUEST_HANDLER_H
 
-#include <Ice/ConnectRequestHandlerF.h>
-#include <Ice/RequestHandler.h>
-#include <Ice/Reference.h>
-#include <Ice/RouterInfo.h>
+#include "ConnectRequestHandlerF.h"
+#include "RequestHandler.h"
+#include "Reference.h"
+#include "RouterInfo.h"
 
 #include <condition_variable>
 #include <deque>

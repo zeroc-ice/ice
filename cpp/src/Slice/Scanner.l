@@ -10,8 +10,8 @@
 
 %{
 
-#include "Slice/GrammarUtil.h"
-#include "Slice/Grammar.h"
+#include "GrammarUtil.h"
+#include "Grammar.h"
 
 #include <iomanip>
 #include <cstdlib>

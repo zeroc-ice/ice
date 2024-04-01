@@ -5,10 +5,10 @@
 #ifndef ICE_TRANSCEIVER_H
 #define ICE_TRANSCEIVER_H
 
-#include <Ice/TransceiverF.h>
-#include <Ice/ConnectionF.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/Network.h>
+#include "TransceiverF.h"
+#include "Ice/ConnectionF.h"
+#include "EndpointIF.h"
+#include "Network.h"
 
 namespace IceInternal
 {

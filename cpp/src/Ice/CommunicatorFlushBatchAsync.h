@@ -5,7 +5,7 @@
 #ifndef ICE_COMMUNICATOR_FLUSH_BATCH_ASYNC_H
 #define ICE_COMMUNICATOR_FLUSH_BATCH_ASYNC_H
 
-#include <Ice/Communicator.h>
+#include "Ice/Communicator.h"
 #include "Ice/OutgoingAsync.h"
 
 namespace IceInternal

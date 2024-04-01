@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Properties.h>
+#include "Ice/Communicator.h"
+#include "Ice/Properties.h"
 
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/FileUtil.h"
 
-#include <IceGrid/FileCache.h>
-#include <IceGrid/Exception.h>
+#include "FileCache.h"
+#include "IceGrid/Exception.h"
 
 #include <deque>
 #include <fstream>

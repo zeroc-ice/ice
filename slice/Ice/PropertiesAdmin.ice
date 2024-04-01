@@ -15,7 +15,7 @@
 
 [["python:pkgdir:Ice"]]
 
-#include <Ice/PropertyDict.ice>
+#include "Ice/PropertyDict.ice"
 
 [["java:package:com.zeroc"]]
 

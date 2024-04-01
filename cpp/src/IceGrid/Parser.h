@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_PARSER_H
 #define ICE_GRID_PARSER_H
 
-#include <IceGrid/Admin.h>
-#include <IceGrid/Registry.h>
+#include "IceGrid/Admin.h"
+#include "IceGrid/Registry.h"
 
 #include <list>
 #include <stdio.h>

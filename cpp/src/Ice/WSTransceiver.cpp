@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/WSTransceiver.h>
-#include <Ice/Endpoint.h>
-#include <Ice/Connection.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/HttpParser.h>
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/LocalException.h>
-#include <Ice/Base64.h>
-#include <IceUtil/Random.h>
-#include <Ice/SHA1.h>
-#include <IceUtil/StringUtil.h>
+#include "WSTransceiver.h"
+#include "Ice/Endpoint.h"
+#include "Ice/Connection.h"
+#include "ProtocolInstance.h"
+#include "HttpParser.h"
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Buffer.h"
+#include "Ice/LocalException.h"
+#include "Base64.h"
+#include "IceUtil/Random.h"
+#include "Ice/SHA1.h"
+#include "IceUtil/StringUtil.h"
 #include "Endian.h"
 
 #include <stdint.h>

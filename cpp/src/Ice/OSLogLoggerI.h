@@ -7,8 +7,8 @@
 
 #ifdef ICE_SWIFT
 
-#    include <Ice/Logger.h>
-#    include <Ice/UniqueRef.h>
+#    include "Ice/Logger.h"
+#    include "Ice/UniqueRef.h"
 #    include <os/log.h>
 
 namespace Ice

@@ -17,8 +17,8 @@
 #import "LoggerWrapperI.h"
 #import "Convert.h"
 
-#include <Ice/Instance.h>
-#include <Ice/DefaultsAndOverrides.h>
+#include "Ice/Instance.h"
+#include "Ice/DefaultsAndOverrides.h"
 
 @implementation ICECommunicator
 

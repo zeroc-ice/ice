@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/Util.h>
+#include "Util.h"
 
-#include <IceUtil/StringConverter.h>
+#include "IceUtil/StringConverter.h"
 
 #include <cassert>
 #include <ostream>

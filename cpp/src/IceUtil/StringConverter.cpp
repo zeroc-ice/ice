@@ -7,11 +7,11 @@
 #if defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
 #    define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #elif (__cplusplus >= 201703L)
-#    include <IceUtil/DisableWarnings.h>
+#    include "IceUtil/DisableWarnings.h"
 #endif
 
-#include <IceUtil/StringConverter.h>
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringConverter.h"
+#include "IceUtil/StringUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>

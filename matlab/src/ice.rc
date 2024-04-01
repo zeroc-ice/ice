@@ -1,4 +1,4 @@
-#include <IceUtil/ResourceConfig.h>
+#include "IceUtil/ResourceConfig.h"
 
 #ifdef _DEBUG
 #   define ICE_INTERNALNAME "ice\0"

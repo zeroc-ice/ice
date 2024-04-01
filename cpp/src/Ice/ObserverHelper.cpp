@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ObserverHelper.h>
-#include <Ice/Reference.h>
-#include <Ice/Instance.h>
-#include <Ice/Proxy.h>
+#include "Ice/ObserverHelper.h"
+#include "Reference.h"
+#include "Instance.h"
+#include "Ice/Proxy.h"
 
 using namespace std;
 using namespace Ice;

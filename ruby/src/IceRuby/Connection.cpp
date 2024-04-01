@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Types.h>
-#include <Util.h>
-#include <Ice/Object.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Types.h"
+#include "Util.h"
+#include "Ice/Object.h"
+#include "IceSSL/ConnectionInfo.h"
 
 using namespace std;
 using namespace IceRuby;

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceBox/IceBox.h>
+#include "Ice/Ice.h"
+#include "IceBox/IceBox.h"
 #include <TestI.h>
 
 using namespace std;

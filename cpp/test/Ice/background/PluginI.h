@@ -5,7 +5,7 @@
 #ifndef TEST_PLUGIN_H
 #define TEST_PLUGIN_H
 
-#include <Ice/Plugin.h>
+#include "Ice/Plugin.h"
 #include <Configuration.h>
 
 #ifndef TEST_API

@@ -5,11 +5,11 @@
 #ifndef ICE_COLLOCATED_REQUEST_HANDLER_H
 #define ICE_COLLOCATED_REQUEST_HANDLER_H
 
-#include <Ice/RequestHandler.h>
-#include <Ice/OutputStream.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/Logger.h>
-#include <Ice/TraceLevelsF.h>
+#include "RequestHandler.h"
+#include "Ice/OutputStream.h"
+#include "Ice/ObjectAdapterF.h"
+#include "Ice/Logger.h"
+#include "TraceLevelsF.h"
 
 #include <condition_variable>
 #include <mutex>

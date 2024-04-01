@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Util.h>
-#include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
+#include "Util.h"
+#include "Ice/LocalException.h"
+#include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 
 using namespace std;

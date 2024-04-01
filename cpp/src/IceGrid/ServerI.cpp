@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
-#include <IceGrid/ServerI.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/Activator.h>
-#include <IceGrid/NodeI.h>
-#include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Ice.h"
+#include "../Ice/TimeUtil.h"
+#include "ServerI.h"
+#include "TraceLevels.h"
+#include "Activator.h"
+#include "NodeI.h"
+#include "ServerAdapterI.h"
+#include "DescriptorHelper.h"
 #include "Util.h"
 
 #include <sys/types.h>

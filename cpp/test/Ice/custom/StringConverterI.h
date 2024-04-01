@@ -5,7 +5,7 @@
 #ifndef STRING_CONVERTER_I_H
 #define STRING_CONVERTER_I_H
 
-#include <Ice/StringConverter.h>
+#include "Ice/StringConverter.h"
 
 //
 // Simple contrived string converters which simply reverse the order of the

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <Ice/Ice.h>
-#include <Ice/Service.h>
-#include <IceBox/ServiceManagerI.h>
+#include "IceUtil/Options.h"
+#include "Ice/Ice.h"
+#include "Ice/Service.h"
+#include "ServiceManagerI.h"
 
 using namespace std;
 using namespace Ice;

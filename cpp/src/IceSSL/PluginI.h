@@ -5,10 +5,10 @@
 #ifndef ICESSL_PLUGIN_I_H
 #define ICESSL_PLUGIN_I_H
 
-#include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngineF.h>
-#include <IceSSL/ConnectionInfo.h>
-#include <Ice/CommunicatorF.h>
+#include "IceSSL/Plugin.h"
+#include "SSLEngineF.h"
+#include "IceSSL/ConnectionInfo.h"
+#include "Ice/CommunicatorF.h"
 
 namespace IceSSL
 {

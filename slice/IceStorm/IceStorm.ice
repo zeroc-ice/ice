@@ -16,7 +16,7 @@
 
 [["python:pkgdir:IceStorm"]]
 
-#include <Ice/Identity.ice>
+#include "Ice/Identity.ice"
 
 #include <IceStorm/Metrics.ice>
 

@@ -5,8 +5,8 @@
 #ifndef CLIENT_BLOBJECT_H
 #define CLIENT_BLOBJECT_H
 
-#include <Glacier2/Blobject.h>
-#include <Glacier2/Session.h>
+#include "Blobject.h"
+#include "Glacier2/Session.h"
 
 namespace Glacier2
 {

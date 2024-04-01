@@ -5,9 +5,9 @@
 #ifndef ICEPY_BATCH_REQUEST_INTERCEPTOR_H
 #define ICEPY_BATCH_REQUEST_INTERCEPTOR_H
 
-#include <Config.h>
-#include <Util.h>
-#include <Ice/Ice.h>
+#include "Config.h"
+#include "Util.h"
+#include "Ice/Ice.h"
 
 #include <memory>
 

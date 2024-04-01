@@ -7,7 +7,7 @@
 
 #include <Test.h>
 #include <TestHelper.h>
-#include <Ice/NativePropertiesAdmin.h>
+#include "Ice/NativePropertiesAdmin.h"
 
 class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {

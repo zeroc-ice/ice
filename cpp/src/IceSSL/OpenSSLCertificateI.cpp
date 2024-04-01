@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/CertificateI.h>
-#include <IceSSL/OpenSSLUtil.h>
-#include <IceSSL/RFC2253.h>
+#include "PluginI.h"
+#include "IceSSL/OpenSSL.h"
+#include "CertificateI.h"
+#include "OpenSSLUtil.h"
+#include "RFC2253.h"
 
 #include <cassert>
 #include <mutex>

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/ReapThread.h>
+#include "Ice/Ice.h"
+#include "ReapThread.h"
 
 using namespace std;
 using namespace IceGrid;

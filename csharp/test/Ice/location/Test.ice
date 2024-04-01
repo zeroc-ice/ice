@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Locator.ice>
+#include "Ice/Locator.ice"
 
 ["cs:namespace:Ice.location"]
 module Test

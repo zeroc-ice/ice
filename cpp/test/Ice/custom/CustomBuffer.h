@@ -5,7 +5,7 @@
 #ifndef CUSTOM_BUFFER_H
 #define CUSTOM_BUFFER_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <iostream>
 
 #if defined(_MSC_VER)

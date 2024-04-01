@@ -4,9 +4,9 @@
 
 #include "Instance.h"
 #include "Ice/Communicator.h"
-#include "Ice/InstrumentationI.h"
+#include "../Ice/InstrumentationI.h"
 #include "Ice/Properties.h"
-#include "Ice/TraceUtil.h"
+#include "../Ice/TraceUtil.h"
 #include "IceUtil/Timer.h"
 #include "InstrumentationI.h"
 #include "NodeI.h"

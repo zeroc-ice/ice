@@ -2,20 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/EndpointI.h>
-#include <IceBT/AcceptorI.h>
-#include <IceBT/ConnectorI.h>
-#include <IceBT/Engine.h>
-#include <IceBT/Instance.h>
-#include <IceBT/Util.h>
-
-#include <Ice/LocalException.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/HashUtil.h>
-#include <Ice/Object.h>
-#include <Ice/Properties.h>
-#include <Ice/UUID.h>
-#include <IceUtil/StringUtil.h>
+#include "EndpointI.h"
+#include "AcceptorI.h"
+#include "ConnectorI.h"
+#include "Engine.h"
+#include "Instance.h"
+#include "Util.h"
+#include "Ice/LocalException.h"
+#include "../Ice/DefaultsAndOverrides.h"
+#include "../Ice/HashUtil.h"
+#include "Ice/Object.h"
+#include "Ice/Properties.h"
+#include "Ice/UUID.h"
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

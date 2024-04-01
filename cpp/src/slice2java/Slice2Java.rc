@@ -1,4 +1,4 @@
-#include<IceUtil/ResourceConfig.h>
+#include "IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "slice2java\0"
 #define ICE_ORIGINALFILENAME "slice2java.exe\0"

@@ -5,10 +5,10 @@
 #ifndef ICE_PROPERTIES_ADMIN_I_H
 #define ICE_PROPERTIES_ADMIN_I_H
 
-#include <Ice/Properties.h>
-#include <Ice/PropertiesAdmin.h>
-#include <Ice/NativePropertiesAdmin.h>
-#include <Ice/Logger.h>
+#include "Ice/Properties.h"
+#include "Ice/PropertiesAdmin.h"
+#include "Ice/NativePropertiesAdmin.h"
+#include "Ice/Logger.h"
 
 #include <list>
 #include <mutex>

@@ -5,7 +5,7 @@
 #ifndef ICESSL_RFC_2253_H
 #define ICESSL_RFC_2253_H
 
-#include <IceUtil/Config.h>
+#include "IceUtil/Config.h"
 #include <list>
 
 //

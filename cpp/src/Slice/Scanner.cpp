@@ -950,8 +950,8 @@ char* yytext;
 
 #line 12 "src/Slice/Scanner.l"
 
-#include "Slice/GrammarUtil.h"
-#include "Slice/Grammar.h"
+#include "GrammarUtil.h"
+#include "Grammar.h"
 
 #include <iomanip>
 #include <cstdlib>

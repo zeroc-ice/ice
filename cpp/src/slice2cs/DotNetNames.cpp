@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <DotNetNames.h>
+#include "DotNetNames.h"
 #include <ctype.h>
 #include <cstring>
 

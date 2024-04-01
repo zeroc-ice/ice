@@ -5,9 +5,9 @@
 #ifndef ICE_GRID_ALLOCATABLE_H
 #define ICE_GRID_ALLOCATABLE_H
 
-#include <IceUtil/Timer.h>
+#include "IceUtil/Timer.h"
 
-#include <IceGrid/Session.h>
+#include "IceGrid/Session.h"
 
 #include <list>
 #include <set>

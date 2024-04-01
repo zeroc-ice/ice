@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Logger.h>
+#include "Ice/Logger.h"
 #include "ice.h"
 #include "Util.h"
 

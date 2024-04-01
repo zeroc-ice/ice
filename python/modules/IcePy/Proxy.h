@@ -6,7 +6,7 @@
 #define ICEPY_PROXY_H
 
 #include "Config.h"
-#include <Ice/Proxy.h>
+#include "Ice/Proxy.h"
 
 namespace IcePy
 {

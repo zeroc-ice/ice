@@ -9,16 +9,16 @@
 #    define _XOPEN_SOURCE_EXTENDED
 #endif
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
-#include <Ice/NetworkF.h>
-#include <Ice/NetworkProxyF.h>
-#include <Ice/PropertiesF.h> // For setTcpBufSize
-#include <Ice/Logger.h>      // For setTcpBufSize
+#include "NetworkF.h"
+#include "NetworkProxyF.h"
+#include "Ice/PropertiesF.h" // For setTcpBufSize
+#include "Ice/Logger.h"      // For setTcpBufSize
 #include "Protocol.h"
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/EndpointTypes.h>
-#include <Ice/EndpointSelectionType.h>
+#include "ProtocolInstanceF.h"
+#include "Ice/EndpointTypes.h"
+#include "Ice/EndpointSelectionType.h"
 
 #include <cassert>
 #include <cstring>

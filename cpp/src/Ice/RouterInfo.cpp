@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/RouterInfo.h>
-#include <Ice/Router.h>
-#include <Ice/LocalException.h>
-#include <Ice/Connection.h> // For ice_connection()->timeout().
-#include <Ice/Reference.h>
+#include "RouterInfo.h"
+#include "Ice/Router.h"
+#include "Ice/LocalException.h"
+#include "Ice/Connection.h" // For ice_connection()->timeout().
+#include "Reference.h"
 #include "Ice/ProxyFunctions.h"
 
 using namespace std;

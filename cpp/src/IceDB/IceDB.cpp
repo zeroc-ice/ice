@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceDB/IceDB.h>
-#include <Ice/Initialize.h>
+#include "IceDB.h"
+#include "Ice/Initialize.h"
 
 #include <lmdb.h>
 

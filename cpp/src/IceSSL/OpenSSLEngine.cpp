@@ -2,22 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Config.h>
+#include "IceSSL/Config.h"
 
-#include <IceSSL/OpenSSLEngineF.h>
-#include <IceSSL/OpenSSLEngine.h>
-#include <IceSSL/OpenSSLTransceiverI.h>
-#include <IceSSL/Util.h>
-#include <IceSSL/TrustManager.h>
+#include "OpenSSLEngineF.h"
+#include "OpenSSLEngine.h"
+#include "OpenSSLTransceiverI.h"
+#include "Util.h"
+#include "TrustManager.h"
 
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Properties.h>
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
 
 #include <mutex>
 

@@ -5,11 +5,11 @@
 #ifndef ICE_GRID_NODE_I_H
 #define ICE_GRID_NODE_I_H
 
-#include <IceUtil/Timer.h>
+#include "IceUtil/Timer.h"
 #include "Internal.h"
-#include <IceGrid/PlatformInfo.h>
-#include <IceGrid/UserAccountMapper.h>
-#include <IceGrid/FileCache.h>
+#include "PlatformInfo.h"
+#include "IceGrid/UserAccountMapper.h"
+#include "FileCache.h"
 
 #include <deque>
 #include <set>

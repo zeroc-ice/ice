@@ -5,10 +5,9 @@
 #include "Types.h"
 #include "Proxy.h"
 #include "Util.h"
-
-#include <IceUtil/OutputUtil.h>
-#include "PHPUtil.h"
-#include <Ice/SlicedData.h>
+#include "IceUtil/OutputUtil.h"
+#include "slice2php/PHPUtil.h"
+#include "Ice/SlicedData.h"
 
 #include <limits>
 #include <memory>

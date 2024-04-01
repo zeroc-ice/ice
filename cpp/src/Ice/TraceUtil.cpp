@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/StringUtil.h>
-#include <Ice/TraceUtil.h>
-#include <Ice/Instance.h>
-#include <Ice/Object.h>
-#include <Ice/Proxy.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
+#include "StringUtil.h"
+#include "TraceUtil.h"
+#include "Instance.h"
+#include "Ice/Object.h"
+#include "Ice/Proxy.h"
+#include "TraceLevels.h"
+#include "Ice/Logger.h"
+#include "Ice/OutputStream.h"
+#include "Ice/InputStream.h"
 #include "Ice/VersionFunctions.h"
-#include <Ice/ReplyStatus.h>
+#include "ReplyStatus.h"
 
 #include <mutex>
 #include <set>

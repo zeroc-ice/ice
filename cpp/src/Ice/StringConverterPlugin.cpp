@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
-#include <Ice/StringConverter.h>
-#include <Ice/IconvStringConverter.h>
-#include <Ice/Initialize.h>
-#include <Ice/Communicator.h>
-#include <Ice/LoggerUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "Ice/StringConverter.h"
+#include "Ice/IconvStringConverter.h"
+#include "Ice/Initialize.h"
+#include "Ice/Communicator.h"
+#include "Ice/LoggerUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <cstring>
 

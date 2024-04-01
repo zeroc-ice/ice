@@ -19,7 +19,7 @@
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>
-#include <Ice/Locator.ice>
+#include "Ice/Locator.ice"
 
 [["java:package:com.zeroc"]]
 

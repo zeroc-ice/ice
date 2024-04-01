@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 
-#    include <IceSSL/SChannel.h>
+#    include "IceSSL/SChannel.h"
 
 #    include <memory>
 

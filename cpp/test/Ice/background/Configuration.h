@@ -5,10 +5,10 @@
 #ifndef TEST_CONFIGURATION_H
 #define TEST_CONFIGURATION_H
 
-#include <IceUtil/IceUtil.h>
+#include "IceUtil/IceUtil.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Selector.h>
+#include "Ice/LocalException.h"
+#include "Ice/Selector.h"
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)

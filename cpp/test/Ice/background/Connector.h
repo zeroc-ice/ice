@@ -5,7 +5,7 @@
 #ifndef TEST_CONNECTOR_H
 #define TEST_CONNECTOR_H
 
-#include <Ice/Connector.h>
+#include "Ice/Connector.h"
 #include <Configuration.h>
 
 class Connector : public IceInternal::Connector

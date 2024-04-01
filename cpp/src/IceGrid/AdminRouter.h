@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_ADMIN_ROUTER_H
 #define ICE_GRID_ADMIN_ROUTER_H
 
-#include <Ice/Ice.h>
-#include <IceGrid/TraceLevels.h>
+#include "Ice/Ice.h"
+#include "TraceLevels.h"
 
 namespace IceGrid
 {

@@ -5,7 +5,7 @@
 #ifndef ICE_XML_PARSER_H
 #define ICE_XML_PARSER_H
 
-#include <Ice/Exception.h>
+#include "Ice/Exception.h"
 
 #include <vector>
 #include <map>
