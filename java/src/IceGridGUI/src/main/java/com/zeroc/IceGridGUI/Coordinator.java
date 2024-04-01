@@ -11,9 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.prefs.Preferences;
-import java.util.prefs.BackingStoreException;
 import java.util.Enumeration;
-import java.util.Collection;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
@@ -34,14 +32,11 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
 
 import java.security.KeyStore;
-import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
@@ -49,6 +44,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import java.security.KeyStore.TrustedCertificateEntry;
 
 import com.zeroc.Ice.LocatorFinderPrx;
 import com.zeroc.IceGrid.*;
@@ -1303,6 +1299,9 @@ public class Coordinator
             private TrustDecision _decision = TrustDecision.No;
         }
 
+        // Decorates a trust manager and alllows the user to accept invalid certificates in case that
+        // decorated trust manager throws a CertificateException. When this happens the user is presented
+        // with a dialog that allows him to accept the certificate or not.
         final class TrustManagerI implements javax.net.ssl.X509TrustManager
         {
             TrustManagerI(
@@ -1355,13 +1354,54 @@ public class Coordinator
                     }
 
                     //
-                    // Check the certificate date is valid.
+                    // Compare the server with the user trusted server certificates.
                     //
+                    try
+                    {
+                        for(Enumeration<String> e = _trustedServerKeyStore.aliases(); e.hasMoreElements() ;)
+                        {
+                            String alias = e.nextElement();
+                            if(!_trustedServerKeyStore.isCertificateEntry(alias))
+                            {
+                                continue;
+                            }
+
+                            if(_trustedServerKeyStore.getCertificate(alias).equals(serverCertificate))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                    catch(final java.security.KeyStoreException ex)
+                    {
+                        while(true)
+                        {
+                            try
+                            {
+                                SwingUtilities.invokeAndWait(() ->
+                                                            {
+                                                                JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
+                                                                                            JOptionPane.ERROR_MESSAGE);
+                                                            });
+                                break;
+                            }
+                            catch(java.lang.InterruptedException e)
+                            {
+                            }
+                            catch(java.lang.reflect.InvocationTargetException e)
+                            {
+                                break;
+                            }
+                        }
+                        throw certificateException;
+                    }
+
                     TrustDecision decision = new AcceptInvalidCertDialog().show(serverCertificate);
 
                     if(decision == TrustDecision.YesThisTime)
                     {
                         _transientCert = serverCertificate;
+                        System.out.println("Trust this time");
                         return;
                     }
                     else if(decision == TrustDecision.YesAlways)
@@ -1379,9 +1419,11 @@ public class Coordinator
                                 }
                             }
                             _trustedServerKeyStore.setCertificateEntry(CN, serverCertificate);
-                            _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
-                                                        new char[]{});
+                            _trustedServerKeyStore.store(
+                                new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
+                                new char[]{});
                             sessionKeeper.certificateManager(parent).load();
+                            System.out.println("Trust always");
                             return;
                         }
                         catch(final java.lang.Exception ex)
@@ -1438,15 +1480,25 @@ public class Coordinator
                 return;
             }
 
-            KeyStore trustedCaKeyStore;
+            TrustManager[] trustManagers = null;
             try
             {
-                trustedCaKeyStore = KeyStore.getInstance("JKS");
+                KeyStore trustedCaKeyStore = KeyStore.getInstance("JKS");
                 try(java.io.InputStream stream = new FileInputStream(getDataDirectory() + "/AuthorityCerts.jks"))
                 {
                     trustedCaKeyStore.load(stream, null);
                 }
-                trustManagerFactory.init(trustedCaKeyStore);
+                Enumeration<String> aliases = trustedCaKeyStore.aliases();
+                while (aliases.hasMoreElements())
+                {
+                    if (trustedCaKeyStore.entryInstanceOf(aliases.nextElement(), TrustedCertificateEntry.class))
+                    {
+                        // Only initialize the trust managers if there is at least one trusted certificate.
+                        trustManagerFactory.init(trustedCaKeyStore);
+                        trustManagers = trustManagerFactory.getTrustManagers();
+                        break;
+                    }
+                }
             }
             catch (java.lang.Exception e)
             {
@@ -1494,7 +1546,41 @@ public class Coordinator
                 return;
             }
 
-            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+            if (trustManagers == null || trustManagers.length == 0)
+            {
+                // The trust managers array would be empty if the trusted CA KeyStore is empty. In this case, we
+                // install a trust manager that rejects all peer certificates.
+                trustManagers = new javax.net.ssl.TrustManager[]
+                {
+                    new javax.net.ssl.X509TrustManager()
+                    {
+                        @Override
+                        public void
+                        checkClientTrusted(X509Certificate[] chain, String authType)
+                            throws CertificateException
+                        {
+                            throw new CertificateException("no trust anchors");
+                        }
+
+                        @Override
+                        public void
+                        checkServerTrusted(X509Certificate[] chain, String authType)
+                            throws CertificateException
+                        {
+                            throw new CertificateException("no trust anchors");
+                        }
+
+                        @Override
+                        public X509Certificate[]
+                        getAcceptedIssuers()
+                        {
+                            return new X509Certificate[0];
+                        }
+                    }
+                };
+            }
+
+            // Wrap the trust managers to allow the user to accept invalid certificates.
             for (int i = 0; i < trustManagers.length; ++i)
             {
                 trustManagers[i] = new TrustManagerI(
@@ -2308,10 +2394,6 @@ public class Coordinator
         _initData.logger = new Logger(mainFrame);
         java.util.List<String> rArgs = new java.util.ArrayList<>();
         _initData.properties = createProperties(args, rArgs);
-        //
-        // We enable IceSSL so the communicator knows how to parse ssl endpoints.
-        //
-        _initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
 
         if(!rArgs.isEmpty())
         {
@@ -3551,13 +3633,6 @@ public class Coordinator
         }
 
         private TrustDecision _decision = TrustDecision.No;
-        private static Icon _infoIcon = new ImageIcon(
-            Utils.iconToImage(UIManager.getIcon("OptionPane.informationIcon")).
-            getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
-
-        private static Icon _warnIcon = new ImageIcon(
-            Utils.iconToImage(UIManager.getIcon("OptionPane.warningIcon")).
-            getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
     }
 
     private final com.zeroc.Ice.InitializationData _initData;
