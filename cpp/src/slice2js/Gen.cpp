@@ -8,7 +8,7 @@
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "../Ice/Endian.h"
-#include "../IceUtil/FileUtil.h"
+#include "IceUtil/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>
