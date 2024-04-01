@@ -48,6 +48,7 @@ extern int yydebug;
 #line 9 "src/IceGrid/Grammar.y"
 
 #include <list>
+#include <string>
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use

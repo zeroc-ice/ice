@@ -5,7 +5,11 @@
 #ifndef ICE_HASH_UTIL_H
 #define ICE_HASH_UTIL_H
 
+#include <cstddef>
+#include <cstdint>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace IceInternal
 {
