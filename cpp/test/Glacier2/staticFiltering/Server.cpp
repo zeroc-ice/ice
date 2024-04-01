@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <BackendI.h>
-#include <TestHelper.h>
+#include "BackendI.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

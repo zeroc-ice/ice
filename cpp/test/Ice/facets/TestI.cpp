@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
+#include "TestI.h"
 
 std::string
 AI::callA(const Ice::Current&)

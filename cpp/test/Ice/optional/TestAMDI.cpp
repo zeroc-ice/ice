@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestAMDI.h>
+#include "TestAMDI.h"
 
 using namespace Test;
 using namespace IceUtil;

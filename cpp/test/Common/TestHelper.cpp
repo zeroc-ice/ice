@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <TestHelper.h>
+#include "TestHelper.h"
 #include "Ice/Communicator.h"
 #include "Ice/RegisterPlugins.h"
 #include "IceUtil/CtrlCHandler.h"

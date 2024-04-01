@@ -5,7 +5,7 @@
 #ifndef TESTI_H
 #define TESTI_H
 
-#include <ServerPrivate.h>
+#include "ServerPrivate.h"
 
 class TestI final : public Test::TestIntf
 {

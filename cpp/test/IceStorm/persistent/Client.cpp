@@ -4,7 +4,7 @@
 
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <stdexcept>
 

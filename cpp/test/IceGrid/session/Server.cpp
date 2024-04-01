@@ -5,7 +5,7 @@
 #include "Ice/Ice.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "IceSSL/Plugin.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 using namespace std;
 

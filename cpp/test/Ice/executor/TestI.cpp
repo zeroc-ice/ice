@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <TestI.h>
+#include "TestI.h"
 #include "Ice/Ice.h"
 #include "Executor.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <thread>
 #include <chrono>

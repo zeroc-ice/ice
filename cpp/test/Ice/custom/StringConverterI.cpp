@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <StringConverterI.h>
+#include "StringConverterI.h"
 
 using namespace std;
 using namespace Ice;

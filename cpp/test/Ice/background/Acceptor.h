@@ -6,7 +6,7 @@
 #define TEST_ACCEPTOR_H
 
 #include "Ice/Acceptor.h"
-#include <EndpointI.h>
+#include "EndpointI.h"
 
 class Acceptor : public IceInternal::Acceptor
 {

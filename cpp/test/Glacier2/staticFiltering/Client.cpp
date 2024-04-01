@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "Glacier2/Router.h"
-#include <Backend.h>
-#include <TestHelper.h>
+#include "Backend.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

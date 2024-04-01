@@ -3,6 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
+#include "TestI.h"
 
 TestI::TestI() {}

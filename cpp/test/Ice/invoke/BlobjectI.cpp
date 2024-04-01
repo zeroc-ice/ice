@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <BlobjectI.h>
-#include <Test.h>
-#include <TestHelper.h>
+#include "BlobjectI.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Test;

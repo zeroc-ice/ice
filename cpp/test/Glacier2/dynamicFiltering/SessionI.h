@@ -5,8 +5,8 @@
 #ifndef SESSION_I_H
 #define SESSION_I_H
 
-#include <Test.h>
-#include <TestControllerI.h>
+#include "Test.h"
+#include "TestControllerI.h"
 
 //
 // The session manager essentially has to be the test controller since

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Test.h>
-#include <TestHelper.h>
+#include "Test.h"
+#include "TestHelper.h"
 
 #if defined(_MSC_VER)
 #    pragma comment(lib, ICE_LIBNAME("gencode"))

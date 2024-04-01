@@ -5,10 +5,10 @@
 #include "Ice/Ice.h"
 #include "Ice/Locator.h"
 #include "Glacier2/PermissionsVerifier.h"
-#include <TestHelper.h>
-#include <TestControllerI.h>
-#include <SessionI.h>
-#include <BackendI.h>
+#include "TestHelper.h"
+#include "TestControllerI.h"
+#include "SessionI.h"
+#include "BackendI.h"
 
 using namespace std;
 using namespace Ice;

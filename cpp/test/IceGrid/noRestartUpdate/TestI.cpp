@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
+#include "TestI.h"
 
 TestI::TestI(Ice::ObjectAdapterPtr adapter, Ice::PropertiesPtr properties)
     : _adapter(std::move(adapter)),

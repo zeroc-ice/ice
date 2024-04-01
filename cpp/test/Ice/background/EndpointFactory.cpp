@@ -8,8 +8,8 @@
 
 #include "Ice/EndpointFactoryManager.h"
 
-#include <EndpointFactory.h>
-#include <EndpointI.h>
+#include "EndpointFactory.h"
+#include "EndpointI.h"
 
 using namespace std;
 

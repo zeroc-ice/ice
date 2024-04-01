@@ -3,7 +3,7 @@
 //
 
 #include "Ice/SHA1.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <cstring>
 

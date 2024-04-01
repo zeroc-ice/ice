@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "Ice/Locator.h"
-#include <TestI.h>
-#include <TestHelper.h>
+#include "TestI.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

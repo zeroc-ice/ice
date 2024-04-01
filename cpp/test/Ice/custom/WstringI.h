@@ -5,7 +5,7 @@
 #ifndef WSTRING_I_H
 #define WSTRING_I_H
 
-#include <Wstring.h>
+#include "Wstring.h"
 
 namespace Test1
 {

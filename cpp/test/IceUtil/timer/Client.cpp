@@ -4,7 +4,7 @@
 
 #include "IceUtil/Timer.h"
 #include "IceUtil/Random.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <chrono>
 #include <vector>

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ServantLocatorI.h>
+#include "ServantLocatorI.h"
 #ifdef ICE_AMD_TEST
 #    include <TestAMD.h>
 #else
 #    include <Test.h>
 #endif
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <stdexcept>
 

@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 ICE_DECLSPEC_IMPORT void allTests(const Ice::ObjectAdapterPtr&);
 
