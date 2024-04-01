@@ -4,24 +4,33 @@
 
 package com.zeroc.IceInternal;
 
-public interface Transceiver
-{
-    java.nio.channels.SelectableChannel fd();
-    void setReadyCallback(ReadyCallback callback);
+public interface Transceiver {
+  java.nio.channels.SelectableChannel fd();
 
-    int initialize(Buffer readBuffer, Buffer writeBuffer);
-    int closing(boolean initiator, com.zeroc.Ice.LocalException ex);
-    void close();
+  void setReadyCallback(ReadyCallback callback);
 
-    EndpointI bind();
-    int write(Buffer buf);
-    int read(Buffer buf);
+  int initialize(Buffer readBuffer, Buffer writeBuffer);
 
-    String protocol();
-    @Override
-    String toString();
-    String toDetailedString();
-    com.zeroc.Ice.ConnectionInfo getInfo();
-    void checkSendSize(Buffer buf);
-    void setBufferSize(int rcvSize, int sndSize);
+  int closing(boolean initiator, com.zeroc.Ice.LocalException ex);
+
+  void close();
+
+  EndpointI bind();
+
+  int write(Buffer buf);
+
+  int read(Buffer buf);
+
+  String protocol();
+
+  @Override
+  String toString();
+
+  String toDetailedString();
+
+  com.zeroc.Ice.ConnectionInfo getInfo();
+
+  void checkSendSize(Buffer buf);
+
+  void setBufferSize(int rcvSize, int sndSize);
 }

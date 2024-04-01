@@ -4,12 +4,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-interface Server extends TemplateInstance
-{
-    Editable getEditable();
+interface Server extends TemplateInstance {
+  Editable getEditable();
 
-    Object getDescriptor();
+  Object getDescriptor();
 
-    Object saveDescriptor();
-    void restoreDescriptor(Object descriptor);
+  Object saveDescriptor();
+
+  void restoreDescriptor(Object descriptor);
 }

@@ -4,7 +4,6 @@
 
 package com.zeroc.IceInternal;
 
-public final class EndpointIHolder
-{
-    public EndpointI value;
+public final class EndpointIHolder {
+  public EndpointI value;
 }

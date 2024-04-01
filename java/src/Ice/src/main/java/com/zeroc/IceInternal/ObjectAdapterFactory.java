@@ -7,302 +7,230 @@ package com.zeroc.IceInternal;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectAdapterI;
 
-public final class ObjectAdapterFactory
-{
-    public void
-    shutdown()
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            //
-            // Ignore shutdown requests if the object adapter factory has
-            // already been shut down.
-            //
-            if(_instance == null)
-            {
-                return;
-            }
+public final class ObjectAdapterFactory {
+  public void shutdown() {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      //
+      // Ignore shutdown requests if the object adapter factory has
+      // already been shut down.
+      //
+      if (_instance == null) {
+        return;
+      }
 
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
-
-        //
-        // Deactivate outside the thread synchronization, to avoid
-        // deadlocks.
-        //
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.deactivate();
-        }
-
-        synchronized(this)
-        {
-            _instance = null;
-            _communicator = null;
-            notifyAll();
-        }
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public void
-    waitForShutdown()
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            //
-            // First we wait for the shutdown of the factory itself.
-            //
-            while(_instance != null)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                    throw new com.zeroc.Ice.OperationInterruptedException();
-                }
-            }
-
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
-
-        //
-        // Now we wait for deactivation of each object adapter.
-        //
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.waitForDeactivate();
-        }
+    //
+    // Deactivate outside the thread synchronization, to avoid
+    // deadlocks.
+    //
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.deactivate();
     }
 
-    public synchronized boolean
-    isShutdown()
-    {
-        return _instance == null;
+    synchronized (this) {
+      _instance = null;
+      _communicator = null;
+      notifyAll();
+    }
+  }
+
+  public void waitForShutdown() {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      //
+      // First we wait for the shutdown of the factory itself.
+      //
+      while (_instance != null) {
+        try {
+          wait();
+        } catch (InterruptedException ex) {
+          throw new com.zeroc.Ice.OperationInterruptedException();
+        }
+      }
+
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public void
-    destroy()
-    {
-        //
-        // First wait for shutdown to finish.
-        //
-        waitForShutdown();
+    //
+    // Now we wait for deactivation of each object adapter.
+    //
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.waitForDeactivate();
+    }
+  }
 
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
+  public synchronized boolean isShutdown() {
+    return _instance == null;
+  }
 
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.destroy();
-        }
+  public void destroy() {
+    //
+    // First wait for shutdown to finish.
+    //
+    waitForShutdown();
 
-        synchronized(this)
-        {
-            _adapters.clear();
-        }
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public void
-    updateConnectionObservers()
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
-
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.updateConnectionObservers();
-        }
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.destroy();
     }
 
-    public void
-    updateThreadObservers()
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
+    synchronized (this) {
+      _adapters.clear();
+    }
+  }
 
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.updateThreadObservers();
-        }
+  public void updateConnectionObservers() {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public ObjectAdapter
-    createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router)
-    {
-        if(Thread.interrupted())
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.updateConnectionObservers();
+    }
+  }
 
-        synchronized(this)
-        {
-            if(_instance == null)
-            {
-                throw new com.zeroc.Ice.CommunicatorDestroyedException();
-            }
-
-            if(!name.isEmpty())
-            {
-                if(_adapterNamesInUse.contains(name))
-                {
-                    throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
-                }
-                _adapterNamesInUse.add(name);
-            }
-        }
-
-        //
-        // Must be called outside the synchronization since initialize can make client invocations
-        // on the router if it's set.
-        //
-        com.zeroc.Ice.ObjectAdapterI adapter = null;
-        try
-        {
-            if(name.isEmpty())
-            {
-                String uuid = java.util.UUID.randomUUID().toString();
-                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-            }
-            else
-            {
-                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
-            }
-
-            synchronized(this)
-            {
-                if(_instance == null)
-                {
-                    throw new com.zeroc.Ice.CommunicatorDestroyedException();
-                }
-                _adapters.add(adapter);
-            }
-        }
-        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
-        {
-            if(adapter != null)
-            {
-                adapter.destroy();
-            }
-            throw ex;
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            if(!name.isEmpty())
-            {
-                synchronized(this)
-                {
-                    _adapterNamesInUse.remove(name);
-                }
-            }
-            throw ex;
-        }
-
-        return adapter;
+  public void updateThreadObservers() {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public ObjectAdapter
-    findObjectAdapter(com.zeroc.Ice.ObjectPrx proxy)
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            if(_instance == null)
-            {
-                return null;
-            }
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.updateThreadObservers();
+    }
+  }
 
-            adapters = new java.util.LinkedList<>(_adapters);
+  public ObjectAdapter createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router) {
+    if (Thread.interrupted()) {
+      throw new com.zeroc.Ice.OperationInterruptedException();
+    }
+
+    synchronized (this) {
+      if (_instance == null) {
+        throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      }
+
+      if (!name.isEmpty()) {
+        if (_adapterNamesInUse.contains(name)) {
+          throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
         }
+        _adapterNamesInUse.add(name);
+      }
+    }
 
-        for(ObjectAdapterI adapter : adapters)
-        {
-            try
-            {
-                if(adapter.isLocal(proxy))
-                {
-                    return adapter;
-                }
-            }
-            catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
-            {
-                // Ignore.
-            }
+    //
+    // Must be called outside the synchronization since initialize can make client invocations
+    // on the router if it's set.
+    //
+    com.zeroc.Ice.ObjectAdapterI adapter = null;
+    try {
+      if (name.isEmpty()) {
+        String uuid = java.util.UUID.randomUUID().toString();
+        adapter =
+            new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
+      } else {
+        adapter =
+            new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+      }
+
+      synchronized (this) {
+        if (_instance == null) {
+          throw new com.zeroc.Ice.CommunicatorDestroyedException();
         }
+        _adapters.add(adapter);
+      }
+    } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+      if (adapter != null) {
+        adapter.destroy();
+      }
+      throw ex;
+    } catch (com.zeroc.Ice.LocalException ex) {
+      if (!name.isEmpty()) {
+        synchronized (this) {
+          _adapterNamesInUse.remove(name);
+        }
+      }
+      throw ex;
+    }
 
+    return adapter;
+  }
+
+  public ObjectAdapter findObjectAdapter(com.zeroc.Ice.ObjectPrx proxy) {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      if (_instance == null) {
         return null;
+      }
+
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    public synchronized void
-    removeObjectAdapter(ObjectAdapter adapter)
-    {
-        if(_instance == null)
-        {
-            return;
+    for (ObjectAdapterI adapter : adapters) {
+      try {
+        if (adapter.isLocal(proxy)) {
+          return adapter;
         }
-
-        _adapters.remove(adapter);
-        _adapterNamesInUse.remove(adapter.getName());
+      } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
+        // Ignore.
+      }
     }
 
-    public void
-    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
-    {
-        java.util.List<ObjectAdapterI> adapters;
-        synchronized(this)
-        {
-            adapters = new java.util.LinkedList<>(_adapters);
-        }
+    return null;
+  }
 
-        for(ObjectAdapterI adapter : adapters)
-        {
-            adapter.flushAsyncBatchRequests(compressBatch, outAsync);
-        }
+  public synchronized void removeObjectAdapter(ObjectAdapter adapter) {
+    if (_instance == null) {
+      return;
     }
 
-    //
-    // Only for use by Instance.
-    //
-    ObjectAdapterFactory(Instance instance, com.zeroc.Ice.Communicator communicator)
-    {
-        _instance = instance;
-        _communicator = communicator;
+    _adapters.remove(adapter);
+    _adapterNamesInUse.remove(adapter.getName());
+  }
+
+  public void flushAsyncBatchRequests(
+      com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    java.util.List<ObjectAdapterI> adapters;
+    synchronized (this) {
+      adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        try
-        {
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
-            com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty());
-        }
-        catch(java.lang.Exception ex)
-        {
-        }
-        finally
-        {
-            super.finalize();
-        }
+    for (ObjectAdapterI adapter : adapters) {
+      adapter.flushAsyncBatchRequests(compressBatch, outAsync);
     }
+  }
 
-    private Instance _instance;
-    private com.zeroc.Ice.Communicator _communicator;
-    private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<>();
-    private java.util.List<ObjectAdapterI> _adapters = new java.util.LinkedList<>();
+  //
+  // Only for use by Instance.
+  //
+  ObjectAdapterFactory(Instance instance, com.zeroc.Ice.Communicator communicator) {
+    _instance = instance;
+    _communicator = communicator;
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  protected synchronized void finalize() throws Throwable {
+    try {
+      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_instance == null);
+      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
+      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty());
+    } catch (java.lang.Exception ex) {
+    } finally {
+      super.finalize();
+    }
+  }
+
+  private Instance _instance;
+  private com.zeroc.Ice.Communicator _communicator;
+  private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<>();
+  private java.util.List<ObjectAdapterI> _adapters = new java.util.LinkedList<>();
 }

@@ -4,14 +4,12 @@
 
 package com.zeroc.IceInternal;
 
-class EventHandlerOpPair
-{
-    EventHandlerOpPair(EventHandler handler, int op)
-    {
-        this.handler = handler;
-        this.op = op;
-    }
+class EventHandlerOpPair {
+  EventHandlerOpPair(EventHandler handler, int op) {
+    this.handler = handler;
+    this.op = op;
+  }
 
-    EventHandler handler;
-    int op;
+  EventHandler handler;
+  int op;
 }

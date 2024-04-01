@@ -4,23 +4,19 @@
 
 package test.Ice.classLoader;
 
-public class PasswordCallbackI implements com.zeroc.IceSSL.PasswordCallback
-{
-    @Override
-    public char[] getPassword(String alias)
-    {
-        return "password".toCharArray();
-    }
+public class PasswordCallbackI implements com.zeroc.IceSSL.PasswordCallback {
+  @Override
+  public char[] getPassword(String alias) {
+    return "password".toCharArray();
+  }
 
-    @Override
-    public char[] getTruststorePassword()
-    {
-        return "password".toCharArray();
-    }
+  @Override
+  public char[] getTruststorePassword() {
+    return "password".toCharArray();
+  }
 
-    @Override
-    public char[] getKeystorePassword()
-    {
-        return "password".toCharArray();
-    }
+  @Override
+  public char[] getKeystorePassword() {
+    return "password".toCharArray();
+  }
 }

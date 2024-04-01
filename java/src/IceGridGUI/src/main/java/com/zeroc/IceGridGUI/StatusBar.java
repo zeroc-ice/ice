@@ -4,8 +4,8 @@
 
 package com.zeroc.IceGridGUI;
 
-public interface StatusBar
-{
-    void setText(String text);
-    void setConnected(boolean connected);
+public interface StatusBar {
+  void setText(String text);
+
+  void setConnected(boolean connected);
 }
