@@ -865,7 +865,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
         // Get the name of the variable and get its value if the
         // variable is not currently ignored (in which case we do
         // nothing, the variable will be substituted later). If the
-        // name refered to a parameter we don't do any recursive
+        // name referred to a parameter we don't do any recursive
         // substitution: the parameter value is computed at the point
         // of definition.
         //
