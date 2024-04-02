@@ -1419,7 +1419,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
             *p = fullPath(*p);
         }
 
-        for (string file :  un->includeFiles())
+        for (string file : un->includeFiles())
         {
             if (isAbsolutePath(file))
             {
