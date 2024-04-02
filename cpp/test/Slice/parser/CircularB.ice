@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <CircularA.ice>
+#include "CircularA.ice"
 
 module Test
 {

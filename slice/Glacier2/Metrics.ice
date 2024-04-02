@@ -15,7 +15,7 @@
 
 [["python:pkgdir:Glacier2"]]
 
-#include "Ice/Metrics.ice"
+#include "../Ice/Metrics.ice"
 
 [["java:package:com.zeroc.Glacier2"]]
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Test.ice>
+#include "Test.ice"
 
 [["js:es6-module"]]
 

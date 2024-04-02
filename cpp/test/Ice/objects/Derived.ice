@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Test.ice>
-#include <Forward.ice>
+#include "Test.ice"
+#include "Forward.ice"
 
 module Test
 {

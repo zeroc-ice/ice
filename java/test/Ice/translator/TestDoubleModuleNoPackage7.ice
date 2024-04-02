@@ -4,7 +4,7 @@
 
 // Test: use DoubleModuleNoPackage types from (same) double module with package definitions
 
-#include <DoubleModuleNoPackage.ice>
+#include "DoubleModuleNoPackage.ice"
 
 [["java:package:dmnpTest7"]]
 

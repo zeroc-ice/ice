@@ -9,9 +9,9 @@
 #include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Process.ice"
-#include <Glacier2/Session.ice>
-#include <IceGrid/Admin.ice>
-#include <IceGrid/Registry.ice>
+#include "Glacier2/Session.ice"
+#include "IceGrid/Admin.ice"
+#include "IceGrid/Registry.ice"
 
 module IceGrid
 {

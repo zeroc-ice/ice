@@ -4,7 +4,7 @@
 
 // Test: use SingleModuleWithPackage types from (different) double module with (different) package definitions
 
-#include <SingleModuleWithPackage.ice>
+#include "SingleModuleWithPackage.ice"
 
 [["java:package:smwpTest11"]]
 

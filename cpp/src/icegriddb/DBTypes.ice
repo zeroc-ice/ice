@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <IceGrid/Admin.ice>
+#include "IceGrid/Admin.ice"
 
 [["cpp:header-ext:h"]]
 

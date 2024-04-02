@@ -14,7 +14,7 @@
 
 [["python:pkgdir:Glacier2"]]
 
-#include <Glacier2/SSLInfo.ice>
+#include "SSLInfo.ice"
 
 [["java:package:com.zeroc"]]
 

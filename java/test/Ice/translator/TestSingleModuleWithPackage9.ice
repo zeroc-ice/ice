@@ -4,7 +4,7 @@
 
 // Test: use SingleModuleWithPackage types from (different) double module definitions
 
-#include <SingleModuleWithPackage.ice>
+#include "SingleModuleWithPackage.ice"
 
 module T1
 {

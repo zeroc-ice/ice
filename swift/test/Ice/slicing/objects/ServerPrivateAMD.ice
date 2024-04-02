@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <TestAMD.ice>
+#include "TestAMD.ice"
 
 [["swift:class-resolver-prefix:IceSlicingObjectsServerAMD"]]
 

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "Ice/BuiltinSequences.ice"
-
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
@@ -17,6 +15,8 @@
 [["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
+
+#include "BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 
@@ -116,6 +116,10 @@ module Ice
         /// requests all messages available.
         /// @param prefix The prefix of the associated local logger.
         /// @return The Log messages.
-        LogMessageSeq getLog(LogMessageTypeSeq messageTypes, StringSeq traceCategories, int messageMax, out string prefix);
+        LogMessageSeq getLog(
+            LogMessageTypeSeq messageTypes,
+            StringSeq traceCategories,
+            int messageMax,
+            out string prefix);
     }
 }
