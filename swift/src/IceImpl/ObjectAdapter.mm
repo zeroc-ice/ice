@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Config.h"
 #import "ObjectAdapter.h"
+#import "BlobjectFacade.h"
+#import "Communicator.h"
+#import "Config.h"
+#import "Connection.h"
 #import "Convert.h"
 #import "ObjectPrx.h"
-#import "Connection.h"
-#import "Communicator.h"
-#import "BlobjectFacade.h"
 
 @implementation ICEObjectAdapter
 

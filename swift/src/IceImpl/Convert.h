@@ -5,9 +5,9 @@
 #import "LocalObject.h"
 
 #include <exception>
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 @class ICERuntimeException;
 
