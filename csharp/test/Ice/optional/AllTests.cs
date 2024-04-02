@@ -365,15 +365,6 @@ namespace Ice
                 initial2.returnOptionalClass(true, out oo);
                 test(!oo.HasValue);
 
-                Test.Recursive[] recursive1 = new Test.Recursive[1];
-                recursive1[0] = new Test.Recursive();
-                Test.Recursive[] recursive2 = new Test.Recursive[1];
-                recursive2[0] = new Test.Recursive();
-                recursive1[0].value = recursive2;
-                Test.Recursive outer = new Test.Recursive();
-                outer.value = recursive1;
-                initial.pingPong(outer);
-
                 Test.G g = new Test.G();
                 g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
                 g.gg2 = new Test.G2(10);

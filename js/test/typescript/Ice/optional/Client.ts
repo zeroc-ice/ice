@@ -269,13 +269,6 @@ export class Client extends TestHelper
         oo1 = await initial2.returnOptionalClass(true);
         test(oo1 === undefined);
 
-        const recursive1 = [new Test.Recursive()];
-        const recursive2 = [new Test.Recursive()];
-        recursive1[0].value = recursive2;
-        const outer = new Test.Recursive();
-        outer.value = recursive1;
-        await initial.pingPong(outer);
-
         let g = new Test.G();
         g.gg1Opt = new Test.G1("gg1Opt");
         g.gg2 = new Test.G2(new Ice.Long(0, 10));

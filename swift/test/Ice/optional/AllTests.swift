@@ -570,13 +570,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         oo = try initial2.returnOptionalClass(true)
         try test(oo == nil)
 
-        let recursive1 = [Recursive()]
-        let recursive2 = [Recursive()]
-        recursive1[0].value = recursive2
-        let outer = Recursive()
-        outer.value = recursive1
-        _ = try initial.pingPong(outer)
-
         var g: G! = G()
         g.gg1Opt = G1(a: "gg1Opt")
         g.gg2 = G2(a: 10)

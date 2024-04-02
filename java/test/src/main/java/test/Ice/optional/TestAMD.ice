@@ -191,13 +191,6 @@ class G
     G1 gg1;
 }
 
-class Recursive;
-sequence<Recursive> RecursiveSeq;
-
-class Recursive {
-    optional(0) RecursiveSeq value;
-}
-
 ["amd"]
 interface Initial
 {

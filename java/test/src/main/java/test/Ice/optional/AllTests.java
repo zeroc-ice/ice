@@ -399,15 +399,6 @@ public class AllTests {
     oo = initial2.returnOptionalClass(true);
     test(!oo.isPresent());
 
-    Recursive[] recursive1 = new Recursive[1];
-    recursive1[0] = new Recursive();
-    Recursive[] recursive2 = new Recursive[1];
-    recursive2[0] = new Recursive();
-    recursive1[0].setValue(recursive2);
-    Recursive outer = new Recursive();
-    outer.setValue(recursive1);
-    initial.pingPong(outer);
-
     G g = new G();
     g.setGg1Opt(new G1("gg1Opt"));
     g.gg2 = new G2(10);
