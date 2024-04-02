@@ -7,7 +7,6 @@
 
 #include "Election.h"
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 #include "Replica.h"
 
 namespace IceStorm

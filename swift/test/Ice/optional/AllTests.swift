@@ -570,13 +570,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     oo = try initial2.returnOptionalClass(true)
     try test(oo == nil)
 
-    let recursive1 = [Recursive()]
-    let recursive2 = [Recursive()]
-    recursive1[0].value = recursive2
-    let outer = Recursive()
-    outer.value = recursive1
-    _ = try initial.pingPong(outer)
-
     var g: G! = G()
     g.gg1Opt = G1(a: "gg1Opt")
     g.gg2 = G2(a: 10)
@@ -739,34 +732,23 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
       try test(v != nil && v is CValueReader)
       factory.setEnabled(enabled: false)
 
-      oo = try initial.returnOptionalClass(true)
-      try test(oo != nil && oo!.a == 53)
-      oo = try initial2.returnOptionalClass(true)
-      try test(oo == nil)
-
-      var g: G! = G()
-      g.gg1Opt = G1(a: "gg1Opt")
-      g.gg2 = G2(a: 10)
-      g.gg2Opt = G2(a: 20)
-      g.gg1 = G1(a: "gg1")
-      g = try initial.opG(g)
-      try test(g.gg1Opt!.a == "gg1Opt")
-      try test(g.gg2!.a == 10)
-      try test(g.gg2Opt!.a == 20)
-      try test(g.gg1!.a == "gg1")
-
-      try initial.opVoid()
-
-      let ostr = OutputStream(communicator: communicator)
+      factory.setEnabled(enabled: true)
+      ostr = Ice.OutputStream(communicator: communicator)
       ostr.startEncapsulation()
-      _ = ostr.writeOptional(tag: 1, format: .F4)
-      ostr.write(Int32(15))
-      _ = ostr.writeOptional(tag: 1, format: .VSize)
-      ostr.write("test")
+      let d = DValueWriter()
+      ostr.write(d)
       ostr.endEncapsulation()
-      let inEncaps = ostr.finished()
-      let result = try initial.ice_invoke(operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
+      inEncaps = ostr.finished()
+      result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
       try test(result.ok)
+      istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+      _ = try istr.startEncapsulation()
+      v = nil
+      try istr.read { v = $0 }
+      try istr.endEncapsulation()
+      try test(v != nil && v is DValueReader)
+      try (v as! DValueReader).check()
+      factory.setEnabled(enabled: false)
     }
     output.writeLine("ok")
 

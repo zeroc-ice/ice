@@ -5,7 +5,7 @@
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/IceUtil.h"
+#include "Ice/Ice.h"
 
 #include "IceLocatorDiscovery.h"
 #include "Plugin.h"

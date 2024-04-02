@@ -6,7 +6,7 @@
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "IceUtil/FileUtil.h"
-#include "IceUtil/IceUtil.h"
+#include "Ice/Ice.h"
 #include "IceUtil/StringUtil.h"
 #include "Internal.h"
 

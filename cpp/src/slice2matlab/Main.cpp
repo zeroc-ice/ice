@@ -9,7 +9,6 @@
 #include "IceUtil/ConsoleUtil.h"
 #include "IceUtil/CtrlCHandler.h"
 #include "IceUtil/FileUtil.h"
-#include "IceUtil/IceUtil.h"
 #include "IceUtil/Options.h"
 #include "IceUtil/OutputUtil.h"
 #include "IceUtil/StringUtil.h"

@@ -6,6 +6,7 @@
 #include "TestHelper.h"
 
 #include <fstream>
+#include <sstream>
 
 using namespace IceUtil;
 using namespace std;

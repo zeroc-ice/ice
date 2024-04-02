@@ -277,7 +277,7 @@ class TestCase {
 class InvocationHeartbeatTest: TestCase {
   init(com: RemoteCommunicatorPrx, helper: TestHelper) {
     super.init(name: "invocation heartbeat", com: com, helper: helper)
-    // Faster ACM to make sure we receive enough ACM heartbeats
+    // Faster ACM to make sure we receive enough ACM hearbeats
     setServerACM(timeout: 1, close: -1, heartbeat: -1)
   }
 

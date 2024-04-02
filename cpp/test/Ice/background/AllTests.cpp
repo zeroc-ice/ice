@@ -4,7 +4,6 @@
 
 #include "Configuration.h"
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 #include "IceUtil/Random.h"
 #include "PluginI.h"
 #include "Test.h"

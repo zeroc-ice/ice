@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../../src/Ice/Endian.h"
-#include "IceUtil/IceUtil.h"
 #include "TestHelper.h"
+#include "IceUtil/StringConverter.h"
+#include "../../../src/Ice/Endian.h"
 
 #ifdef _WIN32
 #    include <io.h>
@@ -12,6 +12,7 @@
 #    include <unistd.h>
 #endif
 #include <fstream>
+#include <sstream>
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4127) // conditional expression is constant
