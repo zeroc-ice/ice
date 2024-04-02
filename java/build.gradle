@@ -67,8 +67,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
         options.addBooleanOption('html5', true)
         options.header = 'Ice for Java'
         options.docTitle = "Ice ${iceVersion} API Reference"
-        options.addBooleanOption('-no-module-directories', true)
-        
     }
 
     alljavadoc.dependsOn = exportedProjects.collect { project(it).javadoc.dependsOn }
