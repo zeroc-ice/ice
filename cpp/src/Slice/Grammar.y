@@ -388,7 +388,6 @@ module_def
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = currentUnit->currentContainer();
 
     // Split the scoped-identifier token into separate module names.
     vector<string> modules;
@@ -402,6 +401,7 @@ module_def
     modules.push_back(ident->v.substr(startPos));
 
     // Create the nested modules.
+    ContainerPtr cont = currentUnit->currentContainer();
     for (size_t i = 0; i < modules.size(); i++)
     {
         const auto currentModuleName = modules[i];
@@ -437,14 +437,15 @@ module_def
     {
         // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
         // Where `N` is the number of scope separators ("::").
-        size_t scopePos = 0;
-        auto ident = dynamic_pointer_cast<StringTok>($2);
-        while ((scopePos = ident->v.find("::", scopePos + 2)) != string::npos)
+        size_t startPos = 0;
+        size_t endPos;
+        while ((endPos = ident->v.find("::", startPos)) != string::npos)
         {
             currentUnit->popContainer();
+            startPos = endPos + 2;
         }
 
-        // Set the 'return value' to the outer-most module, before we pop it off the stack..
+        // Set the 'return value' to the outer-most module, before we pop it off the stack.
         // Whichever module we return, is the one that metadata will be applied to.
         $$ = currentUnit->currentContainer();
         currentUnit->popContainer();
