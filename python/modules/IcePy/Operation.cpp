@@ -4,12 +4,8 @@
 
 #include "Operation.h"
 #include "Communicator.h"
-#include "Current.h"
-#include "Proxy.h"
-#include "Thread.h"
-#include "Types.h"
 #include "Connection.h"
-#include "Util.h"
+#include "Current.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
@@ -17,6 +13,10 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Properties.h"
 #include "Ice/Proxy.h"
+#include "Proxy.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Util.h"
 #include "slice2py/PythonUtil.h"
 
 using namespace std;

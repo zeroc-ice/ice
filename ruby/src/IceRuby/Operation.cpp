@@ -3,15 +3,15 @@
 //
 
 #include "Operation.h"
-#include "Proxy.h"
-#include "Types.h"
-#include "Util.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
 #include "Ice/Proxy.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
 #include "slice2rb/RubyUtil.h"
 
 #include <memory>

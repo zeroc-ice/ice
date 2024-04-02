@@ -3,10 +3,10 @@
 //
 
 #include "ImplicitContext.h"
+#include "Ice/ImplicitContext.h"
 #include "ObjectAdapter.h"
 #include "Proxy.h"
 #include "Util.h"
-#include "Ice/ImplicitContext.h"
 
 using namespace std;
 using namespace IcePy;

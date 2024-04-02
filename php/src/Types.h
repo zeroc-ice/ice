@@ -5,11 +5,9 @@
 #ifndef ICEPHP_TYPES_H
 #define ICEPHP_TYPES_H
 
-#include "Config.h"
 #include "Communicator.h"
-#include "Operation.h"
-
 #include "IceUtil/OutputUtil.h"
+#include "Operation.h"
 
 //
 // Global functions.

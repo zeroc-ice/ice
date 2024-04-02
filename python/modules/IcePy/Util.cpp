@@ -8,8 +8,8 @@
 #include "slice2py/PythonUtil.h"
 
 #include <compile.h>
-#include <frameobject.h>
 #include <cstddef>
+#include <frameobject.h>
 
 using namespace std;
 using namespace Slice::Python;

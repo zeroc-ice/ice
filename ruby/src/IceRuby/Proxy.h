@@ -7,8 +7,8 @@
 
 #include "Config.h"
 
-#include "Ice/ProxyF.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/ProxyF.h"
 
 #include <memory>
 
