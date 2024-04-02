@@ -57,7 +57,7 @@ runs:
 
     - name: Set Java 17 as default
       run: |
-        sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 2000
+        sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 3000
         sudo update-alternatives --display java
 
       shell: bash
