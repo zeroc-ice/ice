@@ -13,30 +13,17 @@ on:
       - "swift/**"
 
 jobs:
-  swift-lint:
-    name: Swift Lint
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install SwiftLints
-        run: brew install swiftformat
-
-      - name: SwiftLint
-        working-directory: swift
-        run: swiftlint --config .swiftlint.yml --strict
-
   swift-format:
-    name: Swift Format
+    name: Swift Format & Lint
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install SwiftFormat
-        run: brew install swiftformat
-
-      - name: SwiftFormat
+      - name: Install swift-format
+        run: brew install swift-format
+      - name: swift-format Format
         working-directory: swift
-        run: swiftformat --lint --verbose  **/*.swift
+        run: swift-format . --recursive --configuration .swift-format.json
+      - name: swift-format Lint
+        working-directory: swift
+        run: swift-format lint . --recursive --strict --configuration .swift-format.json
