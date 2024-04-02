@@ -2171,46 +2171,6 @@ Slice::Container::hasExceptions() const
 }
 
 bool
-Slice::Container::hasClassDecls() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDecl>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasClassDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDecls() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<InterfaceDecl>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasInterfaceDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::Container::hasDictionaries() const
 {
     for (const auto& p : _contents)
@@ -2301,90 +2261,6 @@ Slice::Container::hasOperations() const
 
         ContainerPtr container = dynamic_pointer_cast<Container>(p);
         if (container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasOtherConstructedOrExceptions() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Constructed>(p) && !dynamic_pointer_cast<ClassDecl>(p) &&
-            !dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        if (dynamic_pointer_cast<Exception>(p))
-        {
-            return true;
-        }
-
-        if (dynamic_pointer_cast<Const>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasOtherConstructedOrExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasContentsWithMetaData(const string& meta) const
-{
-    for (const auto& p : _contents)
-    {
-        if (p->hasMetaData(meta))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasContentsWithMetaData(meta))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasAsyncOps() const
-{
-    for (const auto& p : _contents)
-    {
-        InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p);
-        if (interface)
-        {
-            OperationList ops = interface->operations();
-            if (!ops.empty() && interface->hasMetaData("amd"))
-            {
-                return true;
-            }
-
-            for (const auto& op : ops)
-            {
-                if (op->hasMetaData("amd"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasAsyncOps())
         {
             return true;
         }

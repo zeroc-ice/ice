@@ -120,7 +120,6 @@ namespace Slice
     using TypeStringList = std::list<TypeString>;
     using ContainedList = std::list<ContainedPtr>;
     using ModuleList = std::list<ModulePtr>;
-    using ConstructedList = std::list<ConstructedPtr>;
     using ClassList = std::list<ClassDefPtr>;
     using InterfaceList = std::list<InterfaceDefPtr>;
     using ExceptionList = std::list<ExceptionPtr>;
@@ -487,15 +486,10 @@ namespace Slice
         bool hasStructs() const;
         bool hasExceptions() const;
         bool hasDictionaries() const;
-        bool hasClassDecls() const;
         bool hasClassDefs() const;
-        bool hasInterfaceDecls() const;
         bool hasInterfaceDefs() const;
         bool hasValueDefs() const;
         bool hasOperations() const;
-        bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-        bool hasContentsWithMetaData(const std::string&) const;
-        bool hasAsyncOps() const;
         bool hasContained(Contained::ContainedType) const;
         std::string thisScope() const;
         void sort();
@@ -537,7 +531,6 @@ namespace Slice
     public:
         Constructed(const ContainerPtr&, const std::string&);
         virtual std::string typeId() const;
-        virtual bool isVariableLength() const = 0;
     };
 
     // ----------------------------------------------------------------------
