@@ -9,7 +9,6 @@
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
 #include "IceUtil/DisableWarnings.h"
-#include "Ice/Ice.h"
 #include "IceUtil/Options.h"
 #include "Parser.h"
 #include "Util.h"

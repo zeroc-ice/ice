@@ -5,13 +5,13 @@
 #ifndef TEST_HELPER_H
 #define TEST_HELPER_H
 
-#include "IceUtil/Config.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/ProxyF.h"
+#include "IceUtil/Config.h"
 
 #if defined(_MSC_VER) && !defined(TEST_API_EXPORTS)
 #    pragma comment(lib, ICE_LIBNAME("testcommon"))
@@ -19,9 +19,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <string>
 #include <iostream>
 #include <mutex>
+#include <string>
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)
