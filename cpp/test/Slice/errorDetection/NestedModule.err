@@ -6,3 +6,5 @@ NestedModule.ice:20: illegal identifier `Holder': `Holder' suffix is reserved
 NestedModule.ice:24: illegal identifier `APtr': `Ptr' suffix is reserved
 NestedModule.ice:24: illegal identifier `BPrx': `Prx' suffix is reserved
 NestedModule.ice:24: illegal identifier `CHelper': `Helper' suffix is reserved
+NestedModule.ice:27: missing identifier: illegal empty identifier
+NestedModule.ice:27: illegal identifier `Helper': `Helper' suffix is reserved

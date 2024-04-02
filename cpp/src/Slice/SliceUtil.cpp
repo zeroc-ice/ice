@@ -483,13 +483,14 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
-    bool isValid = true;
     // Check that the identifier isn't empty.
     if (name.empty())
     {
         currentUnit->error("missing identifier: illegal empty identifier");
-        isValid = false;
+        return false;
     }
+
+    bool isValid = true;
 
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};

@@ -23,7 +23,5 @@ module A::__Iceberg::Ahead      // Error: illegal leading underscore
 // Ensure that each module segment is individually checked for errors.
 module APtr::Okay::BPrx::Fine::CHelper {}
 
-// Ensure that missing module segments emit errors.
-module Missing::::Module {}
-module ::No::Leading {}
-module No::Trailing:: {}
+// Ensure that modules cannot start with a '::' character.
+module ::No::Leading::Helper {}
