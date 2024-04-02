@@ -83,8 +83,8 @@ public final class InitializationData implements Cloneable {
   public ValueFactoryManager valueFactoryManager;
 
   /**
-   * The ssl engine factory used to configure the client-side ssl transport. If provided all the
-   * IceSSL configuration properties are ignored, and any ssl configuration must be done through the
+   * The SSL engine factory used to configure the client-side ssl transport. If non-null all the
+   * IceSSL configuration properties are ignored, and any SSL configuration must be done through the
    * SSLEngineFactory.
    */
   public SSLEngineFactory clientSSLEngineFactory;

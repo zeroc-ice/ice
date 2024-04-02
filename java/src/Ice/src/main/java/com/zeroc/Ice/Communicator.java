@@ -158,13 +158,16 @@ public interface Communicator extends java.lang.AutoCloseable {
    * Attempts to create a named object adapter for which no configuration can be found raise
    * InitializationException.
    *
+   * <p>It is an error to pass a non-null sslEngineFactory when the name is empty, this raises
+   * IllegalArgumentException.
+   *
    * @param name The object adapter name.
-   * @param sslEngineFactory The ssl engine factory used by the server-side ssl transport of the new
-   *     object adapter. When set to a non null value all IceSSL configuration properties are
-   *     ignored, and any ssl configuration must be done through the SSLEngineFactory. Pass null if
+   * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
+   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
    *     the object adapter does not use secure endpoints, or if the ssl transport is configured
    *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
-   *     createObjectAdapter(String)}.
+   *     createObjectAdapterWithEndpoints(String, String)}.
    * @return The new object adapter.
    * @see #createObjectAdapterWithEndpoints
    * @see ObjectAdapter
@@ -196,9 +199,9 @@ public interface Communicator extends java.lang.AutoCloseable {
    *
    * @param name The object adapter name.
    * @param endpoints The endpoints for the object adapter.
-   * @param sslEngineFactory The ssl engine factory used by the server-side ssl transport of the new
-   *     object adapter. When set to a non null value all IceSSL configuration properties are
-   *     ignored, and any ssl configuration must be done through the SSLEngineFactory. Pass null if
+   * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
+   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
    *     the object adapter does not use secure endpoints, or if the ssl transport is configured
    *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
    *     createObjectAdapterWithEndpoints(String, String)}.

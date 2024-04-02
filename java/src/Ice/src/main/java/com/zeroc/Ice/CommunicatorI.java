@@ -76,6 +76,9 @@ public final class CommunicatorI implements Communicator {
   @Override
   public ObjectAdapter createObjectAdapter(
       String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory) {
+    if (name.length() == 0 && sslEngineFactory != null) {
+      throw new IllegalArgumentException("name cannot be empty when using an SSLEngineFactory");
+    }
     return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
   }
 
