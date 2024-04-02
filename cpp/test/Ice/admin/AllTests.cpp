@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <TestI.h> // For TestFacetI
+#include "TestHelper.h"
+#include "TestI.h" // For TestFacetI
 
 using namespace std;
 using namespace Test;

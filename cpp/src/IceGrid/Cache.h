@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_CACHE_H
 #define ICE_GRID_CACHE_H
 
-#include "Util.h"
 #include "TraceLevels.h"
+#include "Util.h"
 
 #include <mutex>
 

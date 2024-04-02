@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Slice/Util.h"
 #include "PHPUtil.h"
-#include <functional>
+#include "../Slice/Util.h"
 #include <algorithm>
+#include <functional>
 #include <vector>
 
 using namespace std;

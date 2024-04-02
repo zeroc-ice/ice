@@ -4,12 +4,12 @@
 
 #include "Ice/MetricsAdminI.h"
 
-#include "InstrumentationI.h"
-#include "Ice/Properties.h"
-#include "Ice/Logger.h"
 #include "Ice/Communicator.h"
-#include "Instance.h"
+#include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
+#include "InstrumentationI.h"
 
 #include "IceUtil/StringUtil.h"
 

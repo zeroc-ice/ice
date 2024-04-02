@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 #include "Glacier2/PermissionsVerifier.h"
-#include <SessionI.h>
+#include "SessionI.h"
 
 using namespace std;
 using namespace Ice;

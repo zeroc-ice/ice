@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/ObjectAdapter.h"
 #include "Ice/OutgoingResponse.h"
-#include "Protocol.h"
-#include "Ice/UserException.h"
 #include "Ice/LocalException.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/UserException.h"
+#include "Protocol.h"
 
 using namespace std;
 using namespace Ice;

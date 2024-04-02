@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Ice/ConsoleUtil.h"
+#include "Glacier2/NullPermissionsVerifier.h"
+#include "Glacier2/Session.h"
+#include "Ice/Service.h"
 #include "Ice/UUID.h"
 #include "IceUtil/Options.h"
-#include "../Ice/ConsoleUtil.h"
-#include "Ice/Service.h"
 #include "Instance.h"
 #include "RouterI.h"
-#include "Glacier2/Session.h"
 #include "SessionRouterI.h"
-#include "Glacier2/NullPermissionsVerifier.h"
 
 using namespace std;
 using namespace Ice;

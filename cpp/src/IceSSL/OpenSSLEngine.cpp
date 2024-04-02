@@ -4,11 +4,11 @@
 
 #include "IceSSL/Config.h"
 
-#include "OpenSSLEngineF.h"
 #include "OpenSSLEngine.h"
+#include "OpenSSLEngineF.h"
 #include "OpenSSLTransceiverI.h"
-#include "Util.h"
 #include "TrustManager.h"
+#include "Util.h"
 
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
@@ -16,15 +16,15 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
-#include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <mutex>
 
-#include <openssl/rand.h>
 #include <openssl/err.h>
-#include <openssl/ssl.h>
 #include <openssl/pkcs12.h>
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4127) // conditional expression is constant

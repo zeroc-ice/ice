@@ -10,8 +10,8 @@
 #include "Ice/InstanceF.h"
 #include "Ice/OutputStream.h"
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 namespace IceInternal
 {

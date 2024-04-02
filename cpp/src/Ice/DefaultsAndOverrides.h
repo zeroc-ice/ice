@@ -7,10 +7,10 @@
 #define ICE_DEFAULTS_AND_OVERRIDES_H
 
 #include "DefaultsAndOverridesF.h"
-#include "Ice/PropertiesF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/EndpointTypes.h"
 #include "Ice/Format.h"
+#include "Ice/PropertiesF.h"
 #include "Network.h"
 
 namespace IceInternal

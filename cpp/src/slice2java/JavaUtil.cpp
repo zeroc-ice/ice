@@ -3,15 +3,15 @@
 //
 
 #include "JavaUtil.h"
-#include "IceUtil/StringUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
-#include <sys/types.h>
 #include <string.h>
+#include <sys/types.h>
 
 #ifdef _WIN32
 #    include <direct.h>

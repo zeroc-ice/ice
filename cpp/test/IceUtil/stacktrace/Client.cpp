@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/StringUtil.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <fstream>
 

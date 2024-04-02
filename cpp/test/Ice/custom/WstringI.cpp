@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <WstringI.h>
+#include "WstringI.h"
 
 ::std::wstring
 Test1::WstringClassI::opString(::std::wstring s1, ::std::wstring& s2, const Ice::Current&)

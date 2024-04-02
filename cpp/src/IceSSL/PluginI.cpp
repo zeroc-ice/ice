@@ -3,12 +3,12 @@
 //
 
 #include "PluginI.h"
+#include "EndpointI.h"
 #include "Instance.h"
 #include "SSLEngine.h"
-#include "EndpointI.h"
 
-#include "../Ice/ProtocolPluginFacade.h"
 #include "../Ice/ProtocolInstance.h"
+#include "../Ice/ProtocolPluginFacade.h"
 #include "Ice/LocalException.h"
 #include "Ice/RegisterPlugins.h"
 

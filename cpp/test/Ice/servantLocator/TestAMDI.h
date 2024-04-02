@@ -5,7 +5,7 @@
 #ifndef TESTAMD_I_H
 #define TESTAMD_I_H
 
-#include <TestAMD.h>
+#include "TestAMD.h"
 
 class TestAMDI : public Test::TestIntf
 {

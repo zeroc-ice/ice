@@ -5,13 +5,13 @@
 #ifndef ICE_PROTOCOL_PLUGIN_FACADE_H
 #define ICE_PROTOCOL_PLUGIN_FACADE_H
 
-#include "IceUtil/Config.h"
-#include "ProtocolPluginFacadeF.h"
-#include "Ice/CommunicatorF.h"
 #include "EndpointFactoryF.h"
-#include "Ice/InstanceF.h"
 #include "EndpointIF.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/InstanceF.h"
+#include "IceUtil/Config.h"
 #include "NetworkF.h"
+#include "ProtocolPluginFacadeF.h"
 
 #include <cstdint>
 

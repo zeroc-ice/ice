@@ -318,18 +318,6 @@ classdef AllTests
             r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalClass(true);
             assert(r == Ice.Unset);
 
-            recursive1 = {};
-            recursive2 = {};
-            r1 = Recursive();
-            r2 = Recursive();
-            r1.value = recursive2;
-            recursive1{1} = r1;
-            recursive2{1} = r2;
-
-            outer = Recursive();
-            outer.value = recursive1;
-            initial.pingPong(outer);
-
             g = G();
             g.gg1Opt = G1('gg1Opt');
             g.gg2 = G2(10);

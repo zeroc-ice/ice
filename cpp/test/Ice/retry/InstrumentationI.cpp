@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <thread>
 #include <chrono>

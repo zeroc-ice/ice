@@ -7,17 +7,17 @@
 
 #include "IceUtil/Exception.h"
 #include <array>
-#include <string>
-#include <vector>
+#include <cstdint>
 #include <list>
-#include <stack>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
-#include <string_view>
+#include <stack>
 #include <stdio.h>
-#include <cstdint>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace Slice
 {

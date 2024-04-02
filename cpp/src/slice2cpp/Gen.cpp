@@ -3,15 +3,15 @@
 //
 
 #include "Gen.h"
-#include "CPlusPlusUtil.h"
-#include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/Util.h"
+#include "CPlusPlusUtil.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <limits>
-#include <algorithm>
 #include <string.h>
 
 using namespace std;
@@ -750,7 +750,15 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             extension = _headerExtension;
         }
-        H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
+        if (isAbsolutePath(includeFile))
+        {
+            // This means mcpp found the .ice file in its -I paths. So we generate an angled include for the C++ header.
+            H << "\n#include <" << changeInclude(includeFile, _includePaths) << "." << extension << ">";
+        }
+        else
+        {
+            H << "\n#include \"" << removeExtension(includeFile) << "." << extension << "\"";
+        }
     }
 
     // Emit #include statements for any cpp:include metadata directives in the top-level Slice file.

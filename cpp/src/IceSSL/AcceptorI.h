@@ -5,10 +5,10 @@
 #ifndef ICESSL_ACCEPTOR_I_H
 #define ICESSL_ACCEPTOR_I_H
 
-#include "../Ice/TransceiverF.h"
 #include "../Ice/Acceptor.h"
-#include "InstanceF.h"
 #include "../Ice/Network.h"
+#include "../Ice/TransceiverF.h"
+#include "InstanceF.h"
 
 #include <vector>
 

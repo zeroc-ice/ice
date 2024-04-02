@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestAMDI.h>
-#include <TestHelper.h>
+#include "TestAMDI.h"
+#include "TestHelper.h"
 
 using namespace Test;
 using namespace std;

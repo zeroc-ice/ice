@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/Random.h"
-#include "Ice/Ice.h"
-#include "../Ice/Protocol.h"
 #include "Database.h"
-#include "TraceLevels.h"
-#include "Util.h"
+#include "../Ice/Protocol.h"
 #include "DescriptorHelper.h"
+#include "Ice/Ice.h"
+#include "IceGrid/IceGrid.h"
+#include "IceGrid/Session.h"
+#include "IceUtil/Random.h"
+#include "IceUtil/StringUtil.h"
 #include "NodeSessionI.h"
 #include "ReplicaSessionI.h"
-#include "IceGrid/Session.h"
 #include "Topics.h"
-#include "IceGrid/IceGrid.h"
+#include "TraceLevels.h"
+#include "Util.h"
 
 #include <algorithm>
 #include <functional>

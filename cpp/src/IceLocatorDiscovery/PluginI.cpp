@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/IceUtil.h"
-#include "Ice/Ice.h"
 #include "../Ice/Network.h" // For getInterfacesForMulticast
+#include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
+#include "IceUtil/IceUtil.h"
 
-#include "Plugin.h"
 #include "IceLocatorDiscovery.h"
+#include "Plugin.h"
 
 #include <thread>
 

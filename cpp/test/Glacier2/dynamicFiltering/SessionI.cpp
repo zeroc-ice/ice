@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <SessionI.h>
+#include "SessionI.h"
 
 using namespace std;
 using namespace Test;

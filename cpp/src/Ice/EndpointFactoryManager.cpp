@@ -3,15 +3,15 @@
 //
 
 #include "EndpointFactoryManager.h"
+#include "DefaultsAndOverrides.h"
 #include "Ice/Endpoint.h"
-#include "OpaqueEndpointI.h"
-#include "Ice/OutputStream.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
-#include "Instance.h"
+#include "Ice/OutputStream.h"
 #include "Ice/Properties.h"
-#include "DefaultsAndOverrides.h"
 #include "IceUtil/StringUtil.h"
+#include "Instance.h"
+#include "OpaqueEndpointI.h"
 
 using namespace std;
 using namespace Ice;

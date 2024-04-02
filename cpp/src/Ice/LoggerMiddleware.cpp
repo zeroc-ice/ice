@@ -3,8 +3,8 @@
 //
 
 #include "LoggerMiddleware.h"
-#include "StringUtil.h"
 #include "Ice/UserException.h"
+#include "StringUtil.h"
 
 using namespace std;
 using namespace Ice;

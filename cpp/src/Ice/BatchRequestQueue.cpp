@@ -3,10 +3,10 @@
 //
 
 #include "BatchRequestQueue.h"
-#include "Instance.h"
 #include "Ice/Properties.h"
-#include "Reference.h"
 #include "Ice/Proxy.h"
+#include "Instance.h"
+#include "Reference.h"
 
 using namespace std;
 using namespace Ice;

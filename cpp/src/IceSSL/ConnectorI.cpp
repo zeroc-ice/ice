@@ -5,14 +5,14 @@
 #include "ConnectorI.h"
 #include "Instance.h"
 
+#include "../Ice/NetworkProxy.h"
+#include "../Ice/StreamSocket.h"
 #include "EndpointI.h"
-#include "Util.h"
-#include "SSLEngine.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
-#include "../Ice/StreamSocket.h"
 #include "Ice/LoggerUtil.h"
-#include "../Ice/NetworkProxy.h"
+#include "SSLEngine.h"
+#include "Util.h"
 
 using namespace std;
 using namespace Ice;

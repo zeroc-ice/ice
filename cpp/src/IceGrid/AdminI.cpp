@@ -4,18 +4,18 @@
 
 #include "Ice/UUID.h"
 
+#include "../Ice/TraceUtil.h"
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-#include "../Ice/TraceUtil.h"
 
 #include "AdminI.h"
-#include "RegistryI.h"
-#include "Database.h"
-#include "Util.h"
-#include "DescriptorParser.h"
-#include "DescriptorHelper.h"
 #include "AdminSessionI.h"
+#include "Database.h"
+#include "DescriptorHelper.h"
+#include "DescriptorParser.h"
 #include "NodeSessionI.h"
+#include "RegistryI.h"
+#include "Util.h"
 
 #include "SynchronizationException.h"
 

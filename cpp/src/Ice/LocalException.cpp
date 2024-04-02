@@ -3,8 +3,8 @@
 //
 
 #include "Ice/LocalException.h"
-#include "StringUtil.h"
 #include "Network.h"
+#include "StringUtil.h"
 
 #include <iomanip>
 

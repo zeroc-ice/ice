@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "LocatorRegistryI.h"
-#include "ReplicaSessionManager.h"
 #include "Database.h"
+#include "Ice/Ice.h"
+#include "ReplicaSessionManager.h"
 #include "Util.h"
 
 #include "SynchronizationException.h"

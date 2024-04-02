@@ -5,9 +5,9 @@
 #ifndef ICESSL_CONNECTOR_I_H
 #define ICESSL_CONNECTOR_I_H
 
-#include "../Ice/TransceiverF.h"
 #include "../Ice/Connector.h"
 #include "../Ice/Network.h"
+#include "../Ice/TransceiverF.h"
 
 #include "InstanceF.h"
 

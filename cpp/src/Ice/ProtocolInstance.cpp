@@ -3,12 +3,12 @@
 //
 
 #include "ProtocolInstance.h"
-#include "Instance.h"
-#include "Ice/Initialize.h"
-#include "IPEndpointI.h"
 #include "DefaultsAndOverrides.h"
-#include "TraceLevels.h"
 #include "EndpointFactoryManager.h"
+#include "IPEndpointI.h"
+#include "Ice/Initialize.h"
+#include "Instance.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace Ice;

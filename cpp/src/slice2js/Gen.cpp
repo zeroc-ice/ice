@@ -2,15 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
 #include "Gen.h"
-#include "IceUtil/UUID.h"
+#include "../Ice/Endian.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "../Ice/Endian.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/UUID.h"
+
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <iostream>
 
 using namespace std;
 using namespace Slice;
@@ -950,9 +953,11 @@ vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
+    // jsRequires contains a map of JavaScript requires by module name.
     map<string, list<string>> jsRequires;
     if (_icejs)
     {
+        // When build Ice for JavaScript we require individual files required by the generated code.
         jsRequires["Ice"] = list<string>();
 
         //
@@ -963,14 +968,17 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             jsRequires["Ice"].push_back("Ice/Object");
             jsRequires["Ice"].push_back("Ice/Value");
         }
+
         if (_seenInterface)
         {
             jsRequires["Ice"].push_back("Ice/ObjectPrx");
         }
+
         if (_seenOperation)
         {
             jsRequires["Ice"].push_back("Ice/Operation");
         }
+
         if (_seenStruct)
         {
             jsRequires["Ice"].push_back("Ice/Struct");
@@ -999,6 +1007,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     }
     else
     {
+        // Otherwise import the "ice" module
         jsRequires["Ice"] = list<string>();
         jsRequires["Ice"].push_back("ice");
     }
@@ -1023,6 +1032,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             imports["ice"] = mImports;
         }
 
+        // Iterate all the inclued files and generate an import statement for each top-level module
+        // in the included file.
         for (StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
@@ -1037,6 +1048,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
             if (m1 != m2 && !m2.empty())
             {
+                // For Slice modules mapped to a different JavaScript module, we have to import them
+                // from the corresponding JavaScript module.
                 for (const auto& j : modules)
                 {
                     if (imports.find(m2) == imports.end())
@@ -1051,6 +1064,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
             else
             {
+                // For Slice modules mapped to the same JavaScript module, we import them included file using
+                // a relative path.
                 set<string> newModules;
                 for (const auto& j : modules)
                 {
@@ -1061,13 +1076,12 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                     }
                 }
 
-                string f = relativePath(*i, p->topLevelFile());
-                string::size_type pos;
-                if ((pos = f.rfind('.')) != string::npos)
+                string f = removeExtension(*i);
+                if (IceUtilInternal::isAbsolutePath(f))
                 {
-                    f.erase(pos);
+                    // If the include file is an absolute path, we need to generate a relative path.
+                    f = relativePath(f, p->topLevelFile());
                 }
-
                 imports[f] = newModules;
             }
         }
@@ -1115,6 +1129,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     }
     else
     {
+        // When not using ES6 modules we generate require() statements for all the top-level modules
+        // of each included file.
         for (StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
@@ -1122,6 +1138,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             {
                 if (!_icejs && iceBuiltinModule(*j))
                 {
+                    // For Ice built-in modules when not building Ice for JavaScript we just
+                    // require the "ice" module.
                     if (jsRequires.find(*j) == jsRequires.end())
                     {
                         jsRequires[*j] = list<string>();
@@ -1134,7 +1152,17 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                     {
                         jsRequires[*j] = list<string>();
                     }
-                    jsRequires[*j].push_back(changeInclude(*i, _includePaths));
+
+                    string f = *i;
+                    if (isAbsolutePath(f))
+                    {
+                        f = changeInclude(f, _includePaths);
+                    }
+                    else
+                    {
+                        f = removeExtension(f);
+                    }
+                    jsRequires[*j].push_back(f);
                 }
             }
         }
@@ -1166,22 +1194,38 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             if (i->second.size() == 1)
             {
                 _out << nl << "const " << i->first << " = require(\"";
+                string path = i->second.front();
                 if (_icejs && iceBuiltinModule(i->first))
                 {
-                    _out << "../";
+                    if (path.find("/") == string::npos)
+                    {
+                        _out << "./";
+                    }
+                    else if (path.find("../") == string::npos)
+                    {
+                        _out << "../";
+                    }
                 }
-                _out << i->second.front() << "\")." << i->first << ";";
+                _out << path << "\")." << i->first << ";";
             }
             else
             {
                 for (list<string>::const_iterator j = i->second.begin(); j != i->second.end(); ++j)
                 {
+                    string path = *j;
                     _out << nl << "require(\"";
                     if (_icejs && iceBuiltinModule(i->first))
                     {
-                        _out << "../";
+                        if (path.find("/") == string::npos)
+                        {
+                            _out << "./";
+                        }
+                        else if (path.find("../") == string::npos)
+                        {
+                            _out << "../";
+                        }
                     }
-                    _out << *j << "\");";
+                    _out << path << "\");";
                 }
                 _out << nl << "const " << i->first << " = _ModuleRegistry.module(\"" << i->first << "\");";
                 _out << sp;

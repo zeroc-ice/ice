@@ -4,10 +4,10 @@
 
 #include "RequestHandlerCache.h"
 #include "ConnectionI.h"
-#include "Reference.h"
-#include "RequestHandler.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
+#include "Reference.h"
+#include "RequestHandler.h"
 #include "RouterInfo.h"
 #include "TraceLevels.h"
 

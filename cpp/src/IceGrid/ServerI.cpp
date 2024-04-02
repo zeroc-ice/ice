@@ -2,30 +2,30 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "ServerI.h"
+#include "../Ice/TimeUtil.h"
+#include "Activator.h"
+#include "DescriptorHelper.h"
+#include "Ice/Ice.h"
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/FileUtil.h"
-#include "Ice/Ice.h"
-#include "../Ice/TimeUtil.h"
-#include "ServerI.h"
-#include "TraceLevels.h"
-#include "Activator.h"
 #include "NodeI.h"
 #include "ServerAdapterI.h"
-#include "DescriptorHelper.h"
+#include "TraceLevels.h"
 #include "Util.h"
 
-#include <sys/types.h>
 #include <fstream>
+#include <sys/types.h>
 
 #ifdef _WIN32
 #    include <direct.h>
 #    include <signal.h>
 #else
-#    include <sys/wait.h>
+#    include <dirent.h>
 #    include <pwd.h> // for getpwnam
 #    include <signal.h>
+#    include <sys/wait.h>
 #    include <unistd.h>
-#    include <dirent.h>
 #endif
 
 using namespace std;
@@ -1841,7 +1841,7 @@ ServerI::update()
             if (_load->clearDir())
             {
                 //
-                // The server was explicitely destroyed then updated,
+                // The server was explicitly destroyed then updated,
                 // we first need to cleanup the directory to remove
                 // any user created files.
                 //
@@ -2014,7 +2014,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     // the first time it's being updated). Set the activation mode
     // based on the descriptor activation. Otherwise, if the server is
     // disabled and failure time isn't set, we don't change the
-    // activation since the user explicitely disabled the server.
+    // activation since the user explicitly disabled the server.
     //
     if (_activation != Disabled || _failureTime != nullopt)
     {

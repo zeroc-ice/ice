@@ -6,7 +6,7 @@
 #define TEST_PLUGIN_H
 
 #include "Ice/Plugin.h"
-#include <Configuration.h>
+#include "Configuration.h"
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)

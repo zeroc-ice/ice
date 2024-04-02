@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-#include "../Ice/Protocol.h"
 #include "LocatorI.h"
+#include "../Ice/Protocol.h"
 #include "Database.h"
-#include "WellKnownObjectsManager.h"
+#include "Ice/Ice.h"
 #include "SessionI.h"
 #include "Util.h"
+#include "WellKnownObjectsManager.h"
 
 #include "SynchronizationException.h"
 

@@ -5,10 +5,10 @@
 #ifndef ICE_PLUGIN_MANAGER_I_H
 #define ICE_PLUGIN_MANAGER_I_H
 
-#include "Ice/Plugin.h"
-#include "Ice/InstanceF.h"
-#include "Ice/CommunicatorF.h"
 #include "Ice/BuiltinSequences.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Plugin.h"
 
 #include <map>
 #include <mutex>

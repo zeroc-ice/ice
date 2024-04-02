@@ -47,18 +47,21 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 9 "src/IceStorm/Grammar.y"
 
+#include <list>
+#include <string>
+
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
-#define YYMAXDEPTH 10000
-#define YYINITDEPTH YYMAXDEPTH
+#define YYMAXDEPTH 10000       // 10000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
-#line 64 "src/IceStorm/Grammar.h"
+#line 66 "src/IceStorm/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "../Ice/ConsoleUtil.h"
-#include "IceUtil/Options.h"
+#include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
+#include "IceUtil/Options.h"
 
 using namespace std;
 using namespace IceInternal;

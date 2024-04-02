@@ -5,8 +5,8 @@
 #import <Foundation/Foundation.h>
 
 #include "Ice/Ice.h"
-#include <Controller.h>
-#include <TestHelper.h>
+#include "Controller.h"
+#include "TestHelper.h"
 
 #include <dlfcn.h>
 

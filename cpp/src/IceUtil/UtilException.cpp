@@ -29,17 +29,17 @@
 #    include <windows.h>
 #endif
 
-#include <mutex>
-#include <sstream>
-#include <ostream>
-#include <iomanip>
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
+#include <iomanip>
+#include <mutex>
+#include <ostream>
+#include <sstream>
 
 #ifdef __GNUC__
 #    if defined(ICE_LIBBACKTRACE)
-#        include <backtrace.h>
 #        include <backtrace-supported.h>
+#        include <backtrace.h>
 #        if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
 #            include <algorithm>
 #            include <cxxabi.h>
@@ -50,8 +50,8 @@
 #    endif
 
 #    if !defined(_AIX) && !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
-#        include <execinfo.h>
 #        include <cxxabi.h>
+#        include <execinfo.h>
 #        include <stdint.h>
 #        define ICE_BACKTRACE
 #    endif

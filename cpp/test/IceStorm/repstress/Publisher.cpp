@@ -4,9 +4,9 @@
 
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include <Single.h>
-#include <Controller.h>
-#include <TestHelper.h>
+#include "Single.h"
+#include "Controller.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 #include <thread>

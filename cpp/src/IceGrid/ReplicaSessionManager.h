@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_REPLICA_SESSION_MANAGER_H
 #define ICE_GRID_REPLICA_SESSION_MANAGER_H
 
-#include "SessionManager.h"
 #include "Internal.h"
+#include "SessionManager.h"
 
 namespace IceGrid
 {

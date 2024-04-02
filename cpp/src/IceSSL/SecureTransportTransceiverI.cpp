@@ -3,14 +3,14 @@
 //
 
 #include "SecureTransportTransceiverI.h"
+#include "IceSSL/ConnectionInfo.h"
 #include "Instance.h"
 #include "PluginI.h"
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
-#include "IceSSL/ConnectionInfo.h"
 
-#include "Ice/LoggerUtil.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"

@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <ServerLocator.h>
-#include <TestHelper.h>
-#include <TestI.h>
+#include "ServerLocator.h"
+#include "TestHelper.h"
+#include "TestI.h"
 
 using namespace std;
 

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "SessionI.h"
+#include "Database.h"
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
-#include "SessionI.h"
-#include "QueryI.h"
-#include "LocatorI.h"
-#include "Database.h"
 #include "IceGrid/Admin.h"
+#include "LocatorI.h"
+#include "QueryI.h"
 
 #include "IceSSL/Plugin.h"
 

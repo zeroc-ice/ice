@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ServantLocatorI.h>
-#include <TestHelper.h>
-#include <TestAMDI.h>
+#include "ServantLocatorI.h"
+#include "TestHelper.h"
+#include "TestAMDI.h"
 
 using namespace std;
 using namespace Ice;

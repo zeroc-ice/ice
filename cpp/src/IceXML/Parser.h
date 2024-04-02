@@ -7,8 +7,8 @@
 
 #include "Ice/Exception.h"
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #ifndef ICE_XML_API
 #    if defined(ICE_STATIC_LIBS)

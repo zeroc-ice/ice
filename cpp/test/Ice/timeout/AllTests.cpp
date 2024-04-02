@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <Test.h>
-#include <TestI.h>
+#include "TestHelper.h"
+#include "Test.h"
+#include "TestI.h"
 
 #include <thread>
 #include <chrono>

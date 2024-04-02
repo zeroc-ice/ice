@@ -3,8 +3,8 @@
 //
 
 #include "TransceiverI.h"
-#include "IceBT/ConnectionInfo.h"
 #include "Engine.h"
+#include "IceBT/ConnectionInfo.h"
 #include "Instance.h"
 #include "Util.h"
 

@@ -3,8 +3,8 @@
 //
 
 #include "Glacier2/PermissionsVerifier.h"
-#include "IceUtil/IceUtil.h"
 #include "Ice/Ice.h"
+#include "IceUtil/IceUtil.h"
 
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
@@ -17,9 +17,9 @@
 #elif defined(__FreeBSD__)
 #    include <unistd.h>
 #elif defined(__APPLE__)
+#    include <CommonCrypto/CommonCrypto.h>
 #    include <CoreFoundation/CoreFoundation.h>
 #    include <Security/Security.h>
-#    include <CommonCrypto/CommonCrypto.h>
 #elif defined(_WIN32)
 #    include <Bcrypt.h>
 #    include <Wincrypt.h>

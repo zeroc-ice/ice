@@ -3,13 +3,13 @@
 //
 
 #include "OpaqueEndpointI.h"
-#include "Ice/OutputStream.h"
-#include "Ice/InputStream.h"
-#include "Ice/Exception.h"
-#include "DefaultsAndOverrides.h"
 #include "Base64.h"
+#include "DefaultsAndOverrides.h"
 #include "HashUtil.h"
+#include "Ice/Exception.h"
+#include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
 
 using namespace std;
 using namespace Ice;

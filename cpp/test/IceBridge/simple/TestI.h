@@ -5,7 +5,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <Test.h>
+#include "Test.h"
 
 class MyClassI final : public Test::MyClass, public std::enable_shared_from_this<MyClassI>
 {

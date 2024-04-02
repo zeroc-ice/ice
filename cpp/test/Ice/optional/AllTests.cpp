@@ -7,8 +7,8 @@
 #endif
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <Test.h>
+#include "TestHelper.h"
+#include "Test.h"
 
 using namespace std;
 using namespace Test;
@@ -674,15 +674,6 @@ allTests(Test::TestHelper* helper, bool)
     test(oo);
     initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
     test(!oo);
-
-    RecursiveSeq recursive1;
-    recursive1.push_back(make_shared<Recursive>());
-    RecursiveSeq recursive2;
-    recursive2.push_back(make_shared<Recursive>());
-    recursive1[0]->value = recursive2;
-    RecursivePtr outer = make_shared<Recursive>();
-    outer->value = recursive1;
-    initial->pingPong(outer);
 
     GPtr g = make_shared<G>();
     g->gg1Opt = make_shared<G1>("gg1Opt");

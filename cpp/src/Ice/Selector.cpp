@@ -4,17 +4,17 @@
 
 #include "Selector.h"
 #include "EventHandler.h"
-#include "Instance.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Instance.h"
 
 #ifdef ICE_USE_CFSTREAM
-#    include <CoreFoundation/CoreFoundation.h>
 #    include <CoreFoundation/CFStream.h>
+#    include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace IceInternal;

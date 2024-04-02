@@ -5,7 +5,7 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include <TestAMD.h>
+#include "TestAMD.h"
 
 class MyDerivedClassI final : public Test::MyDerivedClass
 {

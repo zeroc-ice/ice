@@ -5,8 +5,8 @@
 #ifndef ICE_REQUEST_HANDLER_CACHE_H
 #define ICE_REQUEST_HANDLER_CACHE_H
 
-#include "Ice/OperationMode.h"
 #include "Ice/ConnectionF.h"
+#include "Ice/OperationMode.h"
 #include "RequestHandler.h"
 #include <mutex>
 

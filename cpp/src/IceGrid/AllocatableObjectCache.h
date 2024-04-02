@@ -5,10 +5,10 @@
 #ifndef ICE_GRID_ALLOCATABLEOBJECTCACHE_H
 #define ICE_GRID_ALLOCATABLEOBJECTCACHE_H
 
-#include "Ice/CommunicatorF.h"
-#include "Cache.h"
-#include "IceGrid/Admin.h"
 #include "Allocatable.h"
+#include "Cache.h"
+#include "Ice/CommunicatorF.h"
+#include "IceGrid/Admin.h"
 
 namespace IceGrid
 {

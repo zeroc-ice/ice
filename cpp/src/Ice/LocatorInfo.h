@@ -5,15 +5,15 @@
 #ifndef ICE_LOCATOR_INFO_H
 #define ICE_LOCATOR_INFO_H
 
-#include "LocatorInfoF.h"
-#include "Ice/ReferenceF.h"
-#include "Ice/Identity.h"
 #include "EndpointIF.h"
-#include "Ice/PropertiesF.h"
+#include "Ice/Identity.h"
 #include "Ice/Locator.h"
+#include "Ice/PropertiesF.h"
+#include "Ice/ReferenceF.h"
+#include "LocatorInfoF.h"
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 namespace IceInternal
 {

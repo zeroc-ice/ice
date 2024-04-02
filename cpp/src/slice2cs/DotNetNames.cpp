@@ -3,8 +3,8 @@
 //
 
 #include "DotNetNames.h"
-#include <ctype.h>
 #include <cstring>
+#include <ctype.h>
 
 using namespace std;
 

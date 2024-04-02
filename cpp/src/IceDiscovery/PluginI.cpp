@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/IceUtil.h"
-#include "Ice/Ice.h"
 #include "../Ice/Network.h" // For getInterfacesForMulticast
+#include "Ice/Ice.h"
+#include "IceUtil/IceUtil.h"
 
-#include "PluginI.h"
 #include "LocatorI.h"
 #include "LookupI.h"
+#include "PluginI.h"
 
 using namespace std;
 using namespace IceDiscovery;

@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "IceUtil/Random.h"
-#include <TestHelper.h>
-#include <Test.h>
+#include "TestHelper.h"
+#include "Test.h"
 
 #include <thread>
 

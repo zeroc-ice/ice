@@ -4,9 +4,9 @@
 
 #include "RubyUtil.h"
 #include "../Slice/Util.h"
+#include <algorithm>
 #include <cassert>
 #include <iterator>
-#include <algorithm>
 
 using namespace std;
 using namespace Slice;

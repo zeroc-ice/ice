@@ -8,8 +8,8 @@
 #include "ConnectorF.h"
 #include "TransceiverF.h"
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 namespace IceInternal
 {

@@ -6,7 +6,7 @@
 #    define TEST_API_EXPORTS
 #endif
 
-#include <Configuration.h>
+#include "Configuration.h"
 
 #include <mutex>
 

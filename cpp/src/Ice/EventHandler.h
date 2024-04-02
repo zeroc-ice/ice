@@ -7,8 +7,8 @@
 
 #include "EventHandlerF.h"
 #include "Ice/InstanceF.h"
-#include "ThreadPoolF.h"
 #include "Network.h"
+#include "ThreadPoolF.h"
 
 #include <memory>
 

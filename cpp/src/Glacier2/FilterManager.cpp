@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "FilterManager.h"
+#include "FilterT.h"
 #include "Ice/Communicator.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/StringUtil.h"
-#include "FilterManager.h"
-#include "FilterT.h"
 
 using namespace std;
 using namespace Ice;

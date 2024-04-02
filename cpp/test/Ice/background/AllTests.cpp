@@ -5,10 +5,10 @@
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/Random.h"
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <Test.h>
-#include <PluginI.h>
-#include <Configuration.h>
+#include "TestHelper.h"
+#include "Test.h"
+#include "PluginI.h"
+#include "Configuration.h"
 
 #include <thread>
 #include <chrono>

@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "Glacier2/Router.h"
-#include <TestHelper.h>
-#include <CallbackI.h>
+#include "TestHelper.h"
+#include "CallbackI.h"
 #include <mutex>
 #include <random>
 #include <thread>

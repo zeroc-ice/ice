@@ -5,7 +5,7 @@
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
 #include "Glacier2/Router.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 #include <thread>
 
 using namespace std;

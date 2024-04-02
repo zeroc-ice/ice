@@ -4,10 +4,10 @@
 
 #include "Ice/Ice.h"
 
-#include "ReplicaSessionI.h"
 #include "Database.h"
-#include "WellKnownObjectsManager.h"
 #include "PlatformInfo.h"
+#include "ReplicaSessionI.h"
+#include "WellKnownObjectsManager.h"
 
 using namespace std;
 using namespace IceGrid;

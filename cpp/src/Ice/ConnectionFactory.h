@@ -5,22 +5,22 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
-#include "Ice/CommunicatorF.h"
+#include "ACMF.h"
+#include "AcceptorF.h"
 #include "ConnectionFactoryF.h"
 #include "ConnectionI.h"
-#include "Ice/InstanceF.h"
-#include "Ice/ObjectAdapterF.h"
-#include "EndpointIF.h"
-#include "Ice/Endpoint.h"
 #include "ConnectorF.h"
-#include "AcceptorF.h"
-#include "TransceiverF.h"
-#include "RouterInfoF.h"
-#include "EventHandler.h"
 #include "EndpointI.h"
-#include "Ice/Instrumentation.h"
-#include "ACMF.h"
+#include "EndpointIF.h"
+#include "EventHandler.h"
+#include "Ice/CommunicatorF.h"
 #include "Ice/Comparable.h"
+#include "Ice/Endpoint.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Instrumentation.h"
+#include "Ice/ObjectAdapterF.h"
+#include "RouterInfoF.h"
+#include "TransceiverF.h"
 
 #include <condition_variable>
 #include <list>

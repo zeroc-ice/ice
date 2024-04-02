@@ -5,8 +5,8 @@
 #ifndef ICE_OBSERVER_MIDDLEWARE_H
 #define ICE_OBSERVER_MIDDLEWARE_H
 
-#include "Ice/Object.h"
 #include "Ice/Instrumentation.h"
+#include "Ice/Object.h"
 
 namespace IceInternal
 {

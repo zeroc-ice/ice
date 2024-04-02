@@ -5,7 +5,7 @@
 #include "Ice/Ice.h"
 #include "Glacier2/Glacier2.h"
 
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <iostream>
 #include <iomanip>
@@ -13,7 +13,7 @@
 #include <chrono>
 #include <thread>
 
-#include <Callback.h>
+#include "Callback.h"
 
 using namespace std;
 using namespace std::chrono_literals;

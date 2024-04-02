@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <WstringAMDI.h>
+#include "WstringAMDI.h"
 
 void
 Test1::WstringClassI::opStringAsync(

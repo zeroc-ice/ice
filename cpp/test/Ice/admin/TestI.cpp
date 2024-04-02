@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <TestI.h>
+#include "TestI.h"
 #include "Ice/Ice.h"
 
 using namespace Ice;

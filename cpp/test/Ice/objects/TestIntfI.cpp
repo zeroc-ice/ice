@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
-#include <Derived.h>
-#include <DerivedEx.h>
+#include "TestI.h"
+#include "Derived.h"
+#include "DerivedEx.h"
 
 using namespace Test;
 

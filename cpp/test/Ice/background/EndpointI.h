@@ -6,8 +6,8 @@
 #define TEST_ENDPOINT_I_H
 
 #include "Ice/EndpointI.h"
-#include <Test.h>
-#include <Configuration.h>
+#include "Test.h"
+#include "Configuration.h"
 
 class EndpointI;
 using EndpointIPtr = std::shared_ptr<EndpointI>;

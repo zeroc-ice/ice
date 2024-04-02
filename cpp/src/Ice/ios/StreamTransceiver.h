@@ -9,9 +9,9 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "../WSTransceiver.h"
 #    include "../Network.h"
 #    include "../Selector.h"
+#    include "../WSTransceiver.h"
 #    include "Ice/UniqueRef.h"
 
 struct __CFError;

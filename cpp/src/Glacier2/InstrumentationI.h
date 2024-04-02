@@ -7,8 +7,8 @@
 
 #include "Ice/MetricsObserverI.h"
 
-#include "Instrumentation.h"
 #include "Glacier2/Metrics.h"
+#include "Instrumentation.h"
 
 namespace Glacier2
 {

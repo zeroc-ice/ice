@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
 #include "Parser.h"
 #include "GrammarUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "Util.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <iterator>
 #include <functional>
+#include <iterator>
 #include <limits>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier

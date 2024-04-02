@@ -5,12 +5,12 @@
 #ifndef ICE_ENDPOINT_FACTORY_H
 #define ICE_ENDPOINT_FACTORY_H
 
-#include "Ice/Config.h"
-#include "EndpointIF.h"
 #include "EndpointFactoryF.h"
-#include "ProtocolInstanceF.h"
+#include "EndpointIF.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/Config.h"
 #include "Ice/Plugin.h"
+#include "ProtocolInstanceF.h"
 
 namespace Ice
 {

@@ -5,8 +5,8 @@
 #ifndef ICESTORM_OBSERVERS_H
 #define ICESTORM_OBSERVERS_H
 
-#include "Ice/Ice.h"
 #include "Election.h"
+#include "Ice/Ice.h"
 #include "IceUtil/IceUtil.h"
 #include "Replica.h"
 

@@ -4,22 +4,22 @@
 
 #include "IceSSL/Config.h"
 
-#include "SecureTransportEngineF.h"
 #include "SecureTransportEngine.h"
+#include "SecureTransportEngineF.h"
 
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 
-#include "Ice/LocalException.h"
-#include "Ice/Properties.h"
 #include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
-#include "SecureTransportTransceiverI.h"
-#include "SecureTransportUtil.h"
 #include "IceSSL/Plugin.h"
 #include "SSLEngine.h"
+#include "SecureTransportTransceiverI.h"
+#include "SecureTransportUtil.h"
 #include "Util.h"
 
 #include <regex.h>

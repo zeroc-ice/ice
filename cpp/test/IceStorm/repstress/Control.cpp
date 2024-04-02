@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <Controller.h>
-#include <TestHelper.h>
+#include "Controller.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 

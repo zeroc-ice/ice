@@ -6,9 +6,9 @@
 #define ICE_LOGGER_MIDDLEWARE_H
 
 #include "Ice/Initialize.h" // for ToStringMode
-#include "Ice/Object.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/Object.h"
 
 namespace IceInternal
 {
