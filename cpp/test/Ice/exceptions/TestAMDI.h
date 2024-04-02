@@ -5,7 +5,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <TestAMD.h>
+#include "TestAMD.h"
 
 bool endsWith(const std::string&, const std::string&);
 

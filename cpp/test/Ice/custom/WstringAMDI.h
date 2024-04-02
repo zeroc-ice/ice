@@ -5,7 +5,7 @@
 #ifndef WSTRINGAMD_I_H
 #define WSTRINGAMD_I_H
 
-#include <WstringAMD.h>
+#include "WstringAMD.h"
 
 namespace Test1
 {

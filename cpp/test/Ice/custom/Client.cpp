@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <Test.h>
-#include <StringConverterI.h>
+#include "TestHelper.h"
+#include "Test.h"
+#include "StringConverterI.h"
 
 using namespace std;
 

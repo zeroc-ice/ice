@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
-#include <TestHelper.h>
+#include "TestI.h"
+#include "TestHelper.h"
 
 #if defined(ICE_USE_OPENSSL)
 #    include "IceSSL/OpenSSL.h"

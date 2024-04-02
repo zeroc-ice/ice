@@ -5,8 +5,8 @@
 #include "Ice/Ice.h"
 #include "IceUtil/Options.h"
 #include "IceStorm/IceStorm.h"
-#include <TestHelper.h>
-#include <Single.h>
+#include "TestHelper.h"
+#include "Single.h"
 
 #include <stdexcept>
 

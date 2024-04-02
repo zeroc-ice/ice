@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestI.h>
+#include "TestI.h"
 
 TestI::TestI(Ice::PropertiesPtr properties) : _properties(std::move(properties)) {}
 

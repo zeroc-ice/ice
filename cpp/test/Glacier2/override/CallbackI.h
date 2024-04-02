@@ -5,7 +5,7 @@
 #ifndef CALLBACK_I_H
 #define CALLBACK_I_H
 
-#include <Callback.h>
+#include "Callback.h"
 #include <vector>
 
 class CallbackReceiverI final : public Test::CallbackReceiver

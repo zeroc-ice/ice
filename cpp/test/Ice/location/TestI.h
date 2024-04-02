@@ -5,10 +5,10 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <Test.h>
-#include <TestHelper.h>
+#include "Test.h"
+#include "TestHelper.h"
 #include <vector>
-#include <ServerLocator.h>
+#include "ServerLocator.h"
 
 class ServerManagerI final : public Test::ServerManager
 {

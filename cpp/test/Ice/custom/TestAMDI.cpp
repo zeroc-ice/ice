@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Communicator.h"
-#include <TestAMDI.h>
+#include "TestAMDI.h"
 
 using namespace std;
 using namespace Ice;

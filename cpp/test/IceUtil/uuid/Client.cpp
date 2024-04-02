@@ -4,7 +4,7 @@
 
 #include "IceUtil/UUID.h"
 #include "IceUtil/Random.h"
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 #include <mutex>
 #include <set>

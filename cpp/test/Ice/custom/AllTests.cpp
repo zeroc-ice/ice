@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <Test.h>
-#include <Wstring.h>
+#include "TestHelper.h"
+#include "Test.h"
+#include "Wstring.h"
 #include <iterator>
 
 #ifdef _MSC_VER

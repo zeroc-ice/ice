@@ -5,7 +5,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <TestAMD.h>
+#include "TestAMD.h"
 
 class TestIntfI : public virtual Test::TestIntf
 {

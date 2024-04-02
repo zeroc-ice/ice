@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include <Event.h>
-#include <TestHelper.h>
+#include "Event.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 

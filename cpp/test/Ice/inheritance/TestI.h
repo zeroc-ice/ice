@@ -5,7 +5,7 @@
 #ifndef TESTI_H
 #define TESTI_H
 
-#include <Test.h>
+#include "Test.h"
 
 class InitialI final : public Test::Initial
 {

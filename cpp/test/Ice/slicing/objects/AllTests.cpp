@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include <TestHelper.h>
-#include <ClientPrivate.h>
+#include "TestHelper.h"
+#include "ClientPrivate.h"
 
 using namespace std;
 using namespace Test;

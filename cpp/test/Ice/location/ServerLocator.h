@@ -6,7 +6,7 @@
 #define SERVER_LOCATOR_H
 
 #include "Ice/Locator.h"
-#include <Test.h>
+#include "Test.h"
 
 class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {

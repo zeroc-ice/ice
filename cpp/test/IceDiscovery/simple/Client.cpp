@@ -4,8 +4,8 @@
 
 #include "Ice/Ice.h"
 #include "Ice/RegisterPlugins.h"
-#include <TestHelper.h>
-#include <Test.h>
+#include "TestHelper.h"
+#include "Test.h"
 
 using namespace std;
 using namespace Test;
