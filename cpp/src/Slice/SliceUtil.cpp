@@ -89,7 +89,7 @@ Slice::fullPath(const string& path)
     //
     // It is used for instance used to normalize the paths provided
     // with -I options. Like mcpp, we need to follow the symbolic
-    // links to ensure changeIncludes works correctly. For example, it
+    // links to ensure changeInclude works correctly. For example, it
     // must be possible to specify -I/opt/Ice-3.6 where Ice-3.6 is
     // symbolic link to Ice-3.6.0 (if we don't do the same as mcpp,
     // the generated headers will contain a full path...)
@@ -196,14 +196,18 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         }
     }
 
-    result = normalizePath(result); // Normalize the result.
+    return removeExtension(normalizePath(result));
+}
 
+string
+Slice::removeExtension(const string& path)
+{
+    string result = path;
     string::size_type pos;
     if ((pos = result.rfind('.')) != string::npos)
     {
         result.erase(pos);
     }
-
     return result;
 }
 
