@@ -7,17 +7,12 @@ package com.zeroc.IceSSL;
 final class ConnectorI implements com.zeroc.IceInternal.Connector {
   @Override
   public com.zeroc.IceInternal.Transceiver connect() {
-    //
-    // The plug-in may not be fully initialized.
-    //
-    if (!_instance.initialized()) {
-      com.zeroc.Ice.PluginInitializationException ex =
-          new com.zeroc.Ice.PluginInitializationException();
-      ex.reason = "IceSSL: plug-in is not initialized";
-      throw ex;
+    SSLEngineFactory clientSSLEngineFactory = _instance.initializationData().clientSSLEngineFactory;
+    if (clientSSLEngineFactory == null) {
+      clientSSLEngineFactory =
+          (peerHost, peerPort) -> _instance.engine().createSSLEngine(false, peerHost, peerPort);
     }
-
-    return new TransceiverI(_instance, _delegate.connect(), _host, false);
+    return new TransceiverI(_instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
   }
 
   @Override

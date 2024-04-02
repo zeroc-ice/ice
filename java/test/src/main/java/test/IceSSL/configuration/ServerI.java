@@ -30,7 +30,7 @@ class ServerI implements Server {
       java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate) info.certs[0];
       test(info.verified);
       test(
-          info.certs.length == 2
+          info.certs.length == 1
               && cert.getSubjectDN().toString().equals(subjectDN)
               && cert.getIssuerDN().toString().equals(issuerDN));
     } catch (com.zeroc.Ice.LocalException ex) {

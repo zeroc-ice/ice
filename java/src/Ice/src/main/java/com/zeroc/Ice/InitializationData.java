@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.IceSSL.SSLEngineFactory;
+
 /**
  * A class that encapsulates data to initialize a communicator.
  *
@@ -79,4 +81,11 @@ public final class InitializationData implements Cloneable {
 
   /** The value factory manager. */
   public ValueFactoryManager valueFactoryManager;
+
+  /**
+   * The SSL engine factory used to configure the client-side ssl transport. If non-null all the
+   * IceSSL configuration properties are ignored, and any SSL configuration must be done through the
+   * SSLEngineFactory.
+   */
+  public SSLEngineFactory clientSSLEngineFactory;
 }

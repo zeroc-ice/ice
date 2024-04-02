@@ -15,7 +15,6 @@ public class Client extends test.TestHelper {
   public void run(String[] args) {
     PrintWriter out = getWriter();
     com.zeroc.Ice.Properties properties = createTestProperties(args);
-    properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       java.util.Map<Integer, ObjectPrx> seenProxy = new java.util.HashMap<>();
       java.util.Map<Integer, Endpoint> seenEndpoint = new java.util.HashMap<>();

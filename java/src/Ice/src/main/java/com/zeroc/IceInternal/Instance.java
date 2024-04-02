@@ -357,7 +357,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
       if (createAdapter) {
         if (!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty()) {
-          adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+          adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
         } else {
           throw new com.zeroc.Ice.InitializationException("Ice.Admin.Endpoints is not set");
         }
@@ -405,7 +405,7 @@ public final class Instance implements java.util.function.Function<String, Class
         return _adminAdapter.createProxy(_adminIdentity);
       } else if (_adminEnabled) {
         if (!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty()) {
-          adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+          adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
         } else {
           return null;
         }
@@ -699,7 +699,7 @@ public final class Instance implements java.util.function.Function<String, Class
   //
   // Only for use by com.zeroc.Ice.CommunicatorI
   //
-  public Instance(
+  public void initialize(
       com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.InitializationData initData) {
     _state = StateActive;
     _initData = initData;
@@ -878,6 +878,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
       _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
+      _sslEngine = new com.zeroc.IceSSL.SSLEngine(communicator);
       _endpointFactoryManager = new EndpointFactoryManager(this);
 
       ProtocolInstance tcpProtocol =
@@ -887,6 +888,11 @@ public final class Instance implements java.util.function.Function<String, Class
       ProtocolInstance udpProtocol =
           new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
       _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
+
+      com.zeroc.IceSSL.Instance sslInstance =
+          new com.zeroc.IceSSL.Instance(_sslEngine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
+      _endpointFactoryManager.add(
+          new com.zeroc.IceSSL.EndpointFactoryI(sslInstance, com.zeroc.Ice.TCPEndpointType.value));
 
       ProtocolInstance wsProtocol =
           new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
@@ -1090,6 +1096,9 @@ public final class Instance implements java.util.function.Function<String, Class
         _referenceFactory = _referenceFactory.setDefaultLocator(loc);
       }
     }
+
+    // SslEngine initialization
+    _sslEngine.initialize();
 
     //
     // Server thread pool initialization is lazy in serverThreadPool().
@@ -1501,16 +1510,16 @@ public final class Instance implements java.util.function.Function<String, Class
   private static final int StateDestroyed = 2;
   private int _state;
 
-  private final com.zeroc.Ice.InitializationData _initData; // Immutable, not reset by destroy().
-  private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
-  private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
-  private final int _messageSizeMax; // Immutable, not reset by destroy().
-  private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
-  private final com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
-  private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
-  private final ACMConfig _clientACM; // Immutable, not reset by destroy().
-  private final ACMConfig _serverACM; // Immutable, not reset by destroy().
-  private final com.zeroc.Ice.ImplicitContextI _implicitContext;
+  private com.zeroc.Ice.InitializationData _initData; // Immutable, not reset by destroy().
+  private TraceLevels _traceLevels; // Immutable, not reset by destroy().
+  private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+  private int _messageSizeMax; // Immutable, not reset by destroy().
+  private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+  private com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
+  private int _cacheMessageBuffers; // Immutable, not reset by destroy().
+  private ACMConfig _clientACM; // Immutable, not reset by destroy().
+  private ACMConfig _serverACM; // Immutable, not reset by destroy().
+  private com.zeroc.Ice.ImplicitContextI _implicitContext;
   private RouterManager _routerManager;
   private LocatorManager _locatorManager;
   private ReferenceFactory _referenceFactory;
@@ -1537,12 +1546,13 @@ public final class Instance implements java.util.function.Function<String, Class
   private java.util.Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new java.util.HashMap<>();
 
   private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
-  private final String[] _packages;
-  private final boolean _useApplicationClassLoader;
+  private String[] _packages;
+  private boolean _useApplicationClassLoader;
 
   private static boolean _oneOffDone = false;
   private QueueExecutorService _queueExecutorService;
   private QueueExecutor _queueExecutor;
+  private com.zeroc.IceSSL.SSLEngine _sslEngine;
 
   private Map<String, String[]> _builtInModulePackagePrefixes =
       java.util.Collections.unmodifiableMap(

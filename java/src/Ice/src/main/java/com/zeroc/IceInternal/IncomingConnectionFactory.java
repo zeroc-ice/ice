@@ -549,7 +549,7 @@ public final class IncomingConnectionFactory extends EventHandler
   private void createAcceptor() {
     try {
       assert (!_acceptorStarted);
-      _acceptor = _endpoint.acceptor(_adapter.getName());
+      _acceptor = _endpoint.acceptor(_adapter.getName(), _adapter.getSSLEngineFactory());
       assert (_acceptor != null);
 
       if (_instance.traceLevels().network >= 2) {

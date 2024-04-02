@@ -4,7 +4,7 @@
 
 package com.zeroc.IceSSL;
 
-import com.zeroc.Ice.PluginInitializationException;
+import com.zeroc.Ice.InitializationException;
 import java.io.InputStream;
 import java.security.cert.*;
 import java.util.ArrayList;
@@ -13,22 +13,17 @@ import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;
 
-class SSLEngine {
-  SSLEngine(com.zeroc.IceInternal.ProtocolPluginFacade facade) {
-    _communicator = facade.getCommunicator();
+public class SSLEngine {
+  public SSLEngine(com.zeroc.Ice.Communicator communicator) {
+    _communicator = communicator;
     _logger = _communicator.getLogger();
-    _facade = facade;
     _securityTraceLevel =
         _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
     _securityTraceCategory = "Security";
     _trustManager = new TrustManager(_communicator);
   }
 
-  void initialize() {
-    if (_initialized) {
-      return;
-    }
-
+  public void initialize() {
     final String prefix = "IceSSL.";
     com.zeroc.Ice.Properties properties = communicator().getProperties();
 
@@ -60,9 +55,7 @@ class SSLEngine {
         } else if (s.equals("TLS1_3") || s.equals("TLSV1_3")) {
           l.add("TLSv1.3");
         } else {
-          PluginInitializationException e = new PluginInitializationException();
-          e.reason = "IceSSL: unrecognized protocol `" + prot + "'";
-          throw e;
+          throw new InitializationException("IceSSL: unrecognized protocol `" + prot + "'");
         }
       }
       _protocols = new String[l.size()];
@@ -94,60 +87,6 @@ class SSLEngine {
     _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
     //
-    // Check for a certificate verifier.
-    //
-    final String certVerifierClass = properties.getProperty(prefix + "CertVerifier");
-    if (certVerifierClass.length() > 0) {
-      if (_verifier != null) {
-        PluginInitializationException e = new PluginInitializationException();
-        e.reason = "IceSSL: certificate verifier already installed";
-        throw e;
-      }
-
-      Class<?> cls = null;
-      try {
-        cls = _facade.findClass(certVerifierClass);
-      } catch (Throwable ex) {
-        throw new PluginInitializationException(
-            "IceSSL: unable to load certificate verifier class " + certVerifierClass, ex);
-      }
-
-      try {
-        _verifier = (CertificateVerifier) cls.getDeclaredConstructor().newInstance();
-      } catch (Throwable ex) {
-        throw new PluginInitializationException(
-            "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass, ex);
-      }
-    }
-
-    //
-    // Check for a password callback.
-    //
-    final String passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
-    if (passwordCallbackClass.length() > 0) {
-      if (_passwordCallback != null) {
-        PluginInitializationException e = new PluginInitializationException();
-        e.reason = "IceSSL: password callback already installed";
-        throw e;
-      }
-
-      Class<?> cls = null;
-      try {
-        cls = _facade.findClass(passwordCallbackClass);
-      } catch (Throwable ex) {
-        throw new PluginInitializationException(
-            "IceSSL: unable to load password callback class " + passwordCallbackClass, ex);
-      }
-
-      try {
-        _passwordCallback = (PasswordCallback) cls.getDeclaredConstructor().newInstance();
-      } catch (Throwable ex) {
-        throw new PluginInitializationException(
-            "IceSSL: unable to instantiate password callback class " + passwordCallbackClass, ex);
-      }
-    }
-
-    //
     // If the user doesn't supply an SSLContext, we need to create one based
     // on property settings.
     //
@@ -158,78 +97,6 @@ class SSLEngine {
         // files mentioned in the configuration.
         //
         _defaultDir = properties.getProperty(prefix + "DefaultDir");
-
-        //
-        // We need a SecureRandom object.
-        //
-        // NOTE: The JDK recommends obtaining a SecureRandom object like this:
-        //
-        // java.security.SecureRandom rand = java.security.SecureRandom.getInstance("SHA1PRNG");
-        //
-        // However, there is a bug (6202721) which causes it to always use /dev/random,
-        // which can lead to long delays at program startup. The workaround is to use
-        // the default constructor.
-        //
-        java.security.SecureRandom rand = new java.security.SecureRandom();
-
-        //
-        // Check for seed data for the random number generator.
-        //
-        final String seedFiles = properties.getProperty(prefix + "Random");
-        if (seedFiles.length() > 0) {
-          final String[] arr = seedFiles.split(java.io.File.pathSeparator);
-          for (String file : arr) {
-            try {
-              java.io.InputStream seedStream = openResource(file);
-              if (seedStream == null) {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "IceSSL: random seed file not found:\n" + file;
-                throw e;
-              }
-
-              _seeds.add(seedStream);
-            } catch (java.io.IOException ex) {
-              throw new PluginInitializationException(
-                  "IceSSL: unable to access random seed file:\n" + file, ex);
-            }
-          }
-        }
-
-        if (!_seeds.isEmpty()) {
-          byte[] seed = null;
-          int start = 0;
-          for (InputStream in : _seeds) {
-            try {
-              int num = in.available();
-              if (seed == null) {
-                seed = new byte[num];
-              } else {
-                byte[] tmp = new byte[seed.length + num];
-                System.arraycopy(seed, 0, tmp, 0, seed.length);
-                start = seed.length;
-                seed = tmp;
-              }
-              in.read(seed, start, num);
-            } catch (java.io.IOException ex) {
-              throw new PluginInitializationException(
-                  "IceSSL: error while reading random seed", ex);
-            } finally {
-              try {
-                in.close();
-              } catch (java.io.IOException e) {
-                // Ignore.
-              }
-            }
-          }
-          rand.setSeed(seed);
-        }
-        _seeds.clear();
-
-        //
-        // We call nextInt() in order to force the object to perform any time-consuming
-        // initialization tasks now.
-        //
-        rand.nextInt();
 
         //
         // The keystore holds private keys and associated certificates.
@@ -291,9 +158,7 @@ class SSLEngine {
             } else {
               keystoreStream = openResource(keystorePath);
               if (keystoreStream == null) {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "IceSSL: keystore not found:\n" + keystorePath;
-                throw e;
+                throw new InitializationException("IceSSL: keystore not found:\n" + keystorePath);
               }
             }
 
@@ -301,8 +166,6 @@ class SSLEngine {
             char[] passwordChars = null;
             if (keystorePassword.length() > 0) {
               passwordChars = keystorePassword.toCharArray();
-            } else if (_passwordCallback != null) {
-              passwordChars = _passwordCallback.getKeystorePassword();
             } else if (keystoreType.equals("BKS") || keystoreType.equals("PKCS12")) {
               // Bouncy Castle or PKCS12 does not permit null passwords.
               passwordChars = new char[0];
@@ -315,7 +178,7 @@ class SSLEngine {
             }
             keystorePassword = null;
           } catch (java.io.IOException ex) {
-            throw new PluginInitializationException(
+            throw new InitializationException(
                 "IceSSL: unable to load keystore:\n" + keystorePath, ex);
           } finally {
             if (keystoreStream != null) {
@@ -333,8 +196,6 @@ class SSLEngine {
           char[] passwordChars = new char[0]; // This password cannot be null.
           if (password.length() > 0) {
             passwordChars = password.toCharArray();
-          } else if (_passwordCallback != null) {
-            passwordChars = _passwordCallback.getPassword(alias);
           }
           kmf.init(keys, passwordChars);
           if (passwordChars.length > 0) {
@@ -367,9 +228,8 @@ class SSLEngine {
             // in order to return the desired alias.
             //
             if (!keys.isKeyEntry(alias)) {
-              PluginInitializationException e = new PluginInitializationException();
-              e.reason = "IceSSL: keystore does not contain an entry with alias `" + alias + "'";
-              throw e;
+              throw new InitializationException(
+                  "IceSSL: keystore does not contain an entry with alias `" + alias + "'");
             }
 
             for (int i = 0; i < keyManagers.length; ++i) {
@@ -401,9 +261,8 @@ class SSLEngine {
               } else {
                 truststoreStream = openResource(truststorePath);
                 if (truststoreStream == null) {
-                  PluginInitializationException e = new PluginInitializationException();
-                  e.reason = "IceSSL: truststore not found:\n" + truststorePath;
-                  throw e;
+                  throw new InitializationException(
+                      "IceSSL: truststore not found:\n" + truststorePath);
                 }
               }
 
@@ -412,8 +271,6 @@ class SSLEngine {
               char[] passwordChars = null;
               if (truststorePassword.length() > 0) {
                 passwordChars = truststorePassword.toCharArray();
-              } else if (_passwordCallback != null) {
-                passwordChars = _passwordCallback.getTruststorePassword();
               } else if (truststoreType.equals("BKS") || truststoreType.equals("PKCS12")) {
                 // Bouncy Castle or PKCS12 does not permit null passwords.
                 passwordChars = new char[0];
@@ -426,7 +283,7 @@ class SSLEngine {
               }
               truststorePassword = null;
             } catch (java.io.IOException ex) {
-              throw new PluginInitializationException(
+              throw new InitializationException(
                   "IceSSL: unable to load truststore:\n" + truststorePath, ex);
             } finally {
               if (truststoreStream != null) {
@@ -493,7 +350,7 @@ class SSLEngine {
           //     must be non-empty
           //
           if (trustStore != null && trustStore.size() == 0) {
-            throw new PluginInitializationException("IceSSL: truststore is empty");
+            throw new InitializationException("IceSSL: truststore is empty");
           }
 
           if (trustManagers == null) {
@@ -504,134 +361,20 @@ class SSLEngine {
         }
 
         //
-        // Create a certificate path validator to build the full
-        // certificate chain of the peer certificate. NOTE: this must
-        // be done before wrapping the trust manager since our wrappers
-        // return an empty list of accepted issuers.
-        //
-        _validator = CertPathValidator.getInstance("PKIX");
-        java.util.Set<TrustAnchor> anchors = new java.util.HashSet<>();
-        for (javax.net.ssl.TrustManager tm : trustManagers) {
-          X509Certificate[] certs = ((javax.net.ssl.X509TrustManager) tm).getAcceptedIssuers();
-          for (X509Certificate cert : certs) {
-            if (cert.getBasicConstraints() >= 0) // Only add CAs
-            {
-              anchors.add(new TrustAnchor(cert, null));
-            }
-          }
-        }
-        if (!anchors.isEmpty()) {
-          _validatorParams = new PKIXParameters(anchors);
-          _validatorParams.setRevocationEnabled(false);
-        }
-
-        //
-        // Wrap each trust manager.
-        //
-        for (int i = 0; i < trustManagers.length; ++i) {
-          trustManagers[i] =
-              new X509TrustManagerI(this, (javax.net.ssl.X509TrustManager) trustManagers[i]);
-        }
-
-        //
         // Initialize the SSL context.
         //
         _context = javax.net.ssl.SSLContext.getInstance("TLS");
-        _context.init(keyManagers, trustManagers, rand);
+        _context.init(keyManagers, trustManagers, null);
       } catch (java.security.GeneralSecurityException ex) {
-        throw new PluginInitializationException("IceSSL: unable to initialize context", ex);
+        throw new InitializationException("IceSSL: unable to initialize context", ex);
       }
     }
 
     //
     // Clear cached input streams.
     //
-    _seeds.clear();
     _keystoreStream = null;
     _truststoreStream = null;
-
-    _initialized = true;
-  }
-
-  Certificate[] getVerifiedCertificateChain(Certificate[] chain) {
-    if (_validator == null) {
-      return chain; // The user provided a custom SSLContext
-    }
-
-    if (_validatorParams == null) {
-      return null; // Couldn't validate the given certificate chain, no trust anchors configured.
-    }
-
-    List<Certificate> certs = new ArrayList<>(java.util.Arrays.asList(chain));
-    try {
-      CertPath path = CertificateFactory.getInstance("X.509").generateCertPath(certs);
-      CertPathValidatorResult result = _validator.validate(path, _validatorParams);
-      Certificate root = ((PKIXCertPathValidatorResult) result).getTrustAnchor().getTrustedCert();
-      if (!root.equals(
-          chain[
-              chain.length - 1])) // Only add the root certificate if it's not already in the chain
-      {
-        certs.add(root);
-      }
-      return certs.toArray(new Certificate[certs.size()]);
-    } catch (Exception ex) {
-      return null; // Couldn't validate the given certificate chain.
-    }
-  }
-
-  void context(javax.net.ssl.SSLContext context) {
-    if (_initialized) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "IceSSL: plug-in is already initialized";
-      throw ex;
-    }
-
-    assert (_context == null);
-    _context = context;
-  }
-
-  javax.net.ssl.SSLContext context() {
-    return _context;
-  }
-
-  void setCertificateVerifier(CertificateVerifier verifier) {
-    _verifier = verifier;
-  }
-
-  CertificateVerifier getCertificateVerifier() {
-    return _verifier;
-  }
-
-  void setPasswordCallback(PasswordCallback callback) {
-    _passwordCallback = callback;
-  }
-
-  PasswordCallback getPasswordCallback() {
-    return _passwordCallback;
-  }
-
-  void setKeystoreStream(java.io.InputStream stream) {
-    if (_initialized) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "IceSSL: plugin is already initialized";
-      throw ex;
-    }
-
-    _keystoreStream = stream;
-  }
-
-  void setTruststoreStream(java.io.InputStream stream) {
-    if (_initialized) {
-      PluginInitializationException ex = new PluginInitializationException();
-      ex.reason = "IceSSL: plugin is already initialized";
-      throw ex;
-    }
-
-    _truststoreStream = stream;
-  }
-
-  void addSeedStream(java.io.InputStream stream) {
-    _seeds.add(stream);
   }
 
   int securityTraceLevel() {
@@ -640,10 +383,6 @@ class SSLEngine {
 
   String securityTraceCategory() {
     return _securityTraceCategory;
-  }
-
-  boolean initialized() {
-    return _initialized;
   }
 
   javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port) {
@@ -729,12 +468,6 @@ class SSLEngine {
       }
     }
 
-    try {
-      engine.beginHandshake();
-    } catch (javax.net.ssl.SSLException ex) {
-      throw new com.zeroc.Ice.SecurityException("IceSSL: handshake error", ex);
-    }
-
     return engine;
   }
 
@@ -789,10 +522,6 @@ class SSLEngine {
     return arr;
   }
 
-  String[] protocols() {
-    return _protocols;
-  }
-
   void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
     javax.net.ssl.SSLSession session = engine.getSession();
     String msg =
@@ -824,7 +553,8 @@ class SSLEngine {
       }
     }
 
-    if (_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax) {
+    // Verify depth max includes the root CA, Java doesn't provide it in the certificate chain.
+    if (_verifyDepthMax > 0 && info.certs != null && info.certs.length >= _verifyDepthMax) {
       String msg =
           (info.incoming ? "incoming" : "outgoing")
               + " connection rejected:\n"
@@ -846,19 +576,6 @@ class SSLEngine {
       String msg =
           (info.incoming ? "incoming" : "outgoing")
               + " connection rejected by trust manager\n"
-              + desc;
-      if (_securityTraceLevel >= 1) {
-        _logger.trace(_securityTraceCategory, msg);
-      }
-      com.zeroc.Ice.SecurityException ex = new com.zeroc.Ice.SecurityException();
-      ex.reason = msg;
-      throw ex;
-    }
-
-    if (_verifier != null && !_verifier.verify(info)) {
-      String msg =
-          (info.incoming ? "incoming" : "outgoing")
-              + " connection rejected by certificate verifier\n"
               + desc;
       if (_securityTraceLevel >= 1) {
         _logger.trace(_securityTraceCategory, msg);
@@ -893,16 +610,14 @@ class SSLEngine {
     for (int i = 0; i < expr.length; ++i) {
       if (expr[i].equals("ALL")) {
         if (i != 0) {
-          PluginInitializationException ex = new PluginInitializationException();
-          ex.reason = "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'";
-          throw ex;
+          throw new InitializationException(
+              "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'");
         }
         _allCiphers = true;
       } else if (expr[i].equals("NONE")) {
         if (i != 0) {
-          PluginInitializationException ex = new PluginInitializationException();
-          ex.reason = "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'";
-          throw ex;
+          throw new InitializationException(
+              "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'");
         }
         _noCiphers = true;
       } else {
@@ -913,23 +628,19 @@ class SSLEngine {
           if (exp.length() > 1) {
             exp = exp.substring(1);
           } else {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "IceSSL: invalid cipher expression `" + exp + "'";
-            throw ex;
+            throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
           }
         }
 
         if (exp.charAt(0) == '(') {
           if (!exp.endsWith(")")) {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "IceSSL: invalid cipher expression `" + exp + "'";
-            throw ex;
+            throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
           }
 
           try {
             ce.re = java.util.regex.Pattern.compile(exp.substring(1, exp.length() - 2));
           } catch (java.util.regex.PatternSyntaxException ex) {
-            throw new PluginInitializationException(
+            throw new InitializationException(
                 "IceSSL: invalid cipher expression `" + exp + "'", ex);
           }
         } else {
@@ -982,7 +693,6 @@ class SSLEngine {
 
   private com.zeroc.Ice.Communicator _communicator;
   private com.zeroc.Ice.Logger _logger;
-  private com.zeroc.IceInternal.ProtocolPluginFacade _facade;
   private int _securityTraceLevel;
   private String _securityTraceCategory;
   private boolean _initialized;
@@ -996,14 +706,8 @@ class SSLEngine {
   private boolean _serverNameIndication;
   private int _verifyDepthMax;
   private int _verifyPeer;
-  private CertificateVerifier _verifier;
-  private PasswordCallback _passwordCallback;
   private TrustManager _trustManager;
 
   private InputStream _keystoreStream;
   private InputStream _truststoreStream;
-  private List<InputStream> _seeds = new ArrayList<>();
-
-  private CertPathValidator _validator;
-  private PKIXParameters _validatorParams;
 }

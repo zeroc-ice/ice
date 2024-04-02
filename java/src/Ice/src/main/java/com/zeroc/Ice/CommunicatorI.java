@@ -70,17 +70,32 @@ public final class CommunicatorI implements Communicator {
 
   @Override
   public ObjectAdapter createObjectAdapter(String name) {
-    return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+    return createObjectAdapter(name, null);
+  }
+
+  @Override
+  public ObjectAdapter createObjectAdapter(
+      String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory) {
+    if (name.length() == 0 && sslEngineFactory != null) {
+      throw new IllegalArgumentException("name cannot be empty when using an SSLEngineFactory");
+    }
+    return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
   }
 
   @Override
   public ObjectAdapter createObjectAdapterWithEndpoints(String name, String endpoints) {
+    return createObjectAdapterWithEndpoints(name, endpoints, null);
+  }
+
+  @Override
+  public ObjectAdapter createObjectAdapterWithEndpoints(
+      String name, String endpoints, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory) {
     if (name.length() == 0) {
       name = java.util.UUID.randomUUID().toString();
     }
 
     getProperties().setProperty(name + ".Endpoints", endpoints);
-    return _instance.objectAdapterFactory().createObjectAdapter(name, null);
+    return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
   }
 
   @Override
@@ -97,7 +112,7 @@ public final class CommunicatorI implements Communicator {
       getProperties().setProperty(p.getKey(), p.getValue());
     }
 
-    return _instance.objectAdapterFactory().createObjectAdapter(name, router);
+    return _instance.objectAdapterFactory().createObjectAdapter(name, router, null);
   }
 
   @Override
@@ -204,7 +219,8 @@ public final class CommunicatorI implements Communicator {
   }
 
   CommunicatorI(InitializationData initData) {
-    _instance = new com.zeroc.IceInternal.Instance(this, initData);
+    _instance = new com.zeroc.IceInternal.Instance();
+    _instance.initialize(this, initData);
   }
 
   /**

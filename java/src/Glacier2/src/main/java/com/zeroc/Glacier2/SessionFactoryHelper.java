@@ -298,17 +298,6 @@ public class SessionFactoryHelper {
     if (initData.properties.getProperty("Ice.Default.Router").length() == 0 && _identity != null) {
       initData.properties.setProperty("Ice.Default.Router", getProxyStr(_identity));
     }
-
-    //
-    // If using a secure connection setup the IceSSL plug-in, if IceSSL
-    // plug-in has already been setup we don't want to override the
-    // configuration so it can be loaded from a custom location.
-    //
-    if ((_protocol.equals("ssl") || _protocol.equals("wss"))
-        && initData.properties.getProperty("Ice.Plugin.IceSSL").length() == 0) {
-      initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-    }
-
     return initData;
   }
 

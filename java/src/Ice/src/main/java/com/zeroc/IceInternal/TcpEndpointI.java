@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.IceSSL.SSLEngineFactory;
+
 final class TcpEndpointI extends IPEndpointI {
   public TcpEndpointI(
       ProtocolInstance instance,
@@ -126,7 +128,8 @@ final class TcpEndpointI extends IPEndpointI {
   // is available.
   //
   @Override
-  public Acceptor acceptor(String adapterName) {
+  public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
+    assert (factory == null);
     return new TcpAcceptor(this, _instance, _host, _port);
   }
 

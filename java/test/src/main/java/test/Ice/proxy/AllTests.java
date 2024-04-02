@@ -396,8 +396,7 @@ public class AllTests {
     id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
     test(
         idStr.equals(
-            "greek \\360\\220\\205\\252/banana"
-                + " \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
+            "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
     test(id.equals(id2));
 
     out.println("ok");
@@ -1081,20 +1080,14 @@ public class AllTests {
         communicator.proxyToString(p2).equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
     if (communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0) {
-      // Working?
-      boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
-      boolean tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("tcp");
-
       // Two legal TCP endpoints expressed as opaque endpoints
       p1 =
           communicator.stringToProxy(
-              "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v"
-                  + " CTEyNy4wLjAuMusuAAAQJwAAAA==");
+              "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
       pstr = communicator.proxyToString(p1);
       test(
           pstr.equals(
-              "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t"
-                  + " 10000"));
+              "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
       //
       // Test that an SSL endpoint and a nonsense endpoint get
@@ -1102,20 +1095,11 @@ public class AllTests {
       //
       p1 =
           communicator.stringToProxy(
-              "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0"
-                  + " -v abch");
+              "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
       pstr = communicator.proxyToString(p1);
-      if (ssl) {
-        test(
-            pstr.equals(
-                "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v"
-                    + " abch"));
-      } else if (tcp) {
-        test(
-            pstr.equals(
-                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e"
-                    + " 1.0 -v abch"));
-      }
+      test(
+          pstr.equals(
+              "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
 
       //
       // Test that the proxy with an SSL endpoint and a nonsense
@@ -1125,17 +1109,9 @@ public class AllTests {
       //
       p2 = derived.echo(p1);
       pstr = communicator.proxyToString(p2);
-      if (ssl) {
-        test(
-            pstr.equals(
-                "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v"
-                    + " abch"));
-      } else if (tcp) {
-        test(
-            pstr.equals(
-                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e"
-                    + " 1.0 -v abch"));
-      }
+      test(
+          pstr.equals(
+              "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
     }
     out.println("ok");
 

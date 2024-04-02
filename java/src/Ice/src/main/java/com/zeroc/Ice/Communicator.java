@@ -151,6 +151,32 @@ public interface Communicator extends java.lang.AutoCloseable {
   ObjectAdapter createObjectAdapter(String name);
 
   /**
+   * Create a new object adapter. The endpoints for the object adapter are taken from the property
+   * <code><em>name</em>.Endpoints</code>. It is legal to create an object adapter with the empty
+   * string as its name. Such an object adapter is accessible via bidirectional connections or by
+   * collocated invocations that originate from the same communicator as is used by the adapter.
+   * Attempts to create a named object adapter for which no configuration can be found raise
+   * InitializationException.
+   *
+   * <p>It is an error to pass a non-null sslEngineFactory when the name is empty, this raises
+   * IllegalArgumentException.
+   *
+   * @param name The object adapter name.
+   * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
+   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
+   *     the object adapter does not use secure endpoints, or if the ssl transport is configured
+   *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
+   *     createObjectAdapterWithEndpoints(String, String)}.
+   * @return The new object adapter.
+   * @see #createObjectAdapterWithEndpoints
+   * @see ObjectAdapter
+   * @see Properties
+   */
+  ObjectAdapter createObjectAdapter(
+      String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
+
+  /**
    * Create a new object adapter with endpoints. This operation sets the property <code>
    * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as
    * a convenience function. Calling this operation with an empty name will result in a UUID being
@@ -164,6 +190,28 @@ public interface Communicator extends java.lang.AutoCloseable {
    * @see Properties
    */
   ObjectAdapter createObjectAdapterWithEndpoints(String name, String endpoints);
+
+  /**
+   * Create a new object adapter with endpoints. This operation sets the property <code>
+   * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as
+   * a convenience function. Calling this operation with an empty name will result in a UUID being
+   * generated for the name.
+   *
+   * @param name The object adapter name.
+   * @param endpoints The endpoints for the object adapter.
+   * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
+   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
+   *     the object adapter does not use secure endpoints, or if the ssl transport is configured
+   *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
+   *     createObjectAdapterWithEndpoints(String, String)}.
+   * @return The new object adapter.
+   * @see #createObjectAdapter
+   * @see ObjectAdapter
+   * @see Properties
+   */
+  ObjectAdapter createObjectAdapterWithEndpoints(
+      String name, String endpoints, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
 
   /**
    * Create a new object adapter with a router. This operation creates a routed object adapter.

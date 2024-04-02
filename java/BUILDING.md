@@ -178,7 +178,6 @@ The following JAR files will be installed to `<prefix>/lib`.
 * icegrid-3.7.10.jar
 * icegridgui.jar
 * icelocatordiscovery-3.7.10.jar
-* icessl-3.7.10.jar
 * icestorm-3.7.10.jar
 
 POM files are also installed for ease of deployment to a Maven-based

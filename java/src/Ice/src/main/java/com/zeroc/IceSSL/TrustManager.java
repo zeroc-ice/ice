@@ -36,10 +36,8 @@ class TrustManager {
         }
       }
     } catch (RFC2253.ParseException e) {
-      com.zeroc.Ice.PluginInitializationException ex =
-          new com.zeroc.Ice.PluginInitializationException();
-      ex.reason = "IceSSL: invalid property " + key + ":\n" + e.reason;
-      throw ex;
+      throw new com.zeroc.Ice.InitializationException(
+          "IceSSL: invalid property " + key + ":\n" + e.reason);
     }
   }
 

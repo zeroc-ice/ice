@@ -149,8 +149,9 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
   // is available.
   //
   @Override
-  public com.zeroc.IceInternal.Acceptor acceptor(String adapterName) {
-    return new AcceptorI(this, _instance, _delegate.acceptor(adapterName), adapterName);
+  public com.zeroc.IceInternal.Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
+    return new AcceptorI(
+        this, _instance, _delegate.acceptor(adapterName, null), adapterName, factory);
   }
 
   public EndpointI endpoint(com.zeroc.IceInternal.EndpointI delEndpt) {

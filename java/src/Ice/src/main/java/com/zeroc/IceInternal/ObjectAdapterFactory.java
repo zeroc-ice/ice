@@ -6,6 +6,7 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectAdapterI;
+import com.zeroc.IceSSL.SSLEngineFactory;
 
 public final class ObjectAdapterFactory {
   public void shutdown() {
@@ -108,7 +109,8 @@ public final class ObjectAdapterFactory {
     }
   }
 
-  public ObjectAdapter createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router) {
+  public ObjectAdapter createObjectAdapter(
+      String name, com.zeroc.Ice.RouterPrx router, SSLEngineFactory sslEngineFactory) {
     if (Thread.interrupted()) {
       throw new com.zeroc.Ice.OperationInterruptedException();
     }
@@ -135,10 +137,12 @@ public final class ObjectAdapterFactory {
       if (name.isEmpty()) {
         String uuid = java.util.UUID.randomUUID().toString();
         adapter =
-            new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
+            new com.zeroc.Ice.ObjectAdapterI(
+                _instance, _communicator, this, uuid, null, true, sslEngineFactory);
       } else {
         adapter =
-            new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+            new com.zeroc.Ice.ObjectAdapterI(
+                _instance, _communicator, this, name, router, false, sslEngineFactory);
       }
 
       synchronized (this) {
