@@ -439,6 +439,7 @@ module_def
         // Where `N` is the number of scope separators ("::").
         size_t startPos = 0;
         size_t endPos;
+        auto ident = dynamic_pointer_cast<StringTok>($2);
         while ((endPos = ident->v.find("::", startPos)) != string::npos)
         {
             currentUnit->popContainer();
