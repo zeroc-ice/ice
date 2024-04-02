@@ -5,7 +5,6 @@
 #include "Glacier2/SessionHelper.h"
 
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 
 #include <algorithm> // required by max
 #include <stdexcept>

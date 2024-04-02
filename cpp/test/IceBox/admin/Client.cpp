@@ -3,7 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 #include "TestHelper.h"
 #include "Test.h"
 

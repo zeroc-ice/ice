@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/IceUtil.h"
 #include "TestHelper.h"
+#include "IceUtil/StringConverter.h"
 #include "../../../src/Ice/Endian.h"
 
 #ifdef _WIN32

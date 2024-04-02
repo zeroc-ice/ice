@@ -104,7 +104,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />

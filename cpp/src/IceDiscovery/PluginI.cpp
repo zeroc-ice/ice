@@ -4,7 +4,6 @@
 
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 
 #include "LocatorI.h"
 #include "LookupI.h"

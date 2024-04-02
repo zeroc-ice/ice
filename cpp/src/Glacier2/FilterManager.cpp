@@ -7,7 +7,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
-#include "IceUtil/IceUtil.h"
+#include "Ice/Ice.h"
 #include "IceUtil/StringUtil.h"
 
 using namespace std;
