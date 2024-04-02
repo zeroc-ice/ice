@@ -391,10 +391,10 @@ module_def
 
     // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
     size_t startPos = 0;
-    if ident->v.starts_with("::")
+    if (ident->v.find("::") == 0)
     {
+        currentUnit->error("module identifiers cannot start with '::' prefix");
         startPos += 2; // Skip the leading "::".
-        currentUnit->error("module identifiers cannot start with "::" prefix");
     }
 
     // Split the scoped-identifier token into separate module names.
