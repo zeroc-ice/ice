@@ -5,8 +5,8 @@
 #include "TestI.h"
 #include "Ice/Ice.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

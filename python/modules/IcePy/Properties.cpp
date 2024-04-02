@@ -3,9 +3,9 @@
 //
 
 #include "Properties.h"
-#include "Util.h"
 #include "Ice/Initialize.h"
 #include "Ice/Properties.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

@@ -6,8 +6,8 @@
 #define TEST_I_H
 
 #include "Test.h"
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {

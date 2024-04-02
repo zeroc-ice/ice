@@ -4,10 +4,10 @@
 
 #include "Connection.h"
 #include "Endpoint.h"
-#include "Types.h"
-#include "Util.h"
 #include "Ice/Object.h"
 #include "IceSSL/ConnectionInfo.h"
+#include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IceRuby;

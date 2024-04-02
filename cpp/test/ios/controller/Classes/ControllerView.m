@@ -4,8 +4,8 @@
 
 #import "ControllerView.h"
 
-#include <ifaddrs.h>
 #include <arpa/inet.h>
+#include <ifaddrs.h>
 #include <net/if.h>
 
 @implementation ControllerView

@@ -3,8 +3,8 @@
 //
 
 #include "Logger.h"
-#include "Thread.h"
 #include "Ice/Initialize.h"
+#include "Thread.h"
 
 using namespace std;
 using namespace IcePy;

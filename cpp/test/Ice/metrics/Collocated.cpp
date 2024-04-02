@@ -3,9 +3,9 @@
 //
 
 #include "Ice/Ice.h"
+#include "InstrumentationI.h"
 #include "TestHelper.h"
 #include "TestI.h"
-#include "InstrumentationI.h"
 
 using namespace std;
 using namespace Test;

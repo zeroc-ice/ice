@@ -6,13 +6,13 @@
 #define ICEPY_TYPES_H
 
 #include "Config.h"
-#include "Util.h"
 #include "Ice/FactoryTable.h"
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"
-#include "Ice/Value.h"
 #include "Ice/SlicedDataF.h"
+#include "Ice/Value.h"
 #include "IceUtil/OutputUtil.h"
+#include "Util.h"
 
 #include <memory>
 #include <set>

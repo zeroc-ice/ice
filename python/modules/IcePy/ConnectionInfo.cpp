@@ -4,9 +4,9 @@
 
 #include "ConnectionInfo.h"
 #include "EndpointInfo.h"
-#include "Util.h"
 #include "Ice/Object.h"
 #include "IceSSL/ConnectionInfo.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

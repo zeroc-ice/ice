@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "ice.h"
 #include "Future.h"
 #include "Util.h"
+#include "ice.h"
 
 using namespace std;
 using namespace IceMatlab;

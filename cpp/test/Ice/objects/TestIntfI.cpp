@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-#include "TestI.h"
 #include "Derived.h"
 #include "DerivedEx.h"
+#include "Ice/Ice.h"
+#include "TestI.h"
 
 using namespace Test;
 

@@ -3,8 +3,8 @@
 //
 
 #include "Logger.h"
-#include "Util.h"
 #include "Ice/Initialize.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IceRuby;

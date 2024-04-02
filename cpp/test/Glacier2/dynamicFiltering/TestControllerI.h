@@ -7,8 +7,8 @@
 
 #include "Glacier2/Session.h"
 #include "Test.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 struct SessionTuple
 {

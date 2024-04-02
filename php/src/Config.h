@@ -28,11 +28,13 @@
 #    define TMPDEBUG
 #endif
 
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-#include "zend_interfaces.h"
-#include "zend_exceptions.h"
+// clang-format off
+#include <php.h>
+#include <php_ini.h>
+#include <ext/standard/info.h>
+#include <zend_exceptions.h>
+#include <zend_interfaces.h>
+// clang-format on
 
 // Enable asserts if the extension is built with debug. It's fine to include several times assert.h with a different
 // NDEBUG setting.

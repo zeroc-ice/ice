@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "Controller.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
 #include "Single.h"
-#include "Controller.h"
 #include "TestHelper.h"
 
 #include <stdexcept>

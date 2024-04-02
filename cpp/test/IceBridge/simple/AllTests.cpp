@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include "Test.h"
-#include <thread>
-#include <mutex>
-#include <chrono>
+#include "TestHelper.h"
 #include <atomic>
+#include <chrono>
+#include <mutex>
+#include <thread>
 
 using namespace std;
 using namespace std::chrono_literals;

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "TestControllerI.h"
+#include "Ice/Ice.h"
 #include "TestHelper.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 using namespace Ice;
 using namespace Test;

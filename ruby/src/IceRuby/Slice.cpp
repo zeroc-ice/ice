@@ -3,11 +3,11 @@
 //
 
 #include "Slice.h"
-#include "Util.h"
-#include "Slice/Preprocessor.h"
-#include "slice2rb/RubyUtil.h"
-#include "Slice/Util.h"
 #include "IceUtil/Options.h"
+#include "Slice/Preprocessor.h"
+#include "Slice/Util.h"
+#include "Util.h"
+#include "slice2rb/RubyUtil.h"
 
 #include <iostream>
 

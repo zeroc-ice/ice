@@ -3,11 +3,11 @@
 //
 
 #include "Current.h"
-#include <structmember.h>
 #include "Connection.h"
+#include "Ice/ObjectAdapter.h"
 #include "ObjectAdapter.h"
 #include "Util.h"
-#include "Ice/ObjectAdapter.h"
+#include <structmember.h>
 
 using namespace std;
 using namespace IcePy;

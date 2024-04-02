@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "Executor.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 #include "TestI.h"
-#include "Executor.h"
 
 using namespace std;
 

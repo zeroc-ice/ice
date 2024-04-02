@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "TestHelper.h"
-#include "IceUtil/StringConverter.h"
 #include "../../../src/Ice/Endian.h"
+#include "IceUtil/StringConverter.h"
+#include "TestHelper.h"
 
 #ifdef _WIN32
 #    include <io.h>

@@ -7,9 +7,9 @@
 #endif
 
 #include "EndpointI.h"
-#include "Transceiver.h"
-#include "Connector.h"
 #include "Acceptor.h"
+#include "Connector.h"
+#include "Transceiver.h"
 
 #ifdef _MSC_VER
 // For 'Ice::Object::ice_getHash': was declared deprecated

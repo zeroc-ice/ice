@@ -4,13 +4,13 @@
 
 #include "Ice/Ice.h"
 #include "IceSSL/IceSSL.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 
-#include <thread>
+#include <algorithm>
 #include <chrono>
 #include <fstream>
-#include <algorithm>
+#include <thread>
 
 #include "Ice/UniqueRef.h"
 

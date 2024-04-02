@@ -3,8 +3,8 @@
 //
 
 #include "EndpointInfo.h"
-#include "Util.h"
 #include "IceSSL/IceSSL.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

@@ -5,9 +5,9 @@
 #include "FilterManager.h"
 #include "FilterT.h"
 #include "Ice/Communicator.h"
+#include "Ice/Ice.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
-#include "Ice/Ice.h"
 #include "IceUtil/StringUtil.h"
 
 using namespace std;

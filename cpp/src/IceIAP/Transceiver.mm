@@ -6,17 +6,17 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "Transceiver.h"
 #    include "EndpointI.h"
+#    include "Transceiver.h"
 
 #    include "IceIAP/ConnectionInfo.h"
 
-#    include "Ice/LocalException.h"
 #    include "../Ice/ProtocolInstance.h"
 #    include "Ice/Buffer.h"
+#    include "Ice/LocalException.h"
 
-#    import <Foundation/NSRunLoop.h>
 #    import <Foundation/NSError.h>
+#    import <Foundation/NSRunLoop.h>
 #    import <Foundation/NSString.h>
 
 using namespace std;

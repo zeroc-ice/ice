@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "BlobjectI.h"
+#include "Ice/Ice.h"
 #include "Test.h"
 #include "TestHelper.h"
 

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "Ice/Comparable.h"
+#include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 
 #include <fstream>
 

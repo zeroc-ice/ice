@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-#include "Glacier2/Router.h"
 #include "Backend.h"
+#include "Glacier2/Router.h"
+#include "Ice/Ice.h"
 #include "TestHelper.h"
-#include <set>
 #include <random>
+#include <set>
 
 using namespace std;
 using namespace Ice;

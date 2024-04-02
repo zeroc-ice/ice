@@ -4,14 +4,14 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Ice/Ice.h"
 #include "Controller.h"
+#include "Ice/Ice.h"
 #include "TestHelper.h"
 
 #include <dlfcn.h>
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 @protocol ControllerView
 - (void)print:(NSString*)msg;

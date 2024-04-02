@@ -3,6 +3,8 @@
 //
 
 #include "Communicator.h"
+#include "Connection.h"
+#include "Endpoint.h"
 #include "ImplicitContext.h"
 #include "Logger.h"
 #include "Operation.h"
@@ -10,8 +12,6 @@
 #include "Proxy.h"
 #include "Slice.h"
 #include "Types.h"
-#include "Connection.h"
-#include "Endpoint.h"
 #include "ValueFactoryManager.h"
 
 #include "Ice/RegisterPlugins.h"
