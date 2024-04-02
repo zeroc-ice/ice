@@ -435,10 +435,6 @@ module_def
 {
     if ($3)
     {
-        // Set the 'return value' to the inner-most module (the current module, before we've popped any off).
-        // Whichever module we return, is the one that metadata will be applied to.
-        $$ = currentUnit->currentContainer();
-
         // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
         // Where `N` is the number of scope separators ("::").
         size_t scopePos = 0;
@@ -447,6 +443,10 @@ module_def
         {
             currentUnit->popContainer();
         }
+
+        // Set the 'return value' to the outer-most module, before we pop it off the stack..
+        // Whichever module we return, is the one that metadata will be applied to.
+        $$ = currentUnit->currentContainer();
         currentUnit->popContainer();
     }
     else
