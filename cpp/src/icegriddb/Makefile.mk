@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-$(project)_programs             :=  icegriddb
+$(project)_programs       :=  icegriddb
 
 icegriddb_targetdir       := $(bindir)
 icegriddb_dependencies    := Ice IceDB Glacier2 IceGrid
