@@ -4,8 +4,8 @@
 
 #include "NodeAdminRouter.h"
 #include "Ice/Ice.h"
-#include "ServerI.h"
 #include "ServerAdapterI.h"
+#include "ServerI.h"
 
 using namespace IceGrid;
 using namespace Ice;

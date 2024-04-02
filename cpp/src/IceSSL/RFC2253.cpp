@@ -4,9 +4,9 @@
 
 #include "IceUtil/StringUtil.h"
 
+#include "Ice/Object.h"
 #include "IceSSL/Plugin.h"
 #include "RFC2253.h"
-#include "Ice/Object.h"
 
 using namespace std;
 using namespace IceSSL;

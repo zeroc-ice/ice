@@ -5,15 +5,15 @@
 #ifndef ICESSL_OPENSSL_TRANSCEIVER_I_H
 #define ICESSL_OPENSSL_TRANSCEIVER_I_H
 
-#include "IceSSL/Config.h"
-#include "Util.h"
-#include "InstanceF.h"
-#include "IceSSL/Plugin.h"
-#include "OpenSSLEngineF.h"
-#include "../Ice/Transceiver.h"
 #include "../Ice/Network.h"
 #include "../Ice/StreamSocket.h"
+#include "../Ice/Transceiver.h"
 #include "../Ice/WSTransceiver.h"
+#include "IceSSL/Config.h"
+#include "IceSSL/Plugin.h"
+#include "InstanceF.h"
+#include "OpenSSLEngineF.h"
+#include "Util.h"
 
 #include <openssl/ssl.h>
 

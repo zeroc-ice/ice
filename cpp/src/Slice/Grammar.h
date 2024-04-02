@@ -45,7 +45,10 @@
 extern int slice_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 12 "src/Slice/Grammar.y"
+#line 9 "src/Slice/Grammar.y"
+
+// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
+#include "GrammarUtil.h"
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
@@ -58,7 +61,7 @@ extern int slice_debug;
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
-#line 64 "src/Slice/Grammar.h"
+#line 67 "src/Slice/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE

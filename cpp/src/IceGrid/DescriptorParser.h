@@ -5,6 +5,9 @@
 #ifndef ICEGRID_DESCRIPTOR_PARSER_H
 #define ICEGRID_DESCRIPTOR_PARSER_H
 
+#include "IceGrid/Admin.h"
+#include "IceGrid/Descriptor.h"
+
 namespace IceGrid
 {
     namespace DescriptorParser

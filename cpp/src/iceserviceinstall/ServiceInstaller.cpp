@@ -3,8 +3,8 @@
 //
 
 #include "ServiceInstaller.h"
-#include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <stdexcept>
 

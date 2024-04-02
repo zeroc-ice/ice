@@ -5,9 +5,9 @@
 #include "ProxyVerifier.h"
 #include "../Ice/ConsoleUtil.h"
 
-#include <vector>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 using namespace std;
 using namespace Ice;

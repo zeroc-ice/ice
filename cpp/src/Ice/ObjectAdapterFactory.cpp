@@ -3,11 +3,11 @@
 //
 
 #include "ObjectAdapterFactory.h"
-#include "ObjectAdapterI.h"
-#include "Ice/Object.h"
 #include "Ice/LocalException.h"
-#include "Ice/UUID.h"
+#include "Ice/Object.h"
 #include "Ice/Router.h"
+#include "Ice/UUID.h"
+#include "ObjectAdapterI.h"
 
 using namespace std;
 using namespace Ice;

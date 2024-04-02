@@ -6,21 +6,21 @@
 #include "OpenSSLEngine.h"
 
 #include "IceSSL/ConnectionInfo.h"
+#include "IceSSL/OpenSSL.h"
 #include "Instance.h"
 #include "PluginI.h"
 #include "SSLEngine.h"
 #include "Util.h"
-#include "IceSSL/OpenSSL.h"
 
-#include "Ice/Communicator.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
 #include "../Ice/Network.h"
+#include "Ice/Buffer.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 
-#include <openssl/ssl.h>
-#include <openssl/err.h>
 #include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 #include <mutex>
 

@@ -6,14 +6,14 @@
 #define ICESSL_ENGINE_H
 
 #include "IceSSL/Plugin.h"
-#include "Util.h"
+#include "InstanceF.h"
 #include "SSLEngineF.h"
 #include "TrustManagerF.h"
-#include "InstanceF.h"
+#include "Util.h"
 
-#include "Ice/CommunicatorF.h"
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
+#include "Ice/CommunicatorF.h"
 
 #include <mutex>
 

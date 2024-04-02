@@ -6,15 +6,15 @@
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#    include "TcpConnector.h"
-#    include "TcpTransceiver.h"
-#    include "TcpEndpointI.h"
-#    include "ProtocolInstance.h"
+#    include "Ice/Exception.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Network.h"
 #    include "NetworkProxy.h"
+#    include "ProtocolInstance.h"
 #    include "StreamSocket.h"
-#    include "Ice/Exception.h"
+#    include "TcpConnector.h"
+#    include "TcpEndpointI.h"
+#    include "TcpTransceiver.h"
 
 using namespace std;
 using namespace Ice;

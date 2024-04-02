@@ -3,24 +3,24 @@
 //
 
 #include "ConnectionFactory.h"
-#include "ConnectionI.h"
-#include "Instance.h"
-#include "Ice/LoggerUtil.h"
-#include "TraceLevels.h"
-#include "DefaultsAndOverrides.h"
-#include "Ice/Properties.h"
-#include "Transceiver.h"
-#include "Connector.h"
 #include "Acceptor.h"
-#include "ThreadPool.h"
+#include "CommunicatorFlushBatchAsync.h"
+#include "ConnectionI.h"
+#include "Connector.h"
+#include "DefaultsAndOverrides.h"
+#include "EndpointI.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "IceUtil/Random.h"
+#include "Instance.h"
 #include "ObjectAdapterI.h" // For getThreadPool().
 #include "Reference.h"
-#include "EndpointI.h"
 #include "RouterInfo.h"
-#include "Ice/LocalException.h"
-#include "Ice/Communicator.h"
-#include "IceUtil/Random.h"
-#include "CommunicatorFlushBatchAsync.h"
+#include "ThreadPool.h"
+#include "TraceLevels.h"
+#include "Transceiver.h"
 
 #include <iterator>
 

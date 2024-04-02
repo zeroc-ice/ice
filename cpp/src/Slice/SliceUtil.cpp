@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Util.h"
 #include "FileTracker.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/StringConverter.h"
 #include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringConverter.h"
+#include "IceUtil/StringUtil.h"
+#include "Util.h"
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstring>
-#include <algorithm>
 
 #ifndef _MSC_VER
 #    include <unistd.h> // For readlink()

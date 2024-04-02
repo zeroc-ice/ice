@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "ReplicaSessionManager.h"
-#include "TraceLevels.h"
 #include "Database.h"
+#include "Ice/Ice.h"
+#include "TraceLevels.h"
 #include "WellKnownObjectsManager.h"
 
 using namespace std;

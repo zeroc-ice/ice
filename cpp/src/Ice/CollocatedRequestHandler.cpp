@@ -3,13 +3,13 @@
 //
 
 #include "CollocatedRequestHandler.h"
-#include "ObjectAdapterI.h"
-#include "ThreadPool.h"
-#include "Reference.h"
-#include "Instance.h"
-#include "TraceLevels.h"
-#include "Ice/OutgoingAsync.h"
 #include "Endian.h"
+#include "Ice/OutgoingAsync.h"
+#include "Instance.h"
+#include "ObjectAdapterI.h"
+#include "Reference.h"
+#include "ThreadPool.h"
+#include "TraceLevels.h"
 #include "TraceUtil.h"
 
 using namespace std;

@@ -4,9 +4,9 @@
 //
 
 #include "Ice/LoggerUtil.h"
+#include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/Plugin.h"
-#include "Ice/LocalException.h"
 #include "Instance.h"
 
 using namespace std;

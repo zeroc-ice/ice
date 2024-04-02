@@ -5,8 +5,8 @@
 #ifndef ICESTORM_TOPIC_I_H
 #define ICESTORM_TOPIC_I_H
 
-#include "Ice/ObserverHelper.h"
 #include "Election.h"
+#include "Ice/ObserverHelper.h"
 #include "IceStormInternal.h"
 #include "Instrumentation.h"
 #include "Util.h"

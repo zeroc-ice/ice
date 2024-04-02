@@ -7,10 +7,10 @@
 
 #include "IceUtil/StringUtil.h"
 
-#include "Network.h"
-#include "Ice/InstanceF.h"
 #include "EventHandlerF.h"
+#include "Ice/InstanceF.h"
 #include "Ice/UniqueRef.h"
+#include "Network.h"
 
 #include <map>
 

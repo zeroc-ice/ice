@@ -5,21 +5,21 @@
 #ifndef ICE_OBJECT_ADAPTER_I_H
 #define ICE_OBJECT_ADAPTER_I_H
 
-#include "Ice/ObjectAdapter.h"
-#include "Ice/InstanceF.h"
-#include "ObjectAdapterFactoryF.h"
-#include "Ice/CommunicatorF.h"
-#include "ConnectionFactoryF.h"
-#include "ServantManagerF.h"
-#include "Ice/ObjectF.h"
-#include "RouterInfoF.h"
-#include "EndpointIF.h"
-#include "LocatorInfoF.h"
-#include "ThreadPoolF.h"
-#include "Ice/Exception.h"
-#include "Ice/BuiltinSequences.h"
-#include "Ice/Proxy.h"
 #include "ACM.h"
+#include "ConnectionFactoryF.h"
+#include "EndpointIF.h"
+#include "Ice/BuiltinSequences.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/Exception.h"
+#include "Ice/InstanceF.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/ObjectF.h"
+#include "Ice/Proxy.h"
+#include "LocatorInfoF.h"
+#include "ObjectAdapterFactoryF.h"
+#include "RouterInfoF.h"
+#include "ServantManagerF.h"
+#include "ThreadPoolF.h"
 
 #ifdef ICE_SWIFT
 #    include <dispatch/dispatch.h>

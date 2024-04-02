@@ -2,30 +2,30 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "ServerI.h"
+#include "../Ice/TimeUtil.h"
+#include "Activator.h"
+#include "DescriptorHelper.h"
+#include "Ice/Ice.h"
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/FileUtil.h"
-#include "Ice/Ice.h"
-#include "../Ice/TimeUtil.h"
-#include "ServerI.h"
-#include "TraceLevels.h"
-#include "Activator.h"
 #include "NodeI.h"
 #include "ServerAdapterI.h"
-#include "DescriptorHelper.h"
+#include "TraceLevels.h"
 #include "Util.h"
 
-#include <sys/types.h>
 #include <fstream>
+#include <sys/types.h>
 
 #ifdef _WIN32
 #    include <direct.h>
 #    include <signal.h>
 #else
-#    include <sys/wait.h>
+#    include <dirent.h>
 #    include <pwd.h> // for getpwnam
 #    include <signal.h>
+#    include <sys/wait.h>
 #    include <unistd.h>
-#    include <dirent.h>
 #endif
 
 using namespace std;

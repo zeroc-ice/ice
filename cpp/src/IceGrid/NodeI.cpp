@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Timer.h"
-#include "IceUtil/FileUtil.h"
-#include "Ice/Ice.h"
 #include "NodeI.h"
 #include "Activator.h"
-#include "ServerI.h"
-#include "ServerAdapterI.h"
-#include "TraceLevels.h"
+#include "Ice/Ice.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/Timer.h"
 #include "NodeSessionManager.h"
+#include "ServerAdapterI.h"
+#include "ServerI.h"
+#include "TraceLevels.h"
 #include "Util.h"
 
 using namespace std;

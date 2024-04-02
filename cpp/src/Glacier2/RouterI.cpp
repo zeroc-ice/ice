@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "FilterManager.h"
-#include "RoutingTable.h"
 #include "RouterI.h"
+#include "FilterManager.h"
 #include "Glacier2/Session.h"
+#include "RoutingTable.h"
 
 #include <random>
 

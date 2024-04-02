@@ -3,33 +3,33 @@
 //
 
 #include "Reference.h"
-#include "ReferenceFactory.h"
-#include "Ice/LocalException.h"
-#include "Instance.h"
-#include "EndpointI.h"
-#include "OpaqueEndpointI.h"
-#include "Ice/OutputStream.h"
-#include "RouterInfo.h"
-#include "Ice/Router.h"
-#include "LocatorInfo.h"
-#include "Ice/Locator.h"
-#include "ConnectionI.h"
-#include "ConnectionFactory.h"
-#include "Ice/LoggerUtil.h"
-#include "TraceLevels.h"
-#include "HashUtil.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
-#include "FixedRequestHandler.h"
-#include "ObjectAdapterFactory.h"
+#include "ConnectionFactory.h"
+#include "ConnectionI.h"
 #include "DefaultsAndOverrides.h"
+#include "EndpointI.h"
+#include "FixedRequestHandler.h"
+#include "HashUtil.h"
 #include "Ice/Comparable.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/OutputStream.h"
+#include "Ice/Router.h"
+#include "Instance.h"
+#include "LocatorInfo.h"
+#include "ObjectAdapterFactory.h"
+#include "OpaqueEndpointI.h"
+#include "ReferenceFactory.h"
+#include "RouterInfo.h"
 #include "StringUtil.h"
+#include "TraceLevels.h"
 
 #include "IceUtil/Random.h"
 
-#include <functional>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
 using namespace Ice;

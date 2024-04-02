@@ -5,8 +5,8 @@
 #ifndef ICE_FIXED_REQUEST_HANDLER_H
 #define ICE_FIXED_REQUEST_HANDLER_H
 
-#include "RequestHandler.h"
 #include "Ice/ReferenceF.h"
+#include "RequestHandler.h"
 
 namespace IceInternal
 {

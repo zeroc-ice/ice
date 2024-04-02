@@ -4,12 +4,12 @@
 
 #include "ThreadPool.h"
 #include "EventHandler.h"
-#include "Network.h"
 #include "Ice/LocalException.h"
-#include "Instance.h"
 #include "Ice/LoggerUtil.h"
-#include "ObjectAdapterFactory.h"
 #include "Ice/Properties.h"
+#include "Instance.h"
+#include "Network.h"
+#include "ObjectAdapterFactory.h"
 #include "TraceLevels.h"
 
 #if defined(__FreeBSD__)

@@ -7,9 +7,9 @@
 
 #include "ObjectAdapterI.h"
 
-#include <set>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <set>
 
 namespace IceInternal
 {

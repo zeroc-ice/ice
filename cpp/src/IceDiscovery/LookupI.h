@@ -8,12 +8,12 @@
 #include "IceDiscovery.h"
 #include "LocatorI.h"
 
-#include "IceUtil/Timer.h"
-#include "Ice/Properties.h"
 #include "Ice/Comparable.h"
+#include "Ice/Properties.h"
+#include "IceUtil/Timer.h"
 
-#include <set>
 #include <chrono>
+#include <set>
 
 namespace IceDiscovery
 {

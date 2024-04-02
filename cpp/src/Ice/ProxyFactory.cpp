@@ -3,17 +3,17 @@
 //
 
 #include "ProxyFactory.h"
-#include "Instance.h"
-#include "Ice/Proxy.h"
-#include "ReferenceFactory.h"
-#include "LocatorInfo.h"
-#include "RouterInfo.h"
-#include "Ice/OutputStream.h"
 #include "Ice/InputStream.h"
-#include "Ice/Properties.h"
-#include "Ice/LoggerUtil.h"
-#include "TraceLevels.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/OutputStream.h"
+#include "Ice/Properties.h"
+#include "Ice/Proxy.h"
+#include "Instance.h"
+#include "LocatorInfo.h"
+#include "ReferenceFactory.h"
+#include "RouterInfo.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace Ice;

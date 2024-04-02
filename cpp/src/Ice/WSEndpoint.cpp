@@ -3,15 +3,15 @@
 //
 
 #include "WSEndpoint.h"
-#include "WSAcceptor.h"
-#include "WSConnector.h"
-#include "Ice/OutputStream.h"
+#include "EndpointFactoryManager.h"
+#include "HashUtil.h"
+#include "IPEndpointI.h"
+#include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
-#include "IPEndpointI.h"
-#include "HashUtil.h"
-#include "EndpointFactoryManager.h"
-#include "Ice/Comparable.h"
+#include "Ice/OutputStream.h"
+#include "WSAcceptor.h"
+#include "WSConnector.h"
 
 using namespace std;
 using namespace Ice;

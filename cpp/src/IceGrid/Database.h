@@ -5,18 +5,18 @@
 #ifndef ICE_GRID_DATABASE_H
 #define ICE_GRID_DATABASE_H
 
-#include "IceUtil/FileUtil.h"
+#include "AdapterCache.h"
+#include "AllocatableObjectCache.h"
 #include "Ice/CommunicatorF.h"
 #include "IceGrid/Admin.h"
+#include "IceUtil/FileUtil.h"
 #include "Internal.h"
-#include "ServerCache.h"
 #include "NodeCache.h"
-#include "ReplicaCache.h"
 #include "ObjectCache.h"
-#include "AllocatableObjectCache.h"
-#include "AdapterCache.h"
-#include "Topics.h"
 #include "PluginFacadeI.h"
+#include "ReplicaCache.h"
+#include "ServerCache.h"
+#include "Topics.h"
 
 #include "../IceDB/IceDB.h"
 

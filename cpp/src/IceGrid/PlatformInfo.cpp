@@ -2,20 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
 #include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include "Ice/Communicator.h"
-#include "Ice/Properties.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
 #include "PlatformInfo.h"
 #include "TraceLevels.h"
 
-#include <set>
 #include <climits>
 #include <fstream>
+#include <set>
 
 #if defined(_WIN32)
 #    include <pdhmsg.h> // For PDH_MORE_DATA

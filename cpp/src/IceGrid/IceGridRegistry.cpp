@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Options.h"
+#include "../Ice/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "Ice/Service.h"
-#include "../Ice/ConsoleUtil.h"
+#include "IceUtil/Options.h"
 #include "RegistryI.h"
 #include "TraceLevels.h"
 #include "Util.h"

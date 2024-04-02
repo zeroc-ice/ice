@@ -5,10 +5,10 @@
 #ifndef ICE_TCP_ACCEPTOR_H
 #define ICE_TCP_ACCEPTOR_H
 
-#include "TransceiverF.h"
-#include "ProtocolInstanceF.h"
 #include "Acceptor.h"
 #include "Network.h"
+#include "ProtocolInstanceF.h"
+#include "TransceiverF.h"
 
 namespace IceInternal
 {

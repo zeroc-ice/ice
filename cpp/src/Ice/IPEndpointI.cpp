@@ -3,14 +3,14 @@
 //
 
 #include "IPEndpointI.h"
-#include "ProtocolInstance.h"
-#include "Instance.h"
-#include "Ice/LocalException.h"
-#include "Ice/Properties.h"
-#include "Ice/LoggerUtil.h"
 #include "HashUtil.h"
-#include "NetworkProxy.h"
 #include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
+#include "NetworkProxy.h"
+#include "ProtocolInstance.h"
 
 using namespace std;
 using namespace Ice;

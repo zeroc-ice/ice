@@ -3,8 +3,8 @@
 //
 
 #include "FileParserI.h"
-#include "DescriptorParser.h"
 #include "../IceXML/Parser.h"
+#include "DescriptorParser.h"
 #include "Ice/ObjectAdapter.h"
 
 using namespace std;

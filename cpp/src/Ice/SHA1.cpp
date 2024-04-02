@@ -5,9 +5,11 @@
 #include "Ice/SHA1.h"
 
 #if defined(_WIN32)
+#    include "Ice/LocalException.h"
+// clang-format off
 #    include <windows.h>
 #    include <Wincrypt.h>
-#    include "Ice/LocalException.h"
+// clang-format on
 #elif defined(__APPLE__)
 #    include <CommonCrypto/CommonDigest.h>
 #else

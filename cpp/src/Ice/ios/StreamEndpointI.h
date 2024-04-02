@@ -9,15 +9,15 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "../ProtocolInstance.h"
-#    include "../IPEndpointI.h"
-#    include "../WSEndpoint.h"
 #    include "../EndpointFactory.h"
+#    include "../IPEndpointI.h"
+#    include "../ProtocolInstance.h"
+#    include "../WSEndpoint.h"
 #    include "Ice/InstanceF.h"
 #    include "Ice/UniqueRef.h"
 
-#    include <CoreFoundation/CFDictionary.h>
 #    include <CFNetwork/CFNetwork.h>
+#    include <CoreFoundation/CFDictionary.h>
 
 namespace Ice
 {

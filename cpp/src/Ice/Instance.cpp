@@ -3,51 +3,51 @@
 //
 
 #include "Instance.h"
-#include "TimeUtil.h"
-#include "TraceLevels.h"
-#include "DefaultsAndOverrides.h"
-#include "RouterInfo.h"
-#include "Ice/Router.h"
-#include "LocatorInfo.h"
-#include "Ice/Locator.h"
-#include "ReferenceFactory.h"
-#include "ProxyFactory.h"
-#include "ThreadPool.h"
 #include "ConnectionFactory.h"
-#include "ValueFactoryManagerI.h"
-#include "Ice/LocalException.h"
-#include "ObjectAdapterFactory.h"
-#include "Ice/Exception.h"
-#include "Ice/Properties.h"
-#include "PropertiesAdminI.h"
-#include "LoggerI.h"
-#include "NetworkProxy.h"
+#include "ConsoleUtil.h"
+#include "DefaultsAndOverrides.h"
 #include "EndpointFactoryManager.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
-#include "WSEndpoint.h"
-#include "RetryQueue.h"
-#include "PluginManagerI.h"
-#include "Ice/Initialize.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/Communicator.h"
-#include "InstrumentationI.h"
-#include "ProtocolInstance.h"
-#include "LoggerAdminI.h"
-#include "RegisterPluginsInit.h"
+#include "Ice/Exception.h"
+#include "Ice/Initialize.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
-#include "ConsoleUtil.h"
+#include "Ice/Properties.h"
+#include "Ice/Router.h"
+#include "InstrumentationI.h"
+#include "LocatorInfo.h"
+#include "LoggerAdminI.h"
+#include "LoggerI.h"
+#include "NetworkProxy.h"
+#include "ObjectAdapterFactory.h"
+#include "PluginManagerI.h"
+#include "PropertiesAdminI.h"
+#include "ProtocolInstance.h"
+#include "ProxyFactory.h"
+#include "ReferenceFactory.h"
+#include "RegisterPluginsInit.h"
+#include "RetryQueue.h"
+#include "RouterInfo.h"
+#include "ThreadPool.h"
+#include "TimeUtil.h"
+#include "TraceLevels.h"
+#include "ValueFactoryManagerI.h"
+#include "WSEndpoint.h"
 
+#include "Ice/UUID.h"
 #include "IceUtil/DisableWarnings.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
-#include "Ice/UUID.h"
 
-#include "Ice/ProxyFunctions.h"
 #include "CheckIdentity.h"
+#include "Ice/ProxyFunctions.h"
 
-#include <stdio.h>
 #include <list>
 #include <mutex>
+#include <stdio.h>
 
 #ifdef __APPLE__
 #    include "OSLogLoggerI.h"
@@ -57,10 +57,10 @@
 #    include "SysLoggerI.h"
 #    include "SystemdJournalI.h"
 
-#    include <signal.h>
-#    include <syslog.h>
 #    include <pwd.h>
+#    include <signal.h>
 #    include <sys/types.h>
+#    include <syslog.h>
 #endif
 
 #if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)

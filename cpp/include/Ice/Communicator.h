@@ -5,8 +5,8 @@
 #ifndef ICE_COMMUNICATOR_H
 #define ICE_COMMUNICATOR_H
 
-#include "Config.h"
 #include "CommunicatorF.h"
+#include "Config.h"
 #include "Connection.h"
 #include "FacetMap.h"
 #include "ImplicitContext.h"

@@ -4,8 +4,8 @@
 //
 
 #include "SessionRouterI.h"
-#include "Glacier2/PermissionsVerifier.h"
 #include "FilterManager.h"
+#include "Glacier2/PermissionsVerifier.h"
 #include "RouterI.h"
 
 #include "Ice/UUID.h"

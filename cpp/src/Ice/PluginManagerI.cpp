@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Options.h"
 #include "PluginManagerI.h"
 #include "DynamicLibrary.h"
 #include "Ice/Communicator.h"
-#include "Ice/Properties.h"
-#include "Ice/LoggerUtil.h"
-#include "Instance.h"
 #include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "IceUtil/Options.h"
+#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

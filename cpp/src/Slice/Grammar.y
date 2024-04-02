@@ -4,12 +4,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
-#include "GrammarUtil.h"
-
 }
 
 %code requires{
+
+// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
+#include "GrammarUtil.h"
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
@@ -66,6 +66,7 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 %{
 
 #include "IceUtil/UUID.h"
+#include "Parser.h"
 
 #include <cstring>
 #include <limits>

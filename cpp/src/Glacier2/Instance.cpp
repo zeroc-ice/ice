@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "SessionRouterI.h"
 #include "Instance.h"
-#include "InstrumentationI.h"
 #include "../Ice/InstrumentationI.h"
+#include "InstrumentationI.h"
+#include "SessionRouterI.h"
 
 using namespace std;
 using namespace Glacier2;

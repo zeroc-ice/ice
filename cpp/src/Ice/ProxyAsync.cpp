@@ -5,13 +5,13 @@
 // This file contains the implementation of all the async member functions of the Ice::ObjectPrx class. And also the
 // synchronous wrappers for these member functions.
 
+#include "CollocatedRequestHandler.h"
+#include "ConnectionI.h"
+#include "Ice/InputStream.h"
+#include "Ice/OutgoingAsync.h"
+#include "Ice/OutputStream.h"
 #include "Ice/Proxy.h"
 #include "ReferenceFactory.h"
-#include "Ice/OutgoingAsync.h"
-#include "CollocatedRequestHandler.h"
-#include "Ice/OutputStream.h"
-#include "Ice/InputStream.h"
-#include "ConnectionI.h"
 
 using namespace std;
 using namespace Ice;

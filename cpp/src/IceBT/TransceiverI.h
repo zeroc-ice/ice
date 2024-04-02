@@ -5,8 +5,8 @@
 #ifndef ICE_BT_TRANSCEIVER_H
 #define ICE_BT_TRANSCEIVER_H
 
-#include "InstanceF.h"
 #include "Engine.h"
+#include "InstanceF.h"
 #include "StreamSocket.h"
 
 #include "../Ice/Transceiver.h"

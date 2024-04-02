@@ -5,33 +5,33 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include "IceUtil/StopWatch.h"
-#include "IceUtil/Timer.h"
+#include "ACM.h"
+#include "ConnectionFactoryF.h"
+#include "ConnectorF.h"
+#include "EndpointIF.h"
+#include "EventHandler.h"
+#include "Ice/BatchRequestQueueF.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/Connection.h"
 #include "Ice/ConnectionIF.h"
-#include "ConnectionFactoryF.h"
-#include "Ice/InstanceF.h"
-#include "TransceiverF.h"
-#include "Ice/ObjectAdapterF.h"
-#include "EndpointIF.h"
-#include "ConnectorF.h"
-#include "Ice/Logger.h"
-#include "TraceLevelsF.h"
-#include "Ice/OutgoingAsync.h"
-#include "EventHandler.h"
-#include "RequestHandler.h"
-#include "Ice/ObserverHelper.h"
-#include "Ice/BatchRequestQueueF.h"
-#include "ACM.h"
-#include "Ice/OutputStream.h"
 #include "Ice/InputStream.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Logger.h"
+#include "Ice/ObjectAdapterF.h"
+#include "Ice/ObserverHelper.h"
+#include "Ice/OutgoingAsync.h"
 #include "Ice/OutgoingResponse.h"
+#include "Ice/OutputStream.h"
+#include "IceUtil/StopWatch.h"
+#include "IceUtil/Timer.h"
+#include "RequestHandler.h"
+#include "TraceLevelsF.h"
+#include "TransceiverF.h"
 
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <mutex>
-#include <chrono>
 
 #ifndef ICE_HAS_BZIP2
 #    define ICE_HAS_BZIP2

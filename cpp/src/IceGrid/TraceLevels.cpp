@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "TraceLevels.h"
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceGrid;

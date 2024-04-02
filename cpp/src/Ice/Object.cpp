@@ -4,10 +4,10 @@
 
 #include "Ice/Object.h"
 #include "Ice/AsyncResponseHandler.h"
-#include "Ice/LocalException.h"
-#include "Ice/SlicedData.h"
 #include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
+#include "Ice/SlicedData.h"
 
 #include <algorithm>
 #include <sstream>

@@ -6,10 +6,10 @@
 
 #include <dbus/dbus.h>
 
-#include <stack>
-#include <mutex>
-#include <thread>
 #include <condition_variable>
+#include <mutex>
+#include <stack>
+#include <thread>
 
 using namespace std;
 using namespace IceBT::DBus;

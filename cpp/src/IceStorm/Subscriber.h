@@ -7,8 +7,8 @@
 
 #include "Ice/ObserverHelper.h"
 #include "IceStormInternal.h"
-#include "SubscriberRecord.h"
 #include "Instrumentation.h"
+#include "SubscriberRecord.h"
 
 #include <condition_variable>
 

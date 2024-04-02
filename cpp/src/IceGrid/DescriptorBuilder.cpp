@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Communicator.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/LocalException.h"
-#include "Ice/Initialize.h"
 #include "DescriptorBuilder.h"
+#include "Ice/Communicator.h"
+#include "Ice/Initialize.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "Util.h"
 
 #include <stdexcept>

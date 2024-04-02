@@ -4,10 +4,10 @@
 
 #include "CPlusPlusUtil.h"
 #include "../Slice/Util.h"
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <functional>
-#include <algorithm>
 
 #ifndef _WIN32
 #    include <fcntl.h>

@@ -7,8 +7,8 @@
 
 #include "IceSSL/Plugin.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace IceSSL
 {

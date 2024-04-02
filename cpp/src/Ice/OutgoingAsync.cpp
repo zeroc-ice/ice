@@ -3,19 +3,19 @@
 //
 
 #include "Ice/OutgoingAsync.h"
-#include "ConnectionI.h"
 #include "CollocatedRequestHandler.h"
-#include "Reference.h"
-#include "Instance.h"
-#include "Ice/LocalException.h"
-#include "ReplyStatus.h"
-#include "Ice/ImplicitContext.h"
-#include "ThreadPool.h"
-#include "RetryQueue.h"
 #include "ConnectionFactory.h"
-#include "ObjectAdapterFactory.h"
+#include "ConnectionI.h"
+#include "Ice/ImplicitContext.h"
+#include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "Instance.h"
+#include "ObjectAdapterFactory.h"
+#include "Reference.h"
+#include "ReplyStatus.h"
 #include "RequestHandlerCache.h"
+#include "RetryQueue.h"
+#include "ThreadPool.h"
 
 using namespace std;
 using namespace Ice;

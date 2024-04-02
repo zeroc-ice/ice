@@ -6,15 +6,15 @@
 
 #include "IceUtil/StringUtil.h"
 
+#include "Ice/Buffer.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "IceSSL/ConnectionInfo.h"
 #include "Instance.h"
-#include "SChannelEngine.h"
 #include "PluginI.h"
+#include "SChannelEngine.h"
 #include "Util.h"
-#include "Ice/Communicator.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace Ice;

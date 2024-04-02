@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Internal.h"
 #include "QueryI.h"
 #include "Database.h"
+#include "Internal.h"
 
 using namespace std;
 using namespace Ice;

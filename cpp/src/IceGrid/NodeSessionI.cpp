@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/UUID.h"
-#include "Ice/Ice.h"
 #include "NodeSessionI.h"
 #include "Database.h"
+#include "Ice/Ice.h"
+#include "Ice/UUID.h"
 #include "Topics.h"
 
 using namespace std;

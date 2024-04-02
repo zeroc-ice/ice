@@ -6,8 +6,8 @@
 #define ICE_CONNECT_REQUEST_HANDLER_H
 
 #include "ConnectRequestHandlerF.h"
-#include "RequestHandler.h"
 #include "Reference.h"
+#include "RequestHandler.h"
 #include "RouterInfo.h"
 
 #include <condition_variable>

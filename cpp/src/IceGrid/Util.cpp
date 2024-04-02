@@ -5,17 +5,17 @@
 #include "Util.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "Internal.h"
+#include "IceUtil/FileUtil.h"
 #include "IceUtil/IceUtil.h"
 #include "IceUtil/StringUtil.h"
-#include "IceUtil/FileUtil.h"
+#include "Internal.h"
 
 #ifdef _WIN32
 #    include <direct.h>
 #    include <io.h>
 #else
-#    include <unistd.h>
 #    include <dirent.h>
+#    include <unistd.h>
 #endif
 
 #include <cassert>

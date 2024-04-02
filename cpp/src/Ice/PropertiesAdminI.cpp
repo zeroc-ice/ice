@@ -3,9 +3,9 @@
 //
 
 #include "PropertiesAdminI.h"
-#include "Instance.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Instance.h"
 #include "ThreadPool.h"
 
 using namespace std;

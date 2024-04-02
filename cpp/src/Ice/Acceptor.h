@@ -6,9 +6,9 @@
 #define ICE_ACCEPTOR_H
 
 #include "AcceptorF.h"
-#include "TransceiverF.h"
 #include "EndpointIF.h"
 #include "Network.h"
+#include "TransceiverF.h"
 
 namespace IceInternal
 {
