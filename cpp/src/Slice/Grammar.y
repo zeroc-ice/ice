@@ -393,7 +393,7 @@ module_def
     size_t startPos = 0;
     if (ident->v.find("::") == 0)
     {
-        currentUnit->error("module identifiers cannot start with '::' prefix");
+        currentUnit->error("illegal identifier: module identifiers cannot start with '::' prefix");
         startPos += 2; // Skip the leading "::".
     }
 
