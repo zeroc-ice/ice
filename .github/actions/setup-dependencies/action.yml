@@ -55,6 +55,13 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
 
+    - name: Set Java 17 as default
+      run: |
+        sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 2000
+
+      shell: bash
+      if: runner.os == 'Linux'
+
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy
       shell: bash
