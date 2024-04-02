@@ -6,6 +6,7 @@
 #include "TestHelper.h"
 
 #include <cstring>
+#include <sstream>
 
 using namespace std;
 

@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/IceUtil.h"
 #include "Ice/Ice.h"
 #include "TestI.h"
 #include "TestHelper.h"

@@ -5,12 +5,6 @@
 #ifndef TEST_HELPER_H
 #define TEST_HELPER_H
 
-#include <cassert>
-#include <cstdlib>
-#include <string>
-#include <iostream>
-#include <mutex>
-
 #include "IceUtil/Config.h"
 
 #if defined(_MSC_VER) && !defined(TEST_API_EXPORTS)
@@ -18,12 +12,17 @@
 #endif
 
 #include "Ice/CommunicatorF.h"
+#include "Ice/CtrlCHandler.h"
 #include "Ice/ProxyF.h"
 #include "Ice/Initialize.h"
 #include "Ice/Logger.h"
 #include "Ice/LocalException.h"
 
-#include "IceUtil/IceUtil.h"
+#include <cassert>
+#include <cstdlib>
+#include <string>
+#include <iostream>
+#include <mutex>
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)

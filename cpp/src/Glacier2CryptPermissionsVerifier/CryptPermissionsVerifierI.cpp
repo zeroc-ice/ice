@@ -4,7 +4,6 @@
 
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
-#include "IceUtil/IceUtil.h"
 
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"

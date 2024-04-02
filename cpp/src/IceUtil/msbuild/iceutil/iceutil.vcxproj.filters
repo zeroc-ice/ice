@@ -62,9 +62,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
