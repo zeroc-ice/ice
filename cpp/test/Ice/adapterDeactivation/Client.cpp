@@ -3,10 +3,10 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include "Test.h"
-#include <string>
+#include "TestHelper.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 using namespace Ice;

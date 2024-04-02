@@ -7,9 +7,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <string>
 #include <iostream>
 #include <mutex>
+#include <string>
 
 #include "IceUtil/Config.h"
 
@@ -18,10 +18,10 @@
 #endif
 
 #include "Ice/CommunicatorF.h"
-#include "Ice/ProxyF.h"
 #include "Ice/Initialize.h"
-#include "Ice/Logger.h"
 #include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/ProxyF.h"
 
 #include "IceUtil/IceUtil.h"
 

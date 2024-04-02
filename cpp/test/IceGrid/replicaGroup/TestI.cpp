@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "TestI.h"
+#include "Ice/Ice.h"
 
 TestI::TestI(const Ice::PropertiesPtr& properties) : _properties(properties) {}
 

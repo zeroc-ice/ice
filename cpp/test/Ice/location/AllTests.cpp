@@ -5,12 +5,12 @@
 #include "Ice/Ice.h"
 #include "Ice/Router.h"
 #include "IceUtil/IceUtil.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
 #include <list>
+#include <thread>
 
 using namespace std;
 using namespace Test;

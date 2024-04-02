@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 #include "TestI.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace Test;

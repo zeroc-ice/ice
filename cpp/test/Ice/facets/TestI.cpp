@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "TestI.h"
+#include "Ice/Ice.h"
 
 std::string
 AI::callA(const Ice::Current&)

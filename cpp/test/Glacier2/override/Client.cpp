@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-#include "Glacier2/Router.h"
-#include "TestHelper.h"
 #include "CallbackI.h"
-#include <thread>
+#include "Glacier2/Router.h"
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace std::chrono_literals;

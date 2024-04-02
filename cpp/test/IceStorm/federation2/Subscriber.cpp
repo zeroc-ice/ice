@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "Event.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "Event.h"
 #include "TestHelper.h"
 
 #include <fcntl.h>
@@ -12,8 +12,8 @@
 #ifdef _WIN32
 #    include <io.h>
 #else
-#    include <sys/types.h>
 #    include <sys/stat.h>
+#    include <sys/types.h>
 #endif
 
 #include <stdexcept>

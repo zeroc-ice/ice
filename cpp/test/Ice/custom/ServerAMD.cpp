@@ -3,10 +3,10 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
-#include "TestAMDI.h"
-#include "WstringAMDI.h"
 #include "StringConverterI.h"
+#include "TestAMDI.h"
+#include "TestHelper.h"
+#include "WstringAMDI.h"
 
 using namespace std;
 

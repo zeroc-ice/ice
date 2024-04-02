@@ -5,9 +5,9 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
+#include "Ice/NativePropertiesAdmin.h"
 #include "Test.h"
 #include "TestHelper.h"
-#include "Ice/NativePropertiesAdmin.h"
 
 class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {

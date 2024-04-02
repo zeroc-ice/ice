@@ -3,8 +3,8 @@
 //
 
 #include "ServantLocatorI.h"
-#include "TestHelper.h"
 #include "TestAMDI.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

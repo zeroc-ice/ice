@@ -6,12 +6,12 @@
 #    define TEST_API_EXPORTS
 #endif
 
+#include "Ice/EndpointFactoryManager.h"
 #include "Ice/Initialize.h"
 #include "Ice/ProtocolPluginFacade.h"
-#include "Ice/EndpointFactoryManager.h"
 
-#include "PluginI.h"
 #include "EndpointFactory.h"
+#include "PluginI.h"
 
 using namespace std;
 

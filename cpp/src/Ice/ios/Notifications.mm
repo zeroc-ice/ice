@@ -6,14 +6,14 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    import <Foundation/NSObject.h>
 #    import <Foundation/NSNotification.h>
+#    import <Foundation/NSObject.h>
 #    import <UIKit/UIApplication.h>
 
 #    include "../ConnectionFactory.h"
 
-#    include <set>
 #    include <mutex>
+#    include <set>
 
 using namespace std;
 using namespace IceInternal;

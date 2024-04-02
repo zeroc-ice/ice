@@ -7,8 +7,8 @@
 #endif
 
 #include "Connector.h"
-#include "Transceiver.h"
 #include "EndpointI.h"
+#include "Transceiver.h"
 
 using namespace std;
 

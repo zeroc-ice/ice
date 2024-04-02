@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "Executor.h"
 #include "Ice/Ice.h"
 #include "IceUtil/Random.h"
-#include "TestHelper.h"
 #include "Test.h"
-#include "Executor.h"
+#include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

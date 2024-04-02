@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 #include "Wstring.h"
 #include <iterator>
 

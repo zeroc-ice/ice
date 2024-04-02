@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/IceUtil.h"
-#include "Ice/Ice.h"
 #include "TestI.h"
+#include "Ice/Ice.h"
+#include "IceUtil/IceUtil.h"
 #include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

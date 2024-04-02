@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../../src/Ice/Endian.h"
 #include "IceUtil/IceUtil.h"
 #include "TestHelper.h"
-#include "../../../src/Ice/Endian.h"
 
 #ifdef _WIN32
 #    include <io.h>

@@ -5,8 +5,8 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include "Test.h"
 #include "Configuration.h"
+#include "Test.h"
 
 #include <set>
 

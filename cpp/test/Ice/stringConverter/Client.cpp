@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include "Test.h"
+#include "TestHelper.h"
 
+#include "../../../src/Ice/Endian.h"
 #include <iostream>
 #include <locale.h>
-#include "../../../src/Ice/Endian.h"
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4127) // conditional expression is constant

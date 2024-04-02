@@ -12,8 +12,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 using namespace std;
 using namespace Slice;

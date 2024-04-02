@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Communicator.h"
 #include "TestAMDI.h"
+#include "Ice/Communicator.h"
 
 using namespace std;
 using namespace Ice;
