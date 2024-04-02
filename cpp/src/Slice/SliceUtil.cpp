@@ -483,13 +483,7 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
-    // Check that the identifier isn't empty.
-    if (name.empty())
-    {
-        currentUnit->error("missing identifier: illegal empty identifier");
-        return false;
-    }
-
+    assert(!name.empty());
     bool isValid = true;
 
     // check the identifier for reserved suffixes

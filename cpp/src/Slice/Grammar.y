@@ -389,14 +389,21 @@ module_def
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
 
-    // Split the scoped-identifier token into separate module names.
-    vector<string> modules;
+    // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
     size_t startPos = 0;
+    if ident->v.starts_with("::")
+    {
+        startPos += 2; // Skip the leading "::".
+        currentUnit->error("module identifiers cannot start with "::" prefix");
+    }
+
+    // Split the scoped-identifier token into separate module names.
     size_t endPos;
+    vector<string> modules;
     while ((endPos = ident->v.find("::", startPos)) != string::npos)
     {
         modules.push_back(ident->v.substr(startPos, (endPos - startPos)));
-        startPos = endPos + 2;
+        startPos = endPos + 2; // Skip the "::" separator.
     }
     modules.push_back(ident->v.substr(startPos));
 
@@ -438,12 +445,11 @@ module_def
         // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
         // Where `N` is the number of scope separators ("::").
         size_t startPos = 0;
-        size_t endPos;
         auto ident = dynamic_pointer_cast<StringTok>($2);
-        while ((endPos = ident->v.find("::", startPos)) != string::npos)
+        while ((startPos = ident->v.find("::", startPos)) != string::npos)
         {
             currentUnit->popContainer();
-            startPos = endPos + 2;
+            startPos += 2; // Skip the "::" separator.
         }
 
         // Set the 'return value' to the outer-most module, before we pop it off the stack.
