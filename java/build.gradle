@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import org.gradle.util.GradleVersion
-
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
@@ -20,21 +18,15 @@ subprojects {
                 url this.devRepo
             }
         }
-
-        if(new File("/usr/share/maven-repo").exists()) {
-            maven {
-                url "/usr/share/maven-repo"
-            }
-        }
-
         mavenCentral()
     }
 
-    // Only enable infer module path with Java 9 and up
-    if(GradleVersion.current() >= GradleVersion.version('6.4')) {
-        java {
-            modularity.inferModulePath = targetJavaRelease.toInteger() > 8
-        }
+    java {
+        modularity.inferModulePath = true
+        // The corresponding -source and -target javac options are suppressed by gradle when
+        // --release is set through options.compileArgs (see above).
+        sourceCompatibility = "1.${targetJavaRelease}"
+        targetCompatibility = "1.${targetJavaRelease}"
     }
 
     jar {
@@ -67,26 +59,16 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
     ]
 
     task alljavadoc(type: Javadoc) {
-
-        // We rely on Java9+ javadoc features
-        enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
-        exclude "**/module-info.java"
+        enabled = true
         source exportedProjects.collect { project(it).javadoc.source }
         classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
+        exclude "**/module-info.java"
         destinationDir = file("${buildDir}/docs/javadoc")
-
-        if(GradleVersion.current() >= GradleVersion.version('4.7') &&
-           JavaVersion.current() > JavaVersion.VERSION_1_10 && JavaVersion.current() <= JavaVersion.VERSION_11) {
-            // --no-module-directories is an undocumented option required for the generated search to work properly.
-            // Without this option, search returns ../undefined/... URLs.
-            //
-            // This option was removed on JDK 13 https://bugs.openjdk.java.net/browse/JDK-8215582
-            //
-            options.addBooleanOption('-no-module-directories', true)
-        }
         options.addBooleanOption('html5', true)
         options.header = 'Ice for Java'
         options.docTitle = "Ice ${iceVersion} API Reference"
+        options.addBooleanOption('-no-module-directories', true)
+        
     }
 
     alljavadoc.dependsOn = exportedProjects.collect { project(it).javadoc.dependsOn }
