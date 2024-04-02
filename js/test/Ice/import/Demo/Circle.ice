@@ -8,18 +8,13 @@
 
 #include <Demo/Point.ice>
 
-module Demo
-{
-
-module gx
+module Demo::gx
 {
 
 struct Circle
 {
     Point center;
     long radius;
-}
-
 }
 
 }

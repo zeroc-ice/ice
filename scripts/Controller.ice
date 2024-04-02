@@ -2,10 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-module Test
-{
-
-module Common
+module Test::Common
 {
 
 sequence<bool> BoolSeq;
@@ -99,8 +96,6 @@ interface BrowserProcessController extends ProcessController
 interface ProcessControllerRegistry
 {
     void setProcessController(ProcessController* controller);
-}
-
 }
 
 }
