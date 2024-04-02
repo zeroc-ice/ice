@@ -4,6 +4,8 @@
 
 #include "RubyUtil.h"
 #include "../Slice/Util.h"
+#include "../IceUtil/FileUtil.h"
+
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -1417,11 +1419,18 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
             *p = fullPath(*p);
         }
 
-        StringList includes = un->includeFiles();
-        for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        for (string file :  un->includeFiles())
         {
-            string file = changeInclude(*q, paths);
-            out << nl << "require '" << file << ".rb'";
+            if (isAbsolutePath(file))
+            {
+                file = changeInclude(file, paths);
+                out << nl << "require '" << file << ".rb'";
+            }
+            else
+            {
+                file = removeExtension(file);
+                out << nl << "require_relative '" << file << ".rb'";
+            }
         }
     }
 
