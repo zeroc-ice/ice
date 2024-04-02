@@ -4,8 +4,8 @@
 
 #include "Ice/Properties.h"
 #include "Ice/Initialize.h"
-#include "ice.h"
 #include "Util.h"
+#include "ice.h"
 
 using namespace std;
 using namespace IceMatlab;

@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Communicator.h"
-#include "Ice/Proxy.h"
+#include "Future.h"
 #include "Ice/ImplicitContext.h"
 #include "Ice/Logger.h"
-#include "ice.h"
-#include "Future.h"
+#include "Ice/Proxy.h"
 #include "Util.h"
+#include "ice.h"
 
 using namespace std;
 using namespace IceMatlab;
