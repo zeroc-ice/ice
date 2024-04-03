@@ -4,7 +4,6 @@
 
 #pragma once
 
-[["java:package:test.IceDiscovery.simple"]]
 module Test
 {
 

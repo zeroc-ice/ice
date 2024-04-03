@@ -71,7 +71,7 @@ class C extends B
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+class D extends C
 {
     int dD;
 }
@@ -81,22 +81,22 @@ class C extends B
 module MD
 {
 
-["cpp:virtual"] class A
+class A
 {
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+class B extends A
 {
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+class C extends B
 {
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+class D extends C
 {
     int dD;
 }
@@ -116,12 +116,12 @@ class B extends A
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+class C extends B
 {
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+class D extends C
 {
     int dD;
 }
@@ -136,7 +136,7 @@ class A
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+class B extends A
 {
     int bB;
 }
@@ -146,7 +146,7 @@ class C extends B
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+class D extends C
 {
     int dD;
 }
@@ -161,12 +161,12 @@ class A
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+class B extends A
 {
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+class C extends B
 {
     int cC;
 }
