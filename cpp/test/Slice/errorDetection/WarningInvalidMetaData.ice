@@ -53,7 +53,7 @@ exception E
 {
 }
 
-["bad", "cpp:bad", "java:bad"] // We only validate metadata when it has an applicable language prefix
+["bad", "cpp:bad", "java:bad"] // We only validate metadata when it has an applicable language prefix.
 class C
 {
 }
