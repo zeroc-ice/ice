@@ -13,8 +13,6 @@ classdef Oneways
 
             p.opIdempotent();
 
-            p.opNonmutating();
-
             try
                 p.opByte(hex2dec('ff'), hex2dec('0f'));
                 assert(false);

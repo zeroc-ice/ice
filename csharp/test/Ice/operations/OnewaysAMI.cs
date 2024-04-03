@@ -53,7 +53,6 @@ namespace Ice
 
                 await p.opVoidAsync();
                 await p.opIdempotentAsync();
-                await p.opNonmutatingAsync();
 
                 try
                 {

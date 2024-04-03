@@ -1406,7 +1406,6 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
 
         await prx.opDoubleMarshaling(d, ds);
         await prx.opIdempotent();
-        await prx.opNonmutating();
     }
 
     {

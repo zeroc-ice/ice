@@ -43,13 +43,13 @@ module IceGrid
         /// Find a well-known object by identity.
         /// @param id The identity.
         /// @return The proxy or null if no such object has been found.
-        ["nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id);
+        ["cpp:const"] idempotent Object* findObjectById(Ice::Identity id);
 
         /// Find a well-known object by type. If there are several objects registered for the given type, the object is
         /// randomly selected.
         /// @param type The object type.
         /// @return The proxy or null, if no such object has been found.
-        ["nonmutating", "cpp:const"] idempotent Object* findObjectByType(string type);
+        ["cpp:const"] idempotent Object* findObjectByType(string type);
 
         /// Find a well-known object by type on the least-loaded node. If the registry does not know which node hosts
         /// the object (for example, because the object was registered with a direct proxy), the registry assumes the
@@ -57,13 +57,13 @@ module IceGrid
         /// @param type The object type.
         /// @param sample The sampling interval.
         /// @return The proxy or null, if no such object has been found.
-        ["nonmutating", "cpp:const"]
+        ["cpp:const"]
         idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
 
         /// Find all the well-known objects with the given type.
         /// @param type The object type.
         /// @return The proxies or an empty sequence, if no such objects have been found.
-        ["nonmutating", "cpp:const"] idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
+        ["cpp:const"] idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
 
         /// Find all the object replicas associated with the given proxy. If the given proxy is not an indirect proxy
         /// from a replica group, an empty sequence is returned.
@@ -115,12 +115,12 @@ module IceGrid
         /// @see Session#keepAlive
         /// @see AdminSession#keepAlive
         /// @return The timeout (in seconds).
-        ["nonmutating", "cpp:const"] idempotent int getSessionTimeout();
+        ["cpp:const"] idempotent int getSessionTimeout();
 
         /// Get the value of the ACM timeout. Clients supporting ACM connection heartbeats can enable them instead of
         /// explicitly sending keep alives requests. This method is only available since Ice 3.6.
         /// @return The timeout (in seconds).
-        ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
+        ["cpp:const"] idempotent int getACMTimeout();
     }
 
     /// The IceGrid locator interface provides access to the {@link Query} and {@link Registry} object of the IceGrid

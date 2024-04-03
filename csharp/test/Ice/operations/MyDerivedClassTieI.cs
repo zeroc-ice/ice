@@ -732,11 +732,6 @@ namespace Ice
                     test(current.mode == Ice.OperationMode.Idempotent);
                 }
 
-                public void opNonmutating(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                }
-
                 public void opDerived(Ice.Current current)
                 {
                 }

@@ -776,13 +776,6 @@ namespace Ice
                 }
 
                 public override Task
-                opNonmutatingAsync(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    return null;
-                }
-
-                public override Task
                 opDerivedAsync(Ice.Current current)
                 {
                     return null;

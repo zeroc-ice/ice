@@ -281,24 +281,24 @@ module IceGrid
         /// @param name The application name.
         /// @return The application descriptor.
         /// @throws ApplicationNotExistException Raised if the application doesn't exist.
-        ["nonmutating", "cpp:const"] idempotent ApplicationInfo getApplicationInfo(string name)
+        ["cpp:const"] idempotent ApplicationInfo getApplicationInfo(string name)
             throws ApplicationNotExistException;
 
         /// Get the default application descriptor.
         /// @return The default application descriptor.
         /// @throws DeploymentException Raised if the default application descriptor can't be accessed or is invalid.
-        ["nonmutating", "cpp:const"] idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
+        ["cpp:const"] idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
             throws DeploymentException;
 
         /// Get all the IceGrid applications currently registered.
         /// @return The application names.
-        ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllApplicationNames();
+        ["cpp:const"] idempotent Ice::StringSeq getAllApplicationNames();
 
         /// Get the server information for the server with the given id.
         /// @param id The server id.
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @return The server information.
-        ["nonmutating", "cpp:const"] idempotent ServerInfo getServerInfo(string id)
+        ["cpp:const"] idempotent ServerInfo getServerInfo(string id)
             throws ServerNotExistException;
 
         /// Get a server's state.
@@ -307,7 +307,7 @@ module IceGrid
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["nonmutating", "cpp:const"] idempotent ServerState getServerState(string id)
+        ["cpp:const"] idempotent ServerState getServerState(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
         /// Get a server's system process id. The process id is operating system dependent.
@@ -316,7 +316,7 @@ module IceGrid
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
+        ["cpp:const"] idempotent int getServerPid(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
         /// Get the category for server admin objects. You can manufacture a server admin proxy from the admin proxy by
@@ -352,7 +352,7 @@ module IceGrid
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["nonmutating", "cpp:const"] idempotent bool isServerEnabled(string id)
+        ["cpp:const"] idempotent bool isServerEnabled(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
         /// Start a server and wait for its activation.
@@ -385,7 +385,7 @@ module IceGrid
 
         /// Get all the server ids registered with IceGrid.
         /// @return The server ids.
-        ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllServerIds();
+        ["cpp:const"] idempotent Ice::StringSeq getAllServerIds();
 
         /// Get the adapter information for the replica group or adapter with the given id.
         /// @param id The adapter id.
@@ -393,7 +393,7 @@ module IceGrid
         /// will contain only one element. If the given id refers to a replica group, the sequence will contain the
         /// adapter information of each member of the replica group.
         /// @throws AdapterNotExistException Raised if the adapter or replica group doesn't exist.
-        ["nonmutating", "cpp:const"] idempotent AdapterInfoSeq getAdapterInfo(string id)
+        ["cpp:const"] idempotent AdapterInfoSeq getAdapterInfo(string id)
             throws AdapterNotExistException;
 
         /// Remove the adapter with the given id.
@@ -405,7 +405,7 @@ module IceGrid
 
         /// Get all the adapter ids registered with IceGrid.
         /// @return The adapter ids.
-        ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllAdapterIds();
+        ["cpp:const"] idempotent Ice::StringSeq getAllAdapterIds();
 
         /// Add an object to the object registry. IceGrid will get the object type by calling <code>ice_id</code> on the
         /// given proxy. The object must be reachable.
@@ -446,25 +446,25 @@ module IceGrid
         /// @param id The identity of the object.
         /// @return The object info.
         /// @throws ObjectNotRegisteredException Raised if the object isn't registered with the registry.
-        ["nonmutating", "cpp:const"] idempotent ObjectInfo getObjectInfo(Ice::Identity id)
+        ["cpp:const"] idempotent ObjectInfo getObjectInfo(Ice::Identity id)
             throws ObjectNotRegisteredException;
 
         /// Get the object info of all the registered objects with the given type.
         /// @param type The type of the object.
         /// @return The object infos.
-        ["nonmutating", "cpp:const"] idempotent ObjectInfoSeq getObjectInfosByType(string type);
+        ["cpp:const"] idempotent ObjectInfoSeq getObjectInfosByType(string type);
 
         /// Get the object info of all the registered objects whose stringified identities match the given expression.
         /// @param expr The expression to match against the stringified identities of registered objects. The expression
         /// may contain a trailing wildcard (<code>*</code>) character.
         /// @return All the object infos with a stringified identity matching the given expression.
-        ["nonmutating", "cpp:const"] idempotent ObjectInfoSeq getAllObjectInfos(string expr);
+        ["cpp:const"] idempotent ObjectInfoSeq getAllObjectInfos(string expr);
 
         /// Ping an IceGrid node to see if it is active.
         /// @param name The node name.
         /// @return true if the node ping succeeded, false otherwise.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
-        ["nonmutating", "cpp:const"] idempotent bool pingNode(string name)
+        ["cpp:const"] idempotent bool pingNode(string name)
             throws NodeNotExistException;
 
         /// Get the load averages of the node.
@@ -472,7 +472,7 @@ module IceGrid
         /// @return The node load information.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["nonmutating", "cpp:const"] idempotent LoadInfo getNodeLoad(string name)
+        ["cpp:const"] idempotent LoadInfo getNodeLoad(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Get the node information for the node with the given name.
@@ -480,7 +480,7 @@ module IceGrid
         /// @return The node information.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["nonmutating", "cpp:const"] idempotent NodeInfo getNodeInfo(string name)
+        ["cpp:const"] idempotent NodeInfo getNodeInfo(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Get a proxy to the IceGrid node's admin object.
@@ -498,7 +498,7 @@ module IceGrid
         /// @return The number of processor sockets or 1 if the number of sockets can't determined.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["nonmutating", "cpp:const"] idempotent int getNodeProcessorSocketCount(string name)
+        ["cpp:const"] idempotent int getNodeProcessorSocketCount(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Shutdown an IceGrid node.
@@ -513,12 +513,12 @@ module IceGrid
         /// @return The node hostname.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["nonmutating", "cpp:const"] idempotent string getNodeHostname(string name)
+        ["cpp:const"] idempotent string getNodeHostname(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Get all the IceGrid nodes currently registered.
         /// @return The node names.
-        ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllNodeNames();
+        ["cpp:const"] idempotent Ice::StringSeq getAllNodeNames();
 
         /// Ping an IceGrid registry to see if it is active.
         /// @param name The registry name.
@@ -760,7 +760,7 @@ module IceGrid
 
         /// Get the admin interface. The admin object returned by this operation can only be accessed by the session.
         /// @return The admin interface proxy. The returned proxy is never null.
-        ["nonmutating", "cpp:const"] idempotent Admin* getAdmin();
+        ["cpp:const"] idempotent Admin* getAdmin();
 
         /// Get a "template" proxy for admin callback objects. An Admin client uses this proxy to set the category of
         /// its callback objects, and the published endpoints of the object adapter hosting the admin callback objects.

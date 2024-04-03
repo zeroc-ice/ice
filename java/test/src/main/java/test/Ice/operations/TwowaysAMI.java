@@ -1616,17 +1616,6 @@ class TwowaysAMI {
     }
 
     {
-      Callback cb = new Callback();
-      p.opNonmutatingAsync()
-          .whenComplete(
-              (result, ex) -> {
-                test(ex == null);
-                cb.called();
-              });
-      cb.check();
-    }
-
-    {
       MyDerivedClassPrx derived = MyDerivedClassPrx.checkedCast(p);
       test(derived != null);
       Callback cb = new Callback();

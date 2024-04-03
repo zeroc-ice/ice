@@ -41,9 +41,6 @@ def onewaysFuture(helper, proxy):
     f = p.opIdempotentAsync()
     f.sent()
 
-    f = p.opNonmutatingAsync()
-    f.sent()
-
     try:
         p.opByteAsync(0xFF, 0x0F)
         test(False)

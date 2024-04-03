@@ -760,13 +760,6 @@ MyDerivedClassI::opIdempotentAsync(function<void()> response, function<void(exce
 }
 
 void
-MyDerivedClassI::opNonmutatingAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
-{
-    test(current.mode == OperationMode::Nonmutating);
-    response();
-}
-
-void
 MyDerivedClassI::opDerivedAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
