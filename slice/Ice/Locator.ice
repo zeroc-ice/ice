@@ -10,8 +10,6 @@
 
 [["cpp:source-include:Ice/Process.h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

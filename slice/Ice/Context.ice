@@ -13,8 +13,6 @@
 [["cpp:include:map"]]
 [["cpp:include:string"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
