@@ -47,7 +47,7 @@ runs:
       run: |
         sudo apt-get update && sudo apt-get install -y \
             python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev \
-            libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk \
+            libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev \
             ruby ruby-dev php-cli php-dev \
             libbluetooth-dev libdbus-1-dev \
             libsystemd-dev
@@ -55,11 +55,11 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
 
-    - name: Set Java 17 as default
-      run: |
-        sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
-        sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-        java --version
+    - name: Setup Oracle Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: "oracle"
+        java-version: "17"
 
       shell: bash
       if: runner.os == 'Linux'
