@@ -227,7 +227,7 @@ namespace Ice
     class ICE_API Connection
     {
     public:
-        virtual ~Connection() = default;
+        virtual ~Connection() = 0;
 
         /**
          * Manually close the connection using the specified closure mode.

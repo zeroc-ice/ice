@@ -48,7 +48,7 @@ namespace Ice
     class ObjectAdapterI;
     using ObjectAdapterIPtr = std::shared_ptr<ObjectAdapterI>;
 
-    class ConnectionI : public Connection, public IceInternal::EventHandler, public IceInternal::CancellationHandler
+    class ConnectionI final : public Connection, public IceInternal::EventHandler, public IceInternal::CancellationHandler
     {
         class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
         {
@@ -133,12 +133,12 @@ namespace Ice
         void activate();
         void hold();
         void destroy(DestructionReason);
-        virtual void close(ConnectionClose) noexcept; // From Connection.
+        void close(ConnectionClose) noexcept final; // From Connection.
 
         bool isActiveOrHolding() const;
         bool isFinished() const;
 
-        virtual void throwException() const; // From Connection. Throws the connection exception if destroyed.
+        void throwException() const final; // From Connection. Throws the connection exception if destroyed.
 
         void waitUntilHolding() const;
         void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
@@ -151,32 +151,29 @@ namespace Ice
 
         const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
 
-        virtual std::function<void()> flushBatchRequestsAsync(
+        std::function<void()> flushBatchRequestsAsync(
             CompressBatch,
             std::function<void(std::exception_ptr)>,
-            std::function<void(bool)> = nullptr);
+            std::function<void(bool)> = nullptr) final;
 
-        virtual void setCloseCallback(CloseCallback);
-        virtual void setHeartbeatCallback(HeartbeatCallback);
+        void setCloseCallback(CloseCallback) final;
+        void setHeartbeatCallback(HeartbeatCallback) final;
 
-        virtual void heartbeat();
+        std::function<void()>
+            heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr) final;
 
-        virtual std::function<void()>
-            heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr);
+        void setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&) final;
+        ACM getACM() noexcept final;
 
-        virtual void
-        setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&);
-        virtual ACM getACM() noexcept;
-
-        virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
+        void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
         IceInternal::EndpointIPtr endpoint() const;
         IceInternal::ConnectorPtr connector() const;
 
-        virtual void setAdapter(const ObjectAdapterPtr&);           // From Connection.
-        virtual ObjectAdapterPtr getAdapter() const noexcept;       // From Connection.
-        virtual EndpointPtr getEndpoint() const noexcept;           // From Connection.
-        virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
+        void setAdapter(const ObjectAdapterPtr&) final;           // From Connection.
+        ObjectAdapterPtr getAdapter() const noexcept final;       // From Connection.
+        EndpointPtr getEndpoint() const noexcept final;           // From Connection.
+        ObjectPrx createProxy(const Identity& ident) const final; // From Connection.
 
         void setAdapterFromAdapter(const ObjectAdapterIPtr&); // From ObjectAdapterI.
 
@@ -188,18 +185,18 @@ namespace Ice
         bool finishAsync(IceInternal::SocketOperation);
 #endif
 
-        virtual void message(IceInternal::ThreadPoolCurrent&);
-        virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
-        virtual std::string toString() const noexcept; // From Connection and EvantHandler.
-        virtual IceInternal::NativeInfoPtr getNativeInfo();
+        void message(IceInternal::ThreadPoolCurrent&) final;
+        void finished(IceInternal::ThreadPoolCurrent&, bool) final;
+        std::string toString() const noexcept final; // From Connection and EventHandler.
+        IceInternal::NativeInfoPtr getNativeInfo() final;
 
         void timedOut();
 
-        virtual std::string type() const noexcept;     // From Connection.
-        virtual std::int32_t timeout() const noexcept; // From Connection.
-        virtual ConnectionInfoPtr getInfo() const;     // From Connection
+        std::string type() const noexcept final;     // From Connection.
+        std::int32_t timeout() const noexcept final; // From Connection.
+        ConnectionInfoPtr getInfo() const final;     // From Connection
 
-        virtual void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize); // From Connection
+        void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize) final; // From Connection
 
         void exception(std::exception_ptr);
 
@@ -217,7 +214,7 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
-        virtual ~ConnectionI();
+        ~ConnectionI() final;
 
     private:
         ConnectionI(
