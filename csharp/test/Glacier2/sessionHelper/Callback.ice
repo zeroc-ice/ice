@@ -4,7 +4,6 @@
 
 #pragma once
 
-[["java:package:test.Glacier2.sessionHelper"]]
 module Test
 {
 

@@ -253,34 +253,33 @@ interface Initial
     optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1,
                                                                   out optional(3) SmallStructSeq p3);
 
-    ["java:optional"] optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1,
+    optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1,
                                                                     out optional(3) SmallStructList p3);
 
-    ["java:optional"] optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1,
+    optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1,
                                                                   out optional(3) FixedStructSeq p3);
 
-    ["java:optional"] optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1,
+    optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1,
                                                                     out optional(3) FixedStructList p3);
 
-    ["java:optional"] optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1,
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1,
                                                               out optional(3) VarStructSeq p3);
 
-    ["java:optional"] optional(1) Serializable opSerializable(optional(2) Serializable p1,
+    optional(1) Serializable opSerializable(optional(2) Serializable p1,
                                                               out optional(3) Serializable p3);
 
-    ["java:optional"] optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
+    optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
-    ["java:optional"] optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1,
+    optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1,
                                                                 out optional(3) StringIntDict p3);
 
-    ["java:optional"] optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
+    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
                                                                           out optional(3) IntOneOptionalDict p3);
 
     void opClassAndUnknownOptional(A p);
 
     void sendOptionalClass(bool req, optional(1) OneOptional o);
 
-    ["java:optional"]
     void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
     G opG(G g);

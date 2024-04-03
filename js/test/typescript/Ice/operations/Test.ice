@@ -40,7 +40,7 @@ sequence<long> LongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
-sequence<["cpp:type:wstring"]string> WStringS;
+sequence<string> WStringS;
 sequence<MyEnum> MyEnumS;
 sequence<MyClass*> MyClassS;
 

@@ -7,7 +7,6 @@
 
 #include "Ice/PropertyDict.ice"
 
-[["java:package:test.IceBox.admin"]]
 module Test
 {
 
