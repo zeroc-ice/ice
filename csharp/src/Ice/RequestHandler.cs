@@ -2,21 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace IceInternal;
+
+public interface CancellationHandler
 {
-    public interface CancellationHandler
-    {
-        void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
-    }
+    void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
+}
 
-    public interface RequestHandler : CancellationHandler
-    {
-        RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
+public interface RequestHandler : CancellationHandler
+{
+    RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
 
-        int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
+    int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
-        Reference getReference();
+    Reference getReference();
 
-        Ice.ConnectionI getConnection();
-    }
+    Ice.ConnectionI getConnection();
 }

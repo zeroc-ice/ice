@@ -6,7 +6,7 @@ namespace Ice
 {
     namespace operations
     {
-        class BatchOneways
+        internal class BatchOneways
         {
             private static void test(bool b)
             {
@@ -16,7 +16,7 @@ namespace Ice
                 }
             }
 
-            class BatchRequestInterceptorI
+            private class BatchRequestInterceptorI
             {
                 public void enqueue(Ice.BatchRequest request, int count, int size)
                 {

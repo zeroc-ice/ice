@@ -39,19 +39,19 @@ namespace Ice
 
                 output.Write("changing state between active and hold rapidly... ");
                 output.Flush();
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     hold.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdOneway.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdSerialized.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdSerializedOneway.putOnHold(0);
                 }
@@ -64,7 +64,7 @@ namespace Ice
                     var outOfOrderTcs = new TaskCompletionSource();
                     TaskCompletionSource sentTcs = null;
                     int value = 0;
-                    while(!outOfOrderTcs.Task.IsCompleted)
+                    while (!outOfOrderTcs.Task.IsCompleted)
                     {
                         sentTcs = new TaskCompletionSource();
                         int expected = value;
@@ -75,17 +75,17 @@ namespace Ice
                             async () =>
                             {
                                 var response = await t;
-                                if(response != expected)
+                                if (response != expected)
                                 {
                                     outOfOrderTcs.TrySetResult();
                                 }
                             });
-                        if(value % 100 == 0)
+                        if (value % 100 == 0)
                         {
                             await sentTcs.Task;
                         }
 
-                        if(value > 100000)
+                        if (value > 100000)
                         {
                             // Don't continue, it's possible that out-of-order dispatch doesn't occur
                             // after 100000 iterations and we don't want the test to last for too long
@@ -112,7 +112,7 @@ namespace Ice
                             ++value,
                             0,
                             progress: new Progress<bool>(value => sentTcs.TrySetResult()));
-                        if(value % 100 == 0)
+                        if (value % 100 == 0)
                         {
                             await sentTcs.Task;
                         }
@@ -120,11 +120,11 @@ namespace Ice
                     await sentTcs.Task;
                     test(!outOfOrderTcs.Task.IsCompleted);
 
-                    for(int i = 0; i < 10000; ++i)
+                    for (int i = 0; i < 10000; ++i)
                     {
                         holdSerializedOneway.setOneway(value + 1, value);
                         ++value;
-                        if((i % 100) == 0)
+                        if ((i % 100) == 0)
                         {
                             holdSerializedOneway.putOnHold(1);
                         }
@@ -149,7 +149,7 @@ namespace Ice
                             value,
                             progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         ++value;
-                        if((i % 100) == 0)
+                        if ((i % 100) == 0)
                         {
                             await sentTcs.Task;
                             holdSerialized.ice_ping(); // Ensure everything's dispatched.
@@ -165,10 +165,10 @@ namespace Ice
                 {
                     hold.waitForHold();
                     hold.waitForHold();
-                    for(int i = 0; i < 1000; ++i)
+                    for (int i = 0; i < 1000; ++i)
                     {
                         holdOneway.ice_ping();
-                        if((i % 20) == 0)
+                        if ((i % 20) == 0)
                         {
                             hold.putOnHold(0);
                         }

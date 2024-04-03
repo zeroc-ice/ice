@@ -48,7 +48,7 @@ namespace Ice
                     adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
-                catch(Ice.AlreadyRegisteredException)
+                catch (Ice.AlreadyRegisteredException)
                 {
                 }
                 adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
@@ -57,7 +57,7 @@ namespace Ice
                     adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
-                catch(Ice.NotRegisteredException)
+                catch (Ice.NotRegisteredException)
                 {
                 }
                 output.WriteLine("ok");
@@ -81,7 +81,7 @@ namespace Ice
                     adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
                     test(false);
                 }
-                catch(Ice.NotRegisteredException)
+                catch (Ice.NotRegisteredException)
                 {
                 }
                 fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id2"));

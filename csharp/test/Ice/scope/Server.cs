@@ -13,7 +13,7 @@ namespace Ice
     {
         public class Server : TestHelper
         {
-            class I1 : Test.IDisp_
+            private class I1 : Test.IDisp_
             {
                 public override Test.S
                 opS(Test.S s1, out Test.S s2, Ice.Current current)
@@ -82,7 +82,7 @@ namespace Ice
                 }
             }
 
-            class I2 : Test.Inner.IDisp_
+            private class I2 : Test.Inner.IDisp_
             {
                 public override Test.Inner.Inner2.S
                 opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
@@ -135,7 +135,7 @@ namespace Ice
                 }
             }
 
-            class I3 : Test.Inner.Inner2.IDisp_
+            private class I3 : Test.Inner.Inner2.IDisp_
             {
                 public override Test.Inner.Inner2.S
                 opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
@@ -188,7 +188,7 @@ namespace Ice
                 }
             }
 
-            class I4 : Inner.Test.Inner2.IDisp_
+            private class I4 : Inner.Test.Inner2.IDisp_
             {
                 public override Test.S
                 opS(Test.S s1, out Test.S s2, Ice.Current current)
@@ -243,9 +243,9 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[]{"Ice.scope.TypeId"};
+                initData.typeIdNamespaces = new string[] { "Ice.scope.TypeId" };
                 initData.properties = createTestProperties(ref args);
-                using(var communicator = initialize(initData))
+                using (var communicator = initialize(initData))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

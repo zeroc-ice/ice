@@ -40,7 +40,7 @@ public class Client : Test.TestHelper
                     }) == null);
         }
         properties.setProperty("Ice.PreloadAssemblies", "1");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {

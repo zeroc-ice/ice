@@ -1,0 +1,21 @@
+name: dotnet format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  dotnet-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run dotnet format
+        run: |
+          dotnet format --verify-no-changes csharp/msbuild/ice.sln
+          dotnet format --verify-no-changes csharp/msbuild/ice.test.sln

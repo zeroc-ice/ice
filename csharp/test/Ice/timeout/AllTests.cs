@@ -21,9 +21,9 @@ namespace Ice
 
                 public virtual void check()
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(!_called)
+                        while (!_called)
                         {
                             Monitor.Wait(this);
                         }
@@ -34,7 +34,7 @@ namespace Ice
 
                 public virtual void called()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         Debug.Assert(!_called);
                         _called = true;
@@ -48,14 +48,14 @@ namespace Ice
             private static Ice.Connection connect(Ice.ObjectPrx prx)
             {
                 int nRetry = 10;
-                while(--nRetry > 0)
+                while (--nRetry > 0)
                 {
                     try
                     {
                         prx.ice_getConnection();
                         break;
                     }
-                    catch(Ice.ConnectTimeoutException)
+                    catch (Ice.ConnectTimeoutException)
                     {
                         // Can sporadically occur with slow machines
                     }
@@ -74,7 +74,7 @@ namespace Ice
                 {
                     await allTestsWithController(helper, controller);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
                     // the test from hanging on exit in case a connection which disables timeouts is still opened.
@@ -108,7 +108,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch(Ice.ConnectTimeoutException)
+                    catch (Ice.ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -125,7 +125,7 @@ namespace Ice
                     {
                         to.op();
                     }
-                    catch(Ice.ConnectTimeoutException)
+                    catch (Ice.ConnectTimeoutException)
                     {
                         test(false);
                     }
@@ -149,7 +149,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         // Expected.
                     }
@@ -166,7 +166,7 @@ namespace Ice
                     {
                         to.sendData(new byte[1000000]);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         test(false);
                     }
@@ -184,7 +184,7 @@ namespace Ice
                         to.sleep(1000);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch (Ice.InvocationTimeoutException)
                     {
                     }
                     obj.ice_ping();
@@ -194,7 +194,7 @@ namespace Ice
                     {
                         to.sleep(100);
                     }
-                    catch(InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                         test(false);
                     }
@@ -234,14 +234,14 @@ namespace Ice
                         to.sleep(750);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         try
                         {
                             con.getInfo();
                             test(false);
                         }
-                        catch(Ice.TimeoutException)
+                        catch (Ice.TimeoutException)
                         {
                             // Connection got closed as well.
                         }
@@ -254,14 +254,14 @@ namespace Ice
                         await to.sleepAsync(750);
                         test(false);
                     }
-                    catch(TimeoutException)
+                    catch (TimeoutException)
                     {
                         try
                         {
                             con.getInfo();
                             test(false);
                         }
-                        catch(TimeoutException)
+                        catch (TimeoutException)
                         {
                             // Connection got closed as well.
                         }
@@ -281,18 +281,18 @@ namespace Ice
                     {
                         connection.getInfo(); // getInfo() doesn't throw in the closing state.
                     }
-                    catch(LocalException)
+                    catch (LocalException)
                     {
                         test(false);
                     }
-                    while(true)
+                    while (true)
                     {
                         try
                         {
                             connection.getInfo();
                             Thread.Sleep(10);
                         }
-                        catch(Ice.ConnectionManuallyClosedException ex)
+                        catch (Ice.ConnectionManuallyClosedException ex)
                         {
                             // Expected.
                             test(ex.graceful);
@@ -324,7 +324,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         // Expected.
                     }
@@ -342,7 +342,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         // Expected.
                     }
@@ -365,7 +365,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch(Ice.ConnectTimeoutException)
+                    catch (Ice.ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -382,7 +382,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch(Ice.ConnectTimeoutException)
+                    catch (Ice.ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -400,7 +400,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         // Expected.
                     }
@@ -440,7 +440,7 @@ namespace Ice
                         proxy.sleep(500);
                         test(false);
                     }
-                    catch(InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                     }
 
@@ -449,21 +449,21 @@ namespace Ice
                         await proxy.sleepAsync(500);
                         test(false);
                     }
-                    catch(InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                     }
 
                     try
                     {
-                       ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_ping();
-                       await ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_pingAsync();
+                        ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_ping();
+                        await ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_pingAsync();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
 
-                    Test.TimeoutPrx batchTimeout =(Test.TimeoutPrx)proxy.ice_batchOneway();
+                    Test.TimeoutPrx batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
@@ -474,7 +474,7 @@ namespace Ice
                         await batchTimeout.ice_flushBatchRequestsAsync();
                         test(false);
                     }
-                    catch(InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                     }
 

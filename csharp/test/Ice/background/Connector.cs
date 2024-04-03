@@ -32,12 +32,12 @@ internal class Connector : IceInternal.Connector
         {
             p = (Connector)obj;
         }
-        catch(System.InvalidCastException)
+        catch (System.InvalidCastException)
         {
             return false;
         }
 
-        if(this == p)
+        if (this == p)
         {
             return true;
         }

@@ -4,8 +4,8 @@
 
 using System;
 
-namespace Glacier2
-{
+namespace Glacier2;
+
 /// <summary>
 /// A callback class to get notifications of status changes in the
 /// Glacier2 session. All callbacks on the SessionCallback interface
@@ -41,6 +41,4 @@ public interface SessionCallback
     /// failure.</param>
     /// <param name="ex">The exception.</param>
     void connectFailed(SessionHelper session, Exception ex);
-}
-
 }

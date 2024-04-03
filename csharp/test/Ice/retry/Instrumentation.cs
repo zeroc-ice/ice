@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 
 namespace Ice
@@ -11,9 +10,9 @@ namespace Ice
     {
         public class Instrumentation
         {
-            static object mutex = new object();
+            private static object mutex = new object();
 
-            class InvocationObserverI : Ice.Instrumentation.InvocationObserver
+            private class InvocationObserverI : Ice.Instrumentation.InvocationObserver
             {
                 public void
                 attach()
@@ -23,7 +22,7 @@ namespace Ice
                 public void
                 detach()
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nInvocation;
                     }
@@ -32,7 +31,7 @@ namespace Ice
                 public void
                 failed(string msg)
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nFailure;
                     }
@@ -41,7 +40,7 @@ namespace Ice
                 public void
                 retried()
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nRetry;
                     }
@@ -67,7 +66,7 @@ namespace Ice
             };
             static private Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
 
-            class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
+            private class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             {
                 public Ice.Instrumentation.Observer
                 getConnectionEstablishmentObserver(Ice.Endpoint e, string s)
@@ -128,25 +127,25 @@ namespace Ice
             static private void
             testEqual(ref int value, int expected)
             {
-                if(expected < 0)
+                if (expected < 0)
                 {
                     value = 0;
                     return;
                 }
 
                 int retry = 0;
-                while(++retry < 100)
+                while (++retry < 100)
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
-                        if(value == expected)
+                        if (value == expected)
                         {
                             break;
                         }
                     }
                     System.Threading.Thread.Sleep(10);
                 }
-                if(value != expected)
+                if (value != expected)
                 {
                     System.Console.Error.WriteLine("value = " + value + ", expected = " + expected);
                     System.Diagnostics.Debug.Assert(false);

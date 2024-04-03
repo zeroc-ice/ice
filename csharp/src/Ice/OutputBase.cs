@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceUtilInternal
-{
+namespace IceUtilInternal;
 
 using System.Collections.Generic;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
 
 public class OutputBase
 {
@@ -66,7 +65,7 @@ public class OutputBase
         {
             out_ = new StreamWriter(s);
         }
-        catch(IOException)
+        catch (IOException)
         {
         }
     }
@@ -75,9 +74,9 @@ public class OutputBase
     print(string s)
     {
         char[] arr = s.ToCharArray();
-        for(int i = 0; i < arr.Length; i++)
+        for (int i = 0; i < arr.Length; i++)
         {
-            if(arr[i] == '\n')
+            if (arr[i] == '\n')
             {
                 pos_ = 0;
             }
@@ -132,9 +131,9 @@ public class OutputBase
 
         int indent = indent_;
 
-        if(useTab_)
+        if (useTab_)
         {
-            while(indent >= 8)
+            while (indent >= 8)
             {
                 indent -= 8;
                 out_.Write('\t');
@@ -143,7 +142,7 @@ public class OutputBase
         }
         else
         {
-            while(indent >= indentSize_)
+            while (indent >= indentSize_)
             {
                 indent -= indentSize_;
                 out_.Write("    ");
@@ -151,7 +150,7 @@ public class OutputBase
             }
         }
 
-        while(indent > 0)
+        while (indent > 0)
         {
             --indent;
             out_.Write(" ");
@@ -164,7 +163,7 @@ public class OutputBase
     public virtual void
     sp()
     {
-        if(separator_)
+        if (separator_)
         {
             out_.WriteLine();
         }
@@ -183,6 +182,4 @@ public class OutputBase
     protected internal Stack<int> indentSave_;
     protected internal bool useTab_;
     protected internal bool separator_;
-}
-
 }

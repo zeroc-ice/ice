@@ -14,7 +14,7 @@ namespace Ice
         {
             public ServantLocatorI(bool async)
             {
-                if(async)
+                if (async)
                 {
                     _blobject = new BlobjectAsyncI();
                 }
@@ -49,7 +49,7 @@ namespace Ice
             public override void run(string[] args)
             {
                 bool async = args.Any(v => v == "--async");
-                using(var communicator = initialize(ref args))
+                using (var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

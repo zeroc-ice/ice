@@ -10,7 +10,7 @@ namespace Ice
 {
     namespace operations
     {
-        class Twoways
+        internal class Twoways
         {
             private static void test(bool b)
             {
@@ -20,7 +20,7 @@ namespace Ice
                 }
             }
 
-            class PerThreadContextInvokeThread
+            private class PerThreadContextInvokeThread
             {
                 public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
                 {

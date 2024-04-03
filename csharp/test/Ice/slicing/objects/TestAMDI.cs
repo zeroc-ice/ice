@@ -11,7 +11,7 @@ public sealed class TestI : TestIntfDisp_
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new Exception();
         }
@@ -67,7 +67,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
     {
-        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(obj is SUnknown));
         }
@@ -267,7 +267,7 @@ public sealed class TestI : TestIntfDisp_
     {
         var bout = new Dictionary<int, B>();
         int i;
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             B b = bin[i];
             var d2 = new D2();
@@ -278,7 +278,7 @@ public sealed class TestI : TestIntfDisp_
             bout[i * 10] = d2;
         }
         var r = new Dictionary<int, B>();
-        for(i = 0; i < 10; ++i)
+        for (i = 0; i < 10; ++i)
         {
             string s = "D1." + (i * 20).ToString();
             var d1 = new D1();
@@ -305,7 +305,7 @@ public sealed class TestI : TestIntfDisp_
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if(!current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (!current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -319,7 +319,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
-        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -354,7 +354,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
-        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -386,7 +386,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
-        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown2));
             test(p.pi == 5);

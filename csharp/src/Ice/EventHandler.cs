@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
-{
+namespace IceInternal;
 
 public abstract class EventHandler
 {
@@ -31,6 +30,4 @@ public abstract class EventHandler
 
     internal bool _hasMoreData = false;
     internal int _registered = 0;
-}
-
 }

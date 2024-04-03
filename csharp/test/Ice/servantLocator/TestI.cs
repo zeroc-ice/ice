@@ -43,7 +43,7 @@ namespace Ice
 
             public override string impossibleException(bool @throw, Ice.Current current)
             {
-                if(@throw)
+                if (@throw)
                 {
                     throw new Test.TestImpossibleException();
                 }
@@ -56,7 +56,7 @@ namespace Ice
 
             public override string intfUserException(bool @throw, Ice.Current current)
             {
-                if(@throw)
+                if (@throw)
                 {
                     throw new Test.TestIntfUserException();
                 }

@@ -24,7 +24,7 @@ public class AllTests : Test.AllTests
             _sentSynchronously = sentSynchronously;
         }
 
-        bool _sentSynchronously = false;
+        private bool _sentSynchronously = false;
     }
 
     public static void allTests(TestHelper helper)
@@ -60,7 +60,7 @@ public class AllTests : Test.AllTests
                         await i.opAsync();
                         test(false);
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
@@ -71,13 +71,13 @@ public class AllTests : Test.AllTests
                         await to.sleepAsync(500);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch (Ice.InvocationTimeoutException)
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
                     t.SetResult(null);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     t.SetException(ex);
                 }

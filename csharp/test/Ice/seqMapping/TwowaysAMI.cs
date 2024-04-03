@@ -13,21 +13,21 @@ namespace Ice
         {
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.SystemException();
                 }
             }
 
-            static readonly int _length = 100;
+            private static readonly int _length = 100;
 
             internal static async Task twowaysAMI(Communicator communicator, Test.MyClassPrx p)
             {
                 {
                     byte[] i = new byte[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
-                        i[c] =(byte)c;
+                        i[c] = (byte)c;
                     }
                     var result = await p.opAByteSAsync(i);
                     test(CollectionComparer.Equals(i, result.o));
@@ -36,7 +36,7 @@ namespace Ice
 
                 {
                     var i = new List<byte>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add((byte)c);
                     }
@@ -48,7 +48,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<byte>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast((byte)c);
                     }
@@ -60,7 +60,7 @@ namespace Ice
 
                 {
                     var i = new Queue<byte>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue((byte)c);
                     }
@@ -72,7 +72,7 @@ namespace Ice
 
                 {
                     var i = new Stack<byte>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push((byte)c);
                     }
@@ -84,7 +84,7 @@ namespace Ice
 
                 {
                     bool[] i = new bool[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = c % 1 == 1;
                     }
@@ -96,7 +96,7 @@ namespace Ice
 
                 {
                     List<bool> i = new List<bool>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c % 1 == 1);
                     }
@@ -108,7 +108,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<bool>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(c % 1 == 1);
                     }
@@ -120,7 +120,7 @@ namespace Ice
 
                 {
                     var i = new Queue<bool>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c % 1 == 1);
                     }
@@ -132,7 +132,7 @@ namespace Ice
 
                 {
                     var i = new Stack<bool>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c % 1 == 1);
                     }
@@ -144,9 +144,9 @@ namespace Ice
 
                 {
                     short[] i = new short[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
-                        i[c] =(short)c;
+                        i[c] = (short)c;
                     }
 
                     var result = await p.opAShortSAsync(i);
@@ -156,7 +156,7 @@ namespace Ice
 
                 {
                     var i = new List<short>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add((short)c);
                     }
@@ -168,7 +168,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<short>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast((short)c);
                     }
@@ -180,7 +180,7 @@ namespace Ice
 
                 {
                     var i = new Queue<short>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue((short)c);
                     }
@@ -192,7 +192,7 @@ namespace Ice
 
                 {
                     var i = new Stack<short>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push((short)c);
                     }
@@ -204,9 +204,9 @@ namespace Ice
 
                 {
                     int[] i = new int[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
-                        i[c] =c;
+                        i[c] = c;
                     }
 
                     var result = await p.opAIntSAsync(i);
@@ -216,7 +216,7 @@ namespace Ice
 
                 {
                     var i = new List<int>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add((int)c);
                     }
@@ -228,7 +228,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<int>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(c);
                     }
@@ -240,7 +240,7 @@ namespace Ice
 
                 {
                     var i = new Queue<int>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c);
                     }
@@ -252,7 +252,7 @@ namespace Ice
 
                 {
                     var i = new Stack<int>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c);
                     }
@@ -264,7 +264,7 @@ namespace Ice
 
                 {
                     long[] i = new long[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = c;
                     }
@@ -276,7 +276,7 @@ namespace Ice
 
                 {
                     var i = new List<long>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c);
                     }
@@ -288,7 +288,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<long>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast((long)c);
                     }
@@ -300,7 +300,7 @@ namespace Ice
 
                 {
                     var i = new Queue<long>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c);
                     }
@@ -312,7 +312,7 @@ namespace Ice
 
                 {
                     var i = new Stack<long>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c);
                     }
@@ -324,7 +324,7 @@ namespace Ice
 
                 {
                     float[] i = new float[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = c;
                     }
@@ -336,7 +336,7 @@ namespace Ice
 
                 {
                     var i = new List<float>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c);
                     }
@@ -348,7 +348,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<float>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(c);
                     }
@@ -360,7 +360,7 @@ namespace Ice
 
                 {
                     var i = new Queue<float>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c);
                     }
@@ -372,7 +372,7 @@ namespace Ice
 
                 {
                     var i = new Stack<float>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c);
                     }
@@ -384,9 +384,9 @@ namespace Ice
 
                 {
                     double[] i = new double[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
-                        i[c] =c;
+                        i[c] = c;
                     }
 
                     var result = await p.opADoubleSAsync(i);
@@ -396,7 +396,7 @@ namespace Ice
 
                 {
                     var i = new List<double>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c);
                     }
@@ -408,7 +408,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<double>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(c);
                     }
@@ -420,7 +420,7 @@ namespace Ice
 
                 {
                     var i = new Queue<double>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c);
                     }
@@ -432,7 +432,7 @@ namespace Ice
 
                 {
                     var i = new Stack<double>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c);
                     }
@@ -444,7 +444,7 @@ namespace Ice
 
                 {
                     string[] i = new string[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = c.ToString();
                     }
@@ -456,7 +456,7 @@ namespace Ice
 
                 {
                     var i = new List<string>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c.ToString());
                     }
@@ -468,7 +468,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<string>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(c.ToString());
                     }
@@ -480,7 +480,7 @@ namespace Ice
 
                 {
                     var i = new Queue<string>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(c.ToString());
                     }
@@ -492,7 +492,7 @@ namespace Ice
 
                 {
                     var i = new Stack<string>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(c.ToString());
                     }
@@ -504,7 +504,7 @@ namespace Ice
 
                 {
                     Value[] i = new Value[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = new Test.CV(c);
                     }
@@ -523,7 +523,7 @@ namespace Ice
 
                 {
                     var i = new List<Value>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(new Test.CV(c));
                     }
@@ -542,7 +542,7 @@ namespace Ice
 
                 {
                     ObjectPrx[] i = new ObjectPrx[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = communicator.stringToProxy(c.ToString());
                     }
@@ -554,7 +554,7 @@ namespace Ice
 
                 {
                     var i = new List<ObjectPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(communicator.stringToProxy(c.ToString()));
                     }
@@ -566,7 +566,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<Ice.ObjectPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(communicator.stringToProxy(c.ToString()));
                     }
@@ -578,7 +578,7 @@ namespace Ice
 
                 {
                     var i = new Queue<ObjectPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(communicator.stringToProxy(c.ToString()));
                     }
@@ -590,7 +590,7 @@ namespace Ice
 
                 {
                     var i = new Stack<ObjectPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(communicator.stringToProxy(c.ToString()));
                     }
@@ -602,7 +602,7 @@ namespace Ice
 
                 {
                     var i = new Test.S[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c].i = c;
                     }
@@ -614,7 +614,7 @@ namespace Ice
 
                 {
                     var i = new List<Test.S>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(new Test.S(c));
                     }
@@ -626,7 +626,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<Test.S>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(new Test.S(c));
                     }
@@ -638,7 +638,7 @@ namespace Ice
 
                 {
                     var i = new Queue<Test.S>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(new Test.S(c));
                     }
@@ -650,7 +650,7 @@ namespace Ice
 
                 {
                     var i = new Stack<Test.S>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(new Test.S(c));
                     }
@@ -662,7 +662,7 @@ namespace Ice
 
                 {
                     var i = new Test.CV[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = new Test.CV(c);
                     }
@@ -681,7 +681,7 @@ namespace Ice
 
                 {
                     var i = new List<Test.CV>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(new Test.CV(c));
                     }
@@ -700,7 +700,7 @@ namespace Ice
 
                 {
                     Test.IPrx[] i = new Test.IPrx[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
                     }
@@ -712,7 +712,7 @@ namespace Ice
 
                 {
                     var i = new List<Test.IPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
                     }
@@ -724,7 +724,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<Test.IPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
                     }
@@ -736,7 +736,7 @@ namespace Ice
 
                 {
                     var i = new Queue<Test.IPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
                     }
@@ -748,7 +748,7 @@ namespace Ice
 
                 {
                     Stack<Test.IPrx> i = new Stack<Test.IPrx>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
                     }
@@ -760,7 +760,7 @@ namespace Ice
 
                 {
                     var i = new Test.CR[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i[c] = new Test.CR(new Test.CV(c));
                     }
@@ -779,7 +779,7 @@ namespace Ice
 
                 {
                     var i = new List<Test.CR>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(new Test.CR(new Test.CV(c)));
                     }
@@ -798,9 +798,9 @@ namespace Ice
 
                 {
                     var i = new Test.En[_length];
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
-                        i[c] =(Test.En)(c % 3);
+                        i[c] = (Test.En)(c % 3);
                     }
 
                     var result = await p.opAEnSAsync(i);
@@ -810,7 +810,7 @@ namespace Ice
 
                 {
                     var i = new List<Test.En>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add((Test.En)(c % 3));
                     }
@@ -822,7 +822,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<Test.En>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.AddLast((Test.En)(c % 3));
                     }
@@ -834,7 +834,7 @@ namespace Ice
 
                 {
                     var i = new Queue<Test.En>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Enqueue((Test.En)(c % 3));
                     }
@@ -846,7 +846,7 @@ namespace Ice
 
                 {
                     var i = new Stack<Test.En>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Push((Test.En)(c % 3));
                     }
@@ -858,7 +858,7 @@ namespace Ice
 
                 {
                     var i = new Custom<int>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(c);
                     }
@@ -870,7 +870,7 @@ namespace Ice
 
                 {
                     var i = new Custom<Test.CV>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         i.Add(new Test.CV(c));
                     }
@@ -889,10 +889,10 @@ namespace Ice
 
                 {
                     Custom<Custom<int>> i = new Custom<Custom<int>>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         Custom<int> inner = new Custom<int>();
-                        for(int j = 0; j < c; ++j)
+                        for (int j = 0; j < c; ++j)
                         {
                             inner.Add(j);
                         }
@@ -906,10 +906,10 @@ namespace Ice
 
                 {
                     var i = new Custom<Custom<Test.CV>>();
-                    for(int c = 0; c < _length; ++c)
+                    for (int c = 0; c < _length; ++c)
                     {
                         var inner = new Custom<Test.CV>();
-                        for(int j = 0; j < c; ++j)
+                        for (int j = 0; j < c; ++j)
                         {
                             inner.Add(new Test.CV(j));
                         }

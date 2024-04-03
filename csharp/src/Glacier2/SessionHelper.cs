@@ -3,12 +3,11 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Collections.Generic;
 
-namespace Glacier2
-{
+namespace Glacier2;
 
 /// <summary>
 /// A helper class for using Glacier2 with GUI applications.
@@ -41,14 +40,14 @@ public class SessionHelper
     public void
     destroy()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
-            if(_destroy)
+            if (_destroy)
             {
                 return;
             }
             _destroy = true;
-            if(!_connected)
+            if (!_connected)
             {
                 //
                 // In this case a connecting session is being destroyed.
@@ -77,7 +76,7 @@ public class SessionHelper
     public Ice.Communicator
     communicator()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             return _communicator;
         }
@@ -94,9 +93,9 @@ public class SessionHelper
     public string
     categoryForClient()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
-            if(_router == null)
+            if (_router == null)
             {
                 throw new SessionNotExistException();
             }
@@ -115,9 +114,9 @@ public class SessionHelper
     public Ice.ObjectPrx
     addWithUUID(Ice.Object servant)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
-            if(_router == null)
+            if (_router == null)
             {
                 throw new SessionNotExistException();
             }
@@ -134,7 +133,7 @@ public class SessionHelper
     public Glacier2.SessionPrx
     session()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             return _session;
         }
@@ -147,7 +146,7 @@ public class SessionHelper
     public bool
     isConnected()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             return _connected;
         }
@@ -167,13 +166,13 @@ public class SessionHelper
     private Ice.ObjectAdapter
     internalObjectAdapter()
     {
-        lock(_mutex)
+        lock (_mutex)
         {
-            if(_router == null)
+            if (_router == null)
             {
                 throw new SessionNotExistException();
             }
-            if(!_useCallbacks)
+            if (!_useCallbacks)
             {
                 throw new Ice.InitializationException(
                     "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
@@ -193,9 +192,9 @@ public class SessionHelper
     internal void
     connect(Dictionary<string, string> context)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
-            connectImpl((RouterPrx router) =>  router.createSessionFromSecureConnection(context));
+            connectImpl((RouterPrx router) => router.createSessionFromSecureConnection(context));
         }
     }
 
@@ -211,7 +210,7 @@ public class SessionHelper
     internal void
     connect(string username, string password, Dictionary<string, string> context)
     {
-        lock(_mutex)
+        lock (_mutex)
         {
             connectImpl((RouterPrx router) => router.createSession(username, password, context));
         }
@@ -231,11 +230,11 @@ public class SessionHelper
         {
             acmTimeout = router.getACMTimeout();
         }
-        catch(Ice.OperationNotExistException)
+        catch (Ice.OperationNotExistException)
         {
         }
 
-        if(acmTimeout <= 0)
+        if (acmTimeout <= 0)
         {
             acmTimeout = (int)router.getSessionTimeout();
         }
@@ -246,18 +245,18 @@ public class SessionHelper
         // client calls objectAdapter() or addWithUUID() because they can be called from the
         // GUI thread.
         //
-        if(_useCallbacks)
+        if (_useCallbacks)
         {
             Debug.Assert(_adapter == null);
             _adapter = _communicator.createObjectAdapterWithRouter("", router);
             _adapter.activate();
         }
 
-        lock(_mutex)
+        lock (_mutex)
         {
             _router = router;
 
-            if(_destroy)
+            if (_destroy)
             {
                 //
                 // Run destroyInternal in a thread because it makes remote invocations.
@@ -278,7 +277,7 @@ public class SessionHelper
             _session = session;
             _connected = true;
 
-            if(acmTimeout > 0)
+            if (acmTimeout > 0)
             {
                 Ice.Connection connection = _router.ice_getCachedConnection();
                 Debug.Assert(connection != null);
@@ -293,7 +292,7 @@ public class SessionHelper
                 {
                     _callback.connected(this);
                 }
-                catch(SessionNotExistException)
+                catch (SessionNotExistException)
                 {
                     destroy();
                 }
@@ -305,10 +304,10 @@ public class SessionHelper
     {
         RouterPrx router;
         Ice.Communicator communicator;
-        lock(_mutex)
+        lock (_mutex)
         {
             Debug.Assert(_destroy);
-            if(_router == null)
+            if (_router == null)
             {
                 return;
             }
@@ -324,19 +323,19 @@ public class SessionHelper
         {
             router.destroySession();
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             //
             // Expected if another thread invoked on an object from the session concurrently.
             //
         }
-        catch(SessionNotExistException)
+        catch (SessionNotExistException)
         {
             //
             // This can also occur.
             //
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             //
             // Not expected.
@@ -354,7 +353,7 @@ public class SessionHelper
     destroyCommunicator()
     {
         Ice.Communicator communicator;
-        lock(_mutex)
+        lock (_mutex)
         {
             communicator = _communicator;
         }
@@ -362,7 +361,7 @@ public class SessionHelper
         communicator.destroy();
     }
 
-    delegate SessionPrx ConnectStrategy(RouterPrx router);
+    private delegate SessionPrx ConnectStrategy(RouterPrx router);
 
     private void
     connectImpl(ConnectStrategy factory)
@@ -372,14 +371,14 @@ public class SessionHelper
         {
             try
             {
-                lock(_mutex)
+                lock (_mutex)
                 {
                     _communicator = Ice.Util.initialize(_initData);
                 }
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException ex)
             {
-                lock(_mutex)
+                lock (_mutex)
                 {
                     _destroy = true;
                 }
@@ -387,7 +386,7 @@ public class SessionHelper
                 return;
             }
 
-            if(_communicator.getDefaultRouter() == null)
+            if (_communicator.getDefaultRouter() == null)
             {
                 Ice.RouterFinderPrx finder = null;
                 try
@@ -395,12 +394,12 @@ public class SessionHelper
                     finder = Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
                     _communicator.setDefaultRouter(finder.getRouter());
                 }
-                catch(Ice.CommunicatorDestroyedException ex)
+                catch (Ice.CommunicatorDestroyedException ex)
                 {
                     dispatchCallback(() => _callback.connectFailed(this, ex), null);
                     return;
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     //
                     // In case of error getting router identity from RouterFinder use default identity.
@@ -418,7 +417,7 @@ public class SessionHelper
                 SessionPrx session = factory(routerPrx);
                 connected(routerPrx, session);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _communicator.destroy();
                 dispatchCallback(() => _callback.connectFailed(this, ex), null);
@@ -429,7 +428,7 @@ public class SessionHelper
     private void
     dispatchCallback(Action callback, Ice.Connection conn)
     {
-        if(_initData.dispatcher != null)
+        if (_initData.dispatcher != null)
         {
             _initData.dispatcher(callback, conn);
         }
@@ -442,7 +441,7 @@ public class SessionHelper
     private void
     dispatchCallbackAndWait(Action callback)
     {
-        if(_initData.dispatcher != null)
+        if (_initData.dispatcher != null)
         {
             EventWaitHandle h = new ManualResetEvent(false);
             _initData.dispatcher(() =>
@@ -471,6 +470,4 @@ public class SessionHelper
     private readonly SessionCallback _callback;
     private bool _destroy = false;
     private object _mutex = new object();
-}
-
 }

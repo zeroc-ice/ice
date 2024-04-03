@@ -56,7 +56,7 @@ namespace Ice
                 public override Task<string>
                 impossibleExceptionAsync(bool @throw, Ice.Current current)
                 {
-                    if(@throw)
+                    if (@throw)
                     {
                         throw new Test.TestImpossibleException();
                     }
@@ -73,7 +73,7 @@ namespace Ice
                 public override Task<string>
                 intfUserExceptionAsync(bool @throw, Ice.Current current)
                 {
-                    if(@throw)
+                    if (@throw)
                     {
                         throw new Test.TestIntfUserException();
                     }

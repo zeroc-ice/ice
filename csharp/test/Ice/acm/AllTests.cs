@@ -3,9 +3,9 @@
 //
 
 using System;
-using System.IO;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace Ice
 {
     namespace acm
     {
-        class LoggerI : Ice.Logger
+        internal class LoggerI : Ice.Logger
         {
             public LoggerI(string name, TextWriter output)
             {
@@ -23,7 +23,7 @@ namespace Ice
 
             public void start()
             {
-                lock(this)
+                lock (this)
                 {
                     _started = true;
                     dump();
@@ -32,10 +32,10 @@ namespace Ice
 
             public void print(string msg)
             {
-                lock(this)
+                lock (this)
                 {
                     _messages.Add(msg);
-                    if(_started)
+                    if (_started)
                     {
                         dump();
                     }
@@ -44,7 +44,7 @@ namespace Ice
 
             public void trace(string category, string message)
             {
-                lock(this)
+                lock (this)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
                     s.Append(' ');
@@ -57,7 +57,7 @@ namespace Ice
                     s.Append("] ");
                     s.Append(message);
                     _messages.Add(s.ToString());
-                    if(_started)
+                    if (_started)
                     {
                         dump();
                     }
@@ -66,7 +66,7 @@ namespace Ice
 
             public void warning(string message)
             {
-                lock(this)
+                lock (this)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
                     s.Append(' ');
@@ -76,7 +76,7 @@ namespace Ice
                     s.Append(" warning : ");
                     s.Append(message);
                     _messages.Add(s.ToString());
-                    if(_started)
+                    if (_started)
                     {
                         dump();
                     }
@@ -85,7 +85,7 @@ namespace Ice
 
             public void error(string message)
             {
-                lock(this)
+                lock (this)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
                     s.Append(' ');
@@ -95,7 +95,7 @@ namespace Ice
                     s.Append(" error : ");
                     s.Append(message);
                     _messages.Add(s.ToString());
-                    if(_started)
+                    if (_started)
                     {
                         dump();
                     }
@@ -114,7 +114,7 @@ namespace Ice
 
             private void dump()
             {
-                foreach(string line in _messages)
+                foreach (string line in _messages)
                 {
                     _output.WriteLine(line);
                 }
@@ -130,7 +130,7 @@ namespace Ice
             private List<string> _messages = new List<string>();
         }
 
-        abstract class TestCase
+        internal abstract class TestCase
         {
             public TestCase(string name, Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper)
             {
@@ -160,15 +160,15 @@ namespace Ice
                 initData.properties = _com.ice_getCommunicator().getProperties().ice_clone_();
                 initData.logger = _logger;
                 initData.properties.setProperty("Ice.ACM.Timeout", "2");
-                if(_clientACMTimeout >= 0)
+                if (_clientACMTimeout >= 0)
                 {
                     initData.properties.setProperty("Ice.ACM.Client.Timeout", _clientACMTimeout.ToString());
                 }
-                if(_clientACMClose >= 0)
+                if (_clientACMClose >= 0)
                 {
                     initData.properties.setProperty("Ice.ACM.Client.Close", _clientACMClose.ToString());
                 }
-                if(_clientACMHeartbeat >= 0)
+                if (_clientACMHeartbeat >= 0)
                 {
                     initData.properties.setProperty("Ice.ACM.Client.Heartbeat", _clientACMHeartbeat.ToString());
                 }
@@ -195,7 +195,7 @@ namespace Ice
                 _output.Flush();
                 _logger.start();
                 _thread.Join();
-                if(_msg == null)
+                if (_msg == null)
                 {
                     _output.WriteLine("ok");
                 }
@@ -214,7 +214,7 @@ namespace Ice
                 {
                     proxy.ice_getConnection().setCloseCallback(_ =>
                     {
-                        lock(this)
+                        lock (this)
                         {
                             _closed = true;
                             Monitor.Pulse(this);
@@ -223,7 +223,7 @@ namespace Ice
 
                     proxy.ice_getConnection().setHeartbeatCallback(_ =>
                     {
-                        lock(this)
+                        lock (this)
                         {
                             ++_heartbeat;
                         }
@@ -231,7 +231,7 @@ namespace Ice
 
                     runTestCase(_adapter, proxy);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _msg = "unexpected exception:\n" + ex.ToString();
                 }
@@ -239,13 +239,13 @@ namespace Ice
 
             public void waitForClosed()
             {
-                lock(this)
+                lock (this)
                 {
                     long now = IceInternal.Time.currentMonotonicTimeMillis();
-                    while(!_closed)
+                    while (!_closed)
                     {
                         Monitor.Wait(this, 30000);
-                        if(IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
+                        if (IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
                         {
                             System.Diagnostics.Debug.Assert(false); // Waited for more than 30s for close, something's wrong.
                             throw new System.Exception();
@@ -294,7 +294,7 @@ namespace Ice
 
         public class AllTests : global::Test.AllTests
         {
-            class InvocationHeartbeatTest : TestCase
+            private class InvocationHeartbeatTest : TestCase
             {
                 public InvocationHeartbeatTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("invocation heartbeat", com, helper)
@@ -306,14 +306,14 @@ namespace Ice
                 {
                     proxy.sleep(4);
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat >= 4);
                     }
                 }
             }
 
-            class InvocationHeartbeatOnHoldTest : TestCase
+            private class InvocationHeartbeatOnHoldTest : TestCase
             {
                 public InvocationHeartbeatOnHoldTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("invocation with heartbeat on hold", com, helper)
@@ -331,7 +331,7 @@ namespace Ice
                         proxy.sleepAndHold(10);
                         test(false);
                     }
-                    catch(Ice.ConnectionTimeoutException)
+                    catch (Ice.ConnectionTimeoutException)
                     {
                         adapter.activate();
                         proxy.interruptSleep();
@@ -341,7 +341,7 @@ namespace Ice
                 }
             }
 
-            class InvocationNoHeartbeatTest : TestCase
+            private class InvocationNoHeartbeatTest : TestCase
             {
                 public InvocationNoHeartbeatTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("invocation with no heartbeat", com, helper)
@@ -359,12 +359,12 @@ namespace Ice
                         proxy.sleep(10);
                         test(false);
                     }
-                    catch(Ice.ConnectionTimeoutException)
+                    catch (Ice.ConnectionTimeoutException)
                     {
                         proxy.interruptSleep();
 
                         waitForClosed();
-                        lock(this)
+                        lock (this)
                         {
                             test(_heartbeat == 0);
                         }
@@ -372,7 +372,7 @@ namespace Ice
                 }
             }
 
-            class InvocationHeartbeatCloseOnIdleTest : TestCase
+            private class InvocationHeartbeatCloseOnIdleTest : TestCase
             {
                 public InvocationHeartbeatCloseOnIdleTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("invocation with no heartbeat and close on idle", com, helper)
@@ -387,7 +387,7 @@ namespace Ice
                     // time.
                     proxy.sleep(3);
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat == 0);
                         test(!_closed);
@@ -395,7 +395,7 @@ namespace Ice
                 }
             }
 
-            class CloseOnIdleTest : TestCase
+            private class CloseOnIdleTest : TestCase
             {
                 public CloseOnIdleTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("close on idle", com, helper)
@@ -406,14 +406,14 @@ namespace Ice
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
                     waitForClosed();
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat == 0);
                     }
                 }
             }
 
-            class CloseOnInvocationTest : TestCase
+            private class CloseOnInvocationTest : TestCase
             {
                 public CloseOnInvocationTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("close on invocation", com, helper)
@@ -425,7 +425,7 @@ namespace Ice
                 {
                     Thread.Sleep(3000); // Idle for 3 seconds
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat == 0);
                         test(!_closed);
@@ -433,7 +433,7 @@ namespace Ice
                 }
             }
 
-            class CloseOnIdleAndInvocationTest : TestCase
+            private class CloseOnIdleAndInvocationTest : TestCase
             {
                 public CloseOnIdleAndInvocationTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("close on idle and invocation", com, helper)
@@ -451,7 +451,7 @@ namespace Ice
                     adapter.hold();
                     Thread.Sleep(5000); // Idle for 5 seconds
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat == 0);
                         test(!_closed); // Not closed yet because of graceful close.
@@ -462,7 +462,7 @@ namespace Ice
                 }
             }
 
-            class ForcefulCloseOnIdleAndInvocationTest : TestCase
+            private class ForcefulCloseOnIdleAndInvocationTest : TestCase
             {
                 public ForcefulCloseOnIdleAndInvocationTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("forceful close on idle and invocation", com, helper)
@@ -474,14 +474,14 @@ namespace Ice
                 {
                     adapter.hold();
                     waitForClosed();
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat == 0);
                     }
                 }
             }
 
-            class HeartbeatOnIdleTest : TestCase
+            private class HeartbeatOnIdleTest : TestCase
             {
                 public HeartbeatOnIdleTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("heartbeat on idle", com, helper)
@@ -493,14 +493,14 @@ namespace Ice
                 {
                     Thread.Sleep(3000);
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat >= 3);
                     }
                 }
             }
 
-            class HeartbeatAlwaysTest : TestCase
+            private class HeartbeatAlwaysTest : TestCase
             {
                 public HeartbeatAlwaysTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("heartbeat always", com, helper)
@@ -510,20 +510,20 @@ namespace Ice
 
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
-                    for(int i = 0; i < 10; i++)
+                    for (int i = 0; i < 10; i++)
                     {
                         proxy.ice_ping();
                         Thread.Sleep(300);
                     }
 
-                    lock(this)
+                    lock (this)
                     {
                         test(_heartbeat >= 3);
                     }
                 }
             }
 
-            class HeartbeatManualTest : TestCase
+            private class HeartbeatManualTest : TestCase
             {
                 public HeartbeatManualTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("manual heartbeats", com, helper)
@@ -548,7 +548,7 @@ namespace Ice
                 }
             }
 
-            class SetACMTest : TestCase
+            private class SetACMTest : TestCase
             {
                 public SetACMTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("setACM/getACM", com, helper)
@@ -565,7 +565,7 @@ namespace Ice
                         con.setACM(-19, Ice.Util.None, Ice.Util.None);
                         test(false);
                     }
-                    catch(ArgumentException)
+                    catch (ArgumentException)
                     {
                     }
 
@@ -601,7 +601,7 @@ namespace Ice
                         con.throwException();
                         test(false);
                     }
-                    catch(Ice.ConnectionManuallyClosedException)
+                    catch (Ice.ConnectionManuallyClosedException)
                     {
                     }
 
@@ -638,19 +638,19 @@ namespace Ice
                 tests.Add(new HeartbeatManualTest(com, helper));
                 tests.Add(new SetACMTest(com, helper));
 
-                foreach(TestCase test in tests)
+                foreach (TestCase test in tests)
                 {
                     test.init();
                 }
-                foreach(TestCase test in tests)
+                foreach (TestCase test in tests)
                 {
                     test.start();
                 }
-                foreach(TestCase test in tests)
+                foreach (TestCase test in tests)
                 {
                     test.join();
                 }
-                foreach(TestCase test in tests)
+                foreach (TestCase test in tests)
                 {
                     test.destroy();
                 }

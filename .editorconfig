@@ -1,0 +1,21 @@
+# Remove the line below if you want to inherit .editorconfig settings from higher directories
+root = true
+
+# all files
+[*]
+
+#### Guidelines ####
+guidelines = 120
+
+#### Core EditorConfig Options ####
+
+# Indentation and spacing
+indent_size = 4
+indent_style = space
+tab_width = 4
+
+# New line preferences
+insert_final_newline = true
+
+# License header
+file_header_template = Copyright (c) ZeroC, Inc.

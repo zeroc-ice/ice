@@ -42,7 +42,7 @@ namespace Ice
 
             ~ServantLocatorI()
             {
-                lock(this)
+                lock (this)
                 {
                     test(_deactivated);
                 }
@@ -50,7 +50,7 @@ namespace Ice
 
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -58,12 +58,12 @@ namespace Ice
 
             public Ice.Object locate(Ice.Current current, out System.Object cookie)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
                 }
 
-                if(current.id.name == "router")
+                if (current.id.name == "router")
                 {
                     cookie = null;
                     return _router;
@@ -79,12 +79,12 @@ namespace Ice
 
             public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
                 }
 
-                if(current.id.name == "router")
+                if (current.id.name == "router")
                 {
                     return;
                 }
@@ -95,7 +95,7 @@ namespace Ice
 
             public void deactivate(string category)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
 

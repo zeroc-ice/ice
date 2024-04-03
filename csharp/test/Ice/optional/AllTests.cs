@@ -50,7 +50,7 @@ namespace Ice
                 mo1.c = 19;
                 mo1.d = 78;
                 mo1.e = 99;
-                mo1.f =(float)5.5;
+                mo1.f = (float)5.5;
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
@@ -89,25 +89,25 @@ namespace Ice
 
                 mo1.bos = new bool[] { false, true, false };
 
-                test(mo1.a.Value ==(byte)15);
+                test(mo1.a.Value == (byte)15);
                 test(mo1.b.Value);
                 test(mo1.c.Value == 19);
                 test(mo1.d.Value == 78);
                 test(mo1.e.Value == 99);
-                test(mo1.f.Value ==(float)5.5);
+                test(mo1.f.Value == (float)5.5);
                 test(mo1.g.Value == 1.0);
                 test(mo1.h.Value == "test");
                 test(mo1.i.Value == Test.MyEnum.MyEnumMember);
                 test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
                 test(mo1.k.Value == mo1);
-                test(ArraysEqual(mo1.bs.Value, new byte[] {(byte)5 }));
+                test(ArraysEqual(mo1.bs.Value, new byte[] { (byte)5 }));
                 test(ArraysEqual(mo1.ss.Value, new String[] { "test", "test2" }));
                 test(mo1.iid.Value[4] == 3);
                 test(mo1.sid.Value["test"] == 10);
                 test(mo1.fs.Value.Equals(new Test.FixedStruct(78)));
                 test(mo1.vs.Value.Equals(new Test.VarStruct("hello")));
 
-                test(mo1.shs.Value[0] ==(short)1);
+                test(mo1.shs.Value[0] == (short)1);
                 test(mo1.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
                 test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
@@ -127,13 +127,13 @@ namespace Ice
                 output.Write("testing marshaling... ");
                 output.Flush();
 
-                Test.OneOptional oo4 =(Test.OneOptional)initial.pingPong(new Test.OneOptional());
+                Test.OneOptional oo4 = (Test.OneOptional)initial.pingPong(new Test.OneOptional());
                 test(!oo4.a.HasValue);
 
-                Test.OneOptional oo5 =(Test.OneOptional)initial.pingPong(oo1);
+                Test.OneOptional oo5 = (Test.OneOptional)initial.pingPong(oo1);
                 test(oo1.a.Value == oo5.a.Value);
 
-                Test.MultiOptional mo4 =(Test.MultiOptional)initial.pingPong(new Test.MultiOptional());
+                Test.MultiOptional mo4 = (Test.MultiOptional)initial.pingPong(new Test.MultiOptional());
                 test(!mo4.a.HasValue);
                 test(!mo4.b.HasValue);
                 test(!mo4.c.HasValue);
@@ -167,7 +167,7 @@ namespace Ice
 
                 test(!mo4.bos.HasValue);
 
-                Test.MultiOptional mo5 =(Test.MultiOptional)initial.pingPong(mo1);
+                Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
                 test(mo5.a.Value == mo1.a.Value);
                 test(mo5.b.Value == mo1.b.Value);
                 test(mo5.c.Value == mo1.c.Value);
@@ -217,7 +217,7 @@ namespace Ice
                 mo6.iood = mo5.iood;
                 mo6.bos = mo5.bos;
 
-                Test.MultiOptional mo7 =(Test.MultiOptional)initial.pingPong(mo6);
+                Test.MultiOptional mo7 = (Test.MultiOptional)initial.pingPong(mo6);
                 test(!mo7.a.HasValue);
                 test(mo7.b.Equals(mo1.b));
                 test(!mo7.c.HasValue);
@@ -271,7 +271,7 @@ namespace Ice
                 mo8.ivsd = mo5.ivsd;
                 mo8.imipd = mo5.imipd;
 
-                Test.MultiOptional mo9 =(Test.MultiOptional)initial.pingPong(mo8);
+                Test.MultiOptional mo9 = (Test.MultiOptional)initial.pingPong(mo8);
                 test(mo9.a.Equals(mo1.a));
                 test(!mo9.b.HasValue);
                 test(mo9.c.Equals(mo1.c));
@@ -312,7 +312,7 @@ namespace Ice
                     owc1.l.Value.Add(new Test.SmallStruct(6));
                     owc1.l.Value.Add(new Test.SmallStruct(7));
                     owc1.s = new Test.ClassVarStruct(5);
-                    Test.OptionalWithCustom owc2 =(Test.OptionalWithCustom)initial.pingPong(owc1);
+                    Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
                     test(owc2.l.HasValue);
                     test(ListsEqual(owc1.l.Value, owc2.l.Value));
                     test(owc2.s.HasValue);
@@ -357,7 +357,7 @@ namespace Ice
                 //
                 var oo = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
                 initial.sendOptionalClass(true, oo);
-                Test.InitialPrx initial2 =(Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
+                Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
                 initial2.sendOptionalClass(true, oo);
 
                 initial.returnOptionalClass(true, out oo);
@@ -398,18 +398,18 @@ namespace Ice
                 mc.shs = new short[300];
 
                 mc.fss = new Test.FixedStruct[300];
-                for(int i = 0; i < 300; ++i)
+                for (int i = 0; i < 300; ++i)
                 {
                     mc.fss.Value[i] = new Test.FixedStruct();
                 }
 
                 mc.ifsd = new Dictionary<int, Test.FixedStruct>();
-                for(int i = 0; i < 300; ++i)
+                for (int i = 0; i < 300; ++i)
                 {
                     mc.ifsd.Value.Add(i, new Test.FixedStruct());
                 }
 
-                mc =(Test.MultiOptional)initial.pingPong(mc);
+                mc = (Test.MultiOptional)initial.pingPong(mc);
                 test(mc.bs.Value.Length == 1000);
                 test(mc.shs.Value.Length == 300);
                 test(mc.fss.Value.Length == 300);
@@ -435,7 +435,7 @@ namespace Ice
                 output.Flush();
                 {
                     Test.B b = new Test.B();
-                    Test.B b2 =(Test.B)initial.pingPong(b);
+                    Test.B b2 = (Test.B)initial.pingPong(b);
                     test(!b2.ma.HasValue);
                     test(!b2.mb.HasValue);
                     test(!b2.mc.HasValue);
@@ -445,7 +445,7 @@ namespace Ice
                     b.mc = 12;
                     b.md = 13;
 
-                    b2 =(Test.B)initial.pingPong(b);
+                    b2 = (Test.B)initial.pingPong(b);
                     test(b2.ma.Value == 10);
                     test(b2.mb.Value == 11);
                     test(b2.mc.Value == 12);
@@ -473,9 +473,9 @@ namespace Ice
                     Test.F f = new Test.F();
 
                     f.af = new Test.A();
-                    f.ae =(Test.A)f.af;
+                    f.ae = (Test.A)f.af;
 
-                    Test.F rf =(Test.F)initial.pingPong(f);
+                    Test.F rf = (Test.F)initial.pingPong(f);
                     test(rf.ae == rf.af.Value);
 
                     factory.setEnabled(true);
@@ -490,7 +490,7 @@ namespace Ice
                     @in.readValue(rocb.invoke);
                     @in.endEncapsulation();
                     factory.setEnabled(false);
-                    rf =((FValueReader)rocb.obj).getF();
+                    rf = ((FValueReader)rocb.obj).getF();
                     test(rf.ae != null && !rf.af.HasValue);
                 }
                 output.WriteLine("ok");
@@ -498,18 +498,18 @@ namespace Ice
                 output.Write("testing optional with default values... ");
                 output.Flush();
                 {
-                    Test.WD wd =(Test.WD)initial.pingPong(new Test.WD());
+                    Test.WD wd = (Test.WD)initial.pingPong(new Test.WD());
                     test(wd.a.Value == 5);
                     test(wd.s.Value == "test");
                     wd.a = Ice.Util.None;
                     wd.s = Ice.Util.None;
-                    wd =(Test.WD)initial.pingPong(wd);
+                    wd = (Test.WD)initial.pingPong(wd);
                     test(!wd.a.HasValue);
                     test(!wd.s.HasValue);
                 }
                 output.WriteLine("ok");
 
-                if(communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
+                if (communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
                 {
                     output.Write("testing marshaling with unknown class slices... ");
                     output.Flush();
@@ -544,7 +544,7 @@ namespace Ice
                         @in.readValue(cb.invoke);
                         @in.endEncapsulation();
                         test(cb.obj != null && cb.obj is DValueReader);
-                       ((DValueReader)cb.obj).check();
+                        ((DValueReader)cb.obj).check();
                         factory.setEnabled(false);
                     }
                     output.WriteLine("ok");
@@ -1968,7 +1968,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
                         initial.opOptionalException(a, b, o);
                     }
-                    catch(Test.OptionalException ex)
+                    catch (Test.OptionalException ex)
                     {
                         test(!ex.a.HasValue);
                         test(!ex.b.HasValue);
@@ -1982,7 +1982,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
                         initial.opOptionalException(a, b, o);
                     }
-                    catch(Test.OptionalException ex)
+                    catch (Test.OptionalException ex)
                     {
                         test(ex.a.Value == 30);
                         test(ex.b.Value == "test");
@@ -1999,7 +1999,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
                         initial2.opOptionalException(a, b, o);
                     }
-                    catch(Test.OptionalException ex)
+                    catch (Test.OptionalException ex)
                     {
                         test(!ex.a.HasValue);
                         test(!ex.b.HasValue);
@@ -2013,7 +2013,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
                         initial.opDerivedException(a, b, o);
                     }
-                    catch(Test.DerivedException ex)
+                    catch (Test.DerivedException ex)
                     {
                         test(!ex.a.HasValue);
                         test(!ex.b.HasValue);
@@ -2031,7 +2031,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
                         initial.opDerivedException(a, b, o);
                     }
-                    catch(Test.DerivedException ex)
+                    catch (Test.DerivedException ex)
                     {
                         test(ex.a.Value == 30);
                         test(ex.b.Value == "test2");
@@ -2049,7 +2049,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
                         initial.opRequiredException(a, b, o);
                     }
-                    catch(Test.RequiredException ex)
+                    catch (Test.RequiredException ex)
                     {
                         test(!ex.a.HasValue);
                         test(!ex.b.HasValue);
@@ -2065,7 +2065,7 @@ namespace Ice
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
                         initial.opRequiredException(a, b, o);
                     }
-                    catch(Test.RequiredException ex)
+                    catch (Test.RequiredException ex)
                     {
                         test(ex.a.Value == 30);
                         test(ex.b.Value == "test2");
@@ -2131,25 +2131,25 @@ namespace Ice
 
             internal static bool ArraysEqual<T>(T[] a1, T[] a2)
             {
-                if(ReferenceEquals(a1, a2))
+                if (ReferenceEquals(a1, a2))
                 {
                     return true;
                 }
 
-                if(a1 == null || a2 == null)
+                if (a1 == null || a2 == null)
                 {
                     return false;
                 }
 
-                if(a1.Length != a2.Length)
+                if (a1.Length != a2.Length)
                 {
                     return false;
                 }
 
                 EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-                for(int i = 0; i < a1.Length; ++i)
+                for (int i = 0; i < a1.Length; ++i)
                 {
-                    if(!comparer.Equals(a1[i], a2[i]))
+                    if (!comparer.Equals(a1[i], a2[i]))
                     {
                         return false;
                     }
@@ -2160,17 +2160,17 @@ namespace Ice
 
             internal static bool ListsEqual<T>(ICollection<T> a1, ICollection<T> a2)
             {
-                if(ReferenceEquals(a1, a2))
+                if (ReferenceEquals(a1, a2))
                 {
                     return true;
                 }
 
-                if(a1 == null || a2 == null)
+                if (a1 == null || a2 == null)
                 {
                     return false;
                 }
 
-                if(a1.Count != a2.Count)
+                if (a1.Count != a2.Count)
                 {
                     return false;
                 }
@@ -2178,9 +2178,9 @@ namespace Ice
                 EqualityComparer<T> comparer = EqualityComparer<T>.Default;
                 IEnumerator<T> a1i = a1.GetEnumerator();
                 IEnumerator<T> a2i = a2.GetEnumerator();
-                while(a1i.MoveNext() && a2i.MoveNext())
+                while (a1i.MoveNext() && a2i.MoveNext())
                 {
-                    if(!comparer.Equals(a1i.Current, a2i.Current))
+                    if (!comparer.Equals(a1i.Current, a2i.Current))
                     {
                         return false;
                     }
@@ -2191,25 +2191,25 @@ namespace Ice
 
             internal static bool MapsEqual<K, V>(Dictionary<K, V> d1, Dictionary<K, V> d2)
             {
-                if(ReferenceEquals(d1, d2))
+                if (ReferenceEquals(d1, d2))
                 {
                     return true;
                 }
 
-                if(d1 == null || d2 == null)
+                if (d1 == null || d2 == null)
                 {
                     return false;
                 }
 
-                if(d1.Count != d2.Count)
+                if (d1.Count != d2.Count)
                 {
                     return false;
                 }
 
                 EqualityComparer<V> valueComparer = EqualityComparer<V>.Default;
-                foreach(K key in d1.Keys)
+                foreach (K key in d1.Keys)
                 {
-                    if(!d2.ContainsKey(key) || !valueComparer.Equals(d1[key], d2[key]))
+                    if (!d2.ContainsKey(key) || !valueComparer.Equals(d1[key], d2[key]))
                     {
                         return false;
                     }
@@ -2220,7 +2220,7 @@ namespace Ice
 
             internal static void Populate<T>(T[] arr, T value)
             {
-                for(int i = 0; i < arr.Length; ++i)
+                for (int i = 0; i < arr.Length; ++i)
                 {
                     arr[i] = value;
                 }
@@ -2357,7 +2357,7 @@ namespace Ice
                     @in.readValue(rocb.invoke);
                     @in.endSlice();
                     @in.endValue();
-                    _f.ae =(Test.A)rocb.obj;
+                    _f.ae = (Test.A)rocb.obj;
                 }
 
                 public Test.F getF()
@@ -2372,32 +2372,32 @@ namespace Ice
             {
                 public Ice.Value create(string typeId)
                 {
-                    if(!_enabled)
+                    if (!_enabled)
                     {
                         return null;
                     }
 
-                    if(typeId.Equals(Test.OneOptional.ice_staticId()))
+                    if (typeId.Equals(Test.OneOptional.ice_staticId()))
                     {
                         return new TestValueReader();
                     }
-                    else if(typeId.Equals(Test.MultiOptional.ice_staticId()))
+                    else if (typeId.Equals(Test.MultiOptional.ice_staticId()))
                     {
                         return new TestValueReader();
                     }
-                    else if(typeId.Equals(Test.B.ice_staticId()))
+                    else if (typeId.Equals(Test.B.ice_staticId()))
                     {
                         return new BValueReader();
                     }
-                    else if(typeId.Equals(Test.C.ice_staticId()))
+                    else if (typeId.Equals(Test.C.ice_staticId()))
                     {
                         return new CValueReader();
                     }
-                    else if(typeId == "::Test::D")
+                    else if (typeId == "::Test::D")
                     {
                         return new DValueReader();
                     }
-                    else if(typeId == "::Test::F")
+                    else if (typeId == "::Test::F")
                     {
                         return new FValueReader();
                     }

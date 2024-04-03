@@ -3,8 +3,8 @@
 //
 
 using System;
-using System.Globalization;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace IceInternal
 {
@@ -17,7 +17,7 @@ namespace IceInternal
             // value factory, in this case raise a NoValueFactoryException
             // instead.
             //
-            if(v is Ice.UnknownSlicedValue)
+            if (v is Ice.UnknownSlicedValue)
             {
                 Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
                 throw new Ice.NoValueFactoryException("", usv.ice_id());
@@ -29,7 +29,7 @@ namespace IceInternal
             {
                 expected = (string)expectedType.GetMethod("ice_staticId").Invoke(null, null);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 expected = "";
                 Debug.Assert(false);
@@ -57,14 +57,14 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized exception.
         /// </summary>
-        public Exception() {}
+        public Exception() { }
 
         /// <summary>
         /// Creates a default-initialized exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public Exception(System.Exception ex) : base("", ex) {}
+        public Exception(System.Exception ex) : base("", ex) { }
 
         /// <summary>
         /// ice_name() is deprecated, use ice_id() instead.
@@ -107,11 +107,11 @@ namespace Ice
             sw.Write(StackTrace);
 
             System.Exception curr = InnerException;
-            while(curr != null)
+            while (curr != null)
             {
                 sw.Write("\nCaused by: ");
                 sw.Write(curr.GetType().FullName);
-                if(!(curr is Ice.Exception))
+                if (!(curr is Ice.Exception))
                 {
                     sw.Write(": ");
                     sw.Write(curr.Message);
@@ -133,14 +133,14 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized Ice run-time exception.
         /// </summary>
-        public LocalException() {}
+        public LocalException() { }
 
         /// <summary>
         /// Creates a default-initialized Ice run-time exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public LocalException(System.Exception ex) : base(ex) {}
+        public LocalException(System.Exception ex) : base(ex) { }
     }
 
     /// <summary>
@@ -152,14 +152,14 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized system exception.
         /// </summary>
-        public SystemException() {}
+        public SystemException() { }
 
         /// <summary>
         /// Creates a default-initialized system exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public SystemException(System.Exception ex) : base(ex) {}
+        public SystemException(System.Exception ex) : base(ex) { }
     }
 
     /// <summary>
@@ -170,14 +170,14 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized user exception.
         /// </summary>
-        public UserException() {}
+        public UserException() { }
 
         /// <summary>
         /// Creates a default-initialized user exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public UserException(System.Exception ex) : base(ex) {}
+        public UserException(System.Exception ex) : base(ex) { }
 
         public virtual void iceWrite(OutputStream ostr)
         {

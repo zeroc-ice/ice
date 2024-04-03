@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Diagnostics;
+using Test;
 
 public sealed class CallbackI : Test.CallbackDisp_
 {
@@ -40,7 +40,7 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public override void
     callback(Ice.Current current)
     {
-        lock(this)
+        lock (this)
         {
             Debug.Assert(!_callback);
             _callback = true;
@@ -61,9 +61,9 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public void
     callbackOK()
     {
-        lock(this)
+        lock (this)
         {
-            while(!_callback)
+            while (!_callback)
             {
                 System.Threading.Monitor.Wait(this, 30000);
                 TestHelper.test(_callback);

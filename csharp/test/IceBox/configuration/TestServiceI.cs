@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceBox;
-
-class TestServiceI : IceBox.Service
+internal class TestServiceI : IceBox.Service
 {
     public void
     start(string name, Ice.Communicator communicator, string[] args)

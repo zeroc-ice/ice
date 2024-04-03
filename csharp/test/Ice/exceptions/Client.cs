@@ -14,11 +14,11 @@ namespace Ice
             public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[]{"Ice.exceptions.TypeId"};
+                initData.typeIdNamespaces = new string[] { "Ice.exceptions.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.Warn.Connections", "0");
                 initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-                using(var communicator = initialize(initData))
+                using (var communicator = initialize(initData))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var thrower = await AllTests.allTests(this);
