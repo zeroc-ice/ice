@@ -385,6 +385,83 @@ module_def
         $$ = nullptr;
     }
 }
+| ICE_MODULE ICE_SCOPED_IDENTIFIER
+{
+    auto ident = dynamic_pointer_cast<StringTok>($2);
+
+    // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
+    size_t startPos = 0;
+    if (ident->v.find("::") == 0)
+    {
+        currentUnit->error("illegal identifier: module identifiers cannot start with '::' prefix");
+        startPos += 2; // Skip the leading "::".
+    }
+
+    // Split the scoped-identifier token into separate module names.
+    size_t endPos;
+    vector<string> modules;
+    while ((endPos = ident->v.find("::", startPos)) != string::npos)
+    {
+        modules.push_back(ident->v.substr(startPos, (endPos - startPos)));
+        startPos = endPos + 2; // Skip the "::" separator.
+    }
+    modules.push_back(ident->v.substr(startPos));
+
+    // Create the nested modules.
+    ContainerPtr cont = currentUnit->currentContainer();
+    for (size_t i = 0; i < modules.size(); i++)
+    {
+        const auto currentModuleName = modules[i];
+        ModulePtr module = cont->createModule(currentModuleName);
+        if (module)
+        {
+            cont->checkIntroduced(currentModuleName, module);
+            currentUnit->pushContainer(module);
+            $$ = cont = module;
+        }
+        else
+        {
+            // If an error occurs while creating one of the modules, we have to stop. But, to eagerly report as many
+            // errors as possible, we still 'create' any remaining modules, which will run _some_ validation on them.
+            for (size_t j = (i + 1); j < modules.size(); j++)
+            {
+                cont->createModule(modules[j]); // Dummy
+            }
+
+            // Then we roll back the chain, ie. pop the successfully-created-modules off the container stack.
+            for (; i > 0; i--)
+            {
+                currentUnit->popContainer();
+            }
+            $$ = nullptr;
+            break;
+        }
+    }
+}
+'{' definitions '}'
+{
+    if ($3)
+    {
+        // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
+        // Where `N` is the number of scope separators ("::").
+        size_t startPos = 0;
+        auto ident = dynamic_pointer_cast<StringTok>($2);
+        while ((startPos = ident->v.find("::", startPos)) != string::npos)
+        {
+            currentUnit->popContainer();
+            startPos += 2; // Skip the "::" separator.
+        }
+
+        // Set the 'return value' to the outer-most module, before we pop it off the stack.
+        // Whichever module we return, is the one that metadata will be applied to.
+        $$ = currentUnit->currentContainer();
+        currentUnit->popContainer();
+    }
+    else
+    {
+        $$ = nullptr;
+    }
+}
 ;
 
 // ----------------------------------------------------------------------

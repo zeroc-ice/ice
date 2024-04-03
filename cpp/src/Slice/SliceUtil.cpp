@@ -483,7 +483,9 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
+    assert(!name.empty());
     bool isValid = true;
+
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
     for (size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)

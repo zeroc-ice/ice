@@ -4,19 +4,13 @@
 
 module Test
 {
-    module SubA
+    module SubA::SubSubA1
     {
-        module SubSubA1
-        {
-            const int Value1 = 10;
-        }
+        const int Value1 = 10;
     }
 
-    module SubB
+    module SubB::SubSubB1
     {
-        module SubSubB1
-        {
-            const int Value1 = 20;
-        }
+        const int Value1 = 20;
     }
 }

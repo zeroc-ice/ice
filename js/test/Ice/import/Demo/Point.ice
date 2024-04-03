@@ -6,18 +6,13 @@
 
 #pragma once
 
-module Demo
-{
-
-module gx
+module Demo::gx
 {
 
 struct Point
 {
     int x;
     int y;
-}
-
 }
 
 }
