@@ -60,8 +60,6 @@ runs:
       with:
         distribution: "oracle"
         java-version: "17"
-
-      shell: bash
       if: runner.os == 'Linux'
 
     - name: Install testing dependencies from pip
