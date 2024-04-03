@@ -9,7 +9,6 @@ using System.Threading;
 
 namespace Glacier2;
 
-
 /// <summary>
 /// A helper class for using Glacier2 with GUI applications.
 /// </summary>

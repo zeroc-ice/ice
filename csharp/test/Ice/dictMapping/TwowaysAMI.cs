@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-
 /* Unmerged change from project 'collocated'
 Before:
 using System.Diagnostics;

@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-
 namespace Ice;
 
 public delegate Value ValueFactory(string type);

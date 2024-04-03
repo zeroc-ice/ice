@@ -4,7 +4,6 @@
 
 namespace IceInternal;
 
-
 public abstract class EventHandler
 {
     //

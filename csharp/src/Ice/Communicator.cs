@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-
 using System.Net.Security;
 
 namespace Ice;

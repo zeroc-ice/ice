@@ -4,7 +4,6 @@
 
 namespace IceInternal;
 
-
 using System.Collections.Generic;
 
 public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
