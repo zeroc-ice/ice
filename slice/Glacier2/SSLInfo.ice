@@ -14,7 +14,7 @@
 
 [["python:pkgdir:Glacier2"]]
 
-#include "Ice/BuiltinSequences.ice"
+#include "../Ice/BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 

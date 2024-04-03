@@ -2,16 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-$(project)_programs             :=  icegriddb
-$(project)_sliceflags           := -DICE_BUILDING_ICEGRIDDB
-
-$(project)/IceGridDB.cpp: $(includedir)/generated/IceGrid/Admin.h
-$(project)/generated/DBTypes.cpp: $(includedir)/generated/IceGrid/Admin.h
+$(project)_programs       :=  icegriddb
 
 icegriddb_targetdir       := $(bindir)
-icegriddb_dependencies    := Ice IceDB Glacier2
+icegriddb_dependencies    := Ice IceDB Glacier2 IceGrid
 icegriddb_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
-icegriddb_sources         := $(addprefix $(slicedir)/IceGrid/,Descriptor.ice Exception.ice) \
-                             $(addprefix $(currentdir)/,IceGridDB.cpp DBTypes.ice)
+icegriddb_sources         := $(addprefix $(currentdir)/,IceGridDB.cpp DBTypes.ice)
 
 projects += $(project)

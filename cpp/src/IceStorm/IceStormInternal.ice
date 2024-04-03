@@ -6,7 +6,7 @@
 
 [["cpp:header-ext:h"]]
 
-#include <IceStorm/IceStorm.ice>
+#include "IceStorm/IceStorm.ice"
 #include "Election.ice"
 #include "Ice/Context.ice"
 #include "Ice/OperationMode.ice"

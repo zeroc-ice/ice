@@ -16,8 +16,8 @@
 
 [["python:pkgdir:IceGrid"]]
 
-#include <Glacier2/Session.ice>
-#include <IceGrid/Exception.ice>
+#include "../Glacier2/Session.ice"
+#include "Exception.ice"
 
 [["java:package:com.zeroc"]]
 

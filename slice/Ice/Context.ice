@@ -24,10 +24,8 @@
 
 module Ice
 {
-
-/// A request context. <code>Context</code> is used to transmit metadata about a request from the server to the client,
-/// such as Quality-of-Service (QoS) parameters. Each operation on the client has a <code>Context</code> as its
-/// implicit final parameter.
-dictionary<string, string> Context;
-
+    /// A request context. <code>Context</code> is used to transmit metadata about a request from the server to the
+    /// client, such as Quality-of-Service (QoS) parameters. Each operation on the client has a <code>Context</code> as
+    /// its implicit final parameter.
+    dictionary<string, string> Context;
 }
