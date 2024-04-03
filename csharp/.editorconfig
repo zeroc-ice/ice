@@ -1,3 +1,6 @@
+# C# files
+[*.cs]
+
 #### .NET Coding Conventions ####
 
 # Organize usings
