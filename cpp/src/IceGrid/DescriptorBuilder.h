@@ -5,9 +5,9 @@
 #ifndef ICE_GRID_DESCRIPTOR_BUILDER_H
 #define ICE_GRID_DESCRIPTOR_BUILDER_H
 
-#include <Ice/Logger.h>
-#include <IceXML/Parser.h>
-#include <IceGrid/Descriptor.h>
+#include "../IceXML/Parser.h"
+#include "Ice/Logger.h"
+#include "IceGrid/Descriptor.h"
 #include <set>
 
 namespace IceGrid

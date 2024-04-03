@@ -71,45 +71,13 @@ namespace IceInternal
         byte{0} // Message size (placeholder)
     };
 
-    void stringToMajorMinor(string_view s, uint8_t& major, uint8_t& minor)
-    {
-        string str{s};
-        std::string::size_type pos = str.find_first_of(".");
-        if (pos == std::string::npos)
-        {
-            throw Ice::VersionParseException(__FILE__, __LINE__, "malformed version value `" + str + "'");
-        }
-
-        std::istringstream majStr(str.substr(0, pos));
-        int32_t majVersion;
-        if (!(majStr >> majVersion) || !majStr.eof())
-        {
-            throw Ice::VersionParseException(__FILE__, __LINE__, "invalid major version value `" + str + "'");
-        }
-
-        std::istringstream minStr(str.substr(pos + 1, std::string::npos));
-        int32_t minVersion;
-        if (!(minStr >> minVersion) || !minStr.eof())
-        {
-            throw Ice::VersionParseException(__FILE__, __LINE__, "invalid minor version value `" + str + "'");
-        }
-
-        if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-        {
-            throw Ice::VersionParseException(__FILE__, __LINE__, "range error in version `" + str + "'");
-        }
-
-        major = static_cast<uint8_t>(majVersion);
-        minor = static_cast<uint8_t>(minVersion);
-    }
-
     void throwUnsupportedProtocolException(
         const char* f,
         int l,
         const Ice::ProtocolVersion& v,
         const Ice::ProtocolVersion& s)
     {
-        throw Ice::UnsupportedProtocolException(f, l, "", v, s);
+        throw UnsupportedProtocolException(f, l, "", v, s);
     }
 
     void throwUnsupportedEncodingException(
@@ -118,6 +86,6 @@ namespace IceInternal
         const Ice::EncodingVersion& v,
         const Ice::EncodingVersion& s)
     {
-        throw Ice::UnsupportedEncodingException(f, l, "", v, s);
+        throw UnsupportedEncodingException(f, l, "", v, s);
     }
 }

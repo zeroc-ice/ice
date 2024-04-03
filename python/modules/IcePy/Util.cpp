@@ -5,11 +5,11 @@
 #include "Util.h"
 #include "Ice/Protocol.h"
 #include "IceUtil/DisableWarnings.h"
-#include "PythonUtil.h"
+#include "slice2py/PythonUtil.h"
 
 #include <compile.h>
-#include <frameobject.h>
 #include <cstddef>
+#include <frameobject.h>
 
 using namespace std;
 using namespace Slice::Python;

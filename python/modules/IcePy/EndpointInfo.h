@@ -5,8 +5,8 @@
 #ifndef ICEPY_ENDPOINT_INFO_H
 #define ICEPY_ENDPOINT_INFO_H
 
-#include <Config.h>
-#include <Ice/Endpoint.h>
+#include "Config.h"
+#include "Ice/Endpoint.h"
 
 namespace IcePy
 {

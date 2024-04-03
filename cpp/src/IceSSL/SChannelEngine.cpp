@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/SChannelEngine.h>
-#include <IceSSL/SChannelTransceiverI.h>
-#include <IceSSL/Plugin.h>
-#include <IceSSL/Util.h>
+#include "SChannelEngine.h"
+#include "IceSSL/Plugin.h"
+#include "SChannelTransceiverI.h"
+#include "Util.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Logger.h>
-#include <Ice/Communicator.h>
-#include <Ice/StringConverter.h>
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/StringConverter.h"
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <wincrypt.h>
 

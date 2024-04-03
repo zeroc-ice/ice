@@ -5,8 +5,8 @@
 #ifndef ICE_RUBY_LOGGER_H
 #define ICE_RUBY_LOGGER_H
 
-#include <Config.h>
-#include <Ice/Logger.h>
+#include "Config.h"
+#include "Ice/Logger.h"
 
 namespace IceRuby
 {

@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Glacier2/Glacier2.h>
+#include "Glacier2/Glacier2.h"
+#include "Ice/Ice.h"
 
-#include <TestHelper.h>
+#include "TestHelper.h"
 
-#include <iostream>
-#include <iomanip>
-#include <list>
 #include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <list>
 #include <thread>
 
-#include <Callback.h>
+#include "Callback.h"
 
 using namespace std;
 using namespace std::chrono_literals;

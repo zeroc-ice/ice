@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/BatchRequestQueue.h>
-#include <Ice/Instance.h>
-#include <Ice/Properties.h>
-#include <Ice/Reference.h>
+#include "BatchRequestQueue.h"
+#include "Ice/Properties.h"
 #include "Ice/Proxy.h"
+#include "Instance.h"
+#include "Reference.h"
 
 using namespace std;
 using namespace Ice;

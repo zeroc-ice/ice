@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ProxyFactory.h>
-#include <Ice/Instance.h>
-#include <Ice/Proxy.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/Properties.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LocalException.h>
+#include "ProxyFactory.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/OutputStream.h"
+#include "Ice/Properties.h"
+#include "Ice/Proxy.h"
+#include "Instance.h"
+#include "LocatorInfo.h"
+#include "ReferenceFactory.h"
+#include "RouterInfo.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace Ice;

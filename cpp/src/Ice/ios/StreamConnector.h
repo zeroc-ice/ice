@@ -5,12 +5,12 @@
 #ifndef ICE_STREAM_CONNECTOR_H
 #define ICE_STREAM_CONNECTOR_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include <Ice/TransceiverF.h>
-#    include <Ice/Connector.h>
+#    include "../Connector.h"
+#    include "../TransceiverF.h"
 
 namespace IceObjC
 {

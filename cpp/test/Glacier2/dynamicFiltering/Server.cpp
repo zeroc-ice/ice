@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/Locator.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <TestHelper.h>
-#include <TestControllerI.h>
-#include <SessionI.h>
-#include <BackendI.h>
+#include "BackendI.h"
+#include "Glacier2/PermissionsVerifier.h"
+#include "Ice/Ice.h"
+#include "Ice/Locator.h"
+#include "SessionI.h"
+#include "TestControllerI.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

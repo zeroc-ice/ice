@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ServantManager.h>
-#include <Ice/ServantLocator.h>
-#include <Ice/LocalException.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Instance.h>
-#include <Ice/StringUtil.h>
+#include "ServantManager.h"
 #include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/ServantLocator.h"
+#include "Instance.h"
+#include "StringUtil.h"
 
 using namespace std;
 using namespace Ice;

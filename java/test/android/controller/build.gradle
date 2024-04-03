@@ -106,7 +106,6 @@ ext.localDependency = { artifactId ->
 dependencies {
     implementation localDependency("glacier2")
     implementation localDependency("ice")
-    implementation localDependency("icessl")
     runtimeOnly localDependency("icediscovery")
     runtimeOnly localDependency("icebt")
 

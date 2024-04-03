@@ -3,13 +3,13 @@
 //
 
 #include "Ice/Properties.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/FileUtil.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
-#include "Ice/PropertyNames.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
+#include "PropertyNames.h"
 
 #include <cassert>
 #include <fstream>

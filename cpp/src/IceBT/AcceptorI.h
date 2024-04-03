@@ -5,11 +5,11 @@
 #ifndef ICE_BT_ACCEPTOR_I_H
 #define ICE_BT_ACCEPTOR_I_H
 
-#include <Ice/TransceiverF.h>
-#include <Ice/Acceptor.h>
-#include <IceBT/Config.h>
-#include <IceBT/EngineF.h>
-#include <IceBT/InstanceF.h>
+#include "../Ice/Acceptor.h"
+#include "../Ice/TransceiverF.h"
+#include "Config.h"
+#include "EngineF.h"
+#include "InstanceF.h"
 
 #include <mutex>
 #include <stack>

@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/SChannel.h>
-#include <IceSSL/CertificateI.h>
-#include <IceSSL/Util.h>
-#include <Ice/StringUtil.h>
-#include <Ice/StringConverter.h>
+#include "../Ice/StringUtil.h"
+#include "CertificateI.h"
+#include "Ice/StringConverter.h"
+#include "IceSSL/SChannel.h"
+#include "PluginI.h"
+#include "Util.h"
 
 #include <wincrypt.h>
 
 #include <cassert>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 using namespace std;
 using namespace Ice;

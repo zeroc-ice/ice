@@ -73,12 +73,6 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
-      <ClCompile>
-          <AdditionalIncludeDirectories>$(IceHome)\cpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      </ClCompile>
-  </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

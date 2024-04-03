@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/TrustManager.h>
-#include <IceSSL/RFC2253.h>
-#include <IceSSL/ConnectionInfo.h>
+#include "TrustManager.h"
+#include "IceSSL/ConnectionInfo.h"
+#include "RFC2253.h"
 
-#include <Ice/Properties.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Network.h>
+#include "../Ice/Network.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 
 using namespace std;
 using namespace IceSSL;

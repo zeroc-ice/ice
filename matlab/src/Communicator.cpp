@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/Proxy.h>
-#include <Ice/ImplicitContext.h>
-#include <Ice/Logger.h>
-#include "ice.h"
+#include "Ice/Communicator.h"
 #include "Future.h"
+#include "Ice/ImplicitContext.h"
+#include "Ice/Logger.h"
+#include "Ice/Proxy.h"
 #include "Util.h"
+#include "ice.h"
 
 using namespace std;
 using namespace IceMatlab;

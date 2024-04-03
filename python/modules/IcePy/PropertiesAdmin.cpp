@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <PropertiesAdmin.h>
-#include <Util.h>
-#include <Thread.h>
-#include <Types.h>
+#include "PropertiesAdmin.h"
+#include "IceUtil/DisableWarnings.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

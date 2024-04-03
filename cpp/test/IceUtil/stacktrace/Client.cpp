@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <TestHelper.h>
+#include "IceUtil/StringUtil.h"
+#include "TestHelper.h"
 
 #include <fstream>
+#include <sstream>
 
 using namespace IceUtil;
 using namespace std;

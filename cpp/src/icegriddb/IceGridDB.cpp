@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <Ice/ConsoleUtil.h>
-#include <IceDB/IceDB.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/DBTypes.h>
-#include <IceUtil/DisableWarnings.h>
+#include "../Ice/ConsoleUtil.h"
+#include "../IceDB/IceDB.h"
+#include "DBTypes.h"
+#include "Ice/Ice.h"
+#include "IceGrid/Admin.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/Options.h"
+#include "IceUtil/StringUtil.h"
 
-#include <iterator>
 #include <fstream>
+#include <iterator>
 
 using namespace std;
 using namespace IceInternal;

@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <TestI.h>
+#include "Ice/Ice.h"
+#include "TestHelper.h"
+#include "TestI.h"
 
 //
 // Required to trigger initialization of Derived object factory.
 //
-#include <Derived.h>
+#include "Derived.h"
 
 //
 // Required to trigger initialization of DerivedEx exception factory.
 //
-#include <DerivedEx.h>
+#include "DerivedEx.h"
 
 using namespace std;
 using namespace Test;

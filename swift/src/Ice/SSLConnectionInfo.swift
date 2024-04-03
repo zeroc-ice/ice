@@ -17,10 +17,10 @@ import Foundation
 
 /// Provides access to the connection details of an SSL connection
 public protocol SSLConnectionInfo: ConnectionInfo {
-    /// The negotiated cipher suite.
-    var cipher: Swift.String { get set }
-    /// The certificate chain.
-    var certs: [SecCertificate] { get set }
-    /// The certificate chain verification status.
-    var verified: Swift.Bool { get set }
+  /// The negotiated cipher suite.
+  var cipher: Swift.String { get set }
+  /// The certificate chain.
+  var certs: [SecCertificate] { get set }
+  /// The certificate chain verification status.
+  var verified: Swift.Bool { get set }
 }

@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ACM.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Instance.h>
+#include "ACM.h"
+#include "ConnectionI.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

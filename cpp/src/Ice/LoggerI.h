@@ -5,10 +5,10 @@
 #ifndef ICE_LOGGER_I_H
 #define ICE_LOGGER_I_H
 
-#include <Ice/Logger.h>
-#include <Ice/StringConverter.h>
-#include <fstream>
+#include "Ice/Logger.h"
+#include "Ice/StringConverter.h"
 #include <chrono>
+#include <fstream>
 
 namespace Ice
 {

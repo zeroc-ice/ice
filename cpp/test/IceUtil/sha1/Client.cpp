@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/SHA1.h>
-#include <TestHelper.h>
+#include "Ice/SHA1.h"
+#include "TestHelper.h"
 
 #include <cstring>
+#include <sstream>
 
 using namespace std;
 

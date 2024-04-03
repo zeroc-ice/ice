@@ -5,7 +5,7 @@
 #ifndef SESSION_I_H
 #define SESSION_I_H
 
-#include <Session.h>
+#include "Session.h"
 
 class SessionManagerI final : public Glacier2::SessionManager
 {

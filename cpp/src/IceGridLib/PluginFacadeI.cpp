@@ -6,7 +6,7 @@
 #    define ICEGRID_API_EXPORTS
 #endif
 
-#include <IceGrid/IceGrid.h>
+#include "IceGrid/IceGrid.h"
 
 using namespace IceGrid;
 

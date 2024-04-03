@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceUtil/Random.h>
-#include <Test.h>
-#include <TestHelper.h>
+#include "Ice/Ice.h"
+#include "IceUtil/Random.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 #if defined(__GNUC__)
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -7,7 +7,7 @@
 
 #ifdef __APPLE__
 
-#    include <IceSSL/Plugin.h>
+#    include "IceSSL/Plugin.h"
 
 #    include <memory>
 

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/Topics.h>
-#include <IceGrid/DescriptorHelper.h>
+#include "Topics.h"
+#include "DescriptorHelper.h"
+#include "Ice/Ice.h"
 
 using namespace std;
 using namespace IceGrid;

@@ -5,7 +5,7 @@
 #ifndef ICE_SYS_LOGGER_I_H
 #define ICE_SYS_LOGGER_I_H
 
-#include <Ice/Logger.h>
+#include "Ice/Logger.h"
 
 #include <mutex>
 

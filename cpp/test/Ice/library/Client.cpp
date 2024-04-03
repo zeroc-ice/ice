@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 
 ICE_DECLSPEC_IMPORT void allTests(const Ice::ObjectAdapterPtr&);
 

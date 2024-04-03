@@ -5,10 +5,10 @@
 #ifndef ICEGRID_ADMINSESSIONI_H
 #define ICEGRID_ADMINSESSIONI_H
 
-#include <IceGrid/SessionI.h>
-#include <IceGrid/Topics.h>
-#include <IceGrid/ReapThread.h>
-#include <IceGrid/Internal.h>
+#include "Internal.h"
+#include "ReapThread.h"
+#include "SessionI.h"
+#include "Topics.h"
 
 namespace IceGrid
 {

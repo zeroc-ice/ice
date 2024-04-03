@@ -5,8 +5,8 @@
 #include "Ice/Service.h"
 #include "ArgVector.h"
 #include "ConsoleUtil.h"
-#include "LoggerI.h"
 #include "IceUtil/StringUtil.h"
+#include "LoggerI.h"
 
 #ifdef _WIN32
 #    include "Ice/EventLoggerMsg.h"

@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/OpaqueEndpointI.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/Exception.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/Base64.h>
-#include <Ice/HashUtil.h>
-#include <Ice/LocalException.h>
+#include "OpaqueEndpointI.h"
+#include "Base64.h"
+#include "DefaultsAndOverrides.h"
+#include "HashUtil.h"
+#include "Ice/Exception.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
 
 using namespace std;
 using namespace Ice;

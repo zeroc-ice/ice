@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <IceUtil/Options.h>
-#include <BlobjectI.h>
+#include "BlobjectI.h"
+#include "Ice/Ice.h"
+#include "IceUtil/Options.h"
+#include "TestHelper.h"
 
 using namespace std;
 

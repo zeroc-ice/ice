@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UdpEndpointI.h>
-#include <Ice/Network.h>
-#include <Ice/UdpConnector.h>
-#include <Ice/UdpTransceiver.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/HashUtil.h>
-#include <Ice/Logger.h>
+#include "UdpEndpointI.h"
+#include "HashUtil.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/Logger.h"
+#include "Ice/OutputStream.h"
+#include "Network.h"
+#include "ProtocolInstance.h"
+#include "UdpConnector.h"
+#include "UdpTransceiver.h"
 
 using namespace std;
 using namespace Ice;

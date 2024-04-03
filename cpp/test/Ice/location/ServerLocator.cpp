@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/BuiltinSequences.h>
-#include <TestHelper.h>
-#include <ServerLocator.h>
+#include "ServerLocator.h"
+#include "Ice/BuiltinSequences.h"
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

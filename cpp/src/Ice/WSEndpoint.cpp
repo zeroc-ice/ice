@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/WSEndpoint.h>
-#include <Ice/WSAcceptor.h>
-#include <Ice/WSConnector.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/IPEndpointI.h>
-#include <Ice/HashUtil.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/Comparable.h>
+#include "WSEndpoint.h"
+#include "EndpointFactoryManager.h"
+#include "HashUtil.h"
+#include "IPEndpointI.h"
+#include "Ice/Comparable.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
+#include "WSAcceptor.h"
+#include "WSConnector.h"
 
 using namespace std;
 using namespace Ice;

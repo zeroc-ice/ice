@@ -5,11 +5,11 @@
 #ifndef ICE_BT_ENGINE_H
 #define ICE_BT_ENGINE_H
 
-#include <IceBT/EngineF.h>
-#include <IceBT/Config.h>
-#include <IceBT/Plugin.h>
-#include <IceBT/Types.h>
-#include <Ice/CommunicatorF.h>
+#include "Config.h"
+#include "EngineF.h"
+#include "Ice/CommunicatorF.h"
+#include "IceBT/Plugin.h"
+#include "IceBT/Types.h"
 
 #include <mutex>
 

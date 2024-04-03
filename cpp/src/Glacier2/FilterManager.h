@@ -9,9 +9,9 @@
 // It'd be better if we didn't have to include this everywhere, but
 // this is the most expeditious approach for now.
 //
-#include <Glacier2/Instance.h>
-#include <Glacier2/FilterT.h>
-#include <Ice/ObjectAdapter.h>
+#include "FilterT.h"
+#include "Ice/ObjectAdapter.h"
+#include "Instance.h"
 
 namespace Glacier2
 {

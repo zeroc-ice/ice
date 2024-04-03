@@ -5,8 +5,8 @@
 #ifndef ICE_UNKNOWN_ENDPOINT_I_H
 #define ICE_UNKNOWN_ENDPOINT_I_H
 
-#include <Ice/EndpointI.h>
-#include <Ice/EndpointFactory.h>
+#include "EndpointFactory.h"
+#include "EndpointI.h"
 
 namespace IceInternal
 {

@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_LOCATOR_I_H
 #define ICE_GRID_LOCATOR_I_H
 
-#include <IceGrid/Internal.h>
-#include <IceGrid/Registry.h>
+#include "IceGrid/Registry.h"
+#include "Internal.h"
 
 #include <set>
 

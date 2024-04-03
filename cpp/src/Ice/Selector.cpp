@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Selector.h>
-#include <Ice/EventHandler.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/LocalException.h>
+#include "Selector.h"
+#include "EventHandler.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Instance.h"
 
 #ifdef ICE_USE_CFSTREAM
-#    include <CoreFoundation/CoreFoundation.h>
 #    include <CoreFoundation/CFStream.h>
+#    include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace IceInternal;

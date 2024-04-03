@@ -3,9 +3,8 @@
 //
 
 #include "PythonUtil.h"
-#include <Slice/Util.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/StringUtil.h>
+#include "../Slice/Util.h"
+#include "IceUtil/StringUtil.h"
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -2735,9 +2734,12 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
             }
             pkgdir += fixIdent(*p);
         }
-        string::size_type pos = file.rfind('/');
-        assert(pos != string::npos);
-        string name = file.substr(pos + 1); // Get the name of the file without the leading path.
+        string name = file;
+        string::size_type pos = name.rfind('/');
+        if (pos != string::npos)
+        {
+            name = name.substr(pos + 1); // Get the name of the file without the leading path.
+        }
         assert(!name.empty());
         replace(name.begin(), name.end(), '.', '_'); // Convert .ice to _ice
         return pkgdir + "." + name;

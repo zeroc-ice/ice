@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/IceGrid.h>
-#include <Glacier2/Router.h>
-#include <TestHelper.h>
-#include <Test.h>
-#include <thread>
+#include "Glacier2/Router.h"
+#include "Ice/Ice.h"
+#include "IceGrid/IceGrid.h"
+#include "Test.h"
+#include "TestHelper.h"
 #include <random>
+#include <thread>
 
 using namespace std;
 using namespace Test;

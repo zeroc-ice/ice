@@ -5,8 +5,8 @@
 #ifndef ICE_GRID_TRACE_LEVELS_H
 #define ICE_GRID_TRACE_LEVELS_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/Logger.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/Logger.h"
 
 namespace IceGrid
 {

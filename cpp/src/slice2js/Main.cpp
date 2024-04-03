@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Options.h>
-#include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/ConsoleUtil.h>
-#include <Slice/Preprocessor.h>
-#include <Slice/FileTracker.h>
-#include <Slice/Util.h>
-#include <Gen.h>
+#include "../Slice/FileTracker.h"
+#include "../Slice/Preprocessor.h"
+#include "../Slice/Util.h"
+#include "Gen.h"
+#include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/CtrlCHandler.h"
+#include "IceUtil/Options.h"
 
-#include <cassert>
-#include <mutex>
 #include <algorithm>
+#include <cassert>
 #include <iostream>
+#include <mutex>
 
 using namespace std;
 using namespace Slice;

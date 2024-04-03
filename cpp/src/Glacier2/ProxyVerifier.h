@@ -5,7 +5,7 @@
 #ifndef ICE_PROXY_VERIFIER_H
 #define ICE_PROXY_VERIFIER_H
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 #include <vector>
 
 namespace Glacier2

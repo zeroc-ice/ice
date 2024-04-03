@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/PluginFacadeI.h>
-#include <IceGrid/PlatformInfo.h>
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/Database.h>
+#include "PluginFacadeI.h"
+#include "Database.h"
+#include "NodeSessionI.h"
+#include "PlatformInfo.h"
 
 using namespace std;
 using namespace IceGrid;

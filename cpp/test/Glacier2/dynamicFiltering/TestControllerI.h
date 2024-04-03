@@ -5,10 +5,10 @@
 #ifndef TEST_CONTROLLER_H
 #define TEST_CONTROLLER_H
 
-#include <Glacier2/Session.h>
-#include <Test.h>
-#include <vector>
+#include "Glacier2/Session.h"
+#include "Test.h"
 #include <string>
+#include <vector>
 
 struct SessionTuple
 {

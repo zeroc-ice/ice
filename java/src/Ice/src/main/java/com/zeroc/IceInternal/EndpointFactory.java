@@ -4,18 +4,20 @@
 
 package com.zeroc.IceInternal;
 
-public interface EndpointFactory
-{
-    default void initialize()
-    {
-        // Nothing to do, can be overridden by specialization to finish initialization.
-    }
+public interface EndpointFactory {
+  default void initialize() {
+    // Nothing to do, can be overridden by specialization to finish initialization.
+  }
 
-    short type();
-    String protocol();
-    EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint);
-    EndpointI read(com.zeroc.Ice.InputStream s);
-    void destroy();
+  short type();
 
-    EndpointFactory clone(ProtocolInstance instance);
+  String protocol();
+
+  EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint);
+
+  EndpointI read(com.zeroc.Ice.InputStream s);
+
+  void destroy();
+
+  EndpointFactory clone(ProtocolInstance instance);
 }

@@ -4,26 +4,25 @@
 
 package com.zeroc.IceInternal;
 
-public interface ProtocolPluginFacade
-{
-    //
-    // Get the Communicator instance with which this facade is
-    // associated.
-    //
-    com.zeroc.Ice.Communicator getCommunicator();
+public interface ProtocolPluginFacade {
+  //
+  // Get the Communicator instance with which this facade is
+  // associated.
+  //
+  com.zeroc.Ice.Communicator getCommunicator();
 
-    //
-    // Register an EndpointFactory.
-    //
-    void addEndpointFactory(EndpointFactory factory);
+  //
+  // Register an EndpointFactory.
+  //
+  void addEndpointFactory(EndpointFactory factory);
 
-    //
-    // Get an EndpointFactory.
-    //
-    EndpointFactory getEndpointFactory(short type);
+  //
+  // Get an EndpointFactory.
+  //
+  EndpointFactory getEndpointFactory(short type);
 
-    //
-    // Look up a Java class by name.
-    //
-    Class<?> findClass(String className);
+  //
+  // Look up a Java class by name.
+  //
+  Class<?> findClass(String className);
 }

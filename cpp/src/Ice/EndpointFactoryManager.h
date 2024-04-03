@@ -5,11 +5,11 @@
 #ifndef ICE_ENDPOINT_FACTORY_MANAGER_H
 #define ICE_ENDPOINT_FACTORY_MANAGER_H
 
-#include <Ice/Config.h>
-#include <Ice/InstanceF.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/EndpointFactoryF.h>
-#include <Ice/EndpointFactoryManagerF.h>
+#include "EndpointFactoryF.h"
+#include "EndpointFactoryManagerF.h"
+#include "EndpointIF.h"
+#include "Ice/Config.h"
+#include "Ice/InstanceF.h"
 
 #include <mutex>
 #include <vector>

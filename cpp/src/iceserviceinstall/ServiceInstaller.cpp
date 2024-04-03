@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ServiceInstaller.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
+#include "ServiceInstaller.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <stdexcept>
 

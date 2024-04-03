@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Session.h>
-#include <TestHelper.h>
-#include <IceSSL/Plugin.h>
+#include "Glacier2/PermissionsVerifier.h"
+#include "Glacier2/Session.h"
+#include "Ice/Ice.h"
+#include "IceSSL/Plugin.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Test;

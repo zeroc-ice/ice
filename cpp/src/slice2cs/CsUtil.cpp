@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <CsUtil.h>
-#include <DotNetNames.h>
-#include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
+#include "CsUtil.h"
+#include "../Slice/Util.h"
+#include "DotNetNames.h"
+#include "IceUtil/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef _WIN32
 #    include <direct.h>

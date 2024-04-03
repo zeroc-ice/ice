@@ -6,9 +6,9 @@
 #define ICESTORM_SUBSCRIBER_H
 
 #include "Ice/ObserverHelper.h"
-#include "IceStorm/IceStormInternal.h"
-#include "IceStorm/SubscriberRecord.h"
+#include "IceStormInternal.h"
 #include "Instrumentation.h"
+#include "SubscriberRecord.h"
 
 #include <condition_variable>
 

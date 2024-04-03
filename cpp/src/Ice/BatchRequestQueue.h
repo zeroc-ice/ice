@@ -6,12 +6,12 @@
 #define ICE_BATCH_REQUEST_QUEUE_H
 
 #include "Ice/BatchRequest.h"
-#include <Ice/BatchRequestQueueF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/OutputStream.h>
+#include "Ice/BatchRequestQueueF.h"
+#include "Ice/InstanceF.h"
+#include "Ice/OutputStream.h"
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 namespace IceInternal
 {

@@ -5,11 +5,11 @@
 #ifndef ICE_LOGGER_ADMIN_I_H
 #define ICE_LOGGER_ADMIN_I_H
 
-#include <Ice/Config.h>
-#include <Ice/Logger.h>
-#include <Ice/PropertiesF.h>
-#include <Ice/CommunicatorF.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/Config.h"
+#include "Ice/Logger.h"
 #include "Ice/ObjectF.h"
+#include "Ice/PropertiesF.h"
 
 namespace IceInternal
 {

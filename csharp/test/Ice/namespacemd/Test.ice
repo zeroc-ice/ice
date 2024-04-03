@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Namespace.ice>
-#include <NoNamespace.ice>
+#include "Namespace.ice"
+#include "NoNamespace.ice"
 
 ["cs:namespace:Ice.namespacemd"]
 module Test

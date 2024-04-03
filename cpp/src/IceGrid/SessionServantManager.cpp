@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
-#include <Ice/LocalException.h>
-#include <Ice/ObjectAdapter.h>
-#include <IceGrid/SessionServantManager.h>
+#include "SessionServantManager.h"
+#include "Ice/LocalException.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/UUID.h"
 #include <iterator>
 
 using namespace std;

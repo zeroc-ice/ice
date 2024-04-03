@@ -5,8 +5,9 @@
 #ifndef ICE_STREAM_ACCEPTOR_H
 #define ICE_STREAM_ACCEPTOR_H
 
-#include <Ice/TransceiverF.h>
-#include <Ice/Acceptor.h>
+#include "../Acceptor.h"
+#include "../TransceiverF.h"
+#include "StreamEndpointI.h"
 
 namespace IceObjC
 {

@@ -5,10 +5,10 @@
 #ifndef ICESSL_UTIL_H
 #define ICESSL_UTIL_H
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
-#include <string>
 #include <functional>
+#include <string>
 #include <vector>
 
 #if defined(__APPLE__)

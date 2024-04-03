@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include <Demo/Square.ice>
-#include <Demo/Circle.ice>
-#include <Glacier2/Session.ice>
+#include "Demo/Square.ice"
+#include "Demo/Circle.ice"
+#include "Glacier2/Session.ice"
 
 module Demo
 {

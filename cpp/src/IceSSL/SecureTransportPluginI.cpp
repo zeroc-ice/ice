@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/SecureTransport.h>
-#include <IceSSL/SecureTransportEngine.h>
+#include "IceSSL/SecureTransport.h"
+#include "PluginI.h"
+#include "SecureTransportEngine.h"
 
-#include <Ice/Initialize.h>
+#include "Ice/Initialize.h"
 
 using namespace Ice;
 using namespace std;

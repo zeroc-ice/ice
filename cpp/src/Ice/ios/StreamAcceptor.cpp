@@ -2,21 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "StreamTransceiver.h"
-#    include "StreamEndpointI.h"
+#    include "../Instance.h"
+#    include "../Network.h"
+#    include "Ice/Exception.h"
+#    include "Ice/Properties.h"
+#    include "Ice/UniqueRef.h"
+#    include "IceUtil/StringUtil.h"
 #    include "StreamAcceptor.h"
-
-#    include <IceUtil/StringUtil.h>
-
-#    include <Ice/Instance.h>
-#    include <Ice/UniqueRef.h>
-#    include <Ice/Network.h>
-#    include <Ice/Exception.h>
-#    include <Ice/Properties.h>
+#    include "StreamEndpointI.h"
+#    include "StreamTransceiver.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

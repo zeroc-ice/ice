@@ -9,7 +9,7 @@
 //
 [["js:es6-module"]]
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 module Test
 {

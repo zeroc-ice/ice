@@ -16,10 +16,10 @@
 
 [["python:pkgdir:IceGrid"]]
 
-#include <IceGrid/Exception.ice>
-#include <IceGrid/Session.ice>
-#include <IceGrid/Admin.ice>
-#include <Ice/Locator.ice>
+#include "Exception.ice"
+#include "Session.ice"
+#include "Admin.ice"
+#include "../Ice/Locator.ice"
 
 [["java:package:com.zeroc"]]
 
@@ -59,7 +59,8 @@ module IceGrid
         /// @param type The object type.
         /// @param sample The sampling interval.
         /// @return The proxy or null, if no such object has been found.
-        ["nonmutating", "cpp:const"] idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
+        ["nonmutating", "cpp:const"]
+        idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
 
         /// Find all the well-known objects with the given type.
         /// @param type The object type.

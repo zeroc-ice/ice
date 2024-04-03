@@ -4,7 +4,7 @@
 
 // Test: use DoubleModuleWithPackage types from (same) single module with (same) package definitions
 
-#include <DoubleModuleWithPackage.ice>
+#include "DoubleModuleWithPackage.ice"
 
 [["java:package:dmwp"]]
 

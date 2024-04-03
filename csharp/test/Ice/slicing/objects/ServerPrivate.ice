@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Test.ice>
+#include "Test.ice"
 
 module Test
 {

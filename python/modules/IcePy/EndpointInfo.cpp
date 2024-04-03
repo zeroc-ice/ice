@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <EndpointInfo.h>
-#include <Util.h>
-#include <IceSSL/IceSSL.h>
+#include "EndpointInfo.h"
+#include "IceSSL/IceSSL.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

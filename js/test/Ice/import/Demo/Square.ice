@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <Demo/Point.ice>
+#include "Demo/Point.ice"
 
 module Demo
 {

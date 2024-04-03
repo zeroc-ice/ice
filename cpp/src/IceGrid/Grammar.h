@@ -44,6 +44,24 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 9 "src/IceGrid/Grammar.y"
+
+#include <list>
+#include <string>
+
+// I must set the initial stack depth to the maximum stack depth to
+// disable bison stack resizing. The bison stack resizing routines use
+// simple malloc/alloc/memcpy calls, which do not work for the
+// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
+// assignment operator, etc.
+#define YYMAXDEPTH 10000       // 10000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
+
+// Newer bison versions allow to disable stack resizing by defining yyoverflow.
+#define yyoverflow(a, b, c, d, e, f) yyerror(a)
+
+#line 66 "src/IceGrid/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -99,7 +117,7 @@ typedef enum yytokentype yytoken_kind_t;
 
 /* Value type.  */
 #if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef std::list<std::string> YYSTYPE;
 #    define YYSTYPE_IS_TRIVIAL 1
 #    define YYSTYPE_IS_DECLARED 1
 #endif

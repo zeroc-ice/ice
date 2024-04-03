@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/Preprocessor.h>
-#include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/StringConverter.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/UUID.h>
-#include <IceUtil/ConsoleUtil.h>
+#include "Preprocessor.h"
+#include "IceUtil/ConsoleUtil.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringConverter.h"
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/UUID.h"
+#include "Util.h"
 #include <algorithm>
 #include <cassert>
-#include <iterator>
-#include <vector>
-#include <fstream>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <cstring>
+#include <fstream>
+#include <iterator>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <vector>
 
 #ifndef _WIN32
 #    include <sys/wait.h>

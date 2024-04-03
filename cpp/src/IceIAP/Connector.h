@@ -5,14 +5,14 @@
 #ifndef ICE_IAP_CONNECTOR_H
 #define ICE_IAP_CONNECTOR_H
 
-#include <Ice/TransceiverF.h>
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/Logger.h>
-#include <Ice/Connector.h>
+#include "../Ice/Connector.h"
+#include "../Ice/ProtocolInstanceF.h"
+#include "../Ice/TraceLevelsF.h"
+#include "../Ice/TransceiverF.h"
+#include "Ice/Logger.h"
 
-#import <Foundation/Foundation.h>
 #import <ExternalAccessory/ExternalAccessory.h>
+#import <Foundation/Foundation.h>
 
 namespace IceObjC
 {

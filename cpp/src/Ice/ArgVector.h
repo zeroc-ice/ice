@@ -5,9 +5,9 @@
 #ifndef ICE_ARGVECTOR_H
 #define ICE_ARGVECTOR_H
 
-#include <Ice/Config.h>
-#include <vector>
+#include "Ice/Config.h"
 #include <string>
+#include <vector>
 
 namespace IceInternal
 {

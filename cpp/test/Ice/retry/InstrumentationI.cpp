@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
 #include <mutex>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

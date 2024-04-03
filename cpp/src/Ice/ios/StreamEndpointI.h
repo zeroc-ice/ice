@@ -5,19 +5,19 @@
 #ifndef ICE_STREAM_ENDPOINT_I_H
 #define ICE_STREAM_ENDPOINT_I_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/IPEndpointI.h>
-#    include <Ice/WSEndpoint.h>
-#    include <Ice/EndpointFactory.h>
-#    include <Ice/InstanceF.h>
-#    include <Ice/UniqueRef.h>
+#    include "../EndpointFactory.h"
+#    include "../IPEndpointI.h"
+#    include "../ProtocolInstance.h"
+#    include "../WSEndpoint.h"
+#    include "Ice/InstanceF.h"
+#    include "Ice/UniqueRef.h"
 
-#    include <CoreFoundation/CFDictionary.h>
 #    include <CFNetwork/CFNetwork.h>
+#    include <CoreFoundation/CFDictionary.h>
 
 namespace Ice
 {

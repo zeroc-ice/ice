@@ -5,9 +5,9 @@
 #ifndef ICEPY_THREAD_H
 #define ICEPY_THREAD_H
 
-#include <Config.h>
-#include <Util.h>
-#include <Ice/Ice.h>
+#include "Config.h"
+#include "Ice/Ice.h"
+#include "Util.h"
 
 namespace IcePy
 {

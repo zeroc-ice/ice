@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/EndpointI.h>
-#include <Ice/Reference.h>
-#include <Ice/Properties.h>
-#include <Ice/Comparable.h>
+#include "LocatorInfo.h"
+#include "EndpointI.h"
+#include "Ice/Comparable.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
+#include "IceUtil/DisableWarnings.h"
+#include "Instance.h"
+#include "Reference.h"
+#include "TraceLevels.h"
 
 #include <iterator>
 

@@ -5,6 +5,12 @@
 #ifndef ICE_HASH_UTIL_H
 #define ICE_HASH_UTIL_H
 
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <vector>
+
 namespace IceInternal
 {
     inline void hashAdd(std::int32_t& hashCode, std::int32_t value)

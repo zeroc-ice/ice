@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <Test.h>
-#include <Configuration.h>
+#include "Configuration.h"
+#include "Ice/Ice.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 #ifdef _MSC_VER
 #    pragma comment(lib, ICE_LIBNAME("testtransport"))

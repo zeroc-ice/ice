@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/BuiltinSequences.ice>
+#include "Ice/BuiltinSequences.ice"
 
 [["cs:typeid-namespace:Ice.exceptions.AMD.TypeId"]]
 

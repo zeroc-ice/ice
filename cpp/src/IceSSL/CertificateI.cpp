@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/StringUtil.h>
-#include <IceSSL/PluginI.h>
-#include <IceSSL/Util.h>
-#include <IceSSL/RFC2253.h>
-#include <IceSSL/CertificateI.h>
-#include <Ice/Object.h>
-#include <Ice/Base64.h>
-#include <Ice/LocalException.h>
-#include <Ice/StringConverter.h>
+#include "CertificateI.h"
+#include "../Ice/Base64.h"
+#include "Ice/LocalException.h"
+#include "Ice/Object.h"
+#include "Ice/StringConverter.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/StringUtil.h"
+#include "PluginI.h"
+#include "RFC2253.h"
+#include "Util.h"
 
 using namespace std;
 using namespace Ice;

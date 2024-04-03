@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Current.h>
+#include "Current.h"
+#include "Connection.h"
+#include "Ice/ObjectAdapter.h"
+#include "ObjectAdapter.h"
+#include "Util.h"
 #include <structmember.h>
-#include <Connection.h>
-#include <ObjectAdapter.h>
-#include <Util.h>
-#include <Ice/ObjectAdapter.h>
 
 using namespace std;
 using namespace IcePy;

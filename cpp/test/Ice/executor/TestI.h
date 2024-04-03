@@ -5,8 +5,8 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <IceUtil/IceUtil.h>
-#include <Test.h>
+#include "Ice/Ice.h"
+#include "Test.h"
 
 class TestIntfControllerI;
 using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;

@@ -5,16 +5,16 @@
 #ifndef ICE_PROTOCOL_INSTANCE_H
 #define ICE_PROTOCOL_INSTANCE_H
 
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/PropertiesF.h>
-#include <Ice/Logger.h>
-#include <Ice/EndpointIF.h>
-#include <Ice/EndpointFactory.h>
-#include <Ice/ConnectorF.h>
-#include <Ice/IPEndpointIF.h>
-#include <Ice/NetworkF.h>
-#include <Ice/Instance.h>
+#include "ConnectorF.h"
+#include "EndpointFactory.h"
+#include "EndpointIF.h"
+#include "IPEndpointIF.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/Logger.h"
+#include "Ice/PropertiesF.h"
+#include "Instance.h"
+#include "NetworkF.h"
+#include "ProtocolInstanceF.h"
 
 namespace IceInternal
 {

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <CallbackI.h>
+#include "CallbackI.h"
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

@@ -16,7 +16,7 @@
 
 [["python:pkgdir:IceGrid"]]
 
-#include <IceGrid/Admin.ice>
+#include "Admin.ice"
 
 [["java:package:com.zeroc"]]
 

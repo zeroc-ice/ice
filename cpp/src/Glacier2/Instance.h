@@ -5,14 +5,14 @@
 #ifndef GLACIER2_INSTANCE_H
 #define GLACIER2_INSTANCE_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/PropertiesF.h>
+#include "Ice/CommunicatorF.h"
+#include "Ice/ObjectAdapterF.h"
+#include "Ice/PropertiesF.h"
 
-#include <Glacier2/RequestQueue.h>
-#include <Glacier2/ProxyVerifier.h>
-#include <Glacier2/SessionRouterI.h>
-#include <Glacier2/Instrumentation.h>
+#include "Instrumentation.h"
+#include "ProxyVerifier.h"
+#include "RequestQueue.h"
+#include "SessionRouterI.h"
 
 namespace Glacier2
 {

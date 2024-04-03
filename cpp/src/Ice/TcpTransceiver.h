@@ -5,10 +5,10 @@
 #ifndef ICE_TCP_TRANSCEIVER_H
 #define ICE_TCP_TRANSCEIVER_H
 
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/Transceiver.h>
-#include <Ice/Network.h>
-#include <Ice/StreamSocket.h>
+#include "Network.h"
+#include "ProtocolInstanceF.h"
+#include "StreamSocket.h"
+#include "Transceiver.h"
 
 namespace IceInternal
 {

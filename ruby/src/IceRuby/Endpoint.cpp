@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Endpoint.h>
-#include <Util.h>
-#include <Ice/Object.h>
-#include <IceSSL/EndpointInfo.h>
+#include "Endpoint.h"
+#include "Ice/Object.h"
+#include "IceSSL/EndpointInfo.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IceRuby;

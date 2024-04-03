@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/PluginI.h>
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/CertificateI.h>
-#include <IceSSL/OpenSSLUtil.h>
-#include <IceSSL/RFC2253.h>
+#include "CertificateI.h"
+#include "IceSSL/OpenSSL.h"
+#include "OpenSSLUtil.h"
+#include "PluginI.h"
+#include "RFC2253.h"
 
 #include <cassert>
 #include <mutex>
 #include <sstream>
 #include <stdexcept>
 
-#include <openssl/x509v3.h>
 #include <openssl/pem.h>
+#include <openssl/x509v3.h>
 
 using namespace IceSSL;
 using namespace std;

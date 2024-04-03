@@ -2,35 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UUID.h>
-#include <Ice/ObjectAdapterI.h>
-#include <Ice/Communicator.h>
-#include <Ice/ObjectAdapterFactory.h>
-#include <Ice/Instance.h>
-#include <Ice/Proxy.h>
-#include <Ice/ProxyFactory.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/EndpointI.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/ConnectionFactory.h>
-#include <Ice/ServantManager.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/ThreadPool.h>
-#include <Ice/Communicator.h>
-#include <Ice/Router.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/PropertyNames.h>
-#include <Ice/ConsoleUtil.h>
-#include "Ice/ProxyFunctions.h"
+#include "ObjectAdapterI.h"
 #include "CheckIdentity.h"
+#include "ConnectionFactory.h"
+#include "ConsoleUtil.h"
+#include "DefaultsAndOverrides.h"
+#include "EndpointFactoryManager.h"
+#include "EndpointI.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Ice/Proxy.h"
+#include "Ice/ProxyFunctions.h"
+#include "Ice/Router.h"
+#include "Ice/UUID.h"
+#include "Instance.h"
+#include "LocatorInfo.h"
 #include "LoggerMiddleware.h"
+#include "ObjectAdapterFactory.h"
 #include "ObserverMiddleware.h"
+#include "PropertyNames.h"
+#include "ProxyFactory.h"
+#include "ReferenceFactory.h"
+#include "RouterInfo.h"
+#include "ServantManager.h"
+#include "ThreadPool.h"
+#include "TraceLevels.h"
 
 #ifdef _WIN32
 #    include <sys/timeb.h>

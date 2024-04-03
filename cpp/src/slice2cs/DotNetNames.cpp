@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <DotNetNames.h>
-#include <ctype.h>
+#include "DotNetNames.h"
 #include <cstring>
+#include <ctype.h>
 
 using namespace std;
 

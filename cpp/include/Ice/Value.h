@@ -9,6 +9,8 @@
 #include "SlicedDataF.h"
 #include "ValueF.h"
 
+#include <string>
+
 namespace Ice
 {
     class OutputStream;

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/ServerI.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/NodeI.h>
+#include "ServerAdapterI.h"
+#include "Ice/Ice.h"
+#include "NodeI.h"
+#include "ServerI.h"
+#include "TraceLevels.h"
 
 using namespace std;
 using namespace IceGrid;

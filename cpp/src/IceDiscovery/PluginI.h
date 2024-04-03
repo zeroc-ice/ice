@@ -5,8 +5,8 @@
 #ifndef PLUGIN_I_H
 #define PLUGIN_I_H
 
-#include <Ice/Plugin.h>
-#include <IceDiscovery/LookupI.h>
+#include "Ice/Plugin.h"
+#include "LookupI.h"
 
 namespace IceDiscovery
 {

@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <Proxy.h>
+#include "Proxy.h"
+#include "Communicator.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/Proxy.h"
+#include "Ice/Router.h"
+#include "IceUtil/DisableWarnings.h"
+#include "Operation.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Util.h"
 #include <structmember.h>
-#include <Communicator.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Operation.h>
-#include <Thread.h>
-#include <Util.h>
-#include <Types.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Locator.h>
-#include <Ice/Proxy.h>
-#include <Ice/Router.h>
 
 using namespace std;
 using namespace IcePy;

@@ -14,7 +14,7 @@
 
 [["python:pkgdir:IceDiscovery"]]
 
-#include <Ice/Identity.ice>
+#include "Ice/Identity.ice"
 
 [["java:package:com.zeroc"]]
 

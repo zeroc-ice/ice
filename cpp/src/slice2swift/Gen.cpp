@@ -3,11 +3,11 @@
 //
 //
 
-#include <IceUtil/OutputUtil.h>
-#include <IceUtil/StringUtil.h>
-#include <Slice/Parser.h>
-#include <Slice/FileTracker.h>
-#include <Slice/Util.h>
+#include "../Slice/FileTracker.h"
+#include "../Slice/Parser.h"
+#include "../Slice/Util.h"
+#include "IceUtil/OutputUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>

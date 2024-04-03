@@ -3,8 +3,8 @@
 //
 
 #import "Endpoint.h"
-#import "IceUtil.h"
 #import "Convert.h"
+#import "IceUtil.h"
 
 @implementation ICEEndpointInfo
 

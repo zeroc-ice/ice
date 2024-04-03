@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/UdpConnector.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/UdpTransceiver.h>
-#include <Ice/UdpEndpointI.h>
-#include <Ice/LocalException.h>
+#include "UdpConnector.h"
+#include "Ice/LocalException.h"
+#include "ProtocolInstance.h"
+#include "UdpEndpointI.h"
+#include "UdpTransceiver.h"
 
 using namespace std;
 using namespace Ice;

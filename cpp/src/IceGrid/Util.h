@@ -5,12 +5,12 @@
 #ifndef ICE_GRID_UTIL_H
 #define ICE_GRID_UTIL_H
 
-#include <IceGrid/Descriptor.h>
-#include <IceUtil/StringUtil.h>
-#include <IceGrid/Exception.h>
-#include <IceGrid/Admin.h>
-#include <IceUtil/Random.h>
 #include "Ice/BuiltinSequences.h"
+#include "IceGrid/Admin.h"
+#include "IceGrid/Descriptor.h"
+#include "IceGrid/Exception.h"
+#include "IceUtil/Random.h"
+#include "IceUtil/StringUtil.h"
 
 #include <functional>
 #include <iterator>

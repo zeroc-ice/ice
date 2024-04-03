@@ -6,7 +6,7 @@
 #include "Types.h"
 #include "Util.h"
 
-#include <Ice/LocalException.h>
+#include "Ice/LocalException.h"
 
 using namespace std;
 using namespace IceRuby;

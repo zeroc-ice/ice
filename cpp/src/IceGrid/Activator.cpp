@@ -2,29 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ArgVector.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Ice.h>
-#include <IceGrid/Activator.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Internal.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/ServerI.h>
+#include "Activator.h"
+#include "../Ice/ArgVector.h"
+#include "Ice/Ice.h"
+#include "IceGrid/Admin.h"
+#include "IceUtil/FileUtil.h"
+#include "Internal.h"
+#include "ServerI.h"
+#include "TraceLevels.h"
 #include "Util.h"
 
-#include <thread>
 #include <chrono>
 #include <stdexcept>
+#include <thread>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <climits>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #ifndef _WIN32
-#    include <sys/wait.h>
-#    include <signal.h>
 #    include <pwd.h> // for getpwuid
+#    include <signal.h>
+#    include <sys/wait.h>
 #    include <unistd.h>
 #else
 #    ifndef SIGKILL

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Endpoint.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <IceGrid/WellKnownObjectsManager.h>
-#include <IceGrid/Database.h>
+#include "WellKnownObjectsManager.h"
+#include "Database.h"
+#include "Glacier2/PermissionsVerifier.h"
+#include "Ice/Endpoint.h"
 
 using namespace std;
 using namespace IceGrid;

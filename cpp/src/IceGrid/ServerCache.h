@@ -5,11 +5,11 @@
 #ifndef ICE_GRID_SERVERCACHE_H
 #define ICE_GRID_SERVERCACHE_H
 
-#include <IceGrid/Descriptor.h>
-#include <IceGrid/Internal.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Allocatable.h>
-#include <IceGrid/Cache.h>
+#include "Allocatable.h"
+#include "Cache.h"
+#include "IceGrid/Descriptor.h"
+#include "IceGrid/Registry.h"
+#include "Internal.h"
 
 namespace IceGrid
 {

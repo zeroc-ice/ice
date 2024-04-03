@@ -2,65 +2,65 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Instance.h>
-#include <Ice/TimeUtil.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/Router.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/ProxyFactory.h>
-#include <Ice/ThreadPool.h>
-#include <Ice/ConnectionFactory.h>
-#include <Ice/ValueFactoryManagerI.h>
-#include <Ice/LocalException.h>
-#include <Ice/ObjectAdapterFactory.h>
-#include <Ice/Exception.h>
-#include <Ice/Properties.h>
-#include <Ice/PropertiesAdminI.h>
-#include <Ice/LoggerI.h>
-#include <Ice/NetworkProxy.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/IPEndpointI.h> // For EndpointHostResolver
-#include <Ice/WSEndpoint.h>
-#include <Ice/RetryQueue.h>
-#include <Ice/PluginManagerI.h>
-#include <Ice/Initialize.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Communicator.h>
-#include <Ice/InstrumentationI.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/LoggerAdminI.h>
-#include <Ice/RegisterPluginsInit.h>
-#include <Ice/ObserverHelper.h>
-#include <Ice/ConsoleUtil.h>
+#include "Instance.h"
+#include "ConnectionFactory.h"
+#include "ConsoleUtil.h"
+#include "DefaultsAndOverrides.h"
+#include "EndpointFactoryManager.h"
+#include "IPEndpointI.h" // For EndpointHostResolver
+#include "Ice/Communicator.h"
+#include "Ice/Exception.h"
+#include "Ice/Initialize.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/ObserverHelper.h"
+#include "Ice/Properties.h"
+#include "Ice/Router.h"
+#include "InstrumentationI.h"
+#include "LocatorInfo.h"
+#include "LoggerAdminI.h"
+#include "LoggerI.h"
+#include "NetworkProxy.h"
+#include "ObjectAdapterFactory.h"
+#include "PluginManagerI.h"
+#include "PropertiesAdminI.h"
+#include "ProtocolInstance.h"
+#include "ProxyFactory.h"
+#include "ReferenceFactory.h"
+#include "RegisterPluginsInit.h"
+#include "RetryQueue.h"
+#include "RouterInfo.h"
+#include "ThreadPool.h"
+#include "TimeUtil.h"
+#include "TraceLevels.h"
+#include "ValueFactoryManagerI.h"
+#include "WSEndpoint.h"
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/UUID.h>
+#include "Ice/UUID.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
-#include "Ice/ProxyFunctions.h"
 #include "CheckIdentity.h"
+#include "Ice/ProxyFunctions.h"
 
-#include <stdio.h>
 #include <list>
 #include <mutex>
+#include <stdio.h>
 
 #ifdef __APPLE__
-#    include <Ice/OSLogLoggerI.h>
+#    include "OSLogLoggerI.h"
 #endif
 
 #ifndef _WIN32
-#    include <Ice/SysLoggerI.h>
-#    include <Ice/SystemdJournalI.h>
+#    include "SysLoggerI.h"
+#    include "SystemdJournalI.h"
 
-#    include <signal.h>
-#    include <syslog.h>
 #    include <pwd.h>
+#    include <signal.h>
 #    include <sys/types.h>
+#    include <syslog.h>
 #endif
 
 #if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)

@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/Endpoint.h>
-#include <Ice/OpaqueEndpointI.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/Properties.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <IceUtil/StringUtil.h>
+#include "EndpointFactoryManager.h"
+#include "DefaultsAndOverrides.h"
+#include "Ice/Endpoint.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/OutputStream.h"
+#include "Ice/Properties.h"
+#include "IceUtil/StringUtil.h"
+#include "Instance.h"
+#include "OpaqueEndpointI.h"
 
 using namespace std;
 using namespace Ice;

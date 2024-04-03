@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/EndpointI.h>
-#include <Ice/OutputStream.h>
+#include "EndpointI.h"
+#include "Ice/OutputStream.h"
 
 #include <sstream>
 

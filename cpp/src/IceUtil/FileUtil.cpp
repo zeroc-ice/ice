@@ -2,22 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/Exception.h>
-#include <IceUtil/StringConverter.h>
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/Exception.h"
+#include "IceUtil/StringConverter.h"
 #include <cassert>
 #include <climits>
 #include <sstream>
 #include <string.h>
 
 #ifdef _WIN32
-#    include <process.h>
-#    include <io.h>
 #    include <Shlwapi.h>
+#    include <io.h>
+#    include <process.h>
 #else
-#    include <unistd.h>
 #    include <dirent.h>
+#    include <unistd.h>
 #endif
 
 using namespace std;

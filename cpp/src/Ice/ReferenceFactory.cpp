@@ -2,25 +2,25 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/ProxyFactory.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/EndpointI.h>
-#include <Ice/ConnectionI.h>
-#include <Ice/EndpointFactoryManager.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/Router.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/Locator.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/InputStream.h>
-#include <Ice/Properties.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <Ice/PropertyNames.h>
-#include <Ice/StringUtil.h>
+#include "ReferenceFactory.h"
+#include "ConnectionI.h"
+#include "DefaultsAndOverrides.h"
+#include "EndpointFactoryManager.h"
+#include "EndpointI.h"
+#include "Ice/Communicator.h"
+#include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
+#include "Ice/Router.h"
+#include "Instance.h"
+#include "LocatorInfo.h"
+#include "PropertyNames.h"
+#include "ProxyFactory.h"
+#include "RouterInfo.h"
+#include "StringUtil.h"
 
 #include <stdexcept>
 

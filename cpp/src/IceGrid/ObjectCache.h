@@ -5,9 +5,9 @@
 #ifndef ICE_GRID_OBJECTCACHE_H
 #define ICE_GRID_OBJECTCACHE_H
 
-#include <Ice/CommunicatorF.h>
-#include <IceGrid/Cache.h>
-#include <IceGrid/Internal.h>
+#include "Cache.h"
+#include "Ice/CommunicatorF.h"
+#include "Internal.h"
 
 namespace IceGrid
 {

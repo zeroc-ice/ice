@@ -2,25 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "StreamEndpointI.h"
+#    include "../EndpointFactoryManager.h"
+#    include "../HashUtil.h"
+#    include "../Network.h"
+#    include "../NetworkProxy.h"
+#    include "Ice/Communicator.h"
+#    include "Ice/InputStream.h"
+#    include "Ice/LocalException.h"
+#    include "Ice/OutputStream.h"
+#    include "Ice/Properties.h"
+#    include "IceUtil/StringUtil.h"
 #    include "StreamAcceptor.h"
 #    include "StreamConnector.h"
-
-#    include <IceUtil/StringUtil.h>
-
-#    include <Ice/Network.h>
-#    include <Ice/InputStream.h>
-#    include <Ice/OutputStream.h>
-#    include <Ice/LocalException.h>
-#    include <Ice/Communicator.h>
-#    include <Ice/EndpointFactoryManager.h>
-#    include <Ice/Properties.h>
-#    include <Ice/HashUtil.h>
-#    include <Ice/NetworkProxy.h>
+#    include "StreamEndpointI.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
 

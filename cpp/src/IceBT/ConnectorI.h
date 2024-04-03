@@ -5,12 +5,12 @@
 #ifndef ICE_BT_CONNECTOR_I_H
 #define ICE_BT_CONNECTOR_I_H
 
-#include <IceBT/Config.h>
-#include <IceBT/Engine.h>
-#include <IceBT/InstanceF.h>
+#include "Config.h"
+#include "Engine.h"
+#include "InstanceF.h"
 
-#include <Ice/TransceiverF.h>
-#include <Ice/Connector.h>
+#include "../Ice/Connector.h"
+#include "../Ice/TransceiverF.h"
 
 namespace IceBT
 {

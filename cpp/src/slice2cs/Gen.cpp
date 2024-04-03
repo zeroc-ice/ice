@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
-#include <Gen.h>
+#include "Gen.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 
 #include <limits>
 #ifndef _WIN32
@@ -13,14 +13,14 @@
 #    include <direct.h>
 #endif
 
-#include <IceUtil/UUID.h>
-#include <Slice/FileTracker.h>
-#include <Slice/Util.h>
-#include <DotNetNames.h>
-#include <cassert>
-#include <string.h>
-#include <iterator>
+#include "../Slice/FileTracker.h"
+#include "../Slice/Util.h"
+#include "DotNetNames.h"
+#include "IceUtil/UUID.h"
 #include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <string.h>
 
 using namespace std;
 using namespace Slice;

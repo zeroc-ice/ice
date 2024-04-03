@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/LocatorRegistryI.h>
-#include <IceGrid/ReplicaSessionManager.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/Util.h>
+#include "LocatorRegistryI.h"
+#include "Database.h"
+#include "Ice/Ice.h"
+#include "ReplicaSessionManager.h"
+#include "Util.h"
 
 #include "SynchronizationException.h"
 

@@ -2,17 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
-#include <Ice/Ice.h>
-#include <Ice/TimeUtil.h>
-#include <IceXML/Parser.h>
-#include <IceGrid/Parser.h>
-#include <IceGrid/Util.h>
-#include <IceGrid/DescriptorParser.h>
-#include <IceGrid/DescriptorHelper.h>
-#include <IceBox/IceBox.h>
+#include "../IceXML/Parser.h"
+#include "../Ice/TimeUtil.h"
+#include "DescriptorHelper.h"
+#include "DescriptorParser.h"
+#include "Ice/Ice.h"
+#include "IceBox/IceBox.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/Options.h"
+#include "Parser.h"
+#include "Util.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
@@ -21,8 +20,8 @@
 #    include <windows.h>
 #endif
 
-#include <iterator>
 #include <iomanip>
+#include <iterator>
 
 extern FILE* yyin;
 extern int yydebug;

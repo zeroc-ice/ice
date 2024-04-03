@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/IPEndpointI.h>
-#include <Ice/ProtocolInstance.h>
-#include <Ice/Instance.h>
-#include <Ice/LocalException.h>
-#include <Ice/Properties.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/HashUtil.h>
-#include <Ice/NetworkProxy.h>
+#include "IPEndpointI.h"
+#include "HashUtil.h"
 #include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
+#include "NetworkProxy.h"
+#include "ProtocolInstance.h"
 
 using namespace std;
 using namespace Ice;

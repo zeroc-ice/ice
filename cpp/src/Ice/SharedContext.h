@@ -5,9 +5,9 @@
 #ifndef ICE_SHARED_CONTEXT_H
 #define ICE_SHARED_CONTEXT_H
 
-#include <string>
 #include <map>
 #include <memory>
+#include <string>
 
 namespace Ice
 {

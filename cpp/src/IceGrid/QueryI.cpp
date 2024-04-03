@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/Internal.h>
-#include <IceGrid/QueryI.h>
-#include <IceGrid/Database.h>
+#include "QueryI.h"
+#include "Database.h"
+#include "Internal.h"
 
 using namespace std;
 using namespace Ice;

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/Locator.h>
-#include <Ice/Router.h>
-#include <TestHelper.h>
-#include <Test.h>
+#include "Ice/Ice.h"
+#include "Ice/Locator.h"
+#include "Ice/Router.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 

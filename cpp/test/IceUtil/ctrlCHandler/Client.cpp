@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <TestHelper.h>
-#include <IceUtil/CtrlCHandler.h>
+#include "IceUtil/CtrlCHandler.h"
+#include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 using namespace IceUtil;
 using namespace std;

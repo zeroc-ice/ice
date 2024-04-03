@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "Transceiver.h"
-#    include "EndpointI.h"
 #    include "Connector.h"
+#    include "EndpointI.h"
+#    include "Transceiver.h"
 
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/Exception.h>
+#    include "../Ice/ProtocolInstance.h"
+#    include "Ice/Exception.h"
 
 using namespace std;
 using namespace Ice;

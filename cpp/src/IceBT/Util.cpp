@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/Util.h>
+#include "Util.h"
 
-#include <Ice/LocalException.h>
-#include <Ice/Network.h>
-#include <IceUtil/StringUtil.h>
+#include "../Ice/Network.h"
+#include "Ice/LocalException.h"
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

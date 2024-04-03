@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ImplicitContext.h>
-#include <ObjectAdapter.h>
-#include <Proxy.h>
-#include <Util.h>
-#include <Ice/ImplicitContext.h>
+#include "ImplicitContext.h"
+#include "Ice/ImplicitContext.h"
+#include "ObjectAdapter.h"
+#include "Proxy.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;

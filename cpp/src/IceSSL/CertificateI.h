@@ -5,10 +5,10 @@
 #ifndef ICESSL_CERTIFICATE_I_H
 #define ICESSL_CERTIFICATE_I_H
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace IceSSL
 {

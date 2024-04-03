@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Dispatcher.h>
-#include <Connection.h>
-#include <Thread.h>
-#include <Ice/Initialize.h>
+#include "Dispatcher.h"
+#include "Connection.h"
+#include "Ice/Initialize.h"
+#include "Thread.h"
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 using namespace std;
 using namespace IcePy;

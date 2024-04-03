@@ -3,6 +3,5 @@
 #
 
 $(test)_libraries    := SliceParser
-$(test)_sliceflags   := -I$(test)
 
 tests += $(test)

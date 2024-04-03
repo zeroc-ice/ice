@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
 
-#include <TestI.h>
+#include "TestI.h"
 
 #include <thread>
 using namespace std;

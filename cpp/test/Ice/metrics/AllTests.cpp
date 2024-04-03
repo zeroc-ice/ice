@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <InstrumentationI.h>
-#include <Test.h>
+#include "Ice/Ice.h"
+#include "InstrumentationI.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 #include <thread>
 

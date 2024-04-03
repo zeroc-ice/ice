@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Base64.h>
-#include <iterator>
+#include "Base64.h"
 
 #include <cstddef>
+#include <iterator>
 
 using namespace std;
 

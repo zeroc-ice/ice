@@ -5,9 +5,8 @@
 #ifndef ICESTORM_OBSERVERS_H
 #define ICESTORM_OBSERVERS_H
 
+#include "Election.h"
 #include "Ice/Ice.h"
-#include "IceStorm/Election.h"
-#include "IceUtil/IceUtil.h"
 #include "Replica.h"
 
 namespace IceStorm

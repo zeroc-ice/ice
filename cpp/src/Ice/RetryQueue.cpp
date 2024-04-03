@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/RetryQueue.h>
+#include "RetryQueue.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingAsync.h"
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
+#include "Instance.h"
+#include "TraceLevels.h"
 
 #include <stdexcept>
 

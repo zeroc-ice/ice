@@ -5,7 +5,6 @@
 #ifndef ICEPHP_PROXY_H
 #define ICEPHP_PROXY_H
 
-#include "Config.h"
 #include "Communicator.h"
 #include "Types.h"
 

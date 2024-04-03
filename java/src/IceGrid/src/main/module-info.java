@@ -3,6 +3,7 @@
 //
 
 module com.zeroc.icegrid {
-    exports com.zeroc.IceGrid;
-    requires transitive com.zeroc.glacier2;
+  exports com.zeroc.IceGrid;
+
+  requires transitive com.zeroc.glacier2;
 }

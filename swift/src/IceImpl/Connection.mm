@@ -3,11 +3,11 @@
 //
 
 #import "Connection.h"
+#import "Convert.h"
 #import "Endpoint.h"
+#import "IceUtil.h"
 #import "ObjectAdapter.h"
 #import "ObjectPrx.h"
-#import "IceUtil.h"
-#import "Convert.h"
 
 @implementation ICEConnection
 

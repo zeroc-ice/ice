@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/CheckIdentity.h>
+#include "../Ice/CheckIdentity.h"
 
-#include <Glacier2/ClientBlobject.h>
-#include <Glacier2/FilterManager.h>
-#include <Glacier2/FilterT.h>
-#include <Glacier2/RoutingTable.h>
+#include "ClientBlobject.h"
+#include "FilterManager.h"
+#include "FilterT.h"
+#include "RoutingTable.h"
 
 using namespace std;
 using namespace Ice;

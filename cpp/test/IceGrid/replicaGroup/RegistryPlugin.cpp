@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceGrid/IceGrid.h>
+#include "Ice/Ice.h"
+#include "IceGrid/IceGrid.h"
 
-#include <TestHelper.h>
+#include "TestHelper.h"
 
 using namespace std;
 using namespace IceGrid;

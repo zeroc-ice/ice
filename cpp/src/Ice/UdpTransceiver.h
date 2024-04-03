@@ -5,9 +5,9 @@
 #ifndef ICE_UDP_TRANSCEIVER_H
 #define ICE_UDP_TRANSCEIVER_H
 
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/Transceiver.h>
-#include <Ice/Network.h>
+#include "Network.h"
+#include "ProtocolInstanceF.h"
+#include "Transceiver.h"
 
 namespace IceInternal
 {

@@ -5,10 +5,10 @@
 #ifndef ICESTORM_INSTANCE_H
 #define ICESTORM_INSTANCE_H
 
+#include "Election.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/ObjectAdapterF.h"
 #include "Ice/PropertiesF.h"
-#include "IceStorm/Election.h"
 #include "Instrumentation.h"
 #include "Util.h"
 

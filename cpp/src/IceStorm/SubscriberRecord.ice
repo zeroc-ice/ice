@@ -6,8 +6,8 @@
 
 [["cpp:header-ext:h"]]
 
-#include <Ice/Identity.ice>
-#include <IceStorm/IceStorm.ice>
+#include "Ice/Identity.ice"
+#include "IceStorm/IceStorm.ice"
 
 module IceStorm
 {

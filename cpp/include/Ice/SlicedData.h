@@ -9,6 +9,8 @@
 #include "SlicedDataF.h"
 #include "Value.h"
 
+#include <string>
+
 namespace Ice
 {
     /**

@@ -5,12 +5,12 @@
 #ifndef ICE_HTTP_PARSER_H
 #define ICE_HTTP_PARSER_H
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace IceInternal
 {

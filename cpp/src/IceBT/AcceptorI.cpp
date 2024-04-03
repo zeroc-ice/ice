@@ -2,20 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/AcceptorI.h>
-#include <IceBT/Engine.h>
-#include <IceBT/EndpointI.h>
-#include <IceBT/Instance.h>
-#include <IceBT/TransceiverI.h>
-#include <IceBT/Util.h>
+#include "AcceptorI.h"
+#include "EndpointI.h"
+#include "Engine.h"
+#include "Instance.h"
+#include "TransceiverI.h"
+#include "Util.h"
 
-#include <Ice/Communicator.h>
-#include <Ice/Exception.h>
-#include <Ice/LocalException.h>
-#include <Ice/Network.h>
-#include <Ice/Properties.h>
-#include <Ice/StreamSocket.h>
-#include <IceUtil/StringUtil.h>
+#include "../Ice/Network.h"
+#include "../Ice/StreamSocket.h"
+#include "Ice/Communicator.h"
+#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
+#include "Ice/Properties.h"
+#include "IceUtil/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

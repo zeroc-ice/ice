@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceBT/DBus.h>
+#include "DBus.h"
 
 #include <dbus/dbus.h>
 
-#include <stack>
-#include <mutex>
-#include <thread>
 #include <condition_variable>
+#include <mutex>
+#include <stack>
+#include <thread>
 
 using namespace std;
 using namespace IceBT::DBus;

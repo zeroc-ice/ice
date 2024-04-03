@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/LoggerAdminI.h>
-#include <Ice/Initialize.h>
-#include <Ice/Communicator.h>
-#include <Ice/RemoteLogger.h>
-#include <Ice/Properties.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Connection.h>
-#include <Ice/LocalException.h>
-#include <Ice/LoggerUtil.h>
+#include "LoggerAdminI.h"
+#include "Ice/Communicator.h"
+#include "Ice/Connection.h"
+#include "Ice/Initialize.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
+#include "Ice/RemoteLogger.h"
 
 #include <deque>
 #include <set>

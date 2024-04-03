@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Ice/BuiltinSequences.ice>
-#include <Ice/Identity.ice>
+#include "Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
 
 ["cs:namespace:Ice.ami"]
 module Test

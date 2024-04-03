@@ -7,16 +7,15 @@
 
 #ifdef _WIN32
 
-#    include <IceSSL/Config.h>
-#    include <IceSSL/InstanceF.h>
-#    include <IceSSL/Plugin.h>
-#    include <IceSSL/SChannelEngineF.h>
-
-#    include <Ice/Transceiver.h>
-#    include <Ice/Network.h>
-#    include <Ice/Buffer.h>
-#    include <Ice/StreamSocket.h>
-#    include <Ice/WSTransceiver.h>
+#    include "../Ice/Network.h"
+#    include "../Ice/StreamSocket.h"
+#    include "../Ice/Transceiver.h"
+#    include "../Ice/WSTransceiver.h"
+#    include "Ice/Buffer.h"
+#    include "IceSSL/Config.h"
+#    include "IceSSL/Plugin.h"
+#    include "InstanceF.h"
+#    include "SChannelEngineF.h"
 
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32
@@ -27,9 +26,9 @@
 #    endif
 
 #    define SECURITY_WIN32 1
+#    include <schannel.h>
 #    include <security.h>
 #    include <sspi.h>
-#    include <schannel.h>
 #    undef SECURITY_WIN32
 
 namespace IceSSL

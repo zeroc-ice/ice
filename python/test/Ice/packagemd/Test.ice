@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Package.ice>
-#include <NoPackage.ice>
+#include "Package.ice"
+#include "NoPackage.ice"
 
 module Test
 {

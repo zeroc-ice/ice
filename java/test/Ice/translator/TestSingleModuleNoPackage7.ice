@@ -4,7 +4,7 @@
 
 // Test: use SingleModuleNoPackage types from (same) double module definitions
 
-#include <SingleModuleNoPackage.ice>
+#include "SingleModuleNoPackage.ice"
 
 module M
 {

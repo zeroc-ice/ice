@@ -5,10 +5,10 @@
 #ifndef ICE_UDP_ENDPOINT_I_H
 #define ICE_UDP_ENDPOINT_I_H
 
-#include <IceUtil/Config.h>
-#include <Ice/IPEndpointI.h>
-#include <Ice/EndpointFactory.h>
-#include <Ice/Network.h>
+#include "EndpointFactory.h"
+#include "IPEndpointI.h"
+#include "IceUtil/Config.h"
+#include "Network.h"
 
 namespace IceInternal
 {

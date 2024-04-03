@@ -5,9 +5,9 @@
 #ifndef ICEPY_LOGGER_H
 #define ICEPY_LOGGER_H
 
-#include <Config.h>
-#include <Util.h>
-#include <Ice/Logger.h>
+#include "Config.h"
+#include "Ice/Logger.h"
+#include "Util.h"
 
 #include <memory>
 

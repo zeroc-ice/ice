@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Ice/UUID.h>
-#include <IceGrid/SessionI.h>
-#include <IceGrid/QueryI.h>
-#include <IceGrid/LocatorI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/Admin.h>
+#include "SessionI.h"
+#include "Database.h"
+#include "Ice/Ice.h"
+#include "Ice/UUID.h"
+#include "IceGrid/Admin.h"
+#include "LocatorI.h"
+#include "QueryI.h"
 
-#include <IceSSL/Plugin.h>
+#include "IceSSL/Plugin.h"
 
 using namespace std;
 using namespace IceGrid;

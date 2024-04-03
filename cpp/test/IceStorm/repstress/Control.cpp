@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <Controller.h>
-#include <TestHelper.h>
+#include "Controller.h"
+#include "Ice/Ice.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 

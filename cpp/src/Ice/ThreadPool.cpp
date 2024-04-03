@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ThreadPool.h>
-#include <Ice/EventHandler.h>
-#include <Ice/Network.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/ObjectAdapterFactory.h>
-#include <Ice/Properties.h>
-#include <Ice/TraceLevels.h>
+#include "ThreadPool.h"
+#include "EventHandler.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
+#include "Network.h"
+#include "ObjectAdapterFactory.h"
+#include "TraceLevels.h"
 
 #if defined(__FreeBSD__)
 #    include <sys/sysctl.h>

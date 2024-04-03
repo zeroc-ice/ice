@@ -5,9 +5,11 @@
 #ifndef ICE_ENDIAN_H
 #define ICE_ENDIAN_H
 
-#ifdef __cpp_lib_endian
+#if __has_include(<bit>)
 #    include <bit>
-#else
+#endif
+
+#ifndef __cpp_lib_endian
 
 // Provide a minimal implementation of std::endian for C++17.
 namespace std
@@ -31,6 +33,6 @@ namespace std
 #    endif
 }
 
-#endif // __cpp_lib_endian
+#endif
 
 #endif

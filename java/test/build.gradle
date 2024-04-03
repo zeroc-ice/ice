@@ -18,7 +18,6 @@ sourceSets {
 
 dependencies {
     implementation localDependency('ice')
-    implementation localDependency('icessl')
     runtimeOnly localDependency('icediscovery')
     runtimeOnly localDependency('icelocatordiscovery')
     implementation localDependency('icebox')

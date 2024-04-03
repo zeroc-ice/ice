@@ -5,15 +5,15 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
-#include <Ice/Config.h>
-#include <Ice/ThreadPoolF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Logger.h>
-#include <Ice/PropertiesF.h>
-#include <Ice/EventHandler.h>
-#include <Ice/Selector.h>
-#include <Ice/InputStream.h>
-#include <Ice/ObserverHelper.h>
+#include "EventHandler.h"
+#include "Ice/Config.h"
+#include "Ice/InputStream.h"
+#include "Ice/InstanceF.h"
+#include "Ice/Logger.h"
+#include "Ice/ObserverHelper.h"
+#include "Ice/PropertiesF.h"
+#include "Selector.h"
+#include "ThreadPoolF.h"
 
 #ifdef ICE_SWIFT
 #    include <dispatch/dispatch.h>

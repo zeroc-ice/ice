@@ -6,10 +6,10 @@
 
 [["cpp:header-ext:h"]]
 
-#include <Ice/Identity.ice>
-#include <Ice/BuiltinSequences.ice>
-#include <IceStorm/SubscriberRecord.ice>
-#include <IceStorm/LLURecord.ice>
+#include "Ice/Identity.ice"
+#include "Ice/BuiltinSequences.ice"
+#include "SubscriberRecord.ice"
+#include "LLURecord.ice"
 
 module IceStormElection
 {

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/LocalException.h>
-#include <iostream>
-#include <string>
-#include <locale>
-#include "ice.h"
 #include "Util.h"
+#include "Ice/LocalException.h"
+#include "ice.h"
 #include <codecvt>
+#include <iostream>
+#include <locale>
+#include <string>
 
 using namespace std;
 

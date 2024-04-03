@@ -5,10 +5,10 @@
 #ifndef ICE_WSCONNECTOR_I_H
 #define ICE_WSCONNECTOR_I_H
 
-#include <Ice/Logger.h>
-#include <Ice/TransceiverF.h>
-#include <Ice/Connector.h>
-#include <Ice/ProtocolInstance.h>
+#include "Connector.h"
+#include "Ice/Logger.h"
+#include "ProtocolInstance.h"
+#include "TransceiverF.h"
 
 namespace IceInternal
 {

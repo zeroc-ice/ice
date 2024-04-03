@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Slice/Util.h"
+#include "IceUtil/ConsoleUtil.h"
 #include "RubyUtil.h"
-#include <Slice/Util.h>
-#include <IceUtil/ConsoleUtil.h>
 
 using namespace std;
 using namespace Slice;

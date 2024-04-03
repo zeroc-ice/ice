@@ -5,13 +5,13 @@
 #ifndef ICE_IAP_TRANSCEIVER_H
 #define ICE_IAP_TRANSCEIVER_H
 
-#include <Ice/ProtocolInstanceF.h>
-#include <Ice/Transceiver.h>
-#include <Ice/Network.h>
-#include <Ice/Selector.h>
+#include "../Ice/Network.h"
+#include "../Ice/ProtocolInstanceF.h"
+#include "../Ice/Selector.h"
+#include "../Ice/Transceiver.h"
 
-#import <Foundation/Foundation.h>
 #import <ExternalAccessory/ExternalAccessory.h>
+#import <Foundation/Foundation.h>
 
 @class iAPTransceiverCallback;
 

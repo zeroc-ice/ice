@@ -6,9 +6,9 @@
 #    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <Test.h>
+#include "Ice/Ice.h"
+#include "Test.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Test;

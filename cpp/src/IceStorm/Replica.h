@@ -5,8 +5,8 @@
 #ifndef ICESTORM_REPLICA_H
 #define ICESTORM_REPLICA_H
 
+#include "Election.h"
 #include "Ice/Ice.h"
-#include "IceStorm/Election.h"
 
 #include <set>
 

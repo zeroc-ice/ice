@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <include/IcePrefix.ice>        // No error should be caused by this file
+#include "include/IcePrefix.ice"        // No error should be caused by this file
 
 module OK
 {

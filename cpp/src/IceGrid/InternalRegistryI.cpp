@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/Ice.h>
+#include "Ice/Ice.h"
+#include "IceUtil/DisableWarnings.h"
 
-#include <IceGrid/RegistryI.h>
-#include <IceGrid/InternalRegistryI.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/WellKnownObjectsManager.h>
-#include <IceGrid/ReapThread.h>
-#include <IceGrid/Topics.h>
-#include <IceGrid/NodeSessionI.h>
-#include <IceGrid/ReplicaSessionI.h>
-#include <IceGrid/ReplicaSessionManager.h>
-#include <IceGrid/FileCache.h>
-#include <IceSSL/IceSSL.h>
-#include <IceSSL/RFC2253.h>
+#include "../IceSSL/RFC2253.h"
+#include "Database.h"
+#include "FileCache.h"
+#include "IceSSL/IceSSL.h"
+#include "InternalRegistryI.h"
+#include "NodeSessionI.h"
+#include "ReapThread.h"
+#include "RegistryI.h"
+#include "ReplicaSessionI.h"
+#include "ReplicaSessionManager.h"
+#include "Topics.h"
+#include "WellKnownObjectsManager.h"
 
 using namespace std;
 using namespace IceGrid;

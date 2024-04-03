@@ -7,6 +7,7 @@
 
 #include "ObjectF.h"
 #include <map>
+#include <string>
 
 namespace Ice
 {

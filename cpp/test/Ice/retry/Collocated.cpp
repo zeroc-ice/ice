@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <Test.h>
-#include <TestI.h>
-#include <InstrumentationI.h>
+#include "Ice/Ice.h"
+#include "InstrumentationI.h"
+#include "Test.h"
+#include "TestHelper.h"
+#include "TestI.h"
 
 using namespace std;
 using namespace Test;

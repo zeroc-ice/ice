@@ -6,9 +6,9 @@
 #    define TEST_API_EXPORTS
 #endif
 
-#include <Acceptor.h>
-#include <Transceiver.h>
-#include <EndpointI.h>
+#include "Acceptor.h"
+#include "EndpointI.h"
+#include "Transceiver.h"
 
 using namespace std;
 

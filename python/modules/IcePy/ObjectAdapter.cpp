@@ -2,22 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ObjectAdapter.h>
-#include <Communicator.h>
-#include <Current.h>
-#include <Endpoint.h>
-#include <Operation.h>
-#include <Proxy.h>
-#include <Thread.h>
-#include <Types.h>
-#include <Util.h>
-#include <Ice/Communicator.h>
-#include <Ice/LocalException.h>
-#include <Ice/Locator.h>
-#include <Ice/ObjectAdapter.h>
-#include <Ice/Router.h>
-#include <Ice/ServantLocator.h>
-#include <Ice/Logger.h>
+#include "ObjectAdapter.h"
+#include "Communicator.h"
+#include "Current.h"
+#include "Endpoint.h"
+#include "Ice/Communicator.h"
+#include "Ice/LocalException.h"
+#include "Ice/Locator.h"
+#include "Ice/Logger.h"
+#include "Ice/ObjectAdapter.h"
+#include "Ice/Router.h"
+#include "Ice/ServantLocator.h"
+#include "Operation.h"
+#include "Proxy.h"
+#include "Thread.h"
+#include "Types.h"
+#include "Util.h"
 
 #include <pythread.h>
 

@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/MetricsAdminI.h>
+#include "Ice/MetricsAdminI.h"
 
-#include <Ice/InstrumentationI.h>
-#include <Ice/Properties.h>
-#include <Ice/Logger.h>
-#include <Ice/Communicator.h>
-#include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
+#include "Ice/Communicator.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
+#include "Instance.h"
+#include "InstrumentationI.h"
 
-#include <IceUtil/StringUtil.h>
+#include "IceUtil/StringUtil.h"
 
 #include <chrono>
 #include <stdexcept>

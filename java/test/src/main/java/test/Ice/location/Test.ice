@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Locator.ice>
+#include "Ice/Locator.ice"
 
 [["java:package:test.Ice.location"]]
 module Test

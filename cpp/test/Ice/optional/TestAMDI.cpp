@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestAMDI.h>
+#include "TestAMDI.h"
+#include "Ice/Ice.h"
 
 using namespace Test;
 using namespace IceUtil;

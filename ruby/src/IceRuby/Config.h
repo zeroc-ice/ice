@@ -9,7 +9,7 @@
 // This file includes <ruby.h> and should always be included first.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 // The ruby.h check for the isfinite macro fails with some C++ standard libraries
 // (libc++ > 4000) because the isfinite macro included from the C library's

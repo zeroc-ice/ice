@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceStorm/IceStorm.h>
-#include <TestHelper.h>
-#include <Event.h>
+#include "Event.h"
+#include "Ice/Ice.h"
+#include "IceStorm/IceStorm.h"
+#include "TestHelper.h"
 
 using namespace std;
 using namespace Ice;

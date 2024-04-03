@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Timer.h>
-#include <IceUtil/Random.h>
-#include <TestHelper.h>
+#include "IceUtil/Random.h"
+#include "IceUtil/Timer.h"
+#include "TestHelper.h"
 
 #include <chrono>
-#include <vector>
-#include <thread>
 #include <stdexcept>
+#include <thread>
+#include <vector>
 
 using namespace IceUtil;
 using namespace std;

@@ -5,10 +5,10 @@
 #ifndef ICE_XML_PARSER_H
 #define ICE_XML_PARSER_H
 
-#include <Ice/Exception.h>
+#include "Ice/Exception.h"
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #ifndef ICE_XML_API
 #    if defined(ICE_STATIC_LIBS)

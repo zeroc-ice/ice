@@ -3,17 +3,17 @@
 //
 
 #include "Ice/Proxy.h"
-#include "Ice/Comparable.h"
-#include "Reference.h"
+#include "CheckIdentity.h"
+#include "ConnectionI.h"
 #include "EndpointI.h"
-#include "RouterInfo.h"
-#include "LocatorInfo.h"
+#include "Ice/Comparable.h"
 #include "Ice/LocalException.h"
 #include "Instance.h"
+#include "LocatorInfo.h"
+#include "Reference.h"
 #include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
-#include "ConnectionI.h"
-#include "CheckIdentity.h"
+#include "RouterInfo.h"
 
 #include <stdexcept>
 

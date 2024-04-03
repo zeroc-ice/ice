@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceGrid/NodeAdminRouter.h>
-#include <Ice/Ice.h>
-#include <IceGrid/ServerI.h>
-#include <IceGrid/ServerAdapterI.h>
+#include "NodeAdminRouter.h"
+#include "Ice/Ice.h"
+#include "ServerAdapterI.h"
+#include "ServerI.h"
 
 using namespace IceGrid;
 using namespace Ice;

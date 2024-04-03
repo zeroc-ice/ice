@@ -4,7 +4,7 @@
 
 // Test: use SingleModuleWithPackage types from (same) single module definitions
 
-#include <SingleModuleWithPackage.ice>
+#include "SingleModuleWithPackage.ice"
 
 module M
 {

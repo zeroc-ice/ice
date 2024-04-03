@@ -5,9 +5,9 @@
 #ifndef ICE_GRID_NODE_SESSION_MANAGER_H
 #define ICE_GRID_NODE_SESSION_MANAGER_H
 
-#include <IceGrid/SessionManager.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Internal.h>
+#include "IceGrid/Registry.h"
+#include "Internal.h"
+#include "SessionManager.h"
 #include <set>
 
 namespace IceGrid

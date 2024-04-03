@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceXML/Parser.h>
-#include <IceUtil/FileUtil.h>
+#include "Parser.h"
+#include "IceUtil/FileUtil.h"
 
 #include <expat.h>
 
 #include <cassert>
-#include <list>
 #include <fstream>
+#include <list>
 #include <sstream>
 
 using namespace std;

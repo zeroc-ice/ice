@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Config.h>
+#include "Ice/Config.h"
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 
-#    include <Ice/TcpConnector.h>
-#    include <Ice/TcpTransceiver.h>
-#    include <Ice/TcpEndpointI.h>
-#    include <Ice/ProtocolInstance.h>
-#    include <Ice/LoggerUtil.h>
-#    include <Ice/Network.h>
-#    include <Ice/NetworkProxy.h>
-#    include <Ice/StreamSocket.h>
-#    include <Ice/Exception.h>
+#    include "Ice/Exception.h"
+#    include "Ice/LoggerUtil.h"
+#    include "Network.h"
+#    include "NetworkProxy.h"
+#    include "ProtocolInstance.h"
+#    include "StreamSocket.h"
+#    include "TcpConnector.h"
+#    include "TcpEndpointI.h"
+#    include "TcpTransceiver.h"
 
 using namespace std;
 using namespace Ice;

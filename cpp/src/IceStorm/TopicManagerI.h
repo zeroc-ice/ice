@@ -5,7 +5,7 @@
 #ifndef ICESTORM_TOPIC_MANAGER_I_H
 #define ICESTORM_TOPIC_MANAGER_I_H
 
-#include "IceStorm/Election.h"
+#include "Election.h"
 #include "IceStorm/IceStorm.h"
 #include "Instrumentation.h"
 #include "Replica.h"

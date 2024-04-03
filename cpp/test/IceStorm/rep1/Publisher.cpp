@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <IceUtil/Options.h>
-#include <IceStorm/IceStorm.h>
-#include <TestHelper.h>
-#include <Single.h>
+#include "Ice/Ice.h"
+#include "IceStorm/IceStorm.h"
+#include "IceUtil/Options.h"
+#include "Single.h"
+#include "TestHelper.h"
 
 #include <stdexcept>
 

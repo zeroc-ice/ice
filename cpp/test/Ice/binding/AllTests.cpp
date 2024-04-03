@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Random.h>
-#include <Ice/Ice.h>
-#include <TestHelper.h>
-#include <Test.h>
+#include "Ice/Ice.h"
+#include "IceUtil/Random.h"
+#include "Test.h"
+#include "TestHelper.h"
 #include <set>
 
 #include <functional>

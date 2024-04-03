@@ -5,7 +5,8 @@
 #ifndef INSTRUMENTATION_I_H
 #define INSTRUMENTATION_I_H
 
-#include <Ice/Instrumentation.h>
+#include "Ice/Instrumentation.h"
+#include "TestHelper.h"
 #include <mutex>
 
 class ObserverI : public virtual Ice::Instrumentation::Observer

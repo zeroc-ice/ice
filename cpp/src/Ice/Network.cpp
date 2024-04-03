@@ -12,17 +12,17 @@
 #    include <netinet/in.h>
 #endif
 
-#include <IceUtil/DisableWarnings.h>
-#include <Ice/Network.h>
-#include <Ice/NetworkProxy.h>
-#include <IceUtil/StringUtil.h>
-#include <Ice/StringConverter.h>
-#include <Ice/LocalException.h>
-#include <Ice/ProtocolInstance.h> // For setTcpBufSize
-#include <Ice/Properties.h>       // For setTcpBufSize
-#include <Ice/LoggerUtil.h>       // For setTcpBufSize
-#include <Ice/Buffer.h>
-#include <IceUtil/Random.h>
+#include "Ice/Buffer.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h" // For setTcpBufSize
+#include "Ice/Properties.h" // For setTcpBufSize
+#include "Ice/StringConverter.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/Random.h"
+#include "IceUtil/StringUtil.h"
+#include "Network.h"
+#include "NetworkProxy.h"
+#include "ProtocolInstance.h" // For setTcpBufSize
 #include <functional>
 
 // TODO: fix this warning
@@ -31,11 +31,11 @@
 #endif
 
 #if defined(_WIN32)
+#    include <Mswsock.h>
+#    include <iphlpapi.h>
+#    include <mstcpip.h>
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
-#    include <iphlpapi.h>
-#    include <Mswsock.h>
-#    include <mstcpip.h>
 #else
 #    include <net/if.h>
 #    include <sys/ioctl.h>

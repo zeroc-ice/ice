@@ -5,7 +5,7 @@
 #ifndef ICESTORM_TRANSIENT_TOPIC_MANAGER_I_H
 #define ICESTORM_TRANSIENT_TOPIC_MANAGER_I_H
 
-#include "IceStorm/IceStormInternal.h"
+#include "IceStormInternal.h"
 
 namespace IceStorm
 {

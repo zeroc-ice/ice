@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Ice.h>
-#include <TestI.h>
-#include <TestHelper.h>
+#include "Ice/Ice.h"
+#include "TestHelper.h"
+#include "TestI.h"
 
 #if defined(ICE_USE_OPENSSL)
-#    include <IceSSL/OpenSSL.h>
+#    include "IceSSL/OpenSSL.h"
 #endif
 
 #include <stdexcept>

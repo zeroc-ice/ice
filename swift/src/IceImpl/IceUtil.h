@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#import "AdminFacetFactory.h"
 #import "Communicator.h"
 #import "Connection.h"
 #import "Endpoint.h"
 #import "Exception.h"
 #import "Logger.h"
 #import "Properties.h"
-#import "AdminFacetFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

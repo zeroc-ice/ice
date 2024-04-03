@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/StringConverter.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/StringConverter.h"
 #include <cassert>
 #include <cstring>
 #include <string.h> // for strerror_r
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 #ifdef _WIN32
