@@ -8,7 +8,9 @@
 #include "Config.h" // Required by generated Scanners.
 
 #ifdef _MSC_VER
+// Suppress the scanner's inclusion of the non-ANSI header file 'unistd.h'.
 #    define YY_NO_UNISTD_H
+
 // Warning C4244: conversion from `int` to `_Elem`, possible loss of data
 #    pragma warning(disable : 4244)
 // warning C4267: conversion from 'size_t' to 'int', possible loss of data
