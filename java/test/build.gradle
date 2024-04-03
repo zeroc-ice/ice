@@ -34,13 +34,8 @@ if(!gradle.startParameter.isOffline()) {
 }
 
 jar {
-    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
-        archiveFileName = "test.jar"
-        destinationDirectory = new File("$rootProject.projectDir/lib/")
-    } else {
-        archiveName = "test.jar"
-        destinationDir = new File("$rootProject.projectDir/lib/")
-    }
+    archiveFileName = "test.jar"
+    destinationDirectory = new File("$rootProject.projectDir/lib/")
     manifest {
         attributes("Class-Path": configurations.runtimeClasspath.resolve().collect { it.toURI() }.join(' '))
     }

@@ -862,13 +862,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         if (value == null) {
           Class c = getColumnClass(entry.getKey().intValue());
           if (c.equals(Integer.class)) {
-            value = new Integer(0);
+            value = Integer.valueOf(0);
           } else if (c.equals(Long.class)) {
-            value = new Long(0);
+            value = Long.valueOf(0);
           } else if (c.equals(Float.class)) {
-            value = new Float(0.0f);
+            value = Float.valueOf(0.0f);
           } else if (c.equals(Double.class)) {
-            value = new Double(0.0d);
+            value = Double.valueOf(0.0d);
           }
         }
         row[entry.getKey().intValue()] = value;

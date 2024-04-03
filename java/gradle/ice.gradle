@@ -66,42 +66,11 @@ spotless {
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
     compileJava {
-        exclude 'module-info.java'
-        // target Java 8 using the --release option introduced in Java 9
-        if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
-            options.compilerArgs.addAll(['--release', "${targetJavaRelease}"])
-        }
+        // Set the target release using the --release option
+        options.compilerArgs.addAll(['--release', "${targetJavaRelease}"])
         options.debug = debug
     }
-
-    if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
-        task compileModuleInfoJava(type: JavaCompile) {
-            classpath = files() // empty
-            source = 'src/main/java/module-info.java'
-            // same dir to see classes compiled by compileJava
-            if (GradleVersion.current() >= GradleVersion.version('8.0')) {
-                destinationDirectory = compileJava.destinationDirectory
-            } else {
-                destinationDir = compileJava.destinationDir
-            }
-            doFirst {
-                options.compilerArgs = [
-                    '--release', '9',
-                    '--module-path', compileJava.classpath.asPath,
-                    '-Xlint:-module',
-                ]
-            }
-        }
-
-        compileModuleInfoJava.dependsOn compileJava
-        classes.dependsOn compileModuleInfoJava
-    }
 }
-
-// The corresponding -source and -target javac options are suppressed by gradle when
-// --release is set through options.compileArgs (see above).
-sourceCompatibility = "1.${targetJavaRelease}"
-targetCompatibility = "1.${targetJavaRelease}"
 
 // Determine the name of the Slice-to-Java translator
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')

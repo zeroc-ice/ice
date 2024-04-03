@@ -27,5 +27,6 @@ javadoc.dependsOn(compileJava)
 
 javadoc {
     classpath = project.sourceSets.main.output
-    excludes = ["**/IceInternal/*.java", "**/IceUtilInternal/*.java", "**/Ice/*I.java"]
+    // TODO: excluding this files results in errors when building the docs.
+    // excludes = ["**/IceInternal/*.java", "**/IceUtilInternal/*.java", "**/Ice/*I.java"]
 }
