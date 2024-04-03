@@ -12,7 +12,7 @@ module All::Good::Here
 }
 
 // Case where the module chain is broken.
-module A::__Iceberg::Ahead      // Error: illegal leading underscore
+module An::__Iceberg::Ahead      // Error: illegal leading underscore
 {
     module Okay {}
     module Holder {}            // Error: 'Holder' suffix is reserved
