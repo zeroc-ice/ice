@@ -48,7 +48,9 @@ namespace Ice
     class ObjectAdapterI;
     using ObjectAdapterIPtr = std::shared_ptr<ObjectAdapterI>;
 
-    class ConnectionI final : public Connection, public IceInternal::EventHandler, public IceInternal::CancellationHandler
+    class ConnectionI final : public Connection,
+                              public IceInternal::EventHandler,
+                              public IceInternal::CancellationHandler
     {
         class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
         {
@@ -162,7 +164,8 @@ namespace Ice
         std::function<void()>
             heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr) final;
 
-        void setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&) final;
+        void
+        setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&) final;
         ACM getACM() noexcept final;
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
