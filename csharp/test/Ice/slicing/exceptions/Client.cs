@@ -2,9 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using System;
 using System.Threading.Tasks;
+using Test;
 
 public class Client : Test.TestHelper
 {

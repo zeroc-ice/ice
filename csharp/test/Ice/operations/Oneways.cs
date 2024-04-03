@@ -6,7 +6,7 @@ namespace Ice
 {
     namespace operations
     {
-        class Oneways
+        internal class Oneways
         {
             private static void test(bool b)
             {

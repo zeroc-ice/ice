@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace IceInternal
-{
-sealed class LoggerAdminI : Ice.LoggerAdminDisp_
+namespace IceInternal;
+
+internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 {
     public override void
     attachRemoteLogger(Ice.RemoteLoggerPrx prx, Ice.LogMessageType[] messageTypes, string[] categories,
                        int messageMax, Ice.Current current)
     {
-        if(prx == null)
+        if (prx == null)
         {
             return; // can't send this null RemoteLogger anything!
         }
@@ -24,11 +24,11 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         Filters filters = new Filters(messageTypes, categories);
         LinkedList<Ice.LogMessage> initLogMessages = null;
 
-        lock(this)
+        lock (this)
         {
-            if(_sendLogCommunicator == null)
+            if (_sendLogCommunicator == null)
             {
-                if(_destroyed)
+                if (_destroyed)
                 {
                     throw new Ice.ObjectNotExistException();
                 }
@@ -39,9 +39,9 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
             Ice.Identity remoteLoggerId = remoteLogger.ice_getIdentity();
 
-            if(_remoteLoggerMap.ContainsKey(remoteLoggerId))
+            if (_remoteLoggerMap.ContainsKey(remoteLoggerId))
             {
-                if(_traceLevel > 0)
+                if (_traceLevel > 0)
                 {
                     _logger.trace(_traceCategory, "rejecting `" + remoteLogger.ToString() +
                                  "' with RemoteLoggerAlreadyAttachedException");
@@ -53,7 +53,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             _remoteLoggerMap.Add(remoteLoggerId,
                                  new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
-            if(messageMax != 0)
+            if (messageMax != 0)
             {
                 initLogMessages = new LinkedList<Ice.LogMessage>(_queue); // copy
             }
@@ -63,12 +63,12 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             }
         }
 
-        if(_traceLevel > 0)
+        if (_traceLevel > 0)
         {
             _logger.trace(_traceCategory, "attached `" + remoteLogger.ToString() + "'");
         }
 
-        if(initLogMessages.Count > 0)
+        if (initLogMessages.Count > 0)
         {
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
@@ -81,20 +81,20 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     try
                     {
                         t.Wait();
-                        if(_traceLevel > 1)
+                        if (_traceLevel > 1)
                         {
-                            _logger.trace(_traceCategory,"init on `" + remoteLogger.ToString()
+                            _logger.trace(_traceCategory, "init on `" + remoteLogger.ToString()
                                           + "' completed successfully");
                         }
                     }
-                    catch(System.AggregateException ae)
+                    catch (System.AggregateException ae)
                     {
                         Debug.Assert(ae.InnerException is Ice.LocalException);
                         deadRemoteLogger(remoteLogger, _logger, (Ice.LocalException)ae.InnerException, "init");
                     }
                 });
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             deadRemoteLogger(remoteLogger, _logger, ex, "init");
             throw;
@@ -104,7 +104,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     public override bool
     detachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
     {
-        if(remoteLogger == null)
+        if (remoteLogger == null)
         {
             return false;
         }
@@ -114,11 +114,11 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         //
         bool found = removeRemoteLogger(remoteLogger);
 
-        if(_traceLevel > 0)
+        if (_traceLevel > 0)
         {
-            if(found)
+            if (found)
             {
-                _logger.trace(_traceCategory,  "detached `" + remoteLogger.ToString() + "'");
+                _logger.trace(_traceCategory, "detached `" + remoteLogger.ToString() + "'");
             }
             else
             {
@@ -134,9 +134,9 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
            Ice.Current current)
     {
         LinkedList<Ice.LogMessage> logMessages = null;
-        lock(this)
+        lock (this)
         {
-            if(messageMax != 0)
+            if (messageMax != 0)
             {
                 logMessages = new LinkedList<Ice.LogMessage>(_queue);
             }
@@ -148,7 +148,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         prefix = _logger.getPrefix();
 
-        if(logMessages.Count > 0)
+        if (logMessages.Count > 0)
         {
             Filters filters = new Filters(messageTypes, categories);
             filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
@@ -168,9 +168,9 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     {
         Ice.Communicator sendLogCommunicator = null;
 
-        lock(this)
+        lock (this)
         {
-            if(!_destroyed)
+            if (!_destroyed)
             {
                 _destroyed = true;
                 sendLogCommunicator = _sendLogCommunicator;
@@ -182,7 +182,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
         // remote loggers
         //
-        if(sendLogCommunicator != null)
+        if (sendLogCommunicator != null)
         {
             sendLogCommunicator.destroy();
         }
@@ -190,22 +190,22 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     internal List<Ice.RemoteLoggerPrx> log(Ice.LogMessage logMessage)
     {
-        lock(this)
+        lock (this)
         {
             List<Ice.RemoteLoggerPrx> remoteLoggers = null;
 
             //
             // Put message in _queue
             //
-            if((logMessage.type != Ice.LogMessageType.TraceMessage && _maxLogCount > 0) ||
+            if ((logMessage.type != Ice.LogMessageType.TraceMessage && _maxLogCount > 0) ||
                (logMessage.type == Ice.LogMessageType.TraceMessage && _maxTraceCount > 0))
             {
                 _queue.AddLast(logMessage);
 
-                if(logMessage.type != Ice.LogMessageType.TraceMessage)
+                if (logMessage.type != Ice.LogMessageType.TraceMessage)
                 {
                     Debug.Assert(_maxLogCount > 0);
-                    if(_logCount == _maxLogCount)
+                    if (_logCount == _maxLogCount)
                     {
                         //
                         // Need to remove the oldest log from the queue
@@ -215,7 +215,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                         _queue.Remove(_oldestLog);
                         _oldestLog = next;
 
-                        while(_oldestLog != null && _oldestLog.Value.type == Ice.LogMessageType.TraceMessage)
+                        while (_oldestLog != null && _oldestLog.Value.type == Ice.LogMessageType.TraceMessage)
                         {
                             _oldestLog = _oldestLog.Next;
                         }
@@ -225,7 +225,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_logCount < _maxLogCount);
                         _logCount++;
-                        if(_oldestLog == null)
+                        if (_oldestLog == null)
                         {
                             _oldestLog = _queue.Last;
                         }
@@ -234,7 +234,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                 else
                 {
                     Debug.Assert(_maxTraceCount > 0);
-                    if(_traceCount == _maxTraceCount)
+                    if (_traceCount == _maxTraceCount)
                     {
                         //
                         // Need to remove the oldest trace from the queue
@@ -244,7 +244,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                         _queue.Remove(_oldestTrace);
                         _oldestTrace = next;
 
-                        while(_oldestTrace != null && _oldestTrace.Value.type != Ice.LogMessageType.TraceMessage)
+                        while (_oldestTrace != null && _oldestTrace.Value.type != Ice.LogMessageType.TraceMessage)
                         {
                             _oldestTrace = _oldestTrace.Next;
                         }
@@ -254,7 +254,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_traceCount < _maxTraceCount);
                         _traceCount++;
-                        if(_oldestTrace == null)
+                        if (_oldestTrace == null)
                         {
                             _oldestTrace = _queue.Last;
                         }
@@ -265,16 +265,16 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             //
             // Queue updated, now find which remote loggers want this message
             //
-            foreach(RemoteLoggerData p in _remoteLoggerMap.Values)
+            foreach (RemoteLoggerData p in _remoteLoggerMap.Values)
             {
                 Filters filters = p.filters;
 
-                if(filters.messageTypes.Count == 0 || filters.messageTypes.Contains(logMessage.type))
+                if (filters.messageTypes.Count == 0 || filters.messageTypes.Contains(logMessage.type))
                 {
-                    if(logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
+                    if (logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
                        filters.traceCategories.Contains(logMessage.traceCategory))
                     {
-                        if(remoteLoggers == null)
+                        if (remoteLoggers == null)
                         {
                             remoteLoggers = new List<Ice.RemoteLoggerPrx>();
                         }
@@ -293,11 +293,11 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         //
         // No need to convert remoteLogger as we only use its identity
         //
-        if(removeRemoteLogger(remoteLogger))
+        if (removeRemoteLogger(remoteLogger))
         {
-            if(_traceLevel > 0)
+            if (_traceLevel > 0)
             {
-                logger.trace(_traceCategory,  "detached `" + remoteLogger.ToString() + "' because "
+                logger.trace(_traceCategory, "detached `" + remoteLogger.ToString() + "' because "
                              + operation + " raised:\n" + ex.ToString());
             }
         }
@@ -310,7 +310,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     private bool removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)
     {
-        lock(this)
+        lock (this)
         {
             return _remoteLoggerMap.Remove(remoteLogger.ice_getIdentity());
         }
@@ -326,31 +326,31 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
         // that match the other filters, if any.
         //
-        if(messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
+        if (messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
         {
             int count = 0;
             var p = logMessages.Last;
-            while(p != null)
+            while (p != null)
             {
                 bool keepIt = false;
                 Ice.LogMessage msg = p.Value;
-                if(messageTypes.Count == 0 || messageTypes.Contains(msg.type))
+                if (messageTypes.Count == 0 || messageTypes.Contains(msg.type))
                 {
-                    if(msg.type != Ice.LogMessageType.TraceMessage || traceCategories.Count == 0 ||
+                    if (msg.type != Ice.LogMessageType.TraceMessage || traceCategories.Count == 0 ||
                        traceCategories.Contains(msg.traceCategory))
                     {
                         keepIt = true;
                     }
                 }
 
-                if(keepIt)
+                if (keepIt)
                 {
                     ++count;
-                    if(messageMax > 0 && count >= messageMax)
+                    if (messageMax > 0 && count >= messageMax)
                     {
                         // Remove all older messages
                         p = p.Previous;
-                        while(p != null)
+                        while (p != null)
                         {
                             var previous = p.Previous;
                             logMessages.Remove(p);
@@ -379,7 +379,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     //
     private static Ice.RemoteLoggerPrx changeCommunicator(Ice.RemoteLoggerPrx prx, Ice.Communicator communicator)
     {
-        if(prx == null)
+        if (prx == null)
         {
             return null;
         }
@@ -390,7 +390,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     private static void copyProperties(string prefix, Ice.Properties from, Ice.Properties to)
     {
-        foreach(var p in from.getPropertiesForPrefix(prefix))
+        foreach (var p in from.getPropertiesForPrefix(prefix))
         {
             to.setProperty(p.Key, p.Value);
         }
@@ -410,12 +410,12 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         string[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
 
-        if(extraProps.Length > 0)
+        if (extraProps.Length > 0)
         {
-            for(int i = 0; i < extraProps.Length; ++i)
+            for (int i = 0; i < extraProps.Length; ++i)
             {
                 string p = extraProps[i];
-                if(!p.StartsWith("--"))
+                if (!p.StartsWith("--"))
                 {
                     extraProps[i] = "--" + p;
                 }
@@ -467,6 +467,4 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     private Ice.Communicator _sendLogCommunicator = null;
     private bool _destroyed = false;
     static private readonly string _traceCategory = "Admin.Logger";
-}
-
 }

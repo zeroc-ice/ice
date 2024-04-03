@@ -22,9 +22,9 @@ namespace Ice
 
                 public virtual void check()
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(!_called)
+                        while (!_called)
                         {
                             Monitor.Wait(this);
                         }
@@ -35,7 +35,7 @@ namespace Ice
 
                 public virtual void called()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         Debug.Assert(!_called);
                         _called = true;
@@ -57,7 +57,7 @@ namespace Ice
                     {
                         first = communicator.createObjectAdapter("TestAdapter0");
                     }
-                    catch(InitializationException)
+                    catch (InitializationException)
                     {
                         // Expected
                     }
@@ -69,7 +69,7 @@ namespace Ice
                         communicator.createObjectAdapter("TestAdapter0");
                         test(false);
                     }
-                    catch(AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                         // Expected.
                     }
@@ -85,7 +85,7 @@ namespace Ice
                         //
                         second.deactivate();
                     }
-                    catch(AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                         // Expected
                     }
@@ -104,7 +104,7 @@ namespace Ice
                         adapter.add(obj, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch(AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
 
@@ -113,7 +113,7 @@ namespace Ice
                         adapter.add(obj, Util.stringToIdentity(""));
                         test(false);
                     }
-                    catch(IllegalIdentityException e)
+                    catch (IllegalIdentityException e)
                     {
                         test(e.id.name.Length == 0);
                     }
@@ -123,7 +123,7 @@ namespace Ice
                         adapter.add(null, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch(IllegalServantException)
+                    catch (IllegalServantException)
                     {
                     }
 
@@ -133,7 +133,7 @@ namespace Ice
                         adapter.remove(Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch(NotRegisteredException)
+                    catch (NotRegisteredException)
                     {
                     }
                     adapter.deactivate();
@@ -151,7 +151,7 @@ namespace Ice
                         adapter.addServantLocator(loc, "x");
                         test(false);
                     }
-                    catch(AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
 
@@ -167,7 +167,7 @@ namespace Ice
                         communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
                         test(false);
                     }
-                    catch(AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
                     output.WriteLine("ok");
@@ -196,11 +196,11 @@ namespace Ice
                     thrower.throwAasA(1);
                     test(false);
                 }
-                catch(Test.A ex)
+                catch (Test.A ex)
                 {
                     test(ex.aMem == 1);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                     test(false);
@@ -211,11 +211,11 @@ namespace Ice
                     thrower.throwAorDasAorD(1);
                     test(false);
                 }
-                catch(Test.A ex)
+                catch (Test.A ex)
                 {
                     test(ex.aMem == 1);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -225,11 +225,11 @@ namespace Ice
                     thrower.throwAorDasAorD(-1);
                     test(false);
                 }
-                catch(Test.D ex)
+                catch (Test.D ex)
                 {
                     test(ex.dMem == -1);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -239,12 +239,12 @@ namespace Ice
                     thrower.throwBasB(1, 2);
                     test(false);
                 }
-                catch(Test.B ex)
+                catch (Test.B ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -254,13 +254,13 @@ namespace Ice
                     thrower.throwCasC(1, 2, 3);
                     test(false);
                 }
-                catch(Test.C ex)
+                catch (Test.C ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                     test(ex.cMem == 3);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -275,11 +275,11 @@ namespace Ice
                     thrower.throwBasB(1, 2);
                     test(false);
                 }
-                catch(Test.A ex)
+                catch (Test.A ex)
                 {
                     test(ex.aMem == 1);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -289,12 +289,12 @@ namespace Ice
                     thrower.throwCasC(1, 2, 3);
                     test(false);
                 }
-                catch(Test.B ex)
+                catch (Test.B ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -309,12 +309,12 @@ namespace Ice
                     thrower.throwBasA(1, 2);
                     test(false);
                 }
-                catch(Test.B ex)
+                catch (Test.B ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -324,13 +324,13 @@ namespace Ice
                     thrower.throwCasA(1, 2, 3);
                     test(false);
                 }
-                catch(Test.C ex)
+                catch (Test.C ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                     test(ex.cMem == 3);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -340,20 +340,20 @@ namespace Ice
                     thrower.throwCasB(1, 2, 3);
                     test(false);
                 }
-                catch(Test.C ex)
+                catch (Test.C ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                     test(ex.cMem == 3);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
 
                 output.WriteLine("ok");
 
-                if(thrower.supportsUndeclaredExceptions())
+                if (thrower.supportsUndeclaredExceptions())
                 {
                     output.Write("catching unknown user exception... ");
                     output.Flush();
@@ -363,10 +363,10 @@ namespace Ice
                         thrower.throwUndeclaredA(1);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -376,10 +376,10 @@ namespace Ice
                         thrower.throwUndeclaredB(1, 2);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -389,10 +389,10 @@ namespace Ice
                         thrower.throwUndeclaredC(1, 2, 3);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -400,7 +400,7 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                if(thrower.ice_getConnection() != null)
+                if (thrower.ice_getConnection() != null)
                 {
                     output.Write("testing memory limit marshal exception...");
                     output.Flush();
@@ -409,10 +409,10 @@ namespace Ice
                         thrower.throwMemoryLimitException(null);
                         test(false);
                     }
-                    catch(MemoryLimitException)
+                    catch (MemoryLimitException)
                     {
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -422,14 +422,14 @@ namespace Ice
                         thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                         test(false);
                     }
-                    catch(ConnectionLostException)
+                    catch (ConnectionLostException)
                     {
                     }
-                    catch(UnknownLocalException)
+                    catch (UnknownLocalException)
                     {
                         // Expected with JS bidir server
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -442,7 +442,7 @@ namespace Ice
                         {
                             thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                         }
-                        catch(MemoryLimitException)
+                        catch (MemoryLimitException)
                         {
                         }
                         var thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
@@ -452,11 +452,11 @@ namespace Ice
                             thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                             test(false);
                         }
-                        catch(ConnectionLostException)
+                        catch (ConnectionLostException)
                         {
                         }
                     }
-                    catch(ConnectionRefusedException)
+                    catch (ConnectionRefusedException)
                     {
                         // Expected with JS bidir server
                     }
@@ -474,7 +474,7 @@ namespace Ice
                     thrower2.ice_ping();
                     test(false);
                 }
-                catch(ObjectNotExistException ex)
+                catch (ObjectNotExistException ex)
                 {
                     test(ex.id.Equals(id));
                 }
@@ -492,12 +492,12 @@ namespace Ice
                         thrower2.ice_ping();
                         test(false);
                     }
-                    catch(FacetNotExistException ex)
+                    catch (FacetNotExistException ex)
                     {
                         test(ex.facet == "no such facet");
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -513,7 +513,7 @@ namespace Ice
                     thrower2.noSuchOperation();
                     test(false);
                 }
-                catch(OperationNotExistException ex)
+                catch (OperationNotExistException ex)
                 {
                     test(ex.operation == "noSuchOperation");
                 }
@@ -528,7 +528,7 @@ namespace Ice
                     thrower.throwLocalException();
                     test(false);
                 }
-                catch(UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
 
@@ -537,10 +537,10 @@ namespace Ice
                     thrower.throwLocalExceptionIdempotent();
                     test(false);
                 }
-                catch(UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
-                catch(OperationNotExistException)
+                catch (OperationNotExistException)
                 {
                 }
 
@@ -554,7 +554,7 @@ namespace Ice
                     thrower.throwNonIceException();
                     test(false);
                 }
-                catch(UnknownException)
+                catch (UnknownException)
                 {
                 }
 
@@ -567,7 +567,7 @@ namespace Ice
                 {
                     thrower.throwAfterResponse();
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -577,7 +577,7 @@ namespace Ice
                     thrower.throwAfterException();
                     test(false);
                 }
-                catch(Test.A)
+                catch (Test.A)
                 {
                 }
 
@@ -601,11 +601,11 @@ namespace Ice
                     await thrower.throwAorDasAorDAsync(1);
                     test(false);
                 }
-                catch(Test.A ex)
+                catch (Test.A ex)
                 {
                     test(ex.aMem == 1);
                 }
-                catch(Test.D ex)
+                catch (Test.D ex)
                 {
                     test(ex.dMem == -1);
                 }
@@ -615,11 +615,11 @@ namespace Ice
                     await thrower.throwAorDasAorDAsync(-1);
                     test(false);
                 }
-                catch(Test.A ex)
+                catch (Test.A ex)
                 {
                     test(ex.aMem == 1);
                 }
-                catch(Test.D ex)
+                catch (Test.D ex)
                 {
                     test(ex.dMem == -1);
                 }
@@ -629,7 +629,7 @@ namespace Ice
                     await thrower.throwBasBAsync(1, 2);
                     test(false);
                 }
-                catch(Test.B ex)
+                catch (Test.B ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
@@ -640,7 +640,7 @@ namespace Ice
                     await thrower.throwCasCAsync(1, 2, 3);
                     test(false);
                 }
-                catch(Test.C ex)
+                catch (Test.C ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
@@ -657,12 +657,12 @@ namespace Ice
                     await thrower.throwBasAAsync(1, 2);
                     test(false);
                 }
-                catch(Test.B ex)
+                catch (Test.B ex)
                 {
                     test(ex.aMem == 1);
                     test(ex.bMem == 2);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -693,7 +693,7 @@ namespace Ice
 
                 output.WriteLine("ok");
 
-                if(thrower.supportsUndeclaredExceptions())
+                if (thrower.supportsUndeclaredExceptions())
                 {
                     output.Write("catching unknown user exception with new AMI mapping... ");
                     output.Flush();
@@ -703,7 +703,7 @@ namespace Ice
                         await thrower.throwUndeclaredAAsync(1);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
 
@@ -712,7 +712,7 @@ namespace Ice
                         await thrower.throwUndeclaredBAsync(1, 2);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
 
@@ -721,7 +721,7 @@ namespace Ice
                         await thrower.throwUndeclaredCAsync(1, 2, 3);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
                     output.WriteLine("ok");
@@ -752,7 +752,7 @@ namespace Ice
                     await thrower2.throwAasAAsync(1);
                     test(false);
                 }
-                catch(FacetNotExistException ex)
+                catch (FacetNotExistException ex)
                 {
                     test(ex.facet == "no such facet");
                 }
@@ -783,10 +783,10 @@ namespace Ice
                     await thrower.throwLocalExceptionAsync();
                     test(false);
                 }
-                catch(UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
-                catch(OperationNotExistException)
+                catch (OperationNotExistException)
                 {
                 }
 
@@ -795,10 +795,10 @@ namespace Ice
                     await thrower.throwLocalExceptionIdempotentAsync();
                     test(false);
                 }
-                catch(UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
-                catch(OperationNotExistException)
+                catch (OperationNotExistException)
                 {
                 }
 
@@ -812,13 +812,13 @@ namespace Ice
                     await thrower.throwNonIceExceptionAsync();
                     test(false);
                 }
-                catch(UnknownException)
+                catch (UnknownException)
                 {
                 }
 
                 output.WriteLine("ok");
 
-                if(thrower.supportsUndeclaredExceptions())
+                if (thrower.supportsUndeclaredExceptions())
                 {
                     output.Write("catching unknown user exception with new AMI mapping... ");
                     output.Flush();
@@ -828,7 +828,7 @@ namespace Ice
                         await thrower.throwUndeclaredAAsync(1);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
 
@@ -837,7 +837,7 @@ namespace Ice
                         await thrower.throwUndeclaredBAsync(1, 2);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
 
@@ -846,7 +846,7 @@ namespace Ice
                         await thrower.throwUndeclaredCAsync(1, 2, 3);
                         test(false);
                     }
-                    catch(UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
 

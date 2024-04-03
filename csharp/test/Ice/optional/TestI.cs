@@ -46,11 +46,11 @@ namespace Ice
                 e.a = a;
                 e.b = b;
                 e.o = o;
-                if(b.HasValue)
+                if (b.HasValue)
                 {
                     e.ss = b.Value;
                 }
-                if(o.HasValue)
+                if (o.HasValue)
                 {
                     e.o2 = o.Value;
                 }

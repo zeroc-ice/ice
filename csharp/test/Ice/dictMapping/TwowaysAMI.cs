@@ -2,7 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+
+/* Unmerged change from project 'collocated'
+Before:
 using System.Diagnostics;
+using System.Collections.Generic;
+After:
+using System.Collections.Generic;
+using System.Diagnostics;
+*/
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,7 +22,7 @@ namespace Ice
         {
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.SystemException();
                 }
@@ -57,7 +65,7 @@ namespace Ice
                     i["b"] = id;
 
                     var result = await p.opNDVAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));
@@ -75,7 +83,7 @@ namespace Ice
                     i["b"] = id;
 
                     var result = await p.opNDRAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));
@@ -91,7 +99,7 @@ namespace Ice
                     };
 
                     var result = await p.opNDAISAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));
@@ -111,7 +119,7 @@ namespace Ice
                     };
 
                     var result = await p.opNDGISAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));
@@ -127,7 +135,7 @@ namespace Ice
                     };
 
                     var result = await p.opNDASSAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));
@@ -147,7 +155,7 @@ namespace Ice
                     };
 
                     var result = await p.opNDGSSAsync(i);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(CollectionComparer.Equals(i[key], result.o[key]));
                         test(CollectionComparer.Equals(i[key], result.returnValue[key]));

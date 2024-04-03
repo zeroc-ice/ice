@@ -38,11 +38,11 @@ public class PluginTwoFailFactory : Ice.PluginFactory
 
         ~PluginTwoFail()
         {
-            if(!_initialized)
+            if (!_initialized)
             {
                 Console.WriteLine("PluginTwoFail not initialized");
             }
-            if(!_destroyed)
+            if (!_destroyed)
             {
                 Console.WriteLine("PluginTwoFail not destroyed");
             }

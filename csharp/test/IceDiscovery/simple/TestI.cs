@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public sealed class ControllerI : Test.ControllerDisp_
 {

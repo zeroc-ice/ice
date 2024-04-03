@@ -2,428 +2,425 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace IceInternal;
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
+
+public abstract class IPEndpointI : EndpointI
 {
-
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Net;
-    using System;
-
-    public abstract class IPEndpointI : EndpointI
+    public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
     {
-        public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
+        instance_ = instance;
+        host_ = host;
+        port_ = port;
+        sourceAddr_ = sourceAddr;
+        connectionId_ = connectionId;
+        _hashInitialized = false;
+    }
+
+    public IPEndpointI(ProtocolInstance instance)
+    {
+        instance_ = instance;
+        host_ = null;
+        port_ = 0;
+        sourceAddr_ = null;
+        connectionId_ = "";
+        _hashInitialized = false;
+    }
+
+    public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
+    {
+        instance_ = instance;
+        host_ = s.readString();
+        port_ = s.readInt();
+        sourceAddr_ = null;
+        connectionId_ = "";
+        _hashInitialized = false;
+    }
+
+    private sealed class InfoI : Ice.IPEndpointInfo
+    {
+        public InfoI(IPEndpointI e)
         {
-            instance_ = instance;
-            host_ = host;
-            port_ = port;
-            sourceAddr_ = sourceAddr;
-            connectionId_ = connectionId;
-            _hashInitialized = false;
+            _endpoint = e;
         }
 
-        public IPEndpointI(ProtocolInstance instance)
+        override public short type()
         {
-            instance_ = instance;
-            host_ = null;
-            port_ = 0;
-            sourceAddr_ = null;
-            connectionId_ = "";
-            _hashInitialized = false;
+            return _endpoint.type();
         }
 
-        public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
+        override public bool datagram()
         {
-            instance_ = instance;
-            host_ = s.readString();
-            port_ = s.readInt();
-            sourceAddr_ = null;
-            connectionId_ = "";
-            _hashInitialized = false;
+            return _endpoint.datagram();
         }
 
-        private sealed class InfoI : Ice.IPEndpointInfo
+        override public bool secure()
         {
-            public InfoI(IPEndpointI e)
+            return _endpoint.secure();
+        }
+
+        private IPEndpointI _endpoint;
+    }
+
+    public override Ice.EndpointInfo getInfo()
+    {
+        InfoI info = new InfoI(this);
+        fillEndpointInfo(info);
+        return info;
+    }
+
+    public override short type()
+    {
+        return instance_.type();
+    }
+
+    public override string protocol()
+    {
+        return instance_.protocol();
+    }
+
+    public override bool secure()
+    {
+        return instance_.secure();
+    }
+
+    public override string connectionId()
+    {
+        return connectionId_;
+    }
+
+    public override EndpointI connectionId(string connectionId)
+    {
+        if (connectionId.Equals(connectionId_))
+        {
+            return this;
+        }
+        else
+        {
+            return createEndpoint(host_, port_, connectionId);
+        }
+    }
+
+    public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    {
+        instance_.resolve(host_, port_, selType, this, callback);
+    }
+
+    public override List<EndpointI> expandIfWildcard()
+    {
+        List<EndpointI> endps = new List<EndpointI>();
+        List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
+        if (hosts == null || hosts.Count == 0)
+        {
+            endps.Add(this);
+        }
+        else
+        {
+            foreach (string h in hosts)
             {
-                _endpoint = e;
-            }
-
-            override public short type()
-            {
-                return _endpoint.type();
-            }
-
-            override public bool datagram()
-            {
-                return _endpoint.datagram();
-            }
-
-            override public bool secure()
-            {
-                return _endpoint.secure();
-            }
-
-            private IPEndpointI _endpoint;
-        }
-
-        public override Ice.EndpointInfo getInfo()
-        {
-            InfoI info = new InfoI(this);
-            fillEndpointInfo(info);
-            return info;
-        }
-
-        public override short type()
-        {
-            return instance_.type();
-        }
-
-        public override string protocol()
-        {
-            return instance_.protocol();
-        }
-
-        public override bool secure()
-        {
-            return instance_.secure();
-        }
-
-        public override string connectionId()
-        {
-            return connectionId_;
-        }
-
-        public override EndpointI connectionId(string connectionId)
-        {
-            if(connectionId.Equals(connectionId_))
-            {
-                return this;
-            }
-            else
-            {
-                return createEndpoint(host_, port_, connectionId);
+                endps.Add(createEndpoint(h, port_, connectionId_));
             }
         }
+        return endps;
+    }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    public override List<EndpointI> expandHost(out EndpointI publish)
+    {
+        //
+        // If this endpoint has an empty host (wildcard address), don't expand, just return
+        // this endpoint.
+        //
+        var endpoints = new List<EndpointI>();
+        if (host_.Length == 0)
         {
-            instance_.resolve(host_, port_, selType, this, callback);
-        }
-
-        public override List<EndpointI> expandIfWildcard()
-        {
-            List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
-            if(hosts == null || hosts.Count == 0)
-            {
-                endps.Add(this);
-            }
-            else
-            {
-                foreach(string h in hosts)
-                {
-                    endps.Add(createEndpoint(h, port_, connectionId_));
-                }
-            }
-            return endps;
-        }
-
-        public override List<EndpointI> expandHost(out EndpointI publish)
-        {
-            //
-            // If this endpoint has an empty host (wildcard address), don't expand, just return
-            // this endpoint.
-            //
-            var endpoints = new List<EndpointI>();
-            if(host_.Length == 0)
-            {
-                publish = null;
-                endpoints.Add(this);
-                return endpoints;
-            }
-
-            //
-            // If using a fixed port, this endpoint can be used as the published endpoint to
-            // access the returned endpoints. Otherwise, we'll publish each individual expanded
-            // endpoint.
-            //
-            publish = port_ > 0 ? this : null;
-
-            List<EndPoint> addresses = Network.getAddresses(host_,
-                                                            port_,
-                                                            instance_.protocolSupport(),
-                                                            Ice.EndpointSelectionType.Ordered,
-                                                            instance_.preferIPv6(),
-                                                            true);
-
-            if(addresses.Count == 1)
-            {
-                endpoints.Add(this);
-            }
-            else
-            {
-                foreach(EndPoint addr in addresses)
-                {
-                    endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
-                                                 Network.endpointPort(addr),
-                                                 connectionId_));
-                }
-            }
+            publish = null;
+            endpoints.Add(this);
             return endpoints;
         }
 
-        public override bool equivalent(EndpointI endpoint)
+        //
+        // If using a fixed port, this endpoint can be used as the published endpoint to
+        // access the returned endpoints. Otherwise, we'll publish each individual expanded
+        // endpoint.
+        //
+        publish = port_ > 0 ? this : null;
+
+        List<EndPoint> addresses = Network.getAddresses(host_,
+                                                        port_,
+                                                        instance_.protocolSupport(),
+                                                        Ice.EndpointSelectionType.Ordered,
+                                                        instance_.preferIPv6(),
+                                                        true);
+
+        if (addresses.Count == 1)
         {
-            if(!(endpoint is IPEndpointI))
-            {
-                return false;
-            }
-            IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
-            return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_ &&
-                Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
+            endpoints.Add(this);
         }
-
-        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
+        else
         {
-            List<Connector> connectors = new List<Connector>();
-            foreach(EndPoint p in addresses)
+            foreach (EndPoint addr in addresses)
             {
-                connectors.Add(createConnector(p, proxy));
+                endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
+                                             Network.endpointPort(addr),
+                                             connectionId_));
             }
-            return connectors;
         }
+        return endpoints;
+    }
 
-        public override string options()
+    public override bool equivalent(EndpointI endpoint)
+    {
+        if (!(endpoint is IPEndpointI))
         {
-            //
-            // WARNING: Certain features, such as proxy validation in Glacier2,
-            // depend on the format of proxy strings. Changes to toString() and
-            // methods called to generate parts of the reference string could break
-            // these features. Please review for all features that depend on the
-            // format of proxyToString() before changing this and related code.
-            //
-            string s = "";
-
-            if(host_ != null && host_.Length > 0)
-            {
-                s += " -h ";
-                bool addQuote = host_.IndexOf(':') != -1;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-                s += host_;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-            }
-
-            s += " -p " + port_;
-
-            if(sourceAddr_ != null)
-            {
-                string sourceAddr = Network.endpointAddressToString(sourceAddr_);
-                bool addQuote = sourceAddr.IndexOf(':') != -1;
-                s += " --sourceAddress ";
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-                s += sourceAddr;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-            }
-
-            return s;
+            return false;
         }
+        IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
+        return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_ &&
+            Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
+    }
 
-        public override int GetHashCode()
+    public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
+    {
+        List<Connector> connectors = new List<Connector>();
+        foreach (EndPoint p in addresses)
         {
-            lock (this)
+            connectors.Add(createConnector(p, proxy));
+        }
+        return connectors;
+    }
+
+    public override string options()
+    {
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
+        string s = "";
+
+        if (host_ != null && host_.Length > 0)
+        {
+            s += " -h ";
+            bool addQuote = host_.IndexOf(':') != -1;
+            if (addQuote)
             {
-                if(!_hashInitialized)
-                {
-                    _hashValue = 5381;
-                    HashUtil.hashAdd(ref _hashValue, type());
-                    hashInit(ref _hashValue);
-                    _hashInitialized = true;
-                }
-                return _hashValue;
+                s += "\"";
+            }
+            s += host_;
+            if (addQuote)
+            {
+                s += "\"";
             }
         }
 
-        public override int CompareTo(EndpointI obj)
+        s += " -p " + port_;
+
+        if (sourceAddr_ != null)
         {
-            if(!(obj is IPEndpointI))
+            string sourceAddr = Network.endpointAddressToString(sourceAddr_);
+            bool addQuote = sourceAddr.IndexOf(':') != -1;
+            s += " --sourceAddress ";
+            if (addQuote)
             {
-                return type() < obj.type() ? -1 : 1;
+                s += "\"";
             }
-
-            IPEndpointI p = (IPEndpointI)obj;
-            if(this == p)
+            s += sourceAddr;
+            if (addQuote)
             {
-                return 0;
+                s += "\"";
             }
-
-            int v = string.Compare(host_, p.host_, StringComparison.Ordinal);
-            if(v != 0)
-            {
-                return v;
-            }
-
-            if(port_ < p.port_)
-            {
-                return -1;
-            }
-            else if(p.port_ < port_)
-            {
-                return 1;
-            }
-
-            int rc = string.Compare(Network.endpointAddressToString(sourceAddr_),
-                                    Network.endpointAddressToString(p.sourceAddr_), StringComparison.Ordinal);
-            if(rc != 0)
-            {
-                return rc;
-            }
-
-            return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
         }
 
-        public override void streamWriteImpl(Ice.OutputStream s)
+        return s;
+    }
+
+    public override int GetHashCode()
+    {
+        lock (this)
         {
-            s.writeString(host_);
-            s.writeInt(port_);
+            if (!_hashInitialized)
+            {
+                _hashValue = 5381;
+                HashUtil.hashAdd(ref _hashValue, type());
+                hashInit(ref _hashValue);
+                _hashInitialized = true;
+            }
+            return _hashValue;
+        }
+    }
+
+    public override int CompareTo(EndpointI obj)
+    {
+        if (!(obj is IPEndpointI))
+        {
+            return type() < obj.type() ? -1 : 1;
         }
 
-        public virtual void hashInit(ref int h)
+        IPEndpointI p = (IPEndpointI)obj;
+        if (this == p)
         {
-            HashUtil.hashAdd(ref h, host_);
-            HashUtil.hashAdd(ref h, port_);
-            if(sourceAddr_ != null)
-            {
-                HashUtil.hashAdd(ref h, sourceAddr_);
-            }
-            HashUtil.hashAdd(ref h, connectionId_);
+            return 0;
         }
 
-        public virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
+        int v = string.Compare(host_, p.host_, StringComparison.Ordinal);
+        if (v != 0)
         {
-            info.host = host_;
-            info.port = port_;
-            info.sourceAddress = Network.endpointAddressToString(sourceAddr_);
+            return v;
         }
 
-        public virtual void initWithOptions(List<string> args, bool oaEndpoint)
+        if (port_ < p.port_)
         {
-            base.initWithOptions(args);
+            return -1;
+        }
+        else if (p.port_ < port_)
+        {
+            return 1;
+        }
 
-            if(host_ == null || host_.Length == 0)
-            {
-                host_ = instance_.defaultHost();
-            }
-            else if(host_ == "*")
-            {
-                if(oaEndpoint)
-                {
-                    host_ = "";
-                }
-                else
-                {
-                    throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `" + ToString() + "'");
-                }
-            }
+        int rc = string.Compare(Network.endpointAddressToString(sourceAddr_),
+                                Network.endpointAddressToString(p.sourceAddr_), StringComparison.Ordinal);
+        if (rc != 0)
+        {
+            return rc;
+        }
 
-            if(host_ == null)
+        return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
+    }
+
+    public override void streamWriteImpl(Ice.OutputStream s)
+    {
+        s.writeString(host_);
+        s.writeInt(port_);
+    }
+
+    public virtual void hashInit(ref int h)
+    {
+        HashUtil.hashAdd(ref h, host_);
+        HashUtil.hashAdd(ref h, port_);
+        if (sourceAddr_ != null)
+        {
+            HashUtil.hashAdd(ref h, sourceAddr_);
+        }
+        HashUtil.hashAdd(ref h, connectionId_);
+    }
+
+    public virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
+    {
+        info.host = host_;
+        info.port = port_;
+        info.sourceAddress = Network.endpointAddressToString(sourceAddr_);
+    }
+
+    public virtual void initWithOptions(List<string> args, bool oaEndpoint)
+    {
+        base.initWithOptions(args);
+
+        if (host_ == null || host_.Length == 0)
+        {
+            host_ = instance_.defaultHost();
+        }
+        else if (host_ == "*")
+        {
+            if (oaEndpoint)
             {
                 host_ = "";
             }
-
-            if(sourceAddr_ != null)
-            {
-                if(oaEndpoint)
-                {
-                    throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
-                                                         ToString() + "'");
-                }
-            }
-            else if(!oaEndpoint)
-            {
-                sourceAddr_ = instance_.defaultSourceAddress();
-            }
-        }
-
-        protected override bool checkOption(string option, string argument, string endpoint)
-        {
-            if(option == "-h")
-            {
-                if(argument == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
-                                                         endpoint);
-                }
-                host_ = argument;
-            }
-            else if(option == "-p")
-            {
-                if(argument == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
-                                                         endpoint);
-                }
-
-                try
-                {
-                    port_ = int.Parse(argument, CultureInfo.InvariantCulture);
-                }
-                catch(FormatException ex)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                    e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
-                    throw e;
-                }
-
-                if(port_ < 0 || port_ > 65535)
-                {
-                    throw new Ice.EndpointParseException("port value `" + argument +
-                                                         "' out of range in endpoint " + endpoint);
-                }
-            }
-            else if(option == "--sourceAddress")
-            {
-                if(argument == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
-                                                         endpoint);
-                }
-                sourceAddr_ = Network.getNumericAddress(argument);
-                if(sourceAddr_ == null)
-                {
-                    throw new Ice.EndpointParseException(
-                        "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
-                }
-            }
             else
             {
-                return false;
+                throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `" + ToString() + "'");
             }
-            return true;
         }
 
-        protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
-        protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
+        if (host_ == null)
+        {
+            host_ = "";
+        }
 
-        protected ProtocolInstance instance_;
-        protected string host_;
-        protected int port_;
-        protected EndPoint sourceAddr_;
-        protected string connectionId_;
-        private bool _hashInitialized;
-        private int _hashValue;
+        if (sourceAddr_ != null)
+        {
+            if (oaEndpoint)
+            {
+                throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
+                                                     ToString() + "'");
+            }
+        }
+        else if (!oaEndpoint)
+        {
+            sourceAddr_ = instance_.defaultSourceAddress();
+        }
     }
 
+    protected override bool checkOption(string option, string argument, string endpoint)
+    {
+        if (option == "-h")
+        {
+            if (argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
+                                                     endpoint);
+            }
+            host_ = argument;
+        }
+        else if (option == "-p")
+        {
+            if (argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
+                                                     endpoint);
+            }
+
+            try
+            {
+                port_ = int.Parse(argument, CultureInfo.InvariantCulture);
+            }
+            catch (FormatException ex)
+            {
+                Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
+                throw e;
+            }
+
+            if (port_ < 0 || port_ > 65535)
+            {
+                throw new Ice.EndpointParseException("port value `" + argument +
+                                                     "' out of range in endpoint " + endpoint);
+            }
+        }
+        else if (option == "--sourceAddress")
+        {
+            if (argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
+                                                     endpoint);
+            }
+            sourceAddr_ = Network.getNumericAddress(argument);
+            if (sourceAddr_ == null)
+            {
+                throw new Ice.EndpointParseException(
+                    "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
+            }
+        }
+        else
+        {
+            return false;
+        }
+        return true;
+    }
+
+    protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
+    protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
+
+    protected ProtocolInstance instance_;
+    protected string host_;
+    protected int port_;
+    protected EndPoint sourceAddr_;
+    protected string connectionId_;
+    private bool _hashInitialized;
+    private int _hashValue;
 }

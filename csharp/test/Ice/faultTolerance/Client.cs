@@ -3,9 +3,9 @@
 //
 
 using System;
-using System.Reflection;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
@@ -20,10 +20,10 @@ public class Client : Test.TestHelper
     {
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             List<int> ports = args.Select(v => Int32.Parse(v)).ToList();
-            if(ports.Count == 0)
+            if (ports.Count == 0)
             {
                 throw new ArgumentException("Client: no ports specified");
             }

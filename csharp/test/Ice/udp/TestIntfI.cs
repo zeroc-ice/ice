@@ -16,7 +16,7 @@ namespace Ice
                 {
                     reply.reply();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     Debug.Assert(false);
                 }
@@ -28,7 +28,7 @@ namespace Ice
                 {
                     reply.reply();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     Debug.Assert(false);
                 }
@@ -47,14 +47,14 @@ namespace Ice
                         byte[] seq = new byte[32 * 1024];
                         Test.TestIntfPrxHelper.uncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
                     }
-                    catch(Ice.DatagramLimitException)
+                    catch (Ice.DatagramLimitException)
                     {
                         // Expected.
                     }
 
                     Test.PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     Debug.Assert(false);
                 }

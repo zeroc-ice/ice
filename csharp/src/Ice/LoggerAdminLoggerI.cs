@@ -7,16 +7,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace IceInternal
-{
+namespace IceInternal;
 
-interface LoggerAdminLogger : Ice.Logger
+internal interface LoggerAdminLogger : Ice.Logger
 {
     Ice.Object getFacet();
     void destroy();
 }
 
-sealed class LoggerAdminLoggerI : LoggerAdminLogger
+internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 {
     public void print(string message)
     {
@@ -64,9 +63,9 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     public void destroy()
     {
         Thread thread = null;
-        lock(this)
+        lock (this)
         {
-            if(_sendLogThread != null)
+            if (_sendLogThread != null)
             {
                 thread = _sendLogThread;
                 _sendLogThread = null;
@@ -81,7 +80,7 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
             }
         }
 
-        if(thread != null)
+        if (thread != null)
         {
             thread.Join();
         }
@@ -93,7 +92,7 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     {
         LoggerAdminLoggerI wrapper = localLogger as LoggerAdminLoggerI;
 
-        if(wrapper != null)
+        if (wrapper != null)
         {
             _localLogger = wrapper.getLocalLogger();
         }
@@ -114,13 +113,13 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     {
         List<Ice.RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
 
-        if(remoteLoggers != null)
+        if (remoteLoggers != null)
         {
             Debug.Assert(remoteLoggers.Count > 0);
 
-            lock(this)
+            lock (this)
             {
-                if(_sendLogThread == null)
+                if (_sendLogThread == null)
                 {
                     _sendLogThread = new Thread(new ThreadStart(run));
                     _sendLogThread.Name = "Ice.SendLogThread";
@@ -136,22 +135,22 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     private void run()
     {
-        if(_loggerAdmin.getTraceLevel() > 1)
+        if (_loggerAdmin.getTraceLevel() > 1)
         {
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
-        for(;;)
+        for (; ; )
         {
             Job job = null;
-            lock(this)
+            lock (this)
             {
-                while(!_destroyed && _jobQueue.Count == 0)
+                while (!_destroyed && _jobQueue.Count == 0)
                 {
                     Monitor.Wait(this);
                 }
 
-                if(_destroyed)
+                if (_destroyed)
                 {
                     break; // for(;;)
                 }
@@ -160,9 +159,9 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 job = _jobQueue.Dequeue();
             }
 
-            foreach(var p in job.remoteLoggers)
+            foreach (var p in job.remoteLoggers)
             {
-                if(_loggerAdmin.getTraceLevel() > 1)
+                if (_loggerAdmin.getTraceLevel() > 1)
                 {
                     _localLogger.trace(_traceCategory, "sending log message to `" + p.ToString() + "'");
                 }
@@ -178,19 +177,19 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                             try
                             {
                                 t.Wait();
-                                if(_loggerAdmin.getTraceLevel() > 1)
+                                if (_loggerAdmin.getTraceLevel() > 1)
                                 {
                                     _localLogger.trace(_traceCategory, "log on `" + p.ToString()
                                                        + "' completed successfully");
                                 }
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
-                                if(ae.InnerException is Ice.CommunicatorDestroyedException)
+                                if (ae.InnerException is Ice.CommunicatorDestroyedException)
                                 {
                                     // expected if there are outstanding calls during communicator destruction
                                 }
-                                if(ae.InnerException is Ice.LocalException)
+                                if (ae.InnerException is Ice.LocalException)
                                 {
                                     _loggerAdmin.deadRemoteLogger(p, _localLogger,
                                                                   (Ice.LocalException)ae.InnerException, "log");
@@ -198,14 +197,14 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                             }
                         });
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
                 }
             }
         }
 
-        if(_loggerAdmin.getTraceLevel() > 1)
+        if (_loggerAdmin.getTraceLevel() > 1)
         {
             _localLogger.trace(_traceCategory, "send log thread completed");
         }
@@ -237,6 +236,4 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     static private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     static private readonly string _traceCategory = "Admin.Logger";
-}
-
 }

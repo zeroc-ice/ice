@@ -3,8 +3,8 @@
 //
 
 using System;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
@@ -17,9 +17,9 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
-            if(args.Any(v => v == "--with-deploy"))
+            if (args.Any(v => v == "--with-deploy"))
             {
                 AllTests.allTestsWithDeploy(this);
             }

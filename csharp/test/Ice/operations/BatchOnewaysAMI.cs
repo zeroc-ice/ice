@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -10,7 +9,7 @@ namespace Ice
 {
     namespace operations
     {
-        class BatchOnewaysAMI
+        internal class BatchOnewaysAMI
         {
             private static void test(bool b)
             {

@@ -8,7 +8,7 @@ namespace Ice
 {
     namespace interceptor
     {
-        class MySystemException : Ice.SystemException
+        internal class MySystemException : Ice.SystemException
         {
             public
             MySystemException()
@@ -22,7 +22,7 @@ namespace Ice
             }
         };
 
-        class MyRetryException : Ice.LocalException
+        internal class MyRetryException : Ice.LocalException
         {
             override public string ice_id()
             {
@@ -30,12 +30,12 @@ namespace Ice
             }
         }
 
-        class MyObjectI : Test.MyObjectDisp_
+        internal class MyObjectI : Test.MyObjectDisp_
         {
             protected static void
             test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -53,7 +53,7 @@ namespace Ice
                 test(current != null);
                 test(current.ctx != null);
 
-                if(current.ctx.ContainsKey("retry") && current.ctx["retry"] == "no")
+                if (current.ctx.ContainsKey("retry") && current.ctx["retry"] == "no")
                 {
                     return x + y;
                 }
@@ -91,7 +91,7 @@ namespace Ice
             public override async Task<int>
             amdAddWithRetryAsync(int x, int y, Ice.Current current)
             {
-                if(current.ctx.ContainsKey("retry") && current.ctx["retry"] == "no")
+                if (current.ctx.ContainsKey("retry") && current.ctx["retry"] == "no")
                 {
                     await Task.Delay(10);
                     return x + y;

@@ -4,8 +4,8 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Test
@@ -108,7 +108,7 @@ namespace Test
 
         public TextWriter getWriter()
         {
-            if(_writer == null)
+            if (_writer == null)
             {
                 return Console.Out;
             }
@@ -147,11 +147,11 @@ namespace Test
         public Ice.Communicator initialize(Ice.InitializationData initData)
         {
             Ice.Communicator communicator = Ice.Util.initialize(initData);
-            if(_communicator == null)
+            if (_communicator == null)
             {
                 _communicator = communicator;
             }
-            if(_controllerHelper != null)
+            if (_controllerHelper != null)
             {
                 _controllerHelper.communicatorInitialized(communicator);
             }

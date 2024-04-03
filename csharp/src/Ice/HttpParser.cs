@@ -2,117 +2,117 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace IceInternal;
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+internal sealed class WebSocketException : System.Exception
 {
-    using System.Diagnostics;
-    using System.Collections.Generic;
-    using System.Text;
-
-    internal sealed class WebSocketException : System.Exception
+    internal WebSocketException() :
+        base("", null)
     {
-        internal WebSocketException() :
-            base("", null)
-        {
-        }
-
-        internal WebSocketException(string message) :
-            base(message, null)
-        {
-        }
-
-        internal WebSocketException(string message, System.Exception cause) :
-            base(message, cause)
-        {
-        }
-
-        internal WebSocketException(System.Exception cause) :
-            base("", cause)
-        {
-        }
     }
 
-    internal sealed class HttpParser
+    internal WebSocketException(string message) :
+        base(message, null)
     {
-        internal HttpParser()
+    }
+
+    internal WebSocketException(string message, System.Exception cause) :
+        base(message, cause)
+    {
+    }
+
+    internal WebSocketException(System.Exception cause) :
+        base("", cause)
+    {
+    }
+}
+
+internal sealed class HttpParser
+{
+    internal HttpParser()
+    {
+        _type = Type.Unknown;
+        _versionMajor = 0;
+        _versionMinor = 0;
+        _status = 0;
+        _state = State.Init;
+    }
+
+    internal enum Type
+    {
+        Unknown,
+        Request,
+        Response
+    };
+
+    internal int isCompleteMessage(ByteBuffer buf, int begin, int end)
+    {
+        byte[] raw = buf.rawBytes();
+        int p = begin;
+
+        //
+        // Skip any leading CR-LF characters.
+        //
+        while (p < end)
         {
-            _type = Type.Unknown;
-            _versionMajor = 0;
-            _versionMinor = 0;
-            _status = 0;
+            byte ch = raw[p];
+            if (ch != (byte)'\r' && ch != (byte)'\n')
+            {
+                break;
+            }
+            ++p;
+        }
+
+        //
+        // Look for adjacent CR-LF/CR-LF or LF/LF.
+        //
+        bool seenFirst = false;
+        while (p < end)
+        {
+            byte ch = raw[p++];
+            if (ch == (byte)'\n')
+            {
+                if (seenFirst)
+                {
+                    return p;
+                }
+                else
+                {
+                    seenFirst = true;
+                }
+            }
+            else if (ch != (byte)'\r')
+            {
+                seenFirst = false;
+            }
+        }
+
+        return -1;
+    }
+
+    internal bool parse(ByteBuffer buf, int begin, int end)
+    {
+        byte[] raw = buf.rawBytes();
+        int p = begin;
+        int start = 0;
+        const char CR = '\r';
+        const char LF = '\n';
+
+        if (_state == State.Complete)
+        {
             _state = State.Init;
         }
 
-        internal enum Type
+        while (p != end && _state != State.Complete)
         {
-            Unknown,
-            Request,
-            Response
-        };
+            char c = (char)raw[p];
 
-        internal int isCompleteMessage(ByteBuffer buf, int begin, int end)
-        {
-            byte[] raw = buf.rawBytes();
-            int p = begin;
-
-            //
-            // Skip any leading CR-LF characters.
-            //
-            while(p < end)
+            switch (_state)
             {
-                byte ch = raw[p];
-                if(ch != (byte)'\r' && ch != (byte)'\n')
-                {
-                    break;
-                }
-                ++p;
-            }
-
-            //
-            // Look for adjacent CR-LF/CR-LF or LF/LF.
-            //
-            bool seenFirst = false;
-            while(p < end)
-            {
-                byte ch = raw[p++];
-                if(ch == (byte)'\n')
-                {
-                    if(seenFirst)
-                    {
-                        return p;
-                    }
-                    else
-                    {
-                        seenFirst = true;
-                    }
-                }
-                else if(ch != (byte)'\r')
-                {
-                    seenFirst = false;
-                }
-            }
-
-            return -1;
-        }
-
-        internal bool parse(ByteBuffer buf, int begin, int end)
-        {
-            byte[] raw = buf.rawBytes();
-            int p = begin;
-            int start = 0;
-            const char CR = '\r';
-            const char LF = '\n';
-
-            if(_state == State.Complete)
-            {
-                _state = State.Init;
-            }
-
-            while(p != end && _state != State.Complete)
-            {
-                char c = (char)raw[p];
-
-                switch(_state)
-                {
                 case State.Init:
                 {
                     _method = new StringBuilder();
@@ -127,11 +127,11 @@ namespace IceInternal
                 }
                 case State.Type:
                 {
-                    if(c == CR || c == LF)
+                    if (c == CR || c == LF)
                     {
                         break;
                     }
-                    else if(c == 'H')
+                    else if (c == 'H')
                     {
                         //
                         // Could be the start of "HTTP/1.1" or "HEAD".
@@ -147,11 +147,11 @@ namespace IceInternal
                 }
                 case State.TypeCheck:
                 {
-                    if(c == 'T') // Continuing "H_T_TP/1.1"
+                    if (c == 'T') // Continuing "H_T_TP/1.1"
                     {
                         _state = State.Response;
                     }
-                    else if(c == 'E') // Expecting "HEAD"
+                    else if (c == 'E') // Expecting "HEAD"
                     {
                         _state = State.Request;
                         _method.Append('H');
@@ -171,7 +171,7 @@ namespace IceInternal
                 }
                 case State.RequestMethod:
                 {
-                    if(c == ' ' || c == CR || c == LF)
+                    if (c == ' ' || c == CR || c == LF)
                     {
                         _state = State.RequestMethodSP;
                         continue;
@@ -181,11 +181,11 @@ namespace IceInternal
                 }
                 case State.RequestMethodSP:
                 {
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
-                    else if(c == CR || c == LF)
+                    else if (c == CR || c == LF)
                     {
                         throw new WebSocketException("malformed request");
                     }
@@ -194,7 +194,7 @@ namespace IceInternal
                 }
                 case State.RequestURI:
                 {
-                    if(c == ' ' || c == CR || c == LF)
+                    if (c == ' ' || c == CR || c == LF)
                     {
                         _state = State.RequestURISP;
                         continue;
@@ -204,11 +204,11 @@ namespace IceInternal
                 }
                 case State.RequestURISP:
                 {
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
-                    else if(c == CR || c == LF)
+                    else if (c == CR || c == LF)
                     {
                         throw new WebSocketException("malformed request");
                     }
@@ -217,7 +217,7 @@ namespace IceInternal
                 }
                 case State.RequestLF:
                 {
-                    if(c != LF)
+                    if (c != LF)
                     {
                         throw new WebSocketException("malformed request");
                     }
@@ -231,17 +231,17 @@ namespace IceInternal
                     //
                     // Another CR or LF indicates the end of the header fields.
                     //
-                    if(c == CR)
+                    if (c == CR)
                     {
                         _state = State.HeaderFieldEndLF;
                         break;
                     }
-                    else if(c == LF)
+                    else if (c == LF)
                     {
                         _state = State.Complete;
                         break;
                     }
-                    else if(c == ' ')
+                    else if (c == ' ')
                     {
                         //
                         // Could be a continuation line.
@@ -255,7 +255,7 @@ namespace IceInternal
                 }
                 case State.HeaderFieldContStart:
                 {
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
@@ -266,11 +266,11 @@ namespace IceInternal
                 }
                 case State.HeaderFieldCont:
                 {
-                    if(c == CR || c == LF)
+                    if (c == CR || c == LF)
                     {
-                        if(p > start)
+                        if (p > start)
                         {
-                            if(_headerName.Length == 0)
+                            if (_headerName.Length == 0)
                             {
                                 throw new WebSocketException("malformed header");
                             }
@@ -278,7 +278,7 @@ namespace IceInternal
                             string s = _headers[_headerName];
                             StringBuilder newValue = new StringBuilder(s);
                             newValue.Append(' ');
-                            for(int i = start; i < p; ++i)
+                            for (int i = start; i < p; ++i)
                             {
                                 newValue.Append((char)raw[i]);
                             }
@@ -306,12 +306,12 @@ namespace IceInternal
                 }
                 case State.HeaderFieldName:
                 {
-                    if(c == ' ' || c == ':')
+                    if (c == ' ' || c == ':')
                     {
                         _state = State.HeaderFieldNameEnd;
                         continue;
                     }
-                    else if(c == CR || c == LF)
+                    else if (c == CR || c == LF)
                     {
                         throw new WebSocketException("malformed header");
                     }
@@ -319,10 +319,10 @@ namespace IceInternal
                 }
                 case State.HeaderFieldNameEnd:
                 {
-                    if(_headerName.Length == 0)
+                    if (_headerName.Length == 0)
                     {
                         StringBuilder str = new StringBuilder();
-                        for(int i = start; i < p; ++i)
+                        for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
                         }
@@ -330,18 +330,18 @@ namespace IceInternal
                         //
                         // Add a placeholder entry if necessary.
                         //
-                        if(!_headers.ContainsKey(_headerName))
+                        if (!_headers.ContainsKey(_headerName))
                         {
                             _headers[_headerName] = "";
                             _headerNames[_headerName] = str.ToString();
                         }
                     }
 
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
-                    else if(c != ':' || p == start)
+                    else if (c != ':' || p == start)
                     {
                         throw new WebSocketException("malformed header");
                     }
@@ -351,7 +351,7 @@ namespace IceInternal
                 }
                 case State.HeaderFieldValueStart:
                 {
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
@@ -359,12 +359,12 @@ namespace IceInternal
                     //
                     // Check for "Name:\r\n"
                     //
-                    if(c == CR)
+                    if (c == CR)
                     {
                         _state = State.HeaderFieldLF;
                         break;
                     }
-                    else if(c == LF)
+                    else if (c == LF)
                     {
                         _state = State.HeaderFieldStart;
                         break;
@@ -376,7 +376,7 @@ namespace IceInternal
                 }
                 case State.HeaderFieldValue:
                 {
-                    if(c == CR || c == LF)
+                    if (c == CR || c == LF)
                     {
                         _state = State.HeaderFieldValueEnd;
                         continue;
@@ -386,15 +386,15 @@ namespace IceInternal
                 case State.HeaderFieldValueEnd:
                 {
                     Debug.Assert(c == CR || c == LF);
-                    if(p > start)
+                    if (p > start)
                     {
                         StringBuilder str = new StringBuilder();
-                        for(int i = start; i < p; ++i)
+                        for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
                         }
                         string s = null;
-                        if(!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
+                        if (!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
                         {
                             _headers[_headerName] = str.ToString();
                         }
@@ -404,7 +404,7 @@ namespace IceInternal
                         }
                     }
 
-                    if(c == CR)
+                    if (c == CR)
                     {
                         _state = State.HeaderFieldLF;
                     }
@@ -416,7 +416,7 @@ namespace IceInternal
                 }
                 case State.HeaderFieldLF:
                 {
-                    if(c != LF)
+                    if (c != LF)
                     {
                         throw new WebSocketException("malformed header");
                     }
@@ -425,7 +425,7 @@ namespace IceInternal
                 }
                 case State.HeaderFieldEndLF:
                 {
-                    if(c != LF)
+                    if (c != LF)
                     {
                         throw new WebSocketException("malformed header");
                     }
@@ -434,7 +434,7 @@ namespace IceInternal
                 }
                 case State.Version:
                 {
-                    if(c != 'H')
+                    if (c != 'H')
                     {
                         throw new WebSocketException("malformed version");
                     }
@@ -443,7 +443,7 @@ namespace IceInternal
                 }
                 case State.VersionH:
                 {
-                    if(c != 'T')
+                    if (c != 'T')
                     {
                         throw new WebSocketException("malformed version");
                     }
@@ -452,7 +452,7 @@ namespace IceInternal
                 }
                 case State.VersionHT:
                 {
-                    if(c != 'T')
+                    if (c != 'T')
                     {
                         throw new WebSocketException("malformed version");
                     }
@@ -461,7 +461,7 @@ namespace IceInternal
                 }
                 case State.VersionHTT:
                 {
-                    if(c != 'P')
+                    if (c != 'P')
                     {
                         throw new WebSocketException("malformed version");
                     }
@@ -470,7 +470,7 @@ namespace IceInternal
                 }
                 case State.VersionHTTP:
                 {
-                    if(c != '/')
+                    if (c != '/')
                     {
                         throw new WebSocketException("malformed version");
                     }
@@ -479,20 +479,20 @@ namespace IceInternal
                 }
                 case State.VersionMajor:
                 {
-                    if(c == '.')
+                    if (c == '.')
                     {
-                        if(_versionMajor == -1)
+                        if (_versionMajor == -1)
                         {
                             throw new WebSocketException("malformed version");
                         }
                         _state = State.VersionMinor;
                         break;
                     }
-                    else if(c < '0' || c > '9')
+                    else if (c < '0' || c > '9')
                     {
                         throw new WebSocketException("malformed version");
                     }
-                    if(_versionMajor == -1)
+                    if (_versionMajor == -1)
                     {
                         _versionMajor = 0;
                     }
@@ -502,38 +502,38 @@ namespace IceInternal
                 }
                 case State.VersionMinor:
                 {
-                    if(c == CR)
+                    if (c == CR)
                     {
-                        if(_versionMinor == -1 || _type != Type.Request)
+                        if (_versionMinor == -1 || _type != Type.Request)
                         {
                             throw new WebSocketException("malformed version");
                         }
                         _state = State.RequestLF;
                         break;
                     }
-                    else if(c == LF)
+                    else if (c == LF)
                     {
-                        if(_versionMinor == -1 || _type != Type.Request)
+                        if (_versionMinor == -1 || _type != Type.Request)
                         {
                             throw new WebSocketException("malformed version");
                         }
                         _state = State.HeaderFieldStart;
                         break;
                     }
-                    else if(c == ' ')
+                    else if (c == ' ')
                     {
-                        if(_versionMinor == -1 || _type != Type.Response)
+                        if (_versionMinor == -1 || _type != Type.Response)
                         {
                             throw new WebSocketException("malformed version");
                         }
                         _state = State.ResponseVersionSP;
                         break;
                     }
-                    else if(c < '0' || c > '9')
+                    else if (c < '0' || c > '9')
                     {
                         throw new WebSocketException("malformed version");
                     }
-                    if(_versionMinor == -1)
+                    if (_versionMinor == -1)
                     {
                         _versionMinor = 0;
                     }
@@ -549,7 +549,7 @@ namespace IceInternal
                 }
                 case State.ResponseVersionSP:
                 {
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
@@ -560,38 +560,38 @@ namespace IceInternal
                 case State.ResponseStatus:
                 {
                     // TODO: Is reason string optional?
-                    if(c == CR)
+                    if (c == CR)
                     {
-                        if(_status == -1)
+                        if (_status == -1)
                         {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.ResponseLF;
                         break;
                     }
-                    else if(c == LF)
+                    else if (c == LF)
                     {
-                        if(_status == -1)
+                        if (_status == -1)
                         {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.HeaderFieldStart;
                         break;
                     }
-                    else if(c == ' ')
+                    else if (c == ' ')
                     {
-                        if(_status == -1)
+                        if (_status == -1)
                         {
                             throw new WebSocketException("malformed response status");
                         }
                         _state = State.ResponseReasonStart;
                         break;
                     }
-                    else if(c < '0' || c > '9')
+                    else if (c < '0' || c > '9')
                     {
                         throw new WebSocketException("malformed response status");
                     }
-                    if(_status == -1)
+                    if (_status == -1)
                     {
                         _status = 0;
                     }
@@ -604,7 +604,7 @@ namespace IceInternal
                     //
                     // Skip leading spaces.
                     //
-                    if(c == ' ')
+                    if (c == ' ')
                     {
                         break;
                     }
@@ -615,12 +615,12 @@ namespace IceInternal
                 }
                 case State.ResponseReason:
                 {
-                    if(c == CR || c == LF)
+                    if (c == CR || c == LF)
                     {
-                        if(p > start)
+                        if (p > start)
                         {
                             StringBuilder str = new StringBuilder();
-                            for(int i = start; i < p; ++i)
+                            for (int i = start; i < p; ++i)
                             {
                                 str.Append((char)raw[i]);
                             }
@@ -633,7 +633,7 @@ namespace IceInternal
                 }
                 case State.ResponseLF:
                 {
-                    if(c != LF)
+                    if (c != LF)
                     {
                         throw new WebSocketException("malformed status line");
                     }
@@ -645,124 +645,123 @@ namespace IceInternal
                     Debug.Assert(false); // Shouldn't reach
                     break;
                 }
-                }
-
-                ++p;
             }
 
-            return _state == State.Complete;
+            ++p;
         }
 
-        internal Type type()
-        {
-            return _type;
-        }
-
-        internal string method()
-        {
-            Debug.Assert(_type == Type.Request);
-            return _method.ToString();
-        }
-
-        internal string uri()
-        {
-            Debug.Assert(_type == Type.Request);
-            return _uri.ToString();
-        }
-
-        internal int versionMajor()
-        {
-            return _versionMajor;
-        }
-
-        internal int versionMinor()
-        {
-            return _versionMinor;
-        }
-
-        internal int status()
-        {
-            return _status;
-        }
-
-        internal string reason()
-        {
-            return _reason;
-        }
-
-        internal string getHeader(string name, bool toLower)
-        {
-            string s = null;
-            if(_headers.TryGetValue(name.ToLower(), out s))
-            {
-                return toLower ? s.Trim().ToLower() : s.Trim();
-            }
-
-            return null;
-        }
-
-        internal Dictionary<string, string> getHeaders()
-        {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            foreach(KeyValuePair<string, string> e in _headers)
-            {
-                dict[_headerNames[e.Key]] = e.Value.Trim();
-            }
-            return dict;
-        }
-
-        private Type _type;
-
-        private StringBuilder _method = new StringBuilder();
-        private StringBuilder _uri = new StringBuilder();
-
-        private Dictionary<string, string> _headers = new Dictionary<string, string>();
-        private Dictionary<string, string> _headerNames = new Dictionary<string, string>();
-        private string _headerName = "";
-
-        private int _versionMajor;
-        private int _versionMinor;
-
-        private int _status;
-        private string _reason;
-
-        private enum State
-        {
-            Init,
-            Type,
-            TypeCheck,
-            Request,
-            RequestMethod,
-            RequestMethodSP,
-            RequestURI,
-            RequestURISP,
-            RequestLF,
-            HeaderFieldStart,
-            HeaderFieldContStart,
-            HeaderFieldCont,
-            HeaderFieldNameStart,
-            HeaderFieldName,
-            HeaderFieldNameEnd,
-            HeaderFieldValueStart,
-            HeaderFieldValue,
-            HeaderFieldValueEnd,
-            HeaderFieldLF,
-            HeaderFieldEndLF,
-            Version,
-            VersionH,
-            VersionHT,
-            VersionHTT,
-            VersionHTTP,
-            VersionMajor,
-            VersionMinor,
-            Response,
-            ResponseVersionSP,
-            ResponseStatus,
-            ResponseReasonStart,
-            ResponseReason,
-            ResponseLF,
-            Complete
-        };
-        private State _state;
+        return _state == State.Complete;
     }
+
+    internal Type type()
+    {
+        return _type;
+    }
+
+    internal string method()
+    {
+        Debug.Assert(_type == Type.Request);
+        return _method.ToString();
+    }
+
+    internal string uri()
+    {
+        Debug.Assert(_type == Type.Request);
+        return _uri.ToString();
+    }
+
+    internal int versionMajor()
+    {
+        return _versionMajor;
+    }
+
+    internal int versionMinor()
+    {
+        return _versionMinor;
+    }
+
+    internal int status()
+    {
+        return _status;
+    }
+
+    internal string reason()
+    {
+        return _reason;
+    }
+
+    internal string getHeader(string name, bool toLower)
+    {
+        string s = null;
+        if (_headers.TryGetValue(name.ToLower(), out s))
+        {
+            return toLower ? s.Trim().ToLower() : s.Trim();
+        }
+
+        return null;
+    }
+
+    internal Dictionary<string, string> getHeaders()
+    {
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+        foreach (KeyValuePair<string, string> e in _headers)
+        {
+            dict[_headerNames[e.Key]] = e.Value.Trim();
+        }
+        return dict;
+    }
+
+    private Type _type;
+
+    private StringBuilder _method = new StringBuilder();
+    private StringBuilder _uri = new StringBuilder();
+
+    private Dictionary<string, string> _headers = new Dictionary<string, string>();
+    private Dictionary<string, string> _headerNames = new Dictionary<string, string>();
+    private string _headerName = "";
+
+    private int _versionMajor;
+    private int _versionMinor;
+
+    private int _status;
+    private string _reason;
+
+    private enum State
+    {
+        Init,
+        Type,
+        TypeCheck,
+        Request,
+        RequestMethod,
+        RequestMethodSP,
+        RequestURI,
+        RequestURISP,
+        RequestLF,
+        HeaderFieldStart,
+        HeaderFieldContStart,
+        HeaderFieldCont,
+        HeaderFieldNameStart,
+        HeaderFieldName,
+        HeaderFieldNameEnd,
+        HeaderFieldValueStart,
+        HeaderFieldValue,
+        HeaderFieldValueEnd,
+        HeaderFieldLF,
+        HeaderFieldEndLF,
+        Version,
+        VersionH,
+        VersionHT,
+        VersionHTT,
+        VersionHTTP,
+        VersionMajor,
+        VersionMinor,
+        Response,
+        ResponseVersionSP,
+        ResponseStatus,
+        ResponseReasonStart,
+        ResponseReason,
+        ResponseLF,
+        Complete
+    };
+    private State _state;
 }

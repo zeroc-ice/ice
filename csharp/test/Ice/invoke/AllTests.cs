@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Ice
 {
@@ -28,7 +26,7 @@ namespace Ice
 
                 {
                     byte[] inEncaps, outEncaps;
-                    if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps))
+                    if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps))
                     {
                         test(false);
                     }
@@ -45,7 +43,7 @@ namespace Ice
                     outS.endEncapsulation();
                     inEncaps = outS.finished();
 
-                    if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
+                    if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
                     {
                         Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
                         inS.startEncapsulation();
@@ -61,17 +59,17 @@ namespace Ice
                     }
                 }
 
-                for(int i = 0; i < 2; ++i)
+                for (int i = 0; i < 2; ++i)
                 {
                     byte[] outEncaps;
                     Dictionary<string, string> ctx = null;
-                    if(i == 1)
+                    if (i == 1)
                     {
                         ctx = new Dictionary<string, string>();
                         ctx["raise"] = "";
                     }
 
-                    if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps, ctx))
+                    if (cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps, ctx))
                     {
                         test(false);
                     }
@@ -84,11 +82,11 @@ namespace Ice
                         {
                             inS.throwException();
                         }
-                        catch(Test.MyException)
+                        catch (Test.MyException)
                         {
                             inS.endEncapsulation();
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
                             test(false);
                         }
@@ -105,7 +103,7 @@ namespace Ice
                     {
                         oneway.ice_invokeAsync("opOneway", Ice.OperationMode.Normal, null).Wait();
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(false);
                     }
@@ -118,7 +116,7 @@ namespace Ice
 
                     // begin_ice_invoke with no callback
                     var result = cl.ice_invokeAsync("opString", Ice.OperationMode.Normal, inEncaps).Result;
-                    if(result.returnValue)
+                    if (result.returnValue)
                     {
                         Ice.InputStream inS = new Ice.InputStream(communicator, result.outEncaps);
                         inS.startEncapsulation();
@@ -136,7 +134,7 @@ namespace Ice
 
                 {
                     var result = cl.ice_invokeAsync("opException", Ice.OperationMode.Normal, null).Result;
-                    if(result.returnValue)
+                    if (result.returnValue)
                     {
                         test(false);
                     }
@@ -148,11 +146,11 @@ namespace Ice
                         {
                             inS.throwException();
                         }
-                        catch(Test.MyException)
+                        catch (Test.MyException)
                         {
                             inS.endEncapsulation();
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
                             test(false);
                         }

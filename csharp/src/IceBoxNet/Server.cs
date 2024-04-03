@@ -5,8 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IceBox
-{
+namespace IceBox;
 
 public class Server
 {
@@ -27,20 +26,20 @@ public class Server
         Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
 
         var argSeq = new List<string>(args);
-        foreach(KeyValuePair<string, string> pair in services)
+        foreach (KeyValuePair<string, string> pair in services)
         {
             string name = pair.Key.Substring(prefix.Length);
             argSeq.RemoveAll(v => v.StartsWith("--" + name));
         }
 
-        foreach(string arg in args)
+        foreach (string arg in args)
         {
-            if(arg == "-h" || arg == "--help")
+            if (arg == "-h" || arg == "--help")
             {
                 usage();
                 return 0;
             }
-            else if(arg == "-v" || arg == "--version")
+            else if (arg == "-v" || arg == "--version")
             {
                 Console.Out.WriteLine(Ice.Util.stringVersion());
                 return 0;
@@ -67,7 +66,7 @@ public class Server
 
         try
         {
-            using(var communicator = Ice.Util.initialize(ref args, initData))
+            using (var communicator = Ice.Util.initialize(ref args, initData))
             {
                 Console.CancelKeyPress += (sender, eventArgs) =>
                 {
@@ -78,7 +77,7 @@ public class Server
                 status = run(communicator, args);
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;
@@ -86,6 +85,4 @@ public class Server
 
         return status;
     }
-}
-
 }

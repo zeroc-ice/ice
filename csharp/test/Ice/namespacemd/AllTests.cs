@@ -40,7 +40,7 @@ namespace Ice
                         initial.throwNoNamespaceE2AsE1();
                         test(false);
                     }
-                    catch(NoNamespace.E1 ex)
+                    catch (NoNamespace.E1 ex)
                     {
                         test(ex is NoNamespace.E2);
                     }
@@ -49,7 +49,7 @@ namespace Ice
                         initial.throwNoNamespaceE2AsE2();
                         test(false);
                     }
-                    catch(NoNamespace.E2)
+                    catch (NoNamespace.E2)
                     {
                         // Expected
                     }
@@ -58,7 +58,7 @@ namespace Ice
                         initial.throwNoNamespaceNotify();
                         test(false);
                     }
-                    catch(NoNamespace.@notify)
+                    catch (NoNamespace.@notify)
                     {
                         // Expected
                     }
@@ -80,7 +80,7 @@ namespace Ice
                             initial.throwWithNamespaceE2AsE1();
                             test(false);
                         }
-                        catch(WithNamespace.E1 ex)
+                        catch (WithNamespace.E1 ex)
                         {
                             test(ex is WithNamespace.E2);
                         }
@@ -89,7 +89,7 @@ namespace Ice
                             initial.throwWithNamespaceE2AsE2();
                             test(false);
                         }
-                        catch(WithNamespace.E2)
+                        catch (WithNamespace.E2)
                         {
                             // Expected
                         }

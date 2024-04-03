@@ -13,7 +13,7 @@ namespace Ice
         {
             public override async Task runAsync(string[] args)
             {
-                using(var communicator = initialize(ref args))
+                using (var communicator = initialize(ref args))
                 {
                     var output = getWriter();
                     var myClass = await AllTests.allTests(this, false);

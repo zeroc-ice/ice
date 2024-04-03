@@ -19,9 +19,9 @@ public class AllTests : Test.AllTests
 
         public virtual void check()
         {
-            lock(this)
+            lock (this)
             {
-                while(!_called)
+                while (!_called)
                 {
                     Monitor.Wait(this);
                 }
@@ -32,7 +32,7 @@ public class AllTests : Test.AllTests
 
         public virtual void called()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_called);
                 _called = true;
@@ -69,12 +69,12 @@ public class AllTests : Test.AllTests
                 testPrx.baseAsBase();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "Base.b");
                 test(b.GetType().FullName == "Test.Base");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -104,12 +104,12 @@ public class AllTests : Test.AllTests
                 testPrx.unknownDerivedAsBase();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownDerived.b");
                 test(b.GetType().FullName == "Test.Base");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -124,7 +124,7 @@ public class AllTests : Test.AllTests
                 await testPrx.unknownDerivedAsBaseAsync();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownDerived.b");
                 test(b.GetType().Name == "Base");
@@ -140,13 +140,13 @@ public class AllTests : Test.AllTests
                 testPrx.knownDerivedAsBase();
                 test(false);
             }
-            catch(KnownDerived k)
+            catch (KnownDerived k)
             {
                 test(k.b == "KnownDerived.b");
                 test(k.kd == "KnownDerived.kd");
                 test(k.GetType().FullName == "Test.KnownDerived");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -161,7 +161,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownDerivedAsBaseAsync();
                 test(false);
             }
-            catch(KnownDerived k)
+            catch (KnownDerived k)
             {
                 test(k.b == "KnownDerived.b");
                 test(k.kd == "KnownDerived.kd");
@@ -178,13 +178,13 @@ public class AllTests : Test.AllTests
                 testPrx.knownDerivedAsKnownDerived();
                 test(false);
             }
-            catch(KnownDerived k)
+            catch (KnownDerived k)
             {
                 test(k.b == "KnownDerived.b");
                 test(k.kd == "KnownDerived.kd");
                 test(k.GetType().FullName == "Test.KnownDerived");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -199,7 +199,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownDerivedAsKnownDerivedAsync();
                 test(false);
             }
-            catch(KnownDerived k)
+            catch (KnownDerived k)
             {
                 test(k.b == "KnownDerived.b");
                 test(k.kd == "KnownDerived.kd");
@@ -216,12 +216,12 @@ public class AllTests : Test.AllTests
                 testPrx.unknownIntermediateAsBase();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownIntermediate.b");
                 test(b.GetType().FullName == "Test.Base");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -236,7 +236,7 @@ public class AllTests : Test.AllTests
                 await testPrx.unknownIntermediateAsBaseAsync();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownIntermediate.b");
                 test(b.GetType().Name == "Base");
@@ -252,13 +252,13 @@ public class AllTests : Test.AllTests
                 testPrx.knownIntermediateAsBase();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "KnownIntermediate.b");
                 test(ki.ki == "KnownIntermediate.ki");
                 test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -273,7 +273,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownIntermediateAsBaseAsync();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "KnownIntermediate.b");
                 test(ki.ki == "KnownIntermediate.ki");
@@ -290,14 +290,14 @@ public class AllTests : Test.AllTests
                 testPrx.knownMostDerivedAsBase();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
                 test(kmd.kmd == "KnownMostDerived.kmd");
                 test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -312,7 +312,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownMostDerivedAsBaseAsync();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
@@ -330,13 +330,13 @@ public class AllTests : Test.AllTests
                 testPrx.knownIntermediateAsKnownIntermediate();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "KnownIntermediate.b");
                 test(ki.ki == "KnownIntermediate.ki");
                 test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -351,7 +351,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownIntermediateAsKnownIntermediateAsync();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "KnownIntermediate.b");
                 test(ki.ki == "KnownIntermediate.ki");
@@ -368,14 +368,14 @@ public class AllTests : Test.AllTests
                 testPrx.knownMostDerivedAsKnownIntermediate();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
                 test(kmd.kmd == "KnownMostDerived.kmd");
                 test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -390,7 +390,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownMostDerivedAsKnownIntermediateAsync();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
@@ -408,14 +408,14 @@ public class AllTests : Test.AllTests
                 testPrx.knownMostDerivedAsKnownMostDerived();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
                 test(kmd.kmd == "KnownMostDerived.kmd");
                 test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -430,7 +430,7 @@ public class AllTests : Test.AllTests
                 await testPrx.knownMostDerivedAsKnownMostDerivedAsync();
                 test(false);
             }
-            catch(KnownMostDerived kmd)
+            catch (KnownMostDerived kmd)
             {
                 test(kmd.b == "KnownMostDerived.b");
                 test(kmd.ki == "KnownMostDerived.ki");
@@ -448,13 +448,13 @@ public class AllTests : Test.AllTests
                 testPrx.unknownMostDerived1AsBase();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "UnknownMostDerived1.b");
                 test(ki.ki == "UnknownMostDerived1.ki");
                 test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -469,7 +469,7 @@ public class AllTests : Test.AllTests
                 await testPrx.unknownMostDerived1AsBaseAsync();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "UnknownMostDerived1.b");
                 test(ki.ki == "UnknownMostDerived1.ki");
@@ -486,13 +486,13 @@ public class AllTests : Test.AllTests
                 testPrx.unknownMostDerived1AsKnownIntermediate();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "UnknownMostDerived1.b");
                 test(ki.ki == "UnknownMostDerived1.ki");
                 test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -507,7 +507,7 @@ public class AllTests : Test.AllTests
                 await testPrx.unknownMostDerived1AsKnownIntermediateAsync();
                 test(false);
             }
-            catch(KnownIntermediate ki)
+            catch (KnownIntermediate ki)
             {
                 test(ki.b == "UnknownMostDerived1.b");
                 test(ki.ki == "UnknownMostDerived1.ki");
@@ -524,12 +524,12 @@ public class AllTests : Test.AllTests
                 testPrx.unknownMostDerived2AsBase();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownMostDerived2.b");
                 test(b.GetType().FullName == "Test.Base");
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -544,7 +544,7 @@ public class AllTests : Test.AllTests
                 await testPrx.unknownMostDerived2AsBaseAsync();
                 test(false);
             }
-            catch(Base b)
+            catch (Base b)
             {
                 test(b.b == "UnknownMostDerived2.b");
                 test(b.GetType().Name == "Base");

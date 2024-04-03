@@ -25,24 +25,24 @@ public class BlobjectI : Ice.BlobjectAsync
     {
         bool twoway = current.requestId > 0;
         Ice.ObjectPrx obj = current.con.createProxy(current.id);
-        if(!twoway)
+        if (!twoway)
         {
-            if(_startBatch)
+            if (_startBatch)
             {
                 _startBatch = false;
                 _batchProxy = obj.ice_batchOneway();
             }
-            if(_batchProxy != null)
+            if (_batchProxy != null)
             {
                 obj = _batchProxy;
             }
 
-            if(current.facet.Length != 0)
+            if (current.facet.Length != 0)
             {
                 obj = obj.ice_facet(current.facet);
             }
 
-            if(_batchProxy != null)
+            if (_batchProxy != null)
             {
                 byte[] outEncaps;
                 obj.ice_invoke(current.operation, current.mode, inEncaps, out outEncaps, current.ctx);
@@ -58,7 +58,7 @@ public class BlobjectI : Ice.BlobjectAsync
         }
         else
         {
-            if(current.facet.Length != 0)
+            if (current.facet.Length != 0)
             {
                 obj = obj.ice_facet(current.facet);
             }

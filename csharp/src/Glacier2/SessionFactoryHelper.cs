@@ -3,11 +3,11 @@
 //
 
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 
-namespace Glacier2
-{
+namespace Glacier2;
+
 
 /// <summary>
 /// A helper class for using Glacier2 with GUI applications.
@@ -42,7 +42,7 @@ public class SessionFactoryHelper
     {
         _callback = callback;
         _initData = initData;
-        if(_initData.properties == null)
+        if (_initData.properties == null)
         {
             _initData.properties = Ice.Util.createProperties();
         }
@@ -57,7 +57,7 @@ public class SessionFactoryHelper
     public
     SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)
     {
-        if(properties == null)
+        if (properties == null)
         {
             throw new Ice.InitializationException(
                                         "Attempt to create a SessionFactoryHelper with a null Properties argument");
@@ -75,7 +75,7 @@ public class SessionFactoryHelper
     public void
     setRouterIdentity(Ice.Identity identity)
     {
-        lock(this)
+        lock (this)
         {
             _identity = identity;
         }
@@ -88,7 +88,7 @@ public class SessionFactoryHelper
     public Ice.Identity
     getRouterIdentity()
     {
-        lock(this)
+        lock (this)
         {
             return _identity;
         }
@@ -101,7 +101,7 @@ public class SessionFactoryHelper
     public void
     setRouterHost(string hostname)
     {
-        lock(this)
+        lock (this)
         {
             _routerHost = hostname;
         }
@@ -114,7 +114,7 @@ public class SessionFactoryHelper
     public string
     getRouterHost()
     {
-        lock(this)
+        lock (this)
         {
             return _routerHost;
         }
@@ -150,14 +150,14 @@ public class SessionFactoryHelper
     public void
     setProtocol(string protocol)
     {
-        lock(this)
+        lock (this)
         {
-            if(protocol == null)
+            if (protocol == null)
             {
                 throw new ArgumentException("You must use a valid protocol");
             }
 
-            if(protocol != "tcp" &&
+            if (protocol != "tcp" &&
                protocol != "ssl" &&
                protocol != "wss" &&
                protocol != "ws")
@@ -175,7 +175,7 @@ public class SessionFactoryHelper
     public string
     getProtocol()
     {
-        lock(this)
+        lock (this)
         {
             return _protocol;
         }
@@ -190,7 +190,7 @@ public class SessionFactoryHelper
     public void
     setTimeout(int timeoutMillisecs)
     {
-        lock(this)
+        lock (this)
         {
             _timeout = timeoutMillisecs;
         }
@@ -203,7 +203,7 @@ public class SessionFactoryHelper
     public int
     getTimeout()
     {
-        lock(this)
+        lock (this)
         {
             return _timeout;
         }
@@ -217,7 +217,7 @@ public class SessionFactoryHelper
     public void
     setPort(int port)
     {
-        lock(this)
+        lock (this)
         {
             _port = port;
         }
@@ -230,7 +230,7 @@ public class SessionFactoryHelper
     public int
     getPort()
     {
-        lock(this)
+        lock (this)
         {
             return getPortInternal();
         }
@@ -240,7 +240,7 @@ public class SessionFactoryHelper
     getPortInternal()
     {
         return _port == 0 ? ((_protocol == "ssl" ||
-                              _protocol == "wss")? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
+                              _protocol == "wss") ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
     /**
@@ -251,7 +251,7 @@ public class SessionFactoryHelper
     public Ice.InitializationData
     getInitializationData()
     {
-        lock(this)
+        lock (this)
         {
             return _initData;
         }
@@ -264,7 +264,7 @@ public class SessionFactoryHelper
     public void
     setConnectContext(Dictionary<string, string> context)
     {
-        lock(this)
+        lock (this)
         {
             _context = context;
         }
@@ -278,7 +278,7 @@ public class SessionFactoryHelper
     public void
     setUseCallbacks(bool useCallbacks)
     {
-        lock(this)
+        lock (this)
         {
             _useCallbacks = useCallbacks;
         }
@@ -292,7 +292,7 @@ public class SessionFactoryHelper
     public bool
     getUseCallbacks()
     {
-        lock(this)
+        lock (this)
         {
             return _useCallbacks;
         }
@@ -309,7 +309,7 @@ public class SessionFactoryHelper
     public SessionHelper
     connect()
     {
-        lock(this)
+        lock (this)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(_context);
@@ -328,9 +328,9 @@ public class SessionFactoryHelper
     /// <param name="password">The password.</param>
     /// <returns>The connected session.</returns>
     public SessionHelper
-    connect( string username,  string password)
+    connect(string username, string password)
     {
-        lock(this)
+        lock (this)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
             session.connect(username, password, _context);
@@ -347,7 +347,7 @@ public class SessionFactoryHelper
         Ice.InitializationData initData = (Ice.InitializationData)_initData.Clone();
         initData.properties = initData.properties.ice_clone_();
 
-        if(initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
+        if (initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
         {
             initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity));
         }
@@ -374,7 +374,7 @@ public class SessionFactoryHelper
         sb.Append(" -h \"");
         sb.Append(_routerHost);
         sb.Append("\"");
-        if(_timeout > 0)
+        if (_timeout > 0)
         {
             sb.Append(" -t ");
             sb.Append(_timeout);
@@ -399,6 +399,4 @@ public class SessionFactoryHelper
     private bool _useCallbacks = true;
     private static int GLACIER2_SSL_PORT = 4064;
     private static int GLACIER2_TCP_PORT = 4063;
-}
-
 }

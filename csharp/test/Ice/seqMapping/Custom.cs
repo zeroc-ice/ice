@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 
 namespace Ice
@@ -52,24 +51,24 @@ namespace Ice
             {
                 try
                 {
-                    Custom<T> tmp =(Custom<T>)o;
+                    Custom<T> tmp = (Custom<T>)o;
                     IEnumerator<T> e = tmp.GetEnumerator();
-                    foreach(T elmt in _list)
+                    foreach (T elmt in _list)
                     {
-                        if(!e.MoveNext())
+                        if (!e.MoveNext())
                         {
                             return false;
                         }
-                        if(elmt == null)
+                        if (elmt == null)
                         {
-                            if(e.Current != null)
+                            if (e.Current != null)
                             {
                                 return false;
                             }
                         }
                         else
                         {
-                            if(!elmt.Equals(e.Current))
+                            if (!elmt.Equals(e.Current))
                             {
                                 return false;
                             }
@@ -77,7 +76,7 @@ namespace Ice
                     }
                     return true;
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     return false;
                 }

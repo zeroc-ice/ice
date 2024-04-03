@@ -22,7 +22,7 @@ namespace Ice
                     test(v.s == 16000);
                     test(v.i == 3);
                     test(v.l == 4);
-                    test(v.f ==(float)5.1);
+                    test(v.f == (float)5.1);
                     test(v.d == 6.2);
                     test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
                     test(v.c1 == Test.Color.red);

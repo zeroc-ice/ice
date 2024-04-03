@@ -19,7 +19,7 @@ public class AllTests : Test.AllTests
         TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
                                                                                           helper.getTestEndpoint(3)));
 
-        if(service1.getProperty("IceBox.InheritProperties").Length == 0)
+        if (service1.getProperty("IceBox.InheritProperties").Length == 0)
         {
             Console.Out.Write("testing service properties... ");
             Console.Out.Flush();
@@ -30,7 +30,7 @@ public class AllTests : Test.AllTests
             test(service1.getProperty("Service1.Unset").Length == 0);
             test(service1.getProperty("Arg") == "1");
 
-            string[] args1 = {"-a", "--Arg=2"};
+            string[] args1 = { "-a", "--Arg=2" };
             test(IceUtilInternal.Arrays.Equals(service1.getArgs(), args1));
 
             test(service2.getProperty("Ice.ProgramName") == "Test");
@@ -38,7 +38,7 @@ public class AllTests : Test.AllTests
             test(service2.getProperty("Service1.ArgProp").Length == 0);
             test(service2.getProperty("IceBox.InheritProperties") == "1");
 
-            string[] args2 = {"--Service1.ArgProp=1"};
+            string[] args2 = { "--Service1.ArgProp=1" };
             test(IceUtilInternal.Arrays.Equals(service2.getArgs(), args2));
 
             Console.Out.WriteLine("ok");
@@ -58,7 +58,7 @@ public class AllTests : Test.AllTests
             test(service4.getProperty("Service3.Prop") == "1");
             test(service4.getProperty("Ice.Trace.Slicing") == "3");
 
-            string[] args4 = {"--Service3.Prop=2"};
+            string[] args4 = { "--Service3.Prop=2" };
             test(IceUtilInternal.Arrays.Equals(service4.getArgs(), args4));
 
             Console.Out.WriteLine("ok");

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 public class Server : Test.TestHelper
 {
-    class TestI : Test.TestIntfDisp_
+    private class TestI : Test.TestIntfDisp_
     {
         public override void shutdown(Ice.Current current)
         {
@@ -24,7 +24,7 @@ public class Server : Test.TestHelper
 
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

@@ -14,11 +14,11 @@ namespace Ice
         {
             public static Ice.Value MyValueFactory(string type)
             {
-                if(type == "::Test::I")
+                if (type == "::Test::I")
                 {
                     return new II();
                 }
-                else if(type == "::Test::J")
+                else if (type == "::Test::J")
                 {
                     return new JI();
                 }
@@ -29,10 +29,10 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[]{"Ice.objects.TypeId"};
+                initData.typeIdNamespaces = new string[] { "Ice.objects.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-                using(var communicator = initialize(initData))
+                using (var communicator = initialize(initData))
                 {
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");

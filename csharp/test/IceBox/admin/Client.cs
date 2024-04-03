@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ public class Client : Test.TestHelper
     {
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             AllTests.allTests(this);
             //

@@ -6,9 +6,9 @@ public class AllTests : Test.AllTests
 {
     private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
     {
-        for(; info != null; info = info.underlying)
+        for (; info != null; info = info.underlying)
         {
-            if(info is Ice.IPConnectionInfo)
+            if (info is Ice.IPConnectionInfo)
             {
                 return info as Ice.IPConnectionInfo;
             }
@@ -24,7 +24,7 @@ public class AllTests : Test.AllTests
         test(obj != null);
 
         int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
-        if(proxyPort == 0)
+        if (proxyPort == 0)
         {
             proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
         }
@@ -62,7 +62,7 @@ public class AllTests : Test.AllTests
                 testPrx.ice_ping();
                 test(false);
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
             }
         }
