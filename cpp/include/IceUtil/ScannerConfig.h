@@ -9,6 +9,8 @@
 
 #ifdef _MSC_VER
 #    define YY_NO_UNISTD_H
+// Warning C4018: signed/unsigned mismatch
+#    pragma warning(disable : 4018)
 // Warning C4244: conversion from `int` to `_Elem`, possible loss of data
 #    pragma warning(disable : 4244)
 // warning C4267: conversion from 'size_t' to 'int', possible loss of data

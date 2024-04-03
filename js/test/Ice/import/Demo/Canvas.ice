@@ -10,10 +10,7 @@
 #include "Demo/Circle.ice"
 #include "Glacier2/Session.ice"
 
-module Demo
-{
-
-module gx
+module Demo::gx
 {
 
 interface Canvas
@@ -26,8 +23,6 @@ interface Canvas
 interface Session extends Glacier2::Session
 {
     void destroySession();
-}
-
 }
 
 }

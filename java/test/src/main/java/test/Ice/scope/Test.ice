@@ -145,13 +145,7 @@ module Test
     }
 }
 
-module Inner
-{
-
-module Test
-{
-
-module Inner2
+module Inner::Test::Inner2
 {
     interface I
     {
@@ -165,8 +159,4 @@ module Inner2
 
         void shutdown();
     }
-}
-
-}
-
 }
