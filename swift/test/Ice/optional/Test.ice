@@ -271,7 +271,7 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    optional(1) IntStringDict ,opCustomIntStringDict(optional(2) IntStringDict p1, out optional(3) IntStringDict p3);
+    optional(1) IntStringDict opCustomIntStringDict(optional(2) IntStringDict p1, out optional(3) IntStringDict p3);
 
     optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
 
