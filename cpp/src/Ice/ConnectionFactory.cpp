@@ -353,7 +353,9 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
       _pendingConnectCount(0)
 {
     const PropertiesPtr& properties = _instance->initializationData().properties;
-    int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+    int idleTimeout = properties->getPropertyAsIntWithDefault(
+        "Ice.IdleTimeout",
+        static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
     _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
     _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
 }
@@ -1734,23 +1736,36 @@ IceInternal::IncomingConnectionFactory::initialize()
                 out << "attempting to bind to " << _endpoint->protocol() << " socket\n" << _transceiver->toString();
             }
             const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind();
-            ConnectionIPtr connection(
-                ConnectionI::create(_adapter->getCommunicator(), _instance, nullptr, _transceiver, _idleTimeout, _enableIdleCheck, nullptr, _endpoint, _adapter));
+            ConnectionIPtr connection(ConnectionI::create(
+                _adapter->getCommunicator(),
+                _instance,
+                nullptr,
+                _transceiver,
+                _idleTimeout,
+                _enableIdleCheck,
+                nullptr,
+                _endpoint,
+                _adapter));
             connection->startAsync(nullptr, nullptr);
             _connections.insert(connection);
         }
         else
         {
             const PropertiesPtr& properties = _instance->initializationData().properties;
-            int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
-            _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+            int idleTimeout = properties->getPropertyAsIntWithDefault(
+                "Ice.IdleTimeout",
+                static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+            _enableIdleCheck =
+                properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
 
             string adapterName = _adapter->getName();
             if (!adapterName.empty())
             {
                 // Override if any of these properties are set, otherwise keep previous value.
                 idleTimeout = properties->getPropertyAsIntWithDefault(adapterName + ".IdleTimeout", idleTimeout);
-                _enableIdleCheck = properties->getPropertyAsIntWithDefault(adapterName + ".EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+                _enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                       adapterName + ".EnableIdleCheck",
+                                       _enableIdleCheck ? 0 : 1) > 0;
             }
             _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
 

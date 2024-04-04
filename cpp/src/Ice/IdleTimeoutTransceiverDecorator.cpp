@@ -21,10 +21,7 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
     return op;
 }
 
-IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
-{
-    _timer->cancel(_keepAliveAction);
-}
+IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator() { _timer->cancel(_keepAliveAction); }
 
 void
 IdleTimeoutTransceiverDecorator::close()

@@ -46,7 +46,8 @@ namespace IceUtil
 
         // Schedule or reschedule a task for execution after a given delay.
         template<class Rep, class Period>
-        void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay, bool cancelPrevious = false)
+        void
+        schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay, bool cancelPrevious = false)
         {
             std::lock_guard lock(_mutex);
             if (_destroyed)

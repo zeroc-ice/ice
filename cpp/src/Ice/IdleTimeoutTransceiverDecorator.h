@@ -5,8 +5,8 @@
 #ifndef ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 #define ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 
-#include "Transceiver.h"
 #include "IceUtil/Timer.h"
+#include "Transceiver.h"
 
 namespace IceInternal
 {
@@ -19,11 +19,11 @@ namespace IceInternal
             const TransceiverPtr& decoratee,
             std::chrono::milliseconds readIdleTimeout,
             std::chrono::milliseconds writeIdleTimeout,
-            const IceUtil::TimerPtr& timer) :
-            _decoratee(decoratee),
-            _readIdleTimeout(readIdleTimeout),
-            _writeIdleTimeout(writeIdleTimeout),
-            _timer(timer)
+            const IceUtil::TimerPtr& timer)
+            : _decoratee(decoratee),
+              _readIdleTimeout(readIdleTimeout),
+              _writeIdleTimeout(writeIdleTimeout),
+              _timer(timer)
         {
         }
 
@@ -39,7 +39,10 @@ namespace IceInternal
         NativeInfoPtr getNativeInfo() final { return _decoratee->getNativeInfo(); }
 
         SocketOperation initialize(Buffer& readBuffer, Buffer& writeBuffer) final;
-        SocketOperation closing(bool initiator, std::exception_ptr ex) final { return _decoratee->closing(initiator, ex); }
+        SocketOperation closing(bool initiator, std::exception_ptr ex) final
+        {
+            return _decoratee->closing(initiator, ex);
+        }
         void close() final;
 
         EndpointIPtr bind() final { return _decoratee->bind(); }
@@ -56,10 +59,10 @@ namespace IceInternal
 
         std::string protocol() const final { return _decoratee->protocol(); }
         std::string toString() const final { return _decoratee->toString(); }
-        std::string toDetailedString() const final { return _decoratee->toDetailedString();}
+        std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
         Ice::ConnectionInfoPtr getInfo() const final { return _decoratee->getInfo(); }
         void checkSendSize(const Buffer& buf) final { _decoratee->checkSendSize(buf); };
-        void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize);}
+        void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
     private:
         void rescheduleKeepAlive();

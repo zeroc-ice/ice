@@ -22,10 +22,7 @@ allTests(TestHelper* helper)
     p->init();
 
     // Since the connection is fully established at this point, we don't count the initial ValidateConnection heartbeat.
-    p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&)
-    {
-        ++heartbeatCount;
-    });
+    p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&) { ++heartbeatCount; });
 
     this_thread::sleep_for(chrono::milliseconds(3500));
     test(p->getHeartbeatCount() == 3);

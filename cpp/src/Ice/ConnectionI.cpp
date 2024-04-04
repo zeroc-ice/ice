@@ -2191,8 +2191,14 @@ Ice::ConnectionI::create(
             instance->timer());
     }
 
-    Ice::ConnectionIPtr conn(
-        new ConnectionI(communicator, instance, monitor, decoratedTransceiver ? decoratedTransceiver : transceiver, connector, endpoint, adapter));
+    Ice::ConnectionIPtr conn(new ConnectionI(
+        communicator,
+        instance,
+        monitor,
+        decoratedTransceiver ? decoratedTransceiver : transceiver,
+        connector,
+        endpoint,
+        adapter));
 
     if (decoratedTransceiver)
     {

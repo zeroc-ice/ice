@@ -13,10 +13,7 @@ using namespace std;
 void
 TestIntfI::init(const Ice::Current& current)
 {
-    current.con->setHeartbeatCallback([this](const Ice::ConnectionPtr&)
-    {
-        this->incrementHeartbeatCount();
-    });
+    current.con->setHeartbeatCallback([this](const Ice::ConnectionPtr&) { this->incrementHeartbeatCount(); });
 }
 
 void
