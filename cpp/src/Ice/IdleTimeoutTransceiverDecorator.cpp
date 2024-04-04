@@ -46,6 +46,39 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
     return op;
 }
 
+#if defined(ICE_USE_IOCP)
+bool
+IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
+{
+    // TODO: do we always call finishWrite? Should we check buf? The tracing code in ConnectionI doesn't.
+    return _decoratee->startWrite(buf);
+}
+
+void
+IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
+{
+    Buffer::Container::iterator start = buf.i;
+    _decoratee->finishWrite(buf);
+    if (buf.i != start)
+    {
+        // We've sent at least one byte, reschedule the keep alive.
+        rescheduleKeepAlive();
+    }
+}
+
+void
+IdleTimeoutTransceiverDecorator::startRead(Buffer& buf)
+{
+    _decoratee->startRead(buf);
+}
+
+void
+IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
+{
+    _decoratee->finishRead(buf);
+}
+#endif
+
 SocketOperation
 IdleTimeoutTransceiverDecorator::read(Buffer& buf)
 {
