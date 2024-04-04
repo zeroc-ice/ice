@@ -262,7 +262,6 @@ dotnet_diagnostic.IDE0290.severity = none
 # CA1859: use concrete types when possible for improved performance
 dotnet_diagnostic.CA1859.severity = none
 
-
 # TODO review rules below
 
 # CA1001: Types that own disposable fields should be disposable
