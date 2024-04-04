@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using System.Diagnostics;
-using System.IO;
+
+namespace IceInternal;
 
 //
 // Classes to provide a System.IO.Stream interface on top of an Ice stream.

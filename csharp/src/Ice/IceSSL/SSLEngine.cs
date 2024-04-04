@@ -1,14 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+
+namespace IceSSL;
 
 internal class SSLEngine
 {

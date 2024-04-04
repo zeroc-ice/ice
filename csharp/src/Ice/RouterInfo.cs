@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System.Collections.Generic;
 using System.Diagnostics;
+
+namespace IceInternal;
 
 public sealed class RouterInfo
 {

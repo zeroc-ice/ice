@@ -1,11 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
+namespace IceInternal;
 
 public interface NetworkProxy
 {

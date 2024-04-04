@@ -1,10 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceUtilInternal;
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+
+namespace IceUtilInternal;
 
 public class OutputBase
 {

@@ -1,13 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceDiscovery;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
+namespace IceDiscovery;
 
 internal abstract class Request<T>
 {

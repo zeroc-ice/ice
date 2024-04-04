@@ -1,10 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System;
-using System.Collections.Generic;
 using System.Net.Security;
+
+namespace IceInternal;
 
 internal sealed class WSEndpoint : EndpointI
 {

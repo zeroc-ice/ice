@@ -1,8 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using System.Net.Sockets;
+
+namespace IceInternal;
 
 public interface Transceiver
 {

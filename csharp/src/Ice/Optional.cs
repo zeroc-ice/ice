@@ -2,9 +2,6 @@
 
 namespace Ice;
 
-using System;
-using System.Collections.Generic;
-
 public struct NoneType
 {
 }

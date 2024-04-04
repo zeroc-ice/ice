@@ -1,13 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice;
 
 using IceInternal;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Security;
 using System.Text;
+
+namespace Ice;
 
 public sealed class ObjectAdapterI : ObjectAdapter
 {
@@ -718,7 +717,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     public void updateThreadObservers()
     {
-        ThreadPool threadPool = null;
+        IceInternal.ThreadPool threadPool = null;
         lock (this)
         {
             threadPool = _threadPool;
@@ -757,7 +756,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
-    public ThreadPool getThreadPool()
+    public IceInternal.ThreadPool getThreadPool()
     {
         // No mutex lock necessary, _threadPool and _instance are
         // immutable after creation until they are removed in
@@ -919,7 +918,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
             if (threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
-                _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+                _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
             if (router == null)
@@ -1439,7 +1438,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
     private Instance _instance;
     private Communicator _communicator;
     private ObjectAdapterFactory _objectAdapterFactory;
-    private ThreadPool _threadPool;
+    private IceInternal.ThreadPool _threadPool;
     private ACMConfig _acm;
     private ServantManager _servantManager;
     private readonly string _name;

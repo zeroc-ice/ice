@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice;
 
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
+
+namespace Ice;
 
 public abstract class LoggerI : Logger
 {

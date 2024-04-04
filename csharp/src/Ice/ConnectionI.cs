@@ -1,16 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice;
 
+using Ice.Instrumentation;
 using IceInternal;
-using Instrumentation;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
+namespace Ice;
 
 public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, CancellationHandler, Connection
 {

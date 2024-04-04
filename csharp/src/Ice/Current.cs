@@ -2,7 +2,7 @@
 
 namespace Ice;
 
-public class Current : System.ICloneable
+public class Current : ICloneable
 {
     public ObjectAdapter adapter;
     public Connection con;
@@ -10,7 +10,7 @@ public class Current : System.ICloneable
     public string facet;
     public string operation;
     public OperationMode mode;
-    public System.Collections.Generic.Dictionary<string, string> ctx;
+    public Dictionary<string, string> ctx;
     public int requestId;
     public EncodingVersion encoding;
 
@@ -29,7 +29,7 @@ public class Current : System.ICloneable
         string facet,
         string operation,
         OperationMode mode,
-        System.Collections.Generic.Dictionary<string, string> ctx,
+        Dictionary<string, string> ctx,
         int requestId,
         EncodingVersion encoding)
     {

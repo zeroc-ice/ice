@@ -4,7 +4,7 @@ using System.Net.Security;
 
 namespace Ice;
 
-public interface Communicator : System.IDisposable
+public interface Communicator : IDisposable
 {
     /// <summary>
     /// Destroy the communicator.
@@ -86,7 +86,7 @@ public interface Communicator : System.IDisposable
     /// <param name="property">The base property name.
     ///  </param>
     /// <returns>The property set.</returns>
-    System.Collections.Generic.Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
+    Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
 
     /// <summary>
     /// Convert an identity into a string.
@@ -162,7 +162,7 @@ public interface Communicator : System.IDisposable
     /// Get the observer resolver object for this communicator.
     /// </summary>
     /// <returns>This communicator's observer resolver object.</returns>
-    Ice.Instrumentation.CommunicatorObserver getObserver();
+    Instrumentation.CommunicatorObserver getObserver();
 
     /// <summary>
     /// Get the default router for this communicator.
@@ -225,7 +225,10 @@ public interface Communicator : System.IDisposable
     ///  the wire.</param>
     void flushBatchRequests(CompressBatch compress);
 
-    System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, System.IProgress<bool> progress = null, System.Threading.CancellationToken cancel = new System.Threading.CancellationToken());
+    Task flushBatchRequestsAsync(
+        CompressBatch compress,
+        IProgress<bool> progress = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Add the Admin object with all its facets to the provided object adapter.

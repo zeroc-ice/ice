@@ -2,8 +2,6 @@
 
 namespace IceInternal;
 
-using System.Collections.Generic;
-
 public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
 {
     public void add(Ice.ValueFactory factory, string id)

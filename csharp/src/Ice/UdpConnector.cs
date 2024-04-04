@@ -1,8 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using System.Net;
+
+namespace IceInternal;
 
 internal sealed class UdpConnector : Connector
 {

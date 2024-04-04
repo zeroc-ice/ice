@@ -1,13 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Security;
+
+namespace IceInternal;
 
 internal sealed class UdpEndpointI : IPEndpointI
 {

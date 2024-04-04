@@ -1,10 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+namespace IceInternal;
 
 internal sealed class TcpTransceiver : Transceiver
 {

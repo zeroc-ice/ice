@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+
+namespace IceInternal;
 
 internal sealed class WebSocketException : Exception
 {

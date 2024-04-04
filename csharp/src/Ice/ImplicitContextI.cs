@@ -2,9 +2,6 @@
 
 namespace Ice;
 
-using System.Collections.Generic;
-using System.Threading;
-
 // The base class for all ImplicitContext implementations
 public abstract class ImplicitContextI : ImplicitContext
 {

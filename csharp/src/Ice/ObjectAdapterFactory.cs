@@ -1,10 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System.Collections.Generic;
 using System.Net.Security;
 
+namespace IceInternal;
 public sealed class ObjectAdapterFactory
 {
     public void shutdown()

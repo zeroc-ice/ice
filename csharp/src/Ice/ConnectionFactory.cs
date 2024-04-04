@@ -1,12 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+namespace IceInternal;
 public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
 {
     public void

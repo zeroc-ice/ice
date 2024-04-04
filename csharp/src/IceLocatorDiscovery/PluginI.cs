@@ -1,14 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceLocatorDiscovery;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
+namespace IceLocatorDiscovery;
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin

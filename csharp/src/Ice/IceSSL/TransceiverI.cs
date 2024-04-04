@@ -1,15 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+
+namespace IceSSL;
 
 internal sealed class TransceiverI : IceInternal.Transceiver
 {

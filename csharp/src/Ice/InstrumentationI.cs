@@ -1,12 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using IceMX;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+
+namespace IceInternal;
 
 public class ObserverWithDelegate<T, O> : Observer<T>
     where T : Metrics, new()

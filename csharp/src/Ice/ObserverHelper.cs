@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
 using Ice.Instrumentation;
-using System.Collections.Generic;
+
+namespace IceInternal;
 
 public sealed class ObserverHelper
 {

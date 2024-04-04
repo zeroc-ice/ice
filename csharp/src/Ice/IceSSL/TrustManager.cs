@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+
+namespace IceSSL;
 
 internal sealed class TrustManager
 {

@@ -1,14 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
+
+using System.Diagnostics;
+using System.Text;
+
 //
 // See RFC 2253 and RFC 1779.
 //
 namespace IceSSL;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 internal class RFC2253
 {

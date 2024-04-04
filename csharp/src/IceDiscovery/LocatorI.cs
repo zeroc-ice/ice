@@ -2,9 +2,6 @@
 
 namespace IceDiscovery;
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 {
     public

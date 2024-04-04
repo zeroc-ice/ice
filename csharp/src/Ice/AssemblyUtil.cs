@@ -1,12 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+namespace IceInternal;
 
 public sealed class AssemblyUtil
 {

@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceMX;
 
 using IceInternal;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+
+namespace IceMX;
 
 public class MetricsHelper<T> where T : Metrics
 {

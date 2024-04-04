@@ -1,8 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
 
 using System.Net.Security;
+
+namespace IceSSL;
 
 internal class AcceptorI : IceInternal.Acceptor
 {

@@ -1,10 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
+
+namespace IceInternal;
 
 public delegate void ThreadPoolWorkItem();
 public delegate void AsyncCallback(object state);

@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice;
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
+
+namespace Ice;
 
 /// <summary>
 /// Applications implement this interface to provide a plug-in factory

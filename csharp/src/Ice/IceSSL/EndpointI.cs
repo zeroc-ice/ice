@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
 
-using System.Collections.Generic;
 using System.Net.Security;
+
+namespace IceSSL;
 
 internal sealed class EndpointI : IceInternal.EndpointI
 {

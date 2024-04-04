@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceDiscovery;
 
-using System;
 using System.Text;
+
+namespace IceDiscovery;
 
 public sealed class PluginFactory : Ice.PluginFactory
 {

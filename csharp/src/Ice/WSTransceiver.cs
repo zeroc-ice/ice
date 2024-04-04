@@ -1,12 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+
+namespace IceInternal;
 
 internal sealed class WSTransceiver : Transceiver
 {

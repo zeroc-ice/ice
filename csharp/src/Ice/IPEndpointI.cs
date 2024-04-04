@@ -1,11 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+
+namespace IceInternal;
 
 public abstract class IPEndpointI : EndpointI
 {
