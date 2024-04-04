@@ -179,16 +179,16 @@ namespace
         return unicodeWstringConverter;
     }
 
-    class UTF8BufferI : public UTF8Buffer
+    class UTF8BufferI final : public UTF8Buffer
     {
     public:
         //
         // Returns the first unused byte in the resized buffer
         //
-        byte* getMoreBytes(size_t howMany, byte* firstUnused)
+        byte* getMoreBytes(size_t howMany, byte* firstUnused) final
         {
             size_t bytesUsed = 0;
-            if (firstUnused != 0)
+            if (firstUnused != nullptr)
             {
                 bytesUsed = static_cast<size_t>(firstUnused - reinterpret_cast<const byte*>(_buffer.data()));
             }

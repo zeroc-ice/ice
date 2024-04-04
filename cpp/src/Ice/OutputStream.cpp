@@ -24,16 +24,16 @@ using namespace IceInternal;
 
 namespace
 {
-    class StreamUTF8BufferI : public IceUtil::UTF8Buffer
+    class StreamUTF8BufferI final : public IceUtil::UTF8Buffer
     {
     public:
         StreamUTF8BufferI(OutputStream& stream) : _stream(stream) {}
 
-        byte* getMoreBytes(size_t howMany, byte* firstUnused)
+        byte* getMoreBytes(size_t howMany, byte* firstUnused) final
         {
             assert(howMany > 0);
 
-            if (firstUnused != 0)
+            if (firstUnused != nullptr)
             {
                 //
                 // Return unused bytes

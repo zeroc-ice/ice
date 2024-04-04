@@ -178,7 +178,7 @@ namespace IceInternal
         char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
 #    endif
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart) * sizeof(charT);
-        char* outbuf = 0;
+        std::byte* outbuf = nullptr;
 
         size_t count = 0;
         //
@@ -187,8 +187,8 @@ namespace IceInternal
         do
         {
             size_t howMany = std::max(inbytesleft, size_t(4));
-            outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<std::byte*>(outbuf)));
-            count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
+            outbuf = buf.getMoreBytes(howMany, outbuf);
+            count = iconv(cd, &inbuf, &inbytesleft, reinterpret_cast<char**>(&outbuf), &howMany);
         } while (count == size_t(-1) && errno == E2BIG);
 
         if (count == size_t(-1))
@@ -198,7 +198,7 @@ namespace IceInternal
                 __LINE__,
                 errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
-        return reinterpret_cast<std::byte*>(outbuf);
+        return outbuf;
     }
 
     template<typename charT>
@@ -227,7 +227,7 @@ namespace IceInternal
         assert(sourceEnd > sourceStart);
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
 
-        char* outbuf = 0;
+        char* outbuf = nullptr;
         size_t outbytesleft = 0;
         size_t count = 0;
 
@@ -236,15 +236,15 @@ namespace IceInternal
         //
         do
         {
-            size_t bytesused = 0;
-            if (outbuf != 0)
+            size_t bytesUsed = 0;
+            if (outbuf != nullptr)
             {
-                bytesused = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
+                bytesUsed = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
             }
 
             const size_t increment = std::max<size_t>(inbytesleft, 4);
             target.resize(target.size() + increment);
-            outbuf = const_cast<char*>(reinterpret_cast<const char*>(target.data())) + bytesused;
+            outbuf = const_cast<char*>(reinterpret_cast<const char*>(target.data())) + bytesUsed;
             outbytesleft += increment * sizeof(charT);
 
             count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
