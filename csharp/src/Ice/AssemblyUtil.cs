@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -53,7 +51,7 @@ public sealed class AssemblyUtil
                     Type[] types = a.GetTypes();
                     foreach (Type t in types)
                     {
-                        if (t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                        if (t.AssemblyQualifiedName.StartsWith(prefix, StringComparison.Ordinal))
                         {
                             l.AddLast(t);
                         }

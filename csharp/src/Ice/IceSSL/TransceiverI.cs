@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceSSL;
 
@@ -592,7 +590,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                     SslPolicyErrors policyErrors)
     {
-        X509Chain chain = new X509Chain(_instance.engine().useMachineContext());
+        using X509Chain chain = new X509Chain(_instance.engine().useMachineContext());
         try
         {
             if (_instance.checkCRL() == 0)

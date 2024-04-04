@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 //
 // NOTE: We don't use C# timers, the API is quite a bit different from
@@ -56,7 +54,7 @@ public sealed class Timer
                 _tasks.Add(task, token);
                 _tokens.Add(token, null);
             }
-            catch (System.ArgumentException)
+            catch (ArgumentException)
             {
                 Debug.Assert(false);
             }
@@ -338,7 +336,7 @@ public sealed class Timer
     private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
     private Instance _instance;
     private long _wakeUpTime = long.MaxValue;
-    private int _tokenId = 0;
+    private int _tokenId;
     private Thread _thread;
 
     //

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 //
 // See RFC 2253 and RFC 1779.
@@ -42,13 +40,13 @@ internal class RFC2253
 
     internal class RDNEntry
     {
-        internal List<RDNPair> rdn = new List<RDNPair>();
-        internal bool negate = false;
+        internal List<RDNPair> rdn = new();
+        internal bool negate;
     }
 
     internal static List<RDNEntry> parse(string data)
     {
-        List<RDNEntry> results = new List<RDNEntry>();
+        List<RDNEntry> results = new();
         RDNEntry current = new RDNEntry();
         int pos = 0;
         while (pos < data.Length)
@@ -77,7 +75,7 @@ internal class RFC2253
             }
             else if (pos < data.Length)
             {
-                throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                throw new ParseException($"expected ',' or ';' at `{data[pos..]}'");
             }
         }
         if (current.rdn.Count > 0)
@@ -102,7 +100,7 @@ internal class RFC2253
             }
             else if (pos < data.Length)
             {
-                throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                throw new ParseException($"expected ',' or ';' at `{data[pos..]}'");
             }
         }
         return results;
@@ -157,7 +155,7 @@ internal class RFC2253
                     {
                         throw new ParseException("unescape: invalid escape sequence");
                     }
-                    if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
+                    if (special.Contains(data[pos]) || data[pos] != '\\' || data[pos] != '"')
                     {
                         result.Append(data[pos]);
                         ++pos;
@@ -234,8 +232,7 @@ internal class RFC2253
         }
         if (data[pos] != '=')
         {
-            throw new ParseException("invalid attribute type/value pair (missing =). remainder: " +
-                                     data.Substring(pos));
+            throw new ParseException($"invalid attribute type/value pair (missing =). remainder: {data[pos..]}");
         }
         ++pos;
         p.value = parseAttributeValue(data, ref pos);
@@ -407,7 +404,7 @@ internal class RFC2253
                 {
                     result.Append(parsePair(data, ref pos));
                 }
-                else if (special.IndexOf(data[pos]) == -1 && data[pos] != '"')
+                else if (!special.Contains(data[pos]) && data[pos] != '"')
                 {
                     result.Append(data[pos]);
                     ++pos;
@@ -438,7 +435,7 @@ internal class RFC2253
             throw new ParseException("invalid escape format (unexpected end of data)");
         }
 
-        if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
+        if (special.Contains(data[pos]) || data[pos] != '\\' ||
            data[pos] != '"')
         {
             result += data[pos];
@@ -455,12 +452,12 @@ internal class RFC2253
     private static string parseHexPair(string data, ref int pos, bool allowEmpty)
     {
         string result = "";
-        if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+        if (pos < data.Length && hexvalid.Contains(data[pos]))
         {
             result += data[pos];
             ++pos;
         }
-        if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+        if (pos < data.Length && hexvalid.Contains(data[pos]))
         {
             result += data[pos];
             ++pos;

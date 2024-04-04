@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -33,5 +31,5 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
         }
     }
 
-    private Dictionary<string, Ice.ValueFactory> _factoryMap = new Dictionary<string, Ice.ValueFactory>();
+    private Dictionary<string, Ice.ValueFactory> _factoryMap = new();
 }

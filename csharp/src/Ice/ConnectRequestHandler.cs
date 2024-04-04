@@ -1,10 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 
 namespace IceInternal;
 
@@ -311,7 +307,7 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
     private bool _response;
 
     private Ice.ObjectPrxHelperBase _proxy;
-    private HashSet<Ice.ObjectPrxHelperBase> _proxies = new HashSet<Ice.ObjectPrxHelperBase>();
+    private HashSet<Ice.ObjectPrxHelperBase> _proxies = new();
 
     private Ice.ConnectionI _connection;
     private bool _compress;

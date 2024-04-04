@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceMX;
 
@@ -331,7 +329,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
     }
 
     private List<MetricsMap<T>.Entry> _objects;
-    private long _previousDelay = 0;
+    private long _previousDelay;
 }
 
 public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
@@ -453,7 +451,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     private readonly MetricsAdminI _metrics;
     private readonly string _name;
-    private List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
+    private List<MetricsMap<T>> _maps = new();
     private volatile bool _enabled;
     private Action _updater;
 }

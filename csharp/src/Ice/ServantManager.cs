@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -78,7 +76,7 @@ public sealed class ServantManager
             Dictionary<string, Ice.Object> m;
             _servantMapMap.TryGetValue(ident, out m);
             Ice.Object obj = null;
-            if (m == null || !m.ContainsKey(facet))
+            if (m == null || !m.TryGetValue(facet, out Ice.Object value))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -89,7 +87,7 @@ public sealed class ServantManager
                 }
                 throw ex;
             }
-            obj = m[facet];
+            obj = value;
             m.Remove(facet);
 
             if (m.Count == 0)
@@ -364,8 +362,7 @@ public sealed class ServantManager
 
     private Instance _instance;
     private readonly string _adapterName;
-    private Dictionary<Ice.Identity, Dictionary<string, Ice.Object>> _servantMapMap
-            = new Dictionary<Ice.Identity, Dictionary<string, Ice.Object>>();
-    private Dictionary<string, Ice.Object> _defaultServantMap = new Dictionary<string, Ice.Object>();
-    private Dictionary<string, Ice.ServantLocator> _locatorMap = new Dictionary<string, Ice.ServantLocator>();
+    private Dictionary<Ice.Identity, Dictionary<string, Ice.Object>> _servantMapMap = new();
+    private Dictionary<string, Ice.Object> _defaultServantMap = new();
+    private Dictionary<string, Ice.ServantLocator> _locatorMap = new();
 }

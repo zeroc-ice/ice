@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -1409,7 +1407,7 @@ public sealed class Instance
         lock (_setBufSizeWarn)
         {
             BufSizeWarnInfo info;
-            if (!_setBufSizeWarn.ContainsKey(type))
+            if (!_setBufSizeWarn.TryGetValue(type, out BufSizeWarnInfo value))
             {
                 info = new BufSizeWarnInfo();
                 info.sndWarn = false;
@@ -1621,14 +1619,14 @@ public sealed class Instance
     private RetryQueue _retryQueue;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
-    private bool _adminEnabled = false;
+    private bool _adminEnabled;
     private Ice.ObjectAdapter _adminAdapter;
-    private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
-    private HashSet<string> _adminFacetFilter = new HashSet<string>();
+    private Dictionary<string, Ice.Object> _adminFacets = new();
+    private HashSet<string> _adminFacetFilter = new();
     private Ice.Identity _adminIdentity;
-    private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
+    private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private IceSSL.SSLEngine _sslEngine;
-    private static bool _printProcessIdDone = false;
-    private static bool _oneOffDone = false;
-    private static object _staticLock = new object();
+    private static bool _printProcessIdDone;
+    private static bool _oneOffDone;
+    private static readonly object _staticLock = new object();
 }

@@ -1,12 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Collections;
 using System.Globalization;
 using System.Net.Security;
-using System.Threading;
 
 namespace Ice
 {
@@ -239,7 +235,7 @@ namespace Ice
             }
 
             CommunicatorI result = new CommunicatorI(initData);
-            string[] args = new string[0];
+            string[] args = [];
             result.finishSetup(ref args);
             return result;
         }
@@ -256,7 +252,7 @@ namespace Ice
             if (configFile != null)
             {
                 initData = new InitializationData();
-                initData.properties = Util.createProperties();
+                initData.properties = createProperties();
                 initData.properties.load(configFile);
             }
             return initialize(initData);
@@ -284,7 +280,7 @@ namespace Ice
             // backslash before the separator.
             //
             int slash = -1, pos = 0;
-            while ((pos = s.IndexOf((System.Char)'/', pos)) != -1)
+            while ((pos = s.IndexOf('/', pos)) != -1)
             {
                 int escapes = 0;
                 while (pos - escapes > 0 && s[pos - escapes - 1] == '\\')
@@ -635,10 +631,10 @@ namespace Ice
         public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);
         public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
 
-        public static readonly NoneType None = new NoneType();
+        public static readonly NoneType None;
 
         private static object _processLoggerMutex = new object();
-        private static Logger _processLogger = null;
+        private static Logger _processLogger;
     }
 }
 

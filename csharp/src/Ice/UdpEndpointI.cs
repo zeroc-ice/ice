@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -199,7 +197,7 @@ internal sealed class UdpEndpointI : IPEndpointI
 
         if (_mcastInterface.Length != 0)
         {
-            bool addQuote = _mcastInterface.IndexOf(':') != -1;
+            bool addQuote = _mcastInterface.Contains(':');
             s += " --interface ";
             if (addQuote)
             {

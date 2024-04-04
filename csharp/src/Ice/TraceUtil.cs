@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -86,11 +84,11 @@ internal sealed class TraceUtil
 
     internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
     {
-        lock (typeof(TraceUtil))
+        lock (_globalMutex)
         {
             if (slicingIds.Add(typeId))
             {
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (StringWriter s = new StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write("unknown " + kind + " type `" + typeId + "'");
                     logger.trace(slicingCat, s.ToString());
@@ -139,7 +137,7 @@ internal sealed class TraceUtil
                     {
                         s = "" + n;
                     }
-                    System.Console.Out.Write(s + " ");
+                    Console.Out.Write(s + " ");
                 }
                 else
                 {
@@ -533,4 +531,6 @@ internal sealed class TraceUtil
                 return "unknown";
         }
     }
+
+    private static readonly object _globalMutex = new object();
 }

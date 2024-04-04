@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Test;
 
 [assembly: CLSCompliant(true)]

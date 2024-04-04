@@ -1,7 +1,4 @@
-
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -29,7 +26,7 @@ using System.IO;
 // as a single byte, followed by the contents of the _bytes buffer.
 //
 
-public class OutputStreamWrapper : Stream, System.IDisposable
+public class OutputStreamWrapper : Stream
 {
     public OutputStreamWrapper(Ice.OutputStream s)
     {
@@ -228,7 +225,7 @@ public class OutputStreamWrapper : Stream, System.IDisposable
     private long _length;
 }
 
-public class InputStreamWrapper : Stream, System.IDisposable
+public class InputStreamWrapper : Stream
 {
     public InputStreamWrapper(int size, Ice.InputStream s)
     {
@@ -352,10 +349,7 @@ public class InputStreamWrapper : Stream, System.IDisposable
         return _pos;
     }
 
-    public override void SetLength(long value)
-    {
-        Debug.Assert(false);
-    }
+    public override void SetLength(long value) => Debug.Assert(false);
 
     private Ice.InputStream _s;
     private int _pos;

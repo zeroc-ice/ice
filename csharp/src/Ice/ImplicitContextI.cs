@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
@@ -197,9 +195,9 @@ internal class PerThreadImplicitContext : ImplicitContextI
         Thread currentThread = Thread.CurrentThread;
         lock (this)
         {
-            if (_map.ContainsKey(currentThread))
+            if (_map.TryGetValue(currentThread, out Dictionary<string, string> value))
             {
-                threadContext = _map[currentThread];
+                threadContext = value;
             }
         }
 

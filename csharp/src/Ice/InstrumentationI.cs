@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -195,7 +193,7 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
             }
             if (_connectionInfo.connectionId.Length > 0)
             {
-                os.Append(" [").Append(_connectionInfo.connectionId).Append("]");
+                os.Append(" [").Append(_connectionInfo.connectionId).Append(']');
             }
             _id = os.ToString();
         }
@@ -547,7 +545,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
     readonly private Dictionary<string, string> _context;
     private string _id;
 
-    readonly static private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
+    readonly static private Ice.Endpoint[] emptyEndpoints = [];
 }
 
 internal class ThreadHelper : MetricsHelper<ThreadMetrics>

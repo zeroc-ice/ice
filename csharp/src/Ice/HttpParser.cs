@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -8,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-internal sealed class WebSocketException : System.Exception
+internal sealed class WebSocketException : Exception
 {
     internal WebSocketException() :
         base("", null)

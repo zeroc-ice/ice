@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -23,11 +21,11 @@ public abstract class EventHandler
     //
     abstract public void finished(ref ThreadPoolCurrent op);
 
-    internal int _ready = 0;
-    internal int _pending = 0;
-    internal int _started = 0;
-    internal bool _finish = false;
+    internal int _ready;
+    internal int _pending;
+    internal int _started;
+    internal bool _finish;
 
-    internal bool _hasMoreData = false;
-    internal int _registered = 0;
+    internal bool _hasMoreData;
+    internal int _registered;
 }

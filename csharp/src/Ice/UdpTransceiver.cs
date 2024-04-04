@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -871,12 +869,12 @@ internal sealed class UdpTransceiver : Transceiver
     private Socket _fd;
     private EndPoint _addr;
     private EndPoint _sourceAddr;
-    private IPEndPoint _mcastAddr = null;
-    private EndPoint _peerAddr = null;
-    private string _mcastInterface = null;
+    private IPEndPoint _mcastAddr;
+    private EndPoint _peerAddr;
+    private string _mcastInterface;
 
-    private int _port = 0;
-    private bool _bound = false;
+    private int _port;
+    private bool _bound;
 
     private SocketAsyncEventArgs _writeEventArgs;
     private SocketAsyncEventArgs _readEventArgs;

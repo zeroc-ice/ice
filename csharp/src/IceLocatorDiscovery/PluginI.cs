@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceLocatorDiscovery;
 
@@ -463,7 +461,7 @@ internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
                             {
                                 s.Append("\ninstance name = ").Append(_instanceName);
                             }
-                            s.Append("\n").Append(ex);
+                            s.Append('\n').Append(ex);
                             _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                         }
 
@@ -512,7 +510,7 @@ internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
                     {
                         s.Append("\ninstance name = ").Append(_instanceName);
                     }
-                    s.Append("\n").Append(ex);
+                    s.Append('\n').Append(ex);
                     _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                 }
 

@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -10,7 +6,7 @@ namespace Ice
     {
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
-            public ServantLocatorI(String category)
+            public ServantLocatorI(string category)
             {
                 _category = category;
                 _deactivated = false;

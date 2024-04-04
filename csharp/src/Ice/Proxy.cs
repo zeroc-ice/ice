@@ -1,15 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 using IceInternal;
 using IceUtilInternal;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ice;
 
@@ -930,8 +924,6 @@ public class ObjectPrxHelperBase : ObjectPrx
         iceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
         return completed.Task;
     }
-
-    private const string _ice_invoke_name = "ice_invoke";
 
     private void iceI_ice_invoke(string operation,
                                  OperationMode mode,

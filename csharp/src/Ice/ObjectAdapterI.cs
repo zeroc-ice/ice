@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
@@ -300,7 +298,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             _instance = null;
             _threadPool = null;
             _routerInfo = null;
-            _publishedEndpoints = new EndpointI[0];
+            _publishedEndpoints = [];
             _locatorInfo = null;
             _reference = null;
             _objectAdapterFactory = null;
@@ -1222,7 +1220,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             {
                 if (!first)
                 {
-                    s.Append(":");
+                    s.Append(':');
                 }
                 s.Append(endpoint.ToString());
                 first = false;
@@ -1338,7 +1336,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
                     s.Append(endpoints[i].ToString());
                     if (i + 1 < endpoints.Length)
                     {
-                        s.Append(":");
+                        s.Append(':');
                     }
                 }
             }
