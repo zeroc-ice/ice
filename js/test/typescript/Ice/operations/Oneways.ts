@@ -48,7 +48,6 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
 
     await prx.opVoid();
     await prx.opIdempotent();
-    await prx.opNonmutating();
 
     try
     {

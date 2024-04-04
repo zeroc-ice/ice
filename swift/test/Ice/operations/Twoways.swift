@@ -1144,10 +1144,6 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
   }
 
   do {
-    try p.opNonmutating()
-  }
-
-  do {
     try test(p.opByte1(0xFF) == 0xFF)
     try test(p.opShort1(0x7FFF) == 0x7FFF)
     try test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)

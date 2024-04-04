@@ -30,11 +30,6 @@ def oneways(helper, p):
     p.opIdempotent()
 
     #
-    # opNonmutating
-    #
-    p.opNonmutating()
-
-    #
     # opByte
     #
     try:

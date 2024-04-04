@@ -1406,7 +1406,6 @@
 
             await prx.opDoubleMarshaling(d, ds);
             await prx.opIdempotent();
-            await prx.opNonmutating();
         }
 
         {

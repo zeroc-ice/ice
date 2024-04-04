@@ -1359,8 +1359,6 @@ classdef Twoways
 
             p.opIdempotent();
 
-            p.opNonmutating();
-
             assert(p.opByte1(hex2dec('FF')) == hex2dec('FF'));
             assert(p.opShort1(hex2dec('7FFF')) == hex2dec('7FFF'));
             assert(p.opInt1(hex2dec('7FFFFFFF')) == hex2dec('7FFFFFFF'));

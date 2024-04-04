@@ -32,10 +32,6 @@ namespace Ice
                 }
 
                 {
-                    p.opNonmutating();
-                }
-
-                {
                     byte b;
                     try
                     {

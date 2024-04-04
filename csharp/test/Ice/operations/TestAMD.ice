@@ -233,8 +233,6 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
-
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
     int opInt1(int opInt1);

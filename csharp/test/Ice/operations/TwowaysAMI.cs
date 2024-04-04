@@ -1321,10 +1321,6 @@ namespace Ice
                 }
 
                 {
-                    p.opNonmutatingAsync().Wait();
-                }
-
-                {
                     var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
                     test(derived != null);
                     derived.opDerivedAsync().Wait();

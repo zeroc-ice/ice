@@ -40,7 +40,7 @@ module Glacier2
         /// order for the router to forward callback requests to the intended client. If the Glacier2 server endpoints
         /// are not set, the returned category is an empty string.
         /// @return The category.
-        ["nonmutating", "cpp:const"] idempotent string getCategoryForClient();
+        ["cpp:const"] idempotent string getCategoryForClient();
 
         /// Create a per-client session with the router. If a {@link SessionManager} has been installed, a proxy to a
         /// {@link Session} object is returned to the client. Otherwise, null is returned and only an internal session
@@ -90,11 +90,11 @@ module Glacier2
         /// Get the value of the session timeout. Sessions are destroyed if they see no activity for this period of
         /// time.
         /// @return The timeout (in seconds).
-        ["nonmutating", "cpp:const"] idempotent long getSessionTimeout();
+        ["cpp:const"] idempotent long getSessionTimeout();
 
         /// Get the value of the ACM timeout. Clients supporting connection heartbeats can enable them instead of
         /// explicitly sending keep alives requests. This method is only available since Ice 3.6.
         /// @return The timeout (in seconds).
-        ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
+        ["cpp:const"] idempotent int getACMTimeout();
     }
 }

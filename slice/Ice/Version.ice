@@ -14,8 +14,6 @@
 [["cpp:include:Ice/Comparable.h"]]
 [["cpp:include:cstdint"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

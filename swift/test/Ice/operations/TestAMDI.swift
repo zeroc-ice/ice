@@ -456,17 +456,6 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     }
   }
 
-  func opNonmutatingAsync(current: Current) -> Promise<Void> {
-    return Promise<Void> { seal in
-      do {
-        try _helper.test(current.mode == .Nonmutating)
-        seal.fulfill(())
-      } catch {
-        seal.reject(error)
-      }
-    }
-  }
-
   func opByte1Async(opByte1: UInt8, current _: Current) -> Promise<UInt8> {
     return Promise.value(opByte1)
   }
