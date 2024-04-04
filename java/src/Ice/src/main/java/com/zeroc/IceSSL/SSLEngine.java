@@ -35,33 +35,6 @@ public class SSLEngine {
       parseCiphers(ciphers);
     }
 
-    String[] protocols = properties.getPropertyAsList(prefix + "Protocols");
-    if (protocols.length != 0) {
-      java.util.ArrayList<String> l = new java.util.ArrayList<>();
-      for (String prot : protocols) {
-        String s = prot.toUpperCase();
-        if (s.equals("SSL3") || s.equals("SSLV3")) {
-          l.add("SSLv3");
-        } else if (s.equals("TLS")
-            || s.equals("TLS1")
-            || s.equals("TLSV1")
-            || s.equals("TLS1_0")
-            || s.equals("TLSV1_0")) {
-          l.add("TLSv1");
-        } else if (s.equals("TLS1_1") || s.equals("TLSV1_1")) {
-          l.add("TLSv1.1");
-        } else if (s.equals("TLS1_2") || s.equals("TLSV1_2")) {
-          l.add("TLSv1.2");
-        } else if (s.equals("TLS1_3") || s.equals("TLSV1_3")) {
-          l.add("TLSv1.3");
-        } else {
-          throw new InitializationException("IceSSL: unrecognized protocol `" + prot + "'");
-        }
-      }
-      _protocols = new String[l.size()];
-      l.toArray(_protocols);
-    }
-
     //
     // CheckCertName determines whether we compare the name in a peer's
     // certificate against its hostname.
@@ -69,8 +42,10 @@ public class SSLEngine {
     _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
     //
-    // CheckCertName > 1 enables SNI, the SNI extension applies to client connections,
-    // indicating the hostname to the server (must be DNS hostname, not an IP address).
+    // CheckCertName > 1 enables SNI, the SNI extension applies to client
+    // connections,
+    // indicating the hostname to the server (must be DNS hostname, not an IP
+    // address).
     //
     _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 1;
 
@@ -82,7 +57,8 @@ public class SSLEngine {
     _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
 
     //
-    // VerifyPeer determines whether certificate validation failures abort a connection.
+    // VerifyPeer determines whether certificate validation failures abort a
+    // connection.
     //
     _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
@@ -114,7 +90,8 @@ public class SSLEngine {
         String keystorePassword = properties.getProperty(prefix + "KeystorePassword");
 
         //
-        // The default keystore type is usually "JKS", but the legal values are determined
+        // The default keystore type is usually "JKS", but the legal values are
+        // determined
         // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
         //
         final String defaultType = java.security.KeyStore.getDefaultType();
@@ -138,7 +115,8 @@ public class SSLEngine {
         String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
 
         //
-        // The default truststore type is usually "JKS", but the legal values are determined
+        // The default truststore type is usually "JKS", but the legal values are
+        // determined
         // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
         //
         final String truststoreType =
@@ -347,7 +325,7 @@ public class SSLEngine {
           // cause hangs that eventually result in an exception such as:
           //
           // java.security.InvalidAlgorithmParameterException: the trustAnchors parameter
-          //     must be non-empty
+          // must be non-empty
           //
           if (trustStore != null && trustStore.size() == 0) {
             throw new InitializationException("IceSSL: truststore is empty");
@@ -414,23 +392,6 @@ public class SSLEngine {
         s.append(suite);
       }
       _logger.trace(_securityTraceCategory, s.toString());
-    }
-
-    if (_protocols != null) {
-      try {
-        engine.setEnabledProtocols(_protocols);
-      } catch (IllegalArgumentException ex) {
-        throw new com.zeroc.Ice.SecurityException("IceSSL: invalid protocol", ex);
-      }
-    } else {
-      //
-      // Disable SSLv3
-      //
-      List<String> protocols =
-          new ArrayList<>(java.util.Arrays.asList(engine.getEnabledProtocols()));
-      if (protocols.remove("SSLv3")) {
-        engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
-      }
     }
 
     if (incoming) {
@@ -553,7 +514,8 @@ public class SSLEngine {
       }
     }
 
-    // Verify depth max includes the root CA, Java doesn't provide it in the certificate chain.
+    // Verify depth max includes the root CA, Java doesn't provide it in the
+    // certificate chain.
     if (_verifyDepthMax > 0 && info.certs != null && info.certs.length >= _verifyDepthMax) {
       String msg =
           (info.incoming ? "incoming" : "outgoing")
@@ -668,7 +630,8 @@ public class SSLEngine {
         com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), path);
 
     //
-    // If the first attempt fails and IceSSL.DefaultDir is defined and the original path is
+    // If the first attempt fails and IceSSL.DefaultDir is defined and the original
+    // path is
     // relative,
     // we prepend the default directory and try again.
     //
@@ -695,13 +658,11 @@ public class SSLEngine {
   private com.zeroc.Ice.Logger _logger;
   private int _securityTraceLevel;
   private String _securityTraceCategory;
-  private boolean _initialized;
   private javax.net.ssl.SSLContext _context;
   private String _defaultDir;
   private CipherExpression[] _ciphers;
   private boolean _allCiphers;
   private boolean _noCiphers;
-  private String[] _protocols;
   private boolean _checkCertName;
   private boolean _serverNameIndication;
   private int _verifyDepthMax;

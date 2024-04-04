@@ -441,7 +441,6 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                     _writeResult = _sslStream.AuthenticateAsClientAsync(
                         _host,
                         _instance.certs(),
-                        _instance.protocols(),
                         _instance.checkCRL() > 0);
                     _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }
@@ -489,7 +488,6 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                     _writeResult = _sslStream.AuthenticateAsServerAsync(
                         cert,
                         _verifyPeer > 0,
-                        _instance.protocols(),
                         _instance.checkCRL() > 0);
                     _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }

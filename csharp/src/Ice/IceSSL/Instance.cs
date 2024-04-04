@@ -40,11 +40,6 @@ internal class Instance : IceInternal.ProtocolInstance
         return _engine.certs();
     }
 
-    internal SslProtocols protocols()
-    {
-        return _engine.protocols();
-    }
-
     internal int checkCRL()
     {
         return _engine.checkCRL();

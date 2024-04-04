@@ -772,9 +772,7 @@ namespace
 IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)
     : IceSSL::SSLEngine(communicator),
       _certificateAuthorities(0),
-      _chain(0),
-      _protocolVersionMax(kSSLProtocolUnknown),
-      _protocolVersionMin(kSSLProtocolUnknown)
+      _chain(0)
 {
 }
 
@@ -975,24 +973,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
             }
         }
         getLogger()->trace(securityTraceCategory(), os.str());
-    }
-
-    //
-    // Parse protocols
-    //
-    const string protocolVersionMax = properties->getProperty("IceSSL.ProtocolVersionMax");
-    if (!protocolVersionMax.empty())
-    {
-        _protocolVersionMax = parseProtocol(protocolVersionMax);
-    }
-
-    //
-    // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
-    //
-    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_0");
-    if (!protocolVersionMin.empty())
-    {
-        _protocolVersionMin = parseProtocol(protocolVersionMin);
     }
     _initialized = true;
 }

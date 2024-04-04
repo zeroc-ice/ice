@@ -59,28 +59,6 @@ internal class SSLEngine
         _useMachineContext = certStoreLocation == "LocalMachine";
 
         //
-        // Protocols selects which protocols to enable, by default we only enable TLS1.0
-        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
-        //
-        var protocols = properties.getPropertyAsList(prefix + "Protocols");
-        if (protocols.Length > 0)
-        {
-            _protocols = parseProtocols(protocols);
-        }
-        else
-        {
-            _protocols = 0;
-            foreach (int v in Enum.GetValues(typeof(SslProtocols)))
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    _protocols |= (SslProtocols)v;
-                }
-            }
-        }
-        //
         // CheckCertName determines whether we compare the name in a peer's
         // certificate against its hostname.
         //
@@ -271,11 +249,6 @@ internal class SSLEngine
     internal X509Certificate2Collection certs()
     {
         return _certs;
-    }
-
-    internal SslProtocols protocols()
-    {
-        return _protocols;
     }
 
     internal int checkCRL()
@@ -648,7 +621,6 @@ internal class SSLEngine
     private readonly string _securityTraceCategory;
     private bool _initialized;
     private string _defaultDir;
-    private SslProtocols _protocols;
     private bool _checkCertName;
     private int _verifyDepthMax;
     private int _checkCRL;
