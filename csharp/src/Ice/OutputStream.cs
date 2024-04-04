@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Diagnostics;
 using Protocol = IceInternal.Protocol;
 

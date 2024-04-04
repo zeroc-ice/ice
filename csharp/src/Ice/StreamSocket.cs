@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;

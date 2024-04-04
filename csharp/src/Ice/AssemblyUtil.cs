@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;

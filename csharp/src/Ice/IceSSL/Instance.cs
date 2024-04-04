@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 

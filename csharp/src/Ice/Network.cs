@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;

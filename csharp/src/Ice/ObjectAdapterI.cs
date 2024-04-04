@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using IceInternal;
 using System.Diagnostics;
 using System.Net.Security;

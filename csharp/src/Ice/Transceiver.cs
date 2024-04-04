@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-
 using System.Net.Sockets;
 
 namespace IceInternal;
