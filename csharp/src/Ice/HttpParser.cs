@@ -5,25 +5,10 @@ using System.Text;
 
 namespace IceInternal;
 
-internal sealed class WebSocketException : Exception
+public sealed class WebSocketException : Exception
 {
-    internal WebSocketException() :
-        base("", null)
-    {
-    }
-
-    internal WebSocketException(string message) :
+    public WebSocketException(string message) :
         base(message, null)
-    {
-    }
-
-    internal WebSocketException(string message, System.Exception cause) :
-        base(message, cause)
-    {
-    }
-
-    internal WebSocketException(System.Exception cause) :
-        base("", cause)
     {
     }
 }

@@ -10,13 +10,9 @@ namespace IceSSL;
 
 internal class RFC2253
 {
-    internal class ParseException : Exception
+    public class ParseException : Exception
     {
-        internal ParseException()
-        {
-        }
-
-        internal ParseException(string reason)
+        public ParseException(string reason)
         {
             this.reason = reason;
         }
