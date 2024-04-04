@@ -76,9 +76,9 @@ namespace IceInternal
     public:
         IconvStringConverter(const std::string&);
 
-        virtual std::uint8_t* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
+        virtual std::byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
 
-        virtual void fromUTF8(const std::uint8_t*, const std::uint8_t*, std::basic_string<charT>&) const;
+        virtual void fromUTF8(const std::byte*, const std::byte*, std::basic_string<charT>&) const;
 
     private:
         struct DescriptorHolder
@@ -157,7 +157,7 @@ namespace IceInternal
     }
 
     template<typename charT>
-    std::uint8_t*
+    std::byte*
     IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourceEnd, Ice::UTF8Buffer& buf) const
     {
         iconv_t cd = getDescriptors().second;
@@ -187,7 +187,7 @@ namespace IceInternal
         do
         {
             size_t howMany = std::max(inbytesleft, size_t(4));
-            outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<std::uint8_t*>(outbuf)));
+            outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<std::byte*>(outbuf)));
             count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
         } while (count == size_t(-1) && errno == E2BIG);
 
@@ -198,13 +198,13 @@ namespace IceInternal
                 __LINE__,
                 errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
-        return reinterpret_cast<std::uint8_t*>(outbuf);
+        return reinterpret_cast<std::byte*>(outbuf);
     }
 
     template<typename charT>
     void IconvStringConverter<charT>::fromUTF8(
-        const std::uint8_t* sourceStart,
-        const std::uint8_t* sourceEnd,
+        const std::byte* sourceStart,
+        const std::byte* sourceEnd,
         std::basic_string<charT>& target) const
     {
         iconv_t cd = getDescriptors().first;
@@ -222,7 +222,7 @@ namespace IceInternal
 #    ifdef ICE_CONST_ICONV_INBUF
         const char* inbuf = reinterpret_cast<const char*>(sourceStart);
 #    else
-        char* inbuf = reinterpret_cast<char*>(const_cast<std::uint8_t*>(sourceStart));
+        char* inbuf = reinterpret_cast<char*>(const_cast<std::byte*>(sourceStart));
 #    endif
         assert(sourceEnd > sourceStart);
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);

@@ -29,7 +29,7 @@ namespace
     public:
         StreamUTF8BufferI(OutputStream& stream) : _stream(stream) {}
 
-        uint8_t* getMoreBytes(size_t howMany, uint8_t* firstUnused)
+        byte* getMoreBytes(size_t howMany, byte* firstUnused)
         {
             assert(howMany > 0);
 
@@ -38,7 +38,7 @@ namespace
                 //
                 // Return unused bytes
                 //
-                _stream.resize(static_cast<size_t>(firstUnused - reinterpret_cast<uint8_t*>(_stream.b.begin())));
+                _stream.resize(static_cast<size_t>(firstUnused - _stream.b.begin()));
             }
 
             //
@@ -52,7 +52,7 @@ namespace
             //
             _stream.resize(pos + howMany);
 
-            return reinterpret_cast<uint8_t*>(&_stream.b[pos]);
+            return &_stream.b[pos];
         }
 
     private:
