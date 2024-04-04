@@ -1,15 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL;
 
 internal class AcceptorI : IceInternal.Acceptor
 {
-    public void close()
-    {
-        _delegate.close();
-    }
+    public void close() => _delegate.close();
 
     public IceInternal.EndpointI listen()
     {
@@ -17,40 +15,24 @@ internal class AcceptorI : IceInternal.Acceptor
         return _endpoint;
     }
 
-    public bool startAccept(IceInternal.AsyncCallback callback, object state)
-    {
-        return _delegate.startAccept(callback, state);
-    }
+    public bool startAccept(IceInternal.AsyncCallback callback, object state) =>
+        _delegate.startAccept(callback, state);
 
-    public void finishAccept()
-    {
-        _delegate.finishAccept();
-    }
+    public void finishAccept() => _delegate.finishAccept();
 
-    public IceInternal.Transceiver accept()
-    {
-        return new TransceiverI(
+    public IceInternal.Transceiver accept() =>
+        new TransceiverI(
             _instance,
             _delegate.accept(),
             _adapterName,
             incoming: true,
             serverAuthenticationOptions: _serverAuthenticationOptions);
-    }
 
-    public string protocol()
-    {
-        return _delegate.protocol();
-    }
+    public string protocol() => _delegate.protocol();
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public string toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    public string toDetailedString() => _delegate.toDetailedString();
 
     internal AcceptorI(
         EndpointI endpoint,
@@ -65,10 +47,8 @@ internal class AcceptorI : IceInternal.Acceptor
         _adapterName = adapterName;
         _serverAuthenticationOptions = authenticationOptions;
 
-        //
         // .NET requires that a certificate be supplied.
-        //
-        var certs = instance.certs();
+        X509Certificate2Collection certs = instance.certs();
         if ((certs is null || certs.Count == 0) && _serverAuthenticationOptions is null)
         {
             throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");

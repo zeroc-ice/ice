@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -8,60 +9,29 @@ namespace IceSSL;
 internal class Instance : IceInternal.ProtocolInstance
 {
     internal Instance(SSLEngine engine, short type, string protocol) :
-        base(engine.communicator(), type, protocol, true)
-    {
-        _engine = engine;
-    }
+        base(engine.communicator(), type, protocol, true) => _engine = engine;
 
-    internal SSLEngine engine()
-    {
-        return _engine;
-    }
+    internal SSLEngine engine() => _engine;
 
-    internal int securityTraceLevel()
-    {
-        return _engine.securityTraceLevel();
-    }
+    internal int securityTraceLevel() => _engine.securityTraceLevel();
 
-    internal string securityTraceCategory()
-    {
-        return _engine.securityTraceCategory();
-    }
+    internal string securityTraceCategory() => _engine.securityTraceCategory();
 
-    internal bool initialized()
-    {
-        return _engine.initialized();
-    }
+    internal bool initialized() => _engine.initialized();
 
-    internal X509Certificate2Collection certs()
-    {
-        return _engine.certs();
-    }
+    internal X509Certificate2Collection certs() => _engine.certs();
 
-    internal SslProtocols protocols()
-    {
-        return _engine.protocols();
-    }
+    internal SslProtocols protocols() => _engine.protocols();
 
-    internal int checkCRL()
-    {
-        return _engine.checkCRL();
-    }
+    internal int checkCRL() => _engine.checkCRL();
 
-    internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
-    {
-        _engine.traceStream(stream, connInfo);
-    }
+    internal void traceStream(SslStream stream, string connInfo) => _engine.traceStream(stream, connInfo);
 
-    internal void verifyPeer(string address, ConnectionInfo info, string desc)
-    {
-        _engine.verifyPeer(address, info, desc);
-    }
+    internal void verifyPeer(string address, ConnectionInfo info, string description) =>
+        _engine.verifyPeer(address, info, description);
 
-    internal Ice.InitializationData initializationData()
-    {
-        return IceInternal.Util.getInstance(_engine.communicator()).initializationData();
-    }
+    internal Ice.InitializationData initializationData() =>
+        IceInternal.Util.getInstance(_engine.communicator()).initializationData();
 
     private SSLEngine _engine;
 }

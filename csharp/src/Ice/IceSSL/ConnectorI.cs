@@ -4,24 +4,17 @@ namespace IceSSL;
 
 internal sealed class ConnectorI : IceInternal.Connector
 {
-    public IceInternal.Transceiver connect()
-    {
-        return new TransceiverI(
+    public IceInternal.Transceiver connect() =>
+        new TransceiverI(
             _instance,
             _delegate.connect(),
             _host,
             incoming: false,
             serverAuthenticationOptions: null);
-    }
 
-    public short type()
-    {
-        return _delegate.type();
-    }
+    public short type() => _delegate.type();
 
-    //
     // Only for use by EndpointI.
-    //
     internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
     {
         _instance = instance;
@@ -41,21 +34,15 @@ internal sealed class ConnectorI : IceInternal.Connector
             return true;
         }
 
-        ConnectorI p = (ConnectorI)obj;
+        var p = (ConnectorI)obj;
         return _delegate.Equals(p._delegate);
     }
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public override int GetHashCode()
-    {
-        return _delegate.GetHashCode();
-    }
+    public override int GetHashCode() => _delegate.GetHashCode();
 
-    private Instance _instance;
-    private IceInternal.Connector _delegate;
-    private string _host;
+    private readonly IceInternal.Connector _delegate;
+    private readonly string _host;
+    private readonly Instance _instance;
 }

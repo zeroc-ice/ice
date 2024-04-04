@@ -11,10 +11,7 @@ public class ConnectionInfo : Ice.ConnectionInfo
     public X509Certificate2[] certs;
     public bool verified;
 
-    public ConnectionInfo()
-    {
-        cipher = "";
-    }
+    public ConnectionInfo() => cipher = "";
 
     public ConnectionInfo(
         Ice.ConnectionInfo underlying,
