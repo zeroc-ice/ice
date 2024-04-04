@@ -426,6 +426,8 @@ char* yytext;
 #include "Ice/Ice.h"
 #include "Parser.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
@@ -436,6 +438,7 @@ namespace IceGrid
     StringTokenMap keywordMap;
 
     void initScanner();
+    void yynoreturn fatalError(const char* msg);
     string parseDoubleQuotedString();
     string parseSingleQuotedString();
 }
@@ -443,9 +446,10 @@ namespace IceGrid
 // Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 497 "src/IceGrid/Scanner.cpp"
-#line 38 "src/IceGrid/Scanner.l"
+#line 501 "src/IceGrid/Scanner.cpp"
+#line 42 "src/IceGrid/Scanner.l"
 /* Instructs flex to not suppress any warnings when generating the scanner. */
 /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
  * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
@@ -457,7 +461,7 @@ namespace IceGrid
 /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
 /* We always want the scanner to run in interactive mode. */
 /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-#line 510 "src/IceGrid/Scanner.cpp"
+#line 514 "src/IceGrid/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -659,9 +663,9 @@ YY_DECL
     }
 
     {
-#line 69 "src/IceGrid/Scanner.l"
+#line 73 "src/IceGrid/Scanner.l"
 
-#line 714 "src/IceGrid/Scanner.cpp"
+#line 718 "src/IceGrid/Scanner.cpp"
 
         while (/*CONSTCOND*/ 1) /* loops until end-of-file is reached */
         {
@@ -719,7 +723,7 @@ YY_DECL
 
                 case 1:
                     YY_RULE_SETUP
-#line 71 "src/IceGrid/Scanner.l"
+#line 75 "src/IceGrid/Scanner.l"
                     {
                         // C++-style comment
                         int c;
@@ -731,7 +735,7 @@ YY_DECL
                     YY_BREAK
                 case 2:
                     YY_RULE_SETUP
-#line 81 "src/IceGrid/Scanner.l"
+#line 85 "src/IceGrid/Scanner.l"
                     {
                         // C-style comment
                         while (true)
@@ -760,7 +764,7 @@ YY_DECL
                 case 3:
                     /* rule 3 can match eol */
                     YY_RULE_SETUP
-#line 106 "src/IceGrid/Scanner.l"
+#line 110 "src/IceGrid/Scanner.l"
                     {
                         size_t len = strlen(yytext);
                         for (size_t i = 0; i < len; ++i)
@@ -775,14 +779,14 @@ YY_DECL
                 case 4:
                     /* rule 4 can match eol */
                     YY_RULE_SETUP
-#line 117 "src/IceGrid/Scanner.l"
+#line 121 "src/IceGrid/Scanner.l"
                     {
                         return ';';
                     }
                     YY_BREAK
                 case 5:
                     YY_RULE_SETUP
-#line 121 "src/IceGrid/Scanner.l"
+#line 125 "src/IceGrid/Scanner.l"
                     {
                         // "..."-type strings
                         string s = parseDoubleQuotedString();
@@ -793,7 +797,7 @@ YY_DECL
                     YY_BREAK
                 case 6:
                     YY_RULE_SETUP
-#line 129 "src/IceGrid/Scanner.l"
+#line 133 "src/IceGrid/Scanner.l"
                     {
                         // '...'-type strings
                         string s;
@@ -821,7 +825,7 @@ YY_DECL
                     YY_BREAK
                 case 7:
                     YY_RULE_SETUP
-#line 154 "src/IceGrid/Scanner.l"
+#line 158 "src/IceGrid/Scanner.l"
                     {
                         // Simple strings
                         string s;
@@ -860,10 +864,10 @@ YY_DECL
                     YY_BREAK
                 case 8:
                     YY_RULE_SETUP
-#line 190 "src/IceGrid/Scanner.l"
+#line 194 "src/IceGrid/Scanner.l"
                     YY_FATAL_ERROR("flex scanner jammed");
                     YY_BREAK
-#line 918 "src/IceGrid/Scanner.cpp"
+#line 922 "src/IceGrid/Scanner.cpp"
                 case YY_STATE_EOF(INITIAL):
                     yyterminate();
 
@@ -1711,7 +1715,7 @@ yyfree(void* ptr)
 
 #define YYTABLES_NAME "yytables"
 
-#line 190 "src/IceGrid/Scanner.l"
+#line 194 "src/IceGrid/Scanner.l"
 
 namespace IceGrid
 {
@@ -1759,6 +1763,15 @@ namespace IceGrid
         keywordMap["service"] = ICE_GRID_SERVICE;
         keywordMap["enable"] = ICE_GRID_ENABLE;
         keywordMap["disable"] = ICE_GRID_DISABLE;
+    }
+
+    // This function is called whenever the scanner encounters an unrecoverable error.
+    void yynoreturn fatalError(const char* msg)
+    {
+        cerr << "fatal error: " << msg << endl
+             << "\tlast matched text: `" << yytext << "'" << endl
+             << "\tlast scanner state: `" << YY_START << "'" << endl;
+        exit(YY_EXIT_FAILURE);
     }
 
     string parseDoubleQuotedString()
