@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Threading.Tasks;
 using Test;
 
 public sealed class ControllerI : ControllerDisp_

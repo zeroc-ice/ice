@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
-
-using System.Collections.Generic;
-using System.Threading;
 
 // The base class for all ImplicitContext implementations
 public abstract class ImplicitContextI : ImplicitContext
@@ -197,9 +192,9 @@ internal class PerThreadImplicitContext : ImplicitContextI
         Thread currentThread = Thread.CurrentThread;
         lock (this)
         {
-            if (_map.ContainsKey(currentThread))
+            if (_map.TryGetValue(currentThread, out Dictionary<string, string> value))
             {
-                threadContext = _map[currentThread];
+                threadContext = value;
             }
         }
 

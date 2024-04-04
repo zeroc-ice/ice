@@ -1,13 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-namespace IceInternal;
+// Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
+namespace IceInternal;
 
 public interface NetworkProxy
 {
@@ -89,7 +87,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         IPEndPoint addr = (IPEndPoint)endpoint;
         buf.resize(9, false);
         ByteBuffer.ByteOrder order = buf.b.order();
-        buf.b.order(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order.
+        buf.b.order(ByteBuffer.ByteOrder.BigEndian); // Network byte order.
         buf.b.position(0);
         buf.b.put(0x04); // SOCKS version 4.
         buf.b.put(0x01); // Command, establish a TCP/IP stream connection

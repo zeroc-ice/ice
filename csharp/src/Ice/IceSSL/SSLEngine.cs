@@ -1,16 +1,12 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
-
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+
+namespace IceSSL;
 
 internal class SSLEngine
 {
@@ -289,7 +285,7 @@ internal class SSLEngine
         s.Append("SSL connection summary");
         if (connInfo.Length > 0)
         {
-            s.Append("\n");
+            s.Append('\n');
             s.Append(connInfo);
         }
         s.Append("\nauthenticated = " + (stream.IsAuthenticated ? "yes" : "no"));
@@ -382,7 +378,7 @@ internal class SSLEngine
         return false;
     }
 
-    private SslProtocols parseProtocols(string[] arr)
+    private static SslProtocols parseProtocols(string[] arr)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         SslProtocols result = SslProtocols.Default;

@@ -1,13 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+
+namespace IceSSL;
 
 internal sealed class TrustManager
 {
@@ -244,7 +241,7 @@ internal sealed class TrustManager
     }
 
     // Note that unlike the C++ & Java implementation this returns unescaped data.
-    private void parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
+    private static void parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
     {
         //
         // As with the Java implementation, the DN that comes from

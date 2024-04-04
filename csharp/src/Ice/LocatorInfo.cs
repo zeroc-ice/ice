@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IceInternal;
 
@@ -61,7 +56,7 @@ public sealed class LocatorInfo
             }
             if (_callback != null)
             {
-                _callback.setEndpoints(endpoints == null ? new EndpointI[0] : endpoints, false);
+                _callback.setEndpoints(endpoints == null ? [] : endpoints, false);
             }
         }
 
@@ -431,7 +426,7 @@ public sealed class LocatorInfo
             s.Append(endpoints[i].ToString());
             if (i + 1 < sz)
             {
-                s.Append(":");
+                s.Append(':');
             }
         }
 
@@ -444,10 +439,10 @@ public sealed class LocatorInfo
 
         System.Text.StringBuilder s = new System.Text.StringBuilder();
         s.Append(msg);
-        s.Append("\n");
+        s.Append('\n');
         s.Append("well-known proxy = ");
         s.Append(r.ToString());
-        s.Append("\n");
+        s.Append('\n');
         s.Append("adapter = ");
         s.Append(resolved.getAdapterId());
 

@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 public class ObserverI : Ice.Instrumentation.Observer

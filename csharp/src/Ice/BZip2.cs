@@ -1,12 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+
+namespace IceInternal;
 
 internal static class SafeNativeMethods
 {

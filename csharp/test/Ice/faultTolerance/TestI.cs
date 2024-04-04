@@ -1,9 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
-using System.Threading;
 using Test;
 
 public sealed class TestI : TestIntfDisp_

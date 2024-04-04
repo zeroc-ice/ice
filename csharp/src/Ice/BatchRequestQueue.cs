@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
 
@@ -129,7 +127,7 @@ public sealed class BatchRequestQueue
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
                 _batchStreamCanFlush = false;
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(this);
             }
         }
     }
@@ -144,7 +142,7 @@ public sealed class BatchRequestQueue
                 _batchStream.swap(os);
                 _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(this);
             }
         }
     }
@@ -220,7 +218,7 @@ public sealed class BatchRequestQueue
         //
         while (_batchStreamInUse && !(flush && _batchStreamCanFlush))
         {
-            System.Threading.Monitor.Wait(this);
+            Monitor.Wait(this);
         }
     }
 
@@ -246,6 +244,5 @@ public sealed class BatchRequestQueue
     private BatchRequestI _request;
     private Ice.LocalException _exception;
     private readonly int _maxSize;
-
-    private static readonly int _udpOverhead = 20 + 8;
+    private const int _udpOverhead = 20 + 8;
 }

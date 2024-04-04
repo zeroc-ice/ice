@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IceInternal;
 
@@ -788,7 +783,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 case ReplyStatus.replyFacetNotExist:
                 case ReplyStatus.replyOperationNotExist:
                 {
-                    Ice.Identity ident = new Ice.Identity();
+                    var ident = new Ice.Identity();
                     ident.ice_readMembers(is_);
 
                     //
@@ -1144,8 +1139,8 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
         Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
         synchronous_ = synchronous;
         observer_ = ObserverHelper.get(proxy_, operation, null);
-        bool compress; // Not used for proxy flush batch requests.
-        _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_, out compress);
+        // Not used for proxy flush batch requests.
+        _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_, out _);
         invokeImpl(true); // userThread = true
     }
 

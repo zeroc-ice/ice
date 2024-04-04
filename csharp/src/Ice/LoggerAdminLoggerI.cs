@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 
 namespace IceInternal;
 
@@ -230,10 +225,10 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     private readonly Ice.Logger _localLogger;
     private readonly LoggerAdminI _loggerAdmin;
-    private bool _destroyed = false;
+    private bool _destroyed;
     private Thread _sendLogThread;
     private readonly Queue<Job> _jobQueue = new Queue<Job>();
 
     static private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    static private readonly string _traceCategory = "Admin.Logger";
+    private const string _traceCategory = "Admin.Logger";
 }

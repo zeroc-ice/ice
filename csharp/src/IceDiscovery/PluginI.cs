@@ -1,11 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Text;
 
 namespace IceDiscovery;
-
-using System;
-using System.Text;
 
 public sealed class PluginFactory : Ice.PluginFactory
 {
@@ -48,7 +45,7 @@ public sealed class PluginI : Ice.Plugin
             s.Append("udp -h \"").Append(address).Append("\" -p ").Append(port);
             if (intf.Length != 0)
             {
-                s.Append(" --interface \"").Append(intf).Append("\"");
+                s.Append(" --interface \"").Append(intf).Append('"');
             }
             properties.setProperty("IceDiscovery.Multicast.Endpoints", s.ToString());
         }

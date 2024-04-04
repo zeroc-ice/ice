@@ -1,11 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-namespace IceSSL;
+// Copyright (c) ZeroC, Inc.
 
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
+namespace IceSSL;
 
 internal class Instance : IceInternal.ProtocolInstance
 {

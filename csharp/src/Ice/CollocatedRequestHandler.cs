@@ -1,16 +1,12 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace IceInternal;
 
 public class CollocatedRequestHandler : RequestHandler, ResponseHandler
 {
-    private void
+    private static void
     fillInValue(Ice.OutputStream os, int pos, int value)
     {
         os.rewriteInt(value, pos);

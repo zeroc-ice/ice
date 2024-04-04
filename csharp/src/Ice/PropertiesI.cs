@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -97,7 +93,7 @@ internal sealed class PropertiesI : Properties
     {
         if (val == null)
         {
-            val = new string[0];
+            val = [];
         }
 
         lock (this)
@@ -275,7 +271,7 @@ internal sealed class PropertiesI : Properties
             string opt = options[i];
             if (opt.StartsWith(pfx, StringComparison.Ordinal))
             {
-                if (opt.IndexOf('=') == -1)
+                if (!opt.Contains('='))
                 {
                     opt += "=1";
                 }
@@ -309,14 +305,12 @@ internal sealed class PropertiesI : Properties
     {
         try
         {
-            using (System.IO.StreamReader sr = new System.IO.StreamReader(file))
-            {
-                parse(sr);
-            }
+            using StreamReader sr = new StreamReader(file);
+            parse(sr);
         }
-        catch (System.IO.IOException ex)
+        catch (IOException ex)
         {
-            FileException fe = new FileException(ex);
+            var fe = new FileException(ex);
             fe.path = file;
             throw fe;
         }
@@ -334,7 +328,7 @@ internal sealed class PropertiesI : Properties
     {
         lock (this)
         {
-            List<string> unused = new List<string>();
+            var unused = new List<string>();
             foreach (KeyValuePair<string, PropertyValue> entry in _properties)
             {
                 if (!entry.Value.used)
@@ -386,7 +380,7 @@ internal sealed class PropertiesI : Properties
             if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
             {
                 string line = args[i];
-                if (line.IndexOf('=') == -1)
+                if (!line.Contains('='))
                 {
                     line += "=1";
                 }

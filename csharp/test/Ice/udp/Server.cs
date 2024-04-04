@@ -1,10 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Ice
 {

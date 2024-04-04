@@ -1,12 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Diagnostics;
 
 namespace IceInternal;
-
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 
 public delegate void ThreadPoolWorkItem();
 public delegate void AsyncCallback(object state);
@@ -496,14 +492,14 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         return false;
     }
 
-    protected sealed override bool TryDequeue(System.Threading.Tasks.Task task)
+    protected sealed override bool TryDequeue(Task task)
     {
         return false;
     }
 
-    protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks()
+    protected sealed override IEnumerable<Task> GetScheduledTasks()
     {
-        return new System.Threading.Tasks.Task[0];
+        return [];
     }
 
     private void run(WorkerThread thread)
@@ -761,7 +757,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     }
 
     private Instance _instance;
-    private System.Action<System.Action, Ice.Connection> _dispatcher;
+    private Action<Action, Ice.Connection> _dispatcher;
     private bool _destroyed;
     private readonly string _prefix;
     private readonly string _threadPrefix;

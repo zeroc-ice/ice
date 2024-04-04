@@ -1,6 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Diagnostics;
+using System.Globalization;
+using System.Runtime.ExceptionServices;
 
 namespace Ice
 {
@@ -13,14 +15,6 @@ namespace Ice
 
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.ExceptionServices;
-    using System.Threading.Tasks;
-
     public class Incoming : Ice.Request
     {
         public Incoming(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,

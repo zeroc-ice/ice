@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -475,7 +471,7 @@ public class ReferenceFactory
                 {
                     msg.Append(" `");
                     msg.Append(unknownEndpoints[idx]);
-                    msg.Append("'");
+                    msg.Append('\'');
                 }
                 _instance.initializationData().logger.warning(msg.ToString());
             }

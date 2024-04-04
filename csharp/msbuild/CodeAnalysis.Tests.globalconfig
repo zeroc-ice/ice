@@ -1,0 +1,34 @@
+is_global = true
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1849: Call async methods when in an async method
+dotnet_diagnostic.CA1849.severity = none
+
+# CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2007.severity = none
+
+# CA5394: Do not use insecure randomness
+dotnet_diagnostic.CA5394.severity = none
+
+# IDE0008: Use explicit type instead of 'var'
+dotnet_diagnostic.IDE0008.severity = none
+
+# SA0001: XML comment analysis is disabled due to project configuration
+dotnet_diagnostic.SA0001.severity = none
+
+# NUnit2005: Consider using Assert.That(actual, Is.EqualTo(expected))
+dotnet_diagnostic.NUnit2005.severity = none
+
+# NUnit2006: Consider using Assert.That(actual, Is.Not.EqualTo(expected))
+dotnet_diagnostic.NUnit2006.severity = none
+
+# NUnit2031: Consider using Assert.That(actual, Is.Not.SameAs(expected))
+dotnet_diagnostic.NUnit2031.severity = none
+
+# NUnit2045: Use Assert.Multiple
+dotnet_diagnostic.NUnit2045.severity = none
+
+# CA1861: Prefer 'static readonly' fields over constant array arguments
+dotnet_diagnostic.CA1861.severity = none

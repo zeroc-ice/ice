@@ -1,8 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Runtime.InteropServices;
 
 namespace IceInternal;
@@ -12,14 +9,14 @@ public class ByteBuffer
 
     public ByteBuffer()
     {
-        _order = ByteOrder.BIG_ENDIAN;
+        _order = ByteOrder.BigEndian;
     }
 
-    public enum ByteOrder { BIG_ENDIAN, LITTLE_ENDIAN };
+    public enum ByteOrder { BigEndian, LittleEndian };
 
     public static ByteOrder nativeOrder()
     {
-        return NO._o;
+        return NativeOrder._o;
     }
 
     public ByteOrder order()
@@ -321,7 +318,7 @@ public class ByteBuffer
     public short getShort(int pos)
     {
         checkUnderflow(pos, 2);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _valBytes.b0 = _bytes[pos];
             _valBytes.b1 = _bytes[pos + 1];
@@ -338,7 +335,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkUnderflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
         }
@@ -359,7 +356,7 @@ public class ByteBuffer
     {
         checkOverflow(2);
         _valBytes.shortVal = val;
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _bytes[_position] = _valBytes.b0;
             _bytes[_position + 1] = _valBytes.b1;
@@ -377,7 +374,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkOverflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
         }
@@ -398,7 +395,7 @@ public class ByteBuffer
     public int getInt()
     {
         checkUnderflow(4);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _valBytes.b0 = _bytes[_position];
             _valBytes.b1 = _bytes[_position + 1];
@@ -420,7 +417,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkUnderflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
         }
@@ -457,7 +454,7 @@ public class ByteBuffer
             throwOutOfRange("pos", pos, "position must be less than limit - 4");
         }
         _valBytes.intVal = val;
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _bytes[pos] = _valBytes.b0;
             _bytes[pos + 1] = _valBytes.b1;
@@ -478,7 +475,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkOverflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
         }
@@ -508,7 +505,7 @@ public class ByteBuffer
     public long getLong(int pos)
     {
         checkUnderflow(pos, 8);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _valBytes.b0 = _bytes[pos];
             _valBytes.b1 = _bytes[pos + 1];
@@ -537,7 +534,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkUnderflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
         }
@@ -564,7 +561,7 @@ public class ByteBuffer
     {
         checkOverflow(8);
         _valBytes.longVal = val;
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _bytes[_position] = _valBytes.b0;
             _bytes[_position + 1] = _valBytes.b1;
@@ -594,7 +591,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkOverflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
         }
@@ -621,7 +618,7 @@ public class ByteBuffer
     public float getFloat()
     {
         checkUnderflow(4);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _valBytes.b0 = _bytes[_position];
             _valBytes.b1 = _bytes[_position + 1];
@@ -643,7 +640,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkUnderflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
         }
@@ -666,7 +663,7 @@ public class ByteBuffer
     {
         checkOverflow(4);
         _valBytes.floatVal = val;
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _bytes[_position] = _valBytes.b0;
             _bytes[_position + 1] = _valBytes.b1;
@@ -688,7 +685,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkOverflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
         }
@@ -711,7 +708,7 @@ public class ByteBuffer
     public double getDouble()
     {
         checkUnderflow(8);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _valBytes.b0 = _bytes[_position];
             _valBytes.b1 = _bytes[_position + 1];
@@ -741,7 +738,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkUnderflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
         }
@@ -768,7 +765,7 @@ public class ByteBuffer
     {
         checkOverflow(8);
         _valBytes.doubleVal = val;
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             _bytes[_position] = _valBytes.b0;
             _bytes[_position + 1] = _valBytes.b1;
@@ -798,7 +795,7 @@ public class ByteBuffer
     {
         int len = System.Buffer.ByteLength(seq);
         checkOverflow(len);
-        if (NO._o == _order)
+        if (NativeOrder._o == _order)
         {
             System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
         }
@@ -869,15 +866,15 @@ public class ByteBuffer
     private ValBytes _valBytes;
     private ByteOrder _order;
 
-    private class NO // Native Order
+    private class NativeOrder // Native Order
     {
-        static NO()
+        static NativeOrder()
         {
-            _o = BitConverter.IsLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+            _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
         }
         internal static readonly ByteOrder _o;
 
-        private NO()
+        private NativeOrder()
         {
         }
     }

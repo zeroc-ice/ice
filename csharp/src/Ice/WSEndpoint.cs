@@ -1,12 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Net.Security;
 
 namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
-using System.Net.Security;
 
 internal sealed class WSEndpoint : EndpointI
 {
@@ -266,7 +262,7 @@ internal sealed class WSEndpoint : EndpointI
         if (_resource != null && _resource.Length > 0)
         {
             s += " -r ";
-            bool addQuote = _resource.IndexOf(':') != -1;
+            bool addQuote = _resource.Contains(':');
             if (addQuote)
             {
                 s += "\"";

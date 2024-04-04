@@ -1,14 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+namespace IceInternal;
 public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
 {
     public void
@@ -545,7 +540,7 @@ public sealed class OutgoingConnectionFactory
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                connection = new Ice.ConnectionI(_communicator, _instance, _monitor, transceiver, ci.connector,
+                connection = new Ice.ConnectionI(_instance, _monitor, transceiver, ci.connector,
                                                  ci.endpoint.compress(false), null);
             }
             catch (Ice.LocalException)
@@ -693,7 +688,7 @@ public sealed class OutgoingConnectionFactory
             s.Append("connection to endpoint failed");
             if (ex is Ice.CommunicatorDestroyedException)
             {
-                s.Append("\n");
+                s.Append('\n');
             }
             else
             {
@@ -720,8 +715,7 @@ public sealed class OutgoingConnectionFactory
         bool found = false;
         foreach (ConnectorInfo ci in connectors)
         {
-            HashSet<ConnectCallback> cbs = null;
-            if (_pending.TryGetValue(ci.connector, out cbs))
+            if (_pending.TryGetValue(ci.connector, out HashSet<ConnectCallback> cbs))
             {
                 found = true;
                 if (cb != null)
@@ -773,7 +767,7 @@ public sealed class OutgoingConnectionFactory
             s.Append("couldn't resolve endpoint host");
             if (ex is Ice.CommunicatorDestroyedException)
             {
-                s.Append("\n");
+                s.Append('\n');
             }
             else
             {
@@ -1042,7 +1036,7 @@ public sealed class OutgoingConnectionFactory
                         s.Append(_current.endpoint.protocol());
                         s.Append(" connection to ");
                         s.Append(_current.connector.ToString());
-                        s.Append("\n");
+                        s.Append('\n');
                         s.Append(ex);
                         _factory._instance.initializationData().logger.trace(
                                             _factory._instance.traceLevels().networkCat, s.ToString());
@@ -1098,12 +1092,9 @@ public sealed class OutgoingConnectionFactory
     private FactoryACMMonitor _monitor;
     private bool _destroyed;
 
-    private MultiDictionary<Connector, Ice.ConnectionI> _connections =
-        new MultiDictionary<Connector, Ice.ConnectionI>();
-    private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint =
-        new MultiDictionary<EndpointI, Ice.ConnectionI>();
-    private Dictionary<Connector, HashSet<ConnectCallback>> _pending =
-        new Dictionary<Connector, HashSet<ConnectCallback>>();
+    private MultiDictionary<Connector, Ice.ConnectionI> _connections = new();
+    private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = new();
+    private Dictionary<Connector, HashSet<ConnectCallback>> _pending = new();
     private int _pendingConnectCount;
 }
 
@@ -1469,8 +1460,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
                 try
                 {
-                    connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver,
-                                                     null, _endpoint, _adapter);
+                    connection = new Ice.ConnectionI(_instance, _monitor, transceiver, null, _endpoint, _adapter);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -1602,8 +1592,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
                 _endpoint = _transceiver.bind();
 
-                Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null,
-                                                                 _transceiver, null, _endpoint, _adapter);
+                Ice.ConnectionI connection = new Ice.ConnectionI(_instance, null, _transceiver, null, _endpoint, _adapter);
                 connection.startAndWait();
                 _connections.Add(connection);
             }

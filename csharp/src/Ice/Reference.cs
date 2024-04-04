@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -809,7 +805,7 @@ public class FixedReference : Reference
     }
 
     private Ice.ConnectionI _fixedConnection;
-    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
+    private static EndpointI[] _emptyEndpoints = [];
 }
 
 public class RoutableReference : Reference
@@ -1651,8 +1647,8 @@ public class RoutableReference : Reference
         private RoutableReference _rr;
         private EndpointI[] _endpoints;
         private GetConnectionCallback _callback;
-        private int _i = 0;
-        private Ice.LocalException _exception = null;
+        private int _i;
+        private Ice.LocalException _exception;
     }
 
     protected void createConnection(EndpointI[] allEndpoints, GetConnectionCallback callback)
@@ -1736,7 +1732,7 @@ public class RoutableReference : Reference
 
     private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
     private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
-    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
+    private static EndpointI[] _emptyEndpoints = [];
 
     private EndpointI[] _endpoints;
     private string _adapterId;
