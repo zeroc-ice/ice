@@ -149,6 +149,8 @@ namespace IceInternal
         Ice::CommunicatorPtr _communicator;
         const InstancePtr _instance;
         const FactoryACMMonitorPtr _monitor;
+        std::chrono::milliseconds _idleTimeout;
+        bool _enableIdleCheck;
         bool _destroyed;
 
         using ConnectCallbackSet = std::set<ConnectCallbackPtr>;
@@ -233,6 +235,8 @@ namespace IceInternal
 
         const InstancePtr _instance;
         const FactoryACMMonitorPtr _monitor;
+        std::chrono::milliseconds _idleTimeout;
+        bool _enableIdleCheck;
 
         AcceptorPtr _acceptor;
         const TransceiverPtr _transceiver;

@@ -15,6 +15,7 @@
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Properties.h"
 #include "IceUtil/DisableWarnings.h"
+#include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
 #include "ProxyFactory.h"     // For createProxy().
@@ -47,6 +48,25 @@ namespace
 
     private:
         Ice::ConnectionI* _connection;
+    };
+
+    class KeepAlive final : public IceUtil::TimerTask
+    {
+    public:
+        KeepAlive(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
+
+        void runTimerTask() final
+        {
+            if (auto connection = _connection.lock())
+            {
+                // TODO: handle synchronous and asynchronous failures
+                connection->heartbeatAsync(nullptr);
+            }
+            // else nothing to do, the connection is already gone.
+        }
+
+    private:
+        const std::weak_ptr<ConnectionI> _connection;
     };
 
     class DispatchCall final : public ExecutorWorkItem
@@ -2155,12 +2175,30 @@ Ice::ConnectionI::create(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
+    const chrono::milliseconds& idleTimeout,
+    bool enableIdleCheck,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
     const shared_ptr<ObjectAdapterI>& adapter)
 {
+    shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
+    if (idleTimeout > chrono::milliseconds::zero())
+    {
+        decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
+            transceiver,
+            enableIdleCheck ? idleTimeout : chrono::milliseconds::zero(),
+            idleTimeout,
+            instance->timer());
+    }
+
     Ice::ConnectionIPtr conn(
-        new ConnectionI(communicator, instance, monitor, transceiver, connector, endpoint, adapter));
+        new ConnectionI(communicator, instance, monitor, decoratedTransceiver ? decoratedTransceiver : transceiver, connector, endpoint, adapter));
+
+    if (decoratedTransceiver)
+    {
+        decoratedTransceiver->keepAliveAction(make_shared<KeepAlive>(conn));
+    }
+
     if (adapter)
     {
         const_cast<ThreadPoolPtr&>(conn->_threadPool) = adapter->getThreadPool();

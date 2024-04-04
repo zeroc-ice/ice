@@ -347,9 +347,15 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     : _communicator(communicator),
       _instance(instance),
       _monitor(new FactoryACMMonitor(instance, instance->clientACM())),
+      _idleTimeout(chrono::milliseconds(60000)),
+      _enableIdleCheck(false),
       _destroyed(false),
       _pendingConnectCount(0)
 {
+    const PropertiesPtr& properties = _instance->initializationData().properties;
+    int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+    _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+    _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
 }
 
 IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
@@ -591,6 +597,8 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             _instance,
             _monitor,
             transceiver,
+            _idleTimeout,
+            _enableIdleCheck,
             ci.connector,
             ci.endpoint->compress(false),
             nullptr);
@@ -1489,7 +1497,9 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
                 _instance,
                 _monitor,
                 transceiver,
-                0,
+                _idleTimeout,
+                _enableIdleCheck,
+                nullptr, // connector
                 _endpoint,
                 _adapter);
         }
@@ -1643,6 +1653,8 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const shared_ptr<ObjectAdapterI>& adapter)
     : _instance(instance),
       _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
+      _idleTimeout(chrono::milliseconds(60000)),
+      _enableIdleCheck(false),
       _endpoint(endpoint),
       _publishedEndpoint(publishedEndpoint),
       _acceptorStarted(false),
@@ -1695,11 +1707,16 @@ IceInternal::IncomingConnectionFactory::initialize()
     {
         _endpoint = _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
     }
+
     try
     {
         const_cast<TransceiverPtr&>(_transceiver) = _endpoint->transceiver();
         if (_transceiver)
         {
+            // All this is for UDP "connections".
+            _idleTimeout = chrono::milliseconds(0); // always disable and ignore properties
+            _enableIdleCheck = false;
+
             if (_instance->traceLevels()->network >= 2)
             {
                 Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
@@ -1707,12 +1724,25 @@ IceInternal::IncomingConnectionFactory::initialize()
             }
             const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind();
             ConnectionIPtr connection(
-                ConnectionI::create(_adapter->getCommunicator(), _instance, 0, _transceiver, 0, _endpoint, _adapter));
+                ConnectionI::create(_adapter->getCommunicator(), _instance, nullptr, _transceiver, _idleTimeout, _enableIdleCheck, nullptr, _endpoint, _adapter));
             connection->startAsync(nullptr, nullptr);
             _connections.insert(connection);
         }
         else
         {
+            const PropertiesPtr& properties = _instance->initializationData().properties;
+            int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+            _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+
+            string adapterName = _adapter->getName();
+            if (!adapterName.empty())
+            {
+                // Override if any of these properties are set, otherwise keep previous value.
+                idleTimeout = properties->getPropertyAsIntWithDefault(adapterName + ".IdleTimeout", idleTimeout);
+                _enableIdleCheck = properties->getPropertyAsIntWithDefault(adapterName + ".EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+            }
+            _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
+
 #if TARGET_OS_IPHONE != 0
             //
             // The notification center will call back on the factory to

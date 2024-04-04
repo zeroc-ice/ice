@@ -234,6 +234,8 @@ namespace Ice
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
+            const std::chrono::milliseconds&,
+            bool,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&);

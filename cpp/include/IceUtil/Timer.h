@@ -7,6 +7,7 @@
 
 #include "Exception.h"
 
+#include <cassert>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
@@ -43,9 +44,9 @@ namespace IceUtil
         // is the timer thread, join the timer execution thread otherwise.
         void destroy();
 
-        // Schedule a task for execution after a given delay.
+        // Schedule or reschedule a task for execution after a given delay.
         template<class Rep, class Period>
-        void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
+        void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay, bool cancelPrevious = false)
         {
             std::lock_guard lock(_mutex);
             if (_destroyed)
@@ -65,9 +66,15 @@ namespace IceUtil
                 throw std::invalid_argument("delay too large, resulting in overflow");
             }
 
+            if (cancelPrevious)
+            {
+                cancelNoSync(task);
+            }
+
             bool inserted = _tasks.insert(make_pair(task, time)).second;
             if (!inserted)
             {
+                assert(!cancelPrevious);
                 throw std::invalid_argument("task is already scheduled");
             }
             _tokens.insert({time, std::nullopt, task});
@@ -145,6 +152,7 @@ namespace IceUtil
         };
 
         void run();
+        bool cancelNoSync(const TimerTaskPtr& task);
 
         std::mutex _mutex;
         std::condition_variable _condition;
