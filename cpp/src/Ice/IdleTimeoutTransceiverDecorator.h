@@ -69,8 +69,8 @@ namespace IceInternal
 
         const TransceiverPtr _decoratee;
         IceUtil::TimerTaskPtr _keepAliveAction;
-#if !defined(__GNUC__) || defined(__clang__ )
-     [[maybe_unused]]
+#if !defined(__GNUC__) || defined(__clang__)
+        [[maybe_unused]]
 #endif
         const std::chrono::milliseconds _readIdleTimeout;
         const std::chrono::milliseconds _writeIdleTimeout;
