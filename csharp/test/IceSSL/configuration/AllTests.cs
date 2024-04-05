@@ -186,7 +186,11 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(!((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
+                    test(false);
+                }
+                catch (Ice.SecurityException)
+                {
+                    // Expected.
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -267,13 +271,10 @@ public class AllTests
 
                 comm.destroy();
 
-                //
                 // Test IceSSL.VerifyPeer=1. Client has a certificate.
                 //
-                // Provide "cacert1" to the client to verify the server
-                // certificate (without this the client connection wouln't be
-                // able to provide the certificate chain).
-                //
+                // Provide "cacert1" to the client to verify the server certificate (without this the client connection
+                // wouldn't be able to provide the certificate chain).
                 initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));

@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using IceInternal;
 using System.Diagnostics;
 using System.Net.Security;
 using System.Security;
@@ -33,6 +34,8 @@ internal class SSLEngine
 
         // Check for a default directory. We look in this directory for files mentioned in the configuration.
         _defaultDir = properties.getProperty(prefix + "DefaultDir");
+
+        _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
         string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
         StoreLocation storeLocation;
@@ -76,12 +79,6 @@ internal class SSLEngine
                 throw new Ice.InitializationException($"IceSSL: certificate file not found: {certFile}");
             }
 
-            SecureString password = null;
-            if (passwordStr.Length > 0)
-            {
-                password = createSecureString(passwordStr);
-            }
-
             try
             {
                 X509Certificate2 cert;
@@ -95,8 +92,9 @@ internal class SSLEngine
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
-                if (password != null)
+                if (passwordStr.Length > 0)
                 {
+                    using SecureString password = createSecureString(passwordStr);
                     cert = new X509Certificate2(certFile, password, importFlags);
                 }
                 else
@@ -175,7 +173,7 @@ internal class SSLEngine
                         }
 
                         byte[] cert = new byte[size];
-                        Buffer.BlockCopy(data, startpos, cert, 0, size);
+                        System.Buffer.BlockCopy(data, startpos, cert, 0, size);
                         _caCerts.Import(cert);
                         first = false;
                     }
@@ -260,12 +258,65 @@ internal class SSLEngine
         }
     }
 
+    internal SslClientAuthenticationOptions clientAuthenticationOptions(
+        RemoteCertificateValidationCallback remoteCertificateValidationCallback)
+    {
+        return new SslClientAuthenticationOptions
+        {
+            ClientCertificates = _certs,
+            LocalCertificateSelectionCallback = (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+            {
+                if (certs == null || certs.Count == 0)
+                {
+                    return null;
+                }
+                else if (certs.Count == 1)
+                {
+                    return certs[0];
+                }
+
+                // Use the first certificate that match the acceptable issuers.
+                if (acceptableIssuers != null && acceptableIssuers.Length > 0)
+                {
+                    foreach (X509Certificate certificate in certs)
+                    {
+                        if (Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
+                        {
+                            return certificate;
+                        }
+                    }
+                }
+                return certs[0];
+            },
+            RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
+            
+        };
+    }
+
+    internal SslServerAuthenticationOptions serverAuthenticationOptions(
+        RemoteCertificateValidationCallback remoteCertificateValidationCallback)
+    {
+        // Get the certificate collection and select the first one.
+        X509Certificate2 cert = null;
+        if (_certs.Count > 0)
+        {
+            cert = _certs[0];
+        }
+
+        return new SslServerAuthenticationOptions
+        {
+            ServerCertificate = cert,
+            ClientCertificateRequired = _verifyPeer > 0,
+            RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
+        };
+    }
+
     private static bool isAbsolutePath(string path)
     {
         // Skip whitespace
         path = path.Trim();
 
-        if (IceInternal.AssemblyUtil.isWindows)
+        if (AssemblyUtil.isWindows)
         {
             // We need at least 3 non-whitespace characters to have an absolute path
             if (path.Length < 3)
@@ -495,6 +546,7 @@ internal class SSLEngine
     private string _defaultDir;
     private bool _checkCertName;
     private int _verifyDepthMax;
+    private int _verifyPeer;
     private int _checkCRL;
     private X509Certificate2Collection _certs;
     private bool _useMachineContext;
