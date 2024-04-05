@@ -15,7 +15,7 @@ runs:
   steps:
     # Python3 is already installed though Homebrew
     - name: Install brew dependencies
-      run: brew install ruby openjdk node php lmdb mcpp || true
+      run: brew install ruby node php lmdb mcpp || true
       shell: bash
       if: runner.os == 'macOS'
 
@@ -60,7 +60,7 @@ runs:
       with:
         distribution: "oracle"
         java-version: "17"
-      if: runner.os == 'Linux'
+      if: matrix.language == 'java'
 
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy
