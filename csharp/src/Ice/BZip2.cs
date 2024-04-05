@@ -102,7 +102,7 @@ internal delegate int DecompressBuffer(byte[] dest,
                               int sourceLen,
                               int small,
                               int verbosity);
-public class BZip2
+public static class BZip2
 {
     static BZip2()
     {

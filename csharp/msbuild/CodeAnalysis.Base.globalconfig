@@ -279,9 +279,6 @@ dotnet_diagnostic.CA1027.severity = none
 # CA1036: Override methods on comparable types
 dotnet_diagnostic.CA1036.severity = none
 
-# CA1052: Static holder types should be Static or NotInheritable
-dotnet_diagnostic.CA1052.severity = none
-
 # CA1066: Implement IEquatable when overriding Equals
 dotnet_diagnostic.CA1066.severity = none
 

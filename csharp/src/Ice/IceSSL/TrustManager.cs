@@ -47,7 +47,7 @@ internal sealed class TrustManager
         }
     }
 
-    internal bool verify(ConnectionInfo info, string desc)
+    internal bool verify(ConnectionInfo info, string description)
     {
         var reject = new List<List<List<RFC2253.RDNPair>>>();
         var accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -64,8 +64,7 @@ internal sealed class TrustManager
             }
             if (info.adapterName.Length > 0)
             {
-                List<List<RFC2253.RDNPair>> p;
-                if (_rejectServer.TryGetValue(info.adapterName, out p))
+                if (_rejectServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
                 {
                     reject.Add(p);
                 }
@@ -91,8 +90,7 @@ internal sealed class TrustManager
             }
             if (info.adapterName.Length > 0)
             {
-                List<List<RFC2253.RDNPair>> p;
-                if (_acceptServer.TryGetValue(info.adapterName, out p))
+                if (_acceptServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
                 {
                     accept.Add(p);
                 }
@@ -106,17 +104,13 @@ internal sealed class TrustManager
             }
         }
 
-        //
         // If there is nothing to match against, then we accept the cert.
-        //
         if (reject.Count == 0 && accept.Count == 0)
         {
             return true;
         }
 
-        //
         // If there is no certificate then we match false.
-        //
         if (info.certs != null && info.certs.Length > 0)
         {
             X500DistinguishedName subjectDN = info.certs[0].SubjectName;
@@ -124,30 +118,25 @@ internal sealed class TrustManager
             Debug.Assert(subjectName != null);
             try
             {
-                //
                 // Decompose the subject DN into the RDNs.
-                //
                 if (_traceLevel > 0)
                 {
                     if (info.incoming)
                     {
                         _communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
-                            "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + desc);
+                            "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + description);
                     }
                     else
                     {
                         _communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
-                            "subject = " + subjectName + "\n" + desc);
+                            "subject = " + subjectName + "\n" + description);
                     }
                 }
 
                 List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
 
-                //
-                // Unescape the DN. Note that this isn't done in
-                // the parser in order to keep the various RFC2253
+                // Unescape the DN. Note that this isn't done in the parser in order to keep the various RFC2253
                 // implementations as close as possible.
-                //
                 for (int i = 0; i < dn.Count; ++i)
                 {
                     RFC2253.RDNPair p = dn[i];
@@ -155,14 +144,12 @@ internal sealed class TrustManager
                     dn[i] = p;
                 }
 
-                //
                 // Fail if we match anything in the reject set.
-                //
                 foreach (List<List<RFC2253.RDNPair>> matchSet in reject)
                 {
                     if (_traceLevel > 0)
                     {
-                        StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
+                        var s = new StringBuilder("trust manager rejecting PDNs:\n");
                         stringify(matchSet, s);
                         _communicator.getLogger().trace("Security", s.ToString());
                     }
@@ -179,7 +166,7 @@ internal sealed class TrustManager
                 {
                     if (_traceLevel > 0)
                     {
-                        StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
+                        var s = new StringBuilder("trust manager accepting PDNs:\n");
                         stringify(matchSet, s);
                         _communicator.getLogger().trace("Security", s.ToString());
                     }
@@ -192,12 +179,10 @@ internal sealed class TrustManager
             catch (RFC2253.ParseException e)
             {
                 _communicator.getLogger().warning(
-                    "IceSSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + e.reason);
+                    $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.reason}");
             }
 
-            //
             // At this point we accept the connection if there are no explicit accept rules.
-            //
             return accept.Count == 0;
         }
 
@@ -243,12 +228,8 @@ internal sealed class TrustManager
     // Note that unlike the C++ & Java implementation this returns unescaped data.
     private static void parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
     {
-        //
-        // As with the Java implementation, the DN that comes from
-        // the X500DistinguishedName does not necessarily match
-        // the user's input form. Therefore we need to normalize the
-        // data to match the C# forms.
-        //
+        // As with the Java implementation, the DN that comes from the X500DistinguishedName does not necessarily match
+        // the user's input form. Therefore we need to normalize the data to match the C# forms.
         List<RFC2253.RDNEntry> l = RFC2253.parse(value);
         for (int i = 0; i < l.Count; ++i)
         {
@@ -305,18 +286,16 @@ internal sealed class TrustManager
         }
     }
 
-    private Ice.Communicator _communicator;
-    private int _traceLevel;
+    private readonly Ice.Communicator _communicator;
+    private readonly int _traceLevel;
 
-    private List<List<RFC2253.RDNPair>> _rejectAll = new List<List<RFC2253.RDNPair>>();
-    private List<List<RFC2253.RDNPair>> _rejectClient = new List<List<RFC2253.RDNPair>>();
-    private List<List<RFC2253.RDNPair>> _rejectAllServer = new List<List<RFC2253.RDNPair>>();
-    private Dictionary<string, List<List<RFC2253.RDNPair>>> _rejectServer =
-        new Dictionary<string, List<List<RFC2253.RDNPair>>>();
+    private readonly List<List<RFC2253.RDNPair>> _rejectAll = [];
+    private readonly List<List<RFC2253.RDNPair>> _rejectClient = [];
+    private readonly List<List<RFC2253.RDNPair>> _rejectAllServer = [];
+    private readonly Dictionary<string, List<List<RFC2253.RDNPair>>> _rejectServer = [];
 
-    private List<List<RFC2253.RDNPair>> _acceptAll = new List<List<RFC2253.RDNPair>>();
-    private List<List<RFC2253.RDNPair>> _acceptClient = new List<List<RFC2253.RDNPair>>();
-    private List<List<RFC2253.RDNPair>> _acceptAllServer = new List<List<RFC2253.RDNPair>>();
-    private Dictionary<string, List<List<RFC2253.RDNPair>>> _acceptServer =
-        new Dictionary<string, List<List<RFC2253.RDNPair>>>();
+    private readonly List<List<RFC2253.RDNPair>> _acceptAll = [];
+    private readonly List<List<RFC2253.RDNPair>> _acceptClient = [];
+    private readonly List<List<RFC2253.RDNPair>> _acceptAllServer = [];
+    private readonly Dictionary<string, List<List<RFC2253.RDNPair>>> _acceptServer = [];
 }
