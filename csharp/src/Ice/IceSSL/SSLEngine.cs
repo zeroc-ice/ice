@@ -228,7 +228,7 @@ internal class SSLEngine
         }
     }
 
-    internal SslClientAuthenticationOptions clientAuthenticationOptions(
+    internal SslClientAuthenticationOptions createClientAuthenticationOptions(
         RemoteCertificateValidationCallback remoteCertificateValidationCallback,
         string host)
     {
@@ -265,7 +265,7 @@ internal class SSLEngine
         };
     }
 
-    internal SslServerAuthenticationOptions serverAuthenticationOptions(
+    internal SslServerAuthenticationOptions createServerAuthenticationOptions(
         RemoteCertificateValidationCallback remoteCertificateValidationCallback)
     {
         // Get the certificate collection and select the first one.

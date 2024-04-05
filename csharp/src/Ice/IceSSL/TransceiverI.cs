@@ -361,64 +361,40 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             if (_incoming)
             {
                 _writeResult = _sslStream.AuthenticateAsServerAsync(
-                    _serverAuthenticationOptions ?? _instance.engine().serverAuthenticationOptions(
-                        new RemoteCertificateValidationCallback(validationCallback)));
-                _writeResult.ContinueWith(
-                    task =>
-                    {
-                        try
-                        {
-                            // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
-                            // and the task won't complete successfully.
-                            _verified = task.IsCompletedSuccessfully;
-                            if (_verified)
-                            {
-                                _cipher = _sslStream.CipherAlgorithm.ToString();
-                            }
-                        }
-                        finally
-                        {
-                            callback(state);
-                        }
-                    },
-                    TaskScheduler.Default);
+                    _serverAuthenticationOptions ??
+                    _instance.engine().createServerAuthenticationOptions(validationCallback));
             }
             else
             {
                 _writeResult = _sslStream.AuthenticateAsClientAsync(
                     _instance.initializationData().clientAuthenticationOptions ??
-                    _instance.engine().clientAuthenticationOptions(
-                        new RemoteCertificateValidationCallback(validationCallback),
-                        _host));
-                _writeResult.ContinueWith(
-                    task =>
-                    {
-                        try
-                        {
-                            // If authentication fails, AuthenticateAsClientAsync throws AuthenticationException,
-                            // and the task won't complete successfully.
-                            _verified = task.IsCompletedSuccessfully;
-                            if (_verified)
-                            {
-                                _cipher = _sslStream.CipherAlgorithm.ToString();
-                            }
-                        }
-                        finally
-                        {
-                            callback(state);
-                        }
-                    },
-                    TaskScheduler.Default);
+                    _instance.engine().createClientAuthenticationOptions(validationCallback, _host));
             }
+            _writeResult.ContinueWith(
+                task =>
+                {
+                    try
+                    {
+                        // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
+                        // and the task won't complete successfully.
+                        _verified = task.IsCompletedSuccessfully;
+                        if (_verified)
+                        {
+                            _cipher = _sslStream.CipherAlgorithm.ToString();
+                        }
+                    }
+                    finally
+                    {
+                        callback(state);
+                    }
+                },
+                TaskScheduler.Default);
         }
         catch (IOException ex)
         {
             if (IceInternal.Network.connectionLost(ex))
             {
-                //
-                // This situation occurs when connectToSelf is called; the "remote" end
-                // closes the socket immediately.
-                //
+                // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
             }
             throw new Ice.SocketException(ex);
