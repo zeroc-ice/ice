@@ -403,44 +403,6 @@ namespace
         }
     }
 
-    DWORD
-    parseProtocols(const StringSeq& protocols)
-    {
-        DWORD v = 0;
-
-        for (Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
-        {
-            string prot = IceUtilInternal::toUpper(*p);
-
-            if (prot == "SSL3" || prot == "SSLV3")
-            {
-                v |= SP_PROT_SSL3;
-            }
-            else if (prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
-            {
-                v |= SP_PROT_TLS1;
-            }
-            else if (prot == "TLS1_1" || prot == "TLSV1_1")
-            {
-                v |= SP_PROT_TLS1_1;
-            }
-            else if (prot == "TLS1_2" || prot == "TLSV1_2")
-            {
-                v |= SP_PROT_TLS1_2;
-            }
-            else if (prot == "TLS1_3" || prot == "TLSV1_2")
-            {
-                v |= SP_PROT_TLS1_3;
-            }
-            else
-            {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + *p + "'");
-            }
-        }
-
-        return v;
-    }
-
     const ALG_ID supportedCiphers[] = {CALG_3DES, CALG_AES_128, CALG_AES_256, CALG_DES, CALG_RC2, CALG_RC4};
     const int supportedCiphersSize = sizeof(supportedCiphers) / sizeof(ALG_ID);
 
@@ -615,17 +577,6 @@ SChannel::SSLEngine::initialize()
 
     const string prefix = "IceSSL.";
     const PropertiesPtr properties = communicator()->getProperties();
-
-    //
-    // Protocols selects which protocols to enable, by default we only enable TLS1.0
-    // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
-    //
-    vector<string> defaultProtocols;
-    defaultProtocols.push_back("tls1_0");
-    defaultProtocols.push_back("tls1_1");
-    defaultProtocols.push_back("tls1_2");
-    const_cast<DWORD&>(_protocols) =
-        parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
 
     const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
 
@@ -1198,8 +1149,6 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming)
         cred.cCreds = static_cast<DWORD>(_allCerts.size());
         cred.paCred = &_allCerts[0];
     }
-
-    cred.grbitEnabledProtocols = _protocols;
 
     if (incoming)
     {

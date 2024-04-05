@@ -571,9 +571,6 @@ generated from the section label.
         <property name="Password" />
         <property name="PasswordCallback" />
         <property name="PasswordRetryMax" />
-        <property name="Protocols" />
-        <property name="ProtocolVersionMax" />
-        <property name="ProtocolVersionMin" />
         <property name="Random" />
         <property name="RevocationCheck" />
         <property name="RevocationCheckCacheOnly" />
