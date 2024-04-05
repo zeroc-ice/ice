@@ -1,10 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace IceInternal;
 
@@ -87,7 +83,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                                           + "' completed successfully");
                         }
                     }
-                    catch (System.AggregateException ae)
+                    catch (AggregateException ae)
                     {
                         Debug.Assert(ae.InnerException is Ice.LocalException);
                         deadRemoteLogger(remoteLogger, _logger, (Ice.LocalException)ae.InnerException, "init");
@@ -426,14 +422,14 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     }
 
     private readonly LinkedList<Ice.LogMessage> _queue = new LinkedList<Ice.LogMessage>();
-    private int _logCount = 0; // non-trace messages
+    private int _logCount; // non-trace messages
     private readonly int _maxLogCount;
-    private int _traceCount = 0;
+    private int _traceCount;
     private readonly int _maxTraceCount;
     private readonly int _traceLevel;
 
-    private LinkedListNode<Ice.LogMessage> _oldestTrace = null;
-    private LinkedListNode<Ice.LogMessage> _oldestLog = null;
+    private LinkedListNode<Ice.LogMessage> _oldestTrace;
+    private LinkedListNode<Ice.LogMessage> _oldestLog;
 
     private class Filters
     {
@@ -459,12 +455,10 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         internal readonly Filters filters;
     }
 
-    private readonly Dictionary<Ice.Identity, RemoteLoggerData> _remoteLoggerMap
-        = new Dictionary<Ice.Identity, RemoteLoggerData>();
-
+    private readonly Dictionary<Ice.Identity, RemoteLoggerData> _remoteLoggerMap = new();
     private readonly LoggerAdminLoggerI _logger;
 
-    private Ice.Communicator _sendLogCommunicator = null;
-    private bool _destroyed = false;
-    static private readonly string _traceCategory = "Admin.Logger";
+    private Ice.Communicator _sendLogCommunicator;
+    private bool _destroyed;
+    private const string _traceCategory = "Admin.Logger";
 }

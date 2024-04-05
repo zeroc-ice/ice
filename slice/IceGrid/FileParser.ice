@@ -9,8 +9,6 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:IceGrid/Config.h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

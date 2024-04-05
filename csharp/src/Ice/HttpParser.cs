@@ -1,32 +1,14 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-internal sealed class WebSocketException : System.Exception
+namespace IceInternal;
+
+public sealed class WebSocketException : Exception
 {
-    internal WebSocketException() :
-        base("", null)
-    {
-    }
-
-    internal WebSocketException(string message) :
+    public WebSocketException(string message) :
         base(message, null)
-    {
-    }
-
-    internal WebSocketException(string message, System.Exception cause) :
-        base(message, cause)
-    {
-    }
-
-    internal WebSocketException(System.Exception cause) :
-        base("", cause)
     {
     }
 }

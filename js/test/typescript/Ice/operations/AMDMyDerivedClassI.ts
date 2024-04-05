@@ -409,11 +409,6 @@ export class AMDMyDerivedClassI extends Test.MyDerivedClass
         test(current.mode === Ice.OperationMode.Idempotent);
     }
 
-    opNonmutating(current:Ice.Current):void
-    {
-        test(current.mode === Ice.OperationMode.Nonmutating);
-    }
-
     opDerived(current:Ice.Current):void
     {
     }

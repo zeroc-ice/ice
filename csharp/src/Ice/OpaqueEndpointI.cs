@@ -1,13 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Security;
+
+namespace IceInternal;
 
 internal sealed class OpaqueEndpointI : EndpointI
 {

@@ -9,8 +9,6 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:list"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

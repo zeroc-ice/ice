@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /* Unmerged change from project 'collocated'
 Before:
@@ -10,9 +8,6 @@ After:
 using System.Collections.Generic;
 using System.Diagnostics;
 */
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace Ice
 {
     namespace dictMapping

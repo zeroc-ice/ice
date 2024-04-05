@@ -12,8 +12,6 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:cstdint"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

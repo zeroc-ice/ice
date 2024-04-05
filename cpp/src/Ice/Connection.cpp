@@ -7,6 +7,8 @@
 using namespace Ice;
 using namespace std;
 
+Ice::Connection::~Connection() {}
+
 void
 Ice::Connection::flushBatchRequests(CompressBatch compress)
 {

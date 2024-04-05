@@ -1,9 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
-using System.Collections.Generic;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -55,7 +50,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Dictionary<string, string> old = _properties.getPropertiesForPrefix("");
+                var old = _properties.getPropertiesForPrefix("");
                 int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
 
                 //
@@ -68,9 +63,9 @@ namespace IceInternal
                 // 3) Any properties not present in the new set but present in the existing set.
                 //    In other words, the property has been removed.
                 //
-                Dictionary<string, string> added = new Dictionary<string, string>();
-                Dictionary<string, string> changed = new Dictionary<string, string>();
-                Dictionary<string, string> removed = new Dictionary<string, string>();
+                var added = new Dictionary<string, string>();
+                var changed = new Dictionary<string, string>();
+                var removed = new Dictionary<string, string>();
                 foreach (KeyValuePair<string, string> e in props)
                 {
                     string key = e.Key;
@@ -142,7 +137,7 @@ namespace IceInternal
                                 message.Append(e.Value);
                                 message.Append(" (old value = ");
                                 message.Append(_properties.getProperty(e.Key));
-                                message.Append(")");
+                                message.Append(')');
                             }
                         }
                     }
@@ -249,7 +244,7 @@ namespace IceInternal
             }
         }
 
-        public void removeUpdateCallback(System.Action<Dictionary<string, string>> cb)
+        public void removeUpdateCallback(Action<Dictionary<string, string>> cb)
         {
             lock (this)
             {
@@ -259,11 +254,9 @@ namespace IceInternal
 
         private readonly Ice.Properties _properties;
         private readonly Ice.Logger _logger;
-        private List<Ice.PropertiesAdminUpdateCallback> _deprecatedUpdateCallbacks =
-            new List<Ice.PropertiesAdminUpdateCallback>();
-        private List<System.Action<Dictionary<string, string>>> _updateCallbacks =
-            new List<System.Action<Dictionary<string, string>>>();
+        private readonly List<Ice.PropertiesAdminUpdateCallback> _deprecatedUpdateCallbacks = new();
+        private readonly List<Action<Dictionary<string, string>>> _updateCallbacks = new();
 
-        private static readonly string _traceCategory = "Admin.Properties";
+        private const string _traceCategory = "Admin.Properties";
     }
 }

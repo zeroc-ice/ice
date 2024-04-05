@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
@@ -10,13 +8,13 @@ public interface ImplicitContext
     /// Get a copy of the underlying context.
     /// </summary>
     /// <returns>A copy of the underlying context.</returns>
-    System.Collections.Generic.Dictionary<string, string> getContext();
+    Dictionary<string, string> getContext();
 
     /// <summary>
     /// Set the underlying context.
     /// </summary>
     /// <param name="newContext">The new context.</param>
-    void setContext(System.Collections.Generic.Dictionary<string, string> newContext);
+    void setContext(Dictionary<string, string> newContext);
 
     /// <summary>
     /// Check if this key has an associated value in the underlying context.

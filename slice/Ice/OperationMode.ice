@@ -12,8 +12,6 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

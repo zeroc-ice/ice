@@ -1,14 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Security;
 
+namespace IceInternal;
 public interface EndpointI_connectors
 {
     void connectors(List<Connector> connectors);

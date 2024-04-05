@@ -1,14 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Diagnostics;
 using System.Globalization;
 
 namespace IceInternal
 {
-    public class Ex
+    public static class Ex
     {
         public static void throwUOE(Type expectedType, Ice.Value v)
         {

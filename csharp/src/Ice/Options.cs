@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -28,14 +24,13 @@ public sealed class Options
         string l = line.Trim();
         if (l.Length == 0)
         {
-            return new string[0];
+            return [];
         }
 
         State state = State.Normal;
 
         string arg = "";
-        List<string> vec = new List<string>();
-
+        var vec = new List<string>();
         for (int i = 0; i < l.Length; ++i)
         {
             char c = l[i];
@@ -107,7 +102,7 @@ public sealed class Options
                         }
                         default:
                         {
-                            if (IFS.IndexOf(l[i]) != -1)
+                            if (IFS.Contains(l[i]))
                             {
                                 vec.Add(arg);
                                 arg = "";
@@ -115,7 +110,7 @@ public sealed class Options
                                 //
                                 // Move to start of next argument.
                                 //
-                                while (++i < l.Length && IFS.IndexOf(l[i]) != -1)
+                                while (++i < l.Length && IFS.Contains(l[i]))
                                 {
                                     ;
                                 }
@@ -260,7 +255,7 @@ public sealed class Options
                                     const string octalDigits = "01234567";
                                     short s = 0;
                                     int j;
-                                    for (j = i; j < i + 3 && j < l.Length && octalDigits.IndexOf(c = l[j]) != -1; ++j)
+                                    for (j = i; j < i + 3 && j < l.Length && octalDigits.Contains(c = l[j]); ++j)
                                     {
                                         s = (short)(s * 8 + c - '0');
                                     }
@@ -275,7 +270,7 @@ public sealed class Options
                                 case 'x':
                                 {
                                     const string hexDigits = "0123456789abcdefABCDEF";
-                                    if (i < l.Length - 1 && hexDigits.IndexOf(l[i + 1]) == -1)
+                                    if (i < l.Length - 1 && !hexDigits.Contains(l[i + 1]))
                                     {
                                         arg += '\\';
                                         arg += 'x';
@@ -285,7 +280,7 @@ public sealed class Options
                                     short s = 0;
                                     int j;
                                     for (j = i + 1;
-                                        j < i + 3 && j < l.Length && hexDigits.IndexOf(c = l[j]) != -1;
+                                        j < i + 3 && j < l.Length && hexDigits.Contains(c = l[j]);
                                         ++j)
                                     {
                                         s *= 16;

@@ -1,37 +1,22 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Diagnostics;
+using System.Text;
 
 //
 // See RFC 2253 and RFC 1779.
 //
 namespace IceSSL;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-
 internal class RFC2253
 {
-    internal class ParseException : Exception
+    public class ParseException : Exception
     {
-        internal ParseException()
-        {
-        }
+        public ParseException(string reason) => this.reason = reason;
 
-        internal ParseException(string reason)
-        {
-            this.reason = reason;
-        }
+        internal string ice_id() => "::RFC2253::ParseException";
 
-        internal string
-        ice_id()
-        {
-            return "::RFC2253::ParseException";
-        }
-
-        internal string reason;
+        internal readonly string reason;
     }
 
     internal struct RDNPair
@@ -42,14 +27,14 @@ internal class RFC2253
 
     internal class RDNEntry
     {
-        internal List<RDNPair> rdn = new List<RDNPair>();
-        internal bool negate = false;
+        internal List<RDNPair> rdn = [];
+        internal bool negate;
     }
 
     internal static List<RDNEntry> parse(string data)
     {
-        List<RDNEntry> results = new List<RDNEntry>();
-        RDNEntry current = new RDNEntry();
+        List<RDNEntry> results = [];
+        var current = new RDNEntry();
         int pos = 0;
         while (pos < data.Length)
         {
@@ -77,7 +62,7 @@ internal class RFC2253
             }
             else if (pos < data.Length)
             {
-                throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                throw new ParseException($"expected ',' or ';' at `{data[pos..]}'");
             }
         }
         if (current.rdn.Count > 0)
@@ -90,7 +75,7 @@ internal class RFC2253
 
     internal static List<RDNPair> parseStrict(string data)
     {
-        List<RDNPair> results = new List<RDNPair>();
+        List<RDNPair> results = [];
         int pos = 0;
         while (pos < data.Length)
         {
@@ -102,7 +87,7 @@ internal class RFC2253
             }
             else if (pos < data.Length)
             {
-                throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                throw new ParseException($"expected ',' or ';' at `{data[pos..]}'");
             }
         }
         return results;
@@ -117,20 +102,16 @@ internal class RFC2253
 
         if (data[0] == '"')
         {
-            if (data[data.Length - 1] != '"')
+            if (data[^1] != '"')
             {
                 throw new ParseException("unescape: missing \"");
             }
-            //
             // Return the string without quotes.
-            //
-            return data.Substring(1, data.Length - 2);
+            return data[1..^1];
         }
 
-        //
         // Unescape the entire string.
-        //
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         if (data[0] == '#')
         {
             int pos = 1;
@@ -157,7 +138,7 @@ internal class RFC2253
                     {
                         throw new ParseException("unescape: invalid escape sequence");
                     }
-                    if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
+                    if (special.Contains(data[pos]) || data[pos] != '\\' || data[pos] != '"')
                     {
                         result.Append(data[pos]);
                         ++pos;
@@ -225,7 +206,7 @@ internal class RFC2253
 
     private static RDNPair parseAttributeTypeAndValue(string data, ref int pos)
     {
-        RDNPair p = new RDNPair();
+        var p = new RDNPair();
         p.key = parseAttributeType(data, ref pos);
         eatWhite(data, ref pos);
         if (pos >= data.Length)
@@ -234,8 +215,7 @@ internal class RFC2253
         }
         if (data[pos] != '=')
         {
-            throw new ParseException("invalid attribute type/value pair (missing =). remainder: " +
-                                     data.Substring(pos));
+            throw new ParseException($"invalid attribute type/value pair (missing =). remainder: {data[pos..]}");
         }
         ++pos;
         p.value = parseAttributeValue(data, ref pos);
@@ -252,7 +232,6 @@ internal class RFC2253
 
         string result = "";
 
-        //
         // RFC 1779.
         // <key> ::= 1*( <keychar> ) | "OID." <oid> | "oid." <oid>
         // <oid> ::= <digitstring> | <digitstring> "." <oid>
@@ -262,14 +241,12 @@ internal class RFC2253
         // oid        = 1*DIGIT *("." 1*DIGIT)
         //
         // In section 4 of RFC 2253 the document says:
-        // Implementations MUST allow an oid in the attribute type to be
-        // prefixed by one of the character strings "oid." or "OID.".
+        // Implementations MUST allow an oid in the attribute type to be prefixed by one of the character strings
+        // "oid." or "OID.".
         //
-        // Here we must also check for "oid." and "OID." before parsing
-        // according to the ALPHA KEYCHAR* rule.
+        // Here we must also check for "oid." and "OID." before parsing according to the ALPHA KEYCHAR* rule.
         //
         // First the OID case.
-        //
         if (char.IsDigit(data[pos]) ||
            (data.Length - pos >= 4 && (data.Substring(pos, 4) == "oid." ||
                                                    data.Substring(pos, 4) == "OID.")))
@@ -307,11 +284,8 @@ internal class RFC2253
         }
         else if (char.IsUpper(data[pos]) || char.IsLower(data[pos]))
         {
-            //
-            // The grammar is wrong in this case. It should be ALPHA
-            // KEYCHAR* otherwise it will not accept "O" as a valid
-            // attribute type.
-            //
+            // The grammar is wrong in this case. It should be ALPHA KEYCHAR* otherwise it will not accept "O" as a
+            // valid attribute type.
             result += data[pos];
             ++pos;
             // 1* KEYCHAR
@@ -340,11 +314,9 @@ internal class RFC2253
             return "";
         }
 
-        //
         // RFC 2253
         // # hexstring
-        //
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         if (data[pos] == '#')
         {
             result.Append(data[pos]);
@@ -359,11 +331,10 @@ internal class RFC2253
                 result.Append(h);
             }
         }
-        //
+
         // RFC 2253
         // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
         // quotechar     = <any character except "\" or QUOTATION >
-        //
         else if (data[pos] == '"')
         {
             result.Append(data[pos]);
@@ -407,7 +378,7 @@ internal class RFC2253
                 {
                     result.Append(parsePair(data, ref pos));
                 }
-                else if (special.IndexOf(data[pos]) == -1 && data[pos] != '"')
+                else if (!special.Contains(data[pos]) && data[pos] != '"')
                 {
                     result.Append(data[pos]);
                     ++pos;
@@ -421,10 +392,8 @@ internal class RFC2253
         return result.ToString();
     }
 
-    //
     // RFC2253:
     // pair       = "\" ( special | "\" | QUOTATION | hexpair )
-    //
     private static string parsePair(string data, ref int pos)
     {
         string result = "";
@@ -438,7 +407,7 @@ internal class RFC2253
             throw new ParseException("invalid escape format (unexpected end of data)");
         }
 
-        if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
+        if (special.Contains(data[pos]) || data[pos] != '\\' ||
            data[pos] != '"')
         {
             result += data[pos];
@@ -448,19 +417,17 @@ internal class RFC2253
         return parseHexPair(data, ref pos, false);
     }
 
-    //
     // RFC 2253
     // hexpair    = hexchar hexchar
-    //
     private static string parseHexPair(string data, ref int pos, bool allowEmpty)
     {
         string result = "";
-        if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+        if (pos < data.Length && hexvalid.Contains(data[pos]))
         {
             result += data[pos];
             ++pos;
         }
-        if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+        if (pos < data.Length && hexvalid.Contains(data[pos]))
         {
             result += data[pos];
             ++pos;
@@ -476,14 +443,11 @@ internal class RFC2253
         return result;
     }
 
-    //
     // RFC 2253:
     //
-    // Implementations MUST allow for space (' ' ASCII 32) characters to be
-    // present between name-component and ',', between attributeTypeAndValue
-    // and '+', between attributeType and '=', and between '=' and
-    // attributeValue.  These space characters are ignored when parsing.
-    //
+    // Implementations MUST allow for space (' ' ASCII 32) characters to be present between name-component and ',',
+    // between attributeTypeAndValue and '+', between attributeType and '=', and between '=' and attributeValue.
+    // These space characters are ignored when parsing.
     private static void eatWhite(string data, ref int pos)
     {
         while (pos < data.Length && data[pos] == ' ')
@@ -492,6 +456,6 @@ internal class RFC2253
         }
     }
 
-    private static string special = ",=+<>#;";
-    private static string hexvalid = "0123456789abcdefABCDEF";
+    private const string special = ",=+<>#;";
+    private const string hexvalid = "0123456789abcdefABCDEF";
 }

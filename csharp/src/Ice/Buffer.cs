@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -10,7 +8,7 @@ using System.Diagnostics;
 // This class wraps a ByteBuffer and supports reallocation.
 public class Buffer
 {
-    public Buffer() : this(ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+    public Buffer() : this(ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 
@@ -22,7 +20,7 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(byte[] data) : this(data, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+    public Buffer(byte[] data) : this(data, ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 
@@ -35,7 +33,7 @@ public class Buffer
         _order = order;
     }
 
-    public Buffer(ByteBuffer data) : this(data, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+    public Buffer(ByteBuffer data) : this(data, ByteBuffer.ByteOrder.LittleEndian)
     {
     }
 

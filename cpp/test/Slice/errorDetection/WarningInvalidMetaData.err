@@ -16,5 +16,6 @@ WarningInvalidMetaData.ice:42: warning: ignoring invalid metadata `cpp:view-type
 WarningInvalidMetaData.ice:47: warning: ignoring invalid metadata `cpp:const'
 WarningInvalidMetaData.ice:47: warning: ignoring invalid metadata `cpp:ice_print'
 WarningInvalidMetaData.ice:53: warning: ignoring invalid metadata `cpp:virtual'
-WarningInvalidMetaData.ice:58: warning: ignoring invalid metadata `cpp98:foo'
-WarningInvalidMetaData.ice:58: warning: ignoring invalid metadata `cpp11:bar'
+WarningInvalidMetaData.ice:58: warning: ignoring invalid metadata `cpp:bad'
+WarningInvalidMetaData.ice:63: warning: ignoring invalid metadata `cpp98:foo'
+WarningInvalidMetaData.ice:63: warning: ignoring invalid metadata `cpp11:bar'

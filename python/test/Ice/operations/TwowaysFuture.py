@@ -861,9 +861,6 @@ class Callback(CallbackBase):
     def opIdempotent(self, f):
         self.called()
 
-    def opNonmutating(self, f):
-        self.called()
-
     def opDerived(self, f):
         self.called()
 
@@ -1305,10 +1302,6 @@ def twowaysFuture(helper, p):
 
     cb = Callback()
     p.opIdempotentAsync().add_done_callback(cb.opIdempotent)
-    cb.check()
-
-    cb = Callback()
-    p.opNonmutatingAsync().add_done_callback(cb.opNonmutating)
     cb.check()
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)

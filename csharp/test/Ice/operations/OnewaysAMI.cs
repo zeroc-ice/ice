@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System.Threading.Tasks;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -53,7 +49,6 @@ namespace Ice
 
                 await p.opVoidAsync();
                 await p.opIdempotentAsync();
-                await p.opNonmutatingAsync();
 
                 try
                 {

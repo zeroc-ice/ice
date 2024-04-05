@@ -1,24 +1,16 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
-
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+
+namespace IceSSL;
 
 internal sealed class TransceiverI : IceInternal.Transceiver
 {
-    public Socket fd()
-    {
-        return _delegate.fd();
-    }
+    public Socket fd() => _delegate.fd();
 
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -34,13 +26,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
         IceInternal.Network.setBlock(fd(), true); // SSL requires a blocking socket
 
-        //
-        // For timeouts to work properly, we need to receive/send
-        // the data in several chunks. Otherwise, we would only be
-        // notified when all the data is received/written. The
-        // connection timeout could easily be triggered when
+        // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would only
+        // be notified when all the data is received/written. The connection timeout could easily be triggered when
         // receiving/sending large messages.
-        //
         _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
         _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
 
@@ -79,7 +67,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         _authenticated = true;
 
         _cipher = _sslStream.CipherAlgorithm.ToString();
-        _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
+        _instance.verifyPeer((ConnectionInfo)getInfo(), ToString());
 
         if (_instance.securityTraceLevel() >= 1)
         {
@@ -88,10 +76,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    public int closing(bool initiator, Ice.LocalException ex)
-    {
-        return _delegate.closing(initiator, ex);
-    }
+    public int closing(bool initiator, Ice.LocalException ex) => _delegate.closing(initiator, ex);
 
     public void close()
     {
@@ -110,26 +95,15 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return null;
     }
 
-    public void destroy()
-    {
-        _delegate.destroy();
-    }
+    public void destroy() => _delegate.destroy();
 
-    public int write(IceInternal.Buffer buf)
-    {
-        //
+    public int write(IceInternal.Buffer buf) =>
         // Force caller to use async write.
-        //
-        return buf.b.hasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
-    }
+        buf.b.hasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
-    public int read(IceInternal.Buffer buf, ref bool hasMoreData)
-    {
-        //
+    public int read(IceInternal.Buffer buf, ref bool hasMoreData) =>
         // Force caller to use async read.
-        //
-        return buf.b.hasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
-    }
+        buf.b.hasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
 
     public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
     {
@@ -242,10 +216,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             return startAuthenticate(cb, state);
         }
 
-        //
-        // We limit the packet size for beingWrite to ensure connection timeouts are based
-        // on a fixed packet size.
-        //
+        // We limit the packet size for beingWrite to ensure connection timeouts are based on a fixed packet size.
         int packetSize = getSendPacketSize(buf.b.remaining());
         try
         {
@@ -334,10 +305,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    public string protocol()
-    {
-        return _delegate.protocol();
-    }
+    public string protocol() => _delegate.protocol();
 
     public Ice.ConnectionInfo getInfo()
     {
@@ -351,25 +319,13 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return info;
     }
 
-    public void checkSendSize(IceInternal.Buffer buf)
-    {
-        _delegate.checkSendSize(buf);
-    }
+    public void checkSendSize(IceInternal.Buffer buf) => _delegate.checkSendSize(buf);
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => _delegate.setBufferSize(rcvSize, sndSize);
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public string toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    public string toDetailedString() => _delegate.toDetailedString();
 
     //
     // Only for use by ConnectorI, AcceptorI.
@@ -507,7 +463,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException(ex);
+            var e = new Ice.SecurityException(ex);
             e.reason = ex.Message;
             throw e;
         }
@@ -539,17 +495,14 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         {
             if (IceInternal.Network.connectionLost(ex))
             {
-                //
-                // This situation occurs when connectToSelf is called; the "remote" end
-                // closes the socket immediately.
-                //
+                // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
             }
             throw new Ice.SocketException(ex);
         }
         catch (AuthenticationException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException(ex);
+            var e = new Ice.SecurityException(ex);
             e.reason = ex.Message;
             throw e;
         }
@@ -559,8 +512,12 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    private X509Certificate selectCertificate(object sender, string targetHost, X509CertificateCollection certs,
-                                            X509Certificate remoteCertificate, string[] acceptableIssuers)
+    private X509Certificate selectCertificate(
+        object sender,
+        string targetHost,
+        X509CertificateCollection certs,
+        X509Certificate remoteCertificate,
+        string[] acceptableIssuers)
     {
         if (certs == null || certs.Count == 0)
         {
@@ -571,9 +528,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             return certs[0];
         }
 
-        //
         // Use the first certificate that match the acceptable issuers.
-        //
         if (acceptableIssuers != null && acceptableIssuers.Length > 0)
         {
             foreach (X509Certificate certificate in certs)
@@ -587,10 +542,13 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return certs[0];
     }
 
-    private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
-                                    SslPolicyErrors policyErrors)
+    private bool validationCallback(
+        object sender,
+        X509Certificate certificate,
+        X509Chain chainEngine,
+        SslPolicyErrors policyErrors)
     {
-        X509Chain chain = new X509Chain(_instance.engine().useMachineContext());
+        using var chain = new X509Chain(_instance.engine().useMachineContext());
         try
         {
             if (_instance.checkCRL() == 0)
@@ -601,9 +559,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             X509Certificate2Collection caCerts = _instance.engine().caCerts();
             if (caCerts != null)
             {
-                //
                 // We need to set this flag to be able to use a certificate authority from the extra store.
-                //
                 chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                 foreach (X509Certificate2 cert in caCerts)
                 {
@@ -622,7 +578,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                 }
                 else if (_instance.engine().caCerts() != null)
                 {
-                    X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                    X509ChainElement e = chain.ChainElements[^1];
                     if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                     {
                         if (_verifyPeer > 0)
@@ -651,13 +607,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
             if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
             {
-                //
-                // The RemoteCertificateNotAvailable case does not appear to be possible
-                // for an outgoing connection. Since .NET requires an authenticated
-                // connection, the remote peer closes the socket if it does not have a
-                // certificate to provide.
-                //
-
+                // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing connection.
+                // Since .NET requires an authenticated connection, the remote peer closes the socket if it does not
+                // have a certificate to provide.
                 if (_incoming)
                 {
                     if (_verifyPeer > 1)
@@ -714,11 +666,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                 {
                     if (status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.engine().caCerts() != null)
                     {
-                        //
-                        // Untrusted root is OK when using our custom chain engine if
-                        // the CA certificate is present in the chain policy extra store.
-                        //
-                        X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                        // Untrusted root is OK when using our custom chain engine if the CA certificate is present in
+                        // the chain policy extra store.
+                        X509ChainElement e = chain.ChainElements[^1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
                             if (_verifyPeer > 0)
@@ -750,10 +700,8 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                     }
                     else if (status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
                     {
-                        //
-                        // If a certificate's revocation status cannot be determined, the strictest
-                        // policy is to reject the connection.
-                        //
+                        // If a certificate's revocation status cannot be determined, the strictest policy is to reject
+                        // the connection.
                         if (_instance.checkCRL() > 1)
                         {
                             message += "\ncertificate revocation status unknown";
@@ -795,21 +743,24 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                 {
                     if (message.Length > 0)
                     {
-                        _instance.logger().trace(_instance.securityTraceCategory(),
-                                                "SSL certificate validation failed:" + message);
+                        _instance.logger().trace(
+                            _instance.securityTraceCategory(),
+                            $"SSL certificate validation failed:{message}");
                     }
                     else
                     {
-                        _instance.logger().trace(_instance.securityTraceCategory(),
-                                                "SSL certificate validation failed");
+                        _instance.logger().trace(
+                            _instance.securityTraceCategory(),
+                            "SSL certificate validation failed");
                     }
                 }
                 return false;
             }
             else if (message.Length > 0 && _instance.securityTraceLevel() >= 1)
             {
-                _instance.logger().trace(_instance.securityTraceCategory(),
-                                        "SSL certificate validation status:" + message);
+                _instance.logger().trace(
+                    _instance.securityTraceCategory(),
+                    $"SSL certificate validation status:{message}");
             }
             return true;
         }
@@ -833,23 +784,19 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             }
         }
     }
-    private int getSendPacketSize(int length)
-    {
-        return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-    }
+    private int getSendPacketSize(int length) =>
+        _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
-    public int getRecvPacketSize(int length)
-    {
-        return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-    }
+    public int getRecvPacketSize(int length) =>
+        _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
-    private Instance _instance;
-    private IceInternal.Transceiver _delegate;
-    private string _host = "";
-    private string _adapterName = "";
-    private bool _incoming;
+    private readonly Instance _instance;
+    private readonly IceInternal.Transceiver _delegate;
+    private readonly string _host = "";
+    private readonly string _adapterName = "";
+    private readonly bool _incoming;
     private SslStream _sslStream;
-    private int _verifyPeer;
+    private readonly int _verifyPeer;
     private bool _isConnected;
     private bool _authenticated;
     private Task _writeResult;

@@ -587,11 +587,6 @@ public final class MyDerivedClassI implements MyDerivedClass {
   }
 
   @Override
-  public void opNonmutating(Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-  }
-
-  @Override
   public void opDerived(Current current) {}
 
   @Override

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 using System.Security.Cryptography.X509Certificates;
 
@@ -13,10 +11,7 @@ public class ConnectionInfo : Ice.ConnectionInfo
     public X509Certificate2[] certs;
     public bool verified;
 
-    public ConnectionInfo()
-    {
-        cipher = "";
-    }
+    public ConnectionInfo() => cipher = "";
 
     public ConnectionInfo(
         Ice.ConnectionInfo underlying,

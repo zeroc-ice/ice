@@ -14,6 +14,8 @@
 #include "Parser.h"
 #include "Grammar.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -24,11 +26,13 @@ namespace IceStorm
     StringTokenMap keywordMap;
 
     void initScanner();
+    void yynoreturn fatalError(const char* msg);
 }
 
 // Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
 %}
 
@@ -231,5 +235,14 @@ namespace IceStorm
         keywordMap["topics"] = ICE_STORM_TOPICS;
         keywordMap["replica"] = ICE_STORM_REPLICA;
         keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
+    }
+
+    // This function is called whenever the scanner encounters an unrecoverable error.
+    void yynoreturn fatalError(const char* msg)
+    {
+        cerr << "fatal error: " << msg << endl
+             << "\tlast matched text: `" << yytext << "'" << endl
+             << "\tlast scanner state: `" << YY_START << "'" << endl;
+        exit(YY_EXIT_FAILURE);
     }
 }

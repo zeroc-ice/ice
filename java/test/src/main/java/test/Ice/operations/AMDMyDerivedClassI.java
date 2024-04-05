@@ -640,12 +640,6 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
   }
 
   @Override
-  public CompletionStage<Void> opNonmutatingAsync(Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-    return CompletableFuture.completedFuture((Void) null);
-  }
-
-  @Override
   public CompletionStage<Void> opDerivedAsync(Current current) {
     return CompletableFuture.completedFuture((Void) null);
   }

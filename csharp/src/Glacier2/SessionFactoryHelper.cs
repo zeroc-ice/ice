@@ -1,9 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Glacier2;
@@ -365,14 +361,14 @@ public class SessionFactoryHelper
     createProxyStr(Ice.Identity ident)
     {
         StringBuilder sb = new StringBuilder();
-        sb.Append("\"");
+        sb.Append('"');
         sb.Append(Ice.Util.identityToString(ident, Ice.ToStringMode.Unicode));
         sb.Append("\":");
         sb.Append(_protocol + " -p ");
         sb.Append(getPortInternal());
         sb.Append(" -h \"");
         sb.Append(_routerHost);
-        sb.Append("\"");
+        sb.Append('"');
         if (_timeout > 0)
         {
             sb.Append(" -t ");
@@ -390,9 +386,9 @@ public class SessionFactoryHelper
     private SessionCallback _callback;
     private string _routerHost = "localhost";
     private Ice.InitializationData _initData;
-    private Ice.Identity _identity = null;
+    private Ice.Identity _identity;
     private string _protocol = "ssl";
-    private int _port = 0;
+    private int _port;
     private int _timeout = 10000;
     private Dictionary<string, string> _context;
     private bool _useCallbacks = true;

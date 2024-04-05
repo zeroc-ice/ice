@@ -33,8 +33,6 @@ classdef OnewaysAMI
 
             call(p, 'opIdempotent');
 
-            call(p, 'opNonmutating');
-
             try
                 p.opByteAsync(hex2dec('ff'), hex2dec('0f'));
             catch ex

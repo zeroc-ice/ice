@@ -1,10 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
-public class CollectionComparer
+public static class CollectionComparer
 {
     //
     // Try to compare two collections efficiently, by doing a reference
