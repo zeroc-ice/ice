@@ -145,7 +145,7 @@ public sealed class PluginI : Ice.Plugin
     private Ice.LocatorPrx _defaultLocator;
 }
 
-public class Util
+public static class Util
 {
     public static void
     registerIceDiscovery(bool loadOnInitialize)

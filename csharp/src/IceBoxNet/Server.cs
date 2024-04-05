@@ -2,7 +2,7 @@
 
 namespace IceBox;
 
-public class Server
+public static class Server
 {
     private static void usage()
     {

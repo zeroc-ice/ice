@@ -251,16 +251,12 @@ OpenSSL::SSLEngine::initialize()
 #if defined(TLS1_3_VERSION) && !defined(OPENSSL_NO_TLS1_3_METHOD)
         defaultProtocols.push_back("tls1_3");
 #endif
-
-        const int protocols =
-            parseProtocols(properties->getPropertyAsListWithDefault(propPrefix + "Protocols", defaultProtocols));
-
         //
         // Create an SSL context if the application hasn't supplied one.
         //
         if (!_ctx)
         {
-            _ctx = SSL_CTX_new(getMethod(protocols));
+            _ctx = SSL_CTX_new(getMethod());
             if (!_ctx)
             {
                 throw PluginInitializationException(
@@ -770,14 +766,6 @@ OpenSSL::SSLEngine::initialize()
             static_cast<unsigned int>(sizeof(this)));
 
         //
-        // Select protocols.
-        //
-        if (protocols != 0)
-        {
-            setOptions(protocols);
-        }
-
-        //
         // Establish the cipher list.
         //
         string ciphersStr = properties->getProperty(propPrefix + "Ciphers");
@@ -876,127 +864,9 @@ OpenSSL::SSLEngine::dhParams(int keyLength)
 }
 #endif
 
-int
-OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
-{
-    int v = 0;
-
-    for (Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
-    {
-        string prot = IceUtilInternal::toUpper(*p);
-        if (prot == "SSL3" || prot == "SSLV3")
-        {
-#if defined(OPENSSL_NO_SSL3_METHOD) || !defined(SSL3_VERSION)
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: OpenSSL was build without SSLv3 support");
-#else
-            v |= SSLv3;
-#endif
-        }
-        else if (prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
-        {
-#if defined(OPENSSL_NO_TLS1_METHOD) || !defined(TLS1_VERSION)
-            throw PluginInitializationException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: OpenSSL was build without TLS 1.0 support");
-#else
-            v |= TLSv1_0;
-#endif
-        }
-        else if (prot == "TLS1_1" || prot == "TLSV1_1")
-        {
-#if defined(OPENSSL_NO_TLS1_1_METHOD) || !defined(TLS1_1_VERSION)
-            throw PluginInitializationException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: OpenSSL was build without TLS 1.1 support");
-#else
-            v |= TLSv1_1;
-#endif
-        }
-        else if (prot == "TLS1_2" || prot == "TLSV1_2")
-        {
-#if defined(OPENSSL_NO_TLS1_2_METHOD) || !defined(TLS1_2_VERSION)
-            throw PluginInitializationException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: OpenSSL was build without TLS 1.2 support");
-#else
-            v |= TLSv1_2;
-#endif
-        }
-        else if (prot == "TLS1_3" || prot == "TLSV1_3")
-        {
-#if defined(OPENSSL_NO_TLS1_3_METHOD) || !defined(TLS1_3_VERSION)
-            throw PluginInitializationException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: OpenSSL was build without TLS 1.3 support");
-#else
-            v |= TLSv1_3;
-#endif
-        }
-        else
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + *p + "'");
-        }
-    }
-
-    return v;
-}
-
 SSL_METHOD*
-OpenSSL::SSLEngine::getMethod(int /*protocols*/)
+OpenSSL::SSLEngine::getMethod()
 {
     SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
     return meth;
-}
-
-void
-OpenSSL::SSLEngine::setOptions(int protocols)
-{
-    long opts = SSL_OP_NO_SSLv2; // SSLv2 is not supported.
-
-#ifdef SSL_OP_NO_SSLv3
-    if (!(protocols & SSLv3))
-    {
-        opts |= SSL_OP_NO_SSLv3;
-    }
-#endif
-
-#ifdef SSL_OP_NO_TLSv1
-    if (!(protocols & TLSv1_0))
-    {
-        opts |= SSL_OP_NO_TLSv1;
-    }
-#endif
-
-#ifdef SSL_OP_NO_TLSv1_1
-    if (!(protocols & TLSv1_1))
-    {
-        opts |= SSL_OP_NO_TLSv1_1;
-        //
-        // The value of SSL_OP_NO_TLSv1_1 changed between 1.0.1a and 1.0.1b.
-        //
-        if (SSL_OP_NO_TLSv1_1 == 0x00000400L)
-        {
-            opts |= 0x10000000L; // New value of SSL_OP_NO_TLSv1_1.
-        }
-    }
-#endif
-
-#ifdef SSL_OP_NO_TLSv1_2
-    if (!(protocols & TLSv1_2))
-    {
-        opts |= SSL_OP_NO_TLSv1_2;
-    }
-#endif
-
-#ifdef SSL_OP_NO_TLSv1_3
-    if (!(protocols & TLSv1_3))
-    {
-        opts |= SSL_OP_NO_TLSv1_3;
-    }
-#endif
-    SSL_CTX_set_options(_ctx, opts);
 }

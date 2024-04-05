@@ -738,43 +738,12 @@ namespace
     }
 
     map<string, SSLCipherSuite> CiphersHelper::ciphers() { return _ciphers; }
-
-    SSLProtocol parseProtocol(const string& p)
-    {
-        const string prot = IceUtilInternal::toUpper(p);
-        if (prot == "SSL3" || prot == "SSLV3")
-        {
-            return kSSLProtocol3;
-        }
-        else if (prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
-        {
-            return kTLSProtocol1;
-        }
-        else if (prot == "TLS1_1" || prot == "TLSV1_1")
-        {
-            return kTLSProtocol11;
-        }
-        else if (prot == "TLS1_2" || prot == "TLSV1_2")
-        {
-            return kTLSProtocol12;
-        }
-        else if (prot == "TLS1_3" || prot == "TLSV1_3")
-        {
-            return kTLSProtocol13;
-        }
-        else
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + p + "'");
-        }
-    }
 }
 
 IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)
     : IceSSL::SSLEngine(communicator),
       _certificateAuthorities(0),
-      _chain(0),
-      _protocolVersionMax(kSSLProtocolUnknown),
-      _protocolVersionMin(kSSLProtocolUnknown)
+      _chain(0)
 {
 }
 
@@ -976,24 +945,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
         }
         getLogger()->trace(securityTraceCategory(), os.str());
     }
-
-    //
-    // Parse protocols
-    //
-    const string protocolVersionMax = properties->getProperty("IceSSL.ProtocolVersionMax");
-    if (!protocolVersionMax.empty())
-    {
-        _protocolVersionMax = parseProtocol(protocolVersionMax);
-    }
-
-    //
-    // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
-    //
-    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_0");
-    if (!protocolVersionMin.empty())
-    {
-        _protocolVersionMin = parseProtocol(protocolVersionMin);
-    }
     _initialized = true;
 }
 
@@ -1094,28 +1045,6 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
             __FILE__,
             __LINE__,
             "IceSSL: error while setting SSL option:\n" + sslErrorToString(err));
-    }
-
-    if (_protocolVersionMax != kSSLProtocolUnknown)
-    {
-        if ((err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax)))
-        {
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: error while setting SSL protocol version max:\n" + sslErrorToString(err));
-        }
-    }
-
-    if (_protocolVersionMin != kSSLProtocolUnknown)
-    {
-        if ((err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin)))
-        {
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: error while setting SSL protocol version min:\n" + sslErrorToString(err));
-        }
     }
 
     return ssl;
