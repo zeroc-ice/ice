@@ -18,17 +18,11 @@ internal class SSLEngine
         _logger = communicator.getLogger();
         _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
         _securityTraceCategory = "Security";
-        _initialized = false;
         _trustManager = new TrustManager(_communicator);
     }
 
     internal void initialize()
     {
-        if (_initialized)
-        {
-            return;
-        }
-
         const string prefix = "IceSSL.";
         Ice.Properties properties = communicator().getProperties();
 
@@ -57,13 +51,6 @@ internal class SSLEngine
 
         // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
         _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
-
-        // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
-        // certificate. A value of 0 means there is no maximum.
-        _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
-
-        // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
-        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
 
         Debug.Assert(_certs == null);
         // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
@@ -190,7 +177,6 @@ internal class SSLEngine
                     ex);
             }
         }
-        _initialized = true;
     }
 
     internal bool useMachineContext() => _useMachineContext;
@@ -205,11 +191,7 @@ internal class SSLEngine
 
     internal string securityTraceCategory() => _securityTraceCategory;
 
-    internal bool initialized() => _initialized;
-
     internal X509Certificate2Collection certs() => _certs;
-
-    internal int checkCRL() => _checkCRL;
 
     internal void traceStream(SslStream stream, string connInfo)
     {
@@ -233,18 +215,6 @@ internal class SSLEngine
 
     internal void verifyPeer(ConnectionInfo info, string description)
     {
-        if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
-        {
-            string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
-                _verifyDepthMax + "\n" + description;
-            if (_securityTraceLevel >= 1)
-            {
-                _logger.trace(_securityTraceCategory, msg);
-            }
-            throw new Ice.SecurityException(msg);
-        }
-
         if (!_trustManager.verify(info, description))
         {
             string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
@@ -259,7 +229,8 @@ internal class SSLEngine
     }
 
     internal SslClientAuthenticationOptions clientAuthenticationOptions(
-        RemoteCertificateValidationCallback remoteCertificateValidationCallback)
+        RemoteCertificateValidationCallback remoteCertificateValidationCallback,
+        string host)
     {
         return new SslClientAuthenticationOptions
         {
@@ -289,7 +260,8 @@ internal class SSLEngine
                 return certs[0];
             },
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
-            
+            TargetHost = host,
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck
         };
     }
 
@@ -308,6 +280,7 @@ internal class SSLEngine
             ServerCertificate = cert,
             ClientCertificateRequired = _verifyPeer > 0,
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck
         };
     }
 
@@ -542,12 +515,9 @@ internal class SSLEngine
     private readonly Ice.Logger _logger;
     private readonly int _securityTraceLevel;
     private readonly string _securityTraceCategory;
-    private bool _initialized;
     private string _defaultDir;
     private bool _checkCertName;
-    private int _verifyDepthMax;
     private int _verifyPeer;
-    private int _checkCRL;
     private X509Certificate2Collection _certs;
     private bool _useMachineContext;
     private X509Certificate2Collection _caCerts;
