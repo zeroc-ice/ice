@@ -71,14 +71,14 @@ namespace IceInternal
     // opening / closing iconv_t objects all the time.
     //
     //
-    template<typename charT> class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
+    template<typename charT> class IconvStringConverter final : public IceUtil::BasicStringConverter<charT>
     {
     public:
         IconvStringConverter(const std::string&);
 
-        virtual std::byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
+        std::byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const final;
 
-        virtual void fromUTF8(const std::byte*, const std::byte*, std::basic_string<charT>&) const;
+        void fromUTF8(const std::byte*, const std::byte*, std::basic_string<charT>&) const final;
 
     private:
         struct DescriptorHolder
