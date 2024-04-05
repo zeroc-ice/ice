@@ -60,7 +60,7 @@ namespace
 #endif
             if (sourceStart == sourceEnd)
             {
-                return buffer.getMoreBytes(1, 0);
+                return buffer.getMoreBytes(1, nullptr);
             }
 
             char* targetStart = 0;
@@ -453,14 +453,14 @@ namespace
     //
     // Converts to/from UTF-8 using MultiByteToWideChar and WideCharToMultiByte
     //
-    class WindowsStringConverter : public StringConverter
+    class WindowsStringConverter final : public StringConverter
     {
     public:
         explicit WindowsStringConverter(unsigned int);
 
-        virtual uint8_t* toUTF8(const char*, const char*, UTF8Buffer&) const;
+        byte* toUTF8(const char*, const char*, UTF8Buffer&) const final;
 
-        virtual void fromUTF8(const uint8_t*, const uint8_t*, string& target) const;
+        void fromUTF8(const byte*, const byte*, string& target) const final;
 
     private:
         unsigned int _cp;
@@ -468,7 +468,7 @@ namespace
 
     WindowsStringConverter::WindowsStringConverter(unsigned int cp) : _cp(cp) {}
 
-    uint8_t* WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
+    byte* WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
     {
         //
         // First convert to UTF-16
@@ -476,7 +476,7 @@ namespace
         int sourceSize = static_cast<int>(sourceEnd - sourceStart);
         if (sourceSize == 0)
         {
-            return buffer.getMoreBytes(1, 0);
+            return buffer.getMoreBytes(1, nullptr);
         }
 
         int writtenWchar = 0;
@@ -516,8 +516,7 @@ namespace
         return getUnicodeWstringConverter()->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
     }
 
-    void
-    WindowsStringConverter::fromUTF8(const __cpp_lib_byte* sourceStart, const byte* sourceEnd, string& target) const
+    void WindowsStringConverter::fromUTF8(const byte* sourceStart, const byte* sourceEnd, string& target) const
     {
         if (sourceStart == sourceEnd)
         {
