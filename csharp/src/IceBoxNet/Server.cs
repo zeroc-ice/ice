@@ -1,13 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
-using System.Collections.Generic;
+// Copyright (c) ZeroC, Inc.
 
 namespace IceBox;
 
-public class Server
+public static class Server
 {
     private static void usage()
     {

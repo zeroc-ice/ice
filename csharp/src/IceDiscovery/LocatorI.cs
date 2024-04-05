@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceDiscovery;
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 {

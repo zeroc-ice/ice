@@ -9,8 +9,6 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:Glacier2/Config.h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 
 [["python:pkgdir:Glacier2"]]

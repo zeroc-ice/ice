@@ -18,8 +18,6 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

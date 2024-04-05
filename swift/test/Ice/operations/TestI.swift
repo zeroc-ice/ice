@@ -425,10 +425,6 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     try _helper.test(current.mode == .Idempotent)
   }
 
-  func opNonmutating(current: Ice.Current) throws {
-    try _helper.test(current.mode == .Nonmutating)
-  }
-
   func opDerived(current _: Ice.Current) throws {}
 
   func opByte1(opByte1: UInt8, current _: Ice.Current) throws -> UInt8 {

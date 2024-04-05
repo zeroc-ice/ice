@@ -962,8 +962,6 @@ namespace
 
         void opIdempotent() { called(); }
 
-        void opNonmutating() { called(); }
-
         void opDerived() { called(); }
 
         void exCB(std::exception_ptr ex)
@@ -2117,12 +2115,6 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opIdempotentAsync([&]() { cb->opIdempotent(); }, makeExceptionClosure(cb));
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        p->opNonmutatingAsync([&]() { cb->opNonmutating(); }, makeExceptionClosure(cb));
         cb->check();
     }
 
@@ -3286,21 +3278,6 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         {
             f.get();
             cb->opIdempotent();
-        }
-        catch (...)
-        {
-            cb->exCB(current_exception());
-        }
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = make_shared<Callback>();
-        auto f = p->opNonmutatingAsync();
-        try
-        {
-            f.get();
-            cb->opNonmutating();
         }
         catch (...)
         {

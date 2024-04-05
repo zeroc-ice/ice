@@ -1,13 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Collections;
+using System.Diagnostics;
 
 namespace Ice;
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 /// <summary>
 /// Applications implement this interface to provide a plug-in factory
@@ -338,9 +334,9 @@ public sealed class PluginManagerI : PluginManager
                 // Is there a .clr entry?
                 //
                 string clrKey = "Ice.Plugin." + name + ".clr";
-                if (plugins.ContainsKey(clrKey))
+                if (plugins.TryGetValue(clrKey, out string value))
                 {
-                    val = plugins[clrKey];
+                    val = value;
                     plugins.Remove(clrKey);
                 }
                 loadPlugin(name, val, ref cmdArgs);
@@ -411,7 +407,7 @@ public sealed class PluginManagerI : PluginManager
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (entryPoint.Length > 3 &&
                    sepPos == 1 &&
-                   driveLetters.IndexOf(entryPoint[0]) != -1 &&
+                   driveLetters.Contains(entryPoint[0]) &&
                    (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                 {
                     sepPos = entryPoint.IndexOf(':', 3);

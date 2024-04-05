@@ -1,12 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace IceBox;
 
@@ -116,7 +111,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            System.Threading.Monitor.PulseAll(this);
+            Monitor.PulseAll(this);
         }
     }
 
@@ -187,7 +182,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            System.Threading.Monitor.PulseAll(this);
+            Monitor.PulseAll(this);
         }
     }
 
@@ -449,7 +444,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (entryPoint.Length > 3 &&
                    sepPos == 1 &&
-                   driveLetters.IndexOf(entryPoint[0]) != -1 &&
+                   driveLetters.Contains(entryPoint[0]) &&
                    (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                 {
                     sepPos = entryPoint.IndexOf(':', 3);
@@ -486,9 +481,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch (Exception)
                     {
-#pragma warning disable CA2200 // Rethrow to preserve stack details
                         throw ex;
-#pragma warning restore CA2200 // Rethrow to preserve stack details
                     }
                 }
             }
@@ -524,7 +517,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // communicator for the service. The communicator inherits
             // from the shared communicator properties. If it's not
             // defined, add the service properties to the shared
-            // commnunicator property set.
+            // communicator property set.
             //
             Ice.Communicator communicator;
             if (_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
@@ -716,7 +709,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             //
             while (_pendingStatusChanges)
             {
-                System.Threading.Monitor.Wait(this);
+                Monitor.Wait(this);
             }
 
             //
@@ -1017,13 +1010,13 @@ internal class ServiceManagerI : ServiceManagerDisp_
     }
 
     private Ice.Communicator _communicator;
-    private bool _adminEnabled = false;
-    private HashSet<string> _adminFacetFilter = null;
-    private Ice.Communicator _sharedCommunicator = null;
+    private bool _adminEnabled;
+    private HashSet<string> _adminFacetFilter;
+    private Ice.Communicator _sharedCommunicator;
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
-    private List<ServiceInfo> _services = new List<ServiceInfo>();
-    private bool _pendingStatusChanges = false;
-    private Dictionary<ServiceObserverPrx, bool> _observers = new Dictionary<ServiceObserverPrx, bool>();
-    private int _traceServiceObserver = 0;
+    private List<ServiceInfo> _services = new();
+    private bool _pendingStatusChanges;
+    private Dictionary<ServiceObserverPrx, bool> _observers = new();
+    private int _traceServiceObserver;
 }

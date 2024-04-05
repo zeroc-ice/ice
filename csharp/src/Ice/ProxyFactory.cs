@@ -1,8 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -264,7 +261,7 @@ public sealed class ProxyFactory
                 //
                 if (i == 0 && v == -1)
                 {
-                    _retryIntervals = new int[0];
+                    _retryIntervals = [];
                     break;
                 }
 

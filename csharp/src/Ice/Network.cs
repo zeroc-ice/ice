@@ -1,15 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+
+namespace IceInternal;
 
 public sealed class Network
 {
@@ -147,7 +143,7 @@ public sealed class Network
         // TODO: Instead of testing for an English substring, we need to examine the inner
         // exception (if there is one).
         //
-        return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
+        return ex.Message.Contains("period of time");
     }
 
     public static bool noMoreFds(Exception ex)
@@ -452,9 +448,8 @@ public sealed class Network
                 else
                 {
                     int index = getInterfaceIndex(intf, group.AddressFamily);
-                    if (!indexes.Contains(index))
+                    if (indexes.Add(index))
                     {
-                        indexes.Add(index);
                         IPv6MulticastOption option;
                         if (index == -1)
                         {

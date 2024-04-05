@@ -10,20 +10,22 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Prefer32Bit>false</Prefer32Bit>
-    <FileAlignment>512</FileAlignment>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
     <DefineConstants>TRACE</DefineConstants>
-    <SignAssembly>true</SignAssembly>
-    <!-- Source Link Settings -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <RollForward>Major</RollForward>
+    <SignAssembly>true</SignAssembly>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+     <!-- The 1.2 beta version is required for supporting the latest language features.
+            See: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187 -->
+    <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->

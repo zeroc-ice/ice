@@ -1,13 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 using IceInternal;
-using System;
-using System.Collections.Generic;
 using System.Net.Security;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ice;
 

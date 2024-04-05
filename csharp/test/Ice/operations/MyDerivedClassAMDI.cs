@@ -1,11 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -772,13 +765,6 @@ namespace Ice
                 opIdempotentAsync(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Idempotent);
-                    return null;
-                }
-
-                public override Task
-                opNonmutatingAsync(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
                     return null;
                 }
 

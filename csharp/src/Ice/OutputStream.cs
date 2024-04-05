@@ -1,12 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace Ice;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using Protocol = IceInternal.Protocol;
+
+namespace Ice;
 
 /// <summary>
 /// Interface for output streams used to write Slice types to a sequence

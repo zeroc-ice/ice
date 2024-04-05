@@ -38,7 +38,7 @@ module Glacier2
         /// @return True if access is granted, or false otherwise.
         /// @throws PermissionDeniedException Raised if the user access is denied. This can be raised in place of
         /// returning false with a reason set in the reason out parameter.
-        ["nonmutating", "cpp:const", "format:sliced"]
+        ["cpp:const", "format:sliced"]
         idempotent bool checkPermissions(string userId, string password, out string reason)
             throws PermissionDeniedException;
     }
@@ -54,7 +54,7 @@ module Glacier2
         /// @throws PermissionDeniedException Raised if the user access is denied. This can be raised in place of
         /// returning false with a reason set in the reason out parameter.
         /// @see SSLInfo
-        ["nonmutating", "cpp:const", "format:sliced"]
+        ["cpp:const", "format:sliced"]
         idempotent bool authorize(SSLInfo info, out string reason)
             throws PermissionDeniedException;
     }

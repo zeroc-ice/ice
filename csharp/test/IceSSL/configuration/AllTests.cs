@@ -1,19 +1,12 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 //
 // NOTE: This test is not interoperable with other language mappings.
 //
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using Test;
 
 public class AllTests

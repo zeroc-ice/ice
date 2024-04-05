@@ -19,7 +19,6 @@ class Oneways {
     p.ice_ping();
     p.opVoid();
     p.opIdempotent();
-    p.opNonmutating();
 
     try {
       p.opByte((byte) 0xff, (byte) 0x0f);

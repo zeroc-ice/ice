@@ -1,13 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+namespace IceInternal;
 
 public sealed class StreamSocket
 {

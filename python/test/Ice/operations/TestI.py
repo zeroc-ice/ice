@@ -315,9 +315,6 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opIdempotent(self, current=None):
         test(current.mode == Ice.OperationMode.Idempotent)
 
-    def opNonmutating(self, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-
     def opDerived(self, current=None):
         pass
 

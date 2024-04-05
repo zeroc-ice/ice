@@ -9,8 +9,6 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:IceStorm/Config.h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
@@ -90,19 +88,19 @@ interface Topic
     /// Get the name of this topic.
     /// @return The name of the topic.
     /// @see TopicManager#create
-    ["nonmutating", "cpp:const"] idempotent string getName();
+    ["cpp:const"] idempotent string getName();
 
     /// Get a proxy to a publisher object for this topic. To publish data to a topic, the publisher calls getPublisher
     /// and then creates a proxy with the publisher type from this proxy. If a replicated IceStorm
     /// deployment is used this call may return a replicated proxy. The returned proxy is never null.
     /// @return A proxy to publish data on this topic.
-    ["nonmutating", "cpp:const"] idempotent Object* getPublisher();
+    ["cpp:const"] idempotent Object* getPublisher();
 
     /// Get a non-replicated proxy to a publisher object for this topic. To publish data to a topic, the publisher
     /// calls getPublisher and then creates a proxy with the publisher type from this proxy. The returned proxy is
     /// never null.
     /// @return A proxy to publish data on this topic.
-    ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
+    ["cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
     /// Subscribe with the given <code>qos</code> to this topic.  A per-subscriber publisher object is returned.
     /// @param theQoS The quality of service parameters for this subscription.
@@ -134,11 +132,11 @@ interface Topic
 
     /// Retrieve information on the current links.
     /// @return A sequence of LinkInfo objects.
-    ["nonmutating", "cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
+    ["cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
 
     /// Retrieve the list of subscribers for this topic.
     /// @return The sequence of Ice identities for the subscriber objects.
-    ["nonmutating", "cpp:const"] Ice::IdentitySeq getSubscribers();
+    ["cpp:const"] Ice::IdentitySeq getSubscribers();
 
     /// Destroy the topic.
     void destroy();

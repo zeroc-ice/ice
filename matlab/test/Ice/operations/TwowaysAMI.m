@@ -1200,8 +1200,6 @@ classdef TwowaysAMI
 
             call(p, 'opIdempotent');
 
-            call(p, 'opNonmutating');
-
             assert(call(p, 'opByte1', hex2dec('FF')) == hex2dec('FF'));
             assert(call(p, 'opShort1', hex2dec('7FFF')) == hex2dec('7FFF'));
             assert(call(p, 'opInt1', hex2dec('7FFFFFFF')) == hex2dec('7FFFFFFF'));

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -22,12 +20,12 @@ public sealed class ProcessI : Ice.ProcessDisp_
         {
             case 1:
             {
-                System.Console.Out.WriteLine(message);
+                Console.Out.WriteLine(message);
                 break;
             }
             case 2:
             {
-                System.Console.Error.WriteLine(message);
+                Console.Error.WriteLine(message);
                 break;
             }
         }

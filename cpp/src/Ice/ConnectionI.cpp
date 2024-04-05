@@ -865,12 +865,6 @@ namespace
     };
 }
 
-void
-Ice::ConnectionI::heartbeat()
-{
-    Connection::heartbeatAsync().get();
-}
-
 std::function<void()>
 Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex, ::std::function<void(bool)> sent)
 {

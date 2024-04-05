@@ -1,10 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-namespace IceInternal;
+// Copyright (c) ZeroC, Inc.
 
 using System.Net;
+
+namespace IceInternal;
 
 internal sealed class TcpConnector : Connector
 {

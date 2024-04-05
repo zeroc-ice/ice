@@ -1,8 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
 
 internal class EndpointFactory : IceInternal.EndpointFactory

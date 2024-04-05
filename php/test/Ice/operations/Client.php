@@ -967,10 +967,6 @@ function twoways($communicator, $p, $bprx)
         $p->opIdempotent();
     }
 
-    {
-        $p->opNonmutating();
-    }
-
     test($p->opByte1(0xFF) == 0xFF);
     test($p->opShort1(0x7FFF) == 0x7FFF);
     test($p->opInt1(0x7FFFFFFF) == 0x7FFFFFFF);

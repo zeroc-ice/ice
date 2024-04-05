@@ -1,10 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Test;
 
 internal sealed class ServerI : ServerDisp_

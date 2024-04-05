@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
@@ -19,7 +15,7 @@ public class ThreadHookPlugin : Plugin
     /// </summary>
     /// <param name="communicator">The communicator using the thread notification hook.</param>
     /// <param name="threadHook">The thread notification hook for the communicator.</param>
-    [Obsolete("This constructor is deprecated. Use the constructur with threadStart and threadStop parameters instead.")]
+    [Obsolete("This constructor is deprecated. Use the constructor with threadStart and threadStop parameters instead.")]
     public
     ThreadHookPlugin(Communicator communicator, ThreadNotification threadHook) :
         this(communicator, threadHook.start, threadHook.stop)

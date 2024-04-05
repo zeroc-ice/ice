@@ -1,12 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+
+namespace IceInternal;
 
 internal static class SafeNativeMethods
 {
@@ -105,7 +102,7 @@ internal delegate int DecompressBuffer(byte[] dest,
                               int sourceLen,
                               int small,
                               int verbosity);
-public class BZip2
+public static class BZip2
 {
     static BZip2()
     {

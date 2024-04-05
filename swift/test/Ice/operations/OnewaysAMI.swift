@@ -53,15 +53,6 @@ func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) throws {
   }
 
   do {
-    let group = DispatchGroup()
-    group.enter()
-    _ = p.opNonmutatingAsync { _ in
-      group.leave()
-    }
-    group.wait()
-  }
-
-  do {
     try firstly {
       p.opByteAsync(p1: 0xFF, p2: 0x0F)
     }.done { _ in

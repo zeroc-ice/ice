@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice;
 
@@ -52,13 +48,13 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
         ObjectPrx proxy1 = obj1 as ObjectPrx;
         if (obj1 != null && proxy1 == null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
         }
 
         ObjectPrx proxy2 = obj2 as ObjectPrx;
         if (obj2 != null && proxy2 == null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
         }
         return Util.proxyIdentityCompare(proxy1, proxy2);
     }
@@ -114,13 +110,13 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
         ObjectPrx proxy1 = obj1 as ObjectPrx;
         if (obj1 != null && proxy1 == null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
         }
 
         ObjectPrx proxy2 = obj2 as ObjectPrx;
         if (obj2 != null && proxy2 == null)
         {
-            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+            throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
         }
         return Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
     }
