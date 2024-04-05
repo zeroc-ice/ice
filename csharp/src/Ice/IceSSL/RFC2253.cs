@@ -14,8 +14,7 @@ internal class RFC2253
     {
         public ParseException(string reason) => this.reason = reason;
 
-        internal string
-        ice_id() => "::RFC2253::ParseException";
+        internal string ice_id() => "::RFC2253::ParseException";
 
         internal readonly string reason;
     }
@@ -107,15 +106,11 @@ internal class RFC2253
             {
                 throw new ParseException("unescape: missing \"");
             }
-            //
             // Return the string without quotes.
-            //
             return data[1..^1];
         }
 
-        //
         // Unescape the entire string.
-        //
         var result = new StringBuilder();
         if (data[0] == '#')
         {
@@ -237,7 +232,6 @@ internal class RFC2253
 
         string result = "";
 
-        //
         // RFC 1779.
         // <key> ::= 1*( <keychar> ) | "OID." <oid> | "oid." <oid>
         // <oid> ::= <digitstring> | <digitstring> "." <oid>
@@ -247,14 +241,12 @@ internal class RFC2253
         // oid        = 1*DIGIT *("." 1*DIGIT)
         //
         // In section 4 of RFC 2253 the document says:
-        // Implementations MUST allow an oid in the attribute type to be
-        // prefixed by one of the character strings "oid." or "OID.".
+        // Implementations MUST allow an oid in the attribute type to be prefixed by one of the character strings
+        // "oid." or "OID.".
         //
-        // Here we must also check for "oid." and "OID." before parsing
-        // according to the ALPHA KEYCHAR* rule.
+        // Here we must also check for "oid." and "OID." before parsing according to the ALPHA KEYCHAR* rule.
         //
         // First the OID case.
-        //
         if (char.IsDigit(data[pos]) ||
            (data.Length - pos >= 4 && (data.Substring(pos, 4) == "oid." ||
                                                    data.Substring(pos, 4) == "OID.")))
@@ -292,11 +284,8 @@ internal class RFC2253
         }
         else if (char.IsUpper(data[pos]) || char.IsLower(data[pos]))
         {
-            //
-            // The grammar is wrong in this case. It should be ALPHA
-            // KEYCHAR* otherwise it will not accept "O" as a valid
-            // attribute type.
-            //
+            // The grammar is wrong in this case. It should be ALPHA KEYCHAR* otherwise it will not accept "O" as a
+            // valid attribute type.
             result += data[pos];
             ++pos;
             // 1* KEYCHAR
@@ -325,10 +314,8 @@ internal class RFC2253
             return "";
         }
 
-        //
         // RFC 2253
         // # hexstring
-        //
         var result = new StringBuilder();
         if (data[pos] == '#')
         {
@@ -344,11 +331,10 @@ internal class RFC2253
                 result.Append(h);
             }
         }
-        //
+
         // RFC 2253
         // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
         // quotechar     = <any character except "\" or QUOTATION >
-        //
         else if (data[pos] == '"')
         {
             result.Append(data[pos]);
@@ -406,10 +392,8 @@ internal class RFC2253
         return result.ToString();
     }
 
-    //
     // RFC2253:
     // pair       = "\" ( special | "\" | QUOTATION | hexpair )
-    //
     private static string parsePair(string data, ref int pos)
     {
         string result = "";
@@ -433,10 +417,8 @@ internal class RFC2253
         return parseHexPair(data, ref pos, false);
     }
 
-    //
     // RFC 2253
     // hexpair    = hexchar hexchar
-    //
     private static string parseHexPair(string data, ref int pos, bool allowEmpty)
     {
         string result = "";
@@ -461,14 +443,11 @@ internal class RFC2253
         return result;
     }
 
-    //
     // RFC 2253:
     //
-    // Implementations MUST allow for space (' ' ASCII 32) characters to be
-    // present between name-component and ',', between attributeTypeAndValue
-    // and '+', between attributeType and '=', and between '=' and
-    // attributeValue.  These space characters are ignored when parsing.
-    //
+    // Implementations MUST allow for space (' ' ASCII 32) characters to be present between name-component and ',',
+    // between attributeTypeAndValue and '+', between attributeType and '=', and between '=' and attributeValue.
+    // These space characters are ignored when parsing.
     private static void eatWhite(string data, ref int pos)
     {
         while (pos < data.Length && data[pos] == ' ')

@@ -26,13 +26,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
         IceInternal.Network.setBlock(fd(), true); // SSL requires a blocking socket
 
-        //
-        // For timeouts to work properly, we need to receive/send
-        // the data in several chunks. Otherwise, we would only be
-        // notified when all the data is received/written. The
-        // connection timeout could easily be triggered when
+        // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would only
+        // be notified when all the data is received/written. The connection timeout could easily be triggered when
         // receiving/sending large messages.
-        //
         _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
         _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
 
@@ -499,10 +495,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         {
             if (IceInternal.Network.connectionLost(ex))
             {
-                //
-                // This situation occurs when connectToSelf is called; the "remote" end
-                // closes the socket immediately.
-                //
+                // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
             }
             throw new Ice.SocketException(ex);

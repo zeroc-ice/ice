@@ -114,8 +114,9 @@ internal sealed class EndpointI : IceInternal.EndpointI
         private readonly IceInternal.EndpointI_connectors _callback;
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType,
-                                          IceInternal.EndpointI_connectors callback)
+    public override void connectors_async(
+        Ice.EndpointSelectionType selType,
+        IceInternal.EndpointI_connectors callback)
     {
         string host = "";
         for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
@@ -187,9 +188,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
     public override string options() => _delegate.options();
 
-    //
     // Compare endpoints for sorting purposes
-    //
     public override int CompareTo(IceInternal.EndpointI obj)
     {
         if (obj is not EndpointI)
