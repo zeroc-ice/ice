@@ -1,11 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 
 namespace Glacier2;
 
@@ -462,12 +457,12 @@ public class SessionHelper
     private Ice.ObjectAdapter _adapter;
     private RouterPrx _router;
     private SessionPrx _session;
-    private bool _connected = false;
+    private bool _connected;
     private string _category;
     private string _finderStr;
     private bool _useCallbacks;
 
     private readonly SessionCallback _callback;
-    private bool _destroy = false;
-    private object _mutex = new object();
+    private bool _destroy;
+    private readonly object _mutex = new object();
 }

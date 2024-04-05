@@ -59,7 +59,6 @@ namespace IceSSL
 
             std::vector<PCCERT_CONTEXT> _allCerts;
             std::vector<PCCERT_CONTEXT> _importedCerts;
-            DWORD _protocols;
 
             std::vector<HCERTSTORE> _stores;
             HCERTSTORE _rootStore;

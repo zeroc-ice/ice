@@ -1,18 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using Ice.Instrumentation;
+using IceInternal;
+using System.Diagnostics;
+using System.Text;
 
 namespace Ice;
-
-using IceInternal;
-using Instrumentation;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, CancellationHandler, Connection
 {
@@ -977,7 +970,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     }
                     s.Append(" bytes via ");
                     s.Append(_endpoint.protocol());
-                    s.Append("\n");
+                    s.Append('\n');
                     s.Append(ToString());
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
@@ -1007,7 +1000,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     }
                     s.Append(" bytes via ");
                     s.Append(_endpoint.protocol());
-                    s.Append("\n");
+                    s.Append('\n');
                     s.Append(ToString());
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
@@ -1452,11 +1445,11 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             {
                 StringBuilder s = new StringBuilder("failed to ");
                 s.Append(_connector != null ? "establish" : "accept");
-                s.Append(" ");
+                s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
                 s.Append(ToString());
-                s.Append("\n");
+                s.Append('\n');
                 s.Append(_exception);
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
             }
@@ -1479,7 +1472,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException))
                 {
-                    s.Append("\n");
+                    s.Append('\n');
                     s.Append(_exception);
                 }
 
@@ -1665,13 +1658,12 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
     static ConnectionI()
     {
-        _compressionSupported = IceInternal.BZip2.supported();
+        _compressionSupported = BZip2.supported();
     }
 
-    internal ConnectionI(Communicator communicator, Instance instance, ACMMonitor monitor, Transceiver transceiver,
+    internal ConnectionI(Instance instance, ACMMonitor monitor, Transceiver transceiver,
                          Connector connector, EndpointI endpoint, ObjectAdapterI adapter)
     {
-        _communicator = communicator;
         _instance = instance;
         _monitor = monitor;
         _transceiver = transceiver;
@@ -1911,7 +1903,6 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                 {
                     Debug.Assert(_state == StateClosed);
                     _transceiver.destroy();
-                    _communicator = null;
                     break;
                 }
             }
@@ -2196,7 +2187,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             {
                 s.Append("starting to ");
                 s.Append(_connector != null ? "send" : "receive");
-                s.Append(" ");
+                s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" messages\n");
                 s.Append(_transceiver.toDetailedString());
@@ -2204,7 +2195,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             else
             {
                 s.Append(_connector != null ? "established" : "accepted");
-                s.Append(" ");
+                s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
                 s.Append(ToString());
@@ -2797,7 +2788,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         }
     }
 
-    private ConnectionState toConnectionState(int state)
+    private static ConnectionState toConnectionState(int state)
     {
         return connectionStateMap[state];
     }
@@ -2911,7 +2902,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             }
             s.Append(" bytes via ");
             s.Append(_endpoint.protocol());
-            s.Append("\n");
+            s.Append('\n');
             s.Append(ToString());
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
         }
@@ -2933,7 +2924,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             }
             s.Append(" bytes via ");
             s.Append(_endpoint.protocol());
-            s.Append("\n");
+            s.Append('\n');
             s.Append(ToString());
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
         }
@@ -3008,7 +2999,6 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         internal bool receivedReply;
     }
 
-    private Communicator _communicator;
     private Instance _instance;
     private ACMMonitor _monitor;
     private Transceiver _transceiver;
@@ -3030,7 +3020,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     private TimerTask _readTimeout;
     private bool _readTimeoutScheduled;
 
-    private StartCallback _startCallback = null;
+    private StartCallback _startCallback;
 
     private bool _warn;
     private bool _warnUdp;
@@ -3061,12 +3051,12 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     private int _dispatchCount;
 
     private int _state; // The current state.
-    private bool _shutdownInitiated = false;
-    private bool _initialized = false;
-    private bool _validated = false;
+    private bool _shutdownInitiated;
+    private bool _initialized;
+    private bool _validated;
 
     private Incoming _incomingCache;
-    private object _incomingCacheMutex = new object();
+    private readonly object _incomingCacheMutex = new object();
 
     private static bool _compressionSupported;
 
@@ -3077,7 +3067,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     private CloseCallback _closeCallback;
     private HeartbeatCallback _heartbeatCallback;
 
-    private static ConnectionState[] connectionStateMap = new ConnectionState[] {
+    private static ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
         ConnectionState.ConnectionStateValidating,   // StateNotValidated
         ConnectionState.ConnectionStateActive,       // StateActive
@@ -3086,5 +3076,5 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         ConnectionState.ConnectionStateClosing,      // StateClosingPending
         ConnectionState.ConnectionStateClosed,       // StateClosed
         ConnectionState.ConnectionStateClosed,       // StateFinished
-    };
+    ];
 }

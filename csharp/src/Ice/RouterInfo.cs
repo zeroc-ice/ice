@@ -1,11 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Diagnostics;
 
 namespace IceInternal;
-
-using System.Collections.Generic;
-using System.Diagnostics;
 
 public sealed class RouterInfo
 {
@@ -32,7 +29,7 @@ public sealed class RouterInfo
     {
         lock (this)
         {
-            _clientEndpoints = new EndpointI[0];
+            _clientEndpoints = [];
             _adapter = null;
             _identities.Clear();
         }
@@ -155,7 +152,7 @@ public sealed class RouterInfo
             }
         }
 
-        _router.addProxiesAsync(new Ice.ObjectPrx[] { proxy }).ContinueWith(
+        _router.addProxiesAsync([proxy]).ContinueWith(
             (t) =>
             {
                 try
@@ -163,7 +160,7 @@ public sealed class RouterInfo
                     addAndEvictProxies(proxy, t.Result);
                     callback.addedProxy();
                 }
-                catch (System.AggregateException ae)
+                catch (AggregateException ae)
                 {
                     Debug.Assert(ae.InnerException is Ice.LocalException);
                     callback.setException((Ice.LocalException)ae.InnerException);

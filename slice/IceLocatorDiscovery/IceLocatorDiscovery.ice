@@ -7,8 +7,6 @@
 [["cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
-[["ice-prefix"]]
-
 [["js:module:ice"]]
 [["js:cjs-module"]]
 

@@ -1,15 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Security;
+
+namespace IceInternal;
 
 internal sealed class UdpEndpointI : IPEndpointI
 {
@@ -199,7 +195,7 @@ internal sealed class UdpEndpointI : IPEndpointI
 
         if (_mcastInterface.Length != 0)
         {
-            bool addQuote = _mcastInterface.IndexOf(':') != -1;
+            bool addQuote = _mcastInterface.Contains(':');
             s += " --interface ";
             if (addQuote)
             {

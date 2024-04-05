@@ -65,6 +65,7 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
+typedef uint64_t flex_uint64_t;
 #    else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -173,7 +174,7 @@ typedef struct yy_buffer_state* YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern int yyleng;
+extern yy_size_t yyleng;
 
 extern FILE *yyin, *yyout;
 
@@ -214,7 +215,7 @@ struct yy_buffer_state
     /* Number of characters read into yy_ch_buf, not including EOB
      * characters.
      */
-    int yy_n_chars;
+    yy_size_t yy_n_chars;
 
     /* Whether we "own" the buffer - i.e., we know we created it,
      * and can realloc() it to grow it, and should free() it to
@@ -280,8 +281,8 @@ static YY_BUFFER_STATE* yy_buffer_stack = NULL; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars; /* number of characters read into yy_ch_buf */
-int yyleng;
+static yy_size_t yy_n_chars; /* number of characters read into yy_ch_buf */
+yy_size_t yyleng;
 
 /* Points to current character in buffer. */
 static char* yy_c_buf_p = NULL;
@@ -308,7 +309,7 @@ static void yy_init_buffer(YY_BUFFER_STATE b, FILE* file);
 
 YY_BUFFER_STATE yy_scan_buffer(char* base, yy_size_t size);
 YY_BUFFER_STATE yy_scan_string(const char* yy_str);
-YY_BUFFER_STATE yy_scan_bytes(const char* bytes, int len);
+YY_BUFFER_STATE yy_scan_bytes(const char* bytes, yy_size_t len);
 
 void* yyalloc(yy_size_t);
 void* yyrealloc(void*, yy_size_t);
@@ -364,7 +365,7 @@ static void yynoreturn yy_fatal_error(const char* msg);
  */
 #define YY_DO_BEFORE_ACTION                                                                                            \
     (yytext_ptr) = yy_bp;                                                                                              \
-    yyleng = (int)(yy_cp - yy_bp);                                                                                     \
+    yyleng = (yy_size_t)(yy_cp - yy_bp);                                                                               \
     (yy_hold_char) = *yy_cp;                                                                                           \
     *yy_cp = '\0';                                                                                                     \
     (yy_c_buf_p) = yy_cp;
@@ -425,6 +426,8 @@ char* yytext;
 #include "Ice/Ice.h"
 #include "Parser.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -435,14 +438,16 @@ namespace IceStorm
     StringTokenMap keywordMap;
 
     void initScanner();
+    void yynoreturn fatalError(const char* msg);
 }
 
 // Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 494 "src/IceStorm/Scanner.cpp"
-#line 36 "src/IceStorm/Scanner.l"
+#line 499 "src/IceStorm/Scanner.cpp"
+#line 40 "src/IceStorm/Scanner.l"
 /* Instructs flex to not suppress any warnings when generating the scanner. */
 /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
  * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
@@ -454,7 +459,7 @@ namespace IceStorm
 /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
 /* We always want the scanner to run in interactive mode. */
 /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-#line 507 "src/IceStorm/Scanner.cpp"
+#line 512 "src/IceStorm/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -546,7 +551,7 @@ static int input(void);
         if (YY_CURRENT_BUFFER_LVALUE->yy_is_interactive)                                                               \
         {                                                                                                              \
             int c = '*';                                                                                               \
-            int n;                                                                                                     \
+            yy_size_t n;                                                                                               \
             for (n = 0; n < max_size && (c = getc(yyin)) != EOF && c != '\n'; ++n)                                     \
                 buf[n] = (char)c;                                                                                      \
             if (c == '\n')                                                                                             \
@@ -656,9 +661,9 @@ YY_DECL
     }
 
     {
-#line 67 "src/IceStorm/Scanner.l"
+#line 71 "src/IceStorm/Scanner.l"
 
-#line 711 "src/IceStorm/Scanner.cpp"
+#line 716 "src/IceStorm/Scanner.cpp"
 
         while (/*CONSTCOND*/ 1) /* loops until end-of-file is reached */
         {
@@ -716,7 +721,7 @@ YY_DECL
 
                 case 1:
                     YY_RULE_SETUP
-#line 69 "src/IceStorm/Scanner.l"
+#line 73 "src/IceStorm/Scanner.l"
                     {
                         // C++-style comment
                         int c;
@@ -728,7 +733,7 @@ YY_DECL
                     YY_BREAK
                 case 2:
                     YY_RULE_SETUP
-#line 79 "src/IceStorm/Scanner.l"
+#line 83 "src/IceStorm/Scanner.l"
                     {
                         // C-style comment
                         while (true)
@@ -757,7 +762,7 @@ YY_DECL
                 case 3:
                     /* rule 3 can match eol */
                     YY_RULE_SETUP
-#line 104 "src/IceStorm/Scanner.l"
+#line 108 "src/IceStorm/Scanner.l"
                     {
                         size_t len = strlen(yytext);
                         for (size_t i = 0; i < len; ++i)
@@ -772,14 +777,14 @@ YY_DECL
                 case 4:
                     /* rule 4 can match eol */
                     YY_RULE_SETUP
-#line 115 "src/IceStorm/Scanner.l"
+#line 119 "src/IceStorm/Scanner.l"
                     {
                         return ';';
                     }
                     YY_BREAK
                 case 5:
                     YY_RULE_SETUP
-#line 119 "src/IceStorm/Scanner.l"
+#line 123 "src/IceStorm/Scanner.l"
                     {
                         // "..."-type strings
                         string s;
@@ -826,7 +831,7 @@ YY_DECL
                     YY_BREAK
                 case 6:
                     YY_RULE_SETUP
-#line 163 "src/IceStorm/Scanner.l"
+#line 167 "src/IceStorm/Scanner.l"
                     {
                         // '...'-type strings
                         string s;
@@ -854,7 +859,7 @@ YY_DECL
                     YY_BREAK
                 case 7:
                     YY_RULE_SETUP
-#line 188 "src/IceStorm/Scanner.l"
+#line 192 "src/IceStorm/Scanner.l"
                     {
                         // Simple strings
                         string s;
@@ -884,10 +889,10 @@ YY_DECL
                     YY_BREAK
                 case 8:
                     YY_RULE_SETUP
-#line 215 "src/IceStorm/Scanner.l"
+#line 219 "src/IceStorm/Scanner.l"
                     YY_FATAL_ERROR("flex scanner jammed");
                     YY_BREAK
-#line 942 "src/IceStorm/Scanner.cpp"
+#line 947 "src/IceStorm/Scanner.cpp"
                 case YY_STATE_EOF(INITIAL):
                     yyterminate();
 
@@ -1072,7 +1077,7 @@ yy_get_next_buffer(void)
 
     else
     {
-        int num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
+        yy_size_t num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
         while (num_to_read <= 0)
         { /* Not enough room in the buffer - grow it. */
@@ -1084,7 +1089,7 @@ yy_get_next_buffer(void)
 
             if (b->yy_is_our_buffer)
             {
-                int new_size = b->yy_buf_size * 2;
+                yy_size_t new_size = b->yy_buf_size * 2;
 
                 if (new_size <= 0)
                     b->yy_buf_size += b->yy_buf_size / 8;
@@ -1137,7 +1142,7 @@ yy_get_next_buffer(void)
     if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size)
     {
         /* Extend the array by 50%, plus the number we really need. */
-        int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+        yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
         YY_CURRENT_BUFFER_LVALUE->yy_ch_buf =
             (char*)yyrealloc((void*)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t)new_size);
         if (!YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
@@ -1229,7 +1234,7 @@ yyunput(int c, char* yy_bp)
     if (yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2)
     { /* need to shift things up to make room */
         /* +2 for EOB chars. */
-        int number_to_move = (yy_n_chars) + 2;
+        yy_size_t number_to_move = (yy_n_chars) + 2;
         char* dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
         char* source = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
 
@@ -1279,7 +1284,7 @@ input(void)
 
         else
         { /* need more input */
-            int offset = (int)((yy_c_buf_p) - (yytext_ptr));
+            yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
             ++(yy_c_buf_p);
 
             switch (yy_get_next_buffer())
@@ -1615,7 +1620,7 @@ yy_fatal_error(const char* msg)
     do                                                                                                                 \
     {                                                                                                                  \
         /* Undo effects of setting up yytext. */                                                                       \
-        int yyless_macro_arg = (n);                                                                                    \
+        yy_size_t yyless_macro_arg = (n);                                                                              \
         YY_LESS_LINENO(yyless_macro_arg);                                                                              \
         yytext[yyleng] = (yy_hold_char);                                                                               \
         (yy_c_buf_p) = yytext + yyless_macro_arg;                                                                      \
@@ -1735,7 +1740,7 @@ yyfree(void* ptr)
 
 #define YYTABLES_NAME "yytables"
 
-#line 215 "src/IceStorm/Scanner.l"
+#line 219 "src/IceStorm/Scanner.l"
 
 namespace IceStorm
 {
@@ -1755,5 +1760,14 @@ namespace IceStorm
         keywordMap["topics"] = ICE_STORM_TOPICS;
         keywordMap["replica"] = ICE_STORM_REPLICA;
         keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
+    }
+
+    // This function is called whenever the scanner encounters an unrecoverable error.
+    void yynoreturn fatalError(const char* msg)
+    {
+        cerr << "fatal error: " << msg << endl
+             << "\tlast matched text: `" << yytext << "'" << endl
+             << "\tlast scanner state: `" << YY_START << "'" << endl;
+        exit(YY_EXIT_FAILURE);
     }
 }

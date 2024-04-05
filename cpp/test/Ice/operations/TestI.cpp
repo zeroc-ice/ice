@@ -596,12 +596,6 @@ MyDerivedClassI::opIdempotent(const Ice::Current& current)
 }
 
 void
-MyDerivedClassI::opNonmutating(const Ice::Current& current)
-{
-    test(current.mode == OperationMode::Nonmutating);
-}
-
-void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {
 }

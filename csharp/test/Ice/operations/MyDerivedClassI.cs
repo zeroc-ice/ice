@@ -1,9 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-using System;
-using System.Collections.Generic;
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -752,11 +747,6 @@ namespace Ice
             public override void opIdempotent(Ice.Current current)
             {
                 test(current.mode == Ice.OperationMode.Idempotent);
-            }
-
-            public override void opNonmutating(Ice.Current current)
-            {
-                test(current.mode == Ice.OperationMode.Nonmutating);
             }
 
             public override void opDerived(Ice.Current current)

@@ -1,11 +1,8 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+using System.Diagnostics;
 
 namespace IceInternal;
-
-using System.Collections.Generic;
-using System.Diagnostics;
 
 public sealed class ACMConfig : System.ICloneable
 {

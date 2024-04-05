@@ -1,14 +1,11 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+
+namespace IceInternal;
 
 internal sealed class WSTransceiver : Transceiver
 {
@@ -719,14 +716,14 @@ internal sealed class WSTransceiver : Transceiver
         _state = StateInitializeDelegate;
         _parser = new HttpParser();
         _readState = ReadStateOpcode;
-        _readBuffer = new Buffer(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
+        _readBuffer = new Buffer(ByteBuffer.ByteOrder.BigEndian); // Network byte order
         _readBufferSize = 1024;
         _readLastFrame = true;
         _readOpCode = 0;
         _readHeaderLength = 0;
         _readPayloadLength = 0;
         _writeState = WriteStateHeader;
-        _writeBuffer = new Buffer(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
+        _writeBuffer = new Buffer(ByteBuffer.ByteOrder.BigEndian); // Network byte order
         _writeBufferSize = 1024;
         _readPending = false;
         _finishRead = false;
@@ -734,7 +731,7 @@ internal sealed class WSTransceiver : Transceiver
         _readMask = new byte[4];
         _writeMask = new byte[4];
         _key = "";
-        _pingPayload = new byte[0];
+        _pingPayload = [];
         _rand = new Random();
     }
 
@@ -771,7 +768,7 @@ internal sealed class WSTransceiver : Transceiver
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if (val.IndexOf("upgrade") == -1)
+        else if (!val.Contains("upgrade", StringComparison.Ordinal))
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
@@ -926,7 +923,7 @@ internal sealed class WSTransceiver : Transceiver
         {
             throw new WebSocketException("missing value for Connection field");
         }
-        else if (val.IndexOf("upgrade") == -1)
+        else if (!val.Contains("upgrade", StringComparison.Ordinal))
         {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
@@ -1327,7 +1324,7 @@ internal sealed class WSTransceiver : Transceiver
                     _writeBuffer.b.position(pos);
                 }
                 _writeBuffer.b.put(_pingPayload);
-                _pingPayload = new byte[0];
+                _pingPayload = [];
 
                 _writeState = WriteStateControlFrame;
                 _writeBuffer.b.flip();
@@ -1668,19 +1665,19 @@ internal sealed class WSTransceiver : Transceiver
     private const int OP_CONT = 0x0;    // Continuation frame
     private const int OP_TEXT = 0x1;    // Text frame
     private const int OP_DATA = 0x2;    // Data frame
-    private const int OP_RES_0x3 = 0x3;    // Reserved
-    private const int OP_RES_0x4 = 0x4;    // Reserved
-    private const int OP_RES_0x5 = 0x5;    // Reserved
-    private const int OP_RES_0x6 = 0x6;    // Reserved
-    private const int OP_RES_0x7 = 0x7;    // Reserved
+    // private const int OP_RES_0x3 = 0x3;    // Reserved
+    // private const int OP_RES_0x4 = 0x4;    // Reserved
+    // private const int OP_RES_0x5 = 0x5;    // Reserved
+    // private const int OP_RES_0x6 = 0x6;    // Reserved
+    // private const int OP_RES_0x7 = 0x7;    // Reserved
     private const int OP_CLOSE = 0x8;    // Connection close
     private const int OP_PING = 0x9;    // Ping
     private const int OP_PONG = 0xA;    // Pong
-    private const int OP_RES_0xB = 0xB;    // Reserved
-    private const int OP_RES_0xC = 0xC;    // Reserved
-    private const int OP_RES_0xD = 0xD;    // Reserved
-    private const int OP_RES_0xE = 0xE;    // Reserved
-    private const int OP_RES_0xF = 0xF;    // Reserved
+    // private const int OP_RES_0xB = 0xB;    // Reserved
+    // private const int OP_RES_0xC = 0xC;    // Reserved
+    // private const int OP_RES_0xD = 0xD;    // Reserved
+    // private const int OP_RES_0xE = 0xE;    // Reserved
+    // private const int OP_RES_0xF = 0xF;    // Reserved
     private const int FLAG_FINAL = 0x80;   // Last frame
     private const int FLAG_MASKED = 0x80;   // Payload is masked
 

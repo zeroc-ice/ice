@@ -295,7 +295,8 @@ public class AllTests {
       comm.destroy();
 
       //
-      // This should fail because the self signed certificate used by the server is not
+      // This should fail because the self signed certificate used by the server is
+      // not
       // trusted.
       //
       initData = createClientProps(defaultProperties);
@@ -416,7 +417,8 @@ public class AllTests {
         }
 
         //
-        // Target host does not match the certificate Common Name and the certificate does not
+        // Target host does not match the certificate Common Name and the certificate
+        // does not
         // include a DNS altName
         //
         {
@@ -533,7 +535,8 @@ public class AllTests {
         }
 
         //
-        // Target host does not match the certificate DNS altName, connection should succeed
+        // Target host does not match the certificate DNS altName, connection should
+        // succeed
         // because IceSSL.CheckCertName is set to 0.
         //
         {
@@ -731,35 +734,6 @@ public class AllTests {
         fact.destroyServer(server);
       }
 
-      comm.destroy();
-    }
-    out.println("ok");
-
-    out.print("testing protocols... ");
-    out.flush();
-    {
-      // This should fail because the client and server have no protocol in common.
-      initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-      initData.properties.setProperty("IceSSL.Protocols", "ssl3");
-      Communicator comm = Util.initialize(args, initData);
-      ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-      d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-      d.put("IceSSL.VerifyPeer", "2");
-      d.put("IceSSL.Protocols", "tls1");
-      ServerPrx server = fact.createServer(d);
-      try {
-        server.ice_ping();
-        test(false);
-      } catch (com.zeroc.Ice.SecurityException ex) {
-        // Expected.
-      } catch (com.zeroc.Ice.ConnectionLostException ex) {
-        // Expected for thread pool.
-      } catch (com.zeroc.Ice.LocalException ex) {
-        ex.printStackTrace();
-        test(false);
-      }
-      fact.destroyServer(server);
       comm.destroy();
     }
     out.println("ok");
@@ -1494,7 +1468,8 @@ public class AllTests {
     out.flush();
     {
       //
-      // Retry a few times in case there are connectivity problems with demo.zeroc.com.
+      // Retry a few times in case there are connectivity problems with
+      // demo.zeroc.com.
       //
       final int retryMax = 5;
       final int retryDelay = 1000;

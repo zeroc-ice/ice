@@ -59,10 +59,6 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     }
 
     {
-        p->opNonmutating();
-    }
-
-    {
         uint8_t b;
 
         try

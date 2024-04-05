@@ -53,6 +53,11 @@ exception E
 {
 }
 
+["bad", "cpp:bad", "java:bad"] // We only validate metadata when it has an applicable language prefix.
+class C
+{
+}
+
 ["cpp98:foo", "cpp11:bar"] // The cpp98 and cpp11 attributes were removed in 3.8. We issue a friendly warning.
 class P
 {

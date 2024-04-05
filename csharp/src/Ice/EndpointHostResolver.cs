@@ -1,14 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using System.Threading;
 
+namespace IceInternal;
 public class EndpointHostResolver
 {
     internal EndpointHostResolver(Instance instance)

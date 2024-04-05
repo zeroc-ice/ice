@@ -47,7 +47,6 @@
 
         await prx.opVoid();
         await prx.opIdempotent();
-        await prx.opNonmutating();
 
         try
         {

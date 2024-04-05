@@ -1,12 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-namespace Ice;
+// Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
+
+namespace Ice;
 
 public abstract class LoggerI : Logger
 {
@@ -85,8 +82,8 @@ public abstract class LoggerI : Logger
 
     internal readonly string _prefix;
     internal readonly string _formattedPrefix;
-    internal string _date = null;
-    internal string _time = null;
+    internal string _date;
+    internal string _time;
 
     internal static object _globalMutex = new object();
 }

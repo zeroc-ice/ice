@@ -374,10 +374,6 @@ class MyDerivedClassI(Test.MyDerivedClass):
         test(current.mode == Ice.OperationMode.Idempotent)
         return Ice.Future.completed(None)
 
-    def opNonmutating(self, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-        return Ice.Future.completed(None)
-
     def opDerived(self, current=None):
         return Ice.Future.completed(None)
 

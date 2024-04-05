@@ -1,13 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
+namespace IceInternal;
 internal sealed class TraceUtil
 {
     internal static void traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
@@ -71,7 +67,7 @@ internal sealed class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-            using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+            using (var s = new StringWriter(CultureInfo.CurrentCulture))
             {
                 s.Write(heading);
                 printMessage(s, str);
@@ -82,15 +78,15 @@ internal sealed class TraceUtil
         }
     }
 
-    private static HashSet<string> slicingIds = new HashSet<string>();
+    private static HashSet<string> slicingIds = new();
 
     internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
     {
-        lock (typeof(TraceUtil))
+        lock (_globalMutex)
         {
             if (slicingIds.Add(typeId))
             {
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (StringWriter s = new StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write("unknown " + kind + " type `" + typeId + "'");
                     logger.trace(slicingCat, s.ToString());
@@ -139,26 +135,26 @@ internal sealed class TraceUtil
                     {
                         s = "" + n;
                     }
-                    System.Console.Out.Write(s + " ");
+                    Console.Out.Write(s + " ");
                 }
                 else
                 {
-                    System.Console.Out.Write("    ");
+                    Console.Out.Write("    ");
                 }
             }
 
-            System.Console.Out.Write('"');
+            Console.Out.Write('"');
 
             for (int j = i; j < data.Length && j - i < inc; j++)
             {
                 // TODO: this needs fixing
                 if (data[j] >= 32 && data[j] < 127)
                 {
-                    System.Console.Out.Write((char)data[j]);
+                    Console.Out.Write((char)data[j]);
                 }
                 else
                 {
-                    System.Console.Out.Write('.');
+                    Console.Out.Write('.');
                 }
             }
 
@@ -533,4 +529,6 @@ internal sealed class TraceUtil
                 return "unknown";
         }
     }
+
+    private static readonly object _globalMutex = new object();
 }

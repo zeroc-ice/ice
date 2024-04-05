@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace IceInternal;
 
@@ -503,7 +501,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         _detachedQueue.AddLast(entry);
     }
 
-    private Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)
+    private static Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)
     {
         Dictionary<string, Regex> pats = new Dictionary<string, Regex>();
         Dictionary<string, string> rules = properties.getPropertiesForPrefix(name + '.');
@@ -514,7 +512,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         return pats;
     }
 
-    private bool match(string attribute, Regex regex, IceMX.MetricsHelper<T> helper, bool reject)
+    private static bool match(string attribute, Regex regex, IceMX.MetricsHelper<T> helper, bool reject)
     {
         string value;
         try
@@ -535,7 +533,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     readonly private Dictionary<string, Regex> _accept;
     readonly private Dictionary<string, Regex> _reject;
 
-    readonly private Dictionary<string, Entry> _objects = new Dictionary<string, Entry>();
+    readonly private Dictionary<string, Entry> _objects = new();
     readonly private Dictionary<string, ISubMapCloneFactory> _subMaps;
     private LinkedList<Entry> _detachedQueue;
 }
@@ -695,7 +693,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
         if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
-            message.Append(prefix.Substring(0, prefix.Length - 1));
+            message.Append(prefix.AsSpan(0, prefix.Length - 1));
             message.Append("':");
             foreach (string p in unknownProps)
             {
@@ -824,7 +822,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
         lock (this)
         {
             disabledViews = _disabledViews.ToArray();
-            return new List<String>(_views.Keys).ToArray();
+            return new List<string>(_views.Keys).ToArray();
         }
     }
 
@@ -872,7 +870,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             {
                 return view.getFailures(mapName);
             }
-            return new IceMX.MetricsFailures[0];
+            return [];
         }
     }
 
@@ -970,7 +968,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
     {
         foreach (KeyValuePair<string, string> e in props)
         {
-            if (e.Key.IndexOf("IceMX.") == 0)
+            if (e.Key.StartsWith("IceMX."))
             {
                 // Update the metrics views using the new configuration.
                 try

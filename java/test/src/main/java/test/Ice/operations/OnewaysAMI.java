@@ -107,19 +107,6 @@ class OnewaysAMI {
     }
 
     {
-      final Callback cb = new Callback();
-      CompletableFuture<Void> f = p.opNonmutatingAsync();
-      f.whenComplete((result, ex) -> test(ex == null));
-      Util.getInvocationFuture(f)
-          .whenSent(
-              (sentSynchronously, ex) -> {
-                test(ex == null);
-                cb.called();
-              });
-      cb.check();
-    }
-
-    {
       try {
         p.opByteAsync((byte) 0xff, (byte) 0x0f);
         test(false);

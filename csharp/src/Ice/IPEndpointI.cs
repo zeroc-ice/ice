@@ -1,13 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
-
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+
+namespace IceInternal;
 
 public abstract class IPEndpointI : EndpointI
 {
@@ -207,7 +203,7 @@ public abstract class IPEndpointI : EndpointI
         if (host_ != null && host_.Length > 0)
         {
             s += " -h ";
-            bool addQuote = host_.IndexOf(':') != -1;
+            bool addQuote = host_.Contains(':');
             if (addQuote)
             {
                 s += "\"";
@@ -224,7 +220,7 @@ public abstract class IPEndpointI : EndpointI
         if (sourceAddr_ != null)
         {
             string sourceAddr = Network.endpointAddressToString(sourceAddr_);
-            bool addQuote = sourceAddr.IndexOf(':') != -1;
+            bool addQuote = sourceAddr.Contains(':');
             s += " --sourceAddress ";
             if (addQuote)
             {

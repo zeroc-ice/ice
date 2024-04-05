@@ -14,6 +14,7 @@
 #include "Grammar.h"
 
 #include <iomanip>
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
 
@@ -46,11 +47,13 @@ namespace
 
     void initScanner();
     void preAction();
+    void yynoreturn fatalError(const char* msg);
 }
 
 // Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
 %}
 
@@ -685,5 +688,14 @@ namespace
         {
             BEGIN(PRE_SLICE);
         }
+    }
+
+    // This function is called whenever the scanner encounters an unrecoverable error.
+    void yynoreturn fatalError(const char* msg)
+    {
+        cerr << yyfilename << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
+             << "\tlast matched text: `" << yytext << "'" << endl
+             << "\tlast scanner state: `" << YY_START << "'" << endl;
+        exit(YY_EXIT_FAILURE);
     }
 }

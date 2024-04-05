@@ -1397,8 +1397,6 @@ class Twoways {
 
     p.opIdempotent();
 
-    p.opNonmutating();
-
     test(p.opByte1((byte) 0xFF) == (byte) 0xFF);
     test(p.opShort1((short) 0x7FFF) == (short) 0x7FFF);
     test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);

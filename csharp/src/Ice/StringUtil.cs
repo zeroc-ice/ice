@@ -1,8 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -31,7 +28,7 @@ public sealed class StringUtil
         for (int i = start; i < len; i++)
         {
             char ch = str[i];
-            if (match.IndexOf((char)ch) != -1)
+            if (match.Contains(ch))
             {
                 return i;
             }
@@ -61,7 +58,7 @@ public sealed class StringUtil
         for (int i = start; i < len; i++)
         {
             char ch = str[i];
-            if (match.IndexOf(ch) == -1)
+            if (!match.Contains(ch))
             {
                 return i;
             }
@@ -143,7 +140,7 @@ public sealed class StringUtil
             }
             default:
             {
-                if (special != null && special.IndexOf(c) != -1)
+                if (special != null && special.Contains(c))
                 {
                     sb.Append('\\');
                     sb.Append(c);
@@ -215,8 +212,7 @@ public sealed class StringUtil
             {
                 if (special[i] < 32 || special[i] > 126)
                 {
-                    throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                       "special");
+                    throw new ArgumentException("special characters must be in ASCII range 32-126", nameof(special));
                 }
             }
         }
@@ -283,7 +279,7 @@ public sealed class StringUtil
             string msg;
             if (pos > 0)
             {
-                msg = "character after `" + s.Substring(0, pos) + "'";
+                msg = $"character after `{s[..pos]}'";
             }
             else
             {
@@ -513,7 +509,7 @@ public sealed class StringUtil
                 }
                 default:
                 {
-                    if (string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                    if (string.IsNullOrEmpty(special) || !special.Contains(c))
                     {
                         result.Append('\\'); // not in special, so we keep the backslash
                     }
@@ -540,7 +536,7 @@ public sealed class StringUtil
                 if (special[i] < 32 || special[i] > 126)
                 {
                     throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                       "special");
+                                                       nameof(special));
                 }
             }
         }
@@ -600,7 +596,7 @@ public sealed class StringUtil
                 quoteChar = '\0';
                 continue; // Skip the quote.
             }
-            else if (delim.IndexOf(str[pos]) != -1)
+            else if (delim.Contains(str[pos]))
             {
                 if (quoteChar == '\0')
                 {

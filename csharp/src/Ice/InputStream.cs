@@ -1,13 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-namespace Ice;
-
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Protocol = IceInternal.Protocol;
+
+namespace Ice;
 
 /// <summary>
 /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".

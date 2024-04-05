@@ -37,9 +37,6 @@ namespace IceSSL
             IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
             IceInternal::UniqueRef<CFArrayRef> _chain;
 
-            SSLProtocol _protocolVersionMax;
-            SSLProtocol _protocolVersionMin;
-
 #    if TARGET_OS_IPHONE == 0
             std::vector<char> _dhParams;
 #    endif

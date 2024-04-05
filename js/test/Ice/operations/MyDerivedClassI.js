@@ -394,11 +394,6 @@
             test(current.mode === Ice.OperationMode.Idempotent);
         }
 
-        opNonmutating(current)
-        {
-            test(current.mode === Ice.OperationMode.Nonmutating);
-        }
-
         opDerived(current)
         {
         }

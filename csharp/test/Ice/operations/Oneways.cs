@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 namespace Ice
 {
@@ -31,10 +29,6 @@ namespace Ice
 
                 {
                     p.opIdempotent();
-                }
-
-                {
-                    p.opNonmutating();
                 }
 
                 {
