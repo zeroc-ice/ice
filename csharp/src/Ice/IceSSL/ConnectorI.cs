@@ -24,7 +24,7 @@ internal sealed class ConnectorI : IceInternal.Connector
 
     public override bool Equals(object obj)
     {
-        if (!(obj is ConnectorI))
+        if (obj is not ConnectorI)
         {
             return false;
         }

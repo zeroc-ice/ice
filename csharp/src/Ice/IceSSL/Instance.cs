@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Net.Security;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL;
@@ -25,11 +24,11 @@ internal class Instance : IceInternal.ProtocolInstance
 
     internal void traceStream(SslStream stream, string connInfo) => _engine.traceStream(stream, connInfo);
 
-    internal void verifyPeer(string address, ConnectionInfo info, string description) =>
-        _engine.verifyPeer(address, info, description);
+    internal void verifyPeer(ConnectionInfo info, string description) =>
+        _engine.verifyPeer(info, description);
 
     internal Ice.InitializationData initializationData() =>
         IceInternal.Util.getInstance(_engine.communicator()).initializationData();
 
-    private SSLEngine _engine;
+    private readonly SSLEngine _engine;
 }

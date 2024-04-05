@@ -71,7 +71,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         _authenticated = true;
 
         _cipher = _sslStream.CipherAlgorithm.ToString();
-        _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
+        _instance.verifyPeer((ConnectionInfo)getInfo(), ToString());
 
         if (_instance.securityTraceLevel() >= 1)
         {
@@ -325,15 +325,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
     public void checkSendSize(IceInternal.Buffer buf) => _delegate.checkSendSize(buf);
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => _delegate.setBufferSize(rcvSize, sndSize);
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
     public string toDetailedString() => _delegate.toDetailedString();
 
@@ -473,7 +467,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException(ex);
+            var e = new Ice.SecurityException(ex);
             e.reason = ex.Message;
             throw e;
         }
@@ -515,7 +509,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException(ex);
+            var e = new Ice.SecurityException(ex);
             e.reason = ex.Message;
             throw e;
         }
@@ -525,8 +519,12 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    private X509Certificate selectCertificate(object sender, string targetHost, X509CertificateCollection certs,
-                                            X509Certificate remoteCertificate, string[] acceptableIssuers)
+    private X509Certificate selectCertificate(
+        object sender,
+        string targetHost,
+        X509CertificateCollection certs,
+        X509Certificate remoteCertificate,
+        string[] acceptableIssuers)
     {
         if (certs == null || certs.Count == 0)
         {
@@ -537,9 +535,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             return certs[0];
         }
 
-        //
         // Use the first certificate that match the acceptable issuers.
-        //
         if (acceptableIssuers != null && acceptableIssuers.Length > 0)
         {
             foreach (X509Certificate certificate in certs)
@@ -553,8 +549,11 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return certs[0];
     }
 
-    private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
-                                    SslPolicyErrors policyErrors)
+    private bool validationCallback(
+        object sender,
+        X509Certificate certificate,
+        X509Chain chainEngine,
+        SslPolicyErrors policyErrors)
     {
         using var chain = new X509Chain(_instance.engine().useMachineContext());
         try
@@ -567,9 +566,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             X509Certificate2Collection caCerts = _instance.engine().caCerts();
             if (caCerts != null)
             {
-                //
                 // We need to set this flag to be able to use a certificate authority from the extra store.
-                //
                 chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                 foreach (X509Certificate2 cert in caCerts)
                 {
@@ -588,7 +585,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                 }
                 else if (_instance.engine().caCerts() != null)
                 {
-                    X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                    X509ChainElement e = chain.ChainElements[^1];
                     if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                     {
                         if (_verifyPeer > 0)
@@ -617,13 +614,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
             if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
             {
-                //
-                // The RemoteCertificateNotAvailable case does not appear to be possible
-                // for an outgoing connection. Since .NET requires an authenticated
-                // connection, the remote peer closes the socket if it does not have a
-                // certificate to provide.
-                //
-
+                // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing connection.
+                // Since .NET requires an authenticated connection, the remote peer closes the socket if it does not
+                // have a certificate to provide.
                 if (_incoming)
                 {
                     if (_verifyPeer > 1)
@@ -682,7 +675,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                     {
                         // Untrusted root is OK when using our custom chain engine if the CA certificate is present in
                         // the chain policy extra store.
-                        X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                        X509ChainElement e = chain.ChainElements[^1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
                             if (_verifyPeer > 0)
@@ -808,7 +801,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private readonly IceInternal.Transceiver _delegate;
     private readonly string _host = "";
     private readonly string _adapterName = "";
-    private bool _incoming;
+    private readonly bool _incoming;
     private SslStream _sslStream;
     private readonly int _verifyPeer;
     private bool _isConnected;

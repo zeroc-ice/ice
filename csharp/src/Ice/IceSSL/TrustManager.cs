@@ -28,8 +28,8 @@ internal sealed class TrustManager
             {
                 key = entry.Key;
                 string name = key.Substring("IceSSL.TrustOnly.Server.".Length);
-                List<List<RFC2253.RDNPair>> reject = new List<List<RFC2253.RDNPair>>();
-                List<List<RFC2253.RDNPair>> accept = new List<List<RFC2253.RDNPair>>();
+                var reject = new List<List<RFC2253.RDNPair>>();
+                var accept = new List<List<RFC2253.RDNPair>>();
                 parse(entry.Value, reject, accept);
                 if (reject.Count > 0)
                 {
@@ -159,9 +159,7 @@ internal sealed class TrustManager
                     }
                 }
 
-                //
                 // Succeed if we match anything in the accept set.
-                //
                 foreach (List<List<RFC2253.RDNPair>> matchSet in accept)
                 {
                     if (_traceLevel > 0)

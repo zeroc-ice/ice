@@ -12,18 +12,12 @@ internal class RFC2253
 {
     public class ParseException : Exception
     {
-        public ParseException(string reason)
-        {
-            this.reason = reason;
-        }
+        public ParseException(string reason) => this.reason = reason;
 
         internal string
-        ice_id()
-        {
-            return "::RFC2253::ParseException";
-        }
+        ice_id() => "::RFC2253::ParseException";
 
-        internal string reason;
+        internal readonly string reason;
     }
 
     internal struct RDNPair
@@ -34,14 +28,14 @@ internal class RFC2253
 
     internal class RDNEntry
     {
-        internal List<RDNPair> rdn = new();
+        internal List<RDNPair> rdn = [];
         internal bool negate;
     }
 
     internal static List<RDNEntry> parse(string data)
     {
-        List<RDNEntry> results = new();
-        RDNEntry current = new RDNEntry();
+        List<RDNEntry> results = [];
+        var current = new RDNEntry();
         int pos = 0;
         while (pos < data.Length)
         {
@@ -82,7 +76,7 @@ internal class RFC2253
 
     internal static List<RDNPair> parseStrict(string data)
     {
-        List<RDNPair> results = new List<RDNPair>();
+        List<RDNPair> results = [];
         int pos = 0;
         while (pos < data.Length)
         {
@@ -109,20 +103,20 @@ internal class RFC2253
 
         if (data[0] == '"')
         {
-            if (data[data.Length - 1] != '"')
+            if (data[^1] != '"')
             {
                 throw new ParseException("unescape: missing \"");
             }
             //
             // Return the string without quotes.
             //
-            return data.Substring(1, data.Length - 2);
+            return data[1..^1];
         }
 
         //
         // Unescape the entire string.
         //
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         if (data[0] == '#')
         {
             int pos = 1;
@@ -217,7 +211,7 @@ internal class RFC2253
 
     private static RDNPair parseAttributeTypeAndValue(string data, ref int pos)
     {
-        RDNPair p = new RDNPair();
+        var p = new RDNPair();
         p.key = parseAttributeType(data, ref pos);
         eatWhite(data, ref pos);
         if (pos >= data.Length)
@@ -335,7 +329,7 @@ internal class RFC2253
         // RFC 2253
         // # hexstring
         //
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         if (data[pos] == '#')
         {
             result.Append(data[pos]);
@@ -483,6 +477,6 @@ internal class RFC2253
         }
     }
 
-    private static string special = ",=+<>#;";
-    private static string hexvalid = "0123456789abcdefABCDEF";
+    private const string special = ",=+<>#;";
+    private const string hexvalid = "0123456789abcdefABCDEF";
 }
