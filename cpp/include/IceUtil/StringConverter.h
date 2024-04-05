@@ -67,11 +67,11 @@ namespace IceUtil
 #endif
 
     /** A narrow string converter. */
-    typedef BasicStringConverter<char> StringConverter;
+    using StringConverter = BasicStringConverter<char>;
     using StringConverterPtr = std::shared_ptr<StringConverter>;
 
     /** A wide string converter. */
-    typedef BasicStringConverter<wchar_t> WstringConverter;
+    using WstringConverter = BasicStringConverter<wchar_t>;
     using WstringConverterPtr = std::shared_ptr<WstringConverter>;
 
     /**

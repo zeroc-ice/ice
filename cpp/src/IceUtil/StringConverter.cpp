@@ -516,7 +516,8 @@ namespace
         return getUnicodeWstringConverter()->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
     }
 
-    void WindowsStringConverter::fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd, string& target) const
+    void
+    WindowsStringConverter::fromUTF8(const __cpp_lib_byte* sourceStart, const byte* sourceEnd, string& target) const
     {
         if (sourceStart == sourceEnd)
         {
@@ -526,7 +527,9 @@ namespace
 
         if (_cp == CP_UTF8)
         {
-            string tmp(reinterpret_cast<const char*>(sourceStart), sourceEnd - sourceStart);
+            string tmp(
+                reinterpret_cast<const char*>(sourceStart),
+                reinterpret_cast<const char*>(sourceEnd - sourceStart));
             tmp.swap(target);
             return;
         }
