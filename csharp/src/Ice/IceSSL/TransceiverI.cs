@@ -305,7 +305,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         info.incoming = _incoming;
         info.adapterName = _adapterName;
         info.cipher = _cipher;
-        if (_sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
+        if (_sslStream is SslStream sslStream && sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
         {
             info.certs = [remoteCertificate];
         }
@@ -547,7 +547,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             if (checkCertName && !string.IsNullOrEmpty(_host))
             {
                 if (traceLevel >= 1)
-                {     
+                {
                     logger.trace(traceCategory, "SSL certificate validation failed - Hostname mismatch");
                 }
             }
