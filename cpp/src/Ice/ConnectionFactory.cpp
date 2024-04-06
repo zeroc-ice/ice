@@ -597,8 +597,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         auto idleTimeout = _idleTimeout;
         bool enableIdleCheck = _enableIdleCheck;
 
-        // TODO: is this the best way to detect a UDP connection?
-        if (ci.endpoint->type() == UDPEndpointType)
+        if (ci.endpoint->datagram())
         {
             // No idle timeout or idle check for UDP connections.
             idleTimeout = chrono::milliseconds(0);

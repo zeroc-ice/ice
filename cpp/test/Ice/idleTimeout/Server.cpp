@@ -18,7 +18,8 @@ Server::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    initData.properties->setProperty("TestAdapter.IdleTimeout", "2"); // 2 seconds
+    initData.properties->setProperty("TestAdapter.IdleTimeout", "1"); // 1 second
+    initData.properties->setProperty("TestAdapter.EnableIdleCheck", "1"); // on
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());

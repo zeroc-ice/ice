@@ -5,6 +5,9 @@
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Ice/Buffer.h"
 
+#include <chrono>
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -12,33 +15,58 @@ using namespace IceInternal;
 SocketOperation
 IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
+    cerr << "initialize " << chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()) % 10000 << endl;
     SocketOperation op = _decoratee->initialize(readBuffer, writeBuffer);
 
     if (op == SocketOperationNone) // connected
     {
-        rescheduleKeepAlive();
+        if (_writeIdleTimeout != chrono::milliseconds::zero())
+        {
+            rescheduleHeartbeat();
+        }
+
+        if (_readIdleTimeout != chrono::milliseconds::zero())
+        {
+            _timer->schedule(_abortConnectionTimerTask, _readIdleTimeout);
+        }
     }
+
     return op;
 }
 
-IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator() { _timer->cancel(_keepAliveAction); }
+IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
+{
+    if (_heartbeatTimerTask)
+    {
+        _timer->cancel(_heartbeatTimerTask);
+    }
+    if (_abortConnectionTimerTask)
+    {
+        _timer->cancel(_abortConnectionTimerTask);
+    }
+}
 
 void
 IdleTimeoutTransceiverDecorator::close()
 {
-    _timer->cancel(_keepAliveAction);
+    _timer->cancel(_heartbeatTimerTask);
+    _timer->cancel(_abortConnectionTimerTask);
     _decoratee->close();
 }
 
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
+    cerr << "write " << chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch())  % 10000  << endl;
     Buffer::Container::iterator start = buf.i;
     SocketOperation op = _decoratee->write(buf);
     if (buf.i != start)
     {
-        // We've sent at least one byte, reschedule the keep alive.
-        rescheduleKeepAlive();
+        if (_writeIdleTimeout != chrono::milliseconds::zero())
+        {
+            // We've sent at least one byte, reschedule the heartbeat.
+            rescheduleHeartbeat();
+        }
     }
     return op;
 }
@@ -47,7 +75,8 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // TODO: do we always call finishWrite? Should we check buf? The tracing code in ConnectionI doesn't.
+    // TODO: should we check buf? the return value? The tracing code in ConnectionI doesn't. It's also not clear if the
+    // main startWrite (StreamSocket::startWrite) actually modifies buf.
     return _decoratee->startWrite(buf);
 }
 
@@ -56,10 +85,10 @@ IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 {
     Buffer::Container::iterator start = buf.i;
     _decoratee->finishWrite(buf);
-    if (buf.i != start)
+    if (buf.i != start && _writeIdleTimeout != chrono::milliseconds::zero())
     {
-        // We've sent at least one byte, reschedule the keep alive.
-        rescheduleKeepAlive();
+        // We've sent at least one byte, reschedule the heartbeat.
+        rescheduleHeartbeat();
     }
 }
 
@@ -72,20 +101,42 @@ IdleTimeoutTransceiverDecorator::startRead(Buffer& buf)
 void
 IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
 {
+    Buffer::Container::iterator start = buf.i;
     _decoratee->finishRead(buf);
+    if (_readIdleTimeout != chrono::milliseconds::zero())
+    {
+        if (buf.i != start)
+        {
+            // We've read something, reschedule the idle check.
+            _timer->schedule(_abortConnectionTimerTask, _readIdleTimeout, true);
+        }
+        // else don't touch the existing idle check.
+    }
 }
 #endif
 
+// TODO: this naive implementation is not correct as it aborts a "ready" connection that was not read in a timely
+// fashion.
 SocketOperation
 IdleTimeoutTransceiverDecorator::read(Buffer& buf)
 {
-    // Don't do anything for now.
-    return _decoratee->read(buf);
+    cerr << "read " << chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()) % 10000 << endl;
+    Buffer::Container::iterator start = buf.i;
+    SocketOperation op = _decoratee->read(buf);
+    if (_readIdleTimeout != chrono::milliseconds::zero())
+    {
+        if (buf.i != start)
+        {
+            // We've read something, reschedule the idle check.
+            _timer->schedule(_abortConnectionTimerTask, _readIdleTimeout, true);
+        }
+        // else don't touch the existing idle check.
+    }
+    return op;
 }
 
 void
-IdleTimeoutTransceiverDecorator::rescheduleKeepAlive()
+IdleTimeoutTransceiverDecorator::rescheduleHeartbeat()
 {
-    // Each connection must have its own keepAliveAction, otherwise this code doesn't work.
-    _timer->schedule(_keepAliveAction, _writeIdleTimeout / 2, true);
+    _timer->schedule(_heartbeatTimerTask, _writeIdleTimeout / 2, true);
 }

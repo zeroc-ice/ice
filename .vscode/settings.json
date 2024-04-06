@@ -78,7 +78,8 @@
         "type_traits": "cpp",
         "cassert": "cpp",
         "span": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "__memory": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
     "cSpell.words": [

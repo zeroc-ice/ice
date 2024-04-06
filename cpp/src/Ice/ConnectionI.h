@@ -217,6 +217,9 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
+        // TODO: there are two many functions with similar names. This is the function called by the HeartbeatTimerTask.
+        void sendHeartbeat() noexcept;
+
         ~ConnectionI() final;
 
     private:

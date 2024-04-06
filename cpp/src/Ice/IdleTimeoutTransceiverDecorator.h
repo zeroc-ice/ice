@@ -29,11 +29,13 @@ namespace IceInternal
 
         ~IdleTimeoutTransceiverDecorator();
 
-        // Sets the keep-alive action. This is an "init", not thread-safe function.
-        void keepAliveAction(const IceUtil::TimerTaskPtr& keepAliveAction)
+        // Set the timer tasks. Must be called only once.
+        void init(const IceUtil::TimerTaskPtr& heartbeatTimerTask, const IceUtil::TimerTaskPtr& abortConnectionTimerTask)
         {
-            assert(!_keepAliveAction); // Must be called only once.
-            _keepAliveAction = keepAliveAction;
+            assert(heartbeatTimerTask && abortConnectionTimerTask);
+            assert(!_heartbeatTimerTask && !_abortConnectionTimerTask);
+            _heartbeatTimerTask = heartbeatTimerTask;
+            _abortConnectionTimerTask = abortConnectionTimerTask;
         }
 
         NativeInfoPtr getNativeInfo() final { return _decoratee->getNativeInfo(); }
@@ -65,16 +67,15 @@ namespace IceInternal
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
     private:
-        void rescheduleKeepAlive();
+        void rescheduleHeartbeat();
 
         const TransceiverPtr _decoratee;
-        IceUtil::TimerTaskPtr _keepAliveAction;
-#if !defined(__GNUC__) || defined(__clang__)
-        [[maybe_unused]]
-#endif
         const std::chrono::milliseconds _readIdleTimeout;
         const std::chrono::milliseconds _writeIdleTimeout;
         const IceUtil::TimerPtr _timer;
+
+        IceUtil::TimerTaskPtr _heartbeatTimerTask;
+        IceUtil::TimerTaskPtr _abortConnectionTimerTask;
     };
 }
 

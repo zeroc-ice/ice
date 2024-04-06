@@ -50,17 +50,34 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class KeepAlive final : public IceUtil::TimerTask
+    class HeartbeatTimerTask final : public IceUtil::TimerTask
     {
     public:
-        KeepAlive(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
+        HeartbeatTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
 
         void runTimerTask() final
         {
             if (auto connection = _connection.lock())
             {
-                // TODO: handle synchronous and asynchronous failures
-                connection->heartbeatAsync(nullptr);
+                connection->sendHeartbeat();
+            }
+            // else nothing to do, the connection is already gone.
+        }
+
+    private:
+        const std::weak_ptr<ConnectionI> _connection;
+    };
+
+    class AbortConnectionTimerTask final : public IceUtil::TimerTask
+    {
+    public:
+        AbortConnectionTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
+
+        void runTimerTask() final
+        {
+            if (auto connection = _connection.lock())
+            {
+                connection->timedOut();
             }
             // else nothing to do, the connection is already gone.
         }
@@ -2202,7 +2219,7 @@ Ice::ConnectionI::create(
 
     if (decoratedTransceiver)
     {
-        decoratedTransceiver->keepAliveAction(make_shared<KeepAlive>(conn));
+        decoratedTransceiver->init(make_shared<HeartbeatTimerTask>(conn), make_shared<AbortConnectionTimerTask>(conn));
     }
 
     if (adapter)
@@ -2557,6 +2574,17 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 void
+Ice::ConnectionI::sendHeartbeat() noexcept
+{
+    lock_guard lock(_mutex);
+    if (_state != StateActive)
+    {
+        return;
+    }
+    sendHeartbeatNow();
+}
+
+void
 Ice::ConnectionI::sendHeartbeatNow()
 {
     assert(_state == StateActive);
@@ -2579,7 +2607,7 @@ Ice::ConnectionI::sendHeartbeatNow()
             OutgoingMessage message(&os, false);
             sendMessage(message);
         }
-        catch (const LocalException&)
+        catch (...)
         {
             setState(StateClosed, current_exception());
             assert(_exception);
