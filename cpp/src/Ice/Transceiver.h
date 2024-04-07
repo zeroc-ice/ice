@@ -26,12 +26,19 @@ namespace IceInternal
         virtual EndpointIPtr bind();
         virtual SocketOperation write(Buffer&) = 0;
         virtual SocketOperation read(Buffer&) = 0;
+
 #if defined(ICE_USE_IOCP)
         virtual bool startWrite(Buffer&) = 0;
         virtual void finishWrite(Buffer&) = 0;
         virtual void startRead(Buffer&) = 0;
         virtual void finishRead(Buffer&) = 0;
 #endif
+
+        /// Checks if this transceiver has data that is readily available for reading.
+        /// @return true if some data is available for reading, false otherwise.
+        /// @remark The caller can call this method concurrently with read() (and write()); however, the caller must
+        /// ensure the transceiver is not closed when calling this function.
+        virtual bool hasDataAvailable() const noexcept = 0;
 
         virtual std::string protocol() const = 0;
         virtual std::string toString() const = 0;

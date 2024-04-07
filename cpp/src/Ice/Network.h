@@ -233,6 +233,8 @@ namespace IceInternal
     ICE_API void setRecvBufferSize(SOCKET, int);
     ICE_API int getRecvBufferSize(SOCKET);
 
+    ICE_API bool hasDataAvailable(SOCKET) noexcept;
+
     ICE_API void setMcastGroup(SOCKET, const Address&, const std::string&);
     ICE_API void setMcastInterface(SOCKET, const std::string&, const Address&);
     ICE_API void setMcastTtl(SOCKET, int, const Address&);

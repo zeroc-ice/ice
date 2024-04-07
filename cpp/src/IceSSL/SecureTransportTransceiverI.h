@@ -37,6 +37,8 @@ namespace IceSSL
             IceInternal::SocketOperation write(IceInternal::Buffer&) final;
             IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
+            bool hasDataAvailable() const noexcept final;
+
             std::string protocol() const final;
             std::string toString() const final;
             std::string toDetailedString() const final;

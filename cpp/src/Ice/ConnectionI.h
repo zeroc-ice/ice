@@ -217,6 +217,8 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
+        bool idleCheck() noexcept;
+
         // TODO: there are two many functions with similar names. This is the function called by the HeartbeatTimerTask.
         void sendHeartbeat() noexcept;
 

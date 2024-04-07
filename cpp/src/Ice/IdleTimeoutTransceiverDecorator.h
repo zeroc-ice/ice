@@ -5,46 +5,46 @@
 #ifndef ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 #define ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 
+#include "ConnectionI.h"
 #include "IceUtil/Timer.h"
 #include "Transceiver.h"
 
+#include <cassert>
+
 namespace IceInternal
 {
-    // Decorates Transceiver to send heartbeats and detect when no byte is received/read for a while.
-    // This decorator must not be applied on UDP "connections".
+    // Decorates Transceiver to send heartbeats and optionally detect when no byte is received/read for a while.
+    // This decorator must not be applied on UDP connections.
     class IdleTimeoutTransceiverDecorator final : public Transceiver
     {
     public:
         IdleTimeoutTransceiverDecorator(
             const TransceiverPtr& decoratee,
-            std::chrono::milliseconds readIdleTimeout,
-            std::chrono::milliseconds writeIdleTimeout,
+            std::chrono::milliseconds idleTimeout,
+            bool enableIdleCheck,
             const IceUtil::TimerPtr& timer)
             : _decoratee(decoratee),
-              _readIdleTimeout(readIdleTimeout),
-              _writeIdleTimeout(writeIdleTimeout),
+              _idleTimeout(idleTimeout),
+              _enableIdleCheck(enableIdleCheck),
               _timer(timer)
         {
+            assert(_decoratee->protocol() != "udp");
         }
 
         ~IdleTimeoutTransceiverDecorator();
 
-        // Set the timer tasks. Must be called only once.
-        void init(const IceUtil::TimerTaskPtr& heartbeatTimerTask, const IceUtil::TimerTaskPtr& abortConnectionTimerTask)
-        {
-            assert(heartbeatTimerTask && abortConnectionTimerTask);
-            assert(!_heartbeatTimerTask && !_abortConnectionTimerTask);
-            _heartbeatTimerTask = heartbeatTimerTask;
-            _abortConnectionTimerTask = abortConnectionTimerTask;
-        }
+        // Set the timer tasks immediately after construction. Must be called only once.
+        void decoratorInit(const Ice::ConnectionIPtr&);
 
         NativeInfoPtr getNativeInfo() final { return _decoratee->getNativeInfo(); }
 
         SocketOperation initialize(Buffer& readBuffer, Buffer& writeBuffer) final;
+
         SocketOperation closing(bool initiator, std::exception_ptr ex) final
         {
             return _decoratee->closing(initiator, ex);
         }
+
         void close() final;
 
         EndpointIPtr bind() final { return _decoratee->bind(); }
@@ -56,9 +56,10 @@ namespace IceInternal
         bool startWrite(Buffer&) final;
         void finishWrite(Buffer&) final;
         void startRead(Buffer&) final;
-        void finishRead(Buffer&) final;
+        void finishRead(Buffer&) final { _decoratee->finishRead(); }
 #endif
 
+        bool hasDataAvailable() const noexcept final { return _decoratee->hasDataAvailable(); }
         std::string protocol() const final { return _decoratee->protocol(); }
         std::string toString() const final { return _decoratee->toString(); }
         std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
@@ -70,12 +71,13 @@ namespace IceInternal
         void rescheduleHeartbeat();
 
         const TransceiverPtr _decoratee;
-        const std::chrono::milliseconds _readIdleTimeout;
-        const std::chrono::milliseconds _writeIdleTimeout;
+        const std::chrono::milliseconds _idleTimeout;
+        const bool _enableIdleCheck;
         const IceUtil::TimerPtr _timer;
 
+        // Set by decoratorInit
         IceUtil::TimerTaskPtr _heartbeatTimerTask;
-        IceUtil::TimerTaskPtr _abortConnectionTimerTask;
+        IceUtil::TimerTaskPtr _idleCheckTimerTask;
     };
 }
 

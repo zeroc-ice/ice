@@ -13,6 +13,8 @@
 #    include "ProtocolInstance.h"
 #    include "TcpTransceiver.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -80,6 +82,12 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
     _stream->finishRead(buf);
 }
 #    endif
+
+bool
+IceInternal::TcpTransceiver::hasDataAvailable() const noexcept
+{
+    return IceInternal::hasDataAvailable(_stream->fd());
+}
 
 string
 IceInternal::TcpTransceiver::protocol() const

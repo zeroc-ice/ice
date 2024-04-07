@@ -50,42 +50,6 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class HeartbeatTimerTask final : public IceUtil::TimerTask
-    {
-    public:
-        HeartbeatTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
-
-        void runTimerTask() final
-        {
-            if (auto connection = _connection.lock())
-            {
-                connection->sendHeartbeat();
-            }
-            // else nothing to do, the connection is already gone.
-        }
-
-    private:
-        const std::weak_ptr<ConnectionI> _connection;
-    };
-
-    class AbortConnectionTimerTask final : public IceUtil::TimerTask
-    {
-    public:
-        AbortConnectionTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
-
-        void runTimerTask() final
-        {
-            if (auto connection = _connection.lock())
-            {
-                connection->timedOut();
-            }
-            // else nothing to do, the connection is already gone.
-        }
-
-    private:
-        const std::weak_ptr<ConnectionI> _connection;
-    };
-
     class DispatchCall final : public ExecutorWorkItem
     {
     public:
@@ -2203,35 +2167,36 @@ Ice::ConnectionI::create(
     {
         decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
             transceiver,
-            enableIdleCheck ? idleTimeout : chrono::milliseconds::zero(),
             idleTimeout,
+            enableIdleCheck,
             instance->timer());
     }
 
-    Ice::ConnectionIPtr conn(new ConnectionI(
-        communicator,
-        instance,
-        monitor,
-        decoratedTransceiver ? decoratedTransceiver : transceiver,
-        connector,
-        endpoint,
-        adapter));
+    Ice::ConnectionIPtr connection(
+        new ConnectionI(
+            communicator,
+            instance,
+            monitor,
+            decoratedTransceiver ? decoratedTransceiver : transceiver,
+            connector,
+            endpoint,
+            adapter));
 
     if (decoratedTransceiver)
     {
-        decoratedTransceiver->init(make_shared<HeartbeatTimerTask>(conn), make_shared<AbortConnectionTimerTask>(conn));
+        decoratedTransceiver->decoratorInit(connection);
     }
 
     if (adapter)
     {
-        const_cast<ThreadPoolPtr&>(conn->_threadPool) = adapter->getThreadPool();
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = adapter->getThreadPool();
     }
     else
     {
-        const_cast<ThreadPoolPtr&>(conn->_threadPool) = conn->_instance->clientThreadPool();
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = connection->_instance->clientThreadPool();
     }
-    conn->_threadPool->initialize(conn);
-    return conn;
+    connection->_threadPool->initialize(connection);
+    return connection;
 }
 
 Ice::ConnectionI::~ConnectionI()
@@ -2571,6 +2536,25 @@ Ice::ConnectionI::initiateShutdown()
             }
         }
     }
+}
+
+bool
+Ice::ConnectionI::idleCheck() noexcept
+{
+    std::lock_guard lock(_mutex);
+    if (_state == StateActive)
+    {
+        if (_transceiver->hasDataAvailable())
+        {
+            return true;
+        }
+        else
+        {
+            // TODO: replace by ConnectionIdleException.
+            setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
+        }
+    }
+    return false;
 }
 
 void

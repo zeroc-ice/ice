@@ -772,6 +772,12 @@ IceInternal::WSTransceiver::finishRead(Buffer& buf)
 }
 #endif
 
+bool
+IceInternal::WSTransceiver::hasDataAvailable() const noexcept
+{
+    return _delegate->hasDataAvailable();
+}
+
 string
 IceInternal::WSTransceiver::protocol() const
 {

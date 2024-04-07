@@ -15,32 +15,38 @@ allTests(TestHelper* helper)
     CommunicatorPtr communicator = helper->communicator();
 
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
-
-    /*
-    cout << "testing idle timeout heartbeats... " << flush;
     int heartbeatCount = 0; // the heartbeats we receive from the server.
 
+    cout << "testing idle timeout with exhausted OA thread pool... " << flush;
+
     p->init();
+    ConnectionPtr connection = p->ice_getConnection();
+    test(connection);
 
     // Since the connection is fully established at this point, we don't count the initial ValidateConnection heartbeat.
     p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&) { ++heartbeatCount; });
 
-    this_thread::sleep_for(chrono::milliseconds(3250));
-    test(p->getHeartbeatCount() == 2);
-    test(heartbeatCount == 6);
+    p->sleep(2250);
+    test(p->ice_getCachedConnection() == connection); // we still have the same connection
+    test(p->getHeartbeatCount() == 4);
+    test(heartbeatCount == 4);
+    connection->close(ConnectionClose::GracefullyWithWait);
+    cout << "ok" << endl;
 
-    // Verifies writes (the getHeartbeatCount round-trip) skips a heartbeat.
+    cout << "testing idle timeout heartbeats... " << flush;
+    heartbeatCount = 0;
+    p->init();
+    p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&) { ++heartbeatCount; });
+
     this_thread::sleep_for(chrono::milliseconds(1250));
     test(p->getHeartbeatCount() == 2);
-    test(heartbeatCount == 8);
+    test(heartbeatCount == 2);
+
+    // Verifies writes (the getHeartbeatCount round-trip) skips a heartbeat.
+    this_thread::sleep_for(chrono::milliseconds(1400));
+    test(p->getHeartbeatCount() == 4);
+    test(heartbeatCount == 4);
     cout << "ok" << endl;
-    */
-
-   p->ice_getConnection();
-
-   //p->ice_ping();
-   cerr << "sleeping for 5 seconds..." << endl;
-   this_thread::sleep_for(chrono::milliseconds(5000));
 
     p->shutdown();
 }

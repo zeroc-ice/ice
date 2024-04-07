@@ -592,6 +592,12 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
     return IceInternal::SocketOperationNone;
 }
 
+bool
+IceSSL::SecureTransport::TransceiverI::hasDataAvailable() const noexcept
+{
+    return _delegate->hasDataAvailable();
+}
+
 string
 IceSSL::SecureTransport::TransceiverI::protocol() const
 {

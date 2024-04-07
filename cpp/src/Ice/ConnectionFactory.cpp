@@ -356,7 +356,7 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     int idleTimeout = properties->getPropertyAsIntWithDefault(
         "Ice.IdleTimeout",
         static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
-    _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
+    _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 1 : 0) > 0;
     _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
 }
 

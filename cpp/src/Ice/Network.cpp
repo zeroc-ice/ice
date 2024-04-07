@@ -1519,6 +1519,14 @@ IceInternal::getRecvBufferSize(SOCKET fd)
     return sz;
 }
 
+bool
+IceInternal::hasDataAvailable(SOCKET fd) noexcept
+{
+    int bytesAvailable = 0;
+    int rs = ioctl(fd, FIONREAD, &bytesAvailable);
+    return rs == 0 && bytesAvailable > 0;
+}
+
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {

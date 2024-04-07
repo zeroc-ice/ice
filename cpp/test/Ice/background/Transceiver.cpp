@@ -212,6 +212,12 @@ Transceiver::finishRead(IceInternal::Buffer& buf)
 }
 #endif
 
+bool
+Transceiver::hasDataAvailable() const noexcept
+{
+    return _transceiver->hasDataAvailable();
+}
+
 string
 Transceiver::protocol() const
 {

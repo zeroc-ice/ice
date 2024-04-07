@@ -361,6 +361,13 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
     return SocketOperationNone;
 }
 
+bool
+IceObjC::iAPTransceiver::hasDataAvailable() const noexcept
+{
+    // TODO: hasBytesAvailable can return true for "don't know", which doesn't match the semantics of hasDataAvailable.
+    return [_readStream hasBytesAvailable];
+}
+
 string
 IceObjC::iAPTransceiver::protocol() const
 {
