@@ -1522,10 +1522,11 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 bool
 IceInternal::hasDataAvailable(SOCKET fd) noexcept
 {
-    int bytesAvailable = 0;
 #ifdef _WIN32
+    unsigned long bytesAvailable = 0;
     int rs = ioctlsocket(fd, FIONREAD, &bytesAvailable);
 #else
+    int bytesAvailable = 0;
     int rs = ioctl(fd, FIONREAD, &bytesAvailable);
 #endif
     return rs == 0 && bytesAvailable > 0;

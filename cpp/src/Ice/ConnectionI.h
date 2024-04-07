@@ -219,7 +219,7 @@ namespace Ice
 
         bool idleCheck() noexcept;
 
-        // TODO: there are two many functions with similar names. This is the function called by the HeartbeatTimerTask.
+        // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
         void sendHeartbeat() noexcept;
 
         ~ConnectionI() final;
