@@ -855,6 +855,12 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
 }
 #endif
 
+bool
+OpenSSL::TransceiverI::hasDataAvailable() const noexcept
+{
+    return _delegate->hasDataAvailable();
+}
+
 string
 OpenSSL::TransceiverI::protocol() const
 {

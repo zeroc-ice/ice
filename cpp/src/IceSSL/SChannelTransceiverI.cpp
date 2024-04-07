@@ -1133,6 +1133,12 @@ SChannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
 }
 #endif
 
+bool
+SChannel::TransceiverI::hasDataAvailable() const noexcept
+{
+    return _delegate->hasDataAvailable();
+}
+
 string
 SChannel::TransceiverI::protocol() const
 {
