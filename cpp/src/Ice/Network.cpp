@@ -1523,7 +1523,11 @@ bool
 IceInternal::hasDataAvailable(SOCKET fd) noexcept
 {
     int bytesAvailable = 0;
+#ifdef _WIN32
+    int rs = ioctlsocket(fd, FIONREAD, &bytesAvailable);
+#else
     int rs = ioctl(fd, FIONREAD, &bytesAvailable);
+#endif
     return rs == 0 && bytesAvailable > 0;
 }
 

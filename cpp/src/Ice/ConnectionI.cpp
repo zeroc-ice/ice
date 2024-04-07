@@ -2165,22 +2165,18 @@ Ice::ConnectionI::create(
     shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
     if (idleTimeout > chrono::milliseconds::zero())
     {
-        decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
-            transceiver,
-            idleTimeout,
-            enableIdleCheck,
-            instance->timer());
+        decoratedTransceiver =
+            make_shared<IdleTimeoutTransceiverDecorator>(transceiver, idleTimeout, enableIdleCheck, instance->timer());
     }
 
-    Ice::ConnectionIPtr connection(
-        new ConnectionI(
-            communicator,
-            instance,
-            monitor,
-            decoratedTransceiver ? decoratedTransceiver : transceiver,
-            connector,
-            endpoint,
-            adapter));
+    Ice::ConnectionIPtr connection(new ConnectionI(
+        communicator,
+        instance,
+        monitor,
+        decoratedTransceiver ? decoratedTransceiver : transceiver,
+        connector,
+        endpoint,
+        adapter));
 
     if (decoratedTransceiver)
     {

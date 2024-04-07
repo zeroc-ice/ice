@@ -37,7 +37,12 @@ namespace
         IdleCheckTimerTask(
             const ConnectionIPtr& connection,
             const chrono::milliseconds& idleTimeout,
-            const IceUtil::TimerPtr& timer) : _connection(connection), _idleTimeout(idleTimeout), _timer(timer) {}
+            const IceUtil::TimerPtr& timer)
+            : _connection(connection),
+              _idleTimeout(idleTimeout),
+              _timer(timer)
+        {
+        }
 
         void runTimerTask() final
         {

@@ -13,8 +13,6 @@
 #    include "ProtocolInstance.h"
 #    include "TcpTransceiver.h"
 
-#include <iostream>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

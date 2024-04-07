@@ -56,7 +56,7 @@ namespace IceInternal
         bool startWrite(Buffer&) final;
         void finishWrite(Buffer&) final;
         void startRead(Buffer&) final;
-        void finishRead(Buffer&) final { _decoratee->finishRead(); }
+        void finishRead(Buffer& buf) final { _decoratee->finishRead(buf); }
 #endif
 
         bool hasDataAvailable() const noexcept final { return _decoratee->hasDataAvailable(); }
