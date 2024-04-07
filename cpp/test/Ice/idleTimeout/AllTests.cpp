@@ -5,6 +5,8 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <atomic>
+
 using namespace std;
 using namespace Ice;
 using namespace Test;
@@ -15,7 +17,7 @@ allTests(TestHelper* helper)
     CommunicatorPtr communicator = helper->communicator();
 
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
-    int heartbeatCount = 0; // the heartbeats we receive from the server.
+    std::atomic<int> heartbeatCount = 0; // the heartbeats we receive from the server.
 
     cout << "testing idle timeout with exhausted OA thread pool... " << flush;
 

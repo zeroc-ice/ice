@@ -20,6 +20,7 @@ public:
     void incrementHeartbeatCount() { ++_heartbeatCount; }
 
 private:
+    // There is no thread-safety concern with _heartbeatCount since the OA is single-threaded.
     std::int32_t _heartbeatCount = 0;
 };
 #endif
