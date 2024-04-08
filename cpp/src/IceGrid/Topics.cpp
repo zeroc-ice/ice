@@ -47,7 +47,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
         //
         // NOTE: collocation optimization needs to be turned on for the
         // topic because the subscribe() method is given a fixed proxy
-        // which can't be marshalled.
+        // which can't be marshaled.
         //
         _topics.insert({encodings[i], *topic});
 

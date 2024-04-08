@@ -1029,11 +1029,11 @@ namespace Ice
             size_t _classGraphDepth;
             Ice::ValueFactoryManagerPtr _valueFactoryManager;
 
-            // Encapsulation attributes for object un-marshalling
+            // Encapsulation attributes for object un-marshaling
             PatchMap _patchMap;
 
         private:
-            // Encapsulation attributes for object un-marshalling
+            // Encapsulation attributes for object un-marshaling
             IndexToPtrMap _unmarshaledMap;
             TypeIdMap _typeIdMap;
             std::int32_t _typeIdIndex;

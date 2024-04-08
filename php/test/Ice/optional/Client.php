@@ -387,7 +387,7 @@ function allTests($helper)
 
     echo "ok\n";
 
-    echo "testing marshalling of objects with optional objects...";
+    echo "testing marshaling of objects with optional objects...";
     flush();
 
     $f = new Test\F;

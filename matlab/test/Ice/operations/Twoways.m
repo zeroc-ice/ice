@@ -168,8 +168,8 @@ classdef Twoways
             assert(r == MyEnum.enum3);
 
             %
-            % Test marshalling of null enum (first enum value is
-            % marshalled in this case).
+            % Test marshaling of null enum (first enum value is
+            % marshaled in this case).
             %
             [r, p2] = p.opMyEnum([]);
             assert(p2 == MyEnum.enum1);
@@ -218,7 +218,7 @@ classdef Twoways
             p3.p.opVoid();
 
             %
-            % Test marshalling of null structs and structs with default member values.
+            % Test marshaling of null structs and structs with default member values.
             %
             si1 = Structure();
             si2 = [];

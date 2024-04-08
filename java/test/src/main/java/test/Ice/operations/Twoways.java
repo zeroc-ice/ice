@@ -213,8 +213,8 @@ class Twoways {
       test(r.returnValue == MyEnum.enum3);
 
       //
-      // Test marshalling of null enum (first enum value is
-      // marshalled in this case).
+      // Test marshaling of null enum (first enum value is
+      // marshaled in this case).
       //
       r = p.opMyEnum(null);
       test(r.p2 == MyEnum.enum1);
@@ -266,7 +266,7 @@ class Twoways {
       r.p3.p.opVoid();
 
       //
-      // Test marshalling of null structs and structs with default member values.
+      // Test marshaling of null structs and structs with default member values.
       //
       si1 = new Structure();
       si2 = null;

@@ -220,7 +220,7 @@ function allTestsWithController($helper, $controller)
         $comm = Ice\initialize($initData);
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $controller->holdAdapter(-1); // Use larger value, marshalling of byte arrays is much slower in PHP
+        $controller->holdAdapter(-1); // Use larger value, marshaling of byte arrays is much slower in PHP
         try
         {
             $to->sendData($seq);
@@ -295,7 +295,7 @@ function allTestsWithController($helper, $controller)
         // $timeout->op(); // Ensure adapter is active.
         // $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         // connect($to);
-        // $controller->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
+        // $controller->holdAdapter(1000); // Use larger value, marshaling of byte arrays is much slower in PHP
         // try
         // {
         //     $to->sendData($seq);

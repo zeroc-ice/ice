@@ -10,7 +10,7 @@ public interface BatchRequest
     void enqueue();
 
     /// <summary>
-    /// Get the marshalled size of the request.
+    /// Get the marshaled size of the request.
     /// </summary>
     /// <returns>The request size.</returns>
     int getSize();

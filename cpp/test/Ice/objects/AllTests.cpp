@@ -313,7 +313,7 @@ allTests(Test::TestHelper* helper)
 #if defined(NDEBUG) || !defined(__APPLE__)
         const int maxDepth = 2000;
 #else
-        // With debug, marshalling a graph of 2000 elements can cause a stack overflow on macOS
+        // With debug, marshaling a graph of 2000 elements can cause a stack overflow on macOS
         const int maxDepth = 1500;
 #endif
         for (; depth <= maxDepth; ++depth)
