@@ -113,6 +113,7 @@ internal class SSLEngine
         {
             _caCerts = [];
         }
+
         if (certAuthFile.Length > 0)
         {
             if (!checkPath(ref certAuthFile))
@@ -122,52 +123,20 @@ internal class SSLEngine
 
             try
             {
-                using FileStream fs = File.OpenRead(certAuthFile);
-                byte[] data = new byte[fs.Length];
-                fs.Read(data, 0, data.Length);
-
-                string strbuf = "";
+                // Try using PEM format
                 try
                 {
-                    strbuf = Encoding.UTF8.GetString(data);
+                    _caCerts.ImportFromPemFile(certAuthFile);
                 }
-                catch (Exception)
+                catch (CryptographicException)
                 {
-                    // Ignore
+                    // Expected if the file is not in PEM format.
                 }
 
-                if (strbuf.Length == data.Length)
+                if (_caCerts.Count == 0)
                 {
-                    int size, startpos, endpos = 0;
-                    bool first = true;
-                    while (true)
-                    {
-                        startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                        if (startpos != -1)
-                        {
-                            endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
-                            size = endpos - startpos + "-----END CERTIFICATE-----".Length;
-                        }
-                        else if (first)
-                        {
-                            startpos = 0;
-                            endpos = strbuf.Length;
-                            size = strbuf.Length;
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                        byte[] cert = new byte[size];
-                        System.Buffer.BlockCopy(data, startpos, cert, 0, size);
-                        _caCerts.Import(cert);
-                        first = false;
-                    }
-                }
-                else
-                {
-                    _caCerts.Import(data);
+                    // Try using DER format
+                    _caCerts.Import(certAuthFile);
                 }
             }
             catch (Exception ex)
