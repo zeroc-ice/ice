@@ -1934,7 +1934,7 @@ Ice::ConnectionI::finish(bool close)
         {
             //
             // Return the stream to the outgoing call. This is important for
-            // retriable AMI calls which are not marshalled again.
+            // retriable AMI calls which are not marshaled again.
             //
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);

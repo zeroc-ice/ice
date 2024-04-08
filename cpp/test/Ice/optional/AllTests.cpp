@@ -419,7 +419,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "ok" << endl;
 
-    cout << "testing marshalling... " << flush;
+    cout << "testing marshaling... " << flush;
     OneOptionalPtr oo4 = dynamic_pointer_cast<OneOptional>(initial->pingPong(make_shared<OneOptional>()));
     test(!oo4->a);
 
@@ -700,7 +700,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "ok" << endl;
 
-    cout << "testing marshalling of large containers with fixed size elements..." << flush;
+    cout << "testing marshaling of large containers with fixed size elements..." << flush;
     MultiOptionalPtr mc = make_shared<MultiOptional>();
 
     ByteSeq byteSeq;
@@ -747,7 +747,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "ok" << endl;
 
-    cout << "testing tag marshalling... " << flush;
+    cout << "testing tag marshaling... " << flush;
     {
         BPtr b = make_shared<B>();
         BPtr b2 = dynamic_pointer_cast<B>(initial->pingPong(b));
@@ -784,7 +784,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "ok" << endl;
 
-    cout << "testing marshalling of objects with optional objects..." << flush;
+    cout << "testing marshaling of objects with optional objects..." << flush;
     {
         FPtr f = make_shared<F>();
 
@@ -825,7 +825,7 @@ allTests(Test::TestHelper* helper, bool)
 
     if (communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
-        cout << "testing marshalling with unknown class slices... " << flush;
+        cout << "testing marshaling with unknown class slices... " << flush;
         {
             CPtr c = make_shared<C>();
             c->ss = "test";

@@ -328,7 +328,7 @@ function twoways($communicator, $p, $bprx)
         test($so->s->s == "a new string");
         $so->p->opVoid();
 
-        // Test marshalling of null structs and structs with null members.
+        // Test marshaling of null structs and structs with null members.
         $si1 = new Test\Structure();
         $si2 = null;
 
