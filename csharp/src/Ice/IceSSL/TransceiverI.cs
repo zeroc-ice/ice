@@ -325,9 +325,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
     public string toDetailedString() => _delegate.toDetailedString();
 
-    //
     // Only for use by ConnectorI, AcceptorI.
-    //
     internal TransceiverI(
         Instance instance,
         IceInternal.Transceiver del,
@@ -452,12 +450,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private bool validationCallback(
         object sender,
         X509Certificate certificate,
-        X509Chain chainEngine,
+        X509Chain systemChain,
         SslPolicyErrors policyErrors)
     {
-        using var chain = new X509Chain(_instance.engine().useMachineContext());
-
-        bool verified = false;
         int errors = (int)policyErrors;
         int traceLevel = _instance.securityTraceLevel();
         string traceCategory = _instance.securityTraceCategory();
@@ -469,11 +464,12 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         X509ChainStatus[] chainStatus = [];
         if (caCerts is null)
         {
-            verified = policyErrors == SslPolicyErrors.None;
-            chainStatus = chainEngine.ChainStatus;
+            // If the CA certs are null, we use the provided X509Chain, which is built using the system CAs.
+            chainStatus = systemChain.ChainStatus;
         }
         else
         {
+            using var chain = new X509Chain(_instance.engine().useMachineContext());
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             chain.ChainPolicy.DisableCertificateDownloads = true;
             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
@@ -484,7 +480,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
             if (certificate is not null)
             {
-                verified = chain.Build((X509Certificate2)certificate);
+                bool verified = chain.Build((X509Certificate2)certificate);
                 if (verified)
                 {
                     errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
@@ -548,14 +544,10 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
         if (traceLevel >= 1)
         {
-            if (message.Length > 0)
-            {
-                logger.trace(traceCategory, $"SSL certificate validation failed:{message}");
-            }
-            else
-            {
-                logger.trace(traceCategory, "SSL certificate validation failed");
-            }
+            logger.trace(
+                traceCategory,
+                message.Length > 0 ?
+                    $"SSL certificate validation failed:{message}" : "SSL certificate validation failed");
         }
         return errors == 0;
     }
