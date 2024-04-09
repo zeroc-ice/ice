@@ -670,7 +670,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   }
   output.writeLine("ok")
 
-  output.write("testing marshalling of objects with optional objects...")
+  output.write("testing marshaling of objects with optional objects...")
   do {
     let f = F()
 

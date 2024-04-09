@@ -461,7 +461,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                output.Write("testing marshalling of objects with optional objects...");
+                output.Write("testing marshaling of objects with optional objects...");
                 output.Flush();
                 {
                     Test.F f = new Test.F();

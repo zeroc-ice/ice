@@ -2386,9 +2386,9 @@ class EncapsEncoder10 extends EncapsEncoder
         while(this._toBeMarshaledMap.size > 0)
         {
             //
-            // Consider the to be marshalled instances as marshalled now,
+            // Consider the to be marshaled instances as marshaled now,
             // this is necessary to avoid adding again the "to be
-            // marshalled instances" into _toBeMarshaledMap while writing
+            // marshaled instances" into _toBeMarshaledMap while writing
             // instances.
             //
             this._toBeMarshaledMap.forEach((value, key) => this._marshaledMap.set(key, value));

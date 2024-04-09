@@ -75,7 +75,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
         function writePendingValues(obj)
             while length(obj.toBeMarshaledMap) > 0
                 %
-                % Consider the to be marshalled instances as marshaled now,
+                % Consider the to be marshaled instances as marshaled now,
                 % this is necessary to avoid adding again the "to be
                 % marshaled instances" into toBeMarshaledMap while writing
                 % instances.

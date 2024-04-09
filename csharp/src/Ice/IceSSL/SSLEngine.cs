@@ -125,12 +125,20 @@ internal class SSLEngine
             }
             try
             {
-                if (Path.GetExtension(certAuthFile).Equals(".pem", StringComparison.OrdinalIgnoreCase))
+                try
                 {
+                    // First try to import as a PEM file, which supports importing multiple certificates from a PEM
+                    // encoded file
                     _caCerts.ImportFromPemFile(certAuthFile);
                 }
-                else
+                catch (CryptographicException)
                 {
+                    // Expected if the file is not in PEM format.
+                }
+
+                if (_caCerts.Count == 0)
+                {
+                    // Fallback to Import which handles DER/PFX.
                     _caCerts.Import(certAuthFile);
                 }
             }

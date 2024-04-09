@@ -755,7 +755,7 @@ private final class EncapsEncoder10: EncapsEncoder {
   func writePendingValues() {
     while !toBeMarshaledMap.isEmpty {
       //
-      // Consider the to be marshalled instances as marshaled now,
+      // Consider the to be marshaled instances as marshaled now,
       // this is necessary to avoid adding again the "to be
       // marshaled instances" into _toBeMarshaledMap while writing
       // instances.
@@ -770,7 +770,7 @@ private final class EncapsEncoder10: EncapsEncoder {
 
       for (key, value) in savedMap {
         //
-        // Consider the to be marshalled instances as marshaled now,
+        // Consider the to be marshaled instances as marshaled now,
         // this is necessary to avoid adding again the "to be
         // marshaled instances" into _toBeMarshaledMap while writing
         // instances.
