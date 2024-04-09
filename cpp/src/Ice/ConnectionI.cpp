@@ -2542,10 +2542,11 @@ Ice::ConnectionI::idleCheck(
     std::lock_guard lock(_mutex);
     if (_state == StateActive)
     {
-        // _timer->cancel(...) returns true if a concurrent read rescheduled the timer task.
+        // _timer->cancel(task) returns true if a concurrent read rescheduled the timer task.
         if (_transceiver->isWaitingToBeRead() || _timer->cancel(idleCheckTimerTask))
         {
-            // Schedule or reschedule timer task. Reschedule is the rare case where a concurrent scheduled it already.
+            // Schedule or reschedule timer task. Reschedule in the rare case where a concurrent read scheduled the task
+            // already.
             _timer->schedule(idleCheckTimerTask, idleTimeout, true);
         }
         else
