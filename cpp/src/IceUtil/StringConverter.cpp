@@ -188,7 +188,7 @@ namespace
         byte* getMoreBytes(size_t howMany, byte* firstUnused) final
         {
             size_t bytesUsed = 0;
-            if (firstUnused != nullptr)
+            if (firstUnused)
             {
                 bytesUsed = static_cast<size_t>(firstUnused - reinterpret_cast<const byte*>(_buffer.data()));
             }
