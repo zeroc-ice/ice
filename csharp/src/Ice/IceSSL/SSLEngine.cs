@@ -228,7 +228,6 @@ internal class SSLEngine
         };
 
         authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
-        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
         if (_caCerts is null)
         {
             authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.System;
