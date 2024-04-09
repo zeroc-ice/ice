@@ -357,9 +357,9 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     const PropertiesPtr& properties = _instance->initializationData().properties;
     int idleTimeout = properties->getPropertyAsIntWithDefault(
         "Ice.IdleTimeout",
-        static_cast<int>(duration_cast<chrono::seconds>(_idleTimeout).count()));
+        static_cast<int>(chrono::duration_cast<chrono::seconds>(_idleTimeout).count()));
     _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 1 : 0) > 0;
-    _idleTimeout = duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
+    _idleTimeout = chrono::duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
 }
 
 IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
@@ -1755,7 +1755,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             const PropertiesPtr& properties = _instance->initializationData().properties;
             int idleTimeout = properties->getPropertyAsIntWithDefault(
                 "Ice.IdleTimeout",
-                static_cast<int>(duration_cast<chrono::seconds>(_idleTimeout).count()));
+                static_cast<int>(chrono::duration_cast<chrono::seconds>(_idleTimeout).count()));
             _enableIdleCheck =
                 properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
 
@@ -1768,7 +1768,7 @@ IceInternal::IncomingConnectionFactory::initialize()
                                        adapterName + ".EnableIdleCheck",
                                        _enableIdleCheck ? 0 : 1) > 0;
             }
-            _idleTimeout = duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
+            _idleTimeout = chrono::duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
 
 #if TARGET_OS_IPHONE != 0
             //
