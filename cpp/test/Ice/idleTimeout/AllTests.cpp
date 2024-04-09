@@ -44,7 +44,7 @@ testMismatchedIdleTimeout(const string& proxyString, const PropertiesPtr& proper
         p->sleep(2250);
         test(false); // the server aborts the connection after about 1 second.
     }
-    catch (const ConnectionLostException& e)
+    catch (const ConnectionLostException&)
     {
         // Expected
     }
