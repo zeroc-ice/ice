@@ -133,7 +133,7 @@ IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 
     Buffer::Container::iterator start = buf.i;
     bool allWritten = _decoratee->startWrite(buf);
-     if (buf.i != start)
+    if (buf.i != start)
     {
         // Schedule heartbeat after writing some data.
         assert(false); // TODO: temporary to check startWrite ever moves buf.i.
