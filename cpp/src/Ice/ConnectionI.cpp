@@ -2534,15 +2534,19 @@ Ice::ConnectionI::initiateShutdown()
     }
 }
 
-bool
-Ice::ConnectionI::idleCheck() noexcept
+void
+Ice::ConnectionI::idleCheck(
+    const IceUtil::TimerTaskPtr& idleCheckTimerTask,
+    const chrono::milliseconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
     if (_state == StateActive)
     {
-        if (_transceiver->isWaitingToBeRead())
+        // _timer->cancel(...) returns true if a concurrent read rescheduled the timer task.
+        if (_transceiver->isWaitingToBeRead() || _timer->cancel(idleCheckTimerTask))
         {
-            return true;
+            // Schedule or reschedule timer task. Reschedule is the rare case where a concurrent scheduled it already.
+            _timer->schedule(idleCheckTimerTask, idleTimeout, true);
         }
         else
         {
@@ -2550,7 +2554,7 @@ Ice::ConnectionI::idleCheck() noexcept
             setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
         }
     }
-    return false;
+    // else, nothing to do
 }
 
 void

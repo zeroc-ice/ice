@@ -34,13 +34,9 @@ namespace
     class IdleCheckTimerTask final : public IceUtil::TimerTask, public std::enable_shared_from_this<IdleCheckTimerTask>
     {
     public:
-        IdleCheckTimerTask(
-            const ConnectionIPtr& connection,
-            const chrono::milliseconds& idleTimeout,
-            const IceUtil::TimerPtr& timer)
+        IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::milliseconds& idleTimeout)
             : _connection(connection),
-              _idleTimeout(idleTimeout),
-              _timer(timer)
+              _idleTimeout(idleTimeout)
         {
         }
 
@@ -48,14 +44,7 @@ namespace
         {
             if (auto connection = _connection.lock())
             {
-                if (connection->idleCheck())
-                {
-                    // Reschedule myself.
-                    // We set cancelPrevious to true in the unlikely event some other thread is concurrently reading and
-                    // already rescheduled this task.
-                    _timer->schedule(shared_from_this(), _idleTimeout, true);
-                }
-                // else the connection was aborted by the idle check or is no longer active for some other reason.
+                connection->idleCheck(shared_from_this(), _idleTimeout);
             }
             // else nothing to do, the connection is already gone.
         }
@@ -63,7 +52,6 @@ namespace
     private:
         const std::weak_ptr<ConnectionI> _connection;
         const chrono::milliseconds _idleTimeout;
-        const IceUtil::TimerPtr _timer;
     };
 }
 
@@ -73,7 +61,7 @@ IdleTimeoutTransceiverDecorator::decoratorInit(const ConnectionIPtr& connection)
     _heartbeatTimerTask = make_shared<HeartbeatTimerTask>(connection);
     if (_enableIdleCheck)
     {
-        _idleCheckTimerTask = make_shared<IdleCheckTimerTask>(connection, _idleTimeout, _timer);
+        _idleCheckTimerTask = make_shared<IdleCheckTimerTask>(connection, _idleTimeout);
     }
 }
 
@@ -137,10 +125,14 @@ bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
     // TODO: is it possible to call startWrite without a corresponding finishWrite?
+#    ifdef NDEBUG
+    return _decoratee->startWrite(buf);
+#    else
     Buffer::Container::iterator start = buf.i;
     bool result = _decoratee->startWrite(buf);
     assert(start == buf.i); // check if we ever write anything here (temporary)
     return result;
+#    endif
 }
 
 void

@@ -79,7 +79,9 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
 StreamSocket::~StreamSocket()
 {
     assert(_fd == INVALID_SOCKET);
+#if defined(ICE_USE_IOCP)
     WSACloseEvent(_read.hEvent);
+#endif
 }
 
 SocketOperation
