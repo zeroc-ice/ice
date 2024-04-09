@@ -68,8 +68,6 @@ namespace IceInternal
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
     private:
-        void rescheduleHeartbeat();
-
         const TransceiverPtr _decoratee;
         const std::chrono::milliseconds _idleTimeout;
         const bool _enableIdleCheck;

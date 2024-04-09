@@ -72,7 +72,7 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
     if (op == SocketOperationNone) // connected
     {
-        rescheduleHeartbeat();
+        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
         if (_enableIdleCheck)
         {
             // Reschedule because with SSL, the connection is connected after a read.
@@ -110,26 +110,48 @@ IdleTimeoutTransceiverDecorator::close()
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
-    // We're about to write something (maybe asynchronously) - we reschedule the heartbeat as sending a heartbeat now
-    // or soon would be redundant.
-    rescheduleHeartbeat();
-    return _decoratee->write(buf);
+    // We're about to write something - we don't need to send a concurrent heartbeat.
+    _timer->cancel(_heartbeatTimerTask);
+
+    Buffer::Container::iterator start = buf.i;
+    SocketOperation op = _decoratee->write(buf);
+    if (buf.i != start)
+    {
+        // Schedule heartbeat after writing some data.
+        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+    }
+
+    return op;
 }
 
 #if defined(ICE_USE_IOCP)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // We're about to write something (maybe asynchronously) - we reschedule the heartbeat as sending a heartbeat now
-    // or soon would be redundant.
-    rescheduleHeartbeat();
-    return _decoratee->startWrite(buf);
+    // We're about to write something - we don't need to send a concurrent heartbeat.
+    _timer->cancel(_heartbeatTimerTask);
+
+    Buffer::Container::iterator start = buf.i;
+    bool allWritten = _decoratee->startWrite(buf);
+     if (buf.i != start)
+    {
+        // Schedule heartbeat after writing some data.
+        assert(false); // TODO: temporary to check startWrite ever moves buf.i.
+        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+    }
+    return allWritten;
 }
 
 void
 IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 {
+    Buffer::Container::iterator start = buf.i;
     _decoratee->finishWrite(buf);
+    if (buf.i != start)
+    {
+        // Schedule heartbeat after writing some data.
+        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+    }
 }
 
 void
@@ -162,10 +184,4 @@ IdleTimeoutTransceiverDecorator::read(Buffer& buf)
         _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
     }
     return _decoratee->read(buf);
-}
-
-void
-IdleTimeoutTransceiverDecorator::rescheduleHeartbeat()
-{
-    _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2, true);
 }
