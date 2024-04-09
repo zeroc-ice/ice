@@ -31,6 +31,9 @@ internal class SSLEngine
 
         _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
+        // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
+        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
+
         string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
         StoreLocation storeLocation;
         if (certStoreLocation == "CurrentUser")
@@ -120,22 +123,14 @@ internal class SSLEngine
             {
                 throw new Ice.InitializationException($"IceSSL: CA certificate file not found: {certAuthFile}");
             }
-
             try
             {
-                // Try using PEM format
-                try
+                if (Path.GetExtension(certAuthFile).Equals(".pem", StringComparison.OrdinalIgnoreCase))
                 {
                     _caCerts.ImportFromPemFile(certAuthFile);
                 }
-                catch (CryptographicException)
+                else
                 {
-                    // Expected if the file is not in PEM format.
-                }
-
-                if (_caCerts.Count == 0)
-                {
-                    // Try using DER format
                     _caCerts.Import(certAuthFile);
                 }
             }
@@ -201,7 +196,7 @@ internal class SSLEngine
         RemoteCertificateValidationCallback remoteCertificateValidationCallback,
         string host)
     {
-        return new SslClientAuthenticationOptions
+        var authenticationOptions = new SslClientAuthenticationOptions
         {
             ClientCertificates = _certs,
             LocalCertificateSelectionCallback = (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
@@ -230,8 +225,34 @@ internal class SSLEngine
             },
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
             TargetHost = host,
-            CertificateRevocationCheckMode = X509RevocationMode.NoCheck
         };
+
+        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
+        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
+        if (_caCerts is null)
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.System;
+        }
+        else
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            foreach (X509Certificate certificate in _caCerts)
+            {
+                authenticationOptions.CertificateChainPolicy.CustomTrustStore.Add(certificate);
+            }
+        }
+
+        if (!_checkCertName)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreInvalidName;
+        }
+        if (_checkCRL == 1)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+        }
+        authenticationOptions.CertificateChainPolicy.RevocationMode =
+            _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
+        return authenticationOptions;
     }
 
     internal SslServerAuthenticationOptions createServerAuthenticationOptions(
@@ -244,13 +265,34 @@ internal class SSLEngine
             cert = _certs[0];
         }
 
-        return new SslServerAuthenticationOptions
+        var authenticationOptions = new SslServerAuthenticationOptions
         {
             ServerCertificate = cert,
             ClientCertificateRequired = _verifyPeer > 0,
             RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
             CertificateRevocationCheckMode = X509RevocationMode.NoCheck
         };
+
+        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
+        if (_caCerts is null)
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.System;
+        }
+        else
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            foreach (X509Certificate certificate in _caCerts)
+            {
+                authenticationOptions.CertificateChainPolicy.CustomTrustStore.Add(certificate);
+            }
+        }
+        authenticationOptions.CertificateChainPolicy.RevocationMode =
+            _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
+        if (_checkCRL == 1)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+        }
+        return authenticationOptions;
     }
 
     private static bool isAbsolutePath(string path)
@@ -487,6 +529,7 @@ internal class SSLEngine
     private string _defaultDir;
     private bool _checkCertName;
     private int _verifyPeer;
+    private int _checkCRL;
     private X509Certificate2Collection _certs;
     private bool _useMachineContext;
     private X509Certificate2Collection _caCerts;

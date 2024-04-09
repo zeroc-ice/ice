@@ -450,99 +450,27 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private bool validationCallback(
         object sender,
         X509Certificate certificate,
-        X509Chain systemChain,
+        X509Chain chain,
         SslPolicyErrors policyErrors)
     {
         int errors = (int)policyErrors;
         int traceLevel = _instance.securityTraceLevel();
         string traceCategory = _instance.securityTraceCategory();
         Ice.Logger logger = _instance.logger();
-        bool checkCertName = _instance.engine().getCheckCertName();
         string message = "";
 
-        X509Certificate2Collection caCerts = _instance.engine().caCerts();
-        X509ChainStatus[] chainStatus = [];
-        if (caCerts is null)
+        if (_incoming && (errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0 && _verifyPeer <= 1)
         {
-            // If the CA certs are null, we use the provided X509Chain, which is built using the system CAs.
-            chainStatus = systemChain.ChainStatus;
-        }
-        else
-        {
-            using var chain = new X509Chain(_instance.engine().useMachineContext());
-            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-            chain.ChainPolicy.DisableCertificateDownloads = true;
-            chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-            foreach (X509Certificate2 cert in caCerts)
-            {
-                chain.ChainPolicy.CustomTrustStore.Add(cert);
-            }
-
-            if (certificate is not null)
-            {
-                bool verified = chain.Build((X509Certificate2)certificate);
-                if (verified)
-                {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                }
-                chainStatus = chain.ChainStatus;
-            }
+            // The client certificate is optional when IceSSL.VerifyPeer = 1, and not required when IceSSL.VerifyPeer = 0
+            errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
         }
 
-        if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+        foreach (X509ChainStatus status in chain?.ChainStatus ?? [])
         {
-            // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing connection.
-            // Since .NET requires an authenticated connection, the remote peer closes the socket if it does not
-            // have a certificate to provide.
-            if (_incoming)
-            {
-                if (_verifyPeer > 1)
-                {
-                    if (_instance.engine().securityTraceLevel() >= 1)
-                    {
-                        logger.trace(
-                            traceCategory,
-                            "SSL certificate validation failed - client certificate not provided");
-                    }
-                }
-                else
-                {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                    message += "\nremote certificate not provided (ignored)";
-                }
-            }
+            message += $"\n{status.StatusInformation}";
         }
 
-        bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-        if (certificateNameMismatch)
-        {
-            if (checkCertName && !string.IsNullOrEmpty(_host))
-            {
-                if (traceLevel >= 1)
-                {
-                    logger.trace(traceCategory, "SSL certificate validation failed - Hostname mismatch");
-                }
-            }
-            else
-            {
-                errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-            }
-        }
-
-        foreach (X509ChainStatus status in chainStatus)
-        {
-            message += status.Status switch
-            {
-                X509ChainStatusFlags.UntrustedRoot => "\nuntrusted root certificate",
-                X509ChainStatusFlags.Revoked => "\ncertificate revoked",
-                X509ChainStatusFlags.RevocationStatusUnknown => "\ncertificate revocation status unknown",
-                X509ChainStatusFlags.PartialChain => "\npartial certificate chain",
-                X509ChainStatusFlags.NoError => "",
-                _ => $"\ncertificate chain error: {status.Status}",
-            };
-        }
-
-        if (traceLevel >= 1)
+        if (errors != 0 && traceLevel >= 1)
         {
             logger.trace(
                 traceCategory,
