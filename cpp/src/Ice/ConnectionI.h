@@ -221,7 +221,7 @@ namespace Ice
         /// - the connection is no longer active
         /// - its transceiver is waiting to be read
         /// - the idle check timer task has been rescheduled by a concurrent read
-        /// In the two latter cases, this function reschedules in the idle check timer task is idle timeout.
+        /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
         void idleCheck(
             const IceUtil::TimerTaskPtr& idleCheckTimerTask,
             const std::chrono::milliseconds& idleTimeout) noexcept;
