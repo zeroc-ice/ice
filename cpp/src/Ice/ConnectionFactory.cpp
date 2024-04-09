@@ -22,6 +22,7 @@
 #include "TraceLevels.h"
 #include "Transceiver.h"
 
+#include <chrono>
 #include <iterator>
 
 #if TARGET_OS_IPHONE != 0
@@ -33,6 +34,7 @@ namespace IceInternal
 #endif
 
 using namespace std;
+using namespace std::literals::chrono_literals;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
@@ -347,7 +349,7 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     : _communicator(communicator),
       _instance(instance),
       _monitor(new FactoryACMMonitor(instance, instance->clientACM())),
-      _idleTimeout(chrono::milliseconds(60000)),
+      _idleTimeout(60000ms),
       _enableIdleCheck(false),
       _destroyed(false),
       _pendingConnectCount(0)
@@ -600,7 +602,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         if (ci.endpoint->datagram())
         {
             // No idle timeout or idle check for UDP connections.
-            idleTimeout = chrono::milliseconds(0);
+            idleTimeout = 0ms;
             enableIdleCheck = false;
         }
 
@@ -1665,7 +1667,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const shared_ptr<ObjectAdapterI>& adapter)
     : _instance(instance),
       _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
-      _idleTimeout(chrono::milliseconds(60000)),
+      _idleTimeout(60000ms),
       _enableIdleCheck(false),
       _endpoint(endpoint),
       _publishedEndpoint(publishedEndpoint),
@@ -1726,7 +1728,7 @@ IceInternal::IncomingConnectionFactory::initialize()
         if (_transceiver)
         {
             // All this is for UDP "connections".
-            _idleTimeout = chrono::milliseconds(0); // always disable and ignore properties
+            _idleTimeout = 0ms; // always disable and ignore properties
             _enableIdleCheck = false;
 
             if (_instance->traceLevels()->network >= 2)
@@ -1753,7 +1755,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             const PropertiesPtr& properties = _instance->initializationData().properties;
             int idleTimeout = properties->getPropertyAsIntWithDefault(
                 "Ice.IdleTimeout",
-                static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+                static_cast<int>(duration_cast<chrono::seconds>(_idleTimeout).count()));
             _enableIdleCheck =
                 properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
 
@@ -1766,7 +1768,7 @@ IceInternal::IncomingConnectionFactory::initialize()
                                        adapterName + ".EnableIdleCheck",
                                        _enableIdleCheck ? 0 : 1) > 0;
             }
-            _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
+            _idleTimeout = duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
 
 #if TARGET_OS_IPHONE != 0
             //
