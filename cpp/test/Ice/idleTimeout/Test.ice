@@ -8,9 +8,7 @@ module Test
 {
     interface TestIntf
     {
-        void init();
         void sleep(int ms);
-        int getHeartbeatCount();
         void shutdown();
     }
 }

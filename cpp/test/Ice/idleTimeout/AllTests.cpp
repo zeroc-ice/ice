@@ -5,50 +5,61 @@
 #include "Test.h"
 #include "TestHelper.h"
 
-#include <atomic>
-
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
 void
+testIdleCheckWithExhaustedThreadPool(const TestIntfPrx& p)
+{
+    cout << "testing idle timeout with exhausted OA thread pool... " << flush;
+    p->ice_ping();
+    ConnectionPtr connection = p->ice_getCachedConnection();
+    test(connection);
+    p->sleep(2250);
+    test(p->ice_getCachedConnection() == connection); // we still have the same connection
+    cout << "ok" << endl;
+}
+
+void
+testMismatchedIdleTimeout(const string& proxyString, const PropertiesPtr& properties)
+{
+    cout << "testing mismatched idle timeout... " << flush;
+
+    // Create a new communicator with the desired properties.
+    Ice::InitializationData initData;
+    initData.properties = properties->clone();
+    initData.properties->setProperty("Ice.IdleTimeout", "3");
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    Ice::CommunicatorHolder holder = initialize(initData);
+    TestIntfPrx p(holder.communicator(), proxyString);
+
+    p->ice_ping();
+    ConnectionPtr connection = p->ice_getCachedConnection();
+    test(connection);
+
+    // The idle check on the server side aborts the connection because it doesn't get a heartbeat in a timely fashion.
+    try
+    {
+        p->sleep(2250);
+        test(false); // the server aborts the connection after about 1 second.
+    }
+    catch (const ConnectionLostException& e)
+    {
+        // Expected
+    }
+    cout << "ok" << endl;
+}
+
+void
 allTests(TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
+    string proxyString = "test: " + helper->getTestEndpoint();
+    TestIntfPrx p(communicator, proxyString);
 
-    TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
-    std::atomic<int> heartbeatCount = 0; // the heartbeats we receive from the server.
-
-    cout << "testing idle timeout with exhausted OA thread pool... " << flush;
-
-    p->init();
-    ConnectionPtr connection = p->ice_getConnection();
-    test(connection);
-
-    // Since the connection is fully established at this point, we don't count the initial ValidateConnection heartbeat.
-    p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&) { ++heartbeatCount; });
-
-    p->sleep(2250);
-    test(p->ice_getCachedConnection() == connection); // we still have the same connection
-    test(p->getHeartbeatCount() == 4);
-    test(heartbeatCount == 4);
-    connection->close(ConnectionClose::GracefullyWithWait);
-    cout << "ok" << endl;
-
-    cout << "testing idle timeout heartbeats... " << flush;
-    heartbeatCount = 0;
-    p->init();
-    p->ice_getCachedConnection()->setHeartbeatCallback([&heartbeatCount](const ConnectionPtr&) { ++heartbeatCount; });
-
-    this_thread::sleep_for(chrono::milliseconds(1250));
-    test(p->getHeartbeatCount() == 2);
-    test(heartbeatCount == 2);
-
-    // Verifies writes (the getHeartbeatCount round-trip) skips a heartbeat.
-    this_thread::sleep_for(chrono::milliseconds(1400));
-    test(p->getHeartbeatCount() == 4);
-    test(heartbeatCount == 4);
-    cout << "ok" << endl;
+    testIdleCheckWithExhaustedThreadPool(p);
+    testMismatchedIdleTimeout(proxyString, communicator->getProperties());
 
     p->shutdown();
 }
