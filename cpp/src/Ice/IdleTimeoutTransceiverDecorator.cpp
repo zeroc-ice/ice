@@ -6,6 +6,7 @@
 #include "Ice/Buffer.h"
 
 #include <chrono>
+#include <iostream>
 
 using namespace std;
 using namespace Ice;
@@ -72,7 +73,8 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
     if (op == SocketOperationNone) // connected
     {
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+        // Reschedule because Ice often writes to a client connection before it's connected.
+        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2, true);
         if (_enableIdleCheck)
         {
             // Reschedule because with SSL, the connection is connected after a read.
@@ -110,14 +112,12 @@ IdleTimeoutTransceiverDecorator::close()
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
-    // We're about to write something - we don't need to send a concurrent heartbeat.
+    // We're about to write something - we don't want to send a concurrent heartbeat.
     _timer->cancel(_heartbeatTimerTask);
 
-    Buffer::Container::iterator start = buf.i;
     SocketOperation op = _decoratee->write(buf);
-    if (buf.i != start)
+    if (op == SocketOperationNone)
     {
-        // Schedule heartbeat after writing some data.
         _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
     }
 
@@ -128,28 +128,22 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // We're about to write something - we don't need to send a concurrent heartbeat.
+    // We're about to write something - we don't want to send a concurrent heartbeat.
     _timer->cancel(_heartbeatTimerTask);
 
-    Buffer::Container::iterator start = buf.i;
-    bool allWritten = _decoratee->startWrite(buf);
-    if (buf.i != start)
-    {
-        // Schedule heartbeat after writing some data.
-        assert(false); // TODO: temporary to check startWrite ever moves buf.i.
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
-    }
-    return allWritten;
+    return _decoratee->startWrite(buf);
+
+    // TODO: should we schedule the next heartbeat when the return value is true? Or do we always call finishWrite?
 }
 
 void
 IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 {
-    Buffer::Container::iterator start = buf.i;
     _decoratee->finishWrite(buf);
-    if (buf.i != start)
+
+    // Schedule a heartbeat after writing all the data.
+    if (buf.i == buf.b.end())
     {
-        // Schedule heartbeat after writing some data.
         _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
     }
 }
