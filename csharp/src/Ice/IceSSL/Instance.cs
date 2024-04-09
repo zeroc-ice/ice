@@ -16,11 +16,7 @@ internal class Instance : IceInternal.ProtocolInstance
 
     internal string securityTraceCategory() => _engine.securityTraceCategory();
 
-    internal bool initialized() => _engine.initialized();
-
     internal X509Certificate2Collection certs() => _engine.certs();
-
-    internal int checkCRL() => _engine.checkCRL();
 
     internal void traceStream(SslStream stream, string connInfo) => _engine.traceStream(stream, connInfo);
 

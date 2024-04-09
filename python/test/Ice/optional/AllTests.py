@@ -421,7 +421,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write("testing marshalling of objects with optional objects...")
+    sys.stdout.write("testing marshaling of objects with optional objects...")
     sys.stdout.flush()
 
     f = Test.F()

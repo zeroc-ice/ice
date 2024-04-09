@@ -126,7 +126,7 @@ classdef (Abstract) EncapsDecoder < handle
         function addPatchEntry(obj, index, cb)
             %assert(index > 0);
             %
-            % Check if we have already unmarshalled the instance. If that's the case,
+            % Check if we have already unmarshaled the instance. If that's the case,
             % just invoke the callback and we're done.
             %
             if index <= length(obj.unmarshaledMap)

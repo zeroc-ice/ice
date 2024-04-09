@@ -767,7 +767,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     }
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Marshalling support
+    _out << sp << nl << "#endregion"; // marshaling support
 }
 
 string
@@ -2563,7 +2563,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
-    _out << sp << nl << "#endregion"; // Marshalling support
+    _out << sp << nl << "#endregion"; // marshaling support
 
     _out << eb;
 }
@@ -2810,7 +2810,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         _out << sp << nl << "private static readonly " << name << " _nullMarshalValue = new " << name << "();";
     }
-    _out << sp << nl << "#endregion"; // Marshalling support
+    _out << sp << nl << "#endregion"; // marshaling support
 
     _out << eb;
 }

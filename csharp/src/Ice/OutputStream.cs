@@ -204,7 +204,7 @@ public class OutputStream
 
         //
         // Swap is never called for streams that have encapsulations being written. However,
-        // encapsulations might still be set in case marshalling failed. We just
+        // encapsulations might still be set in case marshaling failed. We just
         // reset the encapsulations if there are still some set.
         //
         resetEncapsulation();
@@ -2296,9 +2296,9 @@ public class OutputStream
             while (_toBeMarshaledMap.Count > 0)
             {
                 //
-                // Consider the to be marshalled instances as marshalled now,
+                // Consider the to be marshaled instances as marshaled now,
                 // this is necessary to avoid adding again the "to be
-                // marshalled instances" into _toBeMarshaledMap while writing
+                // marshaled instances" into _toBeMarshaledMap while writing
                 // instances.
                 //
                 foreach (var e in _toBeMarshaledMap)

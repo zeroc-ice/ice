@@ -81,8 +81,7 @@ jobs:
         with:
           # See:
           # - https://github.com/zeroc-ice/ice/issues/1653 IceGrid/replication
-          # - https://github.com/zeroc-ice/ice/issues/1745 csharp/IceSSL/configuration
           # - https://github.com/zeroc-ice/ice/issues/1945 matlab/Ice/slicing
-          flags: "--rfilter IceGrid/replication --rfilter csharp/IceSSL/configuration --rfilter matlab/Ice/slicing ${{ matrix.test_flags }}"
+          flags: "--rfilter IceGrid/replication --rfilter matlab/Ice/slicing ${{ matrix.test_flags }}"
         # Don't test matlab on Windows
         if: matrix.language != 'matlab' || runner.os != 'Windows'

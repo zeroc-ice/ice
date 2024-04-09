@@ -380,7 +380,7 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            fprintf('testing marshalling of objects with optional objects... ');
+            fprintf('testing marshaling of objects with optional objects... ');
 
             f = F();
 

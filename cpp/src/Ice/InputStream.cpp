@@ -481,7 +481,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     // _minSeqSize by the minimum size that this sequence will require on
     // the stream.
     //
-    // The goal of this check is to ensure that when we start un-marshalling
+    // The goal of this check is to ensure that when we start un-marshaling
     // a new sequence, we check the minimal size of this new sequence against
     // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's _minSeqSize.
@@ -498,7 +498,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
 
     //
     // If there isn't enough data to read on the stream for the sequence (and
-    // possibly enclosed sequences), something is wrong with the marshalled
+    // possibly enclosed sequences), something is wrong with the marshaled
     // data: it's claiming having more data that what is possible to read.
     //
     if (_startSeq + _minSeqSize > static_cast<int>(b.size()))
@@ -2300,7 +2300,7 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
         skipSlice();
 
         //
-        // If this is the last slice, raise an exception and stop un-marshalling.
+        // If this is the last slice, raise an exception and stop un-marshaling.
         //
         if (_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
@@ -2475,7 +2475,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     }
 
     //
-    // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
+    // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
     //
     if (_current->sliceType == ValueSlice)
     {

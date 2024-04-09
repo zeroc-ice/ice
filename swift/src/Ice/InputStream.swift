@@ -597,7 +597,7 @@ extension InputStream {
     // minSeqSize by the minimum size that this sequence will require on
     // the stream.
     //
-    // The goal of this check is to ensure that when we start un-marshalling
+    // The goal of this check is to ensure that when we start un-marshaling
     // a new sequence, we check the minimal size of this new sequence against
     // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's minSeqSize.
@@ -611,7 +611,7 @@ extension InputStream {
 
     //
     // If there isn't enough data to read on the stream for the sequence (and
-    // possibly enclosed sequences), something is wrong with the marshalled
+    // possibly enclosed sequences), something is wrong with the marshaled
     // data: it's claiming having more data that what is possible to read.
     //
     if startSeq + minSeqSize > data.count {
@@ -1618,7 +1618,7 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     //
-    // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
+    // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
     //
     if current.sliceType == .ValueSlice {
       let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)

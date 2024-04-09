@@ -503,7 +503,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing marshalling of objects with optional objects...");
+    out.print("testing marshaling of objects with optional objects...");
     out.flush();
     {
       F f = new F();
