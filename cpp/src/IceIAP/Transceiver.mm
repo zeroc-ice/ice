@@ -364,7 +364,6 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 bool
 IceObjC::iAPTransceiver::isWaitingToBeRead() const noexcept
 {
-    // TODO: hasBytesAvailable can return true for "don't know", which doesn't match the semantics of isWaitingToBeRead.
     return [_readStream hasBytesAvailable];
 }
 
