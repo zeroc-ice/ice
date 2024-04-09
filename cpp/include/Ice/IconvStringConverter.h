@@ -237,7 +237,7 @@ namespace IceInternal
         do
         {
             size_t bytesUsed = 0;
-            if (outbuf != nullptr)
+            if (outbuf)
             {
                 bytesUsed = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
             }
