@@ -110,41 +110,26 @@ IdleTimeoutTransceiverDecorator::close()
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
-    Buffer::Container::iterator start = buf.i;
-    SocketOperation op = _decoratee->write(buf);
-    if (buf.i != start)
-    {
-        // We've sent at least one byte, reschedule the heartbeat.
-        rescheduleHeartbeat();
-    }
-    return op;
+    // We're about to write something (maybe asynchronously) - we reschedule the heartbeat as sending a heartbeat now
+    // or soon would be redundant.
+    rescheduleHeartbeat();
+    return _decoratee->write(buf);
 }
 
 #if defined(ICE_USE_IOCP)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // TODO: is it possible to call startWrite without a corresponding finishWrite?
-#    ifdef NDEBUG
+    // We're about to write something (maybe asynchronously) - we reschedule the heartbeat as sending a heartbeat now
+    // or soon would be redundant.
+    rescheduleHeartbeat();
     return _decoratee->startWrite(buf);
-#    else
-    Buffer::Container::iterator start = buf.i;
-    bool result = _decoratee->startWrite(buf);
-    assert(start == buf.i); // check if we ever write anything here (temporary)
-    return result;
-#    endif
 }
 
 void
 IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 {
-    Buffer::Container::iterator start = buf.i;
     _decoratee->finishWrite(buf);
-    if (buf.i != start)
-    {
-        // We've sent at least one byte, reschedule the heartbeat.
-        rescheduleHeartbeat();
-    }
 }
 
 void
