@@ -64,7 +64,6 @@ namespace IceSSL
 
         bool _checkCertName;
         bool _serverNameIndication;
-        int _verifyDepthMax;
         int _verifyPeer;
         int _securityTraceLevel;
         std::string _securityTraceCategory;

@@ -861,14 +861,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
 
             try
             {
-                _chain.reset(loadCertificateChain(
-                    file,
-                    keyFile,
-                    keychain,
-                    keychainPassword,
-                    password,
-                    passwordPrompt,
-                    passwordRetryMax));
+                _chain.reset(loadCertificateChain(file, keyFile, keychain, keychainPassword, password));
                 break;
             }
             catch (const CertificateReadException& ce)
