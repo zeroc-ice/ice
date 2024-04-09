@@ -1520,7 +1520,7 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 }
 
 bool
-IceInternal::hasDataAvailable(SOCKET fd) noexcept
+IceInternal::hasBytesAvailable(SOCKET fd) noexcept
 {
 #ifdef _WIN32
     unsigned long bytesAvailable = 0;

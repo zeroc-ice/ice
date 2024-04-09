@@ -97,7 +97,7 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
 IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
 {
-    // It's possible but unlikely init was not called so initialize the timer tasks.
+    // If we destroy this object before calling init(), _heartbeatTimerTask and _idleCheckTimerTask will be null.
     if (_heartbeatTimerTask)
     {
         _timer->cancel(_heartbeatTimerTask);
@@ -136,9 +136,11 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // TODO: should we check buf? the return value? The tracing code in ConnectionI doesn't. It's also not clear if the
-    // main startWrite (StreamSocket::startWrite) actually modifies buf.
-    return _decoratee->startWrite(buf);
+    // TODO: is it possible to call startWrite without a corresponding finishWrite?
+    Buffer::Container::iterator start = buf.i;
+    bool result = _decoratee->startWrite(buf);
+    assert(start == buf.i); // check if we ever write anything here (temporary)
+    return result;
 }
 
 void
@@ -156,13 +158,20 @@ IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 void
 IdleTimeoutTransceiverDecorator::startRead(Buffer& buf)
 {
+    // We always call finishRead or read to actually read the data.
+    _decoratee->startRead(buf);
+}
+
+void
+IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
+{
     if (_enableIdleCheck)
     {
         // We reschedule the idle check as soon as possible to reduce the chances it kicks in while we're reading.
         _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
     }
 
-    _decoratee->startRead(buf);
+    _decoratee->finishRead(buf);
 }
 
 #endif

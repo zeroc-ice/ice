@@ -35,7 +35,7 @@ namespace IceInternal
         void finishRead(Buffer&) final;
 #endif
 
-        bool hasDataAvailable() const noexcept final;
+        bool isWaitingToBeRead() const noexcept final;
 
         std::string protocol() const final;
         std::string toString() const final;

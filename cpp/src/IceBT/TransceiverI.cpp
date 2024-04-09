@@ -97,17 +97,9 @@ IceBT::TransceiverI::read(IceInternal::Buffer& buf)
 }
 
 bool
-IceBT::TransceiverI::hasDataAvailable() const noexcept
+IceBT::TransceiverI::isWaitingToBeRead() const noexcept
 {
-    SOCKET fd = _stream->fd();
-    if (fd == INVALID_SOCKET)
-    {
-        return false;
-    }
-    else
-    {
-        return IceInternal::hasDataAvailable(fd);
-    }
+    return _stream->isWaitingToBeRead();
 }
 
 string

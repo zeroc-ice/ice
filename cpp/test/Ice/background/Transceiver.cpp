@@ -213,9 +213,9 @@ Transceiver::finishRead(IceInternal::Buffer& buf)
 #endif
 
 bool
-Transceiver::hasDataAvailable() const noexcept
+Transceiver::isWaitingToBeRead() const noexcept
 {
-    return _transceiver->hasDataAvailable();
+    return _transceiver->isWaitingToBeRead();
 }
 
 string

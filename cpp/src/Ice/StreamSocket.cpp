@@ -55,6 +55,15 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
       _write(SocketOperationWrite)
 #endif
 {
+#if defined(ICE_USE_IOCP)
+    // For the implementation of isWaitingToBeRead.
+    _read.hEvent = WSACreateEvent();
+    if (_read.hEvent == WSA_INVALID_EVENT)
+    {
+        throw Ice::SocketException(__FILE__, __LINE__, WSAGetLastError());
+    }
+#endif
+
     init();
     try
     {
@@ -67,7 +76,11 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
     }
 }
 
-StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
+StreamSocket::~StreamSocket()
+{
+    assert(_fd == INVALID_SOCKET);
+    WSACloseEvent(_read.hEvent);
+}
 
 SocketOperation
 StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
@@ -321,6 +334,24 @@ StreamSocket::write(const char* buf, size_t length)
     return sent;
 }
 
+bool
+StreamSocket::isWaitingToBeRead() const noexcept
+{
+#if defined(ICE_USE_IOCP)
+    if (hasBytesAvailable(_fd))
+    {
+        return true;
+    }
+    else
+    {
+        // Check if the event on the _read overlapped structure is signaled.
+        return WaitForSingleObject(_read.hEvent, 0) == WAIT_OBJECT_0; // 0ms means don't wait
+    }
+#else
+    return hasBytesAvailable(_fd);
+#endif
+}
+
 #if defined(ICE_USE_IOCP)
 AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
@@ -336,9 +367,6 @@ StreamSocket::getAsyncInfo(SocketOperation op)
             return 0;
     }
 }
-#endif
-
-#if defined(ICE_USE_IOCP)
 
 bool
 StreamSocket::startWrite(Buffer& buf)
@@ -437,6 +465,8 @@ StreamSocket::finishRead(Buffer& buf)
         return;
     }
 
+    WSAResetEvent(_read.hEvent);
+
     if (_read.error != ERROR_SUCCESS)
     {
         WSASetLastError(_read.error);
@@ -498,7 +528,7 @@ StreamSocket::init()
     // data in several chunks when using IOCP WSARecv or WSASend.
     // Otherwise, we would only be notified when all the data is
     // received or written.  The connection timeout could easily be
-    // triggered when receiging or sending large messages.
+    // triggered when receiving or sending large messages.
     //
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_fd));
     _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_fd));

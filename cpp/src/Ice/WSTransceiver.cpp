@@ -773,9 +773,9 @@ IceInternal::WSTransceiver::finishRead(Buffer& buf)
 #endif
 
 bool
-IceInternal::WSTransceiver::hasDataAvailable() const noexcept
+IceInternal::WSTransceiver::isWaitingToBeRead() const noexcept
 {
-    return _delegate->hasDataAvailable();
+    return _delegate->isWaitingToBeRead();
 }
 
 string

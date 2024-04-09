@@ -421,9 +421,9 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 }
 
 bool
-IceObjC::StreamTransceiver::hasDataAvailable() const noexcept
+IceObjC::StreamTransceiver::isWaitingToBeRead() const noexcept
 {
-    return IceInternal::hasDataAvailable(_fd);
+    return hasBytesAvailable(_fd);
 }
 
 string

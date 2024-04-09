@@ -217,6 +217,9 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
+        /// Aborts the connection with a ConnectionTimeoutException unless the connection is no longer active or its
+        /// transceiver is waiting to be read.
+        /// @return true if the connection's transceiver is waiting to be read, false otherwise.
         bool idleCheck() noexcept;
 
         // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.

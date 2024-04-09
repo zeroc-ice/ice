@@ -56,10 +56,10 @@ namespace IceInternal
         bool startWrite(Buffer&) final;
         void finishWrite(Buffer&) final;
         void startRead(Buffer&) final;
-        void finishRead(Buffer& buf) final { _decoratee->finishRead(buf); }
+        void finishRead(Buffer& buf) final;
 #endif
 
-        bool hasDataAvailable() const noexcept final { return _decoratee->hasDataAvailable(); }
+        bool isWaitingToBeRead() const noexcept final { return _decoratee->isWaitingToBeRead(); }
         std::string protocol() const final { return _decoratee->protocol(); }
         std::string toString() const final { return _decoratee->toString(); }
         std::string toDetailedString() const final { return _decoratee->toDetailedString(); }

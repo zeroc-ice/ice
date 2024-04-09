@@ -34,11 +34,12 @@ namespace IceInternal
         virtual void finishRead(Buffer&) = 0;
 #endif
 
-        /// Checks if this transceiver has data that is readily available for reading.
-        /// @return true if some data is available for reading, false otherwise.
+        /// Checks if this transceiver is waited to be read, typically because it has bytes readily available for
+        /// reading.
+        /// @return true if this transceiver is waiting to be read, false otherwise.
         /// @remark The caller can call this method concurrently with read() (and write()); however, the caller must
         /// ensure the transceiver is not closed when calling this function.
-        virtual bool hasDataAvailable() const noexcept = 0;
+        virtual bool isWaitingToBeRead() const noexcept = 0;
 
         virtual std::string protocol() const = 0;
         virtual std::string toString() const = 0;

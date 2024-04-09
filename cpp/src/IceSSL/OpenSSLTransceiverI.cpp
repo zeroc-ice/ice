@@ -856,9 +856,9 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
 #endif
 
 bool
-OpenSSL::TransceiverI::hasDataAvailable() const noexcept
+OpenSSL::TransceiverI::isWaitingToBeRead() const noexcept
 {
-    return _delegate->hasDataAvailable();
+    return _delegate->isWaitingToBeRead();
 }
 
 string

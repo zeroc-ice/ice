@@ -593,9 +593,9 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 }
 
 bool
-IceSSL::SecureTransport::TransceiverI::hasDataAvailable() const noexcept
+IceSSL::SecureTransport::TransceiverI::isWaitingToBeRead() const noexcept
 {
-    return _delegate->hasDataAvailable();
+    return _delegate->isWaitingToBeRead();
 }
 
 string

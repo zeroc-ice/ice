@@ -470,11 +470,11 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 #endif
 
 bool
-IceInternal::UdpTransceiver::hasDataAvailable() const noexcept
+IceInternal::UdpTransceiver::isWaitingToBeRead() const noexcept
 {
     if (_incoming)
     {
-        return IceInternal::hasDataAvailable(_fd);
+        return hasBytesAvailable(_fd);
     }
     else
     {

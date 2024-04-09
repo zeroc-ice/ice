@@ -82,9 +82,9 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
 #    endif
 
 bool
-IceInternal::TcpTransceiver::hasDataAvailable() const noexcept
+IceInternal::TcpTransceiver::isWaitingToBeRead() const noexcept
 {
-    return IceInternal::hasDataAvailable(_stream->fd());
+    return _stream->isWaitingToBeRead();
 }
 
 string

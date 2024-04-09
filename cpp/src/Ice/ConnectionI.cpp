@@ -2540,7 +2540,7 @@ Ice::ConnectionI::idleCheck() noexcept
     std::lock_guard lock(_mutex);
     if (_state == StateActive)
     {
-        if (_transceiver->hasDataAvailable())
+        if (_transceiver->isWaitingToBeRead())
         {
             return true;
         }
