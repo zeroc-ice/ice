@@ -33,7 +33,7 @@ namespace
         {
             assert(howMany > 0);
 
-            if (firstUnused != nullptr)
+            if (firstUnused)
             {
                 //
                 // Return unused bytes
