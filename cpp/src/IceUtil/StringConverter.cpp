@@ -526,9 +526,7 @@ namespace
 
         if (_cp == CP_UTF8)
         {
-            string tmp(
-                reinterpret_cast<const char*>(sourceStart),
-                reinterpret_cast<const char*>(sourceEnd - sourceStart));
+            string tmp(reinterpret_cast<const char*>(sourceStart), static_cast<size_t>(sourceEnd - sourceStart));
             tmp.swap(target);
             return;
         }
