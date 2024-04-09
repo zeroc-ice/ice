@@ -36,18 +36,9 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         {
             try
             {
-                if ((_incoming && _serverAuthenticationOptions is null) ||
-                    (!_incoming && _instance.initializationData().clientAuthenticationOptions is null))
-                {
-                    _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false),
-                        false,
-                        new RemoteCertificateValidationCallback(validationCallback),
-                        new LocalCertificateSelectionCallback(selectCertificate));
-                }
-                else
-                {
-                    _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false), false);
-                }
+                _sslStream = new SslStream(
+                    new NetworkStream(_delegate.fd(), ownsSocket: false),
+                    leaveInnerStreamOpen: false);
             }
             catch (IOException ex)
             {
@@ -314,7 +305,14 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         info.incoming = _incoming;
         info.adapterName = _adapterName;
         info.cipher = _cipher;
-        info.certs = _certs;
+        if (_sslStream is SslStream sslStream && sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
+        {
+            info.certs = [remoteCertificate];
+        }
+        else
+        {
+            info.certs = [];
+        }
         info.verified = _verified;
         return info;
     }
@@ -327,9 +325,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
     public string toDetailedString() => _delegate.toDetailedString();
 
-    //
     // Only for use by ConnectorI, AcceptorI.
-    //
     internal TransceiverI(
         Instance instance,
         IceInternal.Transceiver del,
@@ -360,103 +356,43 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     {
         try
         {
-            if (!_incoming)
+            if (_incoming)
             {
-                // Client authentication.
-                if (_instance.initializationData().clientAuthenticationOptions
-                    is SslClientAuthenticationOptions clientAuthenticationOptions)
-                {
-                    _writeResult = _sslStream.AuthenticateAsClientAsync(clientAuthenticationOptions);
-                    _writeResult.ContinueWith(
-                        task =>
-                        {
-                            try
-                            {
-                                // If authentication fails, AuthenticateAsClientAsync throws AuthenticationException,
-                                // and the task won't complete successfully.
-                                _verified = task.IsCompletedSuccessfully;
-                                if (_verified)
-                                {
-                                    _cipher = _sslStream.CipherAlgorithm.ToString();
-                                    if (_sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
-                                    {
-                                        _certs = [remoteCertificate];
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                callback(state);
-                            }
-                        },
-                        TaskScheduler.Default);
-                }
-                else
-                {
-
-                    _writeResult = _sslStream.AuthenticateAsClientAsync(
-                        _host,
-                        _instance.certs(),
-                        _instance.checkCRL() > 0);
-                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
-                }
+                _writeResult = _sslStream.AuthenticateAsServerAsync(
+                    _serverAuthenticationOptions ??
+                    _instance.engine().createServerAuthenticationOptions(validationCallback));
             }
             else
             {
-                // Server authentication.
-                if (_serverAuthenticationOptions is not null)
-                {
-                    _writeResult = _sslStream.AuthenticateAsServerAsync(_serverAuthenticationOptions);
-                    _writeResult.ContinueWith(
-                        task =>
-                        {
-                            try
-                            {
-                                // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
-                                // and the task won't complete successfully.
-                                _verified = task.IsCompletedSuccessfully;
-                                if (_verified)
-                                {
-                                    _cipher = _sslStream.CipherAlgorithm.ToString();
-                                    if (_sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
-                                    {
-                                        _certs = [remoteCertificate];
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                callback(state);
-                            }
-                        },
-                        TaskScheduler.Default);
-                }
-                else
-                {
-                    // Get the certificate collection and select the first one.
-                    X509Certificate2Collection certs = _instance.certs();
-                    X509Certificate2 cert = null;
-                    if (certs.Count > 0)
-                    {
-                        cert = certs[0];
-                    }
-
-                    _writeResult = _sslStream.AuthenticateAsServerAsync(
-                        cert,
-                        _verifyPeer > 0,
-                        _instance.checkCRL() > 0);
-                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
-                }
+                _writeResult = _sslStream.AuthenticateAsClientAsync(
+                    _instance.initializationData().clientAuthenticationOptions ??
+                    _instance.engine().createClientAuthenticationOptions(validationCallback, _host));
             }
+            _writeResult.ContinueWith(
+                task =>
+                {
+                    try
+                    {
+                        // If authentication fails, AuthenticateAsServerAsync throws AuthenticationException,
+                        // and the task won't complete successfully.
+                        _verified = task.IsCompletedSuccessfully;
+                        if (_verified)
+                        {
+                            _cipher = _sslStream.CipherAlgorithm.ToString();
+                        }
+                    }
+                    finally
+                    {
+                        callback(state);
+                    }
+                },
+                TaskScheduler.Default);
         }
         catch (IOException ex)
         {
             if (IceInternal.Network.connectionLost(ex))
             {
-                //
-                // This situation occurs when connectToSelf is called; the "remote" end
-                // closes the socket immediately.
-                //
+                // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
             }
             throw new Ice.SocketException(ex);
@@ -479,7 +415,6 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private void finishAuthenticate()
     {
         Debug.Assert(_writeResult != null);
-
         try
         {
             try
@@ -512,278 +447,39 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    private X509Certificate selectCertificate(
-        object sender,
-        string targetHost,
-        X509CertificateCollection certs,
-        X509Certificate remoteCertificate,
-        string[] acceptableIssuers)
-    {
-        if (certs == null || certs.Count == 0)
-        {
-            return null;
-        }
-        else if (certs.Count == 1)
-        {
-            return certs[0];
-        }
-
-        // Use the first certificate that match the acceptable issuers.
-        if (acceptableIssuers != null && acceptableIssuers.Length > 0)
-        {
-            foreach (X509Certificate certificate in certs)
-            {
-                if (Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
-                {
-                    return certificate;
-                }
-            }
-        }
-        return certs[0];
-    }
-
     private bool validationCallback(
         object sender,
         X509Certificate certificate,
-        X509Chain chainEngine,
+        X509Chain chain,
         SslPolicyErrors policyErrors)
     {
-        using var chain = new X509Chain(_instance.engine().useMachineContext());
-        try
+        int errors = (int)policyErrors;
+        int traceLevel = _instance.securityTraceLevel();
+        string traceCategory = _instance.securityTraceCategory();
+        Ice.Logger logger = _instance.logger();
+        string message = "";
+
+        if (_incoming && (errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0 && _verifyPeer <= 1)
         {
-            if (_instance.checkCRL() == 0)
-            {
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-            }
-
-            X509Certificate2Collection caCerts = _instance.engine().caCerts();
-            if (caCerts != null)
-            {
-                // We need to set this flag to be able to use a certificate authority from the extra store.
-                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-                foreach (X509Certificate2 cert in caCerts)
-                {
-                    chain.ChainPolicy.ExtraStore.Add(cert);
-                }
-            }
-
-            string message = "";
-            int errors = (int)policyErrors;
-            if (certificate != null)
-            {
-                chain.Build(new X509Certificate2(certificate));
-                if (chain.ChainStatus != null && chain.ChainStatus.Length > 0)
-                {
-                    errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                }
-                else if (_instance.engine().caCerts() != null)
-                {
-                    X509ChainElement e = chain.ChainElements[^1];
-                    if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
-                    {
-                        if (_verifyPeer > 0)
-                        {
-                            message += "\nuntrusted root certificate";
-                        }
-                        else
-                        {
-                            message += "\nuntrusted root certificate (ignored)";
-                            _verified = false;
-                        }
-                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
-                    else
-                    {
-                        _verified = true;
-                        return true;
-                    }
-                }
-                else
-                {
-                    _verified = true;
-                    return true;
-                }
-            }
-
-            if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
-            {
-                // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing connection.
-                // Since .NET requires an authenticated connection, the remote peer closes the socket if it does not
-                // have a certificate to provide.
-                if (_incoming)
-                {
-                    if (_verifyPeer > 1)
-                    {
-                        if (_instance.securityTraceLevel() >= 1)
-                        {
-                            _instance.logger().trace(
-                                _instance.securityTraceCategory(),
-                                "SSL certificate validation failed - client certificate not provided");
-                        }
-                        return false;
-                    }
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                    message += "\nremote certificate not provided (ignored)";
-                }
-            }
-
-            bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-            if (certificateNameMismatch)
-            {
-                if (_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
-                {
-                    if (_instance.securityTraceLevel() >= 1)
-                    {
-                        string msg = "SSL certificate validation failed - Hostname mismatch";
-                        if (_verifyPeer == 0)
-                        {
-                            msg += " (ignored)";
-                        }
-                        _instance.logger().trace(_instance.securityTraceCategory(), msg);
-                    }
-
-                    if (_verifyPeer > 0)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                    }
-                }
-                else
-                {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                    certificateNameMismatch = false;
-                }
-            }
-
-            if ((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
-            chain.ChainStatus != null && chain.ChainStatus.Length > 0)
-            {
-                int errorCount = 0;
-                foreach (X509ChainStatus status in chain.ChainStatus)
-                {
-                    if (status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.engine().caCerts() != null)
-                    {
-                        // Untrusted root is OK when using our custom chain engine if the CA certificate is present in
-                        // the chain policy extra store.
-                        X509ChainElement e = chain.ChainElements[^1];
-                        if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
-                        {
-                            if (_verifyPeer > 0)
-                            {
-                                message += "\nuntrusted root certificate";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\nuntrusted root certificate (ignored)";
-                            }
-                        }
-                        else
-                        {
-                            _verified = !certificateNameMismatch;
-                        }
-                    }
-                    else if (status.Status == X509ChainStatusFlags.Revoked)
-                    {
-                        if (_instance.checkCRL() > 0)
-                        {
-                            message += "\ncertificate revoked";
-                            ++errorCount;
-                        }
-                        else
-                        {
-                            message += "\ncertificate revoked (ignored)";
-                        }
-                    }
-                    else if (status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
-                    {
-                        // If a certificate's revocation status cannot be determined, the strictest policy is to reject
-                        // the connection.
-                        if (_instance.checkCRL() > 1)
-                        {
-                            message += "\ncertificate revocation status unknown";
-                            ++errorCount;
-                        }
-                        else
-                        {
-                            message += "\ncertificate revocation status unknown (ignored)";
-                        }
-                    }
-                    else if (status.Status == X509ChainStatusFlags.PartialChain)
-                    {
-                        if (_verifyPeer > 0)
-                        {
-                            message += "\npartial certificate chain";
-                            ++errorCount;
-                        }
-                        else
-                        {
-                            message += "\npartial certificate chain (ignored)";
-                        }
-                    }
-                    else if (status.Status != X509ChainStatusFlags.NoError)
-                    {
-                        message += "\ncertificate chain error: " + status.Status.ToString();
-                        ++errorCount;
-                    }
-                }
-
-                if (errorCount == 0)
-                {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                }
-            }
-
-            if (errors > 0)
-            {
-                if (_instance.securityTraceLevel() >= 1)
-                {
-                    if (message.Length > 0)
-                    {
-                        _instance.logger().trace(
-                            _instance.securityTraceCategory(),
-                            $"SSL certificate validation failed:{message}");
-                    }
-                    else
-                    {
-                        _instance.logger().trace(
-                            _instance.securityTraceCategory(),
-                            "SSL certificate validation failed");
-                    }
-                }
-                return false;
-            }
-            else if (message.Length > 0 && _instance.securityTraceLevel() >= 1)
-            {
-                _instance.logger().trace(
-                    _instance.securityTraceCategory(),
-                    $"SSL certificate validation status:{message}");
-            }
-            return true;
+            // The client certificate is optional when IceSSL.VerifyPeer = 1, and not required when IceSSL.VerifyPeer = 0
+            errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
         }
-        finally
+
+        foreach (X509ChainStatus status in chain?.ChainStatus ?? [])
         {
-            if (chain.ChainElements != null && chain.ChainElements.Count > 0)
-            {
-                _certs = new X509Certificate2[chain.ChainElements.Count];
-                for (int i = 0; i < chain.ChainElements.Count; ++i)
-                {
-                    _certs[i] = chain.ChainElements[i].Certificate;
-                }
-            }
-
-            try
-            {
-                chain.Dispose();
-            }
-            catch (Exception)
-            {
-            }
+            message += $"\n{status.StatusInformation}";
         }
+
+        if (errors != 0 && traceLevel >= 1)
+        {
+            logger.trace(
+                traceCategory,
+                message.Length > 0 ?
+                    $"SSL certificate validation failed:{message}" : "SSL certificate validation failed");
+        }
+        return errors == 0;
     }
+
     private int getSendPacketSize(int length) =>
         _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
@@ -804,7 +500,6 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     private int _maxSendPacketSize;
     private int _maxRecvPacketSize;
     private string _cipher;
-    private X509Certificate2[] _certs;
     private bool _verified;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
 }

@@ -269,108 +269,6 @@ public:
 };
 #endif
 
-class PasswordPromptI final
-{
-public:
-    PasswordPromptI(const string& password) : _password(password), _count(0) {}
-
-    virtual string getPassword()
-    {
-        ++_count;
-        return _password;
-    }
-
-    int count() const { return _count; }
-
-private:
-    string _password;
-    int _count;
-};
-using PasswordPromptIPtr = std::shared_ptr<PasswordPromptI>;
-
-class CertificateVerifierI final
-{
-public:
-    CertificateVerifierI() { reset(); }
-
-    virtual bool verify(const IceSSL::ConnectionInfoPtr& info)
-    {
-        if (info->certs.size() > 0)
-        {
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-            //
-            // Subject alternative name
-            //
-            {
-                vector<pair<int, string>> altNames = info->certs[0]->getSubjectAlternativeNames();
-                vector<string> ipAddresses;
-                vector<string> dnsNames;
-                for (vector<pair<int, string>>::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
-                {
-                    if (p->first == 7)
-                    {
-                        ipAddresses.push_back(p->second);
-                    }
-                    else if (p->first == 2)
-                    {
-                        dnsNames.push_back(p->second);
-                    }
-                }
-
-                test(find(dnsNames.begin(), dnsNames.end(), "server") != dnsNames.end());
-                test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
-            }
-
-            //
-            // Issuer alternative name
-            //
-            {
-                vector<pair<int, string>> altNames = info->certs[0]->getIssuerAlternativeNames();
-                vector<string> ipAddresses;
-                vector<string> emailAddresses;
-                for (vector<pair<int, string>>::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
-                {
-                    if (p->first == 7)
-                    {
-                        ipAddresses.push_back(p->second);
-                    }
-                    else if (p->first == 1)
-                    {
-                        emailAddresses.push_back(p->second);
-                    }
-                }
-
-                test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
-                test(find(emailAddresses.begin(), emailAddresses.end(), "issuer@zeroc.com") != emailAddresses.end());
-            }
-#endif
-        }
-
-        _hadCert = info->certs.size() != 0;
-        _invoked = true;
-        return _returnValue;
-    }
-
-    void reset()
-    {
-        _returnValue = true;
-        _invoked = false;
-        _hadCert = false;
-    }
-
-    void returnValue(bool b) { _returnValue = b; }
-
-    bool invoked() const { return _invoked; }
-
-    bool hadCert() const { return _hadCert; }
-
-private:
-    bool _returnValue;
-    bool _invoked;
-    bool _hadCert;
-};
-using CertificateVerifierIPtr = std::shared_ptr<CertificateVerifierI>;
-
 int keychainN = 0;
 
 static PropertiesPtr
@@ -1461,182 +1359,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         }
         comm->destroy();
 
-        //
-        // Try certificate with one intermediate and VerifyDepthMax=2
-        //
-        initData.properties = createClientProps(defaultProps, p12, "", "cacert1");
-        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "2");
-        comm = initialize(initData);
-
-        fact = Test::ServerFactoryPrx(comm, factoryRef);
-        test(fact);
-
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai1", "");
-            d["IceSSL.VerifyPeer"] = "0";
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_getConnection()->getInfo();
-                import.cleanup();
-                test(false);
-            }
-            catch (const Ice::SecurityException&)
-            {
-                // Chain length too long
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                import.cleanup();
-                test(false);
-            }
-            fact->destroyServer(server);
-        }
-        comm->destroy();
-
-        //
-        // Try with VerifyDepthMax set to 3 (the default)
-        //
-        initData.properties = createClientProps(defaultProps, p12, "", "cacert1");
-        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
-        // initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
-        comm = initialize(initData);
-
-        fact = Test::ServerFactoryPrx(comm, factoryRef);
-        test(fact);
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai1", "");
-            d["IceSSL.VerifyPeer"] = "0";
-            server = fact->createServer(d);
-            try
-            {
-                info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-                test(info->certs.size() == 3);
-                test(info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::NoError);
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                import.cleanup();
-                test(false);
-            }
-            fact->destroyServer(server);
-        }
-
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai2", "");
-            d["IceSSL.VerifyPeer"] = "0";
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_getConnection()->getInfo();
-                import.cleanup();
-                test(false);
-            }
-            catch (const Ice::SecurityException&)
-            {
-                // Chain length too long
-            }
-            fact->destroyServer(server);
-        }
-        comm->destroy();
-
-        //
-        // Increase VerifyDepthMax to 4
-        //
-        initData.properties = createClientProps(defaultProps, p12, "", "cacert1");
-        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
-        comm = initialize(initData);
-
-        fact = Test::ServerFactoryPrx(comm, factoryRef);
-        test(fact);
-
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai2", "");
-            d["IceSSL.VerifyPeer"] = "0";
-            server = fact->createServer(d);
-            try
-            {
-                info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-                test(info->certs.size() == 4);
-                test(info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::NoError);
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                import.cleanup();
-                test(false);
-            }
-            fact->destroyServer(server);
-        }
-
-        comm->destroy();
-
-        //
-        // Increase VerifyDepthMax to 4
-        //
-        initData.properties = createClientProps(defaultProps, p12, "c_rsa_cai2", "cacert1");
-        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
-        comm = initialize(initData);
-
-        fact = Test::ServerFactoryPrx(comm, factoryRef);
-        test(fact);
-
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai2", "cacert1");
-            d["IceSSL.VerifyPeer"] = "2";
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_getConnection();
-                import.cleanup();
-                test(false);
-            }
-            catch (const Ice::ProtocolException&)
-            {
-                // Expected
-            }
-            catch (const Ice::ConnectionLostException&)
-            {
-                // Expected
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                import.cleanup();
-                test(false);
-            }
-            fact->destroyServer(server);
-        }
-
-        {
-            d = createServerProps(defaultProps, p12, "s_rsa_cai2", "cacert1");
-            d["IceSSL.VerifyPeer"] = "2";
-            d["IceSSL.VerifyDepthMax"] = "4";
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_getConnection();
-            }
-            catch (const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                import.cleanup();
-                test(false);
-            }
-            fact->destroyServer(server);
-        }
-
-        comm->destroy();
-        import.cleanup();
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
 #if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
     cout << "testing certificate extensions... " << flush;
@@ -1729,12 +1453,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #    endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
-        IceSSL::PluginPtr plugin = dynamic_pointer_cast<IceSSL::Plugin>(comm->getPluginManager()->getPlugin("IceSSL"));
-        test(plugin);
-        CertificateVerifierIPtr verifier = make_shared<CertificateVerifierI>();
-
-        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
-                                       { return verifier->verify(infoP); });
 
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
         test(fact);
@@ -1762,15 +1480,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
-        test(verifier->invoked());
-        test(!verifier->hadCert());
 
-        //
-        // Have the verifier return false. Close the connection explicitly
-        // to force a new connection to be established.
-        //
-        verifier->reset();
-        verifier->returnValue(false);
+        // Have the verifier return false. Close the connection explicitly to force a new connection to be established.
         server->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         try
         {
@@ -1786,27 +1497,18 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
-        test(verifier->invoked());
-        test(!verifier->hadCert());
 
         fact->destroyServer(server);
         comm->destroy();
 #endif
     }
     {
-        //
         // Verify that a server certificate is present.
-        //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
-        IceSSL::PluginPtr plugin = dynamic_pointer_cast<IceSSL::Plugin>(comm->getPluginManager()->getPlugin("IceSSL"));
-        test(plugin);
-        CertificateVerifierIPtr verifier = make_shared<CertificateVerifierI>();
 
-        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
-                                       { return verifier->verify(infoP); });
         optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
         test(fact);
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
@@ -1821,8 +1523,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
-        test(verifier->invoked());
-        test(verifier->hadCert());
         fact->destroyServer(server);
         comm->destroy();
     }
@@ -2001,84 +1701,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "ok" << endl;
 #endif
 
-    //
-    // SChannel doesn't support PEM Password protected certificates certificates
-    //
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
-    if (p12)
-    {
-#endif
-        cout << "testing password prompt... " << flush;
-        {
-            //
-            // Use the correct password.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_pass_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Password", ""); // Clear the password
-
-            initData.properties->setProperty("Ice.InitPlugins", "0");
-            CommunicatorPtr comm = initialize(initData);
-            PluginManagerPtr pm = comm->getPluginManager();
-            IceSSL::PluginPtr plugin = dynamic_pointer_cast<IceSSL::Plugin>(pm->getPlugin("IceSSL"));
-            test(plugin);
-            PasswordPromptIPtr prompt = make_shared<PasswordPromptI>("client");
-
-            plugin->setPasswordPrompt([prompt] { return prompt->getPassword(); });
-            pm->initializePlugins();
-            test(prompt->count() == 1);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch (const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-
-            //
-            // Use an incorrect password and check that retries are attempted.
-            //
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_pass_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Password", ""); // Clear password
-            initData.properties->setProperty("IceSSL.PasswordRetryMax", "4");
-            initData.properties->setProperty("Ice.InitPlugins", "0");
-            comm = initialize(initData);
-            pm = comm->getPluginManager();
-            plugin = dynamic_pointer_cast<IceSSL::Plugin>(pm->getPlugin("IceSSL"));
-            test(plugin);
-            prompt = make_shared<PasswordPromptI>("invalid");
-
-            plugin->setPasswordPrompt([prompt] { return prompt->getPassword(); });
-            try
-            {
-                pm->initializePlugins();
-                test(false);
-            }
-            catch (const PluginInitializationException&)
-            {
-                // Expected.
-            }
-            catch (const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            test(prompt->count() == 4);
-            comm->destroy();
-        }
-        cout << "ok" << endl;
-
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
-    }
-#endif
     // TODO disabled for now
     /*
         cout << "testing ciphers... " << flush;
@@ -3286,7 +2908,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
-            0};
+            0
+        };
 
         const char* failFindCertProperties[] = {
             "nolabel",
@@ -3300,7 +2923,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
-            0};
+            0
+        };
 
         const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
         ImportCerts import(defaultDir, certificates);
@@ -3677,7 +3301,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
-            initData.properties->setProperty("IceSSL.VerifyDepthMax", "5");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrx p(comm, "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
@@ -3719,7 +3342,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
-            initData.properties->setProperty("IceSSL.VerifyDepthMax", "5");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
             CommunicatorPtr comm = initialize(initData);

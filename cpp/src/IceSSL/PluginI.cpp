@@ -49,32 +49,6 @@ PluginI::destroy()
     _engine = 0;
 }
 
-void
-PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL::ConnectionInfo>&)> verifier)
-{
-    if (verifier)
-    {
-        _engine->setCertificateVerifier(make_shared<CertificateVerifier>(std::move(verifier)));
-    }
-    else
-    {
-        _engine->setCertificateVerifier(nullptr);
-    }
-}
-
-void
-PluginI::setPasswordPrompt(std::function<std::string()> prompt)
-{
-    if (prompt)
-    {
-        _engine->setPasswordPrompt(make_shared<PasswordPrompt>(std::move(prompt)));
-    }
-    else
-    {
-        _engine->setPasswordPrompt(nullptr);
-    }
-}
-
 extern "C"
 {
     ICESSL_API Ice::Plugin* createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);

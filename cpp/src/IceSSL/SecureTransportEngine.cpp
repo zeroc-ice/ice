@@ -333,9 +333,9 @@ namespace
     }
 
     //
-    // Retrive the name of a cipher, SSLCipherSuite inlude duplicated values for TLS/SSL
+    // Retrieve the name of a cipher, SSLCipherSuite includes duplicated values for TLS/SSL
     // protocol ciphers, for example SSL_RSA_WITH_RC4_128_MD5/TLS_RSA_WITH_RC4_128_MD5
-    // are represeted by the same SSLCipherSuite value, the names return by this method
+    // are represented by the same SSLCipherSuite value, the names return by this method
     // doesn't include a protocol prefix.
     //
     string CiphersHelper::cipherName(SSLCipherSuite cipher)
@@ -776,10 +776,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     try
     {
         string caFile = properties->getProperty("IceSSL.CAs");
-        if (caFile.empty())
-        {
-            caFile = properties->getProperty("IceSSL.CertAuthFile");
-        }
         if (!caFile.empty())
         {
             string resolved;
@@ -804,8 +800,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     }
 
     const string password = properties->getProperty("IceSSL.Password");
-    const int passwordRetryMax = properties->getPropertyAsIntWithDefault("IceSSL.PasswordRetryMax", 3);
-    PasswordPromptPtr passwordPrompt = getPasswordPrompt();
 
     string certFile = properties->getProperty("IceSSL.CertFile");
     string findCert = properties->getProperty("IceSSL.FindCert");
@@ -894,23 +888,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     {
         _chain.reset(findCertificateChain(keychain, keychainPassword, findCert));
     }
-
-    //
-    // DiffieHellmanParams in DER format.
-    //
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-    string dhFile = properties->getProperty("IceSSL.DHParams");
-    if (!dhFile.empty())
-    {
-        string resolved;
-        if (!checkPath(dhFile, defaultDir, false, resolved))
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: DH params file not found:\n" + dhFile);
-        }
-
-        readFile(resolved, _dhParams);
-    }
-#endif
 
     //
     // Establish the cipher list.
@@ -1002,19 +979,6 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
                 break;
             }
         }
-
-#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-        if (!_dhParams.empty())
-        {
-            if ((err = SSLSetDiffieHellmanParams(ssl, &_dhParams[0], _dhParams.size())))
-            {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: unable to create the trust object:\n" + sslErrorToString(err));
-            }
-        }
-#endif
     }
 
     if (_chain && (err = SSLSetCertificate(ssl, _chain.get())))

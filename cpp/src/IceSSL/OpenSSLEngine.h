@@ -26,24 +26,16 @@ namespace IceSSL
             IceInternal::TransceiverPtr
             createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
                 final;
-
-#ifndef OPENSSL_NO_DH
-            DH* dhParams(int);
-#endif
-
             SSL_CTX* context() const;
             void context(SSL_CTX*);
             std::string sslErrors() const;
+            std::string password() const { return _password; }
 
         private:
-            void cleanup();
             SSL_METHOD* getMethod();
 
             SSL_CTX* _ctx;
-
-#ifndef OPENSSL_NO_DH
-            IceSSL::OpenSSL::DHParamsPtr _dhParams;
-#endif
+            std::string _password;
         };
 
     } // OpenSSL namespace end

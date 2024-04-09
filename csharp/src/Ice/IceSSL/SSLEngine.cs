@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using IceInternal;
 using System.Diagnostics;
 using System.Net.Security;
 using System.Security;
@@ -17,22 +18,21 @@ internal class SSLEngine
         _logger = communicator.getLogger();
         _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
         _securityTraceCategory = "Security";
-        _initialized = false;
         _trustManager = new TrustManager(_communicator);
     }
 
     internal void initialize()
     {
-        if (_initialized)
-        {
-            return;
-        }
-
         const string prefix = "IceSSL.";
         Ice.Properties properties = communicator().getProperties();
 
         // Check for a default directory. We look in this directory for files mentioned in the configuration.
         _defaultDir = properties.getProperty(prefix + "DefaultDir");
+
+        _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+
+        // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
+        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
 
         string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
         StoreLocation storeLocation;
@@ -55,13 +55,6 @@ internal class SSLEngine
         // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
         _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
-        // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
-        // certificate. A value of 0 means there is no maximum.
-        _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
-
-        // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
-        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
-
         Debug.Assert(_certs == null);
         // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
         _certs = [];
@@ -74,12 +67,6 @@ internal class SSLEngine
             if (!checkPath(ref certFile))
             {
                 throw new Ice.InitializationException($"IceSSL: certificate file not found: {certFile}");
-            }
-
-            SecureString password = null;
-            if (passwordStr.Length > 0)
-            {
-                password = createSecureString(passwordStr);
             }
 
             try
@@ -95,8 +82,9 @@ internal class SSLEngine
                     importFlags = X509KeyStorageFlags.UserKeySet;
                 }
 
-                if (password != null)
+                if (passwordStr.Length > 0)
                 {
+                    using SecureString password = createSecureString(passwordStr);
                     cert = new X509Certificate2(certFile, password, importFlags);
                 }
                 else
@@ -128,61 +116,22 @@ internal class SSLEngine
         {
             _caCerts = [];
         }
+
         if (certAuthFile.Length > 0)
         {
             if (!checkPath(ref certAuthFile))
             {
                 throw new Ice.InitializationException($"IceSSL: CA certificate file not found: {certAuthFile}");
             }
-
             try
             {
-                using FileStream fs = File.OpenRead(certAuthFile);
-                byte[] data = new byte[fs.Length];
-                fs.Read(data, 0, data.Length);
-
-                string strbuf = "";
-                try
+                if (Path.GetExtension(certAuthFile).Equals(".pem", StringComparison.OrdinalIgnoreCase))
                 {
-                    strbuf = Encoding.UTF8.GetString(data);
-                }
-                catch (Exception)
-                {
-                    // Ignore
-                }
-
-                if (strbuf.Length == data.Length)
-                {
-                    int size, startpos, endpos = 0;
-                    bool first = true;
-                    while (true)
-                    {
-                        startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                        if (startpos != -1)
-                        {
-                            endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
-                            size = endpos - startpos + "-----END CERTIFICATE-----".Length;
-                        }
-                        else if (first)
-                        {
-                            startpos = 0;
-                            endpos = strbuf.Length;
-                            size = strbuf.Length;
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                        byte[] cert = new byte[size];
-                        Buffer.BlockCopy(data, startpos, cert, 0, size);
-                        _caCerts.Import(cert);
-                        first = false;
-                    }
+                    _caCerts.ImportFromPemFile(certAuthFile);
                 }
                 else
                 {
-                    _caCerts.Import(data);
+                    _caCerts.Import(certAuthFile);
                 }
             }
             catch (Exception ex)
@@ -192,7 +141,6 @@ internal class SSLEngine
                     ex);
             }
         }
-        _initialized = true;
     }
 
     internal bool useMachineContext() => _useMachineContext;
@@ -207,11 +155,7 @@ internal class SSLEngine
 
     internal string securityTraceCategory() => _securityTraceCategory;
 
-    internal bool initialized() => _initialized;
-
     internal X509Certificate2Collection certs() => _certs;
-
-    internal int checkCRL() => _checkCRL;
 
     internal void traceStream(SslStream stream, string connInfo)
     {
@@ -235,18 +179,6 @@ internal class SSLEngine
 
     internal void verifyPeer(ConnectionInfo info, string description)
     {
-        if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
-        {
-            string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
-                _verifyDepthMax + "\n" + description;
-            if (_securityTraceLevel >= 1)
-            {
-                _logger.trace(_securityTraceCategory, msg);
-            }
-            throw new Ice.SecurityException(msg);
-        }
-
         if (!_trustManager.verify(info, description))
         {
             string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
@@ -260,12 +192,114 @@ internal class SSLEngine
         }
     }
 
+    internal SslClientAuthenticationOptions createClientAuthenticationOptions(
+        RemoteCertificateValidationCallback remoteCertificateValidationCallback,
+        string host)
+    {
+        var authenticationOptions = new SslClientAuthenticationOptions
+        {
+            ClientCertificates = _certs,
+            LocalCertificateSelectionCallback = (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+            {
+                if (certs == null || certs.Count == 0)
+                {
+                    return null;
+                }
+                else if (certs.Count == 1)
+                {
+                    return certs[0];
+                }
+
+                // Use the first certificate that match the acceptable issuers.
+                if (acceptableIssuers != null && acceptableIssuers.Length > 0)
+                {
+                    foreach (X509Certificate certificate in certs)
+                    {
+                        if (Array.IndexOf(acceptableIssuers, certificate.Issuer) != -1)
+                        {
+                            return certificate;
+                        }
+                    }
+                }
+                return certs[0];
+            },
+            RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
+            TargetHost = host,
+        };
+
+        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
+        if (_caCerts is null)
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.System;
+        }
+        else
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            foreach (X509Certificate certificate in _caCerts)
+            {
+                authenticationOptions.CertificateChainPolicy.CustomTrustStore.Add(certificate);
+            }
+        }
+
+        if (!_checkCertName)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreInvalidName;
+        }
+        if (_checkCRL == 1)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+        }
+        authenticationOptions.CertificateChainPolicy.RevocationMode =
+            _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
+        return authenticationOptions;
+    }
+
+    internal SslServerAuthenticationOptions createServerAuthenticationOptions(
+        RemoteCertificateValidationCallback remoteCertificateValidationCallback)
+    {
+        // Get the certificate collection and select the first one.
+        X509Certificate2 cert = null;
+        if (_certs.Count > 0)
+        {
+            cert = _certs[0];
+        }
+
+        var authenticationOptions = new SslServerAuthenticationOptions
+        {
+            ServerCertificate = cert,
+            ClientCertificateRequired = _verifyPeer > 0,
+            RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck
+        };
+
+        authenticationOptions.CertificateChainPolicy = new X509ChainPolicy();
+        if (_caCerts is null)
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.System;
+        }
+        else
+        {
+            authenticationOptions.CertificateChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+            foreach (X509Certificate certificate in _caCerts)
+            {
+                authenticationOptions.CertificateChainPolicy.CustomTrustStore.Add(certificate);
+            }
+        }
+        authenticationOptions.CertificateChainPolicy.RevocationMode =
+            _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
+        if (_checkCRL == 1)
+        {
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+        }
+        return authenticationOptions;
+    }
+
     private static bool isAbsolutePath(string path)
     {
         // Skip whitespace
         path = path.Trim();
 
-        if (IceInternal.AssemblyUtil.isWindows)
+        if (AssemblyUtil.isWindows)
         {
             // We need at least 3 non-whitespace characters to have an absolute path
             if (path.Length < 3)
@@ -491,10 +525,9 @@ internal class SSLEngine
     private readonly Ice.Logger _logger;
     private readonly int _securityTraceLevel;
     private readonly string _securityTraceCategory;
-    private bool _initialized;
     private string _defaultDir;
     private bool _checkCertName;
-    private int _verifyDepthMax;
+    private int _verifyPeer;
     private int _checkCRL;
     private X509Certificate2Collection _certs;
     private bool _useMachineContext;

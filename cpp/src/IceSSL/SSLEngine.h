@@ -27,39 +27,21 @@ namespace IceSSL
         Ice::CommunicatorPtr communicator() const { return _communicator; }
         Ice::LoggerPtr getLogger() const { return _logger; };
 
-        void setCertificateVerifier(const CertificateVerifierPtr&);
-        void setPasswordPrompt(const PasswordPromptPtr&);
-        std::string password(bool);
-
-        //
         // Setup the engine.
-        //
         virtual void initialize() = 0;
 
         virtual bool initialized() const;
 
-        //
         // Destroy the engine.
-        //
         virtual void destroy() = 0;
 
-        //
-        // Create a transceiver using the engine specific implementation
-        //
+        // Create a transceiver using the engine specific implementation.
         virtual IceInternal::TransceiverPtr
         createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) = 0;
 
-        //
-        // Verify peer certificate
-        //
+        // Verify peer certificate.
         virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
         void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
-
-        CertificateVerifierPtr getCertificateVerifier() const;
-        PasswordPromptPtr getPasswordPrompt() const;
-
-        std::string getPassword() const;
-        void setPassword(const std::string& password);
 
         bool getCheckCertName() const;
         bool getServerNameIndication() const;
@@ -79,8 +61,6 @@ namespace IceSSL
         const TrustManagerPtr _trustManager;
 
         std::string _password;
-        CertificateVerifierPtr _verifier;
-        PasswordPromptPtr _prompt;
 
         bool _checkCertName;
         bool _serverNameIndication;
