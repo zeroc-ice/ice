@@ -357,9 +357,9 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     const PropertiesPtr& properties = _instance->initializationData().properties;
     int idleTimeout = properties->getPropertyAsIntWithDefault(
         "Ice.IdleTimeout",
-        static_cast<int>(_idleTimeout.count() / 1000)); // in seconds
+        static_cast<int>(duration_cast<chrono::seconds>(_idleTimeout).count()));
     _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 1 : 0) > 0;
-    _idleTimeout = chrono::milliseconds(idleTimeout * 1000);
+    _idleTimeout = duration_cast<chrono::milliseconds>(chrono::seconds(idleTimeout));
 }
 
 IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
