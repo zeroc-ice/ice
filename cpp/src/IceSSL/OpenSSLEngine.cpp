@@ -37,12 +37,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-namespace
-{
-    mutex staticMutex;
-    int instanceCount = 0;
-    bool initOpenSSL = false;
-}
 extern "C"
 {
     int IceSSL_opensslPasswordCallback(char* buf, int size, int /*flag*/, void* userData)
