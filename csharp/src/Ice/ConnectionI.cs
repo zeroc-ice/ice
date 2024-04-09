@@ -802,7 +802,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
     public bool systemException(int requestId, SystemException ex, bool amd)
     {
-        return false; // System exceptions aren't marshalled.
+        return false; // System exceptions aren't marshaled.
     }
 
     public void invokeException(int requestId, LocalException ex, int invokeNum, bool amd)
@@ -1492,7 +1492,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             {
                 //
                 // Return the stream to the outgoing call. This is important for
-                // retriable AMI calls which are not marshalled again.
+                // retriable AMI calls which are not marshaled again.
                 //
                 OutgoingMessage message = _sendStreams.First.Value;
                 _writeStream.swap(message.stream);

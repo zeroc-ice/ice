@@ -383,7 +383,7 @@ def allTests(helper, communicator)
 
     puts "ok"
 
-    print "testing marshalling of objects with optional objects..."
+    print "testing marshaling of objects with optional objects..."
     STDOUT.flush
 
     f = Test::F.new

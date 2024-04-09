@@ -55,9 +55,9 @@ internal class AcceptorI : IceInternal.Acceptor
         }
     }
 
-    private EndpointI _endpoint;
-    private readonly IceInternal.Acceptor _delegate;
-    private readonly Instance _instance;
     private readonly string _adapterName;
+    private readonly IceInternal.Acceptor _delegate;
+    private EndpointI _endpoint;
+    private readonly Instance _instance;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
 }

@@ -424,7 +424,7 @@ public class InputStream
 
         //
         // Swap is never called for InputStreams that have encapsulations being read. However,
-        // encapsulations might still be set in case un-marshalling failed. We just
+        // encapsulations might still be set in case un-marshaling failed. We just
         // reset the encapsulations if there are still some set.
         //
         resetEncapsulation();
@@ -825,7 +825,7 @@ public class InputStream
         // _minSeqSize by the minimum size that this sequence will require on
         // the stream.
         //
-        // The goal of this check is to ensure that when we start un-marshalling
+        // The goal of this check is to ensure that when we start un-marshaling
         // a new sequence, we check the minimal size of this new sequence against
         // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
@@ -842,7 +842,7 @@ public class InputStream
 
         //
         // If there isn't enough data to read on the stream for the sequence (and
-        // possibly enclosed sequences), something is wrong with the marshalled
+        // possibly enclosed sequences), something is wrong with the marshaled
         // data: it's claiming having more data that what is possible to read.
         //
         if (_startSeq + _minSeqSize > _buf.size())
@@ -3657,7 +3657,7 @@ public class InputStream
             }
 
             //
-            // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
+            // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
             //
             if (_current.sliceType == SliceType.ValueSlice)
             {

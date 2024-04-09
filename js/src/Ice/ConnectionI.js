@@ -1054,7 +1054,7 @@ class ConnectionI
             {
                 //
                 // Return the stream to the outgoing call. This is important for
-                // retriable AMI calls which are not marshalled again.
+                // retriable AMI calls which are not marshaled again.
                 //
                 this._writeStream.swap(this._sendStreams[0].stream);
             }

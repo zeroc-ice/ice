@@ -682,7 +682,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   @Override
   public boolean systemException(int requestId, SystemException ex, boolean amd) {
-    return false; // System exceptions aren't marshalled.
+    return false; // System exceptions aren't marshaled.
   }
 
   @Override
@@ -1268,7 +1268,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       if (!_writeStream.isEmpty()) {
         //
         // Return the stream to the outgoing call. This is important for
-        // retriable AMI calls which are not marshalled again.
+        // retriable AMI calls which are not marshaled again.
         //
         OutgoingMessage message = _sendStreams.getFirst();
         _writeStream.swap(message.stream);

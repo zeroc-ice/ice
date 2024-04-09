@@ -249,7 +249,7 @@ public class OutputStream {
 
     //
     // Swap is never called for streams that have encapsulations being written. However,
-    // encapsulations might still be set in case marshalling failed. We just
+    // encapsulations might still be set in case marshaling failed. We just
     // reset the encapsulations if there are still some set.
     //
     resetEncapsulation();
@@ -1708,7 +1708,7 @@ public class OutputStream {
     void writePendingValues() {
       while (_toBeMarshaledMap.size() > 0) {
         //
-        // Consider the to be marshalled instances as marshaled now,
+        // Consider the to be marshaled instances as marshaled now,
         // this is necessary to avoid adding again the "to be
         // marshaled instances" into _toBeMarshaledMap while writing
         // instances.
