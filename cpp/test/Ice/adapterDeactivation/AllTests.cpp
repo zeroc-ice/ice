@@ -184,7 +184,7 @@ allTests(Test::TestHelper* helper)
     {
         cout << "ok" << endl;
     }
-    cout << "testing idle server deactivation..." << flush;
+    cout << "testing idle server shutdown..." << flush;
     {
         InitializationData idleInitData{
             .properties = communicator->getProperties()->clone(),

@@ -200,7 +200,7 @@ public class AllTests {
       out.flush();
     }
 
-    out.print("testing idle server deactivation...");
+    out.print("testing idle server shutdown...");
     out.flush();
     {
       com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();

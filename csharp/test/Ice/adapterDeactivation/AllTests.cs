@@ -197,7 +197,7 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                output.Write("testing idle server deactivation... ");
+                output.Write("testing idle server shutdown...");
                 output.Flush();
                 {
                     Ice.InitializationData initData = new Ice.InitializationData()
