@@ -96,26 +96,6 @@ OpenSSL::SSLEngine::initialize()
         const string propPrefix = "IceSSL.";
         PropertiesPtr properties = communicator()->getProperties();
 
-        //
-        // Protocols selects which protocols to enable, by default we only enable TLS1.0
-        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
-        //
-        vector<string> defaultProtocols;
-#if defined(TLS1_VERSION) && !defined(OPENSSL_NO_TLS1_METHOD)
-        defaultProtocols.push_back("tls1_0");
-#endif
-
-#if defined(TLS1_1_VERSION) && !defined(OPENSSL_NO_TLS1_1_METHOD)
-        defaultProtocols.push_back("tls1_1");
-#endif
-
-#if defined(TLS1_2_VERSION) && !defined(OPENSSL_NO_TLS1_2_METHOD)
-        defaultProtocols.push_back("tls1_2");
-#endif
-
-#if defined(TLS1_3_VERSION) && !defined(OPENSSL_NO_TLS1_3_METHOD)
-        defaultProtocols.push_back("tls1_3");
-#endif
         // Create an SSL context if the application hasn't supplied one.
         if (!_ctx)
         {
@@ -150,8 +130,8 @@ OpenSSL::SSLEngine::initialize()
             {
                 string path = properties->getProperty(propPrefix + "CAs");
                 string resolved;
-                const char* file = 0;
-                const char* dir = 0;
+                const char* file = nullptr;
+                const char* dir = nullptr;
                 if (!path.empty())
                 {
                     if (checkPath(path, defaultDir, false, resolved))
@@ -205,10 +185,8 @@ OpenSSL::SSLEngine::initialize()
                 }
             }
 
-            //
-            // Establish the certificate chains and private keys. One RSA certificate and
-            // one DSA certificate are allowed.
-            //
+            // Establish the certificate chains and private keys. One RSA certificate and one DSA certificate are
+            // allowed.
             string certFile = properties->getProperty(propPrefix + "CertFile");
             string keyFile = properties->getProperty(propPrefix + "KeyFile");
             bool keyLoaded = false;
