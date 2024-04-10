@@ -28,10 +28,10 @@ namespace
         }
 
     private:
-        const std::weak_ptr<ConnectionI> _connection;
+        const weak_ptr<ConnectionI> _connection;
     };
 
-    class IdleCheckTimerTask final : public IceUtil::TimerTask, public std::enable_shared_from_this<IdleCheckTimerTask>
+    class IdleCheckTimerTask final : public IceUtil::TimerTask, public enable_shared_from_this<IdleCheckTimerTask>
     {
     public:
         IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::milliseconds& idleTimeout)
@@ -50,7 +50,7 @@ namespace
         }
 
     private:
-        const std::weak_ptr<ConnectionI> _connection;
+        const weak_ptr<ConnectionI> _connection;
         const chrono::milliseconds _idleTimeout;
     };
 }
@@ -116,11 +116,10 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
     _timer->cancel(_heartbeatTimerTask);
 
     SocketOperation op = _decoratee->write(buf);
-    if (op == SocketOperationNone)
+    if (op == SocketOperationNone) // write completed
     {
         _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
     }
-
     return op;
 }
 
