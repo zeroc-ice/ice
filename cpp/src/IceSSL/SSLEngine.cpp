@@ -106,7 +106,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
         }
         else
         {
-            // If subjectAlt is empty compare it ot the subject CN, otherwise compare it to the to the subject alt
+            // If subjectAlt is empty compare it to the subject CN, otherwise compare it to the to the subject alt
             // name dnsNames.
             if (dnsNames.empty())
             {
