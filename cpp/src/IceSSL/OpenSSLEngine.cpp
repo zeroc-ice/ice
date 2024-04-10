@@ -412,7 +412,7 @@ OpenSSL::SSLEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
                 }
 
-                for (const string& crlFile :  crlFiles)
+                for (const string& crlFile : crlFiles)
                 {
                     string resolved;
                     if (!checkPath(crlFile, defaultDir, false, resolved))
