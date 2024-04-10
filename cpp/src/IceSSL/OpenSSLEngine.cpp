@@ -99,7 +99,7 @@ OpenSSL::SSLEngine::initialize()
         // Create an SSL context if the application hasn't supplied one.
         if (!_ctx)
         {
-            _ctx = SSL_CTX_new(getMethod());
+            _ctx = SSL_CTX_new(TLS_method());
             if (!_ctx)
             {
                 throw PluginInitializationException(
@@ -203,9 +203,8 @@ OpenSSL::SSLEngine::initialize()
                         "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
                 }
                 numCerts = files.size();
-                for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+                for (const string& file : files)
                 {
-                    string file = *p;
                     string resolved;
                     if (!checkPath(file, defaultDir, false, resolved))
                     {
@@ -214,11 +213,10 @@ OpenSSL::SSLEngine::initialize()
                             __LINE__,
                             "IceSSL: certificate file not found:\n" + file);
                     }
-                    file = resolved;
 
                     // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
                     vector<char> buffer;
-                    readFile(file, buffer);
+                    readFile(resolved, buffer);
                     int success = 0;
 
                     const unsigned char* b =
@@ -226,28 +224,13 @@ OpenSSL::SSLEngine::initialize()
                     PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
                     if (p12)
                     {
-                        EVP_PKEY* key = 0;
-                        X509* cert = 0;
-                        STACK_OF(X509)* chain = 0;
+                        EVP_PKEY* key = nullptr;
+                        X509* cert = nullptr;
+                        STACK_OF(X509)* chain = nullptr;
 
-                        int count = 0;
                         try
                         {
-                            ERR_clear_error();
-                            // chain may have a bogus value from a previous call to PKCS12_parse, so we reset it prior
-                            // to each call.
-                            key = 0;
-                            cert = 0;
-                            chain = 0;
-                            if ((success = PKCS12_parse(p12, password().c_str(), &key, &cert, &chain)) == 0)
-                            {
-                                if (passwordError())
-                                {
-                                    count++;
-                                    continue;
-                                }
-                                break;
-                            }
+                            success = PKCS12_parse(p12, _password.c_str(), &key, &cert, &chain);
 
                             if (!cert || !SSL_CTX_use_certificate(_ctx, cert))
                             {
@@ -272,7 +255,7 @@ OpenSSL::SSLEngine::initialize()
                             {
                                 // Pop each cert from the stack so we can free the stack later.
                                 // The CTX destruction will take care of the certificates
-                                X509* c = 0;
+                                X509* c = nullptr;
                                 while ((c = sk_X509_pop(chain)) != 0)
                                 {
                                     if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
@@ -317,9 +300,8 @@ OpenSSL::SSLEngine::initialize()
                     }
                     else
                     {
-                        // The certificate may be stored in an encrypted file, so handle password retries.
-                        ERR_clear_error();
-                        success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str());
+                        // The certificate may be stored in an encrypted file.
+                        success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.c_str());
                     }
 
                     if (!success)
@@ -346,6 +328,7 @@ OpenSSL::SSLEngine::initialize()
             {
                 keyFile = certFile; // Assume the certificate file also contains the private key.
             }
+
             if (!keyLoaded && !keyFile.empty())
             {
                 vector<string> files;
@@ -372,7 +355,6 @@ OpenSSL::SSLEngine::initialize()
                     }
 
                     // The private key may be stored in an encrypted file.
-                    ERR_clear_error();
                     if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
                     {
                         ostringstream os;
@@ -430,23 +412,23 @@ OpenSSL::SSLEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
                 }
 
-                for (vector<string>::const_iterator it = crlFiles.begin(); it != crlFiles.end(); it++)
+                for (const string& crlFile :  crlFiles)
                 {
-                    string file;
-                    if (!checkPath(*it, defaultDir, false, file))
+                    string resolved;
+                    if (!checkPath(crlFile, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: CRL file not found `" + *it + "'");
+                            "IceSSL: CRL file not found `" + crlFile + "'");
                     }
 
-                    if (X509_LOOKUP_load_file(lookup, file.c_str(), X509_FILETYPE_PEM) == 0)
+                    if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
                     {
                         throw PluginInitializationException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: CRL load failure `" + *it + "'");
+                            "IceSSL: CRL load failure `" + crlFile + "'");
                     }
                 }
 
@@ -524,7 +506,7 @@ OpenSSL::SSLEngine::initialize()
         // or the application supplied it.
         //
         SSL_CTX_free(_ctx);
-        _ctx = 0;
+        _ctx = nullptr;
         throw;
     }
 
@@ -561,7 +543,7 @@ OpenSSL::SSLEngine::destroy()
     if (_ctx)
     {
         SSL_CTX_free(_ctx);
-        _ctx = 0;
+        _ctx = nullptr;
     }
 }
 
@@ -573,11 +555,4 @@ OpenSSL::SSLEngine::createTransceiver(
     bool incoming)
 {
     return make_shared<OpenSSL::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
-}
-
-SSL_METHOD*
-OpenSSL::SSLEngine::getMethod()
-{
-    SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
-    return meth;
 }

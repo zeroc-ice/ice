@@ -32,8 +32,6 @@ namespace IceSSL
             std::string password() const { return _password; }
 
         private:
-            SSL_METHOD* getMethod();
-
             SSL_CTX* _ctx;
             std::string _password;
         };

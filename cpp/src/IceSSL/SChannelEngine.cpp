@@ -74,18 +74,13 @@ namespace
     vector<PCCERT_CONTEXT>
     findCertificates(const string& location, const string& storeName, const string& value, vector<HCERTSTORE>& stores)
     {
-        DWORD storeLoc;
-        if (location == "CurrentUser")
-        {
-            storeLoc = CERT_SYSTEM_STORE_CURRENT_USER;
-        }
-        else
-        {
-            storeLoc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-        }
+        HCERTSTORE store = CertOpenStore(
+            CERT_STORE_PROV_SYSTEM,
+            0,
+            0,
+            location == "CurrentUser" ? CERT_SYSTEM_STORE_CURRENT_USER : CERT_SYSTEM_STORE_LOCAL_MACHINE,
+            Ice::stringToWstring(storeName).c_str());
 
-        HCERTSTORE store =
-            CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, Ice::stringToWstring(storeName).c_str());
         if (!store)
         {
             throw PluginInitializationException(
@@ -558,7 +553,7 @@ SChannel::SSLEngine::initialize()
 {
     //
     // BUGFIX: we use a global mutex for the initialization of SChannel to
-    // avoid crashes ocurring with last SChannel updates see:
+    // avoid crashes occurring with last SChannel updates see:
     // https://github.com/zeroc-ice/ice/issues/242
     //
     lock_guard globalLock(globalMutex);
@@ -619,7 +614,7 @@ SChannel::SSLEngine::initialize()
     }
 
     //
-    // Create trusted CA store with contents of CertAuthFile
+    // Create trusted CA store with contents of IceSSL.CAs
     //
     string caFile = properties->getProperty(prefix + "CAs");
     if (!caFile.empty() || properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
@@ -679,19 +674,19 @@ SChannel::SSLEngine::initialize()
         _chainEngine = (certStoreLocation == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
 
-    string certFile = properties->getProperty(prefix + "CertFile");
+    string certFileValue = properties->getProperty(prefix + "CertFile");
     string keyFile = properties->getProperty(prefix + "KeyFile");
     string findCert = properties->getProperty("IceSSL.FindCert");
 
-    if (!certFile.empty())
+    if (!certFileValue.empty())
     {
         vector<string> certFiles;
-        if (!splitString(certFile, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
+        if (!splitString(certFileValue, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
         {
             throw PluginInitializationException(
                 __FILE__,
                 __LINE__,
-                "IceSSL: invalid value for " + prefix + "CertFile:\n" + certFile);
+                "IceSSL: invalid value for " + prefix + "CertFile:\n" + certFileValue);
         }
 
         vector<string> keyFiles;
@@ -714,24 +709,27 @@ SChannel::SSLEngine::initialize()
             }
         }
 
-        for (size_t i = 0; i < certFiles.size(); ++i)
+        for (int i = 0; i < certFiles.size(); ++i)
         {
-            string cFile = certFiles[i];
+            string certFile = certFiles[i];
             string resolved;
-            if (!checkPath(cFile, defaultDir, false, resolved))
+            if (!checkPath(certFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(
                     __FILE__,
                     __LINE__,
-                    "IceSSL: certificate file not found:\n" + cFile);
+                    "IceSSL: certificate file not found:\n" + certFile);
             }
-            cFile = resolved;
+            certFile = resolved;
 
             vector<char> buffer;
-            readFile(cFile, buffer);
+            readFile(certFile, buffer);
             if (buffer.empty())
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate file is empty:\n" + cFile);
+                throw PluginInitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: certificate file is empty:\n" + certFile);
             }
 
             CRYPT_DATA_BLOB pfxBlob;
@@ -753,11 +751,16 @@ SChannel::SSLEngine::initialize()
                 memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
                 para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
 
-                DWORD ff = CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG; // Don't fetch anything from the Internet
                 PCCERT_CHAIN_CONTEXT chain = 0;
                 while (!cert)
                 {
-                    chain = CertFindChainInStore(store, X509_ASN_ENCODING, ff, CERT_CHAIN_FIND_BY_ISSUER, &para, chain);
+                    chain = CertFindChainInStore(
+                        store,
+                        X509_ASN_ENCODING,
+                        CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG, // Don't fetch anything from the Internet
+                        CERT_CHAIN_FIND_BY_ISSUER,
+                        &para,
+                        chain);
                     if (!chain)
                     {
                         break; // No more chains found in the store.
@@ -952,7 +955,7 @@ SChannel::SSLEngine::initialize()
                             lastErrorToString());
                 }
 
-                addCertificatesToStore(cFile, store, &cert);
+                addCertificatesToStore(certFile, store, &cert);
 
                 // Associate key & certificate.
                 CRYPT_KEY_PROV_INFO keyProvInfo;
@@ -966,7 +969,7 @@ SChannel::SSLEngine::initialize()
                     throw PluginInitializationException(
                         __FILE__,
                         __LINE__,
-                        "IceSSL: error seting certificate "
+                        "IceSSL: error setting certificate "
                         "property:\n" +
                             lastErrorToString());
                 }
