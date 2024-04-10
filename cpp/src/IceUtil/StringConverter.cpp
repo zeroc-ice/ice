@@ -44,10 +44,10 @@ namespace
         typedef std::codecvt_utf8<wchar_t> Type;
     };
 
-    class UnicodeWstringConverter : public WstringConverter
+    class UnicodeWstringConverter final : public WstringConverter
     {
     public:
-        virtual byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
+        byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const final
         {
             //
             // Max bytes for a character encoding in UTF-8 is 4,
@@ -131,7 +131,7 @@ namespace
             return reinterpret_cast<byte*>(targetNext);
         }
 
-        virtual void fromUTF8(const byte* sourceStart, const byte* sourceEnd, wstring& target) const
+        void fromUTF8(const byte* sourceStart, const byte* sourceEnd, wstring& target) const final
         {
             const size_t sourceSize = static_cast<size_t>(sourceEnd - sourceStart);
 
