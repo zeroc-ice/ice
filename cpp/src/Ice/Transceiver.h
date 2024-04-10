@@ -34,10 +34,10 @@ namespace IceInternal
         virtual void finishRead(Buffer&) = 0;
 #endif
 
-        /// Checks if this transceiver is waited to be read, typically because it has bytes readily available for
+        /// Checks if this transceiver is waiting to be read, typically because it has bytes readily available for
         /// reading.
         /// @return true if this transceiver is waiting to be read, false otherwise.
-        /// @remark The caller can call this method concurrently with read() (and write()); however, the caller must
+        /// @remark The caller can call this function concurrently with read() (and write()); however, the caller must
         /// ensure the transceiver is not closed when calling this function.
         virtual bool isWaitingToBeRead() const noexcept = 0;
 
