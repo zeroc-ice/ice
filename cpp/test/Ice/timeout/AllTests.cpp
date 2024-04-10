@@ -53,11 +53,10 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         // Expect ConnectTimeoutException.
         //
-        TimeoutPrx to = timeout->ice_timeout(100);
         controller->holdAdapter(-1);
         try
         {
-            to->op();
+            timeout->op();
             test(false);
         }
         catch (const Ice::ConnectTimeoutException&)
@@ -71,7 +70,12 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         // Expect success.
         //
-        TimeoutPrx to = timeout->ice_timeout(-1);
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.ConnectTimeout", "-1");
+        Ice::CommunicatorHolder ich(initData);
+
+        TimeoutPrx to(ich.communicator(), sref);
         controller->holdAdapter(100);
         try
         {
@@ -235,8 +239,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
 
     cout << "testing close timeout... " << flush;
     {
-        TimeoutPrx to = timeout->ice_timeout(250);
-        Ice::ConnectionPtr connection = connect(to);
+        Ice::ConnectionPtr connection = connect(timeout);
         controller->holdAdapter(-1);
         connection->close(Ice::ConnectionClose::GracefullyWithWait);
         try
@@ -266,7 +269,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
     }
     cout << "ok" << endl;
 
-    // TODO: temporary. Replace by new test for ConnectTimeout and CloseTimeout.
+    // TODO: rework tests tests.
     cout << "testing timeout overrides... " << flush;
     {
         //
@@ -275,8 +278,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        // initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        initData.properties->setProperty("Ice.ConnectTimeout", "1");     // 1 second
         initData.properties->setProperty("Ice.Override.Timeout", "100"); // 100 ms
         Ice::CommunicatorHolder ich(initData);
         TimeoutPrx to(ich.communicator(), sref);
@@ -318,8 +319,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        // initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        initData.properties->setProperty("Ice.ConnectTimeout", "1");
         Ice::CommunicatorHolder ich(initData);
         controller->holdAdapter(-1);
         TimeoutPrx to(ich.communicator(), sref);
@@ -376,8 +375,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        // initData.properties->setProperty("Ice.Override.CloseTimeout", "100");
-        initData.properties->setProperty("Ice.CloseTimeout", "1"); // 1 second
         Ice::CommunicatorHolder ich(initData);
         Ice::ConnectionPtr connection = ich->stringToProxy(sref)->ice_getConnection();
         controller->holdAdapter(-1);
