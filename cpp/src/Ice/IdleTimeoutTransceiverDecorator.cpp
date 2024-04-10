@@ -6,7 +6,6 @@
 #include "Ice/Buffer.h"
 
 #include <chrono>
-#include <iostream>
 
 using namespace std;
 using namespace Ice;
@@ -73,11 +72,11 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
     if (op == SocketOperationNone) // connected
     {
-        // Reschedule because Ice often writes to a client connection before it's connected.
+        // cancelPrevious = true because Ice often writes to a client connection before it's connected.
         _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2, true);
         if (_enableIdleCheck)
         {
-            // Reschedule because with SSL, the connection is connected after a read.
+            // cancelPrevious = true because with SSL, the connection is connected after a read.
             _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
         }
     }
@@ -87,7 +86,8 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
 IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
 {
-    // If we destroy this object before calling init(), _heartbeatTimerTask and _idleCheckTimerTask will be null.
+    // If we destroy this object before calling decoratorInit(), _heartbeatTimerTask and _idleCheckTimerTask will be
+    // null.
     if (_heartbeatTimerTask)
     {
         _timer->cancel(_heartbeatTimerTask);
@@ -112,7 +112,7 @@ IdleTimeoutTransceiverDecorator::close()
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
-    // We're about to write something - we don't want to send a concurrent heartbeat.
+    // We're about to write something and we don't want to send a concurrent heartbeat.
     _timer->cancel(_heartbeatTimerTask);
 
     SocketOperation op = _decoratee->write(buf);
@@ -128,7 +128,7 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // We're about to write something - we don't want to send a concurrent heartbeat.
+    // We're about to write something and we don't want to send a concurrent heartbeat.
     _timer->cancel(_heartbeatTimerTask);
 
     return _decoratee->startWrite(buf);
@@ -160,7 +160,7 @@ IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
 {
     if (_enableIdleCheck)
     {
-        // We reschedule the idle check as soon as possible to reduce the chances it kicks in while we're reading.
+        // We don't want the idle check to run while we're reading, so we reschedule it before reading.
         _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
     }
 
@@ -174,7 +174,7 @@ IdleTimeoutTransceiverDecorator::read(Buffer& buf)
 {
     if (_enableIdleCheck)
     {
-        // We reschedule the idle check as soon as possible to reduce the chances it kicks in while we're reading.
+        // We don't want the idle check to run while we're reading, so we reschedule it before reading.
         _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
     }
     return _decoratee->read(buf);
