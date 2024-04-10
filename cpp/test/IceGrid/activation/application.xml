@@ -9,10 +9,7 @@
       <parameter name="activation-delay" default="0"/>
       <parameter name="deactivation-delay" default="0"/>
       <parameter name="fail-on-startup" default="0"/>
-      <server id="${id}" exe="${server.dir}/server"
-                         activation="${activation}"
-                         activation-timeout="${activation-timeout}"
-                         deactivation-timeout="${deactivation-timeout}">
+      <server id="${id}" exe="${server.dir}/server" activation="${activation}" activation-timeout="${activation-timeout}" deactivation-timeout="${deactivation-timeout}">
         <adapter name="TestAdapter" endpoints="default">
           <object identity="${server}" type="Test"/>
           <allocatable identity="${server}" type="Test"/>
@@ -32,8 +29,7 @@
         <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.Node.Name" value="${server}"/>
         <property name="IceGrid.Node.Data" value="${server.data}"/>
-        <property name="IceGrid.Node.PropertiesOverride"
-                  value="${properties-override} Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
+        <property name="IceGrid.Node.PropertiesOverride" value="${properties-override} Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
         <property name="IceGrid.Node.DisableOnFailure" value="${disable-on-failure}"/>
       </server>
     </server-template>
@@ -47,8 +43,7 @@
       <server-instance template="Server" id="server-always" activation="always"/>
       <server-instance template="Server" id="server-session" activation="session"/>
       <server-instance template="Server" id="server-activation-timeout" activation-delay="5" activation-timeout="3"/>
-      <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60"
-                       deactivation-timeout="3"/>
+      <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60" deactivation-timeout="3"/>
       <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
 
       <server id="invalid-exe" exe="server2" activation="on-demand">
@@ -58,8 +53,8 @@
       </server>
       <server id="invalid-pwd" exe="./server" pwd="./bogus">
         <adapter name="TestAdapter" endpoints="default">
-        <object identity="${server}" type="Test"/>
-      </adapter>
+          <object identity="${server}" type="Test"/>
+        </adapter>
       </server>
       <server id="invalid-exe-no-oa" exe="./server2">
         <property name="Ice.Admin.Endpoints" value=""/>

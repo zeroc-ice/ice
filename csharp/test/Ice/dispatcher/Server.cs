@@ -14,7 +14,6 @@ public class Server : Test.TestHelper
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.ServerIdleTime", "30");
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.

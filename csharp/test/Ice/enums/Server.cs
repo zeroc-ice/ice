@@ -11,7 +11,6 @@ namespace Ice
             public override void run(string[] args)
             {
                 Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ServerIdleTime", "30");
                 using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

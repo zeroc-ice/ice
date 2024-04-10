@@ -639,7 +639,10 @@ Selector::select(int timeout)
     }
     else if (timeout > 0)
     {
+        // kpoll and select use seconds, epoll and poll use milliseconds
+#    if !defined(ICE_USE_KQUEUE) && !defined(ICE_USE_SELECT)
         timeout = timeout * 1000;
+#    endif
     }
     else
     {
@@ -655,14 +658,12 @@ Selector::select(int timeout)
         assert(!_events.empty());
         if (timeout >= 0)
         {
-            struct timespec ts;
-            ts.tv_sec = timeout;
-            ts.tv_nsec = 0;
-            _count = kevent(_queueFd, 0, 0, &_events[0], static_cast<int>(_events.size()), &ts);
+            timespec ts{.tv_sec = timeout, .tv_nsec = 0};
+            _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), &ts);
         }
         else
         {
-            _count = kevent(_queueFd, 0, 0, &_events[0], static_cast<int>(_events.size()), 0);
+            _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), nullptr);
         }
 #    elif defined(ICE_USE_SELECT)
         fd_set* rFdSet = fdSetCopy(_selectedReadFdSet, _readFdSet);
@@ -670,9 +671,7 @@ Selector::select(int timeout)
         fd_set* eFdSet = fdSetCopy(_selectedErrorFdSet, _errorFdSet);
         if (timeout >= 0)
         {
-            struct timeval tv;
-            tv.tv_sec = timeout;
-            tv.tv_usec = 0;
+            timespec ts{.tv_sec = timeout, .tv_nsec = 0};
             _count = ::select(0, rFdSet, wFdSet, eFdSet, &tv); // The first parameter is ignored on Windows
         }
         else
