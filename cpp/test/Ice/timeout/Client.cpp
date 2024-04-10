@@ -30,7 +30,7 @@ Client::run(int argc, char** argv)
     // COMPILERFIX: Disable connect timeout introduced for
     // workaround to iOS device hangs when using SSL
     //
-    properties->setProperty("Ice.Override.ConnectTimeout", "");
+    // properties->setProperty("Ice.Override.ConnectTimeout", "");
 #endif
 
     //
