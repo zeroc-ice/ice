@@ -856,7 +856,7 @@ SChannel::SSLEngine::initialize()
                         &keyInfo,
                         &decodedLength))
                 {
-                    // Check that we are using a RSA Key.
+                    // Check that we are using an RSA Key.
                     if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
                     {
                         throw PluginInitializationException(
