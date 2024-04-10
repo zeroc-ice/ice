@@ -71,14 +71,14 @@ namespace IceInternal
     // opening / closing iconv_t objects all the time.
     //
     //
-    template<typename charT> class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
+    template<typename charT> class IconvStringConverter final : public IceUtil::BasicStringConverter<charT>
     {
     public:
         IconvStringConverter(const std::string&);
 
-        virtual std::uint8_t* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
+        std::byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const final;
 
-        virtual void fromUTF8(const std::uint8_t*, const std::uint8_t*, std::basic_string<charT>&) const;
+        void fromUTF8(const std::byte*, const std::byte*, std::basic_string<charT>&) const final;
 
     private:
         struct DescriptorHolder
@@ -157,7 +157,7 @@ namespace IceInternal
     }
 
     template<typename charT>
-    std::uint8_t*
+    std::byte*
     IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourceEnd, Ice::UTF8Buffer& buf) const
     {
         iconv_t cd = getDescriptors().second;
@@ -178,7 +178,7 @@ namespace IceInternal
         char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
 #    endif
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart) * sizeof(charT);
-        char* outbuf = 0;
+        std::byte* outbuf = nullptr;
 
         size_t count = 0;
         //
@@ -187,8 +187,8 @@ namespace IceInternal
         do
         {
             size_t howMany = std::max(inbytesleft, size_t(4));
-            outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<std::uint8_t*>(outbuf)));
-            count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
+            outbuf = buf.getMoreBytes(howMany, outbuf);
+            count = iconv(cd, &inbuf, &inbytesleft, reinterpret_cast<char**>(&outbuf), &howMany);
         } while (count == size_t(-1) && errno == E2BIG);
 
         if (count == size_t(-1))
@@ -198,13 +198,13 @@ namespace IceInternal
                 __LINE__,
                 errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
-        return reinterpret_cast<std::uint8_t*>(outbuf);
+        return outbuf;
     }
 
     template<typename charT>
     void IconvStringConverter<charT>::fromUTF8(
-        const std::uint8_t* sourceStart,
-        const std::uint8_t* sourceEnd,
+        const std::byte* sourceStart,
+        const std::byte* sourceEnd,
         std::basic_string<charT>& target) const
     {
         iconv_t cd = getDescriptors().first;
@@ -222,12 +222,12 @@ namespace IceInternal
 #    ifdef ICE_CONST_ICONV_INBUF
         const char* inbuf = reinterpret_cast<const char*>(sourceStart);
 #    else
-        char* inbuf = reinterpret_cast<char*>(const_cast<std::uint8_t*>(sourceStart));
+        char* inbuf = reinterpret_cast<char*>(const_cast<std::byte*>(sourceStart));
 #    endif
         assert(sourceEnd > sourceStart);
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
 
-        char* outbuf = 0;
+        char* outbuf = nullptr;
         size_t outbytesleft = 0;
         size_t count = 0;
 
@@ -236,15 +236,15 @@ namespace IceInternal
         //
         do
         {
-            size_t bytesused = 0;
-            if (outbuf != 0)
+            size_t bytesUsed = 0;
+            if (outbuf)
             {
-                bytesused = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
+                bytesUsed = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
             }
 
             const size_t increment = std::max<size_t>(inbytesleft, 4);
             target.resize(target.size() + increment);
-            outbuf = const_cast<char*>(reinterpret_cast<const char*>(target.data())) + bytesused;
+            outbuf = const_cast<char*>(reinterpret_cast<const char*>(target.data())) + bytesUsed;
             outbytesleft += increment * sizeof(charT);
 
             count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
