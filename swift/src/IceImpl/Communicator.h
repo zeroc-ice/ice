@@ -63,8 +63,6 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (void)getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor NS_SWIFT_NAME(getDefaultEncoding(major:minor:));
 - (uint8_t)getDefaultFormat;
 
-- (void)setSslCertificateVerifier:(nullable bool (^)(id))verifier;
-- (void)setSslPasswordPrompt:(nullable NSString* (^)())prompt;
 - (BOOL)initializePlugins:(NSError**)error;
 @end
 

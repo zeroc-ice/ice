@@ -440,295 +440,14 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   }
   output.writeLine("ok")
 
-  output.write("testing certificate chains... ")
-  var properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
+  output.write("testing multiple CA certificates... ")
+  var properties = createClientProps(
+    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacerts")
   var comm = try helper.initialize(properties)
   var fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  //
-  // The client can't verify the server certificate but it should
-  // still provide it. "s_rsa_ca1" doesn't include the root so the
-  // cert size should be 1.
-  //
-  var d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
+  var d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca2", ca: "cacerts")
+  d["IceSSL.VerifyPeer"] = "2"
   var server = try fact.createServer(d)!
-  var info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 1)
-  try test(!info.verified)
-  try fact.destroyServer(server)
-
-  //
-  // Setting the CA for the server shouldn't change anything, it
-  // shouldn't modify the cert chain sent to the client.
-  //
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 1)
-  try test(!info.verified)
-  try fact.destroyServer(server)
-
-  //
-  // The client can't verify the server certificate but should
-  // still provide it. "s_rsa_wroot_ca1" includes the root so
-  // the cert size should be 2.
-  //
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_wroot_ca1", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 2)
-  try test(!info.verified)
-  try fact.destroyServer(server)
-
-  comm.destroy()
-
-  //
-  // Now the client verifies the server certificate
-  //
-  properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-  comm = try helper.initialize(properties)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 2)
-  try test(info.verified)
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // Try certificate with one intermediate and VerifyDepthMax=2
-  //
-  properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-  properties.setProperty(key: "IceSSL.VerifyDepthMax", value: "2")
-  comm = try helper.initialize(properties)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai1", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  do {
-    _ = try server.ice_getConnection()!.getInfo()
-    try test(false)
-  } catch is Ice.SecurityException {
-    // Chain length too long
-  }
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // Try with VerifyDepthMax set to 3 (the default)
-  //
-  properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-  // initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
-  comm = try helper.initialize(properties)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai1", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 3)
-  try test(info.verified)
-  try fact.destroyServer(server)
-
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai2", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  do {
-    _ = try server.ice_getConnection()!.getInfo()
-    try test(false)
-  } catch is Ice.SecurityException {
-    // Chain length too long
-  }
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // Increase VerifyDepthMax to 4
-  //
-  properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-  properties.setProperty(key: "IceSSL.VerifyDepthMax", value: "4")
-  comm = try helper.initialize(properties)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai2", ca: "")
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.certs.count == 4)
-  try test(info.verified)
-  try fact.destroyServer(server)
-
-  comm.destroy()
-
-  //
-  // Increase VerifyDepthMax to 4
-  //
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_cai2", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-  properties.setProperty(key: "IceSSL.VerifyDepthMax", value: "4")
-  comm = try helper.initialize(properties)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai2", ca: "cacert1")
-  d["IceSSL.VerifyPeer"] = "2"
-  server = try fact.createServer(d)!
-  do {
-    _ = try server.ice_getConnection()
-  } catch is Ice.ProtocolException {
-    // Expected
-  } catch is Ice.ConnectionLostException {
-    // Expected
-  }
-  try fact.destroyServer(server)
-
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_cai2", ca: "cacert1")
-  d["IceSSL.VerifyPeer"] = "2"
-  d["IceSSL.VerifyDepthMax"] = "4"
-  server = try fact.createServer(d)!
-  _ = try server.ice_getConnection()
-  try fact.destroyServer(server)
-
-  comm.destroy()
-
-  output.writeLine("ok")
-
-  output.write("testing custom certificate verifier... ")
-
-  //
-  // ADH is allowed but will not have a certificate.
-  //
-  properties = createClientProps(defaultProperties)
-  properties.setProperty(key: "IceSSL.Ciphers", value: "(DH_anon*)")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
-  comm = try helper.initialize(properties)
-
-  var invoked = false
-  var certs: [SecCertificate] = []
-
-  comm.setSslCertificateVerifier { info in
-    certs = info.certs
-    invoked = true
-    return true
-  }
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties)
-
-  var cipherSub = "DH_anon"
-  d["IceSSL.Ciphers"] = "(DH_anon*)"
-  d["IceSSL.VerifyPeer"] = "0"
-
-  server = try fact.createServer(d)!
-  try server.checkCipher(cipherSub)
-  info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-  try test(info.cipher.starts(with: cipherSub))
-  try test(invoked)
-  try test(certs.isEmpty)
-
-  //
-  // Have the verifier return false. Close the connection explicitly
-  // to force a new connection to be established.
-  //
-  invoked = false
-  certs = []
-  comm.setSslCertificateVerifier { info in
-    certs = info.certs
-    invoked = true
-    return false
-  }
-  try server.ice_getConnection()!.close(.GracefullyWithWait)
-  do {
-    try server.ice_ping()
-    try test(false)
-  } catch is SecurityException {
-    // Expected.
-  }
-  try test(invoked)
-  try test(certs.isEmpty)
-
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // Verify that a server certificate is present.
-  //
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
-  comm = try helper.initialize(properties)
-
-  invoked = false
-  certs = []
-  comm.setSslCertificateVerifier { info in
-    certs = info.certs
-    invoked = true
-    return true
-  }
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  d["IceSSL.VerifyPeer"] = "2"
-  server = try fact.createServer(d)!
-  try server.ice_ping()
-
-  try test(invoked)
-  try test(certs.count > 0)
-  try fact.destroyServer(server)
-  comm.destroy()
-  output.writeLine("ok")
-
-  output.write("testing expired certificates... ")
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
-  comm = try helper.initialize(properties)
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1_exp", ca: "cacert1")
-  server = try fact.createServer(d)!
-  do {
-    try server.ice_ping()
-    try test(false)
-  } catch is SecurityException {
-    // Expected.
-  }
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1_exp", ca: "cacert1")
-  comm = try helper.initialize(properties)
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  server = try fact.createServer(d)!
-  do {
-    try server.ice_ping()
-    try test(false)
-  } catch is ConnectionLostException {
-    // Expected.
-  }
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  output.writeLine("ok")
-
-  output.write("testing multiple CA certificates... ")
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacerts")
-  comm = try helper.initialize(properties)
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca2", ca: "cacerts")
-  d["IceSSL.VerifyPeer"] = "2"
-  server = try fact.createServer(d)!
   _ = try server.ice_ping()
   try fact.destroyServer(server)
   comm.destroy()
@@ -745,53 +464,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   server = try fact.createServer(d)!
   try server.ice_ping()
   try fact.destroyServer(server)
-  comm.destroy()
-  output.writeLine("ok")
-
-  output.write("testing password prompt... ")
-  //
-  // Use the correct password.
-  //
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_pass_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.Password", value: "")  // Clear the password
-  properties.setProperty(key: "Ice.InitPlugins", value: "0")
-  comm = try helper.initialize(properties)
-  var count = 0
-  comm.setSslPasswordPrompt {
-    count += 1
-    return "client"
-  }
-  try comm.initializePlugins()
-  try test(count == 1)
-
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  server = try fact.createServer(d)!
-  try server.ice_ping()
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // Use an incorrect password and check that retries are attempted.
-  //
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_pass_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.Password", value: "")  // Clear password
-  properties.setProperty(key: "IceSSL.PasswordRetryMax", value: "4")
-  properties.setProperty(key: "Ice.InitPlugins", value: "0")
-  comm = try helper.initialize(properties)
-  count = 0
-  comm.setSslPasswordPrompt {
-    count += 1
-    return "invalid"
-  }
-  do {
-    try comm.initializePlugins()
-  } catch is PluginInitializationException {
-    // Expected.
-  }
-  try test(count == 4)
   comm.destroy()
   output.writeLine("ok")
 
@@ -816,14 +488,14 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   comm = try helper.initialize(properties)
   fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
   d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  cipherSub = "DH_anon"
+  let cipherSub = "DH_anon"
   d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)"
   d["IceSSL.VerifyPeer"] = "1"
   server = try fact.createServer(d)!
 
   do {
     try server.checkCipher(cipherSub)
-    info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
+    let info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
     try test(info.cipher.starts(with: cipherSub))
   } catch is LocalException {
     //
@@ -846,22 +518,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   } catch is Ice.PluginInitializationException {
     // Expected when disabled all cipher suites.
   }
-
-  //
-  // Test IceSSL.DHParams
-  //
-  properties = createClientProps(defaultProperties)
-  properties.setProperty(key: "IceSSL.Ciphers", value: "(DH_anon*)")
-  comm = try helper.initialize(properties)
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties)
-  d["IceSSL.Ciphers"] = "(DH_anon*)"
-  d["IceSSL.DHParams"] = "dh_params1024.der"
-  d["IceSSL.VerifyPeer"] = "0"
-  server = try fact.createServer(d)!
-  try server.checkCipher("DH_anon")
-  try fact.destroyServer(server)
-  comm.destroy()
   output.writeLine("ok")
 
   output.write("testing IceSSL.TrustOnly... ")

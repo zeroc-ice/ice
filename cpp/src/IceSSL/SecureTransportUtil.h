@@ -32,9 +32,7 @@ namespace IceSSL
             const std::string&,
             const std::string&,
             const std::string&,
-            const std::string&,
-            const PasswordPromptPtr&,
-            int);
+            const std::string&);
 
         SecCertificateRef loadCertificate(const std::string&);
         CFArrayRef loadCACertificates(const std::string&);

@@ -34,35 +34,8 @@ namespace IceSSL
     }
 #endif
 
-    //
-    // Adapts the C++11 functions to C++98-like callbacks
-    //
-    class ICESSL_API CertificateVerifier
-    {
-    public:
-        CertificateVerifier(std::function<bool(const ConnectionInfoPtr&)>);
-        bool verify(const ConnectionInfoPtr&);
-
-    private:
-        std::function<bool(const ConnectionInfoPtr&)> _verify;
-    };
-    using CertificateVerifierPtr = std::shared_ptr<CertificateVerifier>;
-
-    class ICESSL_API PasswordPrompt
-    {
-    public:
-        PasswordPrompt(std::function<std::string()>);
-        std::string getPassword();
-
-    private:
-        std::function<std::string()> _prompt;
-    };
-    using PasswordPromptPtr = std::shared_ptr<PasswordPrompt>;
-
-    //
     // Constants for X509 certificate alt names (AltNameOther, AltNameORAddress, AltNameEDIPartyName and
     // AltNameObjectIdentifier) are not supported.
-    //
 
     // const int AltNameOther = 0;
     const int AltNameEmail = 1;
@@ -74,15 +47,10 @@ namespace IceSSL
     const int AltNAmeIP = 7;
     // const AltNameObjectIdentifier = 8;
 
-    //
     // Read a file into memory buffer.
-    //
     ICESSL_API void readFile(const std::string&, std::vector<char>&);
 
-    //
-    // Determine if a file or directory exists, with an optional default
-    // directory.
-    //
+    // Determine if a file or directory exists, with an optional default directory.
     ICESSL_API bool checkPath(const std::string&, const std::string&, bool, std::string&);
 
     ICESSL_API bool parseBytes(const std::string&, std::vector<unsigned char>&);
