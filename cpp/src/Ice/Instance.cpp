@@ -52,11 +52,11 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#    include "../IceSSL/SChannelTransportEngine.h"
+#    include "../IceSSL/SChannelEngine.h"
 #elif defined(__APPLE__)
 #    include "../IceSSL/SecureTransportEngine.h"
 #else
-#    include "../IceSSL/OpenSSLTransportEngine.h"
+#    include "../IceSSL/OpenSSLEngine.h"
 #endif
 
 #ifdef __APPLE__
@@ -1273,7 +1273,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
 #if defined(_WIN32)
-        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(communicator);
+        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(communicator);
 #elif defined(__APPLE__)
         _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(communicator);
 #else
