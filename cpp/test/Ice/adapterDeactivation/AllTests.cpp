@@ -192,7 +192,7 @@ allTests(Test::TestHelper* helper)
 #ifdef _WIN32
         // With our Windows implementation, the thread pool threads have to be idle first before server idle time is
         // checked
-        initData.properties->setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
+        idleInitData.properties->setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
 #endif
         CommunicatorHolder idleCommunicator(idleInitData);
         // The server thread pool is started lazily so we need to create an object adapter and activate it.
