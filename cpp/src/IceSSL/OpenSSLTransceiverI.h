@@ -9,11 +9,11 @@
 #include "../Ice/StreamSocket.h"
 #include "../Ice/Transceiver.h"
 #include "../Ice/WSTransceiver.h"
-#include "IceSSL/Config.h"
+#include "Ice/Config.h"
 #include "IceSSL/Plugin.h"
-#include "InstanceF.h"
+#include "SSLInstanceF.h"
 #include "OpenSSLEngineF.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include <openssl/ssl.h>
 
