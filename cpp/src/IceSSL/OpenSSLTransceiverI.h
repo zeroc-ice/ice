@@ -11,8 +11,8 @@
 #include "../Ice/WSTransceiver.h"
 #include "Ice/Config.h"
 #include "IceSSL/Plugin.h"
-#include "SSLInstanceF.h"
 #include "OpenSSLEngineF.h"
+#include "SSLInstanceF.h"
 #include "SSLUtil.h"
 
 #include <openssl/ssl.h>

@@ -14,8 +14,8 @@
 #    include "Ice/Buffer.h"
 #    include "Ice/Config.h"
 #    include "IceSSL/Plugin.h"
-#    include "SSLInstanceF.h"
 #    include "SChannelEngineF.h"
+#    include "SSLInstanceF.h"
 
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32

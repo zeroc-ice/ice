@@ -5,11 +5,11 @@
 #include "OpenSSLEngine.h"
 #include "OpenSSLEngineF.h"
 #include "OpenSSLTransceiverI.h"
-#include "TrustManager.h"
 #include "SSLUtil.h"
+#include "TrustManager.h"
 
-#include "Ice/Config.h"
 #include "Ice/Communicator.h"
+#include "Ice/Config.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
