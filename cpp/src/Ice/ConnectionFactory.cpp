@@ -355,11 +355,10 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
       _pendingConnectCount(0)
 {
     const PropertiesPtr& properties = _instance->initializationData().properties;
-    int idleTimeout = properties->getPropertyAsIntWithDefault(
-        "Ice.IdleTimeout",
-        static_cast<int>(chrono::duration_cast<chrono::seconds>(_idleTimeout).count()));
+    int idleTimeout =
+        properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count()));
     _enableIdleCheck = properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 1 : 0) > 0;
-    _idleTimeout = chrono::milliseconds(chrono::seconds(idleTimeout));
+    _idleTimeout = chrono::seconds(idleTimeout);
 }
 
 IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
@@ -602,7 +601,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         if (ci.endpoint->datagram())
         {
             // No idle timeout or idle check for UDP connections.
-            idleTimeout = 0ms;
+            idleTimeout = chrono::seconds::zero();
             enableIdleCheck = false;
         }
 
@@ -1728,7 +1727,7 @@ IceInternal::IncomingConnectionFactory::initialize()
         if (_transceiver)
         {
             // All this is for UDP "connections".
-            _idleTimeout = 0ms; // always disable and ignore properties
+            _idleTimeout = chrono::seconds::zero(); // always disable and ignore properties
             _enableIdleCheck = false;
 
             if (_instance->traceLevels()->network >= 2)
@@ -1753,9 +1752,8 @@ IceInternal::IncomingConnectionFactory::initialize()
         else
         {
             const PropertiesPtr& properties = _instance->initializationData().properties;
-            int idleTimeout = properties->getPropertyAsIntWithDefault(
-                "Ice.IdleTimeout",
-                static_cast<int>(chrono::duration_cast<chrono::seconds>(_idleTimeout).count()));
+            int idleTimeout =
+                properties->getPropertyAsIntWithDefault("Ice.IdleTimeout", static_cast<int>(_idleTimeout.count()));
             _enableIdleCheck =
                 properties->getPropertyAsIntWithDefault("Ice.EnableIdleCheck", _enableIdleCheck ? 0 : 1) > 0;
 
@@ -1768,7 +1766,7 @@ IceInternal::IncomingConnectionFactory::initialize()
                                        adapterName + ".EnableIdleCheck",
                                        _enableIdleCheck ? 0 : 1) > 0;
             }
-            _idleTimeout = chrono::milliseconds(chrono::seconds(idleTimeout));
+            _idleTimeout = chrono::seconds(idleTimeout);
 
 #if TARGET_OS_IPHONE != 0
             //

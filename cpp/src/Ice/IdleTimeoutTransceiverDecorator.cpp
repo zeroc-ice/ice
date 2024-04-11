@@ -34,7 +34,7 @@ namespace
     class IdleCheckTimerTask final : public IceUtil::TimerTask, public enable_shared_from_this<IdleCheckTimerTask>
     {
     public:
-        IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::milliseconds& idleTimeout)
+        IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::seconds& idleTimeout)
             : _connection(connection),
               _idleTimeout(idleTimeout)
         {
@@ -51,7 +51,7 @@ namespace
 
     private:
         const weak_ptr<ConnectionI> _connection;
-        const chrono::milliseconds _idleTimeout;
+        const chrono::seconds _idleTimeout;
     };
 }
 
@@ -73,7 +73,7 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
     if (op == SocketOperationNone) // connected
     {
         // reschedule because Ice often writes to a client connection before it's connected.
-        _timer->reschedule(_heartbeatTimerTask, _idleTimeout / 2);
+        _timer->reschedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
         if (_enableIdleCheck)
         {
             // reschedule because with SSL, the connection is connected after a read.
@@ -117,7 +117,7 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
     SocketOperation op = _decoratee->write(buf);
     if (op == SocketOperationNone) // write completed
     {
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+        _timer->schedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
     }
     return op;
 }

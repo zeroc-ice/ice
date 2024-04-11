@@ -2156,7 +2156,7 @@ Ice::ConnectionI::create(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
-    const chrono::milliseconds& idleTimeout,
+    const chrono::seconds& idleTimeout,
     bool enableIdleCheck,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
@@ -2537,10 +2537,10 @@ Ice::ConnectionI::initiateShutdown()
 void
 Ice::ConnectionI::idleCheck(
     const IceUtil::TimerTaskPtr& idleCheckTimerTask,
-    const chrono::milliseconds& idleTimeout) noexcept
+    const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
-    if (_state == StateActive)
+    if (_state == StateActive || _state == StateHolding)
     {
         // _timer->cancel(task) returns true if a concurrent read rescheduled the timer task.
         if (_transceiver->isWaitingToBeRead() || _timer->cancel(idleCheckTimerTask))
@@ -2548,9 +2548,25 @@ Ice::ConnectionI::idleCheck(
             // Schedule or reschedule timer task. Reschedule in the rare case where a concurrent read scheduled the task
             // already.
             _timer->reschedule(idleCheckTimerTask, idleTimeout);
+
+            if (_instance->traceLevels()->network >= 3)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "the idle check scheduled a new idle check in " << idleTimeout.count()
+                    << "s because the connection is waiting to be read\n";
+                out << _transceiver->toDetailedString();
+            }
         }
         else
         {
+            if (_instance->traceLevels()->network >= 1)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "connection aborted by idle check because it did not receive any byte for "
+                    << idleTimeout.count() << "s\n";
+                out << _transceiver->toDetailedString();
+            }
+
             // TODO: replace by ConnectionIdleException.
             setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
         }

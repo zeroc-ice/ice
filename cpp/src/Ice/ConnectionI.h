@@ -224,7 +224,7 @@ namespace Ice
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
         void idleCheck(
             const IceUtil::TimerTaskPtr& idleCheckTimerTask,
-            const std::chrono::milliseconds& idleTimeout) noexcept;
+            const std::chrono::seconds& idleTimeout) noexcept;
 
         // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
         void sendHeartbeat() noexcept;
@@ -246,8 +246,8 @@ namespace Ice
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
-            const std::chrono::milliseconds&,
-            bool,
+            const std::chrono::seconds& idleTimeout,
+            bool enableIdleCheck,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&);

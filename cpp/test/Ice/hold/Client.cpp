@@ -18,7 +18,10 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.IdleTimeout", "1");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     void allTests(Test::TestHelper*);
     allTests(this);
 }
