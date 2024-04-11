@@ -184,14 +184,13 @@ allTests(Test::TestHelper* helper)
     {
         cout << "ok" << endl;
     }
-    cout << "testing idle server shutdown..." << flush;
+    cout << "testing server idle time..." << flush;
     {
-        InitializationData idleInitData{
-            .properties = communicator->getProperties()->clone(),
-        };
+        InitializationData idleInitData;
+        idleInitData.properties = communicator->getProperties()->clone();
         idleInitData.properties->setProperty("Ice.ServerIdleTime", "1");
 #ifdef _WIN32
-        // With our Windows implementation,  the thread pool threads have to be idle first before server idle time is
+        // With our Windows implementation, the thread pool threads have to be idle first before server idle time is
         // checked
         initData.properties->setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
 #endif

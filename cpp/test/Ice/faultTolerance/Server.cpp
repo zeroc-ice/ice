@@ -19,8 +19,7 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
     int port = 0;
     for (int i = 1; i < argc; ++i)
