@@ -184,4 +184,21 @@ allTests(Test::TestHelper* helper)
     {
         cout << "ok" << endl;
     }
+    cout << "testing server idle time..." << flush;
+    {
+        InitializationData idleInitData;
+        idleInitData.properties = communicator->getProperties()->clone();
+        idleInitData.properties->setProperty("Ice.ServerIdleTime", "1");
+#ifdef _WIN32
+        // With our Windows implementation, the thread pool threads have to be idle first before server idle time is
+        // checked
+        idleInitData.properties->setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
+#endif
+        CommunicatorHolder idleCommunicator(idleInitData);
+        // The server thread pool is started lazily so we need to create an object adapter and activate it.
+        ObjectAdapterPtr idleOA = idleCommunicator->createObjectAdapterWithEndpoints("IdleOA", "tcp -h 127.0.0.1");
+        idleOA->activate();
+        idleCommunicator->waitForShutdown();
+    }
+    cout << "ok" << endl;
 }
