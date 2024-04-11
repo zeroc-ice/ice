@@ -24,21 +24,21 @@ using namespace IceInternal;
 
 namespace
 {
-    class StreamUTF8BufferI : public IceUtil::UTF8Buffer
+    class StreamUTF8BufferI final : public IceUtil::UTF8Buffer
     {
     public:
         StreamUTF8BufferI(OutputStream& stream) : _stream(stream) {}
 
-        uint8_t* getMoreBytes(size_t howMany, uint8_t* firstUnused)
+        byte* getMoreBytes(size_t howMany, byte* firstUnused) final
         {
             assert(howMany > 0);
 
-            if (firstUnused != 0)
+            if (firstUnused)
             {
                 //
                 // Return unused bytes
                 //
-                _stream.resize(static_cast<size_t>(firstUnused - reinterpret_cast<uint8_t*>(_stream.b.begin())));
+                _stream.resize(static_cast<size_t>(firstUnused - _stream.b.begin()));
             }
 
             //
@@ -52,7 +52,7 @@ namespace
             //
             _stream.resize(pos + howMany);
 
-            return reinterpret_cast<uint8_t*>(&_stream.b[pos]);
+            return &_stream.b[pos];
         }
 
     private:
@@ -730,7 +730,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
             const StringConverterPtr& stringConverter = _instance->getStringConverter();
             if (stringConverter)
             {
-                lastByte = reinterpret_cast<byte*>(stringConverter->toUTF8(vdata, vdata + vsize, buffer));
+                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
                 converted = true;
             }
         }
@@ -739,7 +739,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
             StringConverterPtr stringConverter = getProcessStringConverter();
             if (stringConverter)
             {
-                lastByte = reinterpret_cast<byte*>(stringConverter->toUTF8(vdata, vdata + vsize, buffer));
+                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
                 converted = true;
             }
         }
@@ -840,13 +840,11 @@ Ice::OutputStream::write(wstring_view v)
         // Note: wstringConverter is never null; when set to null, get returns the default unicode wstring converter
         if (_instance)
         {
-            lastByte = reinterpret_cast<byte*>(
-                _instance->getWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer));
+            lastByte = _instance->getWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
         }
         else
         {
-            lastByte =
-                reinterpret_cast<byte*>(getProcessWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer));
+            lastByte = getProcessWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
         }
 
         if (lastByte != b.end())

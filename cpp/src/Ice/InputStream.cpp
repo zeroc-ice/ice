@@ -1258,10 +1258,7 @@ Ice::InputStream::readConverted(string& v, int sz)
             const StringConverterPtr& stringConverter = _instance->getStringConverter();
             if (stringConverter)
             {
-                stringConverter->fromUTF8(
-                    reinterpret_cast<const uint8_t*>(i),
-                    reinterpret_cast<const uint8_t*>(i) + sz,
-                    v);
+                stringConverter->fromUTF8(i, i + sz, v);
                 converted = true;
             }
         }
@@ -1270,10 +1267,7 @@ Ice::InputStream::readConverted(string& v, int sz)
             StringConverterPtr stringConverter = getProcessStringConverter();
             if (stringConverter)
             {
-                stringConverter->fromUTF8(
-                    reinterpret_cast<const uint8_t*>(i),
-                    reinterpret_cast<const uint8_t*>(i) + sz,
-                    v);
+                stringConverter->fromUTF8(i, i + sz, v);
                 converted = true;
             }
         }
@@ -1320,18 +1314,12 @@ Ice::InputStream::read(wstring& v)
             if (_instance)
             {
                 const WstringConverterPtr& wstringConverter = _instance->getWstringConverter();
-                wstringConverter->fromUTF8(
-                    reinterpret_cast<const uint8_t*>(i),
-                    reinterpret_cast<const uint8_t*>(i) + sz,
-                    v);
+                wstringConverter->fromUTF8(i, i + sz, v);
             }
             else
             {
                 WstringConverterPtr wstringConverter = getProcessWstringConverter();
-                wstringConverter->fromUTF8(
-                    reinterpret_cast<const uint8_t*>(i),
-                    reinterpret_cast<const uint8_t*>(i) + sz,
-                    v);
+                wstringConverter->fromUTF8(i, i + sz, v);
             }
 
             i += sz;
