@@ -50,13 +50,6 @@ public class SSLEngine {
     _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 1;
 
     //
-    // VerifyDepthMax establishes the maximum length of a peer's certificate
-    // chain, including the peer's certificate. A value of 0 means there is
-    // no maximum.
-    //
-    _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
-
-    //
     // VerifyPeer determines whether certificate validation failures abort a
     // connection.
     //
@@ -514,26 +507,6 @@ public class SSLEngine {
       }
     }
 
-    // Verify depth max includes the root CA, Java doesn't provide it in the
-    // certificate chain.
-    if (_verifyDepthMax > 0 && info.certs != null && info.certs.length >= _verifyDepthMax) {
-      String msg =
-          (info.incoming ? "incoming" : "outgoing")
-              + " connection rejected:\n"
-              + "length of peer's certificate chain ("
-              + info.certs.length
-              + ") exceeds maximum of "
-              + _verifyDepthMax
-              + "\n"
-              + desc;
-      if (_securityTraceLevel >= 1) {
-        _logger.trace(_securityTraceCategory, msg);
-      }
-      com.zeroc.Ice.SecurityException ex = new com.zeroc.Ice.SecurityException();
-      ex.reason = msg;
-      throw ex;
-    }
-
     if (!_trustManager.verify(info, desc)) {
       String msg =
           (info.incoming ? "incoming" : "outgoing")
@@ -665,7 +638,6 @@ public class SSLEngine {
   private boolean _noCiphers;
   private boolean _checkCertName;
   private boolean _serverNameIndication;
-  private int _verifyDepthMax;
   private int _verifyPeer;
   private TrustManager _trustManager;
 

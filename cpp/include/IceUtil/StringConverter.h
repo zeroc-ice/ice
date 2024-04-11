@@ -27,7 +27,7 @@ namespace IceUtil
          * @param firstUnused A pointer to the first unused byte.
          * @return A pointer to the beginning of the buffer.
          */
-        virtual std::uint8_t* getMoreBytes(size_t howMany, std::uint8_t* firstUnused) = 0;
+        virtual std::byte* getMoreBytes(size_t howMany, std::byte* firstUnused) = 0;
 
         virtual ~UTF8Buffer();
     };
@@ -46,15 +46,13 @@ namespace IceUtil
          * Returns a pointer to byte after the last written byte (which may be
          * past the last byte returned by getMoreBytes).
          */
-        virtual std::uint8_t* toUTF8(const charT* sourceStart, const charT* sourceEnd, UTF8Buffer& buf) const = 0;
+        virtual std::byte* toUTF8(const charT* sourceStart, const charT* sourceEnd, UTF8Buffer& buf) const = 0;
 
         /**
          * Unmarshals a UTF-8 sequence into a basic_string.
          */
-        virtual void fromUTF8(
-            const std::uint8_t* sourceStart,
-            const std::uint8_t* sourceEnd,
-            std::basic_string<charT>& target) const = 0;
+        virtual void
+        fromUTF8(const std::byte* sourceStart, const std::byte* sourceEnd, std::basic_string<charT>& target) const = 0;
 
         virtual ~BasicStringConverter() {}
     };
@@ -69,11 +67,11 @@ namespace IceUtil
 #endif
 
     /** A narrow string converter. */
-    typedef BasicStringConverter<char> StringConverter;
+    using StringConverter = BasicStringConverter<char>;
     using StringConverterPtr = std::shared_ptr<StringConverter>;
 
     /** A wide string converter. */
-    typedef BasicStringConverter<wchar_t> WstringConverter;
+    using WstringConverter = BasicStringConverter<wchar_t>;
     using WstringConverterPtr = std::shared_ptr<WstringConverter>;
 
     /**

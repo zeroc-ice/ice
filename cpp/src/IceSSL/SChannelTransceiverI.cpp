@@ -45,6 +45,9 @@ namespace
             case SP_PROT_TLS1_2_CLIENT:
             case SP_PROT_TLS1_2_SERVER:
                 return "TLS 1.2";
+            case SP_PROT_TLS1_3_CLIENT:
+            case SP_PROT_TLS1_3_SERVER:
+                return "TLS 1.3";
             default:
                 return "Unknown";
         }

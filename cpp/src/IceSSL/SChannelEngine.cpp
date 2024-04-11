@@ -74,18 +74,13 @@ namespace
     vector<PCCERT_CONTEXT>
     findCertificates(const string& location, const string& storeName, const string& value, vector<HCERTSTORE>& stores)
     {
-        DWORD storeLoc;
-        if (location == "CurrentUser")
-        {
-            storeLoc = CERT_SYSTEM_STORE_CURRENT_USER;
-        }
-        else
-        {
-            storeLoc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-        }
+        HCERTSTORE store = CertOpenStore(
+            CERT_STORE_PROV_SYSTEM,
+            0,
+            0,
+            location == "CurrentUser" ? CERT_SYSTEM_STORE_CURRENT_USER : CERT_SYSTEM_STORE_LOCAL_MACHINE,
+            Ice::stringToWstring(storeName).c_str());
 
-        HCERTSTORE store =
-            CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, Ice::stringToWstring(storeName).c_str());
         if (!store)
         {
             throw PluginInitializationException(
@@ -558,7 +553,7 @@ SChannel::SSLEngine::initialize()
 {
     //
     // BUGFIX: we use a global mutex for the initialization of SChannel to
-    // avoid crashes ocurring with last SChannel updates see:
+    // avoid crashes occurring with last SChannel updates see:
     // https://github.com/zeroc-ice/ice/issues/242
     //
     lock_guard globalLock(globalMutex);
@@ -580,15 +575,8 @@ SChannel::SSLEngine::initialize()
 
     const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
 
-    //
-    // Check for a default directory. We look in this directory for
-    // files mentioned in the configuration.
-    //
+    // Check for a default directory. We look in this directory for files mentioned in the configuration.
     const string defaultDir = properties->getProperty(prefix + "DefaultDir");
-
-    const int passwordRetryMax = properties->getPropertyAsIntWithDefault(prefix + "PasswordRetryMax", 3);
-    PasswordPromptPtr passwordPrompt = getPasswordPrompt();
-    setPassword(properties->getProperty(prefix + "Password"));
 
     string ciphers = properties->getProperty(prefix + "Ciphers");
     if (!ciphers.empty())
@@ -626,13 +614,9 @@ SChannel::SSLEngine::initialize()
     }
 
     //
-    // Create trusted CA store with contents of CertAuthFile
+    // Create trusted CA store with contents of IceSSL.CAs
     //
     string caFile = properties->getProperty(prefix + "CAs");
-    if (caFile.empty())
-    {
-        caFile = properties->getProperty(prefix + "CertAuthFile");
-    }
     if (!caFile.empty() || properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
     {
         _rootStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
@@ -690,19 +674,19 @@ SChannel::SSLEngine::initialize()
         _chainEngine = (certStoreLocation == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
 
-    string certFile = properties->getProperty(prefix + "CertFile");
+    string certFileValue = properties->getProperty(prefix + "CertFile");
     string keyFile = properties->getProperty(prefix + "KeyFile");
     string findCert = properties->getProperty("IceSSL.FindCert");
 
-    if (!certFile.empty())
+    if (!certFileValue.empty())
     {
         vector<string> certFiles;
-        if (!splitString(certFile, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
+        if (!splitString(certFileValue, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
         {
             throw PluginInitializationException(
                 __FILE__,
                 __LINE__,
-                "IceSSL: invalid value for " + prefix + "CertFile:\n" + certFile);
+                "IceSSL: invalid value for " + prefix + "CertFile:\n" + certFileValue);
         }
 
         vector<string> keyFiles;
@@ -725,56 +709,58 @@ SChannel::SSLEngine::initialize()
             }
         }
 
-        for (size_t i = 0; i < certFiles.size(); ++i)
+        for (int i = 0; i < certFiles.size(); ++i)
         {
-            string cFile = certFiles[i];
+            string certFile = certFiles[i];
             string resolved;
-            if (!checkPath(cFile, defaultDir, false, resolved))
+            if (!checkPath(certFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(
                     __FILE__,
                     __LINE__,
-                    "IceSSL: certificate file not found:\n" + cFile);
+                    "IceSSL: certificate file not found:\n" + certFile);
             }
-            cFile = resolved;
+            certFile = resolved;
 
             vector<char> buffer;
-            readFile(cFile, buffer);
+            readFile(certFile, buffer);
             if (buffer.empty())
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate file is empty:\n" + cFile);
+                throw PluginInitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: certificate file is empty:\n" + certFile);
             }
 
             CRYPT_DATA_BLOB pfxBlob;
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
             pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
 
-            HCERTSTORE store = 0;
             PCCERT_CONTEXT cert = 0;
-            int err = 0;
-            int count = 0;
             DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
-            do
-            {
-                string s = password(false);
-                store = PFXImportCertStore(&pfxBlob, Ice::stringToWstring(s).c_str(), importFlags);
-                err = store ? 0 : GetLastError();
-            } while (err == ERROR_INVALID_PASSWORD && passwordPrompt && ++count < passwordRetryMax);
+            HCERTSTORE store = PFXImportCertStore(
+                &pfxBlob,
+                Ice::stringToWstring(properties->getProperty(prefix + "Password")).c_str(),
+                importFlags);
+            int err = store ? 0 : GetLastError();
 
             if (store)
             {
-                //
                 // Try to find a certificate chain.
-                //
                 CERT_CHAIN_FIND_BY_ISSUER_PARA para;
                 memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
                 para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
 
-                DWORD ff = CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG; // Don't fetch anything from the Internet
                 PCCERT_CHAIN_CONTEXT chain = 0;
                 while (!cert)
                 {
-                    chain = CertFindChainInStore(store, X509_ASN_ENCODING, ff, CERT_CHAIN_FIND_BY_ISSUER, &para, chain);
+                    chain = CertFindChainInStore(
+                        store,
+                        X509_ASN_ENCODING,
+                        CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG, // Don't fetch anything from the Internet
+                        CERT_CHAIN_FIND_BY_ISSUER,
+                        &para,
+                        chain);
                     if (!chain)
                     {
                         break; // No more chains found in the store.
@@ -787,9 +773,7 @@ SChannel::SSLEngine::initialize()
                     CertFreeCertificateChain(chain);
                 }
 
-                //
                 // Check if we can find a certificate if we couldn't find a chain.
-                //
                 if (!cert)
                 {
                     cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
@@ -815,9 +799,7 @@ SChannel::SSLEngine::initialize()
                     "IceSSL: error decoding certificate:\n" + lastErrorToString());
             }
 
-            //
             // Try to load certificate & key as PEM files.
-            //
             if (keyFiles.empty())
             {
                 throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no key file specified");
@@ -841,9 +823,7 @@ SChannel::SSLEngine::initialize()
             outBuffer.resize(buffer.size());
             DWORD outLength = static_cast<DWORD>(buffer.size());
 
-            //
             // Convert the PEM encoded buffer to DER binary format.
-            //
             if (!CryptStringToBinary(
                     &buffer[0],
                     static_cast<DWORD>(buffer.size()),
@@ -864,9 +844,7 @@ SChannel::SSLEngine::initialize()
             HCRYPTKEY hKey = 0;
             try
             {
-                //
                 // First try to decode as a PKCS#8 key, if that fails try PKCS#1.
-                //
                 DWORD decodedLength = 0;
                 if (CryptDecodeObjectEx(
                         X509_ASN_ENCODING,
@@ -878,9 +856,7 @@ SChannel::SSLEngine::initialize()
                         &keyInfo,
                         &decodedLength))
                 {
-                    //
-                    // Check that we are using a RSA Key
-                    //
+                    // Check that we are using an RSA Key.
                     if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
                     {
                         throw PluginInitializationException(
@@ -889,9 +865,7 @@ SChannel::SSLEngine::initialize()
                             string("IceSSL: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
                     }
 
-                    //
-                    // Decode the private key BLOB
-                    //
+                    // Decode the private key BLOB.
                     if (!CryptDecodeObjectEx(
                             X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                             PKCS_RSA_PRIVATE_KEY,
@@ -912,9 +886,7 @@ SChannel::SSLEngine::initialize()
                 }
                 else
                 {
-                    //
-                    // Decode the private key BLOB
-                    //
+                    // Decode the private key BLOB.
                     if (!CryptDecodeObjectEx(
                             X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                             PKCS_RSA_PRIVATE_KEY,
@@ -932,9 +904,7 @@ SChannel::SSLEngine::initialize()
                     }
                 }
 
-                //
-                // Create a new RSA key set to store our key
-                //
+                // Create a new RSA key set to store our key.
                 const wstring keySetName = Ice::stringToWstring(generateUUID());
                 HCRYPTPROV cryptProv = 0;
 
@@ -959,9 +929,7 @@ SChannel::SSLEngine::initialize()
                             lastErrorToString());
                 }
 
-                //
-                // Import the private key
-                //
+                // Import the private key.
                 if (!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
                 {
                     throw PluginInitializationException(
@@ -975,9 +943,7 @@ SChannel::SSLEngine::initialize()
                 CryptDestroyKey(hKey);
                 hKey = 0;
 
-                //
-                // Create a new memory store to place the certificate
-                //
+                // Create a new memory store to place the certificate.
                 store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
                 if (!store)
                 {
@@ -989,11 +955,9 @@ SChannel::SSLEngine::initialize()
                             lastErrorToString());
                 }
 
-                addCertificatesToStore(cFile, store, &cert);
+                addCertificatesToStore(certFile, store, &cert);
 
-                //
-                // Associate key & certificate
-                //
+                // Associate key & certificate.
                 CRYPT_KEY_PROV_INFO keyProvInfo;
                 memset(&keyProvInfo, 0, sizeof(keyProvInfo));
                 keyProvInfo.pwszContainerName = const_cast<wchar_t*>(keySetName.c_str());
@@ -1005,7 +969,7 @@ SChannel::SSLEngine::initialize()
                     throw PluginInitializationException(
                         __FILE__,
                         __LINE__,
-                        "IceSSL: error seting certificate "
+                        "IceSSL: error setting certificate "
                         "property:\n" +
                             lastErrorToString());
                 }
@@ -1152,20 +1116,13 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming)
 
     if (incoming)
     {
-        //
-        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with
-        // Java certificate validation and SChannel doesn't seems to send
-        // the root certificate either way.
-        //
+        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and SChannel
+        // doesn't seems to send the root certificate either way.
         cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
 
-        //
-        // There's no way to prevent SChannel from sending "CA names" to the
-        // client. Recent Windows versions don't CA names but older ones do
-        // send all the trusted root CA names. We provide the root store to
-        // ensure that for these older Windows versions, we also include the
-        // CA names of our trusted roots.
-        //
+        // There's no way to prevent SChannel from sending "CA names" to the client. Recent Windows versions don't CA
+        // names but older ones do send all the trusted root CA names. We provide the root store to ensure that for
+        // these older Windows versions, we also include the CA names of our trusted roots.
         cred.hRootStore = _rootStore;
     }
     else
@@ -1242,10 +1199,8 @@ SChannel::SSLEngine::destroy()
 
     for (vector<PCCERT_CONTEXT>::const_iterator i = _importedCerts.begin(); i != _importedCerts.end(); ++i)
     {
-        //
-        // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
-        // data to remove the key set associated with the certificate.
-        //
+        // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO data to remove
+        // the key set associated with the certificate.
         DWORD length = 0;
         if (!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
         {

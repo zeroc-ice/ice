@@ -34,7 +34,7 @@ namespace
     class IdleCheckTimerTask final : public IceUtil::TimerTask, public enable_shared_from_this<IdleCheckTimerTask>
     {
     public:
-        IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::milliseconds& idleTimeout)
+        IdleCheckTimerTask(const ConnectionIPtr& connection, const chrono::seconds& idleTimeout)
             : _connection(connection),
               _idleTimeout(idleTimeout)
         {
@@ -51,7 +51,7 @@ namespace
 
     private:
         const weak_ptr<ConnectionI> _connection;
-        const chrono::milliseconds _idleTimeout;
+        const chrono::seconds _idleTimeout;
     };
 }
 
@@ -72,12 +72,12 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
     if (op == SocketOperationNone) // connected
     {
-        // cancelPrevious = true because Ice often writes to a client connection before it's connected.
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2, true);
+        // reschedule because Ice often writes to a client connection before it's connected.
+        _timer->reschedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
         if (_enableIdleCheck)
         {
-            // cancelPrevious = true because with SSL, the connection is connected after a read.
-            _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
+            // reschedule because with SSL, the connection is connected after a read.
+            _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
         }
     }
 
@@ -112,13 +112,12 @@ IdleTimeoutTransceiverDecorator::close()
 SocketOperation
 IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 {
-    // We're about to write something and we don't want to send a concurrent heartbeat.
     _timer->cancel(_heartbeatTimerTask);
 
     SocketOperation op = _decoratee->write(buf);
     if (op == SocketOperationNone) // write completed
     {
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
+        _timer->schedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
     }
     return op;
 }
@@ -127,24 +126,15 @@ IdleTimeoutTransceiverDecorator::write(Buffer& buf)
 bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
-    // We're about to write something and we don't want to send a concurrent heartbeat.
-    _timer->cancel(_heartbeatTimerTask);
-
+    // startWrite is called right after write returns SocketOperationWrite. The logic in write is sufficient.
     return _decoratee->startWrite(buf);
-
-    // TODO: should we schedule the next heartbeat when the return value is true? Or do we always call finishWrite?
 }
 
 void
 IdleTimeoutTransceiverDecorator::finishWrite(Buffer& buf)
 {
     _decoratee->finishWrite(buf);
-
-    // Schedule a heartbeat after writing all the data.
-    if (buf.i == buf.b.end())
-    {
-        _timer->schedule(_heartbeatTimerTask, _idleTimeout / 2);
-    }
+    // We call write after finishWrite, so no need to do anything here.
 }
 
 void
@@ -160,7 +150,7 @@ IdleTimeoutTransceiverDecorator::finishRead(Buffer& buf)
     if (_enableIdleCheck)
     {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
-        _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
+        _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
     }
 
     _decoratee->finishRead(buf);
@@ -174,7 +164,7 @@ IdleTimeoutTransceiverDecorator::read(Buffer& buf)
     if (_enableIdleCheck)
     {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
-        _timer->schedule(_idleCheckTimerTask, _idleTimeout, true);
+        _timer->reschedule(_idleCheckTimerTask, _idleTimeout);
     }
     return _decoratee->read(buf);
 }

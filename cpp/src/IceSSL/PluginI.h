@@ -40,12 +40,6 @@ namespace IceSSL
         virtual void initialize();
         virtual void destroy();
 
-        //
-        // From IceSSL::Plugin.
-        //
-        virtual void setCertificateVerifier(std::function<bool(const ConnectionInfoPtr&)>);
-        virtual void setPasswordPrompt(std::function<std::string()>);
-
         virtual CertificatePtr load(const std::string&) const = 0;
         virtual CertificatePtr decode(const std::string&) const = 0;
 

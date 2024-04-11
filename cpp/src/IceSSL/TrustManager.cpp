@@ -114,17 +114,13 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
         }
     }
 
-    //
     // If there is nothing to match against, then we accept the cert.
-    //
     if (reject.empty() && accept.empty())
     {
         return true;
     }
 
-    //
     // If there is no certificate then we match false.
-    //
     if (info->certs.size() != 0)
     {
         DistinguishedName subject = info->certs[0]->getSubjectDN();
@@ -145,9 +141,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
             trace << desc;
         }
 
-        //
         // Fail if we match anything in the reject set.
-        //
         for (list<list<DistinguishedName>>::const_iterator p = reject.begin(); p != reject.end(); ++p)
         {
             if (_traceLevel > 1)
@@ -169,9 +163,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
             }
         }
 
-        //
         // Succeed if we match anything in the accept set.
-        //
         for (list<list<DistinguishedName>>::const_iterator p = accept.begin(); p != accept.end(); ++p)
         {
             if (_traceLevel > 1)
@@ -193,9 +185,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
             }
         }
 
-        //
         // At this point we accept the connection if there are no explicit accept rules.
-        //
         return accept.empty();
     }
 

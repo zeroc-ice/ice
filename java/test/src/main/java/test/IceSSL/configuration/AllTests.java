@@ -44,7 +44,6 @@ public class AllTests {
       initData.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
     }
     initData.properties.setProperty("Ice.RetryIntervals", "-1");
-    initData.properties.setProperty("IceSSL.Random", "seed.dat");
     return initData;
   }
 
@@ -69,7 +68,6 @@ public class AllTests {
     if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
       result.put("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
     }
-    result.put("IceSSL.Random", "seed.dat");
     return result;
   }
 
@@ -562,181 +560,6 @@ public class AllTests {
 
     InitializationData initData;
     java.util.Map<String, String> d;
-
-    out.print("testing certificate chains... ");
-    out.flush();
-    {
-      com.zeroc.IceSSL.ConnectionInfo info;
-
-      //
-      // Now the client verifies the server certificate
-      //
-      initData = createClientProps(defaultProperties, "", "cacert1");
-      initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-      com.zeroc.Ice.Communicator comm = Util.initialize(initData);
-
-      ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-      ServerPrx server;
-      {
-        d = createServerProps(defaultProperties, "s_rsa_ca1", "");
-        d.put("IceSSL.VerifyPeer", "0");
-        server = fact.createServer(d);
-        try {
-          info = (com.zeroc.IceSSL.ConnectionInfo) server.ice_getConnection().getInfo();
-          test(info.certs.length == 1);
-          test(info.verified);
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-
-      comm.destroy();
-
-      //
-      // Try certificate with one intermediate and VerifyDepthMax=2
-      //
-      initData = createClientProps(defaultProperties, "", "cacert1");
-      initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-      initData.properties.setProperty("IceSSL.VerifyDepthMax", "2");
-      comm = Util.initialize(initData);
-
-      fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai1", "");
-        d.put("IceSSL.VerifyPeer", "0");
-        server = fact.createServer(d);
-        try {
-          server.ice_getConnection().getInfo();
-          test(false);
-        } catch (com.zeroc.Ice.SecurityException ex) {
-          // Chain length too long
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-      comm.destroy();
-
-      //
-      // Try with VerifyDepthMax to 3 (the default)
-      //
-      initData = createClientProps(defaultProperties, "", "cacert1");
-      initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-      // initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
-      comm = Util.initialize(initData);
-
-      fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai1", "");
-        d.put("IceSSL.VerifyPeer", "0");
-        server = fact.createServer(d);
-        try {
-          info = (com.zeroc.IceSSL.ConnectionInfo) server.ice_getConnection().getInfo();
-          test(info.certs.length == 2);
-          test(info.verified);
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-        d.put("IceSSL.VerifyPeer", "0");
-        server = fact.createServer(d);
-        try {
-          server.ice_getConnection().getInfo();
-          test(false);
-        } catch (com.zeroc.Ice.SecurityException ex) {
-          // Chain length too long
-        }
-        fact.destroyServer(server);
-      }
-      comm.destroy();
-
-      //
-      // Increase VerifyDepthMax to 4
-      //
-      initData = createClientProps(defaultProperties, "", "cacert1");
-      initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-      initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-      comm = Util.initialize(initData);
-
-      fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-        d.put("IceSSL.VerifyPeer", "0");
-        server = fact.createServer(d);
-        try {
-          info = (com.zeroc.IceSSL.ConnectionInfo) server.ice_getConnection().getInfo();
-          test(info.certs.length == 3);
-          test(info.verified);
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-
-      comm.destroy();
-
-      //
-      // Increase VerifyDepthMax to 4
-      //
-      initData = createClientProps(defaultProperties, "c_rsa_cai2", "cacert1");
-      initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-      initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-      comm = Util.initialize(initData);
-
-      fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
-      test(fact != null);
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
-        d.put("IceSSL.VerifyPeer", "2");
-        server = fact.createServer(d);
-        try {
-          server.ice_getConnection();
-          test(false);
-        } catch (com.zeroc.Ice.ProtocolException ex) {
-          // Expected
-        } catch (com.zeroc.Ice.ConnectionLostException ex) {
-          // Expected
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-
-      {
-        d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
-        d.put("IceSSL.VerifyPeer", "2");
-        d.put("IceSSL.VerifyDepthMax", "4");
-        server = fact.createServer(d);
-        try {
-          server.ice_getConnection();
-        } catch (com.zeroc.Ice.LocalException ex) {
-          ex.printStackTrace();
-          test(false);
-        }
-        fact.destroyServer(server);
-      }
-
-      comm.destroy();
-    }
-    out.println("ok");
 
     out.print("testing expired certificates... ");
     out.flush();
@@ -1476,7 +1299,6 @@ public class AllTests {
       int retryCount = 0;
 
       initData = createClientProps(defaultProperties);
-      initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
       initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
       com.zeroc.Ice.Communicator comm = Util.initialize(initData);
       com.zeroc.Ice.ObjectPrx p =
@@ -1513,7 +1335,6 @@ public class AllTests {
 
       retryCount = 0;
       initData = createClientProps(defaultProperties);
-      initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
       initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
       initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
       comm = Util.initialize(initData);
