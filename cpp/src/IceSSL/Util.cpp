@@ -45,42 +45,19 @@ IceSSL::fromCFString(CFStringRef v)
 
 #endif
 
-IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const ConnectionInfoPtr&)> v)
-    : _verify(std::move(v))
-{
-}
-
-bool
-IceSSL::CertificateVerifier::verify(const ConnectionInfoPtr& info)
-{
-    return _verify(info);
-}
-
-IceSSL::PasswordPrompt::PasswordPrompt(std::function<std::string()> p) : _prompt(std::move(p)) {}
-
-std::string
-IceSSL::PasswordPrompt::getPassword()
-{
-    return _prompt();
-}
-
 bool
 IceSSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
 {
     string v = IceUtilInternal::toUpper(arg);
 
-    //
     // Check for any invalid characters.
-    //
     size_t pos = v.find_first_not_of(" :0123456789ABCDEF");
     if (pos != string::npos)
     {
         return false;
     }
 
-    //
     // Remove any separator characters.
-    //
     ostringstream s;
     for (string::const_iterator i = v.begin(); i != v.end(); ++i)
     {
@@ -92,9 +69,7 @@ IceSSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
     }
     v = s.str();
 
-    //
     // Convert the bytes.
-    //
     for (size_t i = 0, length = v.size(); i + 2 <= length;)
     {
         buffer.push_back(static_cast<unsigned char>(strtol(v.substr(i, 2).c_str(), 0, 16)));

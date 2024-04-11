@@ -282,24 +282,6 @@ extension Communicator {
     }
   }
 
-  /// Establish the password prompt object. This must be done before
-  /// the IceSSL plug-in is initialized.
-  ///
-  /// - parameter prompt: `(() -> String)` - The password prompt.
-  public func setSslPasswordPrompt(prompt: @escaping (() -> String)) {
-    (self as! CommunicatorI).handle.setSslPasswordPrompt(prompt)
-  }
-
-  /// Establish the certificate verifier objet. This must be done before
-  /// any connection are established.
-  ///
-  /// - parameter prompt: `((SSLConnectionInfo) -> Bool)` The certificate verifier.
-  public func setSslCertificateVerifier(verifier: @escaping ((SSLConnectionInfo) -> Bool)) {
-    (self as! CommunicatorI).handle.setSslCertificateVerifier { info in
-      verifier(info as! SSLConnectionInfo)
-    }
-  }
-
   /// Initialize the configured plug-ins. The communicator automatically initializes
   /// the plug-ins by default, but an application may need to interact directly with
   /// a plug-in prior to initialization. In this case, the application must set
