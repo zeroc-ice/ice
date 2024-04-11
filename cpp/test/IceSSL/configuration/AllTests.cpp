@@ -29,15 +29,9 @@
 #        define ICE_USE_SECURE_TRANSPORT_MACOS 1
 #    endif
 #elif defined(_WIN32)
-#    if !defined(ICE_USE_OPENSSL)
-#        define ICE_USE_SCHANNEL 1
-#    endif
+#    define ICE_USE_SCHANNEL 1
 #else
 #    define ICE_USE_OPENSSL 1
-#endif
-
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-#    include "IceSSL/OpenSSL.h"
 #endif
 
 using namespace std;
