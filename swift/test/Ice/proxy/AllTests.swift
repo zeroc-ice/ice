@@ -869,10 +869,6 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
   try test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
   if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0 {
-    // Working?
-    let ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
-    let tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
-
     // Two legal TCP endpoints expressed as opaque endpoints
     p1 = try communicator.stringToProxy(
       "test -e 1.0:" + "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:"
@@ -887,15 +883,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
       "test -e 1.0:" + "opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:"
         + "opaque -e 1.0 -t 99 -v abch")!
     pstr = communicator.proxyToString(p1)
-    if ssl {
-      try test(
-        pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
-    } else if tcp {
-      try test(
-        pstr
-          == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"
-      )
-    }
+    try test(
+      pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
+    )
   }
 
   writer.writeLine("ok")
