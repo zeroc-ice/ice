@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Instance.h"
+#include "SSLInstance.h"
 #include "SSLEngine.h"
 
 using namespace std;

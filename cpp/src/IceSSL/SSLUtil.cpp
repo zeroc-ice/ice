@@ -9,7 +9,7 @@
 
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include "../Ice/Base64.h"
 #include "../Ice/Network.h"

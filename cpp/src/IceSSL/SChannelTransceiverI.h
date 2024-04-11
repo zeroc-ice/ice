@@ -12,9 +12,9 @@
 #    include "../Ice/Transceiver.h"
 #    include "../Ice/WSTransceiver.h"
 #    include "Ice/Buffer.h"
-#    include "IceSSL/Config.h"
+#    include "Ice/Config.h"
 #    include "IceSSL/Plugin.h"
-#    include "InstanceF.h"
+#    include "SSLInstanceF.h"
 #    include "SChannelEngineF.h"
 
 #    ifdef SECURITY_WIN32

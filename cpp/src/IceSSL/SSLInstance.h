@@ -6,12 +6,12 @@
 #define ICESSL_INSTANCE_H
 
 #include "../Ice/ProtocolInstance.h"
-#include "InstanceF.h"
 #include "SSLEngineF.h"
+#include "SSLInstanceF.h"
 
 namespace IceSSL
 {
-    class ICESSL_API Instance final : public IceInternal::ProtocolInstance
+    class ICE_API Instance final : public IceInternal::ProtocolInstance
     {
     public:
         Instance(const SSLEnginePtr&, std::int16_t, const std::string&);

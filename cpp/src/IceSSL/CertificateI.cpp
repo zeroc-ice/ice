@@ -11,7 +11,7 @@
 #include "IceUtil/StringUtil.h"
 #include "PluginI.h"
 #include "RFC2253.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 using namespace std;
 using namespace Ice;

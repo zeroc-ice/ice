@@ -5,7 +5,7 @@
 #include "SChannelEngine.h"
 #include "IceSSL/Plugin.h"
 #include "SChannelTransceiverI.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"

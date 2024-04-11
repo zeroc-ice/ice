@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "ConnectorI.h"
-#include "Instance.h"
+#include "SSLConnectorI.h"
+#include "SSLInstance.h"
 
 #include "../Ice/NetworkProxy.h"
 #include "../Ice/StreamSocket.h"
-#include "EndpointI.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "SSLEndpointI.h"
 #include "SSLEngine.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 using namespace std;
 using namespace Ice;

@@ -4,8 +4,8 @@
 
 #include "SecureTransportTransceiverI.h"
 #include "IceSSL/ConnectionInfo.h"
-#include "Instance.h"
 #include "PluginI.h"
+#include "SSLInstance.h"
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
 

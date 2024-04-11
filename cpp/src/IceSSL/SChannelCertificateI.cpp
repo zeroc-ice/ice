@@ -7,7 +7,7 @@
 #include "Ice/StringConverter.h"
 #include "IceSSL/SChannel.h"
 #include "PluginI.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include <wincrypt.h>
 

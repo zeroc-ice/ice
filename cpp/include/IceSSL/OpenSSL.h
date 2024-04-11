@@ -10,44 +10,6 @@
 #include <openssl/pem.h>
 #include <openssl/x509v3.h>
 
-//
-// Automatically link IceSSLOpenSSL[D].lib with Visual C++
-//
-#if defined(_MSC_VER)
-#    if !defined(ICE_BUILDING_ICESSL_OPENSSL) && defined(ICESSL_OPENSSL_API_EXPORTS)
-#        define ICE_BUILDING_ICESSL_OPENSSL
-#    endif
-
-#    if !defined(ICE_BUILDING_ICESSL_OPENSSL)
-#        pragma comment(lib, ICE_LIBNAME("IceSSLOpenSSL"))
-#    endif
-#endif
-
-#ifndef ICESSL_OPENSSL_API
-#    if defined(ICE_STATIC_LIBS)
-#        define ICESSL_OPENSSL_API /**/
-#    elif defined(ICESSL_OPENSSL_API_EXPORTS)
-#        define ICESSL_OPENSSL_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICESSL_OPENSSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
-#if defined(_WIN32) && !defined(ICESSL_OPENSSL_API_EXPORTS)
-
-namespace Ice
-{
-    /**
-     * When using static libraries, calling this function ensures the OpenSSL version of the IceSSL plug-in is
-     * linked with the application.
-     * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-     * If false, the plug-in is only loaded during communicator initialization if its corresponding plug-in
-     * property is set to 1.
-     */
-    ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool loadOnInitialize = true);
-}
-#endif
-
 namespace IceSSL
 {
     namespace OpenSSL
@@ -59,7 +21,7 @@ namespace IceSSL
          * Encapsulates an OpenSSL X.509 certificate.
          * \headerfile IceSSL/IceSSL.h
          */
-        class ICESSL_OPENSSL_API Certificate : public virtual IceSSL::Certificate
+        class ICE_API Certificate : public virtual IceSSL::Certificate
         {
         public:
             /**
@@ -95,45 +57,6 @@ namespace IceSSL
              */
             virtual x509_st* getCert() const = 0;
         };
-
-        /**
-         * Represents the IceSSL plug-in object.
-         * \headerfile IceSSL/IceSSL.h
-         */
-        class ICESSL_OPENSSL_API Plugin : public virtual IceSSL::Plugin
-        {
-        public:
-            /**
-             * Obtains the OpenSSL version number.
-             * @return The version.
-             */
-            virtual std::int64_t getOpenSSLVersion() const = 0;
-
-            /**
-             * Establishes the OpenSSL context. This must be done before the
-             * plug-in is initialized, therefore the application must define
-             * the property Ice.InitPlugins=0, set the context, and finally
-             * invoke Ice::PluginManager::initializePlugins.
-             *
-             * When the application supplies its own OpenSSL context, the
-             * plug-in ignores configuration properties related to certificates,
-             * keys, and passwords.
-             *
-             * Note that the plug-in assumes ownership of the given context.
-             *
-             * @param ctx The OpenSSL context.
-             */
-            virtual void setContext(SSL_CTX* ctx) = 0;
-
-            /**
-             * Obtains the SSL context. Use caution when modifying this value.
-             * Changes made to this value have no effect on existing connections.
-             * @return The OpenSSL context.
-             */
-            virtual SSL_CTX* getContext() = 0;
-        };
-        using PluginPtr = std::shared_ptr<Plugin>;
-
     } // OpenSSL namespace end
 
 } // IceSSL namespace end

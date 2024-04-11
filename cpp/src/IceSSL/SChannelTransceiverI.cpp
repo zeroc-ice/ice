@@ -11,10 +11,10 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "IceSSL/ConnectionInfo.h"
-#include "Instance.h"
 #include "PluginI.h"
 #include "SChannelEngine.h"
-#include "Util.h"
+#include "SSLInstance.h"
+#include "SSLUtil.h"
 
 using namespace std;
 using namespace Ice;

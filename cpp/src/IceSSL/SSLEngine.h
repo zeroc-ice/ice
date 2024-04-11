@@ -6,10 +6,10 @@
 #define ICESSL_ENGINE_H
 
 #include "IceSSL/Plugin.h"
-#include "InstanceF.h"
 #include "SSLEngineF.h"
+#include "SSLInstanceF.h"
+#include "SSLUtil.h"
 #include "TrustManagerF.h"
-#include "Util.h"
 
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
@@ -19,7 +19,7 @@
 
 namespace IceSSL
 {
-    class ICESSL_API SSLEngine
+    class ICE_API SSLEngine
     {
     public:
         SSLEngine(const Ice::CommunicatorPtr&);

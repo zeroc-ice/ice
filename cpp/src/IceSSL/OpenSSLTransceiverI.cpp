@@ -7,10 +7,10 @@
 
 #include "IceSSL/ConnectionInfo.h"
 #include "IceSSL/OpenSSL.h"
-#include "Instance.h"
 #include "PluginI.h"
 #include "SSLEngine.h"
-#include "Util.h"
+#include "SSLInstance.h"
+#include "SSLUtil.h"
 
 #include "../Ice/Network.h"
 #include "Ice/Buffer.h"

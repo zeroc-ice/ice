@@ -73,32 +73,6 @@ PluginI::getContext()
     return engine->context();
 }
 
-#ifdef _WIN32
-//
-// Plug-in factory function.
-//
-extern "C" ICESSL_OPENSSL_API Ice::Plugin*
-createIceSSLOpenSSL(const Ice::CommunicatorPtr& communicator, const string& /*name*/, const Ice::StringSeq& /*args*/)
-{
-    return new PluginI(communicator);
-}
-
-namespace Ice
-{
-    ICESSL_OPENSSL_API void registerIceSSLOpenSSL(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceSSL", createIceSSLOpenSSL, loadOnInitialize);
-    }
-}
-
-#else
-
-extern "C" ICESSL_API Ice::Plugin*
-createIceSSL(const Ice::CommunicatorPtr& communicator, const string& /*name*/, const Ice::StringSeq& /*args*/)
-{
-    return new PluginI(communicator);
-}
-
 //
 // The following functions are defined only when OpenSSL is the default
 // implementation. In Windows the default implementation is always
@@ -115,5 +89,3 @@ IceSSL::Certificate::decode(const std::string& encoding)
 {
     return IceSSL::OpenSSL::Certificate::decode(encoding);
 }
-
-#endif

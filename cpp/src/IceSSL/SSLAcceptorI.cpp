@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "AcceptorI.h"
-#include "EndpointI.h"
-#include "Instance.h"
+#include "SSLAcceptorI.h"
+#include "SSLEndpointI.h"
 #include "SSLEngine.h"
+#include "SSLInstance.h"
 
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include "Ice/LocalException.h"
 

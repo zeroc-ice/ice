@@ -27,7 +27,7 @@ namespace IceSSL
          * This convenience class is a wrapper around a native certificate.
          * \headerfile IceSSL/IceSSL.h
          */
-        class ICESSL_API Certificate : public virtual IceSSL::Certificate
+        class ICE_API Certificate : public virtual IceSSL::Certificate
         {
         public:
             /**

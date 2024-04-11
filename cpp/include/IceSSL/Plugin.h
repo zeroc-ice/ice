@@ -5,8 +5,8 @@
 #ifndef ICESSL_PLUGIN_H
 #define ICESSL_PLUGIN_H
 
-#include "Config.h"
 #include "ConnectionInfoF.h"
+#include "Ice/Config.h"
 #include "Ice/Exception.h"
 #include "Ice/Plugin.h"
 
@@ -68,9 +68,9 @@ namespace IceSSL
         UnknownTrustFailure,
     };
 
-    ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
-    ICESSL_API std::string getTrustErrorDescription(TrustError);
-    ICESSL_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
+    ICE_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
+    ICE_API std::string getTrustErrorDescription(TrustError);
+    ICE_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
 
     /**
      * The key usage "digitalSignature" bit is set
@@ -142,7 +142,7 @@ namespace IceSSL
      * Thrown if the certificate cannot be read.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API CertificateReadException : public Ice::Exception
+    class ICE_API CertificateReadException : public Ice::Exception
     {
     public:
         using Ice::Exception::Exception;
@@ -162,7 +162,7 @@ namespace IceSSL
      * Thrown if the certificate cannot be encoded.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API CertificateEncodingException : public Ice::Exception
+    class ICE_API CertificateEncodingException : public Ice::Exception
     {
     public:
         using Ice::Exception::Exception;
@@ -182,7 +182,7 @@ namespace IceSSL
      * This exception is thrown if a distinguished name cannot be parsed.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API ParseException : public Ice::Exception
+    class ICE_API ParseException : public Ice::Exception
     {
     public:
         using Ice::Exception::Exception;
@@ -211,7 +211,7 @@ namespace IceSSL
      * into ZeroC\, Inc.).
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API DistinguishedName
+    class ICE_API DistinguishedName
     {
     public:
         /**
@@ -233,12 +233,12 @@ namespace IceSSL
         /**
          * Performs an exact match. The order of the RDN components is important.
          */
-        friend ICESSL_API bool operator==(const DistinguishedName&, const DistinguishedName&);
+        friend ICE_API bool operator==(const DistinguishedName&, const DistinguishedName&);
 
         /**
          * Performs an exact match. The order of the RDN components is important.
          */
-        friend ICESSL_API bool operator<(const DistinguishedName&, const DistinguishedName&);
+        friend ICE_API bool operator<(const DistinguishedName&, const DistinguishedName&);
 
         /**
          * Performs a partial match with another DistinguishedName.
@@ -302,7 +302,7 @@ namespace IceSSL
      * Represents an X509 Certificate extension.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API X509Extension
+    class ICE_API X509Extension
     {
     public:
         /**
@@ -333,7 +333,7 @@ namespace IceSSL
      * The interface is inspired by java.security.cert.X509Certificate.
      * \headerfile IceSSL/IceSSL.h
      */
-    class ICESSL_API Certificate : public std::enable_shared_from_this<Certificate>
+    class ICE_API Certificate : public std::enable_shared_from_this<Certificate>
     {
     public:
         /**
@@ -513,33 +513,6 @@ namespace IceSSL
          */
         static CertificatePtr decode(const std::string& str);
     };
-
-    /**
-     * Represents the IceSSL plug-in object.
-     * \headerfile IceSSL/IceSSL.h
-     */
-    class ICESSL_API Plugin : public Ice::Plugin
-    {
-    public:
-        virtual ~Plugin();
-
-        /**
-         * Load the certificate from a file. The certificate must use the
-         * PEM encoding format.
-         * @param file The certificate file.
-         * @throws CertificateReadException if the file cannot be read.
-         */
-        virtual CertificatePtr load(const std::string& file) const = 0;
-
-        /**
-         * Decode a certificate from a string that uses the PEM encoding
-         * format.
-         * @param str A string containing the encoded certificate.
-         * @throws CertificateEncodingException if an error occurs.
-         */
-        virtual CertificatePtr decode(const std::string& str) const = 0;
-    };
-    using PluginPtr = std::shared_ptr<Plugin>;
 }
 
 #endif

@@ -15,19 +15,19 @@ namespace IceSSL
     //
     // Map a certificate OID to its alias
     //
-    struct ICESSL_API CertificateOID
+    struct ICE_API CertificateOID
     {
         const char* name;
         const char* alias;
     };
 
-    extern const ICESSL_API CertificateOID certificateOIDS[];
-    extern const ICESSL_API int certificateOIDSSize;
+    extern const ICE_API CertificateOID certificateOIDS[];
+    extern const ICE_API int certificateOIDSSize;
 
     //
     // Certificate common implementation
     //
-    class ICESSL_API CertificateI : public virtual IceSSL::Certificate
+    class ICE_API CertificateI : public virtual IceSSL::Certificate
     {
     public:
         virtual bool operator!=(const IceSSL::Certificate&) const;

@@ -71,6 +71,9 @@
     <Filter Include="Header Files\x64\Release">
       <UniqueIdentifier>{efb1387e-a41e-4b1e-958c-88d9bb342a60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\IceSSL">
+      <UniqueIdentifier>{9e29ae46-f871-4a8f-aeee-60426e193a89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\Ice.rc">
@@ -575,6 +578,45 @@
     </ClCompile>
     <ClCompile Include="..\..\MarshaledResult.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\RFC2253.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SChannelCertificateI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SChannelEngine.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SChannelPluginI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SChannelTransceiverI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLEngine.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\TrustManager.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLAcceptorI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\CertificateI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLConnectorI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLEndpointI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLInstance.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\SSLUtil.cpp">
+      <Filter>Source Files\IceSSL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
