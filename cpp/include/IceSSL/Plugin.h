@@ -524,20 +524,6 @@ namespace IceSSL
         virtual ~Plugin();
 
         /**
-         * Establish the certificate verifier object. This should be done
-         * before any connections are established.
-         * @param v The verifier.
-         */
-        virtual void setCertificateVerifier(std::function<bool(const ConnectionInfoPtr&)> v) = 0;
-
-        /**
-         * Establish the password prompt object. This must be done before
-         * the plug-in is initialized.
-         * @param p The password prompt.
-         */
-        virtual void setPasswordPrompt(std::function<std::string()> p) = 0;
-
-        /**
          * Load the certificate from a file. The certificate must use the
          * PEM encoding format.
          * @param file The certificate file.

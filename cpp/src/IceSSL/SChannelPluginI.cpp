@@ -21,11 +21,8 @@ namespace
         virtual IceSSL::CertificatePtr decode(const std::string&) const;
     };
 
-} // anonymous namespace end
+}
 
-//
-// Plugin implementation.
-//
 PluginI::PluginI(const Ice::CommunicatorPtr& com) : IceSSL::PluginI(com, make_shared<IceSSL::SChannel::SSLEngine>(com))
 {
 }

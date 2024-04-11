@@ -37,19 +37,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-namespace
-{
-    mutex staticMutex;
-    int instanceCount = 0;
-    bool initOpenSSL = false;
-}
 extern "C"
 {
-    int IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
+    int IceSSL_opensslPasswordCallback(char* buf, int size, int /*flag*/, void* userData)
     {
         OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
         assert(p);
-        string passwd = p->password(flag == 1);
+        string passwd = p->password();
         int sz = static_cast<int>(passwd.size());
         if (sz > size)
         {
@@ -69,15 +63,6 @@ extern "C"
 
         return sz;
     }
-
-#ifndef OPENSSL_NO_DH
-    DH* IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
-    {
-        SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
-        OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(SSL_CTX_get_ex_data(ctx, 0));
-        return p->dhParams(keyLength);
-    }
-#endif
 }
 
 namespace
@@ -91,129 +76,9 @@ namespace
     }
 }
 
-OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSLEngine(communicator), _ctx(0)
-{
-    //
-    // Initialize OpenSSL if necessary.
-    //
-    lock_guard lock(staticMutex);
-    instanceCount++;
+OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSLEngine(communicator), _ctx(0) {}
 
-    if (instanceCount == 1)
-    {
-        PropertiesPtr properties = communicator->getProperties();
-
-        //
-        // The IceSSL.InitOpenSSL property specifies whether we should perform the global
-        // startup (and shutdown) tasks for the OpenSSL library.
-        //
-        // If an application uses multiple components that each depend on OpenSSL, the
-        // application should disable OpenSSL initialization in those components and
-        // perform the initialization itself.
-        //
-        initOpenSSL = properties->getPropertyAsIntWithDefault("IceSSL.InitOpenSSL", 1) > 0;
-        if (initOpenSSL)
-        {
-            //
-            // Initialize the PRNG.
-            //
-            char randFile[1024];
-            if (RAND_file_name(randFile, sizeof(randFile))) // Gets the name of a default seed file.
-            {
-                RAND_load_file(randFile, 1024);
-            }
-
-            string randFiles = properties->getProperty("IceSSL.Random");
-
-            if (!randFiles.empty())
-            {
-                vector<string> files;
-                const string defaultDir = properties->getProperty("IceSSL.DefaultDir");
-
-                if (!IceUtilInternal::splitString(randFiles, IceUtilInternal::pathsep, files))
-                {
-                    cleanup();
-                    throw PluginInitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: invalid value for IceSSL.Random:\n" + randFiles);
-                }
-                for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
-                {
-                    string file = *p;
-                    string resolved;
-                    if (!checkPath(file, defaultDir, false, resolved))
-                    {
-                        cleanup();
-                        throw PluginInitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: entropy data file not found:\n" + file);
-                    }
-                    if (!RAND_load_file(resolved.c_str(), 1024))
-                    {
-                        cleanup();
-                        throw PluginInitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: unable to load entropy data from " + resolved);
-                    }
-                }
-            }
-#if !defined(_WIN32) && !defined(OPENSSL_NO_EGD)
-            //
-            // The Entropy Gathering Daemon (EGD) is not available on Windows.
-            // The file should be a Unix domain socket for the daemon.
-            //
-            string entropyDaemon = properties->getProperty("IceSSL.EntropyDaemon");
-            if (!entropyDaemon.empty())
-            {
-                if (RAND_egd(entropyDaemon.c_str()) <= 0)
-                {
-                    cleanup();
-                    throw PluginInitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: EGD failure using file " + entropyDaemon);
-                }
-            }
-#endif
-            if (!RAND_status())
-            {
-                getLogger()->warning("IceSSL: insufficient data to initialize PRNG");
-            }
-        }
-        else
-        {
-            if (!properties->getProperty("IceSSL.Random").empty())
-            {
-                getLogger()->warning("IceSSL: ignoring IceSSL.Random because OpenSSL initialization is disabled");
-            }
-#ifndef _WIN32
-            else if (!properties->getProperty("IceSSL.EntropyDaemon").empty())
-            {
-                getLogger()->warning(
-                    "IceSSL: ignoring IceSSL.EntropyDaemon because OpenSSL initialization is disabled");
-            }
-#endif
-        }
-    }
-}
-
-void
-OpenSSL::SSLEngine::cleanup()
-{
-    //
-    // Must be called with the static mutex locked.
-    //
-    --instanceCount;
-}
-
-OpenSSL::SSLEngine::~SSLEngine()
-{
-    lock_guard lock(staticMutex);
-    cleanup();
-}
+OpenSSL::SSLEngine::~SSLEngine() {}
 
 void
 OpenSSL::SSLEngine::initialize()
@@ -231,32 +96,10 @@ OpenSSL::SSLEngine::initialize()
         const string propPrefix = "IceSSL.";
         PropertiesPtr properties = communicator()->getProperties();
 
-        //
-        // Protocols selects which protocols to enable, by default we only enable TLS1.0
-        // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
-        //
-        vector<string> defaultProtocols;
-#if defined(TLS1_VERSION) && !defined(OPENSSL_NO_TLS1_METHOD)
-        defaultProtocols.push_back("tls1_0");
-#endif
-
-#if defined(TLS1_1_VERSION) && !defined(OPENSSL_NO_TLS1_1_METHOD)
-        defaultProtocols.push_back("tls1_1");
-#endif
-
-#if defined(TLS1_2_VERSION) && !defined(OPENSSL_NO_TLS1_2_METHOD)
-        defaultProtocols.push_back("tls1_2");
-#endif
-
-#if defined(TLS1_3_VERSION) && !defined(OPENSSL_NO_TLS1_3_METHOD)
-        defaultProtocols.push_back("tls1_3");
-#endif
-        //
         // Create an SSL context if the application hasn't supplied one.
-        //
         if (!_ctx)
         {
-            _ctx = SSL_CTX_new(getMethod());
+            _ctx = SSL_CTX_new(TLS_method());
             if (!_ctx)
             {
                 throw PluginInitializationException(
@@ -278,38 +121,17 @@ OpenSSL::SSLEngine::initialize()
                 }
             }
 
-            //
-            // Check for a default directory. We look in this directory for
-            // files mentioned in the configuration.
-            //
+            // Check for a default directory. We look in this directory for files mentioned in the configuration.
             const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
 
-            //
-            // If the configuration defines a password, or the application has supplied
-            // a password prompt object, then register a password callback. Otherwise,
-            // let OpenSSL use its default behavior.
-            //
-            {
-                // TODO: Support quoted value?
-                string password = properties->getProperty(propPrefix + "Password");
-                if (!password.empty() || getPasswordPrompt())
-                {
-                    SSL_CTX_set_default_passwd_cb(_ctx, IceSSL_opensslPasswordCallback);
-                    SSL_CTX_set_default_passwd_cb_userdata(_ctx, this);
-                    setPassword(password);
-                }
-            }
+            _password = properties->getProperty(propPrefix + "Password");
 
-            int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
-
-            //
             // Establish the location of CA certificates.
-            //
             {
                 string path = properties->getProperty(propPrefix + "CAs");
                 string resolved;
-                const char* file = 0;
-                const char* dir = 0;
+                const char* file = nullptr;
+                const char* dir = nullptr;
                 if (!path.empty())
                 {
                     if (checkPath(path, defaultDir, false, resolved))
@@ -338,22 +160,8 @@ OpenSSL::SSLEngine::initialize()
 
                 if (file || dir)
                 {
-                    //
-                    // The certificate may be stored in an encrypted file, so handle
-                    // password retries.
-                    //
-                    int count = 0;
-                    int success = 0;
-                    while (count < passwordRetryMax)
-                    {
-                        ERR_clear_error();
-                        if ((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) != 0 || !passwordError())
-                        {
-                            break;
-                        }
-                        ++count;
-                    }
-                    if (!success)
+                    // The certificate may be stored in an encrypted file.
+                    if (!SSL_CTX_load_verify_locations(_ctx, file, dir))
                     {
                         string msg = "IceSSL: unable to establish CA certificates";
                         if (passwordError())
@@ -377,10 +185,8 @@ OpenSSL::SSLEngine::initialize()
                 }
             }
 
-            //
-            // Establish the certificate chains and private keys. One RSA certificate and
-            // one DSA certificate are allowed.
-            //
+            // Establish the certificate chains and private keys. One RSA certificate and one DSA certificate are
+            // allowed.
             string certFile = properties->getProperty(propPrefix + "CertFile");
             string keyFile = properties->getProperty(propPrefix + "KeyFile");
             bool keyLoaded = false;
@@ -397,9 +203,8 @@ OpenSSL::SSLEngine::initialize()
                         "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
                 }
                 numCerts = files.size();
-                for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+                for (const string& file : files)
                 {
-                    string file = *p;
                     string resolved;
                     if (!checkPath(file, defaultDir, false, resolved))
                     {
@@ -408,14 +213,10 @@ OpenSSL::SSLEngine::initialize()
                             __LINE__,
                             "IceSSL: certificate file not found:\n" + file);
                     }
-                    file = resolved;
 
-                    //
-                    // First we try to load the certificate using PKCS12 format if that fails
-                    // we fallback to PEM format.
-                    //
+                    // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
                     vector<char> buffer;
-                    readFile(file, buffer);
+                    readFile(resolved, buffer);
                     int success = 0;
 
                     const unsigned char* b =
@@ -423,79 +224,58 @@ OpenSSL::SSLEngine::initialize()
                     PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
                     if (p12)
                     {
-                        EVP_PKEY* key = 0;
-                        X509* cert = 0;
-                        STACK_OF(X509)* chain = 0;
+                        EVP_PKEY* key = nullptr;
+                        X509* cert = nullptr;
+                        STACK_OF(X509)* chain = nullptr;
 
-                        int count = 0;
                         try
                         {
-                            while (count < passwordRetryMax)
+                            success = PKCS12_parse(p12, _password.c_str(), &key, &cert, &chain);
+
+                            if (!cert || !SSL_CTX_use_certificate(_ctx, cert))
                             {
-                                ERR_clear_error();
-                                //
-                                // chain may have a bogus value from a previous call to PKCS12_parse, so we
-                                // reset it prior to each call.
-                                //
-                                key = 0;
-                                cert = 0;
-                                chain = 0;
-                                if ((success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)) == 0)
-                                {
-                                    if (passwordError())
-                                    {
-                                        count++;
-                                        continue;
-                                    }
-                                    break;
-                                }
-
-                                if (!cert || !SSL_CTX_use_certificate(_ctx, cert))
-                                {
-                                    throw PluginInitializationException(
-                                        __FILE__,
-                                        __LINE__,
-                                        "IceSSL: unable to load SSL certificate:\n" +
-                                            (cert ? sslErrors() : "certificate not found"));
-                                }
-
-                                if (!key || !SSL_CTX_use_PrivateKey(_ctx, key))
-                                {
-                                    throw PluginInitializationException(
-                                        __FILE__,
-                                        __LINE__,
-                                        "IceSSL: unable to load SSL private key:\n" +
-                                            (key ? sslErrors() : "key not found"));
-                                }
-                                keyLoaded = true;
-
-                                if (chain && sk_X509_num(chain))
-                                {
-                                    // Pop each cert from the stack so we can free the stack later.
-                                    // The CTX destruction will take care of the certificates
-                                    X509* c = 0;
-                                    while ((c = sk_X509_pop(chain)) != 0)
-                                    {
-                                        if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
-                                        {
-                                            throw PluginInitializationException(
-                                                __FILE__,
-                                                __LINE__,
-                                                "IceSSL: unable to add extra SSL certificate:\n" + sslErrors());
-                                        }
-                                    }
-                                }
-
-                                if (chain)
-                                {
-                                    // This chain should now be empty. No need to call sk_X509_pop_free()
-                                    sk_X509_free(chain);
-                                }
-                                assert(key && cert);
-                                EVP_PKEY_free(key);
-                                X509_free(cert);
-                                break;
+                                throw PluginInitializationException(
+                                    __FILE__,
+                                    __LINE__,
+                                    "IceSSL: unable to load SSL certificate:\n" +
+                                        (cert ? sslErrors() : "certificate not found"));
                             }
+
+                            if (!key || !SSL_CTX_use_PrivateKey(_ctx, key))
+                            {
+                                throw PluginInitializationException(
+                                    __FILE__,
+                                    __LINE__,
+                                    "IceSSL: unable to load SSL private key:\n" +
+                                        (key ? sslErrors() : "key not found"));
+                            }
+                            keyLoaded = true;
+
+                            if (chain && sk_X509_num(chain))
+                            {
+                                // Pop each cert from the stack so we can free the stack later.
+                                // The CTX destruction will take care of the certificates
+                                X509* c = nullptr;
+                                while ((c = sk_X509_pop(chain)) != 0)
+                                {
+                                    if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
+                                    {
+                                        throw PluginInitializationException(
+                                            __FILE__,
+                                            __LINE__,
+                                            "IceSSL: unable to add extra SSL certificate:\n" + sslErrors());
+                                    }
+                                }
+                            }
+
+                            if (chain)
+                            {
+                                // This chain should now be empty. No need to call sk_X509_pop_free()
+                                sk_X509_free(chain);
+                            }
+                            assert(key && cert);
+                            EVP_PKEY_free(key);
+                            X509_free(cert);
                             PKCS12_free(p12);
                         }
                         catch (...)
@@ -520,24 +300,8 @@ OpenSSL::SSLEngine::initialize()
                     }
                     else
                     {
-                        //
-                        // The certificate may be stored in an encrypted file, so handle
-                        // password retries.
-                        //
-                        int count = 0;
-                        while (count < passwordRetryMax)
-                        {
-                            ERR_clear_error();
-                            if ((success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str())) == 0)
-                            {
-                                if (passwordError())
-                                {
-                                    count++;
-                                    continue;
-                                }
-                            }
-                            count++;
-                        }
+                        // The certificate may be stored in an encrypted file.
+                        success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.c_str());
                     }
 
                     if (!success)
@@ -564,6 +328,7 @@ OpenSSL::SSLEngine::initialize()
             {
                 keyFile = certFile; // Assume the certificate file also contains the private key.
             }
+
             if (!keyLoaded && !keyFile.empty())
             {
                 vector<string> files;
@@ -581,46 +346,32 @@ OpenSSL::SSLEngine::initialize()
                         __LINE__,
                         "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile");
                 }
-                for (vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+                for (const auto& file : files)
                 {
-                    string file = *p;
                     string resolved;
                     if (!checkPath(file, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
                     }
-                    file = resolved;
-                    //
-                    // The private key may be stored in an encrypted file, so handle password retries.
-                    //
-                    int count = 0;
-                    int err = 0;
-                    while (count < passwordRetryMax)
+
+                    // The private key may be stored in an encrypted file.
+                    if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
                     {
-                        ERR_clear_error();
-                        err = SSL_CTX_use_PrivateKey_file(_ctx, file.c_str(), SSL_FILETYPE_PEM);
-                        if (err)
-                        {
-                            break;
-                        }
-                        ++count;
-                    }
-                    if (err == 0)
-                    {
-                        string msg = "IceSSL: unable to load private key from file " + file;
+                        ostringstream os;
+                        os << "IceSSL: unable to load private key from file " << file;
                         if (passwordError())
                         {
-                            msg += ":\ninvalid password";
+                            os << ":\ninvalid password";
                         }
                         else
                         {
                             string errStr = sslErrors();
                             if (!errStr.empty())
                             {
-                                msg += ":\n" + errStr;
+                                os << ":\n" << errStr;
                             }
                         }
-                        throw PluginInitializationException(__FILE__, __LINE__, msg);
+                        throw PluginInitializationException(__FILE__, __LINE__, os.str());
                     }
                 }
                 keyLoaded = true;
@@ -632,56 +383,6 @@ OpenSSL::SSLEngine::initialize()
                     __FILE__,
                     __LINE__,
                     "IceSSL: unable to validate private key(s):\n" + sslErrors());
-            }
-
-            //
-            // Diffie Hellman configuration.
-            //
-            {
-#ifndef OPENSSL_NO_DH
-                _dhParams = make_shared<DHParams>();
-                SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
-                SSL_CTX_set_tmp_dh_callback(_ctx, IceSSL_opensslDHCallback);
-#endif
-                //
-                // Properties have the following form:
-                //
-                // ...DH.<keyLength>=file
-                //
-                const string dhPrefix = propPrefix + "DH.";
-                PropertyDict d = properties->getPropertiesForPrefix(dhPrefix);
-                if (!d.empty())
-                {
-#ifdef OPENSSL_NO_DH
-                    getLogger()->warning("IceSSL: OpenSSL is not configured for Diffie Hellman");
-#else
-                    for (PropertyDict::iterator p = d.begin(); p != d.end(); ++p)
-                    {
-                        string s = p->first.substr(dhPrefix.size());
-                        int keyLength = atoi(s.c_str());
-                        if (keyLength > 0)
-                        {
-                            string file = p->second;
-                            string resolved;
-                            if (!checkPath(file, defaultDir, false, resolved))
-                            {
-                                throw PluginInitializationException(
-                                    __FILE__,
-                                    __LINE__,
-                                    "IceSSL: DH parameter file not found:\n" + file);
-                            }
-                            file = resolved;
-                            if (!_dhParams->add(keyLength, file))
-                            {
-                                throw PluginInitializationException(
-                                    __FILE__,
-                                    __LINE__,
-                                    "IceSSL: unable to read DH parameter file " + file);
-                            }
-                        }
-                    }
-#endif
-                }
             }
 
             int revocationCheck = getRevocationCheck();
@@ -711,23 +412,23 @@ OpenSSL::SSLEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
                 }
 
-                for (vector<string>::const_iterator it = crlFiles.begin(); it != crlFiles.end(); it++)
+                for (const string& crlFile : crlFiles)
                 {
-                    string file;
-                    if (!checkPath(*it, defaultDir, false, file))
+                    string resolved;
+                    if (!checkPath(crlFile, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: CRL file not found `" + *it + "'");
+                            "IceSSL: CRL file not found `" + crlFile + "'");
                     }
 
-                    if (X509_LOOKUP_load_file(lookup, file.c_str(), X509_FILETYPE_PEM) == 0)
+                    if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
                     {
                         throw PluginInitializationException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: CRL load failure `" + *it + "'");
+                            "IceSSL: CRL load failure `" + crlFile + "'");
                     }
                 }
 
@@ -805,7 +506,7 @@ OpenSSL::SSLEngine::initialize()
         // or the application supplied it.
         //
         SSL_CTX_free(_ctx);
-        _ctx = 0;
+        _ctx = nullptr;
         throw;
     }
 
@@ -842,7 +543,7 @@ OpenSSL::SSLEngine::destroy()
     if (_ctx)
     {
         SSL_CTX_free(_ctx);
-        _ctx = 0;
+        _ctx = nullptr;
     }
 }
 
@@ -854,19 +555,4 @@ OpenSSL::SSLEngine::createTransceiver(
     bool incoming)
 {
     return make_shared<OpenSSL::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
-}
-
-#ifndef OPENSSL_NO_DH
-DH*
-OpenSSL::SSLEngine::dhParams(int keyLength)
-{
-    return _dhParams->get(keyLength);
-}
-#endif
-
-SSL_METHOD*
-OpenSSL::SSLEngine::getMethod()
-{
-    SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
-    return meth;
 }

@@ -559,23 +559,15 @@ generated from the section label.
     <section name="IceSSL">
         <property name="Alias" />
         <property name="CAs"/>
-        <property name="CertAuthDir" deprecatedBy="IceSSL.CAs"/>
-        <property name="CertAuthFile" deprecatedBy="IceSSL.CAs"/>
         <property name="CertStore" />
         <property name="CertStoreLocation" />
         <property name="CertFile" />
-        <property name="CertVerifier" />
         <property name="CheckCertName" />
         <property name="CheckCRL" />
         <property name="Ciphers" />
         <property name="CertificateRevocationListFiles" />
         <property name="DefaultDir" />
-        <property name="DH.[any]" />
-        <property name="DHParams" />
-        <property name="EntropyDaemon" />
         <property name="FindCert" />
-        <property name="FindCert.[any]" deprecated="true"/>
-        <property name="InitOpenSSL" />
         <property name="KeyFile"/>
         <property name="Keychain"/>
         <property name="KeychainPassword"/>
@@ -583,9 +575,6 @@ generated from the section label.
         <property name="KeystorePassword" />
         <property name="KeystoreType" />
         <property name="Password" />
-        <property name="PasswordCallback" />
-        <property name="PasswordRetryMax" />
-        <property name="Random" />
         <property name="RevocationCheck" />
         <property name="RevocationCheckCacheOnly" />
         <property name="SchannelStrongCrypto" />
@@ -598,7 +587,6 @@ generated from the section label.
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
         <property name="UsePlatformCAs" />
-        <property name="VerifyDepthMax" />
         <property name="VerifyPeer" />
     </section>
 

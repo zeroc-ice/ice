@@ -11,18 +11,18 @@
 namespace Ice
 {
     /** Encapsulates bytes in the UTF-8 encoding. */
-    typedef IceUtil::UTF8Buffer UTF8Buffer;
+    using UTF8Buffer = IceUtil::UTF8Buffer;
 
     /** Narrow string converter. */
-    typedef IceUtil::StringConverter StringConverter;
-    typedef IceUtil::StringConverterPtr StringConverterPtr;
+    using StringConverter = IceUtil::StringConverter;
+    using StringConverterPtr = IceUtil::StringConverterPtr;
 
     /** Wide string converter. */
-    typedef IceUtil::WstringConverter WstringConverter;
-    typedef IceUtil::WstringConverterPtr WstringConverterPtr;
+    using WstringConverter = IceUtil::WstringConverter;
+    using WstringConverterPtr = IceUtil::WstringConverterPtr;
 
     /** Indicates an error occurred during string conversion. */
-    typedef IceUtil::IllegalConversionException IllegalConversionException;
+    using IllegalConversionException = IceUtil::IllegalConversionException;
 
     /** Base class for a string converter. */
     template<typename charT> using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
