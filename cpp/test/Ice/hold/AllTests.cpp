@@ -198,8 +198,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing hold with idle timeout... " << flush;
     ConnectionPtr connection = hold->ice_getCachedConnection();
-    hold->putOnHold(2000); // despite the name, this reactivates the adapter in about 1.5s
-    hold->putOnHold(-1); // immediate hold
+    hold->putOnHold(2000); // despite the name, this reactivates the adapter in about 2s
+    hold->putOnHold(-1);   // immediate hold
     this_thread::sleep_for(chrono::milliseconds(2000));
     hold->ice_ping(); // goes through when the first putOnHold reactivates the adapter
     test(connection == hold->ice_getCachedConnection());
