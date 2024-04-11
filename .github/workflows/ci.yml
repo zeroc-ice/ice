@@ -35,7 +35,7 @@ jobs:
           - os: macos-14
             language: cpp
             name: "xcodesdk"
-            make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
+            make_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
             test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
 
           - os: ubuntu-latest
