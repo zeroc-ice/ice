@@ -1389,14 +1389,11 @@ Selector::select(int timeout)
         {
             if (timeout > 0)
             {
-                if (_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
-                {
-                    throw SelectorTimeoutException();
-                }
-                else
+                if (_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
                 {
                     break;
                 }
+                throw SelectorTimeoutException();
             }
             else
             {
