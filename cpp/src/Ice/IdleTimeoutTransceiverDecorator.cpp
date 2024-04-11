@@ -127,7 +127,7 @@ bool
 IdleTimeoutTransceiverDecorator::startWrite(Buffer& buf)
 {
     // startWrite is called right after write returns SocketOperationWrite. The logic in write is sufficient.
-    return _timer->cancel(_heartbeatTimerTask);
+    return _decoratee->startWrite(buf);
 }
 
 void
