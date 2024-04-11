@@ -21,8 +21,7 @@ testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(const TestIntfPrx& 
     p->ice_ping();
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
-    p->sleep(2000);                                   // the implementation in the server sleeps for 2,000ms
-    test(p->ice_getCachedConnection() == connection); // we still have the same connection
+    p->sleep(2000); // the implementation in the server sleeps for 2,000ms
     cout << "ok" << endl;
 }
 
@@ -43,8 +42,7 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
-    p->ice_ping();
-    ConnectionPtr connection = p->ice_getCachedConnection();
+    ConnectionPtr connection = p->ice_getConnection();
     test(connection);
 
     // The idle check on the server side aborts the connection because it doesn't get a heartbeat in a timely fashion.

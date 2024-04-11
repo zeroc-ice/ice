@@ -2547,7 +2547,7 @@ Ice::ConnectionI::idleCheck(
         {
             // Schedule or reschedule timer task. Reschedule in the rare case where a concurrent read scheduled the task
             // already.
-            _timer->schedule(idleCheckTimerTask, idleTimeout, true);
+            _timer->reschedule(idleCheckTimerTask, idleTimeout);
         }
         else
         {
@@ -2562,11 +2562,11 @@ void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
     lock_guard lock(_mutex);
-    if (_state != StateActive)
+    if (_state == StateActive)
     {
-        return;
+       sendHeartbeatNow();
     }
-    sendHeartbeatNow();
+    // else nothing to do
 }
 
 void
