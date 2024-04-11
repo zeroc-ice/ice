@@ -2578,7 +2578,7 @@ void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
     lock_guard lock(_mutex);
-    if (_state == StateActive)
+    if (_state == StateActive || _state == StateHolding)
     {
         sendHeartbeatNow();
     }
@@ -2588,7 +2588,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
 void
 Ice::ConnectionI::sendHeartbeatNow()
 {
-    assert(_state == StateActive);
+    assert(_state == StateActive || _state == StateHolding);
 
     if (!_endpoint->datagram())
     {
