@@ -2564,7 +2564,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
     lock_guard lock(_mutex);
     if (_state == StateActive)
     {
-       sendHeartbeatNow();
+        sendHeartbeatNow();
     }
     // else nothing to do
 }

@@ -340,15 +340,9 @@ bool
 StreamSocket::isWaitingToBeRead() const noexcept
 {
 #if defined(ICE_USE_IOCP)
-    if (hasBytesAvailable(_fd))
-    {
-        return true;
-    }
-    else
-    {
-        // Check if the event on the _read overlapped structure is signaled.
-        return WaitForSingleObject(_read.hEvent, 0) == WAIT_OBJECT_0; // 0ms means don't wait
-    }
+    // Check if the event on the _read overlapped structure is signaled.
+    return WaitForSingleObject(_read.hEvent, 0) == WAIT_OBJECT_0 // 0ms means don't wait
+           || hasBytesAvailable(_fd);                            // needed for ws
 #else
     return hasBytesAvailable(_fd);
 #endif

@@ -46,8 +46,7 @@ namespace IceUtil
 
         // Schedule task for execution after a given delay.
         template<class Rep, class Period>
-        void
-        schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
+        void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
         {
             std::lock_guard lock(_mutex);
             if (_destroyed)
@@ -83,8 +82,7 @@ namespace IceUtil
         // Reschedule a task for execution after a given delay. This function also succeeds if the task was not
         // previously scheduled.
         template<class Rep, class Period>
-        void
-        reschedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
+        void reschedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
         {
             std::lock_guard lock(_mutex);
             if (_destroyed)
