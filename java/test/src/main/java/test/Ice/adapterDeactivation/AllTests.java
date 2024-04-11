@@ -200,6 +200,21 @@ public class AllTests {
       out.flush();
     }
 
+    out.print("testing server idle time...");
+    out.flush();
+    {
+      com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+      initData.properties = communicator.getProperties()._clone();
+      initData.properties.setProperty("Ice.ServerIdleTime", "1");
+      try (com.zeroc.Ice.Communicator idleCommunicator = com.zeroc.Ice.Util.initialize(initData)) {
+        com.zeroc.Ice.ObjectAdapter adapter =
+            idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+        adapter.activate();
+        idleCommunicator.waitForShutdown();
+      }
+    }
+    out.println("ok");
+
     return obj;
   }
 }

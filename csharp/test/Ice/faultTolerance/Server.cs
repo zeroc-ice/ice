@@ -13,7 +13,6 @@ public class Server : Test.TestHelper
     public override void run(string[] args)
     {
         Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.ServerIdleTime", "120");
         int port = 0;
         for (int i = 0; i < args.Length; i++)
         {

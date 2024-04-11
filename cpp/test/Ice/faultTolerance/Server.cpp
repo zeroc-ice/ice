@@ -19,15 +19,7 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    //
-    // In this test, we need a longer server idle time, otherwise
-    // our test servers may time out before they are used in the
-    // test.
-    //
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
-
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
     int port = 0;
     for (int i = 1; i < argc; ++i)
