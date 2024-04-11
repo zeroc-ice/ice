@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceSSL/Config.h"
+#include "Ice/Config.h"
 
 #include "SecureTransportEngine.h"
 #include "SecureTransportEngineF.h"

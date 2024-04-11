@@ -3,9 +3,9 @@
 //
 
 #include "PluginI.h"
-#include "EndpointI.h"
-#include "Instance.h"
+#include "SSLEndpointI.h"
 #include "SSLEngine.h"
+#include "SSLInstance.h"
 
 #include "../Ice/ProtocolInstance.h"
 #include "../Ice/ProtocolPluginFacade.h"

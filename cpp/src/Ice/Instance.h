@@ -33,6 +33,8 @@
 
 #include "Protocol.h"
 
+#include "../IceSSL/SSLEngineF.h"
+
 #include <list>
 
 namespace Ice
@@ -72,7 +74,7 @@ namespace IceInternal
     class Instance : public std::enable_shared_from_this<Instance>
     {
     public:
-        static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+        static InstancePtr create(const Ice::InitializationData&);
         virtual ~Instance();
         bool destroyed() const;
         const Ice::InitializationData& initializationData() const { return _initData; }
@@ -124,6 +126,8 @@ namespace IceInternal
         BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
         void setSndBufSizeWarn(std::int16_t type, int size);
         void setRcvBufSizeWarn(std::int16_t type, int size);
+
+        IceSSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
 
     private:
         Instance(const Ice::InitializationData&);
@@ -199,6 +203,7 @@ namespace IceInternal
         ImplicitContextKind _implicitContextKind;
         // Only set when _implicitContextKind == Shared.
         Ice::ImplicitContextPtr _sharedImplicitContext;
+        IceSSL::SSLEnginePtr _sslEngine;
     };
 
     class ProcessI : public Ice::Process

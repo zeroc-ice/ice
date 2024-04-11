@@ -25,7 +25,6 @@ $(eval $(call validate-config))
 #
 coreandstub_components  = IceUtil \
                           Ice \
-                          IceSSL \
                           IceDiscovery \
                           IceLocatorDiscovery \
                           Glacier2 \
@@ -100,10 +99,9 @@ $1_dependencies         := $$(or $$($1_dependencies),TestCommon Ice)
 
 # Also link with IceSSL and IceBT (Debian/Ubuntu/Yocto) when compiling the project with the static configuration
 $1[static]_cppflags     += $(if $(IceBT_system_libs),-DICE_HAS_BT)
-$1[static]_dependencies := IceSSL $(if $(IceBT_system_libs),IceBT)
+$1[static]_dependencies := $(if $(IceBT_system_libs),IceBT)
 
 # Dependencies and target dirs for Xcode SDK test projects
-$1[xcodesdk]_dependencies                       := IceSSL
 $1[iphoneos-xcodesdk]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
 $1[iphonesimulator-xcodesdk]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
 

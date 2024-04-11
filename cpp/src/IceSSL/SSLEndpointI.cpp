@@ -4,6 +4,7 @@
 
 #include "SSLEndpointI.h"
 #include "../Ice/DefaultsAndOverrides.h"
+#include "../Ice/EndpointFactoryManager.h"
 #include "../Ice/HashUtil.h"
 #include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
@@ -17,6 +18,29 @@
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
+
+extern "C"
+{
+    Plugin* createIceSSL(const CommunicatorPtr& communicator, const string&, const StringSeq&)
+    {
+        IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+        IceSSL::SSLEnginePtr engine = instance->sslEngine();
+        IceInternal::EndpointFactoryManagerPtr endpointFactoryManager = instance->endpointFactoryManager();
+        IceSSL::InstancePtr sslInstance = make_shared<IceSSL::Instance>(engine, SSLEndpointType, "ssl");
+
+        return new IceInternal::EndpointFactoryPlugin(
+            communicator,
+            make_shared<IceSSL::EndpointFactoryI>(sslInstance, TCPEndpointType));
+    }
+}
+
+namespace Ice
+{
+    ICE_API void registerIceSSL(bool loadOnInitialize)
+    {
+        Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
+    }
+}
 
 namespace
 {

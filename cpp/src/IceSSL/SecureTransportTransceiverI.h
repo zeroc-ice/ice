@@ -7,9 +7,9 @@
 
 #ifdef __APPLE__
 
-#    include "IceSSL/Config.h"
+#    include "Ice/Config.h"
 #    include "IceSSL/Plugin.h"
-#    include "InstanceF.h"
+#    include "SSLInstanceF.h"
 #    include "SecureTransportEngineF.h"
 
 #    include "../Ice/Network.h"

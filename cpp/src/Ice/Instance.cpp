@@ -45,9 +45,19 @@
 #include "CheckIdentity.h"
 #include "Ice/ProxyFunctions.h"
 
+#include "../IceSSL/SSLEngine.h"
+
 #include <list>
 #include <mutex>
 #include <stdio.h>
+
+#if defined(_WIN32)
+#    include "../IceSSL/SChannelTransportEngine.h"
+#elif defined(__APPLE__)
+#    include "../IceSSL/SecureTransportEngine.h"
+#else
+#    include "../IceSSL/OpenSSLTransportEngine.h"
+#endif
 
 #ifdef __APPLE__
 #    include "OSLogLoggerI.h"
@@ -873,11 +883,9 @@ namespace
 }
 
 InstancePtr
-IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
+IceInternal::Instance::create(const Ice::InitializationData& initData)
 {
-    auto instance = shared_ptr<Instance>(new Instance(initData));
-    instance->initialize(communicator);
-    return instance;
+    return shared_ptr<Instance>(new Instance(initData));
 }
 
 IceInternal::Instance::Instance(const InitializationData& initData)
@@ -1263,6 +1271,16 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 _retryIntervals.push_back(v > 0 ? v : 0);
             }
         }
+
+#if defined(_WIN32)
+        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(communicator);
+#elif defined(__APPLE__)
+        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(communicator);
+#else
+        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(communicator);
+#endif
+
+        _sslEngine->initialize();
     }
     catch (...)
     {

@@ -11,6 +11,12 @@ Ice_ldflags             = $(iconv_ldflags)
 Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
+
+ifeq ($(os),Darwin)
+Ice_extra_sources       += $(filter-out src/IceSSL/OpenSSL%.cpp src/IceSSL/SChannel%.cpp, $(wildcard src/IceSSL/*.cpp))
+else
+Ice_extra_sources       += $(filter-out src/IceSSL/SecureTransport%.cpp src/IceSSL/SChannel%.cpp, $(wildcard src/IceSSL/*.cpp))
+endif
 Ice_excludes            = src/Ice/DLLMain.cpp
 
 ifeq ($(os),Linux)
