@@ -472,14 +472,9 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 bool
 IceInternal::UdpTransceiver::isWaitingToBeRead() const noexcept
 {
-    if (_incoming)
-    {
-        return hasBytesAvailable(_fd);
-    }
-    else
-    {
-        return false;
-    }
+    // isWaitingToBeRead is used only by the idle check, and the idle check is not used for UDP.
+    assert(false);
+    return false;
 }
 
 string

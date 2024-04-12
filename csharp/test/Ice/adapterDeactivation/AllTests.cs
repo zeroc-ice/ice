@@ -197,6 +197,23 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
+                output.Write("testing server idle time...");
+                output.Flush();
+                {
+                    Ice.InitializationData initData = new Ice.InitializationData()
+                    {
+                        properties = communicator.getProperties().ice_clone_(),
+                    };
+                    initData.properties.setProperty("Ice.ServerIdleTime", "1");
+                    // The thread pool threads have to be idle first before server idle time is checked.
+                    initData.properties.setProperty("Ice.ThreadPool.Server.ThreadIdleTime", "1");
+                    using Ice.Communicator idleCommunicator = Ice.Util.initialize(initData);
+                    ObjectAdapter idleOA = idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1 ");
+                    idleOA.activate();
+                    idleCommunicator.waitForShutdown();
+                }
+                output.WriteLine("ok");
+
                 return obj;
             }
         }

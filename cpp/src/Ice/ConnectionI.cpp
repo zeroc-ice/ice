@@ -2100,7 +2100,7 @@ Ice::ConnectionI::ConnectionI(
     const chrono::seconds& inactivityTimeout,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter)
+    const shared_ptr<ObjectAdapterI>& adapter) noexcept
     : _communicator(communicator),
       _instance(instance),
       _monitor(monitor),
@@ -2620,7 +2620,7 @@ Ice::ConnectionI::sendHeartbeatNow()
             OutgoingMessage message(&os, false);
             sendMessage(message);
         }
-        catch (...)
+        catch (const LocalException&)
         {
             setState(StateClosed, current_exception());
             assert(_exception);

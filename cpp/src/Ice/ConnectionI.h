@@ -241,7 +241,7 @@ namespace Ice
             const std::chrono::seconds& inactivityTimeout,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
-            const std::shared_ptr<ObjectAdapterI>&);
+            const std::shared_ptr<ObjectAdapterI>&) noexcept;
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,
