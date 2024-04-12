@@ -163,6 +163,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\IceSSL\PluginI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SSLAcceptorI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\CertificateI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SSLConnectorI.cpp" />

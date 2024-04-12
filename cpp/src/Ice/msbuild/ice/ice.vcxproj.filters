@@ -618,6 +618,9 @@
     <ClCompile Include="..\..\..\IceSSL\SSLUtil.cpp">
       <Filter>Source Files\IceSSL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IceSSL\PluginI.cpp">
+      <Filter>Source Files\IceSSL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
