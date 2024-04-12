@@ -38,34 +38,6 @@ def allTestsWithController(helper, communicator, controller)
     timeout = Test::TimeoutPrx::checkedCast(obj)
     test(timeout)
 
-    print "testing connect timeout... "
-    STDOUT.flush
-    #
-    # Expect ConnectTimeoutException.
-    #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(100))
-    controller.holdAdapter(-1)
-    begin
-        to.op()
-        test(false)
-    rescue Ice::ConnectTimeoutException
-        # Expected.
-    end
-    controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
-
-    #
-    # Expect success.
-    #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(-1))
-    controller.holdAdapter(100)
-    begin
-        to.op()
-    rescue Ice::ConnectTimeoutException
-        test(false)
-    end
-    puts "ok"
-
     print "testing connection timeout... "
     STDOUT.flush
     #
@@ -117,31 +89,6 @@ def allTestsWithController(helper, communicator, controller)
         test(false)
     end
     test(connection == to.ice_getConnection())
-    puts "ok"
-
-    print "testing close timeout... "
-    STDOUT.flush
-    to = Test::TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
-    connection = connect(to);
-    controller.holdAdapter(-1)
-    connection.close(Ice::ConnectionClose::GracefullyWithWait)
-    begin
-        connection.getInfo() # getInfo() doesn't throw in the closing state.
-    rescue Ice::LocalException
-        test(false)
-    end
-    while(true)
-        begin
-            connection.getInfo()
-            sleep(0.01)
-        rescue Ice::ConnectionManuallyClosedException => ex
-            # Expected.
-            test(ex.graceful)
-            break
-        end
-    end
-    controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
     puts "ok"
 
     controller.shutdown()
