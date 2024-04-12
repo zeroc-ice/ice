@@ -3,6 +3,7 @@
 //
 
 #include "Instance.h"
+#include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
@@ -16,7 +17,12 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
+#include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/UUID.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"
@@ -36,12 +42,6 @@
 #include "TraceLevels.h"
 #include "ValueFactoryManagerI.h"
 #include "WSEndpoint.h"
-#include "Ice/UUID.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-#include "CheckIdentity.h"
-#include "Ice/ProxyFunctions.h"
 
 #include <list>
 #include <mutex>

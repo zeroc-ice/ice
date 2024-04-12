@@ -1731,7 +1731,6 @@ IceInternal::IncomingConnectionFactory::initialize()
         }
         else
         {
-
 #if TARGET_OS_IPHONE != 0
             //
             // The notification center will call back on the factory to
