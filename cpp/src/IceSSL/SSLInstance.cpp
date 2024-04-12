@@ -14,9 +14,3 @@ IceSSL::Instance::Instance(const SSLEnginePtr& engine, int16_t type, const strin
       _engine(engine)
 {
 }
-
-bool
-IceSSL::Instance::initialized() const
-{
-    return _engine->initialized();
-}

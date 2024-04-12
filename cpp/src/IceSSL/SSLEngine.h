@@ -32,8 +32,6 @@ namespace IceSSL
         // Setup the engine.
         virtual void initialize() = 0;
 
-        virtual bool initialized() const;
-
         // Destroy the engine.
         virtual void destroy() = 0;
 
@@ -54,7 +52,6 @@ namespace IceSSL
         std::string securityTraceCategory() const;
 
     protected:
-        bool _initialized;
         mutable std::mutex _mutex;
 
     private:

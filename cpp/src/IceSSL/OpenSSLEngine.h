@@ -25,7 +25,6 @@ namespace IceSSL::OpenSSL
         createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
             final;
         SSL_CTX* context() const;
-        void context(SSL_CTX*);
         std::string sslErrors() const;
         std::string password() const { return _password; }
 

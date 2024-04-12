@@ -106,7 +106,6 @@ namespace IceSSL
      * The key usage "decipherOnly" bit is set
      */
     const unsigned int KEY_USAGE_DECIPHER_ONLY = 1u << 8;
-
     /**
      * The extended key usage "anyKeyUsage" bit is set
      */

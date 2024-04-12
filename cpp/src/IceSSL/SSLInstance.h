@@ -18,8 +18,6 @@ namespace IceSSL
 
         SSLEnginePtr engine() const { return _engine; }
 
-        bool initialized() const;
-
     private:
         const SSLEnginePtr _engine;
     };

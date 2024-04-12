@@ -81,11 +81,6 @@ void
 OpenSSL::SSLEngine::initialize()
 {
     lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     try
     {
         IceSSL::SSLEngine::initialize();
@@ -506,20 +501,6 @@ OpenSSL::SSLEngine::initialize()
         _ctx = nullptr;
         throw;
     }
-
-    _initialized = true;
-}
-
-void
-OpenSSL::SSLEngine::context(SSL_CTX* context)
-{
-    if (initialized())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is already initialized");
-    }
-
-    assert(!_ctx);
-    _ctx = context;
 }
 
 SSL_CTX*

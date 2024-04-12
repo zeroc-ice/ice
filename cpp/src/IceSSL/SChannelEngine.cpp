@@ -15,6 +15,7 @@
 
 #include <wincrypt.h>
 
+#include <iostream>
 #include <mutex>
 
 //
@@ -555,16 +556,6 @@ SChannel::SSLEngine::initialize()
     //
     lock_guard globalLock(globalMutex);
 
-    //
-    // We still have to acquire the instance mutex because it is used by the base
-    // class to access _initialized data member.
-    //
-    lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     IceSSL::SSLEngine::initialize();
 
     const string prefix = "IceSSL.";
@@ -1015,7 +1006,6 @@ SChannel::SSLEngine::initialize()
         }
         _allCerts.insert(_allCerts.end(), certs.begin(), certs.end());
     }
-    _initialized = true;
 }
 
 string

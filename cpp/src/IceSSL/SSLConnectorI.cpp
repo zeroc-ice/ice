@@ -21,14 +21,6 @@ using namespace IceSSL;
 IceInternal::TransceiverPtr
 IceSSL::ConnectorI::connect()
 {
-    //
-    // The plug-in may not be initialized.
-    //
-    if (!_instance->initialized())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
-    }
-
     return _instance->engine()->createTransceiver(_instance, _delegate->connect(), _host, false);
 }
 

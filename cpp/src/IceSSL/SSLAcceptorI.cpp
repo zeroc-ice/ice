@@ -59,14 +59,6 @@ IceSSL::AcceptorI::finishAccept()
 IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
-    //
-    // The plug-in may not be initialized.
-    //
-    if (!_instance->initialized())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
-    }
-
     return _instance->engine()->createTransceiver(_instance, _delegate->accept(), _adapterName, true);
 }
 

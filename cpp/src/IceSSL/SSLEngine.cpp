@@ -40,13 +40,6 @@ IceSSL::SSLEngine::getProperties() const
     return _instance->initializationData().properties;
 }
 
-bool
-IceSSL::SSLEngine::initialized() const
-{
-    lock_guard lock(_mutex);
-    return _initialized;
-}
-
 void
 IceSSL::SSLEngine::initialize()
 {

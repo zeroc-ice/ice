@@ -748,12 +748,6 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& in
 void
 IceSSL::SecureTransport::SSLEngine::initialize()
 {
-    lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     IceSSL::SSLEngine::initialize();
 
     const PropertiesPtr properties = getProperties();
@@ -910,7 +904,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
         }
         getLogger()->trace(securityTraceCategory(), os.str());
     }
-    _initialized = true;
 }
 
 //
