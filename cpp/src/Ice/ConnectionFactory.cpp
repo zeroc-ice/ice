@@ -34,7 +34,6 @@ namespace IceInternal
 #endif
 
 using namespace std;
-using namespace std::literals::chrono_literals;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
