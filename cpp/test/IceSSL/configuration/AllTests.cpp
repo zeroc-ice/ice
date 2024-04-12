@@ -12,6 +12,7 @@
 #include <chrono>
 #include <fstream>
 #include <thread>
+#include <vector>
 
 #include "Ice/UniqueRef.h"
 
@@ -31,6 +32,8 @@
 #    endif
 #elif defined(_WIN32)
 #    define ICE_USE_SCHANNEL 1
+#    include <windows.h>
+#    include <wincrypt.h>
 #else
 #    define ICE_USE_OPENSSL 1
 #endif
